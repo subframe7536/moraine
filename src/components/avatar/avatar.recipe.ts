@@ -4,7 +4,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { AvatarStyleSlot, AvatarStyleVariants } from './avatar.style-types'
 
-export const AVATAR_BADGE_ICON_CLASS = 'text-[0.75em]'
+/** Badge icon fills two thirds of the badge, so it follows the badge size at every avatar size. */
+export const AVATAR_BADGE_ICON_CLASS = 'size-2/3'
 
 export const avatarDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('status'),
@@ -35,19 +36,19 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
           root: 'text-xs size-6',
           fallback: 'text-xs',
           fallbackContent: 'text-sm',
-          badge: 'text-[9px] size-3',
+          badge: 'size-3',
         },
         md: {
           root: 'text-sm size-8',
           fallback: 'text-sm',
           fallbackContent: 'text-base',
-          badge: 'text-[10px] size-3.5',
+          badge: 'size-3.5',
         },
         lg: {
           root: 'text-base size-10',
           fallback: 'text-base',
           fallbackContent: 'text-lg',
-          badge: 'text-xs size-4',
+          badge: 'size-4',
         },
       },
       badgePosition: {

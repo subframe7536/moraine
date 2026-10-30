@@ -369,7 +369,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon name={value()} slotName="accordion-leading" {...slots.leading} />
+                      <Icon name={value()} data-slot="accordion-leading" {...slots.leading} />
                     )}
                   </Show>
 
@@ -384,7 +384,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   <Show when={trailing()}>
                     <Icon
                       name={trailing()}
-                      slotName="accordion-trailing"
+                      data-slot="accordion-trailing"
                       {...slots.trailing}
                       {...accordionDataAttributes.trailing({ expanded })}
                     />

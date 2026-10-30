@@ -105,7 +105,7 @@ describe('Breadcrumb', () => {
 
     const separators = screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')
     const separatorIcons = screen.container.querySelectorAll(
-      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] > *',
     )
 
     expect(separators.length).toBe(2)
@@ -135,7 +135,7 @@ describe('Breadcrumb', () => {
     ))
 
     const separatorIcons = screen.container.querySelectorAll(
-      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] > *',
     )
     expect(separatorIcons.length).toBe(2)
     expect(separatorIcons[0]?.className).toContain('icon-dot')
@@ -356,7 +356,7 @@ describe('Breadcrumb', () => {
     const link = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
     const leading = link?.querySelector('[data-slot="breadcrumb-leading"]') as HTMLElement | null
     const separator = screen.container.querySelector(
-      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] > *',
     ) as HTMLElement | null
 
     expect(list?.className).toContain(textClass)

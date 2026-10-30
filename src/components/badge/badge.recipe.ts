@@ -36,18 +36,12 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
       size: {
         sm: {
           root: 'text-tiny px-1 rounded-xs gap-0.5 h-4',
-          leading: 'size-3',
-          trailing: 'size-3',
         },
         md: {
           root: 'text-xs px-1.5 rounded-sm gap-1 h-5',
-          leading: 'size-3.5',
-          trailing: 'size-3.5',
         },
         lg: {
           root: 'text-sm px-2 rounded-md gap-1 h-6',
-          leading: 'size-4',
-          trailing: 'size-4',
         },
       },
       square: {

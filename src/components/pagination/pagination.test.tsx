@@ -211,8 +211,8 @@ describe('Pagination', () => {
     expect(next?.hasAttribute('data-text')).toBe(false)
     expect(prev?.querySelector('[data-slot="button-leading"]')).toBeNull()
     expect(next?.querySelector('[data-slot="button-trailing"]')).toBeNull()
-    expect(prev?.querySelector('[data-slot="button-label"] > [data-slot="icon"]')).not.toBeNull()
-    expect(next?.querySelector('[data-slot="button-label"] > [data-slot="icon"]')).not.toBeNull()
+    expect(prev?.querySelector('[data-slot="button-label"] > [aria-hidden="true"]')).not.toBeNull()
+    expect(next?.querySelector('[data-slot="button-label"] > [aria-hidden="true"]')).not.toBeNull()
   })
 
   test('renders text controls with icons in their leading and trailing slots', () => {

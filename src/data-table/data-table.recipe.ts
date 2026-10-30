@@ -1,9 +1,8 @@
 import {
-  CHECK_CONTROL_CLASS,
-  CHECK_CONTROL_ICON_CLASS,
-  CHECK_CONTROL_SIZE_CLASS,
-  checkControlDataAttributes,
-} from '../components/shared/check-control/check-control.recipe'
+  CHECKBOX_CONTROL_CLASS,
+  CHECKBOX_CONTROL_SIZE_CLASS,
+} from '../components/checkbox/checkbox.recipe'
+import { checkControlDataAttributes } from '../components/shared/check-control/check-control.recipe'
 import {
   TABLE_CELL_CLASS,
   TABLE_COLUMN_BORDER_CLASS,
@@ -55,8 +54,6 @@ export const DATA_TABLE_PAGINATION_CONTROLS_CLASS = 'flex gap-2 items-center'
 export const DATA_TABLE_EXPAND_BUTTON_CLASS = `text-muted-foreground p-0 rounded inline-flex size-6 cursor-pointer transition-transform items-center justify-center hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS} data-expanded:rotate-90`
 
 export const DATA_TABLE_EXPAND_PLACEHOLDER_CLASS = 'w-6'
-
-export const DATA_TABLE_EXPAND_ICON_CLASS = 'size-4'
 
 /** Width and padding of the generated selection and expand columns. */
 export const DATA_TABLE_UTILITY_COLUMN_CLASS = 'px-2 w-10'
@@ -133,8 +130,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     expandedCell: 'p-0 align-top',
     expandButton: DATA_TABLE_EXPAND_BUTTON_CLASS,
     // Inline in the cell so the column's text alignment centers it.
-    checkbox: `${CHECK_CONTROL_CLASS} align-middle`,
-    checkboxIcon: CHECK_CONTROL_ICON_CLASS,
+    checkbox: `${CHECKBOX_CONTROL_CLASS} align-middle`,
   },
   defaultVariants: {
     size: 'md',
@@ -151,7 +147,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         '--mo-data-table-pad': '0.5rem',
         sortButton: 'size-5',
         pagination: 'text-xs',
-        checkbox: CHECK_CONTROL_SIZE_CLASS.sm,
+        checkbox: CHECKBOX_CONTROL_SIZE_CLASS.sm,
       },
       md: {
         ...TABLE_SIZE_MD,
@@ -159,7 +155,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         '--mo-data-table-pad': '0.5rem',
         sortButton: 'size-6',
         pagination: 'text-sm',
-        checkbox: CHECK_CONTROL_SIZE_CLASS.md,
+        checkbox: CHECKBOX_CONTROL_SIZE_CLASS.md,
       },
       lg: {
         ...TABLE_SIZE_LG,
@@ -167,7 +163,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         '--mo-data-table-pad': '1rem',
         sortButton: 'size-7',
         pagination: 'text-base px-4',
-        checkbox: CHECK_CONTROL_SIZE_CLASS.lg,
+        checkbox: CHECKBOX_CONTROL_SIZE_CLASS.lg,
       },
     },
     // Rows carry `data-even` because spacer rows (virtualization) and detail rows (expansion)

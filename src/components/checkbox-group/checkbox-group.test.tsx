@@ -33,18 +33,15 @@ describe('CheckboxGroup', () => {
       <CheckboxGroup
         items={['One']}
         defaultValue={['One']}
-        classes={{ control: 'group-control', icon: 'group-icon', label: 'group-label' }}
-        styles={{ control: { width: '21px' }, icon: { width: '22px' }, label: { width: '23px' } }}
+        classes={{ control: 'group-control', label: 'group-label' }}
+        styles={{ control: { width: '21px' }, label: { width: '23px' } }}
       />
     ))
     const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-icon"]')
     const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
 
     expect(control?.className).toContain('group-control')
     expect(control?.style.width).toBe('21px')
-    expect(icon?.className).toContain('group-icon')
-    expect(icon?.style.width).toBe('22px')
     expect(label?.className).toContain('group-label')
     expect(label?.style.width).toBe('23px')
     expect(screen.container.querySelector('[data-slot^="checkbox-group-control"]')).toBeNull()

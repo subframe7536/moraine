@@ -31,7 +31,6 @@ export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
     container: '',
     control: '',
     indicator: '',
-    icon: '',
     wrapper: '',
     label: '',
     description: '',

@@ -342,7 +342,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
               <Icon
-                slotName="switch-icon"
+                data-slot="switch-icon"
                 name={iconName}
                 {...switchDataAttributes.icon({
                   checked: () => !merged.loading && checked(),

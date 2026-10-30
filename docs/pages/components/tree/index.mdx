@@ -201,7 +201,7 @@ import { Show, createComponent, createSignal } from 'solid-js'
                 part: 'tree.ItemCheckbox',
                 slot: 'checkbox',
                 element: 'button',
-                children: [{ slot: 'checkboxIcon' }],
+                children: [{ internal: 'icon' }],
               },
               { part: 'tree.ItemIcon', slot: 'icon' },
               { part: 'tree.ItemLabel', slot: 'label', element: 'span' },

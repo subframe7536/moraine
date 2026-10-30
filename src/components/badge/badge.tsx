@@ -40,7 +40,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
   return (
     <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rest} {...slots.root}>
       <Show when={leading()}>
-        {(leading) => <Icon name={leading()} slotName="badge-leading" {...slots.leading} />}
+        {(leading) => <Icon name={leading()} data-slot="badge-leading" {...slots.leading} />}
       </Show>
 
       <Show when={hasChildren()}>
@@ -50,7 +50,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
       </Show>
 
       <Show when={trailing()}>
-        <Icon name={trailing()} slotName="badge-trailing" {...slots.trailing} />
+        <Icon name={trailing()} data-slot="badge-trailing" {...slots.trailing} />
       </Show>
     </Dynamic>
   )

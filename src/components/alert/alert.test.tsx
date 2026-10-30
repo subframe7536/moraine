@@ -29,33 +29,25 @@ describe('Alert', () => {
     const viewInfo = render(() => <Alert type="info" title="Info alert" />)
     let alert = viewInfo.getByRole('status')
     expect(alert.getAttribute('data-type')).toBe('info')
-    expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
-      'icon-info',
-    )
+    expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-info')
     viewInfo.unmount()
 
     const viewSuccess = render(() => <Alert type="success" title="Success alert" />)
     alert = viewSuccess.getByRole('status')
     expect(alert.getAttribute('data-type')).toBe('success')
-    expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
-      'icon-success',
-    )
+    expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-success')
     viewSuccess.unmount()
 
     const viewWarning = render(() => <Alert type="warning" title="Warning alert" />)
     alert = viewWarning.getByRole('alert')
     expect(alert.getAttribute('data-type')).toBe('warning')
-    expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
-      'icon-warning',
-    )
+    expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-warning')
     viewWarning.unmount()
 
     const viewError = render(() => <Alert type="error" title="Error alert" />)
     alert = viewError.getByRole('alert')
     expect(alert.getAttribute('data-type')).toBe('error')
-    expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
-      'icon-error',
-    )
+    expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-error')
     viewError.unmount()
   })
 
@@ -72,9 +64,7 @@ describe('Alert', () => {
   it('supports custom icon names and custom JSX elements', () => {
     const view1 = render(() => <Alert type="primary" title="With custom icon" icon="icon-tip" />)
     const alert = view1.getByRole('status')
-    expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
-      'icon-tip',
-    )
+    expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-tip')
     view1.unmount()
 
     const view2 = render(() => (
@@ -138,7 +128,7 @@ describe('Alert', () => {
     const closeBtn = screen.getByRole('button', { name: 'Close alert' })
     expect(closeBtn).toBeDefined()
     expect(closeBtn.getAttribute('data-slot')).toBe('alert-close')
-    expect(closeBtn.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
+    expect(closeBtn.firstElementChild?.className).toContain('icon-close')
 
     fireEvent.click(closeBtn)
     expect(onOpenChange).toHaveBeenCalledWith(false)
@@ -149,7 +139,7 @@ describe('Alert', () => {
       <Alert title="Custom close icon" closable closeIcon="icon-panel-close" />
     ))
     let closeBtn = view1.getByRole('button', { name: 'Close alert' })
-    expect(closeBtn.querySelector('[data-slot="icon"]')?.className).toContain('icon-panel-close')
+    expect(closeBtn.firstElementChild?.className).toContain('icon-panel-close')
     view1.unmount()
 
     const view2 = render(() => (

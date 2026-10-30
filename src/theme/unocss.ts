@@ -150,6 +150,19 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
         }
       },
     })
+    // Wind4 and Tailwind ship `forced-colors:`; Wind3 does not.
+    variants.push({
+      name: 'moraine-forced-colors',
+      match(matcher) {
+        if (!matcher.startsWith('forced-colors:')) {
+          return matcher
+        }
+        return {
+          matcher: matcher.slice('forced-colors:'.length),
+          parent: '@media (forced-colors: active)',
+        }
+      },
+    })
   }
 
   const rules: Preset['rules'] = [
@@ -194,6 +207,14 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       { autocomplete: ['(enter|exit)-rotate-<percent>'] },
     ],
   ]
+  if (options.wind3) {
+    // Wind4 and Tailwind ship `forced-color-adjust-*`; Wind3 does not.
+    rules.push([
+      /^forced-color-adjust-(auto|none)$/,
+      ([, value]) => ({ 'forced-color-adjust': value }),
+      { autocomplete: ['forced-color-adjust-(auto|none)'] },
+    ])
+  }
   return {
     name: 'preset-theme-moraine',
     rules,

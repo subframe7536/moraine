@@ -99,7 +99,7 @@ describe('Badge', () => {
     expect(roots[4]?.className).toContain('text-tone-ink')
   })
 
-  test('applies distinct size metrics and size-specific icon dimensions', () => {
+  test('applies distinct size metrics and icons that inherit the root font size', () => {
     const screen = render(() => (
       <MoraineProvider>
         <div>
@@ -122,9 +122,12 @@ describe('Badge', () => {
     expect(roots[0]?.className).toContain('h-4')
     expect(roots[1]?.className).toContain('h-5')
     expect(roots[2]?.className).toContain('h-6')
-    expect(leading[0]?.className).toContain('size-3')
-    expect(trailing?.className).toContain('size-3.5')
-    expect(leading[1]?.className).toContain('size-4')
+    expect(roots[0]?.className).toContain('text-tiny')
+    expect(roots[1]?.className).toContain('text-xs')
+    expect(roots[2]?.className).toContain('text-sm')
+    for (const icon of [...leading, trailing]) {
+      expect(icon?.className).not.toMatch(/\bsize-/)
+    }
   })
 
   test('uses square geometry only for one-icon badges without a label', () => {

@@ -23,7 +23,6 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
       trigger: `text-start rounded-md inline-flex min-w-0 items-center ${FOCUS_VISIBLE_RING_CLASS} data-clickable:cursor-pointer`,
       indicator:
         'rounded-full inline-flex shrink-0 transition-colors items-center justify-center data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary) data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-surface)',
-      icon: '',
       separator:
         'rounded-full bg-border transition-colors data-[state=completed]:bg-primary data-disabled:opacity-75',
       wrapper: 'flex flex-col min-w-0',

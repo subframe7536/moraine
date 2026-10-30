@@ -142,7 +142,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **`useRecipe` layer order** (later wins). `cn` merges classes; style objects skip `undefined` / `null` so they do not overwrite earlier layers:
   1. Recipe base + variants/compound + Provider theme overrides (inside recipe resolve) + recipe CSS vars + `vars()`
   2. `contextSlots` — ancestor Context `{ classes, styles }` (use `pickSlotOverrides(props)` when storing on Context as `slotOverrides`)
-  3. `own` — component-controlled, user-overridable (icon font-size, button active class, decorative item classes). Supports per-slot accessor map (`own: { leading: () => ({ class: ... }) }`) for fine-grained reactivity.
+  3. `own` — component-controlled, user-overridable (icon name class, button active class, decorative item classes). Supports per-slot accessor map (`own: { leading: () => ({ class: ... }) }`) for fine-grained reactivity.
   4. User: `classes` / `styles`[slot], then `class` / `style` on the current `slot`
   5. `enforced` — functional, must not be user-overridable (positioning, virtual scroll, visually-hidden, flex sizes). Also supports per-slot accessor map.
 - Prefer `enforced` for layout / position / virtualization and `own` for visual cosmetics. For per-item hosts inside `<For>`, call `slotWith(slot, extra?, enforcedExtra?)` (both extra arguments are accessors returning `{ class?, style? }`) under the item owner so item classes merge on top of the parent slot memo.

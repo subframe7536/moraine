@@ -7,6 +7,7 @@ import { describe, expect, test } from 'vitest'
 
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
+import { ICON_MASK_FORCED_COLORS_CLASS } from '../components/icon/icon.recipe'
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'
@@ -1256,5 +1257,19 @@ describe('component attribute states', () => {
     ]) {
       expect(css).toContain(`[data-${attribute}]`)
     }
+  })
+})
+
+describe('icon forced colors utilities', () => {
+  test('compiles the mask icon forced colors classes', async () => {
+    const css = await compileCSS(cn(ICON_MASK_FORCED_COLORS_CLASS)?.split(' ') ?? [])
+
+    expect(css).toMatch(/\.forced-color-adjust-none\s*\{\s*forced-color-adjust: none;/)
+    expect(css).toMatch(
+      /@supports \(forced-color-adjust: ?preserve-parent-color\)\s*\{\s*\S+\s*\{\s*forced-color-adjust: preserve-parent-color;/,
+    )
+    expect(css).toMatch(
+      /@media \(forced-colors: active\)\s*\{\s*\.forced-colors\\:text-inherit\s*\{\s*color: inherit;/,
+    )
   })
 })

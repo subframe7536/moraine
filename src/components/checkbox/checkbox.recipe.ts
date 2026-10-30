@@ -33,10 +33,25 @@ export const checkboxDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
-/** Checkbox control styling, shared with bound checkbox controls (e.g. `tree.ItemCheckbox`). */
-export const CHECKBOX_CONTROL_CLASS = `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
+/**
+ * Checkbox control styling, shared with bound checkbox controls (e.g. `tree.ItemCheckbox`).
+ * Checked and indeterminate states share the same border and fill, so both look the same size.
+ * The text color reaches the state icon directly in `CheckControl`; `Checkbox` sets it again on
+ * its indicator.
+ */
+export const CHECKBOX_CONTROL_CLASS = `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(text-primary-foreground border-primary bg-primary) data-indeterminate:(text-primary-foreground border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
 
-/** Check or indeterminate icon inside the indicator. */
+/** Control box per size, for host recipes with a `size` variant. */
+export const CHECKBOX_CONTROL_SIZE_CLASS = {
+  sm: 'size-3.5',
+  md: 'size-4',
+  lg: 'size-4.5',
+} as const
+
+/**
+ * State icon inside the control. It fills the box inside the border, so it follows the control
+ * size instead of the font size and the icon generator's scale.
+ */
 export const CHECKBOX_ICON_CLASS = 'shrink-0 size-full'
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
@@ -47,7 +62,6 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
     root: 'flex items-start relative',
     control: CHECKBOX_CONTROL_CLASS,
     indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
-    icon: CHECKBOX_ICON_CLASS,
     wrapper: 'flex flex-col gap-0.5 w-full',
     container: 'flex items-center',
     label:
@@ -68,19 +82,19 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
     },
     size: {
       sm: {
-        control: 'size-3.5',
+        control: CHECKBOX_CONTROL_SIZE_CLASS.sm,
         container: 'h-4',
         wrapper: 'text-xs',
         description: 'text-xs leading-normal',
       },
       md: {
-        control: 'size-4',
+        control: CHECKBOX_CONTROL_SIZE_CLASS.md,
         container: 'h-5',
         wrapper: 'text-sm',
         description: 'text-sm leading-normal',
       },
       lg: {
-        control: 'size-4.5',
+        control: CHECKBOX_CONTROL_SIZE_CLASS.lg,
         container: 'h-6',
         wrapper: 'text-base',
         description: 'text-base leading-normal',

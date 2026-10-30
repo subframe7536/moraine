@@ -238,6 +238,26 @@ describe('Checkbox', () => {
     })
   })
 
+  test('fills checked and indeterminate controls the same way', () => {
+    const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
+    const screen = render(() => <Checkbox checked={checked()} label="Fill" />)
+    const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')!
+    const iconOf = () =>
+      control.querySelector<HTMLElement>(
+        ':scope > [data-slot="checkbox-indicator"] > [data-slot="checkbox-icon"]',
+      )
+
+    expect(iconOf()?.className).toContain('icon-minus')
+    expect(iconOf()?.className).toContain('size-full')
+    expect(control.className).toContain('data-indeterminate:border-primary')
+    expect(control.className).toContain('data-indeterminate:bg-primary')
+
+    setChecked(true)
+    expect(iconOf()?.className).toContain('icon-check')
+    expect(control.className).toContain('data-checked:border-primary')
+    expect(control.className).toContain('data-checked:bg-primary')
+  })
+
   test('renders default indeterminate state when defaultChecked is indeterminate', async () => {
     const screen = render(() => (
       <Checkbox

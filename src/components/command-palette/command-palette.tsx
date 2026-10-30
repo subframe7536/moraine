@@ -645,7 +645,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <div data-slot="command-palette-input-wrapper" {...slots.inputWrapper}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
-          slotName="command-palette-input-leading"
+          data-slot="command-palette-input-leading"
           aria-busy={merged.loading || undefined}
           {...commandPaletteDataAttributes.inputLeading({ loading: () => merged.loading })}
           {...slots.inputLeading}

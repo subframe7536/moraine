@@ -321,7 +321,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="multi-select-leading" {...slots.leading} />}
+            {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...slots.leading} />}
           </Show>
           <div data-slot="multi-select-tags-container" {...slots.tagsContainer}>
             <For each={tags.visible()}>

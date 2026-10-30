@@ -119,7 +119,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
                   {(icon) => (
                     <Icon
                       name={icon()}
-                      slotName={state.slotName('itemLeading')}
+                      data-slot={state.slotName('itemLeading')}
                       {...props.slot('itemLeading')}
                     />
                   )}

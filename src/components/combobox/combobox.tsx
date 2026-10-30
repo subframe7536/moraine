@@ -156,7 +156,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="combobox-leading" {...slots.leading} />}
+            {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...slots.leading} />}
           </Show>
           <input
             {...input.inputProps}

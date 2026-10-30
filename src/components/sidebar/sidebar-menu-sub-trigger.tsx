@@ -56,6 +56,7 @@ export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
         >
           <Icon
             name={trailingIcon()}
+            data-slot="sidebar-menu-item-trailing"
             {...resolved.slots.menuItemTrailing}
             aria-hidden={true}
             {...sidebarDataAttributes.menuItemTrailing({

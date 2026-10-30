@@ -202,7 +202,6 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
     container: 'checkbox-container',
     control: 'checkbox-control',
     indicator: 'checkbox-indicator',
-    icon: 'checkbox-icon',
     wrapper: 'checkbox-wrapper',
     label: 'checkbox-label',
     description: 'checkbox-description',
@@ -217,7 +216,6 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
     content: 'dialog-content',
     header: 'dialog-header',
     footer: 'dialog-footer',
-    icon: 'icon',
   },
 }
 

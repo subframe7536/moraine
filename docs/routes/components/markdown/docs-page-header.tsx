@@ -3,7 +3,6 @@ import { Show } from 'solid-js'
 import { Badge, Button, CopyButton } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { FrontmatterData } from '../../../build/markdown/types'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
@@ -49,24 +48,12 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
       >
         <div class="mt-3 flex flex-wrap gap-2 items-center">
           <Show when={props.apiDoc?.kind === 'composite'}>
-            <Badge
-              as="a"
-              href="/docs/composition"
-              variant="outline"
-              size="sm"
-              class={`transition-colors ${DOCS_FOCUS_RING_OFFSET_CLASS} hover:bg-accent`}
-            >
+            <Badge as="a" href="/docs/composition" variant="outline" size="sm">
               Composition
             </Badge>
           </Show>
           <Show when={props.apiDoc?.parts[0]?.props.some((prop) => prop.name === 'as')}>
-            <Badge
-              as="a"
-              href="/docs/polymorphism"
-              variant="outline"
-              size="sm"
-              class={`transition-colors ${DOCS_FOCUS_RING_OFFSET_CLASS} hover:bg-accent`}
-            >
+            <Badge as="a" href="/docs/polymorphism" variant="outline" size="sm">
               Polymorphic
             </Badge>
           </Show>
@@ -83,7 +70,6 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           variant="outline"
           size="sm"
           leading="i-lucide:file-text"
-          class={`h-8 ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
         >
           View as Markdown
         </Button>
@@ -93,7 +79,6 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           aria-label="Copy markdown source"
           variant="outline"
           size="sm"
-          class={`h-8 ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
         >
           {(state) => (state.isCopied ? 'Copied Markdown' : 'Copy as Markdown')}
         </CopyButton>
@@ -107,7 +92,6 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
               variant="outline"
               size="sm"
               leading="i-lucide:github"
-              class={`h-8 ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               Source Code
             </Button>
@@ -124,7 +108,6 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
               variant="outline"
               size="sm"
               leading="icon-external"
-              class={`h-8 ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               Upstream
             </Button>

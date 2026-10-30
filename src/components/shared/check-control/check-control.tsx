@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 
 import { callHandler } from '../../../shared/utils'
-import type { SlotBinding } from '../../../theme/use-recipe'
+import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
 import type { IconT } from '../../icon'
 
@@ -22,8 +22,6 @@ export interface CheckControlProps extends Omit<
   checkedIcon?: IconT.Name
   /** @default 'icon-minus' */
   indeterminateIcon?: IconT.Name
-  /** Presentation of the check icon. */
-  iconSlot: SlotBinding
   style?: JSX.CSSProperties
   /** Called with the next value. An unchecked or indeterminate control becomes checked. */
   onCheckedChange: (checked: boolean) => void
@@ -41,7 +39,6 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
     'slotName',
     'checkedIcon',
     'indeterminateIcon',
-    'iconSlot',
     'class',
     'style',
     'onCheckedChange',
@@ -84,8 +81,8 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
               ? (local.indeterminateIcon ?? 'icon-minus')
               : (local.checkedIcon ?? 'icon-check')
           }
-          slotName={`${local.slotName}-icon`}
-          {...local.iconSlot}
+          data-slot={`${local.slotName}-icon`}
+          class={CHECKBOX_ICON_CLASS}
         />
       </Show>
     </button>
