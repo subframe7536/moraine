@@ -332,7 +332,9 @@ Rows expand in two different ways:
   row expand; a predicate decides per row.
 - **Tree data.** Pass `tableOptions.getSubRows`. Sub-rows render as ordinary rows under their
   parent. Without `expandable`, only rows with sub-rows can expand. To also show the chevron
-  column, pass `expandable: (row) => row.subRows.length > 0`.
+  column, pass `expandable: (row) => row.subRows.length > 0`. Sub-rows indent the first data
+  column, after the selection and expand columns, by one step per level. The step is the
+  `--mo-data-table-indent` variable (`1.25rem`); override it with `styles.root`.
 
 ```tsx
 const table = createDataTable({

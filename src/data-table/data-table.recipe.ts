@@ -26,7 +26,7 @@ import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.st
 export const dataTableDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'even', 'empty'),
   head: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge'),
-  cell: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge'),
+  cell: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge', 'tree'),
   sortIcon: /* @__PURE__ */ createDataAttributes('sorted'),
   resizer: /* @__PURE__ */ createDataAttributes('resizing'),
   expandButton: /* @__PURE__ */ createDataAttributes('expanded'),
@@ -69,6 +69,15 @@ export const DATA_TABLE_RADIO_CLASS = `border border-input rounded-full bg-contr
 export const DATA_TABLE_RADIO_INDICATOR_CLASS =
   'rounded-full bg-primary-foreground size-1.5 scale-0 transition-transform [:checked+*>&]:scale-100'
 
+/**
+ * Start padding of a tree cell. Rows declare `--mo-data-table-depth`, so the value resolves per
+ * row; the root supplies the cell padding and indent step.
+ */
+export const DATA_TABLE_TREE_ROW_STYLE = {
+  '--mo-data-table-tree-pad':
+    'calc(var(--mo-data-table-pad) + var(--mo-data-table-depth) * var(--mo-data-table-indent))',
+}
+
 /** Scroll viewport wrapping the table so only the body scrolls under a sticky header/footer. */
 export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
 
@@ -82,6 +91,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
 >('dataTable', {
   base: {
     '--mo-collapsible-content-height': '0px',
+    '--mo-data-table-indent': '1.25rem',
     container: 'w-full relative',
     root: TABLE_ROOT_CLASS,
     header: TABLE_HEADER_CLASS,
@@ -89,7 +99,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     footer: `${TABLE_FOOTER_CLASS} [&>tr:last-child>td]:border-b-0`,
     row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0`,
     head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}`,
-    cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS}`,
+    cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS} data-tree:ps-(--mo-data-table-tree-pad)`,
     empty: 'text-muted-foreground py-8 text-center',
     loading:
       'bg-background/50 flex items-center inset-0 justify-center absolute z-40 backdrop-blur-sm',
@@ -118,18 +128,24 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     size: {
       sm: {
         ...TABLE_SIZE_SM,
+        // Matches the inline start padding of `cell` at this size.
+        '--mo-data-table-pad': '0.5rem',
         sortButton: 'size-5',
         pagination: 'text-xs',
         checkbox: CHECK_CONTROL_SIZE_CLASS.sm,
       },
       md: {
         ...TABLE_SIZE_MD,
+        // Matches the inline start padding of `cell` at this size.
+        '--mo-data-table-pad': '0.5rem',
         sortButton: 'size-6',
         pagination: 'text-sm',
         checkbox: CHECK_CONTROL_SIZE_CLASS.md,
       },
       lg: {
         ...TABLE_SIZE_LG,
+        // Matches the inline start padding of `cell` at this size.
+        '--mo-data-table-pad': '1rem',
         sortButton: 'size-7',
         pagination: 'text-base px-4',
         checkbox: CHECK_CONTROL_SIZE_CLASS.lg,

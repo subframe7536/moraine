@@ -7,7 +7,7 @@ import type { ListT } from '../components/list'
 
 import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
-import { dataTableDataAttributes } from './data-table.recipe'
+import { DATA_TABLE_TREE_ROW_STYLE, dataTableDataAttributes } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
 export type DataTableRowProps<TData extends RowData> = Pick<
@@ -32,6 +32,8 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
   )
   const showsDetail = () => Boolean(props.expandedRowRender) && disclosure.shouldMount()
   const clickable = () => Boolean(props.onRowClick || props.onRowDoubleClick)
+  // Sub-rows of tree data indent their tree cell; top-level rows keep the plain cell padding.
+  const depth = () => props.row.depth
 
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
   return (
@@ -52,6 +54,10 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
             typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
             clickable() && 'cursor-pointer',
           ],
+          style:
+            depth() > 0
+              ? { '--mo-data-table-depth': depth(), ...DATA_TABLE_TREE_ROW_STYLE }
+              : undefined,
         }))}
       >
         <For each={props.row.getVisibleCells()}>
@@ -63,6 +69,7 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
                 {...dataTableDataAttributes.cell({
                   pinned: pin.side,
                   pinnedEdge: () => pin.edge() && pin.side(),
+                  tree: () => depth() > 0 && cell.column.id === ctx.treeColumnId(),
                 })}
                 {...ctx.cellSlot('cell', cell.column, pin, () => cell.column.getSize(), 'body')}
               >

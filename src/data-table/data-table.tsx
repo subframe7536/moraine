@@ -5,6 +5,7 @@ import {
   For,
   Show,
   createEffect,
+  createMemo,
   createSignal,
   createUniqueId,
   on,
@@ -21,6 +22,7 @@ import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
 import { getDataTableConfig } from './create-data-table'
+import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'
 import { DataTableProvider } from './data-table-context'
 import { DataTableFooter } from './data-table-footer'
 import { DataTableHeader } from './data-table-header'
@@ -87,6 +89,15 @@ export function DataTable<TData extends RowData = RowData>(
   const virtual = () => Boolean(local.virtualRender)
   const layout = createDataTableLayout(table, () => local.sticky)
   const colSpan = () => Math.max(table().getVisibleLeafColumns().length, 1)
+  // Read in visual order: start-pinned, center, then end-pinned columns.
+  const treeColumnId = createMemo(() => {
+    const instance = table()
+    return [
+      ...instance.getStartVisibleLeafColumns(),
+      ...instance.getCenterVisibleLeafColumns(),
+      ...instance.getEndVisibleLeafColumns(),
+    ].find((column) => column.id !== SELECT_COLUMN_ID && column.id !== EXPAND_COLUMN_ID)?.id
+  })
   // Virtual tables show every row in one scroll, so they read the rows before pagination.
   // Otherwise `pagination` would still slice the rows while its toolbar is hidden.
   const rows = (): DataTableT.Row<TData>[] =>
@@ -177,6 +188,7 @@ export function DataTable<TData extends RowData = RowData>(
         virtual,
         resizable: layout.resizable,
         colSpan,
+        treeColumnId,
         selectionName,
         columnPin: layout.columnPin,
         cellSlot: (slot, column, pin, size, section) =>

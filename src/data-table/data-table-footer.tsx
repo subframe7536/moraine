@@ -45,6 +45,7 @@ export function DataTableFooter<TData extends RowData>(props: {
                           {...dataTableDataAttributes.cell({
                             pinned: pin.side,
                             pinnedEdge: () => pin.edge() && pin.side(),
+                            tree: false,
                           })}
                           {...ctx.cellSlot(
                             'cell',

@@ -22,6 +22,11 @@ export interface DataTableContextValue {
   readonly resizable: Accessor<boolean>
   /** Number of visible leaf columns, at least 1, for full-width cells. */
   readonly colSpan: Accessor<number>
+  /**
+   * Id of the tree column: the first visible leaf column after the generated selection and
+   * expand columns. Its body cells indent by row depth.
+   */
+  readonly treeColumnId: Accessor<string | undefined>
   /** Shared `name` of the single-selection radios, so they form one native radio group. */
   readonly selectionName: string
   /** Slot binding for a `head` or `cell` of `column` in the given table section. */

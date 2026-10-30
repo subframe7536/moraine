@@ -1504,4 +1504,148 @@ describe('DataTable', () => {
     expect(table.querySelector('tbody tr[data-index="0"]')!.getAttribute('aria-rowindex')).toBe('2')
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
   })
+
+  describe('tree data indentation', () => {
+    interface TreeNode {
+      id: string
+      name: string
+      kind: string
+      children?: TreeNode[]
+    }
+
+    const TREE: TreeNode[] = [
+      {
+        id: 'src',
+        name: 'src',
+        kind: 'folder',
+        children: [
+          {
+            id: 'components',
+            name: 'components',
+            kind: 'folder',
+            children: [{ id: 'button', name: 'button.tsx', kind: 'file' }],
+          },
+        ],
+      },
+      { id: 'readme', name: 'README.md', kind: 'file' },
+    ]
+
+    const TREE_COLUMNS: DataTableT.Column<TreeNode>[] = [
+      { accessorKey: 'name', header: 'Name' },
+      { accessorKey: 'kind', header: 'Kind' },
+    ]
+
+    function createTreeTable(options: Partial<DataTableT.Options<TreeNode>> = {}) {
+      const merged = mergeProps(
+        {
+          data: TREE,
+          columns: TREE_COLUMNS,
+          getRowId: (row: TreeNode) => row.id,
+          initialState: { expanded: true as const },
+          tableOptions: { getSubRows: (row: TreeNode) => row.children },
+        },
+        options,
+      )
+      return createDataTable<TreeNode>(merged)
+    }
+
+    function bodyRow(container: HTMLElement, text: string): HTMLTableRowElement {
+      const row = [...container.querySelectorAll<HTMLTableRowElement>('tbody tr')].find((element) =>
+        element.textContent?.includes(text),
+      )
+      expect(row).toBeDefined()
+      return row!
+    }
+
+    function treeCells(row: HTMLTableRowElement): string[] {
+      return [...row.querySelectorAll('td[data-tree]')].map((cell) => cell.textContent ?? '')
+    }
+
+    it('declares the row depth on sub-rows and marks only their tree cell', () => {
+      const { container } = render(() => {
+        const table = createTreeTable()
+        return <DataTable table={table} />
+      })
+
+      const root = bodyRow(container, 'src')
+      expect(root.style.getPropertyValue('--mo-data-table-depth')).toBe('')
+      expect(treeCells(root)).toEqual([])
+
+      const child = bodyRow(container, 'components')
+      expect(child.style.getPropertyValue('--mo-data-table-depth')).toBe('1')
+      expect(child.style.getPropertyValue('--mo-data-table-tree-pad')).toContain(
+        'var(--mo-data-table-depth)',
+      )
+      expect(treeCells(child)).toEqual(['components'])
+
+      const grandchild = bodyRow(container, 'button.tsx')
+      expect(grandchild.style.getPropertyValue('--mo-data-table-depth')).toBe('2')
+      expect(treeCells(grandchild)).toEqual(['button.tsx'])
+    })
+
+    it('indents the first data column after the generated selection and expand columns', () => {
+      const { container } = render(() => {
+        const table = createTreeTable({
+          selection: 'multiple',
+          expandable: (row) => row.subRows.length > 0,
+        })
+        return <DataTable table={table} />
+      })
+
+      const child = bodyRow(container, 'components')
+      const cells = [...child.querySelectorAll('td')]
+      expect(cells.map((cell) => cell.hasAttribute('data-tree'))).toEqual([
+        false,
+        false,
+        true,
+        false,
+      ])
+    })
+
+    it('moves the indent with column order and visibility', () => {
+      const [order, setOrder] = createSignal<string[]>([])
+      const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
+      const { container } = render(() => {
+        const table = createTreeTable({
+          state: {
+            get columnOrder() {
+              return order()
+            },
+            get columnVisibility() {
+              return visibility()
+            },
+          },
+          onColumnOrderChange: setOrder,
+          onColumnVisibilityChange: setVisibility,
+        })
+        return <DataTable table={table} />
+      })
+
+      expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
+
+      setOrder(['kind', 'name'])
+      expect(treeCells(bodyRow(container, 'components'))).toEqual(['folder'])
+
+      setVisibility({ kind: false })
+      expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
+    })
+
+    it('indents virtualized sub-rows', async () => {
+      const virtualizer = createTableVirtualizer<DataTableT.Row<TreeNode>>({
+        estimateSize: () => 30,
+        measureElement: () => 30,
+        observeElementRect: (_instance, callback) => callback({ width: 300, height: 300 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        overscan: 0,
+      })
+
+      const { container } = render(() => {
+        const table = createTreeTable()
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      expect(treeCells(bodyRow(container, 'button.tsx'))).toEqual(['button.tsx'])
+    })
+  })
 })
