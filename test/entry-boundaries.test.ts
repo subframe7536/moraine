@@ -40,15 +40,22 @@ describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries'
     }
   })
 
-  test('data-table entry imports TanStack Table', () => {
-    expect(collectBareImports('data-table.mjs')).toContain('@tanstack/solid-table')
+  test.each(['data-table.mjs', 'data-table.jsx'])('%s imports TanStack Table', (entry) => {
+    expect(collectBareImports(entry)).toContain('@tanstack/solid-table')
+  })
+
+  test.each(['virtualizer.mjs', 'virtualizer.jsx'])('%s imports TanStack Virtual', (entry) => {
+    expect(collectBareImports(entry)).toContain('@tanstack/virtual-core')
   })
 
   // Consumers type-check against declarations, so they must keep the same boundaries.
   test.each([
     ['index.d.mts', OPTIONAL_PEERS],
     ['data-table.mjs', ['@tanstack/virtual-core']],
+    ['data-table.jsx', ['@tanstack/virtual-core']],
     ['data-table.d.mts', ['@tanstack/virtual-core']],
+    ['virtualizer.mjs', ['@tanstack/solid-table']],
+    ['virtualizer.jsx', ['@tanstack/solid-table']],
     ['virtualizer.d.mts', ['@tanstack/solid-table']],
   ])('%s does not reach %j', (entry, peers) => {
     const imports = collectBareImports(entry)
