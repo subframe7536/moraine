@@ -1,16 +1,9 @@
-import { defineRecipe } from '../../theme/recipe'
-import {
-  FOCUS_VISIBLE_RING_CLASS,
-  PEER_FOCUS_VISIBLE_CLASS,
-} from '../../theme/recipe-common.recipe'
-import { createDataAttributes } from '../../theme/style-contract'
-import type { DataAttributeContract } from '../../theme/style-contract'
 import {
   CHECK_CONTROL_CLASS,
   CHECK_CONTROL_ICON_CLASS,
   CHECK_CONTROL_SIZE_CLASS,
   checkControlDataAttributes,
-} from '../shared/check-control/check-control.recipe'
+} from '../components/shared/check-control/check-control.recipe'
 import {
   TABLE_CELL_CLASS,
   TABLE_COLUMN_BORDER_CLASS,
@@ -22,7 +15,11 @@ import {
   TABLE_SIZE_LG,
   TABLE_SIZE_MD,
   TABLE_SIZE_SM,
-} from '../table/table.recipe'
+} from '../components/table/table.recipe'
+import { defineRecipe } from '../theme/recipe'
+import { FOCUS_VISIBLE_RING_CLASS, PEER_FOCUS_VISIBLE_CLASS } from '../theme/recipe-common.recipe'
+import { createDataAttributes } from '../theme/style-contract'
+import type { DataAttributeContract } from '../theme/style-contract'
 
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
 

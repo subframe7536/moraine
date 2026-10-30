@@ -3,9 +3,9 @@ import type { Header, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createUniqueId } from 'solid-js'
 
-import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
-import { Icon } from '../icon'
-import { TABLE_TEXT_ALIGN_CLASS } from '../table/table.recipe'
+import { Icon } from '../components/icon'
+import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
+import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
 import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
-import * as MoraineDataTable from '../../../src/data-table.ts'
+import * as MoraineDataTable from '../../../src/data-table/index.ts'
 import * as MoraineMain from '../../../src/index.ts'
 import { scanDocsPages } from '../routes.ts'
 
@@ -11,7 +11,7 @@ import { getIdentifierName, parseTypeScript } from './ast.ts'
 import { generateApiDoc } from './extract.ts'
 
 // Components ship from the main entry or a dedicated subpath with an optional peer dependency.
-const COMPONENT_ENTRIES = ['src/index.ts', 'src/data-table.ts']
+const COMPONENT_ENTRIES = ['src/index.ts', 'src/data-table/index.ts']
 const Moraine = { ...MoraineMain, ...MoraineDataTable }
 
 describe('generateApiDoc', () => {

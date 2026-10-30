@@ -2,9 +2,9 @@ import type { RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
-import { Button } from '../button'
-import { DropdownMenu } from '../dropdown-menu'
-import { Pagination } from '../pagination'
+import { Button } from '../components/button'
+import { DropdownMenu } from '../components/dropdown-menu'
+import { Pagination } from '../components/pagination'
 
 import { getDataTableConfig } from './create-data-table'
 import { useDataTableContext } from './data-table-context'

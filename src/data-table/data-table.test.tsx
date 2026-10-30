@@ -2,9 +2,9 @@ import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import { createRoot, createSignal, mergeProps } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
-import { defineTheme } from '../../theme'
-import { createTableVirtualizer } from '../../virtualizer'
+import { MoraineProvider } from '../provider'
+import { defineTheme } from '../theme'
+import { createTableVirtualizer } from '../virtualizer'
 
 import { createDataTable } from './create-data-table'
 import { DataTable } from './data-table'

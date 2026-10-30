@@ -2,10 +2,10 @@ import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/s
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { HiddenInput } from '../../shared/hidden-input'
-import { PEER_CLASS } from '../../theme/recipe-common.recipe'
-import { Icon } from '../icon'
-import { CheckControl } from '../shared/check-control/check-control'
+import { Icon } from '../components/icon'
+import { CheckControl } from '../components/shared/check-control/check-control'
+import { HiddenInput } from '../shared/hidden-input'
+import { PEER_CLASS } from '../theme/recipe-common.recipe'
 
 import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'

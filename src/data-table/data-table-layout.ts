@@ -2,8 +2,8 @@ import type { Column, Header, HeaderGroup, RowData } from '@tanstack/solid-table
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
-import type { SlotValue } from '../../provider'
-import { TABLE_TEXT_ALIGN_CLASS } from '../table/table.recipe'
+import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
+import type { SlotValue } from '../provider'
 
 import type { DataTableFeatures } from './data-table-features'
 import { DATA_TABLE_RESIZABLE_CELL_CLASS } from './data-table.recipe'

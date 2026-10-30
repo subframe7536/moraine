@@ -3,10 +3,10 @@ import type { Component, JSX } from 'solid-js'
 import { Show, onCleanup } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useRecipe } from '../../provider'
-import type { SlotOverrides } from '../../provider'
-import type { DisclosureState } from '../../shared/disclosure-state'
-import { createDisclosureState } from '../../shared/disclosure-state'
+import { useRecipe } from '../provider'
+import type { SlotOverrides } from '../provider'
+import type { DisclosureState } from '../shared/disclosure-state'
+import { createDisclosureState } from '../shared/disclosure-state'
 
 import {
   DATA_TABLE_EXPANDED_BODY_CLASS,

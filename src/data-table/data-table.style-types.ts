@@ -1,4 +1,4 @@
-import type { ComponentStyleConfig } from '../../theme/types'
+import type { ComponentStyleConfig } from '../theme/types'
 
 export interface DataTableStyleSlot<T = unknown> {
   /** Outer scrollable container. */

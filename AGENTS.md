@@ -13,9 +13,11 @@ The root package is the publishable `moraine` library in `src/`. The private `@m
 workspace package lives in `docs/` and imports the library source directly for live updates.
 Run workspace commands from the repository root.
 
-Features that need an optional peer dependency ship from their own entry: `moraine/data-table`
-(`@tanstack/solid-table`) and `moraine/virtualizer` (`@tanstack/virtual-core`). The main `moraine`
-entry must never import either peer; `test/entry-boundaries.test.ts` checks the built output.
+Features that need an optional peer dependency ship from their own entry and live in their own
+top-level directory, whose `index.ts` is that entry: `src/data-table/` is `moraine/data-table`
+(`@tanstack/solid-table`), and `src/virtualizer/` is `moraine/virtualizer` (`@tanstack/virtual-core`).
+The main `moraine` entry must never import either peer; `test/entry-boundaries.test.ts` checks the
+built runtime and declaration output.
 
 ### Build & Development
 
@@ -78,7 +80,6 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── command-palette/    # Command palette behavior and presentation.
 │   ├── context-menu/       # Context menu overlay.
 │   ├── copy-button/        # Clipboard copy button with status feedback.
-│   ├── data-table/         # TanStack-backed DataTable and createDataTable (`moraine/data-table`).
 │   ├── dialog/             # Dialog primitives.
 │   ├── dropdown-menu/      # Dropdown menu overlay.
 │   ├── empty/              # Empty-state presentation.
@@ -117,6 +118,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── tooltip/            # Tooltip overlay.
 │   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
 │   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/).
+├── data-table/             # `moraine/data-table` entry: DataTable and createDataTable over TanStack Table.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.
@@ -125,6 +127,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── tokens.ts           # Shared design tokens.
 │   ├── unocss.ts           # UnoCSS preset and theme variable generation.
 │   └── tailwind.ts         # Tailwind plugin.
+└── virtualizer/            # `moraine/virtualizer` entry: list and table virtualizers over TanStack Virtual.
 ```
 
 Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.recipe.ts` file. Keep component-specific behavior inside its component directory; move logic to `components/shared/` or `src/shared/` only when it is used by multiple component families. Private primitives for higher-level components are located in `components/shared/` and are not automatically public API.

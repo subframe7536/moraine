@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test'
+import { hydrateFixture } from '../test-util/ssr-test'
 
 import { DataTableHydrationFixture } from './data-table.ssr.fixture'
 
@@ -11,7 +11,7 @@ test.each([true, false])(
     const [extraRow, setExtraRow] = createSignal(initialExtraRow)
 
     const { container } = hydrateFixture(
-      '/src/components/data-table/data-table.ssr.fixture.tsx',
+      '/src/data-table/data-table.ssr.fixture.tsx',
       initialExtraRow ? 'renderDataTableFixture' : 'renderSingleRowDataTableFixture',
       () => <DataTableHydrationFixture extraRow={extraRow()} />,
     )

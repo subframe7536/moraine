@@ -3,7 +3,6 @@ import type { defaultBreadcrumbMessages } from '../../components/breadcrumb/brea
 import type { defaultComboboxMessages } from '../../components/combobox/combobox.messages'
 import type { defaultCommandPaletteMessages } from '../../components/command-palette/command-palette.messages'
 import type { defaultCopyButtonMessages } from '../../components/copy-button/copy-button.messages'
-import type { defaultDataTableMessages } from '../../components/data-table/data-table.messages'
 import type { defaultDialogMessages } from '../../components/dialog/dialog.messages'
 import type { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import type { defaultFormMessages } from '../../components/form/form.messages'
@@ -19,6 +18,7 @@ import type { defaultSheetMessages } from '../../components/sheet/sheet.messages
 import type { defaultSidebarMessages } from '../../components/sidebar/sidebar.messages'
 import type { defaultSliderMessages } from '../../components/slider/slider.messages'
 import type { defaultToastMessages } from '../../components/toast/toast.messages'
+import type { defaultDataTableMessages } from '../../data-table/data-table.messages'
 
 export type ComponentMessages<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : string

@@ -1,8 +1,8 @@
 import type { Column, RowData } from '@tanstack/solid-table'
 import type { Accessor } from 'solid-js'
 
-import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../../provider'
-import { createContextProvider } from '../../shared/create-context-provider'
+import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'
+import { createContextProvider } from '../shared/create-context-provider'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'

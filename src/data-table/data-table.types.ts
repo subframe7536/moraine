@@ -18,10 +18,10 @@ import type {
 } from '@tanstack/solid-table'
 import type { Component, JSX, Ref } from 'solid-js'
 
-import type { ComponentMessages } from '../../provider/locale/messages.types'
-import type { TableVirtualRenderProps } from '../../shared/table-virtual-render'
-import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { ComponentMessages } from '../provider/locale/messages.types'
+import type { BaseProps } from '../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
+import type { TableVirtualRenderProps } from '../virtualizer/table-virtual-render'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { defaultDataTableMessages } from './data-table.messages'

@@ -3,7 +3,7 @@ import type { RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { For, Show, untrack } from 'solid-js'
 
-import type { ListT } from '../list'
+import type { ListT } from '../components/list'
 
 import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
