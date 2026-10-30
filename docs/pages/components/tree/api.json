@@ -287,7 +287,7 @@
         "factory": "createTree",
         "member": "ItemIcon"
       },
-      "defaultElement": "div",
+      "defaultElement": "span",
       "props": [
         {
           "name": "class",

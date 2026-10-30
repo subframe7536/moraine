@@ -479,7 +479,7 @@ describe('Pagination', () => {
 
     expect(ellipsisNodes.length).toBe(2)
     for (const ellipsis of ellipsisNodes) {
-      expect(ellipsis.className).not.toMatch(/(?:^|\s)size-/)
+      expect(ellipsis.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
     }
   })
 

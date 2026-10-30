@@ -300,7 +300,7 @@ export namespace TreeT {
     icon: IconT.Name
   }
 
-  export type ItemIconProps = BaseProps<'div', ItemIconBase, never, never, never>
+  export type ItemIconProps = BaseProps<'span', ItemIconBase, never, never, never>
 
   export interface ItemLabelBase<T extends ValidComponent = 'span'> {
     /**

@@ -1306,6 +1306,49 @@ describe('DropdownMenu', () => {
     expect(leading.className).not.toContain('text-muted-foreground')
   })
 
+  test('renders leading icons as the slot host and lets the slot resize any icon source', async () => {
+    const Glyph = () => <svg data-testid="glyph" />
+    render(() => (
+      <DropdownMenu defaultOpen classes={{ itemLeading: 'size-6' }}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          submenuIcon={Glyph}
+          items={[
+            { label: 'Search', icon: 'icon-search' },
+            { label: 'Share', icon: Glyph, children: [{ label: 'Email' }] },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-item-leading"]'),
+      ).toHaveLength(2)
+    })
+
+    const [maskLeading, componentLeading] = document.body.querySelectorAll<HTMLElement>(
+      '[data-slot="dropdown-menu-item-leading"]',
+    )
+    const subIndicator = document.body.querySelector<HTMLElement>(
+      '[data-slot="dropdown-menu-item-sub-indicator"]',
+    )!
+
+    expect(maskLeading!.className).toContain('icon-search')
+    // The slot override replaces the default size on the icon host itself.
+    for (const leading of [maskLeading!, componentLeading!]) {
+      expect(leading.className).toContain('size-6')
+      expect(leading.className).not.toContain('size-4')
+      expect(leading.className).toContain('*:size-full')
+    }
+    expect(componentLeading!.querySelector('[data-testid="glyph"]')).not.toBeNull()
+    // A trailing component icon fills the same kind of host.
+    expect(subIndicator.querySelector('[data-testid="glyph"]')).not.toBeNull()
+    expect(subIndicator.className).toContain('size-[1.2em]')
+  })
+
   test('exposes danger state without annotating default items', async () => {
     render(() => (
       <DropdownMenu defaultOpen>

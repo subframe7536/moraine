@@ -2,12 +2,11 @@ import { Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
 import { Icon } from './icon'
-import type { IconProps } from './icon.types'
 
-function Glyph(props: Omit<IconProps, 'name'>) {
+function Glyph() {
   return (
-    <svg aria-label={props['aria-label']} data-testid="component-icon">
-      <title>{props['aria-label']}</title>
+    <svg data-testid="component-icon">
+      <path d="M0 0h1" />
     </svg>
   )
 }

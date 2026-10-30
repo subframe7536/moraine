@@ -93,18 +93,11 @@ describe('Icon', () => {
     expect(cleanups).toBe(1)
   })
 
-  test('forwards reactive attributes to Solid components with default parameters', () => {
+  test('mounts attributes and slots on the outer host span for component icons', () => {
     const [label, setLabel] = createSignal('Before')
     const [size, setSize] = createSignal('18px')
-    const Glyph = (props: Omit<IconProps, 'name'> = {}) => (
-      <svg
-        aria-hidden={props['aria-hidden']}
-        aria-label={props['aria-label']}
-        role={props.role}
-        class={props.class as string}
-        style={props.style}
-        data-title={props.title}
-      />
+    const Glyph = (props: Record<string, unknown>) => (
+      <svg data-testid="glyph" data-prop-count={Object.keys(props).length} />
     )
     const screen = render(() => (
       <Icon
@@ -115,16 +108,54 @@ describe('Icon', () => {
         title="Status"
       />
     ))
-    const glyph = screen.getByRole('img', { name: 'Before' })
-    expect(glyph.getAttribute('aria-label')).toBe('Before')
-    expect(glyph.getAttribute('class')).toContain('glyph')
-    expect(glyph.getAttribute('data-title')).toBe('Status')
-    expect(glyph.style.fontSize).toBe('18px')
+    const host = screen.getByRole('img', { name: 'Before' })
+    const glyph = screen.getByTestId('glyph')
+
+    expect(host.tagName).toBe('SPAN')
+    expect(glyph.parentElement).toBe(host)
+    // The component is rendered without props, so nothing is mounted twice.
+    expect(glyph.getAttribute('data-prop-count')).toBe('0')
+    expect(glyph.hasAttribute('class')).toBe(false)
+    expect(host.getAttribute('class')).toContain('glyph')
+    expect(host.getAttribute('title')).toBe('Status')
+    expect(host.style.fontSize).toBe('18px')
     setSize('24px')
-    expect(glyph.style.fontSize).toBe('24px')
+    expect(host.style.fontSize).toBe('24px')
     setLabel('After')
-    expect(glyph.getAttribute('aria-label')).toBe('After')
-    expect(screen.getByRole('img', { name: 'After' })).toBe(glyph)
+    expect(screen.getByRole('img', { name: 'After' })).toBe(host)
+    expect(screen.getByTestId('glyph')).toBe(glyph)
+  })
+
+  test('keeps data-slot and class for a zero-argument component that ignores props', () => {
+    const screen = render(() => (
+      <Icon name={() => <svg data-testid="glyph" />} data-slot="custom-leading" class="custom" />
+    ))
+    const host = screen.getByTestId('glyph').parentElement!
+
+    expect(host.getAttribute('data-slot')).toBe('custom-leading')
+    expect(host.className).toContain('custom')
+  })
+
+  test('sizes every source as a 1.2em host and lets a size class resize the graphic', () => {
+    const screen = render(() => (
+      <>
+        <Icon name="i-lucide-search" data-testid="mask" />
+        <Icon name={<svg data-testid="element" />} />
+        <Icon name={() => <svg data-testid="component" />} class="size-6" />
+      </>
+    ))
+    const mask = screen.getByTestId('mask')
+    const elementHost = screen.getByTestId('element').parentElement!
+    const componentHost = screen.getByTestId('component').parentElement!
+
+    for (const host of [mask, elementHost]) {
+      expect(host.className).toContain('size-[1.2em]')
+      expect(host.className).toContain('*:size-full')
+    }
+    // The host takes the caller size; the graphic fills it through `*:size-full`.
+    expect(componentHost.className).toContain('size-6')
+    expect(componentHost.className).not.toContain('size-[1.2em]')
+    expect(componentHost.className).toContain('*:size-full')
   })
 
   test('passes through HTML attributes to the span element', () => {
@@ -176,7 +207,7 @@ describe('Icon', () => {
       />
     ))
     const rawIcon = rawScreen.getByRole('img', { name: 'Search' })
-    expect(rawIcon.tagName).toBe('DIV')
+    expect(rawIcon.tagName).toBe('SPAN')
     expect(rawScreen.getByTestId('raw-svg').parentElement).toBe(rawIcon)
 
     const labelledByScreen = render(() => (

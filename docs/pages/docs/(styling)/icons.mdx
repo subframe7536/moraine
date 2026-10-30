@@ -17,8 +17,9 @@ To enable built-in icons, import Moraine's icon stylesheet into your main applic
 @import 'moraine/icon.css';
 ```
 
-The stylesheet puts its rules in the `components` cascade layer. Utilities such as `size-4` on an
-icon therefore override the default `1.2em` size in both UnoCSS and Tailwind.
+The stylesheet puts its rules in the `components` cascade layer. `<Icon>` renders every icon as a
+`1.2em` `span`, and utilities such as `size-4` on the icon override that size in both UnoCSS and
+Tailwind. JSX and component icons fill the same `span`.
 
 ## The `<Icon>` Component
 

@@ -14,8 +14,13 @@ import type { IconStyleSlot } from './icon.style-types'
 export const ICON_MASK_FORCED_COLORS_CLASS =
   'forced-color-adjust-none forced-colors:text-inherit supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]'
 
+/**
+ * Every icon is an Icon-owned `span` host. The host is a `1.2em` box that follows the font size,
+ * and a JSX or component graphic inside it fills the host, so a size class on the host resizes
+ * the graphic too.
+ */
 export const iconRecipe = /* @__PURE__ */ defineRecipe<IconStyleSlot>('icon', {
   base: {
-    root: '',
+    root: 'inline-flex shrink-0 size-[1.2em] items-center justify-center *:size-full',
   },
 })
