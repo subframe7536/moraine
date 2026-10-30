@@ -22,7 +22,6 @@ import {
   VirtualRows,
   createSharedElementOffsetObserver,
   createVirtualizerController,
-  scrollToIndexOf,
 } from './virtualizer-core'
 import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
 
@@ -502,8 +501,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     columnInstance: () => columnController?.instance(),
     virtualRender: VirtualRender,
     columnWindow,
-    scrollToIndex: scrollToIndexOf(controller.instance),
-    scrollToColumn: (index, scrollOptions) =>
-      columnController?.instance()?.scrollToIndex(index, scrollOptions),
+    scrollToIndex: controller.scrollToIndex,
+    scrollToColumn: (index, scrollOptions) => columnController?.scrollToIndex(index, scrollOptions),
   }
 }

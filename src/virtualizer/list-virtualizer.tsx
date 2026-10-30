@@ -3,7 +3,7 @@ import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from '../shared/virtual'
 
-import { VirtualRows, createVirtualizerController, scrollToIndexOf } from './virtualizer-core'
+import { VirtualRows, createVirtualizerController } from './virtualizer-core'
 import type { VirtualizerAdapterOptions } from './virtualizer-core'
 
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
@@ -91,6 +91,6 @@ export function createListVirtualizer<TItem>(
   return {
     instance: controller.instance,
     virtualRender,
-    scrollToIndex: scrollToIndexOf(controller.instance),
+    scrollToIndex: controller.scrollToIndex,
   }
 }

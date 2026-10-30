@@ -89,6 +89,12 @@ export function createVirtualizerController<
 ): {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>
+  /**
+   * `scrollToIndex` of the mounted instance. A call made while the adapter is attached but not yet
+   * mounted is kept and replayed once the instance is published, so a host can scroll to its
+   * initial entry right after mounting the content; calls with nothing attached are ignored.
+   */
+  scrollToIndex: Virtualizer<TScrollElement, TItemElement>['scrollToIndex']
   /** Binds the controller to a mounted adapter component; call inside the component body. */
   attach: (props: {
     entries: () => readonly TItem[]
@@ -103,10 +109,29 @@ export function createVirtualizerController<
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
   const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
+  type ScrollRequest = Parameters<Virtualizer<TScrollElement, TItemElement>['scrollToIndex']>
+  let attached = 0
+  let pendingScroll: ScrollRequest | undefined
 
   return {
     instance,
+    scrollToIndex: (...request) => {
+      const current = instance()
+      if (current) {
+        pendingScroll = undefined
+        current.scrollToIndex(...request)
+      } else if (attached > 0) {
+        pendingScroll = request
+      }
+    },
     attach: (adapterProps) => {
+      attached++
+      onCleanup(() => {
+        attached--
+        if (attached === 0) {
+          pendingScroll = undefined
+        }
+      })
       const [mounted, setMounted] = createSignal(false)
       const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
       const [totalSize, setTotalSize] = createSignal(0)
@@ -225,8 +250,16 @@ export function createVirtualizerController<
             return
           }
 
-          setInstance(virtualizer)
-          setMounted(true)
+          batch(() => {
+            setInstance(virtualizer)
+            setMounted(true)
+          })
+          // Replay after `mounted` so the scroll element and measurements are in place.
+          const request = pendingScroll
+          pendingScroll = undefined
+          if (request) {
+            virtualizer.scrollToIndex(...request)
+          }
         })
 
         onCleanup(() => {
@@ -335,16 +368,6 @@ export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(
       }}
     </For>
   )
-}
-
-/** `scrollToIndex` of a controller's mounted instance; a no-op before it mounts. */
-export function scrollToIndexOf<
-  TScrollElement extends HTMLElement,
-  TItemElement extends HTMLElement,
->(
-  instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>,
-): Virtualizer<TScrollElement, TItemElement>['scrollToIndex'] {
-  return (index, scrollOptions) => instance()?.scrollToIndex(index, scrollOptions)
 }
 
 type OffsetCallback = (offset: number, isScrolling: boolean) => void

@@ -2,13 +2,15 @@ import { getInput } from '@formisch/solid'
 import { fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
+import { createListVirtualizer } from '../../virtualizer'
 import { createForm } from '../index'
 
 import { Select } from './select'
+import type { SelectT } from './select.types'
 
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
@@ -460,4 +462,33 @@ test('supports typeahead with string shorthand', () => {
   const screen = render(() => <Select items={['Apple', 'Banana']} onValueChange={onChange} />)
   fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')
+})
+
+test('scrolls a distant initial selection into view once the virtualizer mounts', async () => {
+  const items: SelectT.Item<string>[] = Array.from({ length: 1000 }, (_, index) => ({
+    label: `Item ${index}`,
+    value: `item-${index}`,
+  }))
+  // jsdom has no layout; TanStack clamps scroll offsets to `scrollHeight - clientHeight`.
+  const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(32000)
+  const clientHeight = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(160)
+  onTestFinished(() => {
+    scrollHeight.mockRestore()
+    clientHeight.mockRestore()
+  })
+  const scrollToFn = vi.fn()
+  const virtualizer = createListVirtualizer<SelectT.Row<SelectT.Item<string>>>({
+    estimateSize: () => 32,
+    observeElementRect: (_instance, callback) => callback({ width: 200, height: 160 }),
+    observeElementOffset: (_instance, callback) => callback(0, false),
+    scrollToFn,
+  })
+  render(() => (
+    <Select items={items} defaultValue="item-999" defaultOpen virtualizer={virtualizer} />
+  ))
+
+  await Promise.resolve()
+
+  // Row 999 ends at 32,000 px; aligning its end to a 160 px viewport gives 31,840.
+  expect(scrollToFn).toHaveBeenLastCalledWith(31840, expect.anything(), virtualizer.instance())
 })
