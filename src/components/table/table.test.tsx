@@ -1,8 +1,9 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Table } from './table'
+import { TABLE_STRIPED_ROW_CLASS } from './table.recipe'
 
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector(`[data-slot="table${name ? `-${name}` : ''}"]`) as HTMLElement | null
@@ -223,11 +224,39 @@ describe('Table', () => {
     ))
 
     expect(slot(container, 'row')?.className).toContain(
-      '[&:nth-child(even):not([data-index]):not([data-selected])]:bg-muted/50',
+      '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50',
     )
     expect(slot(container, 'row')?.className).toContain(
       '[&[data-even]:not([data-selected])]:bg-muted/50',
     )
+  })
+
+  test('stripes static rows by DOM position even when they carry data-index', () => {
+    const { container } = render(() => (
+      <Table striped>
+        <Table.Body>
+          <For each={[0, 1, 2, 3]}>
+            {(index) => (
+              <Table.Row data-index={index}>
+                <Table.Cell>Row {index}</Table.Cell>
+              </Table.Row>
+            )}
+          </For>
+        </Table.Body>
+      </Table>
+    ))
+
+    // Each striping utility is `[&<selector>]:bg-...`; match rows against those selectors.
+    const selectors = TABLE_STRIPED_ROW_CLASS.split(' ').map((token) =>
+      token.slice(2, token.lastIndexOf(']:')),
+    )
+    const striped = (row: Element) => selectors.some((selector) => row.matches(selector))
+    expect([...container.querySelectorAll('tbody tr')].map(striped)).toEqual([
+      false,
+      true,
+      false,
+      true,
+    ])
   })
 
   test('hoverEffect variant adds row hover background only when enabled (false by default)', () => {

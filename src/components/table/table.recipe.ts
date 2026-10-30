@@ -23,11 +23,11 @@ export const TABLE_ROW_CLASS = 'border-border transition-colors data-selected:bg
 export const TABLE_HEAD_CLASS = 'text-muted-foreground font-medium align-middle border-border'
 export const TABLE_CELL_CLASS = 'align-middle border-border'
 /**
- * Static rows stripe by DOM position. Virtualized rows follow a spacer row, so they stripe by the
- * `data-even` marker the table adapter sets from the row index.
+ * Static rows stripe by DOM position. Virtualized rows follow a spacer row, so the table adapter
+ * marks them with `data-virtual-row` and they stripe by its `data-even` marker instead.
  */
 export const TABLE_STRIPED_ROW_CLASS =
-  '[&:nth-child(even):not([data-index]):not([data-selected])]:bg-muted/50 [&[data-even]:not([data-selected])]:bg-muted/50'
+  '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50 [&[data-even]:not([data-selected])]:bg-muted/50'
 export const TABLE_HOVER_ROW_CLASS = '[tbody>&:not([data-selected]):hover]:bg-accent/50'
 export const TABLE_COLUMN_BORDER_CLASS = '[&:not(:last-child)]:border-r'
 
