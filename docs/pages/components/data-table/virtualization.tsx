@@ -55,7 +55,7 @@ export default function VirtualizationExample() {
   return (
     <DataTable
       table={table}
-      virtualRender={virtualizer.virtualRender}
+      virtualizer={virtualizer}
       sticky="header"
       maxHeight={360}
       size="sm"

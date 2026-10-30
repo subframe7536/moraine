@@ -238,11 +238,7 @@ Read the [Virtualization guide](/docs/virtualization) for setup, row measurement
 keyboard navigation.
 
 ```tsx
-<Combobox
-  items={items}
-  virtualRender={virtualizer.virtualRender}
-  scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
-/>
+<Combobox items={items} virtualizer={virtualizer} />
 ```
 
 ## Examples

@@ -5,8 +5,10 @@ import {
   observeElementRect,
 } from '@tanstack/virtual-core'
 import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
-import type { Accessor } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
+  For,
+  Show,
   batch,
   createMemo,
   createRenderEffect,
@@ -293,6 +295,56 @@ export function attachRowMeasurement<
       }
     })
   }
+}
+
+/**
+ * Renders the current window: one row per virtual item, measured through the ref passed to
+ * `rowProps`. Items past the end of shrunken entries render nothing.
+ */
+export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(props: {
+  virtualizer: Virtualizer<HTMLElement, TItemElement>
+  virtualItems: readonly VirtualItem[]
+  entries: readonly TItem[]
+  render: (item: TItem, index: number, rowProps: TRowProps) => JSX.Element
+  /** Builds the row attributes; it must pass `measure` on as the row `ref`. */
+  rowProps: (
+    row: VirtualRowEntry<TItem>,
+    virtualItem: VirtualItem,
+    measure: (element: TItemElement) => void,
+  ) => TRowProps
+}): JSX.Element {
+  const renderRow = createMemo(() => props.render)
+
+  return (
+    <For each={props.virtualItems}>
+      {(virtualItem) => {
+        const row = createVirtualRow(virtualItem, () => props.entries)
+
+        return (
+          <Show keyed when={row()}>
+            {(current) => {
+              const measure = attachRowMeasurement(props.virtualizer)
+              return renderRow()(
+                current.item,
+                current.index,
+                props.rowProps(current, virtualItem, measure),
+              )
+            }}
+          </Show>
+        )
+      }}
+    </For>
+  )
+}
+
+/** `scrollToIndex` of a controller's mounted instance; a no-op before it mounts. */
+export function scrollToIndexOf<
+  TScrollElement extends HTMLElement,
+  TItemElement extends HTMLElement,
+>(
+  instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>,
+): Virtualizer<TScrollElement, TItemElement>['scrollToIndex'] {
+  return (index, scrollOptions) => instance()?.scrollToIndex(index, scrollOptions)
 }
 
 type OffsetCallback = (offset: number, isScrolling: boolean) => void

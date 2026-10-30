@@ -1,25 +1,24 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
+import { VirtualContent } from '../../shared/virtual-content'
 
 import { listRecipe } from './list.recipe'
-import type { ListProps, ListT } from './list.types'
+import type { ListProps } from './list.types'
 
-/** Headless polymorphic list with optional caller-controlled virtualization. */
-export function List<
-  TItem,
-  T extends ValidComponent = 'ul',
-  TItemElement extends HTMLElement = HTMLElement,
->(props: ListProps<TItem, T, TItemElement>): JSX.Element {
-  const [local, rest] = splitProps(props as ListProps<TItem, T, TItemElement> & { ref?: unknown }, [
+/** Headless polymorphic list with optional virtualization. */
+export function List<TItem, T extends ValidComponent = 'ul'>(
+  props: ListProps<TItem, T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props as ListProps<TItem, T> & { ref?: unknown }, [
     'as',
     'items',
     'itemRender',
-    'virtualRender',
+    'virtualizer',
     'fallback',
     'ref',
     'classes',
@@ -45,8 +44,14 @@ export function List<
       <Show
         when={'fallback' in props && !local.items?.length}
         fallback={
-          <Show
-            when={local.virtualRender}
+          <VirtualContent<TItem>
+            virtualizer={local.virtualizer}
+            entries={local.items ?? []}
+            scrollElement={scrollElement()}
+            render={(item, index, rowProps) => {
+              const ItemRender = local.itemRender
+              return <ItemRender item={item} index={index} props={rowProps} />
+            }}
             fallback={
               <For each={local.items}>
                 {(item, index) => {
@@ -55,19 +60,7 @@ export function List<
                 }}
               </For>
             }
-          >
-            {(virtualRender) => (
-              <Dynamic<Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>>>
-                component={virtualRender()}
-                entries={local.items ?? []}
-                scrollElement={scrollElement()}
-                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) => {
-                  const ItemRender = local.itemRender
-                  return <ItemRender item={item} index={index} props={rowProps} />
-                }}
-              />
-            )}
-          </Show>
+          />
         }
       >
         {(_empty) => local.fallback}

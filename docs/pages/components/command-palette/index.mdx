@@ -224,6 +224,14 @@ Keep the palette visible while `loading` is true.
 
 <Preview path="./loading" />
 
+### Search ten thousand commands
+
+Pass a `virtualizer` from `createListVirtualizer` to render only the rows near the viewport. Its
+entries are `CommandPaletteT.VirtualEntry` rows: group labels and commands flattened into one list.
+Give the listbox a fixed height so the virtual range is stable.
+
+<Preview path="./virtualization" />
+
 ### Drill into Create or Share
 
 Swap `groups` to open a short command branch. Keep selection from closing the palette until the

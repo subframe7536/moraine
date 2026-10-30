@@ -110,14 +110,7 @@ export function VirtualColumnsDataTableFixture() {
     initialState: { columnPinning: { start: ['id'], end: [] } },
   })
 
-  return (
-    <DataTable
-      table={table}
-      virtualRender={virtualizer.virtualRender}
-      maxHeight={120}
-      aria-label="Wide"
-    />
-  )
+  return <DataTable table={table} virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
 }
 
 export function renderDataTableFeaturesFixture(): string {
@@ -142,14 +135,7 @@ export function VirtualRowsDataTableFixture() {
   })
   const table = createDataTable({ data: WIDE_ROWS, columns: WIDE_COLUMNS })
 
-  return (
-    <DataTable
-      table={table}
-      virtualRender={virtualizer.virtualRender}
-      maxHeight={120}
-      aria-label="Wide"
-    />
-  )
+  return <DataTable table={table} virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
 }
 
 export function renderVirtualRowsDataTableFixture(): string {

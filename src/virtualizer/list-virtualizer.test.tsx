@@ -2,7 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { RowProps } from './list-virtualizer'
+import type { VirtualRowProps as RowProps } from '../shared/virtual'
+
 import { createListVirtualizer } from './list-virtualizer'
 
 describe('createListVirtualizer', () => {

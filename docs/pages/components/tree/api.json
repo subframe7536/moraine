@@ -65,12 +65,6 @@
           }
         },
         {
-          "name": "scrollToItem",
-          "optional": true,
-          "type": "(item: ItemInstance<T>, entryIndex: number) => void",
-          "description": "Scrolls a focused item into view using its flattened index."
-        },
-        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -133,10 +127,10 @@
           }
         },
         {
-          "name": "virtualRender",
+          "name": "virtualizer",
           "optional": true,
-          "type": "Component<VirtualRenderProps<T>>",
-          "description": "Replaces nested rendering with caller-controlled virtual rendering of flattened items."
+          "type": "Virtualizer<T>",
+          "description": "Renders only the visible items of the flattened tree instead of nesting them. The tree\nroot is the scroll container, and keyboard focus scrolls through the virtualizer."
         }
       ]
     },

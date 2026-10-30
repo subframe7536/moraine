@@ -193,13 +193,13 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | State       | `initialState`, `state`, `on[Slice]Change` callbacks                              | Uncontrolled.                                   |
 | Other       | `tableOptions`: TanStack options without a top-level option, such as `getSubRows` | None.                                           |
 
-| Concern       | `DataTable` props                                                               |
-| ------------- | ------------------------------------------------------------------------------- |
-| Instance      | `table` (required)                                                              |
-| Layout        | `sticky`, `maxHeight`, `size`, `striped`, `hoverEffect`, `showBorder`           |
-| Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualRender` |
-| Rows          | `rowClass`, `onRowClick`, `onRowDoubleClick`                                    |
-| Styling, i18n | `classes`, `styles`, `class`, `style`, `containerRef`, `translations`           |
+| Concern       | `DataTable` props                                                             |
+| ------------- | ----------------------------------------------------------------------------- |
+| Instance      | `table` (required)                                                            |
+| Layout        | `sticky`, `maxHeight`, `size`, `striped`, `hoverEffect`, `showBorder`         |
+| Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualizer` |
+| Rows          | `rowClass`, `onRowClick`, `onRowDoubleClick`                                  |
+| Styling, i18n | `classes`, `styles`, `class`, `style`, `containerRef`, `translations`         |
 
 Other native `table` attributes, such as `aria-label`, are forwarded to the `table` element.
 
@@ -519,7 +519,7 @@ action.
 
 ### Virtualization
 
-Pass `virtualRender` from `createTableVirtualizer` (`moraine/virtualizer`) to mount only the rows
+Pass a `virtualizer` from `createTableVirtualizer` (`moraine/virtualizer`) to mount only the rows
 near the viewport. Give the table a bounded height with `maxHeight`. The virtualizer measures the
 header above the body, including a sticky header, so you do not set `scrollMargin`.
 
@@ -531,7 +531,7 @@ const virtualizer = createTableVirtualizer<DataTableT.Row<Task>>({
   getItemKey: (row) => row.id,
 })
 
-return <DataTable table={table} virtualRender={virtualizer.virtualRender} sticky maxHeight={320} />
+return <DataTable table={table} virtualizer={virtualizer} sticky maxHeight={320} />
 ```
 
 A virtualized table shows every row in one scroll, which changes three behaviors:
@@ -676,7 +676,7 @@ and Escape cancels. The table reads `data` through a getter, so the saved value 
 
 ### Scroll 10,000 rows and 100 columns
 
-Pass `virtualRender` from `createTableVirtualizer`, with `getItemKey` set to the row id, and bound
+Pass a `virtualizer` from `createTableVirtualizer`, with `getItemKey` set to the row id, and bound
 the table with `maxHeight`. The virtualizer's `columns` option also virtualizes the hour columns, so
 only the cells near the viewport mount. The pinned server column stays in view while the hours
 scroll sideways. Leave out `columns` to virtualize rows only.

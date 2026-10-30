@@ -104,7 +104,7 @@ describe('generateApiDoc', () => {
     const list = result.componentDocs.get('list')
     expect(list?.parts[0]?.defaultElement).toBe('ul')
     expect(list?.parts[0]?.props.map((prop) => prop.name)).toEqual(
-      expect.arrayContaining(['as', 'items', 'itemRender', 'virtualRender']),
+      expect.arrayContaining(['as', 'items', 'itemRender', 'virtualizer']),
     )
 
     const dialog = result.componentDocs.get('dialog')
@@ -159,6 +159,7 @@ describe('generateApiDoc', () => {
           'itemRender',
           'itemProps',
           'listboxProps',
+          'virtualizer',
           'onScrollBottom',
           'scrollBottomThreshold',
           'gutter',
@@ -168,8 +169,6 @@ describe('generateApiDoc', () => {
       if (key !== 'select') {
         expect(props.map((prop) => prop.name)).toEqual(
           expect.arrayContaining([
-            'virtualRender',
-            'scrollToItem',
             'searchValue',
             'defaultSearchValue',
             'onSearch',
@@ -177,10 +176,9 @@ describe('generateApiDoc', () => {
             'searchMaxLength',
           ]),
         )
-      } else {
-        expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
-        expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
       }
+      expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
+      expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
     }
     for (const key of ['collapsible', 'sidebar']) {
       const trigger = result.componentDocs
@@ -228,10 +226,14 @@ describe('generateApiDoc', () => {
 
     // FlowComponent parts accept children through BaseProps' `AcceptsChildren` flag.
     const table = result.componentDocs.get('table')!
-    for (const name of ['Table.Header', 'Table.Body', 'Table.Footer', 'Table.Caption']) {
+    for (const name of ['Table.Header', 'Table.Footer', 'Table.Caption']) {
       const part = table.parts.find((entry) => entry.name === name)!
       expect(part.props.map((prop) => prop.name)).toEqual(['children', 'class', 'style'])
     }
+    const tableBody = table.parts.find((entry) => entry.name === 'Table.Body')!
+    expect(tableBody.props.map((prop) => prop.name)).toEqual(
+      expect.arrayContaining(['items', 'itemRender', 'virtualizer', 'scrollElement', 'children']),
+    )
 
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
@@ -265,14 +267,9 @@ describe('generateApiDoc', () => {
     expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
     const treeRootProps = tree?.parts[0]?.props.map((prop) => prop.name) ?? []
     expect(treeRootProps).toEqual(
-      expect.arrayContaining([
-        'loadingIcon',
-        'scrollToItem',
-        'transition',
-        'triggerIcon',
-        'virtualRender',
-      ]),
+      expect.arrayContaining(['loadingIcon', 'transition', 'triggerIcon', 'virtualizer']),
     )
+    expect(treeRootProps).not.toContain('scrollToItem')
     expect(treeRootProps).not.toContain('animate')
     expect(treeRootProps).not.toContain('icons')
     expect(treeRootProps).not.toContain('virtual')

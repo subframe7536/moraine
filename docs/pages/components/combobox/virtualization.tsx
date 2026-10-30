@@ -8,11 +8,7 @@ const ITEMS: ComboboxT.Item<string>[] = Array.from({ length: 10_000 }, (_, index
 }))
 
 export function Virtualization() {
-  const virtualizer = createListVirtualizer<
-    ComboboxT.Row<ComboboxT.Item<string>>,
-    HTMLDivElement,
-    HTMLDivElement
-  >({
+  const virtualizer = createListVirtualizer<ComboboxT.Row<ComboboxT.Item<string>>>({
     estimateSize: (entry) => (entry.type === 'label' ? 30 : 32),
     getItemKey: (entry) => entry.key,
     overscan: 8,
@@ -25,8 +21,7 @@ export function Virtualization() {
         placeholder="Search 10,000 options..."
         leadingIcon="i-lucide:search"
         openOnControlClick
-        virtualRender={virtualizer.virtualRender}
-        scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+        virtualizer={virtualizer}
         classes={{ listbox: 'h-80 max-h-80' }}
       />
     </div>

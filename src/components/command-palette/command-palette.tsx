@@ -152,8 +152,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'emptyRender',
     'footerRender',
     'itemRender',
-    'virtualRender',
-    'scrollToItem',
+    'virtualizer',
     'listboxProps',
     'itemProps',
     'inputProps',
@@ -353,7 +352,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   createEffect(
-    on([activeKey, visibleItemByKey, () => merged.virtualRender], ([key, items, virtual]) => {
+    on([activeKey, visibleItemByKey, () => merged.virtualizer], ([key, items, virtualizer]) => {
       if (!key) {
         return
       }
@@ -361,10 +360,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       if (!item) {
         return
       }
-      const scrollToItem = merged.scrollToItem
-      const entryIndex = virtual && scrollToItem ? virtualEntryIndexByKey().get(key) : undefined
-      if (scrollToItem && entryIndex !== undefined) {
-        scrollToItem(item.item, entryIndex)
+      // Rows outside the virtual window have no element to scroll into view.
+      const entryIndex = virtualizer ? virtualEntryIndexByKey().get(key) : undefined
+      if (virtualizer && entryIndex !== undefined) {
+        virtualizer.scrollToIndex(entryIndex)
         return
       }
       const id = activeDescendantId()
@@ -540,7 +539,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   function VisibleItem(itemProps: {
     item: NormalizedItem<TItem>
-    virtualProps?: ListT.RowProps<HTMLDivElement>
+    virtualProps?: ListT.RowProps
   }): JSX.Element {
     const context = getContext()
     const itemContext: CommandPaletteT.ItemRenderProps<TItem> = {
@@ -590,9 +589,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         aria-selected={isActive(itemProps.item.key)}
         aria-disabled={itemProps.item.disabled || undefined}
         aria-posinset={
-          merged.virtualRender ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
+          merged.virtualizer ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
         }
-        aria-setsize={merged.virtualRender ? visibleItems().length : undefined}
+        aria-setsize={merged.virtualizer ? visibleItems().length : undefined}
         ref={(element) => {
           callRef(itemAttributes()?.ref, element)
           itemProps.virtualProps?.ref?.(element)
@@ -716,7 +715,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       </div>
 
       <Show
-        when={merged.virtualRender}
+        when={merged.virtualizer}
         fallback={
           <List
             as="div"
@@ -754,7 +753,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           />
         }
       >
-        {(virtualRender) => (
+        {(virtualizer) => (
           <List
             as="div"
             items={hasItems() ? virtualEntries() : []}
@@ -765,7 +764,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 </Show>
               </div>
             }
-            virtualRender={virtualRender()}
+            virtualizer={virtualizer()}
             itemRender={(context) => (
               <Show
                 when={context.item.type === 'label'}

@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { For, createSignal } from 'solid-js'
+import { For, createEffect, createSignal, on } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Table } from './table'
@@ -433,5 +433,74 @@ describe('Table', () => {
     expect(captionRef).toBe(caption)
     expect(caption.className).toContain('text-muted-foreground')
     expect(caption.className).toContain('my-4')
+  })
+
+  test('Table.Body renders one row per item through itemRender', () => {
+    const { container } = render(() => (
+      <Table>
+        <Table.Body
+          items={['a', 'b']}
+          itemRender={(context) => (
+            <Table.Row {...context.props} data-props={context.props ? 'set' : 'none'}>
+              <Table.Cell>
+                {context.item}:{context.index}
+              </Table.Cell>
+            </Table.Row>
+          )}
+        />
+      </Table>
+    ))
+
+    const rows = [...slot(container, 'body')!.querySelectorAll('tr')]
+    expect(rows.map((row) => row.textContent)).toEqual(['a:0', 'b:1'])
+    expect(rows.map((row) => row.dataset.props)).toEqual(['none', 'none'])
+  })
+
+  test('Table.Body mounts its virtualizer over items and passes the scroll element', () => {
+    let scrollElement: HTMLElement | undefined
+    const scroller = document.createElement('div')
+    const { container } = render(() => (
+      <Table>
+        <Table.Body
+          items={['a', 'b', 'c']}
+          scrollElement={scroller}
+          virtualizer={{
+            scrollToIndex: () => {},
+            columnWindow: () => undefined,
+            virtualRender: (props) => {
+              createEffect(
+                on(
+                  () => props.scrollElement,
+                  (element) => {
+                    scrollElement = element
+                  },
+                ),
+              )
+              return (
+                <For each={props.entries.slice(1)}>
+                  {(entry, index) => (
+                    <>{props.render(entry, index() + 1, { 'data-index': index() + 1 })}</>
+                  )}
+                </For>
+              )
+            },
+          }}
+          itemRender={(context) => (
+            <Table.Row {...context.props}>
+              <Table.Cell>{context.item}</Table.Cell>
+            </Table.Row>
+          )}
+        >
+          <Table.Row>
+            <Table.Cell>ignored</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    ))
+
+    const rows = [...slot(container, 'body')!.querySelectorAll('tr')]
+    expect(rows.map((row) => row.textContent)).toEqual(['b', 'c'])
+    expect(rows.map((row) => row.getAttribute('data-index'))).toEqual(['1', '2'])
+    expect(scrollElement).toBe(scroller)
   })
 })

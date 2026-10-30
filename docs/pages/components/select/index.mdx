@@ -243,6 +243,14 @@ bottom. Drive `loading` from the in-flight request.
 
 <Preview path="./infinite-scroll" />
 
+### Pick from a large collection
+
+Pass a `virtualizer` from `createListVirtualizer` when opening or scrolling the full list is slow.
+Its entries are `SelectT.Row` rows, which include group labels and separators. Read the
+[Virtualization guide](/docs/virtualization) for sizing and keys.
+
+<Preview path="./virtualization" />
+
 ### Bind an empty select to a form
 
 For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the

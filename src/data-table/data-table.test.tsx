@@ -461,7 +461,7 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row').length).toBe(21)
   })
 
-  it('renders virtualized rows with virtualRender adapter', async () => {
+  it('renders virtualized rows with a table virtualizer', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
       measureElement: () => 30,
@@ -479,7 +479,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       const table = createPersonTable({ data: manyRows })
-      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      return <DataTable table={table} virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -495,7 +495,7 @@ describe('DataTable', () => {
     expect(table.getAttribute('aria-rowcount')).toBe('51')
   })
 
-  it('does not render pagination toolbar and warns when virtualRender is combined with pagination', () => {
+  it('does not render pagination toolbar and warns when virtualizer is combined with pagination', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
@@ -504,15 +504,15 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       const table = createPersonTable({ pagination: true })
-      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      return <DataTable table={table} virtualizer={virtualizer} />
     })
 
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('virtualRender and pagination'))
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('virtualizer and pagination'))
     warnSpy.mockRestore()
   })
 
-  it('shows every row and selects every row when virtualRender is combined with pagination', async () => {
+  it('shows every row and selects every row when virtualizer is combined with pagination', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
@@ -525,7 +525,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       table = createPersonTable({ data: manyPeople(25), pagination: true, selection: 'multiple' })
-      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      return <DataTable table={table} virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -550,7 +550,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       table = createPersonTable({ data: manyPeople(50) })
-      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      return <DataTable table={table} virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -1454,7 +1454,7 @@ describe('DataTable', () => {
     expect(container.querySelector('table')!.getAttribute('aria-busy')).toBe('false')
   })
 
-  it('does not render detail rows and warns when virtualRender is combined with expandedRowRender', async () => {
+  it('does not render detail rows and warns when virtualizer is combined with expandedRowRender', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
@@ -1469,7 +1469,7 @@ describe('DataTable', () => {
       return (
         <DataTable
           table={table}
-          virtualRender={virtualizer.virtualRender}
+          virtualizer={virtualizer}
           expandedRowRender={(props) => <div data-testid="detail">{props.row.original.name}</div>}
         />
       )
@@ -1482,7 +1482,7 @@ describe('DataTable', () => {
     expect(screen.queryByTestId('detail')).toBeNull()
     expect(container.querySelector('[data-slot="data-table-expanded-row"]')).toBeNull()
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('virtualRender and expandedRowRender'),
+      expect.stringContaining('virtualizer and expandedRowRender'),
     )
     warnSpy.mockRestore()
   })
@@ -1504,7 +1504,7 @@ describe('DataTable', () => {
           { accessorKey: 'age', header: 'Age' },
         ],
       })
-      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      return <DataTable table={table} virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -1732,7 +1732,7 @@ describe('DataTable', () => {
       const { virtualizer, scrollColumns } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1776,7 +1776,7 @@ describe('DataTable', () => {
             { accessorKey: 'actions', header: 'Actions', size: 80 },
           ],
         })
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
       scrollColumns(1000)
@@ -1793,7 +1793,7 @@ describe('DataTable', () => {
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1809,7 +1809,7 @@ describe('DataTable', () => {
       const { virtualizer, scrollColumns } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
       scrollColumns(1000)
@@ -1848,7 +1848,7 @@ describe('DataTable', () => {
           onColumnOrderChange: setOrder,
           onColumnVisibilityChange: setVisibility,
         })
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1882,7 +1882,7 @@ describe('DataTable', () => {
             getSubRows: (row) => (row.name === 'parent' ? [{ name: 'child' }] : undefined),
           },
         })
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1901,7 +1901,7 @@ describe('DataTable', () => {
       })
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -2217,7 +2217,7 @@ describe('DataTable', () => {
 
       const { container } = render(() => {
         const table = createTreeTable()
-        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+        return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
 

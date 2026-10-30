@@ -9,7 +9,7 @@ export function Virtualization() {
 
   type Item = (typeof ITEMS)[number]
 
-  const virtualizer = createListVirtualizer<Item, HTMLElement, HTMLDivElement>({
+  const virtualizer = createListVirtualizer<Item>({
     estimateSize: () => 36,
     getItemKey: (item) => item.id,
     overscan: 8,
@@ -19,7 +19,7 @@ export function Virtualization() {
     <List
       as="div"
       items={ITEMS}
-      virtualRender={virtualizer.virtualRender}
+      virtualizer={virtualizer}
       role="list"
       aria-label="Virtual results"
       class="border border-border rounded-md h-72 w-full overflow-y-auto"

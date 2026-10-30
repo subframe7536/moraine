@@ -289,10 +289,24 @@ control in the row, such as a checkbox, so assistive technology knows the row is
 
 ### Virtualized rows
 
-For thousands of rows, mount the adapter from `createTableVirtualizer` (`moraine/virtualizer`)
-inside `Table.Body`, and spread its row props onto `Table.Row`. The body becomes the scroll
-container, which needs a fixed-header layout. The
-[Virtualization guide](/docs/virtualization#table) has the complete recipe.
+For thousands of rows, give `Table.Body` the rows as `items`, an `itemRender` that returns one
+`Table.Row`, and a `virtualizer` from `createTableVirtualizer` (`moraine/virtualizer`). Spread
+`context.props` onto the row. The body becomes the scroll container, which needs a fixed-header
+layout. The [Virtualization guide](/docs/virtualization#table) has the complete recipe.
+
+```tsx
+const virtualizer = createTableVirtualizer<Invoice>({ estimateSize: () => 41 })
+
+<Table.Body
+  items={invoices}
+  virtualizer={virtualizer}
+  itemRender={(context) => (
+    <Table.Row {...context.props}>
+      <Table.Cell>{context.item.id}</Table.Cell>
+    </Table.Row>
+  )}
+/>
+```
 
 ### Building a data grid
 
@@ -323,7 +337,7 @@ the other columns with `align`.
 
 ### Scroll through 10,000 invoices
 
-Mount `createTableVirtualizer` inside `Table.Body`, and use `classes` to make the body the scroll
+Pass `createTableVirtualizer` to `Table.Body`, and use `classes` to make the body the scroll
 container while the header stays above it. Each column has the same width class in the header and
 the body.
 

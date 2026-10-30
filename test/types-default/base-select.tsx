@@ -9,7 +9,7 @@ import type {
   SelectT,
 } from 'moraine'
 import { createBaseSelectSearchInput } from 'moraine/utils'
-import { createSignal } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 
 type Assert<T extends true> = T
 type Equal<T, U> =
@@ -167,18 +167,22 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   itemProps={({ item }) => ({ title: item.email })}
   filterItem={(query, item) => item.email.includes(query)}
   itemToLabelString={(item) => item.email}
-  scrollToItem={(item) => {
-    const email: string = item.email
-    void email
-  }}
-  virtualRender={(props) => {
-    for (const row of props.entries) {
-      if (row.type === 'item') {
-        const email: string = row.item.email
-        void email
-      }
-    }
-    return null
+  virtualizer={{
+    scrollToIndex: (index) => {
+      const number: number = index
+      void number
+    },
+    virtualRender: (props) => (
+      <For each={props.entries}>
+        {(row) => {
+          if (row.type === 'item') {
+            const email: string = row.item.email
+            void email
+          }
+          return null
+        }}
+      </For>
+    ),
   }}
   onValueChange={(value) => {
     const number: number | undefined = value
@@ -192,18 +196,22 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   itemRender={({ item }) => item.email}
   filterItem={(query, item) => item.email.includes(query)}
   itemToLabelString={(item) => item.email}
-  scrollToItem={(item) => {
-    const email: string = item.email
-    void email
-  }}
-  virtualRender={(props) => {
-    for (const row of props.entries) {
-      if (row.type === 'item') {
-        const email: string = row.item.email
-        void email
-      }
-    }
-    return null
+  virtualizer={{
+    scrollToIndex: (index) => {
+      const number: number = index
+      void number
+    },
+    virtualRender: (props) => (
+      <For each={props.entries}>
+        {(row) => {
+          if (row.type === 'item') {
+            const email: string = row.item.email
+            void email
+          }
+          return null
+        }}
+      </For>
+    ),
   }}
   tagRender={(props) => {
     const item: UserItem | undefined = props.item

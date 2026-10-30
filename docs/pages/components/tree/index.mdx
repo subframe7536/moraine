@@ -220,7 +220,7 @@ import { Show, createComponent, createSignal } from 'solid-js'
 />
 
 `tree.Tree` is the `tree` root. Each item is a `tree.Item` (`treeitem`) that holds a `row` and,
-when it has children, a `content` wrapper around a nested `group`. With `virtualRender`, there
+when it has children, a `content` wrapper around a nested `group`. With `virtualizer`, there
 are no nested groups: every visible item is a flat row inside the root, which is also the scroll
 container.
 
@@ -273,7 +273,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 
 | Concern      | `tree.Tree` props                                                                    |
 | ------------ | ------------------------------------------------------------------------------------ |
-| Rendering    | `itemRender`, `actionRender`, `virtualRender`, `scrollToItem`                        |
+| Rendering    | `itemRender`, `actionRender`, `virtualizer`                                          |
 | Icons        | `triggerIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)             |
 | Presentation | `size`, `variant`, `indentGuide`, `transition`, `unmountOnHide`, `classes`, `styles` |
 
@@ -341,7 +341,7 @@ whatever `expandOnClick` says.
 
 Branch height animates by default; set `transition={false}` on `tree.Tree` to turn it off.
 Collapsed branches unmount their children unless `unmountOnHide={false}`. Neither prop applies
-with `virtualRender`, which has no nested groups.
+with `virtualizer`, which has no nested groups.
 
 ### Selection
 
@@ -404,9 +404,10 @@ when the branch is expanded, otherwise on its next expansion.
 
 ### Virtualization
 
-Pass `virtualRender` from `createListVirtualizer` to render only the rows near the viewport. The
+Pass a `virtualizer` from `createListVirtualizer` to render only the rows near the viewport. The
 `tree.Tree` root becomes the scroll container, so give it a bounded height and `overflow-auto`.
-Pass `scrollToItem` so keyboard focus and `tree.focus(key)` can reach rows outside the window.
+Keyboard focus and `tree.focus(key)` scroll through the virtualizer, so they reach rows outside the
+window.
 
 ```tsx
 import { createTree } from 'moraine'
@@ -421,8 +422,7 @@ const virtualizer = createListVirtualizer<TreeT.ItemInstance<FileNode>>({
 
 <tree.Tree
   aria-label="Files"
-  virtualRender={virtualizer.virtualRender}
-  scrollToItem={(_item, index) => virtualizer.scrollToIndex(index)}
+  virtualizer={virtualizer}
   class="h-80 overflow-auto"
 />
 ```
@@ -585,7 +585,7 @@ and shows a loading icon until its children arrive.
 
 ### Render ten thousand rows
 
-Pass `virtualRender` and `scrollToItem` from `createListVirtualizer`, and give the tree a bounded
+Pass a `virtualizer` from `createListVirtualizer`, and give the tree a bounded
 height. Expanded branches join the same virtual list.
 
 <Preview path="./virtual" />

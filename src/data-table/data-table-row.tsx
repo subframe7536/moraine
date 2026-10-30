@@ -3,7 +3,7 @@ import type { Cell, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, untrack } from 'solid-js'
 
-import type { ListT } from '../components/list'
+import type { TableVirtualRowProps } from '../shared/virtual'
 
 import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
@@ -23,7 +23,7 @@ export type DataTableRowProps<TData extends RowData> = Pick<
   row: DataTableT.Row<TData>
   index: number
   /** Virtual row wiring (`data-index`, measurement ref, `aria-rowindex`). */
-  rowProps?: ListT.RowProps<HTMLTableRowElement>
+  rowProps?: TableVirtualRowProps
 }
 
 /** Body row plus its optional expanded detail row. */

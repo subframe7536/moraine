@@ -815,7 +815,6 @@ describe('createTableVirtualizer', () => {
         columns?: () => readonly string[]
         columnSize?: (column: string, index: number) => number
         columnLayout?: { scrollMargin?: number }
-        onColumnWindow?: (window: (() => unknown) | undefined) => void
         tableProps?: Record<string, string>
       } = {},
     ) {
@@ -835,7 +834,6 @@ describe('createTableVirtualizer', () => {
               columns={props.columns?.() ?? COLUMNS}
               columnSize={props.columnSize ?? (() => 100)}
               columnLayout={props.columnLayout}
-              onColumnWindow={props.onColumnWindow}
               render={(item, _index, rowProps) => (
                 <tr {...rowProps}>
                   <td>{item}</td>
@@ -930,22 +928,18 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('hands the window accessor to the host and clears it on unmount', async () => {
-      const onColumnWindow = vi.fn()
+    test('exposes the window while mounted and clears it on unmount', async () => {
       const { virtualizer, scrollColumns } = createColumnVirtualizer()
-      const { cleanup } = renderColumns(virtualizer, { onColumnWindow })
+      const { cleanup } = renderColumns(virtualizer)
       await Promise.resolve()
 
-      expect(onColumnWindow).toHaveBeenCalledOnce()
-      const window = onColumnWindow.mock.calls[0]![0] as () => unknown
-      expect(window()).toMatchObject({ skippedBefore: 0, skippedAfter: 17 })
+      expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 0, skippedAfter: 17 })
 
       scrollColumns(500)
-      expect(window()).toMatchObject({ skippedBefore: 5 })
-      expect(onColumnWindow).toHaveBeenCalledOnce()
+      expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 5 })
 
       cleanup()
-      expect(onColumnWindow).toHaveBeenLastCalledWith(undefined)
+      expect(virtualizer.columnWindow()).toBeUndefined()
     })
 
     test('scrolls to a column', async () => {
@@ -994,13 +988,11 @@ describe('createTableVirtualizer', () => {
         observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
         observeElementOffset: (_instance, callback) => callback(0, false),
       })
-      const onColumnWindow = vi.fn()
-      const { screen, cleanup } = renderColumns(virtualizer, { onColumnWindow })
+      const { screen, cleanup } = renderColumns(virtualizer)
       await Promise.resolve()
 
       expect(virtualizer.columnWindow()).toBeUndefined()
       expect(virtualizer.columnInstance()).toBeUndefined()
-      expect(onColumnWindow).not.toHaveBeenCalled()
       expect(screen.container.querySelector('table')!.hasAttribute('aria-colcount')).toBe(false)
       cleanup()
     })

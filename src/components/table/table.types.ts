@@ -1,6 +1,7 @@
-import type { JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
+import type { TableVirtualRowProps, TableVirtualizer } from '../../shared/virtual'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { TableStyleSlot, TableStyleVariants } from './table.style-types'
@@ -22,10 +23,41 @@ export namespace TableT {
   /** Props for Table. */
   export type Props = BaseProps<'table', Base, Variants, Classes, Styles>
 
-  // Header, Body, Footer, and Caption have no configuration of their own. They are
-  // `FlowComponent`s, which supply `children`, so their props accept native attributes only.
+  // Header, Footer, and Caption have no configuration of their own. They are `FlowComponent`s,
+  // which supply `children`, so their props accept native attributes only.
   export type HeaderProps = BaseProps<'thead', object, never, never, never, 'thead', true>
-  export type BodyProps = BaseProps<'tbody', object, never, never, never, 'tbody', true>
+
+  export interface ItemRenderProps<TItem> {
+    /** Source item being rendered. */
+    readonly item: TItem
+    /** Index in `items`. */
+    readonly index: number
+    /**
+     * Attributes from the `virtualizer` for the row: `data-index`, the measurement ref,
+     * `aria-rowindex`, and striping attributes. Spread them onto `Table.Row`; undefined
+     * without a virtualizer.
+     */
+    readonly props?: TableVirtualRowProps
+  }
+
+  /** Virtualizer accepted by `Table.Body`, such as `createTableVirtualizer()`. */
+  export type Virtualizer<TItem> = TableVirtualizer<TItem>
+
+  export interface BodyBase<TItem = unknown> {
+    /** Rows rendered through `itemRender`. */
+    items?: readonly TItem[]
+    /** Renders one row of `items` as a single `Table.Row`. Without it, `children` render. */
+    itemRender?: Component<ItemRenderProps<TItem>>
+    /** Renders only the visible rows of `items`. Requires `itemRender`. */
+    virtualizer?: Virtualizer<TItem>
+    /**
+     * Scroll container of a `virtualizer`, when an ancestor of the table scrolls. Defaults to
+     * the body, which must then be a bounded block.
+     */
+    scrollElement?: HTMLElement
+    children?: JSX.Element
+  }
+  export type BodyProps<TItem = unknown> = BaseProps<'tbody', BodyBase<TItem>, never, never, never>
   export type FooterProps = BaseProps<'tfoot', object, never, never, never, 'tfoot', true>
 
   export interface RowBase {

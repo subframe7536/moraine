@@ -1609,8 +1609,7 @@ describe('createTree', () => {
         overscan,
       })
       return {
-        virtualRender: virtualizer.virtualRender,
-        scrollToItem: (_entry, index) => virtualizer.scrollToIndex(index),
+        virtualizer,
         class: 'h-[320px] overflow-auto',
         style: { height: '320px' },
       }

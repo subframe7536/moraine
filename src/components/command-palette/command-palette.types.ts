@@ -89,11 +89,8 @@ export namespace CommandPaletteT {
     | VirtualLabelEntry<TItem>
     | VirtualItemEntry<TItem>
 
-  export type VirtualRenderProps<TItem extends Item = Item> = ListT.VirtualRenderProps<
-    VirtualEntry<TItem>,
-    HTMLElement,
-    HTMLDivElement
-  >
+  /** Virtualizer over `VirtualEntry` rows, such as `createListVirtualizer()`. */
+  export type Virtualizer<TItem extends Item = Item> = ListT.Virtualizer<VirtualEntry<TItem>>
 
   export interface ItemRenderProps<
     TItem extends Item = Item,
@@ -185,10 +182,11 @@ export namespace CommandPaletteT {
     footerRender?: JSX.Element | Component<FooterRenderProps<TItem>>
     /** Renderer for each command row. */
     itemRender?: Component<ItemRenderProps<TItem>>
-    /** Renders flattened group labels and commands through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted command into view using its flattened entry index. */
-    scrollToItem?: (item: TItem, entryIndex: number) => void
+    /**
+     * Renders only the visible rows of the flattened group labels and commands. The listbox is
+     * the scroll container, and keyboard highlight scrolls through the virtualizer.
+     */
+    virtualizer?: Virtualizer<TItem>
     /** Additional attributes for the command listbox. */
     listboxProps?: Omit<ElementProps<HTMLDivElement>, 'children'>
     /** Additional attributes for a command row. */

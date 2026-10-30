@@ -34,8 +34,7 @@ export function Virtual() {
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Ten thousand rows"
-        virtualRender={virtualizer.virtualRender}
-        scrollToItem={(_entry, index) => virtualizer.scrollToIndex(index)}
+        virtualizer={virtualizer}
         class="p-1 border border-border rounded-lg h-[280px] overflow-auto"
       />
       <p class="text-xs text-muted-foreground">

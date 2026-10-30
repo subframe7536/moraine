@@ -20,8 +20,8 @@ import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../provider/locale/messages.types'
 import type { BaseProps } from '../shared/types'
+import type { TableVirtualizer } from '../shared/virtual'
 import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
-import type { TableVirtualRenderProps } from '../virtualizer/table-virtual-render'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { defaultDataTableMessages } from './data-table.messages'
@@ -191,12 +191,11 @@ export namespace DataTableT {
   }
 
   /**
-   * Props of a `virtualRender` component. The `columns` it receives are the TanStack leaf
-   * columns of the unpinned region, so the virtualizer needs no column type parameter.
+   * Virtualizer accepted by the `virtualizer` prop, such as
+   * `createTableVirtualizer<DataTableT.Row<TData>>()`. The columns it virtualizes are the
+   * TanStack leaf columns of the unpinned region, so it needs no column type parameter.
    */
-  export type VirtualRenderProps<TData extends RowData = RowData> = TableVirtualRenderProps<
-    Row<TData>
-  >
+  export type Virtualizer<TData extends RowData = RowData> = TableVirtualizer<Row<TData>>
 
   export interface Base<TData extends RowData = RowData> {
     /** Table instance created with `createDataTable`. */
@@ -217,15 +216,18 @@ export namespace DataTableT {
     maxHeight?: number | string
     /**
      * Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a
-     * development warning, when `virtualRender` is set.
+     * development warning, when `virtualizer` is set.
      */
     expandedRowRender?: Component<ExpandedRowRenderProps<TData>>
     /** Callback fired when a table body row is clicked. */
     onRowClick?: (row: Row<TData>, event: MouseEvent) => void
     /** Callback fired when a table body row is double-clicked. */
     onRowDoubleClick?: (row: Row<TData>, event: MouseEvent) => void
-    /** Component mounted inside `tbody` to render virtualized rows. */
-    virtualRender?: Component<VirtualRenderProps<TData>>
+    /**
+     * Renders only the visible rows, and the visible center columns when the virtualizer has the
+     * `columns` option. Disables pagination and `expandedRowRender`.
+     */
+    virtualizer?: Virtualizer<TData>
   }
 
   export type Props<TData extends RowData = RowData> = BaseProps<

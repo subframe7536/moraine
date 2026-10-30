@@ -1,59 +1,31 @@
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component, JSX } from 'solid-js'
-import { For, Show, createMemo } from 'solid-js'
 
-import type { ListT } from '../components/list/list.types'
+import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from '../shared/virtual'
 
-import {
-  attachRowMeasurement,
-  createVirtualRow,
-  createVirtualizerController,
-} from './virtualizer-core'
+import { VirtualRows, createVirtualizerController, scrollToIndexOf } from './virtualizer-core'
 import type { VirtualizerAdapterOptions } from './virtualizer-core'
 
-export type ListVirtualizerOptions<
-  TItem,
-  TScrollElement extends HTMLElement = HTMLElement,
-  TItemElement extends HTMLElement = HTMLElement,
-> = VirtualizerAdapterOptions<TItem, TScrollElement, TItemElement> & {
+export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
   /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */
   isRtl?: boolean
 }
 
-export type VirtualRenderProps<
-  TItem,
-  TScrollElement extends HTMLElement = HTMLElement,
-  TItemElement extends HTMLElement = HTMLElement,
-> = ListT.VirtualRenderProps<TItem, TScrollElement, TItemElement>
-
-export type RowProps<TItemElement extends HTMLElement = HTMLElement> = ListT.RowProps<TItemElement>
-
-export type ListVirtualizerReturn<
-  TItem,
-  TScrollElement extends HTMLElement = HTMLElement,
-  TItemElement extends HTMLElement = HTMLElement,
-> = {
+export interface ListVirtualizerReturn<TItem> extends ListVirtualizer<TItem> {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
-  readonly instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>
-  /** Component passed directly to a List-compatible `virtualRender` prop. */
-  readonly virtualRender: Component<VirtualRenderProps<TItem, TScrollElement, TItemElement>>
-  scrollToIndex: Virtualizer<TScrollElement, TItemElement>['scrollToIndex']
+  readonly instance: Accessor<Virtualizer<HTMLElement, HTMLElement> | undefined>
 }
 
-/** Creates a ready-to-use virtual renderer for List and List-based components. */
-export function createListVirtualizer<
-  TItem,
-  TScrollElement extends HTMLElement = HTMLElement,
-  TItemElement extends HTMLElement = HTMLElement,
->(
-  options: ListVirtualizerOptions<TItem, TScrollElement, TItemElement>,
-): ListVirtualizerReturn<TItem, TScrollElement, TItemElement> {
-  const controller = createVirtualizerController<TItem, TScrollElement, TItemElement>(options)
+/**
+ * Creates a virtualizer for `List`, `Tree`, `Select`, `Combobox`, `MultiSelect`, and
+ * `CommandPalette`. Pass the result to the component's `virtualizer` prop.
+ */
+export function createListVirtualizer<TItem>(
+  options: ListVirtualizerOptions<TItem>,
+): ListVirtualizerReturn<TItem> {
+  const controller = createVirtualizerController<TItem>(options)
 
-  const virtualRender: Component<VirtualRenderProps<TItem, TScrollElement, TItemElement>> = (
-    props,
-  ) => {
-    const renderRow = createMemo(() => props.render)
+  const virtualRender: Component<VirtualRenderProps<TItem>> = (props) => {
     const { virtualizer, virtualItems, totalSize } = controller.attach({
       entries: () => props.entries,
       scrollElement: () => props.scrollElement,
@@ -101,25 +73,17 @@ export function createListVirtualizer<
 
     return (
       <div style={contentStyle()}>
-        <For each={virtualItems}>
-          {(virtualItem) => {
-            const row = createVirtualRow(virtualItem, () => props.entries)
-
-            return (
-              <Show keyed when={row()}>
-                {(current) => {
-                  const measure = attachRowMeasurement(virtualizer)
-
-                  return renderRow()(current.item, current.index, {
-                    'data-index': current.index,
-                    ref: measure,
-                    style: rowStyle(virtualItem),
-                  })
-                }}
-              </Show>
-            )
-          }}
-        </For>
+        <VirtualRows<TItem, HTMLElement, VirtualRowProps>
+          virtualizer={virtualizer}
+          virtualItems={virtualItems}
+          entries={props.entries}
+          render={props.render}
+          rowProps={(current, virtualItem, measure) => ({
+            'data-index': current.index,
+            ref: measure,
+            style: rowStyle(virtualItem),
+          })}
+        />
       </div>
     )
   }
@@ -127,7 +91,6 @@ export function createListVirtualizer<
   return {
     instance: controller.instance,
     virtualRender,
-    scrollToIndex: (index, scrollOptions) =>
-      controller.instance()?.scrollToIndex(index, scrollOptions),
+    scrollToIndex: scrollToIndexOf(controller.instance),
   }
 }

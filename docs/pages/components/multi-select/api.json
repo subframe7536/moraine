@@ -314,12 +314,6 @@
           }
         },
         {
-          "name": "scrollToItem",
-          "optional": true,
-          "type": "(item: TItem, entryIndex: number) => void",
-          "description": "Scroll a highlighted item to its logical entry index."
-        },
-        {
           "name": "search",
           "optional": true,
           "type": "boolean",
@@ -418,10 +412,10 @@
           }
         },
         {
-          "name": "virtualRender",
+          "name": "virtualizer",
           "optional": true,
-          "type": "Component<SelectVirtualRenderProps<TItem>>",
-          "description": "Virtual rendering adapter."
+          "type": "SelectVirtualizer<TItem>",
+          "description": "Renders only the visible rows, such as `createListVirtualizer()`. Rows include group labels\nand separators. The listbox is the scroll container, and keyboard highlight scrolls through\nthe virtualizer."
         }
       ]
     }

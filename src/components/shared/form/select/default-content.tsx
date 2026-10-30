@@ -1,16 +1,16 @@
 import type { Component, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { callHandler, callRef } from '../../../../shared/utils'
+import type { VirtualRowProps } from '../../../../shared/virtual'
+import { VirtualContent, scrollToVirtualEntry } from '../../../../shared/virtual-content'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { BaseSelect } from '../../../base-select/base-select'
 import { useSelectContext } from '../../../base-select/base-select-context'
 import type { BaseSelectT } from '../../../base-select/base-select.types'
 import { Icon } from '../../../icon/index'
-import type { ListT } from '../../../list/index'
 
 import { sameValue } from './collection'
 import { selectItemDataAttributes } from './select-field.recipe'
@@ -43,27 +43,22 @@ function DefaultSelectContentBody<T extends SelectItem>(
   )
   createEffect(
     on(
-      [
-        state.highlightedValue,
-        state.open,
-        listbox,
-        () => props.view.rows,
-        () => props.virtualRender,
-      ],
-      ([key, open, listbox, rows, virtual]) => {
-        if (key === undefined || !open || !listbox || !virtual || !props.scrollToItem) {
+      [state.highlightedValue, state.open, listbox, () => props.view.rows, () => props.virtualizer],
+      ([key, open, listbox, rows, virtualizer]) => {
+        // Rows outside the virtual window have no element to scroll into view.
+        if (key === undefined || !open || !listbox) {
           return
         }
-        const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
-        const row = rows[index]
-        if (row?.type === 'item') {
-          props.scrollToItem(row.item, index)
-        }
+        scrollToVirtualEntry(
+          virtualizer,
+          rows,
+          (row) => row.type === 'item' && sameValue(row.item.value, key),
+        )
       },
     ),
   )
   let atBottom = false
-  function SelectItem(itemProps: { item: T; rowProps?: ListT.RowProps<HTMLDivElement> }) {
+  function SelectItem(itemProps: { item: T; rowProps?: VirtualRowProps }) {
     const item = () => props.view.byValue?.get(itemProps.item.value) ?? itemProps.item
     const presentation: BaseSelectT.ItemRenderProps<T> = {
       get item() {
@@ -106,8 +101,8 @@ function DefaultSelectContentBody<T extends SelectItem>(
           callHandler(event, attributes()?.onPointerDown)
           callHandler(event, itemProps.rowProps?.onPointerDown)
         }}
-        aria-posinset={props.virtualRender ? positions().get(item().value) : undefined}
-        aria-setsize={props.virtualRender ? props.view.items.length : undefined}
+        aria-posinset={props.virtualizer ? positions().get(item().value) : undefined}
+        aria-setsize={props.virtualizer ? props.view.items.length : undefined}
       >
         {(itemState) => (
           <Show
@@ -159,10 +154,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
       </BaseSelect.Item>
     )
   }
-  function Row(rowProps: {
-    entry: SelectRow<T>
-    props?: ListT.RowProps<HTMLDivElement>
-  }): JSX.Element {
+  function Row(rowProps: { entry: SelectRow<T>; props?: VirtualRowProps }): JSX.Element {
     return (
       <Switch>
         <Match when={rowProps.entry.type === 'item' && rowProps.entry.item}>
@@ -207,23 +199,13 @@ function DefaultSelectContentBody<T extends SelectItem>(
           atBottom = bottom
         }}
       >
-        <Show
-          when={props.virtualRender}
+        <VirtualContent<SelectRow<T>>
+          virtualizer={props.virtualizer}
+          entries={props.view.rows}
+          scrollElement={listbox()}
+          render={(entry, _index, rowProps) => <Row entry={entry} props={rowProps} />}
           fallback={<For each={props.view.rows}>{(row) => <Row entry={row} />}</For>}
-        >
-          {(renderer) => (
-            <Dynamic
-              component={renderer()}
-              entries={props.view.rows}
-              scrollElement={listbox()}
-              render={(
-                entry: SelectRow<T>,
-                _index: number,
-                rowProps?: ListT.RowProps<HTMLDivElement>,
-              ) => <Row entry={entry} props={rowProps} />}
-            />
-          )}
-        </Show>
+        />
       </BaseSelect.Listbox>
       <Show when={props.emptyRender} keyed>
         {(empty) => (
