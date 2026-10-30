@@ -1,5 +1,5 @@
 import { Button, Checkbox, createForm } from '@src'
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 // Consent Mode expects 'granted' | 'denied' rather than booleans.
@@ -60,9 +60,9 @@ export function ConsentPreferences() {
         </Button>
 
         <pre class="text-xs font-mono p-3 rounded-md bg-muted overflow-x-auto">
-          {saved()
-            ? `gtag('consent', 'update', ${JSON.stringify(saved(), null, 2)})`
-            : 'Save to see the consent update payload.'}
+          <Show when={saved()} fallback="Save to see the consent update payload.">
+            {(update) => `gtag('consent', 'update', ${JSON.stringify(update(), null, 2)})`}
+          </Show>
         </pre>
       </div>
     </form.Form>
