@@ -7,7 +7,7 @@ import { describe, expect, test } from 'vitest'
 
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
-import { ICON_MASK_FORCED_COLORS_CLASS } from '../components/icon/icon.recipe'
+import { ICON_MASK_FORCED_COLORS_CLASS, iconRecipe } from '../components/icon/icon.recipe'
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'
@@ -1271,5 +1271,14 @@ describe('icon forced colors utilities', () => {
     expect(css).toMatch(
       /@media \(forced-colors: active\)\s*\{\s*\.forced-colors\\:text-inherit\s*\{\s*color: inherit;/,
     )
+  })
+})
+
+describe('icon host utilities', () => {
+  test('compiles the icon host classes', async () => {
+    const css = await compileCSS(cn(iconRecipe.config.base.root)?.split(' ') ?? [])
+
+    expect(css).toMatch(/\.size-\\\[1\\\.2em\\\]\s*\{\s*width: 1\.2em;\s*height: 1\.2em;/)
+    expect(css).toMatch(/>\s*\*\)?\s*\{\s*width: 100%;\s*height: 100%;/)
   })
 })

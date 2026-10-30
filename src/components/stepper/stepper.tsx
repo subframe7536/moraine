@@ -262,10 +262,9 @@ export function Stepper(props: StepperProps): JSX.Element {
                     data-slot="stepper-indicator"
                     {...slots.indicator}
                   >
-                    <Icon
-                      name={entry.item.icon || (() => entry.index + 1)}
-                      data-slot="stepper-icon"
-                    />
+                    <Show when={entry.item.icon} fallback={entry.index + 1}>
+                      {(icon) => <Icon name={icon()} data-slot="stepper-icon" />}
+                    </Show>
                   </span>
 
                   <Show when={hasContent(entry.item.title) || hasContent(entry.item.description)}>

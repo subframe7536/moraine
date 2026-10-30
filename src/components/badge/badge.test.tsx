@@ -126,7 +126,7 @@ describe('Badge', () => {
     expect(roots[1]?.className).toContain('text-xs')
     expect(roots[2]?.className).toContain('text-sm')
     for (const icon of [...leading, trailing]) {
-      expect(icon?.className).not.toMatch(/\bsize-/)
+      expect(icon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
     }
   })
 

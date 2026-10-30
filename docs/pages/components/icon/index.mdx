@@ -35,7 +35,7 @@ import { Icon } from '@src'
   value={{
     root: {
       slot: 'root',
-      element: 'div',
+      element: 'span',
     },
   }}
 />
@@ -74,17 +74,16 @@ rendered.
 
 ### Root styling
 
-`Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure
+`Icon` always renders one `span` root, whatever the `name` source. Use `class` and `style` for an
+individual icon, or configure
 `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props
 because there are no child slots to target.
 
-A string icon's width and height are set in `em` by the stylesheet that defines its class, so the
-icon follows the surrounding font size. `moraine/icon.css` and the docs config use
-`presetIcons({ scale: 1.2 })`, which renders `1.2em`; your own `presetIcons()` uses its `scale`
-option (default `1`). Resize an icon with a font-size utility on the icon or an ancestor, such as
-`text-2xl`. When an icon must fit a fixed box, use a size utility such as `size-full` or `size-4`.
-`moraine/icon.css` puts its rules in the `components` cascade layer, so size utilities override it
-in both UnoCSS and Tailwind. Icon renders no `data-slot` of its own;
+The root is a `1.2em` box (`size-[1.2em]`), so every icon follows the surrounding font size. A JSX
+or component graphic inside it fills the root through `*:size-full`. Resize an icon with a
+font-size utility on the icon or an ancestor, such as `text-2xl`, or with a size utility such as
+`size-6` on the icon; the graphic follows the root. `moraine/icon.css` puts its rules in the
+`components` cascade layer, so these utilities override it in both UnoCSS and Tailwind. Icon renders no `data-slot` of its own;
 pass a `data-slot` attribute when the icon fills a component slot.
 
 ```tsx
@@ -110,8 +109,11 @@ Use Moraine aliases such as `icon-success`, or any class your UnoCSS or Tailwind
 
 ### Render a custom SVG glyph
 
-Pass a JSX element or a Solid component when the mark is not an icon-class name. Name the icon when
-it is the only indicator.
+Pass a JSX element or a Solid component when the mark is not an icon-class name. It renders inside
+the Icon root. Components are rendered without props: `class`, `style`, `data-slot`, and ARIA
+attributes go to the root, and the SVG inherits its color through `currentColor`. To set an
+SVG-specific attribute such as `stroke-width`, pass inline JSX instead. Name the icon when it is the
+only indicator.
 
 <Preview path="./icon-as-jsx" />
 

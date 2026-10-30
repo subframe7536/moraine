@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, splitProps } from 'solid-js'
+import { Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -8,7 +8,7 @@ import type { ValidComponent } from '../../shared/types'
 import { ICON_MASK_FORCED_COLORS_CLASS, iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
 
-/** Renders an icon from a UnoCSS icon class, JSX element, or Solid component. */
+/** Renders an icon from a UnoCSS icon class, JSX element, or Solid component inside a `span` host. */
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'name',
@@ -20,10 +20,12 @@ export function Icon(props: IconProps): JSX.Element {
     'role',
   ])
   const name = createMemo(() => local.name)
+  const isString = createMemo(() => typeof name() === 'string')
+
   const { slots } = useRecipe(iconRecipe, local, {
     own: () => ({
       root: {
-        class: typeof name() === 'string' ? [name(), ICON_MASK_FORCED_COLORS_CLASS] : undefined,
+        class: isString() ? [name() as string, ICON_MASK_FORCED_COLORS_CLASS] : undefined,
       },
     }),
   })
@@ -37,31 +39,15 @@ export function Icon(props: IconProps): JSX.Element {
     }
   }
 
-  const componentProps = createMemo<{ children?: JSX.Element; component: ValidComponent }>(() => {
-    const value = name()
-
-    if (typeof value === 'string') {
-      return { component: 'div' }
-    }
-
-    if (typeof value === 'function') {
-      return { component: value }
-    }
-
-    return {
-      children: value,
-      component: 'div',
-    }
-  })
-
+  // The host owns every attribute and slot binding. A component graphic is rendered without
+  // props, so slot styling never depends on whether it forwards them.
   return (
-    <Dynamic
-      component={componentProps().component}
-      {...rest}
-      {...accessibilityProps()}
-      {...slots.root}
-    >
-      {componentProps().children}
-    </Dynamic>
+    <span {...rest} {...accessibilityProps()} {...slots.root}>
+      <Show when={!isString()}>
+        <Show when={typeof name() === 'function'} fallback={name() as JSX.Element}>
+          <Dynamic component={name() as ValidComponent} />
+        </Show>
+      </Show>
+    </span>
   )
 }

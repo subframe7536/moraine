@@ -8,6 +8,7 @@ import { baseSelectRecipe } from '../components/base-select/base-select.recipe'
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
 import { commandPaletteRecipe } from '../components/command-palette/command-palette.recipe'
+import { iconRecipe } from '../components/icon/icon.recipe'
 import { inputGroupRecipe } from '../components/input-group/input-group.recipe'
 import { inputNumberRecipe } from '../components/input-number/input-number.recipe'
 import { inputRecipe } from '../components/input/input.recipe'
@@ -874,6 +875,19 @@ describe('presetMoraine', () => {
     expect(() => presetMoraine({ mix: { hover: Number.NaN } })).toThrow(RangeError)
     expect(() => presetMoraine({ mix: { hover: null as unknown as number } })).toThrow(TypeError)
     expect(() => presetMoraine({ mix: { hover: false as unknown as number } })).toThrow(TypeError)
+  })
+})
+
+describe('icon host utilities', () => {
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('compiles the icon host classes with %s', async (_name, wind) => {
+    const tokens = cn(iconRecipe.config.base.root)?.split(' ') ?? []
+    const css = await generate(tokens, false, wind)
+
+    expect(css).toMatch(/\.size-\\\[1\\\.2em\\\]\{width:1\.2em;height:1\.2em;\}/)
+    expect(css).toMatch(/>\s*\*\)?\{width:100%;height:100%;\}/)
   })
 })
 

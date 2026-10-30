@@ -507,6 +507,11 @@ describe('Stepper', () => {
     expect(screen.container.querySelector('[data-slot="stepper-wrapper"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="stepper-separator"]')).toBeNull()
     expect(screen.getByRole('tab').textContent).toBe('1')
+    // The step number is plain text, not an icon hidden from assistive technology.
+    expect(screen.container.querySelector('[data-slot="stepper-icon"]')).toBeNull()
+    expect(
+      screen.container.querySelector('[data-slot="stepper-indicator"] [aria-hidden]'),
+    ).toBeNull()
   })
 
   test('renders icon indicators', () => {

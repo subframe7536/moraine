@@ -13,7 +13,7 @@
         "name": "Icon"
       },
       "description": "Props for the Icon component.",
-      "defaultElement": "div",
+      "defaultElement": "span",
       "props": [
         {
           "name": "class",
@@ -31,7 +31,7 @@
           "name": "name",
           "optional": false,
           "type": "Name",
-          "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or Solid components.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
+          "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or Solid components. They render inside the host and\nfill it; components are rendered without props, and every Icon prop goes to the host.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
         },
         {
           "name": "style",

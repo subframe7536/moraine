@@ -1539,7 +1539,7 @@ describe('InputNumber', () => {
     const incrementIcon = incrementButton.firstElementChild
 
     expect(incrementButton.className).toContain(buttonSize)
-    expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-/)
+    expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
     expect(incrementIcon?.getAttribute('style')).toBeNull()
   })
 

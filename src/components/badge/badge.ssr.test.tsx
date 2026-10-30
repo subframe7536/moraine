@@ -22,7 +22,7 @@ describe('Badge SSR Hydration', () => {
     expect(
       Array.from(root?.children ?? []).map((element) => element.getAttribute('data-slot')),
     ).toEqual(['badge-leading', 'badge-label', 'badge-trailing'])
-    expect(container.querySelector('[data-slot="badge-trailing"]')?.tagName).toBe('DIV')
+    expect(container.querySelector('[data-slot="badge-trailing"]')?.tagName).toBe('SPAN')
   })
 
   test('hydrates a button root and preserves its activation', () => {

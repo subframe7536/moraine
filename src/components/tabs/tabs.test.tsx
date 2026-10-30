@@ -418,7 +418,7 @@ describe('Tabs', () => {
     const icon = leading?.firstElementChild
 
     expect(leading).not.toBeNull()
-    expect(icon?.className).not.toMatch(/(?:^|\s)size-/)
+    expect(icon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
   })
 
   test('applies style overrides', () => {
