@@ -297,7 +297,9 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       )
       setWindowSource(() => currentWindow)
       onCleanup(() => setWindowSource((source) => (source === currentWindow ? undefined : source)))
-      createRenderEffect(
+      // A user effect, not a render effect: it never runs on the server and runs after hydration,
+      // so the host's column-dependent markup (such as DataTable's `colgroup`) matches the server.
+      createEffect(
         on(
           () => props.onColumnWindow,
           (handOff) => {
