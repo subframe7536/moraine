@@ -8,6 +8,9 @@ interface Employee {
   department: string
 }
 
+// Stable references, so toggling `empty` swaps the array only when the switch changes.
+const NO_EMPLOYEES: Employee[] = []
+
 const EMPLOYEES: Employee[] = [
   { id: '1', name: 'Alice Johnson', role: 'Engineer', department: 'Platform' },
   { id: '2', name: 'Bob Smith', role: 'Designer', department: 'Product' },
@@ -30,7 +33,7 @@ const COLUMNS: DataTableT.Column<Employee>[] = [
     accessorKey: 'department',
     header: 'Department',
     size: 180,
-    footer: `${EMPLOYEES.length} members`,
+    footer: (props) => <span>{props.table.getCoreRowModel().rows.length} members</span>,
   },
 ]
 
@@ -46,11 +49,14 @@ interface PlaygroundProps {
   resizable?: boolean
   expandable?: boolean
   loading?: boolean
+  empty?: boolean
 }
 
 export default function DataTablePlayground(props: PlaygroundProps) {
   const table = createDataTable({
-    data: EMPLOYEES,
+    get data() {
+      return props.empty ? NO_EMPLOYEES : EMPLOYEES
+    },
     columns: COLUMNS,
     getRowId: (row) => row.id,
     get sorting() {
