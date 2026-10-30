@@ -18,6 +18,8 @@ import {
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
+import { attachEventListenerMap } from '../shared/event-listener'
+
 export function scrollElementWithRtl<
   TScrollElement extends HTMLElement,
   TItemElement extends HTMLElement,
@@ -356,17 +358,15 @@ export function createSharedElementOffsetObserver(): <
     }
     const onScrollEnd = () => notify(false)
 
-    element.addEventListener('scroll', onScroll, PASSIVE_LISTENER)
-    if (useScrollend) {
-      element.addEventListener('scrollend', onScrollEnd, PASSIVE_LISTENER)
-    }
+    const detach = attachEventListenerMap(
+      element,
+      { scroll: onScroll, scrollend: useScrollend ? onScrollEnd : undefined },
+      PASSIVE_LISTENER,
+    )
     return {
       subscribers,
       dispose: () => {
-        element.removeEventListener('scroll', onScroll)
-        if (useScrollend) {
-          element.removeEventListener('scrollend', onScrollEnd)
-        }
+        detach()
         targetWindow.clearTimeout(resetTimer)
       },
     }

@@ -1,4 +1,5 @@
 import { render } from '@solidjs/testing-library'
+import { observeElementOffset } from '@tanstack/virtual-core'
 import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
@@ -949,6 +950,49 @@ describe('createTableVirtualizer', () => {
       expect(onColumnWindow).not.toHaveBeenCalled()
       expect(screen.container.querySelector('table')!.hasAttribute('aria-colcount')).toBe(false)
       cleanup()
+    })
+
+    test('renders the rows at the mounted scroll position, like the stock observer', async () => {
+      const mount = async (offsetObserver?: typeof observeElementOffset) => {
+        const scrollElement = document.createElement('div')
+        let scrollTop = 900
+        Object.defineProperty(scrollElement, 'scrollTop', {
+          configurable: true,
+          get: () => scrollTop,
+          set: (value: number) => {
+            scrollTop = value
+          },
+        })
+        scrollElement.scrollTo = ((options: ScrollToOptions) => {
+          if (options.top !== undefined) {
+            scrollTop = options.top
+          }
+        }) as typeof scrollElement.scrollTo
+        document.body.append(scrollElement)
+        const virtualizer = createTableVirtualizer<string>({
+          estimateSize: () => 30,
+          measureElement: () => 30,
+          observeElementRect: (_instance, callback) => callback({ width: 100, height: 90 }),
+          ...(offsetObserver ? { observeElementOffset: offsetObserver } : {}),
+          overscan: 0,
+        })
+        const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
+        const screen = renderInTbody(virtualizer, entries, { scrollElement })
+        await Promise.resolve()
+        const rows = [...screen.container.querySelectorAll('tr[data-index]')].map((row) =>
+          row.getAttribute('data-index'),
+        )
+        screen.unmount()
+        scrollElement.remove()
+        return { scrollTop, rows }
+      }
+
+      // TanStack applies `initialOffset` on mount, so the rows always match the container.
+      const shared = await mount()
+      expect(shared).toEqual(await mount(observeElementOffset))
+      expect(shared.rows).toEqual(
+        Array.from({ length: 3 }, (_, index) => String(Math.floor(shared.scrollTop / 30) + index)),
+      )
     })
 
     test('shares one scroll listener and updates both axes in one batch', async () => {
