@@ -84,7 +84,12 @@ import { CheckboxGroup } from '@src'
                   { internal: 'input' },
                   {
                     slot: 'control',
-                    children: [{ internal: 'icon' }],
+                    children: [
+                      {
+                        slot: 'indicator',
+                        children: [{ internal: 'icon' }],
+                      },
+                    ],
                   },
                 ],
               },

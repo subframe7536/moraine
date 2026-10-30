@@ -201,6 +201,7 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
   'checkbox-group': {
     container: 'checkbox-container',
     control: 'checkbox-control',
+    indicator: 'checkbox-indicator',
     wrapper: 'checkbox-wrapper',
     label: 'checkbox-label',
     description: 'checkbox-description',

@@ -29,13 +29,14 @@ export const checkboxDataAttributes = {
     'required',
     'unchecked',
   ),
+  indicator: /* @__PURE__ */ createDataAttributes('checked', 'disabled', 'indeterminate'),
   label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
 /**
  * Checkbox control styling, shared with bound checkbox controls (e.g. `tree.ItemCheckbox`).
- * The check or indeterminate icon renders directly inside and inherits the control's color and
- * font size, so checked and indeterminate states fill the same area.
+ * Checked and indeterminate states share the same border and fill, so both look the same size.
+ * The state icon inherits the control's color and font size.
  */
 export const CHECKBOX_CONTROL_CLASS = `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(text-primary-foreground border-primary bg-primary) data-indeterminate:(text-primary-foreground border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
 
@@ -56,6 +57,7 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex items-start relative',
     control: CHECKBOX_CONTROL_CLASS,
+    indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
     wrapper: 'flex flex-col gap-0.5 w-full',
     container: 'flex items-center',
     label:

@@ -36,7 +36,7 @@ describe('Checkbox SSR Hydration', () => {
 
     setChecked(false)
     expect(control.getAttribute('aria-checked')).toBe('false')
-    expect(container.querySelector('[data-slot="checkbox-icon"]')).toBeNull()
+    expect(container.querySelector('[data-slot="checkbox-indicator"]')).toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
       'checkbox-container',
       'checkbox-wrapper',

@@ -13,6 +13,7 @@ export const checkboxGroupDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
   item: checkboxDataAttributes.root,
   control: checkboxDataAttributes.control,
+  indicator: checkboxDataAttributes.indicator,
   label: checkboxDataAttributes.label,
   legend: checkboxDataAttributes.label,
 } satisfies DataAttributeContract<keyof CheckboxGroupStyleSlot>
@@ -29,6 +30,7 @@ export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
     item: '',
     container: '',
     control: '',
+    indicator: '',
     wrapper: '',
     label: '',
     description: '',
