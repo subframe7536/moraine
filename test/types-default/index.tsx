@@ -35,6 +35,7 @@ import {
   Separator,
   Sheet,
   Sidebar,
+  Table,
   Textarea,
   Tooltip,
   cn,
@@ -65,13 +66,18 @@ import type {
   SelectT,
   SidebarT,
   SliderT,
+  TableT,
+  TableProps,
   Tags,
   TextareaT,
   ValidComponent,
 } from 'moraine'
+import { DataTable, createDataTable } from 'moraine/data-table'
+import type { DataTableProps, DataTableT } from 'moraine/data-table'
 import { defineTheme } from 'moraine/theme'
 import { createCopy, createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 type Assert<T extends true> = T
@@ -81,8 +87,10 @@ export type UtilityExports = Assert<
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
   Assert<CopyButtonT.Kind extends 'single' ? true : false>,
+  Assert<DataTableT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
+  Assert<TableT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
   Assert<SidebarT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
@@ -455,6 +463,135 @@ export type CardContracts = [
   Assert<'children' extends keyof CardT.BodyProps ? true : false>,
   Assert<'children' extends keyof CardT.FooterProps ? true : false>,
 ]
+
+;<Table
+  size="md"
+  striped
+  hoverEffect
+  showBorder="both"
+  classes={{ row: 'px-4' }}
+  styles={{ footer: { color: 'red' } }}
+>
+  <Table.Caption>Caption</Table.Caption>
+  <Table.Header>
+    <Table.Row>
+      <Table.Head align="center" truncated>
+        H
+      </Table.Head>
+    </Table.Row>
+  </Table.Header>
+  <Table.Body>
+    <Table.Row selected>
+      <Table.Cell align="left" truncated>
+        C
+      </Table.Cell>
+    </Table.Row>
+  </Table.Body>
+  <Table.Footer>
+    <Table.Row>
+      <Table.Cell>F</Table.Cell>
+    </Table.Row>
+  </Table.Footer>
+</Table>
+
+export type TableContracts = [
+  Assert<
+    keyof TableT.Slot extends
+      | 'container'
+      | 'root'
+      | 'header'
+      | 'body'
+      | 'footer'
+      | 'row'
+      | 'head'
+      | 'cell'
+      | 'caption'
+      ? true
+      : false
+  >,
+  Assert<'size' extends keyof TableT.Variants ? true : false>,
+  Assert<'striped' extends keyof TableT.Variants ? true : false>,
+  Assert<'hoverEffect' extends keyof TableT.Variants ? true : false>,
+  Assert<'showBorder' extends keyof TableT.Variants ? true : false>,
+  Assert<'container' extends keyof TableT.Classes ? true : false>,
+  Assert<'root' extends keyof TableT.Classes ? true : false>,
+  Assert<'footer' extends keyof TableT.Styles ? true : false>,
+  Assert<'classes' extends keyof TableT.Props ? true : false>,
+  Assert<TableProps extends TableT.Props ? true : false>,
+  Assert<'children' extends keyof TableT.HeaderProps ? true : false>,
+  Assert<'children' extends keyof TableT.BodyProps ? true : false>,
+  Assert<'children' extends keyof TableT.FooterProps ? true : false>,
+  Assert<'children' extends keyof TableT.RowProps ? true : false>,
+  Assert<'children' extends keyof TableT.HeadProps ? true : false>,
+  Assert<'children' extends keyof TableT.CellProps ? true : false>,
+  Assert<'children' extends keyof TableT.CaptionProps ? true : false>,
+]
+
+export type DataTableContracts = [
+  Assert<DataTableProps extends DataTableT.Props ? true : false>,
+  Assert<'container' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'empty' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'loading' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'size' extends keyof DataTableT.Variants ? true : false>,
+  Assert<'striped' extends keyof DataTableT.Variants ? true : false>,
+]
+
+const dataTableRows = [{ id: '1', name: 'Alice', spend: 100 }]
+const dataTableCols: DataTableT.Column<(typeof dataTableRows)[number]>[] = [
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'spend', header: 'Spend', meta: { align: 'right', truncated: true } },
+]
+const invalidDataTableCol: DataTableT.Column<(typeof dataTableRows)[number]> = {
+  accessorKey: 'name',
+  header: 'Name',
+  // @ts-expect-error Invalid column alignment value on meta.
+  meta: { align: 'middle' },
+}
+void invalidDataTableCol
+
+const [dataTableSorting, setDataTableSorting] = createSignal<DataTableT.State['sorting']>([])
+const dataTableInstance = createDataTable({
+  get data() {
+    return dataTableRows
+  },
+  columns: dataTableCols,
+  selection: 'multiple',
+  expandable: true,
+  pagination: { pageSize: 10, pageSizes: [10, 20] },
+  state: {
+    get sorting() {
+      return dataTableSorting()
+    },
+  },
+  onSortingChange: setDataTableSorting,
+})
+;<DataTable
+  table={dataTableInstance}
+  striped
+  expandedRowRender={(props) => <div>{props.row.original.name}</div>}
+/>
+// @ts-expect-error Accessor-style options are not accepted; use getters.
+createDataTable({ data: () => dataTableRows, columns: dataTableCols })
+// @ts-expect-error DataTable requires a table instance.
+;<DataTable />
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // Escape-hatch options without a top-level counterpart stay available.
+  tableOptions: { columnResizeMode: 'onEnd', enableSortingRemoval: false },
+})
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // @ts-expect-error Initial state is owned by the top-level `initialState` option.
+  tableOptions: { initialState: { sorting: [] } },
+})
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // @ts-expect-error Change callbacks are owned by the top-level `on[Slice]Change` options.
+  tableOptions: { onSortingChange: () => {} },
+})
 
 ;<Empty
   as="section"

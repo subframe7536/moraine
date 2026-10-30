@@ -231,6 +231,11 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -313,6 +318,11 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -336,6 +346,11 @@
       },
       "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -404,6 +419,11 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -427,6 +447,11 @@
       },
       "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -452,6 +477,11 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -475,6 +505,11 @@
       },
       "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,

@@ -59,7 +59,7 @@ function isEntryOrBarrelFile(filePath: string): boolean {
     return true
   }
   return (
-    /\/src\/(index|utils|virtualizer|theme)\.ts$/.test(normalized) ||
+    /\/src\/(index|utils|theme)\.ts$/.test(normalized) ||
     /\/src\/theme\/(unocss|tailwind|cn|style-types)\.ts$/.test(normalized)
   )
 }

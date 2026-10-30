@@ -2,6 +2,14 @@ import YAML from 'yaml'
 
 import type { FrontmatterData } from './types.ts'
 
+/**
+ * Component sources live under `src/components`, or in a top-level directory for a component that
+ * ships from its own package entry, such as `src/data-table` (`moraine/data-table`).
+ */
+export const COMPONENT_SOURCE_PATH = /^src\/(?:components|data-table)\/[a-z0-9/-]+$/
+const COMPONENT_SOURCE_PATH_HINT =
+  'must be an extensionless component path under src/components or src/data-table'
+
 type FrontmatterRecord = Record<string, unknown>
 
 function getFrontmatterBlock(source: string): string | null {
@@ -101,11 +109,11 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     checkKeys(apiValue, ['path', 'parts', 'root'], 'api.')
     const apiPath = readString(apiValue, 'path')
     if (
-      !/^src\/components\/[a-z0-9/-]+$/.test(apiPath) ||
+      !COMPONENT_SOURCE_PATH.test(apiPath) ||
       apiPath.includes('..') ||
       /\.[cm]?[jt]sx?$/.test(apiPath)
     ) {
-      return fail('api.path', 'must be an extensionless component path under src/components')
+      return fail('api.path', COMPONENT_SOURCE_PATH_HINT)
     }
 
     let parts: NonNullable<FrontmatterData['api']>['parts']
@@ -138,14 +146,11 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
         seenParts.add(name)
         const partPath = readString(partValue, 'path')
         if (
-          !/^src\/components\/[a-z0-9/-]+$/.test(partPath) ||
+          !COMPONENT_SOURCE_PATH.test(partPath) ||
           partPath.includes('..') ||
           /\.[cm]?[jt]sx?$/.test(partPath)
         ) {
-          return fail(
-            `api.parts[${index}].path`,
-            'must be an extensionless component path under src/components',
-          )
+          return fail(`api.parts[${index}].path`, COMPONENT_SOURCE_PATH_HINT)
         }
         return { name, path: partPath }
       })

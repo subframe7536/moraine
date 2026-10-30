@@ -4,6 +4,7 @@ import path from 'pathe'
 import type { ESTree } from 'vite'
 
 import { toKebabCase } from '../core/strings.ts'
+import { COMPONENT_SOURCE_PATH } from '../markdown/frontmatter.ts'
 import type { FrontmatterApiPart } from '../markdown/types.ts'
 import type { DocsPageSource } from '../routes.ts'
 
@@ -140,8 +141,7 @@ export const FACTORY_COMPONENTS: Readonly<
 }
 
 function categoryFromPath(sourcePath: string): string {
-  const match = sourcePath.match(/^src\/components\//)
-  if (!match) {
+  if (!COMPONENT_SOURCE_PATH.test(sourcePath)) {
     throw new Error(`[api-doc] Unsupported component source path "${sourcePath}".`)
   }
   return 'general'

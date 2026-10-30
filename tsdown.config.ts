@@ -47,7 +47,8 @@ export default defineConfig([
     entry: {
       index: './src/index.ts',
       utils: './src/utils.ts',
-      virtualizer: './src/virtualizer.ts',
+      virtualizer: './src/virtualizer/index.ts',
+      'data-table': './src/data-table/index.ts',
       unocss: './src/theme/unocss.ts',
       tailwind: './src/theme/tailwind.ts',
       theme: './src/theme.ts',
@@ -56,7 +57,12 @@ export default defineConfig([
     unbundle: true,
     clean: true,
     deps: {
-      neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
+      neverBundle: [
+        '@subf/unocss',
+        '@tanstack/solid-table',
+        '@tanstack/virtual-core',
+        'tailwindcss',
+      ],
     },
     dts: {
       parallel: true,
@@ -66,7 +72,8 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
-      virtualizer: './src/virtualizer.ts',
+      virtualizer: './src/virtualizer/index.ts',
+      'data-table': './src/data-table/index.ts',
     },
     unbundle: true,
     clean: false,
@@ -95,7 +102,7 @@ export default defineConfig([
       }),
     ],
     deps: {
-      neverBundle: ['@tanstack/virtual-core'],
+      neverBundle: ['@tanstack/solid-table', '@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,

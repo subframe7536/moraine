@@ -3,11 +3,16 @@ import { readFileSync } from 'node:fs'
 import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
-import * as Moraine from '../../../src/index.ts'
+import * as MoraineDataTable from '../../../src/data-table/index.ts'
+import * as MoraineMain from '../../../src/index.ts'
 import { scanDocsPages } from '../routes.ts'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'
 import { generateApiDoc } from './extract.ts'
+
+// Components ship from the main entry or a dedicated subpath with an optional peer dependency.
+const COMPONENT_ENTRIES = ['src/index.ts', 'src/data-table/index.ts']
+const Moraine = { ...MoraineMain, ...MoraineDataTable }
 
 describe('generateApiDoc', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
@@ -15,17 +20,22 @@ describe('generateApiDoc', () => {
   test('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    const entryPath = path.join(projectRoot, 'src/index.ts')
-    const entry = await parseTypeScript(entryPath, readFileSync(entryPath, 'utf8'), 'ts')
-    const publicNames = entry.program.body.flatMap((node) => {
-      if (node.type !== 'ExportNamedDeclaration' || node.exportKind !== 'type') {
-        return []
+    const publicNames: string[] = []
+    for (const entryFile of COMPONENT_ENTRIES) {
+      const entryPath = path.join(projectRoot, entryFile)
+      const entry = await parseTypeScript(entryPath, readFileSync(entryPath, 'utf8'), 'ts')
+      for (const node of entry.program.body) {
+        if (node.type !== 'ExportNamedDeclaration' || node.exportKind !== 'type') {
+          continue
+        }
+        for (const specifier of node.specifiers) {
+          const name = getIdentifierName(specifier.exported)
+          if (name?.endsWith('T')) {
+            publicNames.push(name.slice(0, -1))
+          }
+        }
       }
-      return node.specifiers.flatMap((specifier) => {
-        const name = getIdentifierName(specifier.exported)
-        return name?.endsWith('T') ? [name.slice(0, -1)] : []
-      })
-    })
+    }
     expect(result.indexDoc.components.map((component) => component.name).sort()).toEqual(
       publicNames.sort(),
     )
@@ -215,6 +225,13 @@ describe('generateApiDoc', () => {
       expect.arrayContaining(['item', 'children', 'class', 'style']),
     )
     expect(baseSelectItem.defaultElement).toBe('div')
+
+    // FlowComponent parts accept children through BaseProps' `AcceptsChildren` flag.
+    const table = result.componentDocs.get('table')!
+    for (const name of ['Table.Header', 'Table.Body', 'Table.Footer', 'Table.Caption']) {
+      const part = table.parts.find((entry) => entry.name === name)!
+      expect(part.props.map((prop) => prop.name)).toEqual(['children', 'class', 'style'])
+    }
 
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(

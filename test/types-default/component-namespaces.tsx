@@ -43,11 +43,13 @@ import type {
   SliderT,
   StepperT,
   SwitchT,
+  TableT,
   TabsT,
   TextareaT,
   TooltipT,
   TreeT,
 } from 'moraine'
+import type { DataTableT } from 'moraine/data-table'
 import * as v from 'valibot'
 
 type Header<Kind, Slot, Variants, Classes, Styles> = [Kind, Slot, Variants, Classes, Styles]
@@ -147,6 +149,13 @@ export type ComponentNamespaceHeaders = {
     CopyButtonT.Variants,
     CopyButtonT.Classes,
     CopyButtonT.Styles
+  >
+  DataTable: Header<
+    DataTableT.Kind,
+    DataTableT.Slot,
+    DataTableT.Variants,
+    DataTableT.Classes,
+    DataTableT.Styles
   >
   Dialog: Header<DialogT.Kind, DialogT.Slot, DialogT.Variants, DialogT.Classes, DialogT.Styles>
   DropdownMenu: Header<
@@ -258,6 +267,7 @@ export type ComponentNamespaceHeaders = {
     StepperT.Styles
   >
   Switch: Header<SwitchT.Kind, SwitchT.Slot, SwitchT.Variants, SwitchT.Classes, SwitchT.Styles>
+  Table: Header<TableT.Kind, TableT.Slot, TableT.Variants, TableT.Classes, TableT.Styles>
   Tabs: Header<TabsT.Kind, TabsT.Slot, TabsT.Variants, TabsT.Classes, TabsT.Styles>
   Textarea: Header<
     TextareaT.Kind,
@@ -453,4 +463,14 @@ export type CompositePartContracts = [
   BaseSelectT.ContentProps,
   BaseSelectT.ItemBase,
   BaseSelectT.ItemProps,
+  TableT.HeaderProps,
+  TableT.BodyProps,
+  TableT.FooterProps,
+  TableT.RowBase,
+  TableT.RowProps,
+  TableT.HeadBase,
+  TableT.HeadProps,
+  TableT.CellBase,
+  TableT.CellProps,
+  TableT.CaptionProps,
 ]

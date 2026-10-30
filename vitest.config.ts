@@ -18,6 +18,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@src': path.resolve('src'),
       '#binding': path.resolve('docs/node_modules/satteri/dist/binding.js'),
       [path.resolve('docs/node_modules/satteri/dist/binding.browser.js')]: path.resolve(
         'docs/node_modules/satteri/dist/binding.js',

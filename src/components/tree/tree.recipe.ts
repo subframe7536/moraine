@@ -2,7 +2,12 @@ import { defineRecipe } from '../../theme/recipe'
 import { DATA_DISABLED_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import { CHECKBOX_CONTROL_CLASS, CHECKBOX_ICON_CLASS } from '../checkbox/checkbox.recipe'
+import {
+  CHECK_CONTROL_CLASS,
+  CHECK_CONTROL_ICON_CLASS,
+  CHECK_CONTROL_SIZE_CLASS,
+  checkControlDataAttributes,
+} from '../shared/check-control/check-control.recipe'
 
 import type { TreeStyleSlot, TreeStyleVariants } from './tree.style-types'
 
@@ -19,12 +24,7 @@ export const treeDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('disabled', 'expanded', 'leaf', 'selected'),
   trigger: /* @__PURE__ */ createDataAttributes('expanded', 'leaf', 'loading'),
   icon: /* @__PURE__ */ createDataAttributes('expanded', 'leaf'),
-  checkbox: /* @__PURE__ */ createDataAttributes(
-    'checked',
-    'disabled',
-    'indeterminate',
-    'unchecked',
-  ),
+  checkbox: checkControlDataAttributes,
   content: /* @__PURE__ */ createDataAttributes(
     'closed',
     'expanded',
@@ -65,8 +65,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     trigger:
       'text-inherit opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
     icon: 'text-inherit opacity-70 shrink-0',
-    checkbox: `${CHECKBOX_CONTROL_CLASS} data-indeterminate:(border-primary bg-primary)`,
-    checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
+    checkbox: CHECK_CONTROL_CLASS,
+    checkboxIcon: CHECK_CONTROL_ICON_CLASS,
     label: 'flex-1 min-w-0 truncate',
     action: 'flex shrink-0 gap-1 items-center',
     // A border, unlike a background image, stays visible under `forced-colors: active`.
@@ -81,11 +81,19 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
   },
   variants: {
     size: {
-      sm: { row: 'text-xs py-1', checkbox: 'size-3.5', '--mo-tree-gap': '0.375rem' },
-      md: { row: 'text-sm py-1.5', checkbox: 'size-4', '--mo-tree-gap': '0.5rem' },
+      sm: {
+        row: 'text-xs py-1',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.sm,
+        '--mo-tree-gap': '0.375rem',
+      },
+      md: {
+        row: 'text-sm py-1.5',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.md,
+        '--mo-tree-gap': '0.5rem',
+      },
       lg: {
         row: 'text-base py-2',
-        checkbox: 'size-4.5',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.lg,
         '--mo-tree-gap': '0.625rem',
       },
     },

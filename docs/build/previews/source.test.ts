@@ -76,7 +76,8 @@ export function BasicExample() {
   })
 
   test('converts subpath imports (@src/utils.ts, @src/theme/unocss, @src/element/...)', async () => {
-    const source = `import { createListVirtualizer } from '@src/virtualizer.ts'
+    const source = `import { createListVirtualizer } from '@src/virtualizer/index.ts'
+import { DataTable } from '@src/data-table'
 import { presetMoraine } from '@src/theme/unocss'
 import { Button } from '@src/element/button/button.tsx'
 import '@src/icon.css'
@@ -86,6 +87,7 @@ export const VirtualList = () => <div />
 
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { createListVirtualizer } from 'moraine/virtualizer'
+import { DataTable } from 'moraine/data-table'
 import { presetMoraine } from 'moraine/unocss'
 import { Button } from 'moraine'
 import 'moraine/icon.css'

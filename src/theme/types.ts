@@ -47,12 +47,14 @@ import type { SkeletonStyleConfig } from '../components/skeleton/skeleton.style-
 import type { SliderStyleConfig } from '../components/slider/slider.style-types'
 import type { StepperStyleConfig } from '../components/stepper/stepper.style-types'
 import type { SwitchStyleConfig } from '../components/switch/switch.style-types'
+import type { TableStyleConfig } from '../components/table/table.style-types'
 import type { TabsStyleConfig } from '../components/tabs/tabs.style-types'
 import type { TextareaStyleConfig } from '../components/textarea/textarea.style-types'
 import type { ToastStyleConfig } from '../components/toast/toast.style-types'
 import type { ToggleButtonStyleConfig } from '../components/toggle-button/toggle-button.style-types'
 import type { TooltipStyleConfig } from '../components/tooltip/tooltip.style-types'
 import type { TreeStyleConfig } from '../components/tree/tree.style-types'
+import type { DataTableStyleConfig } from '../data-table/data-table.style-types'
 
 import type { RecipeLayerConfig } from './recipe'
 
@@ -106,6 +108,8 @@ export interface MoraineStyleSchema {
   pagination: PaginationStyleConfig
   sidebar: SidebarStyleConfig
   stepper: StepperStyleConfig
+  table: TableStyleConfig
+  dataTable: DataTableStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig
   alertDialog: AlertDialogStyleConfig

@@ -137,7 +137,9 @@ export function createDocsRouteInfo(
     order: frontmatter.sidebar?.order ?? 0,
     tags: frontmatter.search.tags,
     ...(frontmatter.sidebar?.badge ? { badge: frontmatter.sidebar.badge } : {}),
-    ...(componentKeys.has(page.pageKey) ? { api: page.pageKey } : {}),
+    ...(page.surface === 'components' && componentKeys.has(page.pageKey)
+      ? { api: page.pageKey }
+      : {}),
     ...(sections.length > 0 ? { sections: [...sections] } : {}),
   }
 }

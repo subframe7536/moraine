@@ -25,6 +25,7 @@ import { defaultSheetMessages } from '../../components/sheet/sheet.messages'
 import { defaultSidebarMessages } from '../../components/sidebar/sidebar.messages'
 import { defaultSliderMessages } from '../../components/slider/slider.messages'
 import { defaultToastMessages } from '../../components/toast/toast.messages'
+import { defaultDataTableMessages } from '../../data-table/data-table.messages'
 import { MoraineProvider } from '../moraine-provider'
 
 import { useLocale, useMessages } from './locale-context'
@@ -38,6 +39,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   breadcrumb: defaultBreadcrumbMessages,
   commandPalette: defaultCommandPaletteMessages,
   copyButton: defaultCopyButtonMessages,
+  dataTable: defaultDataTableMessages,
   select: defaultSelectMessages,
   combobox: defaultComboboxMessages,
   multiSelect: defaultMultiSelectMessages,

@@ -56,7 +56,11 @@ function convertSrcImport(specifier: string): string {
     return 'moraine'
   }
   if (specifier.startsWith('@src/')) {
-    const subpath = specifier.slice('@src/'.length).replace(/\.(?:tsx?|jsx?)$/, '')
+    // Entries such as `@src/data-table` are directories whose `index.ts` is the package subpath.
+    const subpath = specifier
+      .slice('@src/'.length)
+      .replace(/\.(?:tsx?|jsx?)$/, '')
+      .replace(/\/index$/, '')
     return subpath === 'index' ? 'moraine' : `moraine/${subpath}`
   }
   return specifier

@@ -41,7 +41,9 @@ export async function writeJsonFiles(
   validateAllComponentApis(allComponents)
 
   const pageDirectoryByKey = new Map(
-    pages.map(({ page }) => [page.pageKey, path.dirname(page.absolutePath)]),
+    pages
+      .filter(({ page, frontmatter }) => frontmatter.api || page.surface === 'components')
+      .map(({ page }) => [page.pageKey, path.dirname(page.absolutePath)]),
   )
   const apiIndexDoc = {
     components: [...result.indexDoc.components]

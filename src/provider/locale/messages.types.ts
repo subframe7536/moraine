@@ -18,6 +18,7 @@ import type { defaultSheetMessages } from '../../components/sheet/sheet.messages
 import type { defaultSidebarMessages } from '../../components/sidebar/sidebar.messages'
 import type { defaultSliderMessages } from '../../components/slider/slider.messages'
 import type { defaultToastMessages } from '../../components/toast/toast.messages'
+import type { defaultDataTableMessages } from '../../data-table/data-table.messages'
 
 export type ComponentMessages<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : string
@@ -31,6 +32,7 @@ export interface MoraineMessages {
   breadcrumb: ComponentMessages<typeof defaultBreadcrumbMessages>
   commandPalette: ComponentMessages<typeof defaultCommandPaletteMessages>
   copyButton: ComponentMessages<typeof defaultCopyButtonMessages>
+  dataTable: ComponentMessages<typeof defaultDataTableMessages>
   select: ComponentMessages<typeof defaultSelectMessages>
   combobox: ComponentMessages<typeof defaultComboboxMessages>
   multiSelect: ComponentMessages<typeof defaultMultiSelectMessages>

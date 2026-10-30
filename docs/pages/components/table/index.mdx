@@ -1,0 +1,337 @@
+---
+title: Table
+description: Lay out tabular data with native table parts, density and border variants, row states, and optional row virtualization.
+group: Display
+api:
+  path: src/components/table/table
+  root: Root
+  parts: [Header, Body, Footer, Row, Head, Cell, Caption]
+search:
+  tags: [table, data, grid, rows, columns, tabular, data-table]
+---
+
+import { Badge, Table } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
+    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'showBorder',
+      label: 'Show Border',
+      defaultValue: 'row',
+      options: [
+        { label: 'Row', value: 'row' },
+        { label: 'Column', value: 'col' },
+        { label: 'Both', value: 'both' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <Table
+      size={props.size}
+      striped={props.striped}
+      hoverEffect={props.hoverEffect}
+      showBorder={props.showBorder}
+    >
+      <Table.Caption>A list of recent transactions.</Table.Caption>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Invoice</Table.Head>
+          <Table.Head>Status</Table.Head>
+          <Table.Head>Method</Table.Head>
+          <Table.Head align="right">Amount</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-001</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Credit Card</Table.Cell>
+          <Table.Cell align="right">$250.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-002</Table.Cell>
+          <Table.Cell>
+            <Badge tone="warning" variant="subtle">
+              Pending
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>PayPal</Table.Cell>
+          <Table.Cell align="right">$150.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-003</Table.Cell>
+          <Table.Cell>
+            <Badge tone="danger" variant="subtle">
+              Unpaid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Bank Transfer</Table.Cell>
+          <Table.Cell align="right">$350.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-004</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Credit Card</Table.Cell>
+          <Table.Cell align="right">$450.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-005</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>PayPal</Table.Cell>
+          <Table.Cell align="right">$550.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-006</Table.Cell>
+          <Table.Cell>
+            <Badge tone="warning" variant="subtle">
+              Pending
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Bank Transfer</Table.Cell>
+          <Table.Cell align="right">$200.00</Table.Cell>
+        </Table.Row>
+      </Table.Body>
+      <Table.Footer>
+        <Table.Row>
+          <Table.Cell colSpan={3}>Total</Table.Cell>
+          <Table.Cell align="right" class="font-semibold">
+            $1,950.00
+          </Table.Cell>
+        </Table.Row>
+      </Table.Footer>
+    </Table>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'table' },
+    children: [
+      { part: 'Table.Caption', slot: 'caption', element: 'caption' },
+      {
+        part: 'Table.Header',
+        slot: 'header',
+        element: 'thead',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            element: 'tr',
+            children: [{ part: 'Table.Head', slot: 'head', element: 'th' }],
+          },
+        ],
+      },
+      {
+        part: 'Table.Body',
+        slot: 'body',
+        element: 'tbody',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            element: 'tr',
+            children: [{ part: 'Table.Cell', slot: 'cell', element: 'td' }],
+          },
+        ],
+      },
+      {
+        part: 'Table.Footer',
+        slot: 'footer',
+        element: 'tfoot',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            element: 'tr',
+            children: [{ part: 'Table.Cell', slot: 'cell', element: 'td' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+The `table` sits inside a `container` element (`data-slot="table-container"`) that scrolls
+horizontally, so wide tables do not stretch the page.
+
+## Usage
+
+Use Table to present data you lay out yourself: invoices, comparison grids, or summaries with a
+known set of columns. When the table needs sorting, selection, pagination, or server data, use
+[DataTable](/components/data-table) instead. For a one-column collection, use
+[List](/components/list).
+
+Table is a styled set of native table elements. Compose the parts in table order.
+
+```tsx
+import { Table } from 'moraine'
+
+export function InvoiceTable() {
+  return (
+    <Table>
+      <Table.Caption>Recent invoices</Table.Caption>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Invoice</Table.Head>
+          <Table.Head>Status</Table.Head>
+          <Table.Head align="right">Amount</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell>INV-001</Table.Cell>
+          <Table.Cell>Paid</Table.Cell>
+          <Table.Cell align="right">$250.00</Table.Cell>
+        </Table.Row>
+      </Table.Body>
+    </Table>
+  )
+}
+```
+
+### Parts and native attributes
+
+Each part renders one fixed element and forwards native attributes to it.
+
+| Part            | Element   | Own props                |
+| --------------- | --------- | ------------------------ |
+| `Table`         | `table`   | Variants, `containerRef` |
+| `Table.Caption` | `caption` | None                     |
+| `Table.Header`  | `thead`   | None                     |
+| `Table.Body`    | `tbody`   | None                     |
+| `Table.Footer`  | `tfoot`   | None                     |
+| `Table.Row`     | `tr`      | `selected`               |
+| `Table.Head`    | `th`      | `align`, `truncated`     |
+| `Table.Cell`    | `td`      | `align`, `truncated`     |
+
+Use native attributes for table semantics: `colSpan` and `rowSpan` on cells, and `scope="row"` on a
+`Table.Head` that labels a body row. Name the table with `Table.Caption`, or with `aria-label` when
+a visible caption does not fit.
+
+```tsx
+<Table.Row>
+  <Table.Head scope="row">Storage</Table.Head>
+  <Table.Cell>10 GB</Table.Cell>
+  <Table.Cell>100 GB</Table.Cell>
+</Table.Row>
+```
+
+`ref` targets the `table`; `containerRef` targets the scroll container.
+
+### Density and borders
+
+`size` sets cell padding and text size. `showBorder` draws row dividers (`'row'`, the default),
+column dividers (`'col'`), or both (`'both'`). `striped` shades even body rows, and `hoverEffect`
+highlights body rows under the pointer. Neither applies to selected rows.
+
+### Alignment and truncation
+
+`align` sets text alignment on `Table.Head` and `Table.Cell`: `'left'` (default), `'center'`, or
+`'right'`. Because `Table.Head` defaults to left, header text is not centered the way the browser
+centers a plain `th`. Right-align numeric columns in both the header and the cells.
+
+`truncated` keeps text on one line with an ellipsis. Give the cell a width limit, such as a
+`max-w-*` class, so there is a width to truncate at.
+
+```tsx
+<Table.Cell truncated class="max-w-40">
+  {customer.address}
+</Table.Cell>
+```
+
+### Selected rows
+
+`selected` on `Table.Row` applies the selected background through `data-selected`. It is visual
+only: `aria-selected` is not valid on rows of a static table, so it is not set. Put a labelled
+control in the row, such as a checkbox, so assistive technology knows the row is selected.
+
+```tsx
+<Table.Row selected={isSelected(invoice.id)}>
+  <Table.Cell>
+    <Checkbox
+      checked={isSelected(invoice.id)}
+      onCheckedChange={(checked) => setSelected(invoice.id, checked)}
+      aria-label={`Select ${invoice.id}`}
+    />
+  </Table.Cell>
+  <Table.Cell>{invoice.id}</Table.Cell>
+</Table.Row>
+```
+
+### Virtualized rows
+
+For thousands of rows, mount the adapter from `createTableVirtualizer` (`moraine/virtualizer`)
+inside `Table.Body`, and spread its row props onto `Table.Row`. The body becomes the scroll
+container, which needs a fixed-header layout. The
+[Virtualization guide](/docs/virtualization#table) has the complete recipe.
+
+### Building a data grid
+
+You have two options for a sortable, filterable grid:
+
+- **DataTable.** Use [DataTable](/components/data-table) from `moraine/data-table`. It renders
+  sorting, selection, pagination, pinning, resizing, and loading states from a `createDataTable`
+  instance.
+- **TanStack Table with Table parts.** Use [`@tanstack/solid-table`](https://tanstack.com/table/latest)
+  directly and render its header groups and rows with Table parts. You own every control, as in the
+  TanStack example below.
+
+## Examples
+
+### Review transaction invoices
+
+Compose a caption, header, body, and footer total. Status badges sit in a cell, and amounts are
+right-aligned in both the header and the cells.
+
+<Preview path="./basic" />
+
+### Truncate long header and cell values
+
+Set `truncated` with a `max-w-*` class to keep long text on one line, and center or right-align
+the other columns with `align`.
+
+<Preview path="./custom-columns" />
+
+### Scroll through 10,000 invoices
+
+Mount `createTableVirtualizer` inside `Table.Body`, and use `classes` to make the body the scroll
+container while the header stays above it. Each column has the same width class in the header and
+the body.
+
+<Preview path="./virtualization" />
+
+### Build a payments grid with TanStack Table
+
+Create a TanStack table with sorting, filtering, selection, column visibility, and pagination
+features, then render it with Table parts, `Checkbox`, `Input`, `DropdownMenu`, and `Pagination`.
+
+<Preview path="./tanstack-table" />

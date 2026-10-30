@@ -1,0 +1,261 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "data-table",
+  "name": "DataTable",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "data-table",
+      "name": "DataTable",
+      "access": {
+        "kind": "export",
+        "name": "DataTable"
+      },
+      "generics": [
+        {
+          "name": "TData",
+          "constraint": "RowData",
+          "default": "RowData"
+        }
+      ],
+      "defaultElement": "table",
+      "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "containerRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref forwarded to the outer container element."
+        },
+        {
+          "name": "emptyRender",
+          "optional": true,
+          "type": "JSX.Element | Component<EmptyRenderProps>",
+          "description": "Custom empty state content rendered when there are no rows."
+        },
+        {
+          "name": "expandedRowRender",
+          "optional": true,
+          "type": "Component<ExpandedRowRenderProps<TData>>",
+          "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualRender` is set."
+        },
+        {
+          "name": "hoverEffect",
+          "optional": true,
+          "type": "boolean",
+          "description": "Highlight row on mouse hover.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "loading",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the table is currently in a loading state."
+        },
+        {
+          "name": "loadingRender",
+          "optional": true,
+          "type": "JSX.Element | Component<LoadingRenderProps>",
+          "description": "Custom loading state content."
+        },
+        {
+          "name": "maxHeight",
+          "optional": true,
+          "type": "number | string",
+          "description": "Maximum height for the table scroll container (e.g. `400` or `'400px'`)."
+        },
+        {
+          "name": "onRowClick",
+          "optional": true,
+          "type": "(row: Row<TData>, event: MouseEvent) => void",
+          "description": "Callback fired when a table body row is clicked."
+        },
+        {
+          "name": "onRowDoubleClick",
+          "optional": true,
+          "type": "(row: Row<TData>, event: MouseEvent) => void",
+          "description": "Callback fired when a table body row is double-clicked."
+        },
+        {
+          "name": "rowClass",
+          "optional": true,
+          "type": "SlotClassValue | ((row: Row<TData>) => SlotClassValue)",
+          "description": "Custom class or class getter applied to each row (`<tr>`)."
+        },
+        {
+          "name": "showBorder",
+          "optional": true,
+          "type": "'row' | 'col' | 'both'",
+          "description": "Border divider layout.",
+          "default": {
+            "kind": "literal",
+            "value": "row"
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Size density of table cells, text, and padding.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "sticky",
+          "optional": true,
+          "type": "boolean | 'header' | 'footer'",
+          "description": "Whether the header and/or footer stick to the edges of the scroll container (`true` sticks both).",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "striped",
+          "optional": true,
+          "type": "boolean",
+          "description": "Alternating background shading on even rows.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "table",
+          "optional": false,
+          "type": "Instance<TData>",
+          "description": "Table instance created with `createDataTable`."
+        },
+        {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this data table instance."
+        },
+        {
+          "name": "virtualRender",
+          "optional": true,
+          "type": "Component<VirtualRenderProps<TData>>",
+          "description": "Component mounted inside `tbody` to render virtualized rows."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "container",
+    "root",
+    "header",
+    "body",
+    "footer",
+    "row",
+    "head",
+    "cell",
+    "empty",
+    "loading",
+    "sortButton",
+    "sortIcon",
+    "sortIndex",
+    "pagination",
+    "resizer",
+    "expandedRow",
+    "expandedCell",
+    "expandButton",
+    "checkbox",
+    "checkboxIcon"
+  ],
+  "dataAttributes": [
+    {
+      "target": "row",
+      "attributes": [
+        "data-empty",
+        "data-even",
+        "data-expanded",
+        "data-selected"
+      ]
+    },
+    {
+      "target": "head",
+      "attributes": [
+        "data-pinned",
+        "data-pinned-edge"
+      ]
+    },
+    {
+      "target": "cell",
+      "attributes": [
+        "data-pinned",
+        "data-pinned-edge",
+        "data-tree"
+      ]
+    },
+    {
+      "target": "sortIcon",
+      "attributes": [
+        "data-sorted"
+      ]
+    },
+    {
+      "target": "resizer",
+      "attributes": [
+        "data-resizing"
+      ]
+    },
+    {
+      "target": "expandButton",
+      "attributes": [
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "checkbox",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "expandedRow",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "expandedCell",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,365 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "table",
+  "name": "Table",
+  "description": "Props for Table.",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "table",
+      "name": "Table",
+      "access": {
+        "kind": "export",
+        "name": "Table"
+      },
+      "description": "Props for Table.",
+      "defaultElement": "table",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Table parts and direct content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "containerRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref forwarded to the scroll container element."
+        },
+        {
+          "name": "hoverEffect",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether rows highlight on hover.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "showBorder",
+          "optional": true,
+          "type": "'row' | 'col' | 'both'",
+          "description": "Which divider borders are displayed.",
+          "default": {
+            "kind": "literal",
+            "value": "row"
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Density of table rows and cells.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "striped",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether rows display alternating background colors.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "table-header",
+      "name": "Table.Header",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Header"
+      },
+      "defaultElement": "thead",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "table-body",
+      "name": "Table.Body",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Body"
+      },
+      "defaultElement": "tbody",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "table-footer",
+      "name": "Table.Footer",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Footer"
+      },
+      "defaultElement": "tfoot",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "table-row",
+      "name": "Table.Row",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Row"
+      },
+      "defaultElement": "tr",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "selected",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this row is selected."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "table-head",
+      "name": "Table.Head",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Head"
+      },
+      "defaultElement": "th",
+      "props": [
+        {
+          "name": "align",
+          "optional": true,
+          "type": "'left' | 'center' | 'right'",
+          "description": "Text alignment for the column header.",
+          "default": {
+            "kind": "literal",
+            "value": "left"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "truncated",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the header content should be truncated with an ellipsis.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "table-cell",
+      "name": "Table.Cell",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Cell"
+      },
+      "defaultElement": "td",
+      "props": [
+        {
+          "name": "align",
+          "optional": true,
+          "type": "'left' | 'center' | 'right'",
+          "description": "Text alignment for the cell.",
+          "default": {
+            "kind": "literal",
+            "value": "left"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "truncated",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the cell content should be truncated with an ellipsis.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "table-caption",
+      "name": "Table.Caption",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "Caption"
+      },
+      "defaultElement": "caption",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "container",
+    "root",
+    "header",
+    "body",
+    "footer",
+    "row",
+    "head",
+    "cell",
+    "caption"
+  ],
+  "dataAttributes": [
+    {
+      "target": "row",
+      "attributes": [
+        "data-selected"
+      ]
+    }
+  ]
+}

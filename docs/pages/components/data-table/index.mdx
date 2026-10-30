@@ -1,0 +1,684 @@
+---
+title: DataTable
+description: Sort, select, paginate, expand, pin, and resize tabular data with createDataTable and the DataTable presenter from moraine/data-table.
+group: Display
+api:
+  path: src/data-table/data-table
+search:
+  tags: [table, data, grid, rows, columns, data-table, tanstack, createDataTable]
+---
+
+import DataTablePlayground from './playground'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
+    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
+    {
+      kind: 'select',
+      prop: 'showBorder',
+      label: 'Show Border',
+      defaultValue: 'row',
+      options: [
+        { label: 'Row', value: 'row' },
+        { label: 'Column', value: 'col' },
+        { label: 'Both', value: 'both' },
+      ],
+    },
+    { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
+    { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
+    { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
+    { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
+    { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
+    { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+    { kind: 'switch', prop: 'empty', label: 'Empty', defaultValue: false },
+  ]}
+>
+  {(props) => <DataTablePlayground {...props} />}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'table' },
+    children: [
+      {
+        slot: 'header',
+        element: 'thead',
+        children: [
+          {
+            slot: 'row',
+            element: 'tr',
+            children: [
+              {
+                slot: 'head',
+                element: 'th',
+                children: [
+                  {
+                    slot: 'checkbox',
+                    element: 'button role="checkbox"',
+                    children: [{ slot: 'checkboxIcon' }],
+                  },
+                  {
+                    slot: 'sortButton',
+                    element: 'button',
+                    children: [{ slot: 'sortIcon' }, { slot: 'sortIndex' }],
+                  },
+                  { slot: 'resizer', element: 'div role="separator"' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        slot: 'body',
+        element: 'tbody',
+        children: [
+          {
+            slot: 'row',
+            element: 'tr',
+            children: [
+              {
+                slot: 'cell',
+                element: 'td',
+                children: [
+                  {
+                    slot: 'checkbox',
+                    element: 'button role="checkbox"',
+                    children: [{ slot: 'checkboxIcon' }],
+                  },
+                  { internal: 'radio', element: 'input type="radio"' },
+                  { slot: 'expandButton', element: 'button' },
+                ],
+              },
+              { slot: 'empty', element: 'td' },
+            ],
+          },
+          {
+            slot: 'expandedRow',
+            element: 'tr',
+            children: [{ slot: 'expandedCell', element: 'td' }],
+          },
+        ],
+      },
+      {
+        slot: 'footer',
+        element: 'tfoot',
+        children: [{ slot: 'row', element: 'tr', children: [{ slot: 'cell', element: 'td' }] }],
+      },
+    ],
+  }}
+/>
+
+The `table` sits inside a `container` element that also holds the `loading` overlay, a scroll
+viewport, and the `pagination` toolbar. The scroll viewport wraps only the table, so the toolbar
+stays in place while rows scroll. A body row renders either data `cell`s or, when there are no
+rows, one full-width `empty` cell.
+
+## Usage
+
+Use DataTable when the table owns behavior: sorting, row selection, pagination, expansion, column
+pinning, resizing, or server-driven data. For a static table you compose by hand, use
+[Table](/components/table). For a fully custom grid built on TanStack Table, compose `Table` parts
+yourself, as in the TanStack example on the Table page.
+
+DataTable ships from `moraine/data-table`, so the main `moraine` entry never imports TanStack Table.
+Install the optional peer dependency first:
+
+<CodeTabs package="@tanstack/solid-table" />
+
+Create the instance with `createDataTable` inside a component, then pass it to `DataTable`.
+Behavior lives on the instance; presentation lives on `DataTable`.
+
+```tsx
+import { DataTable, createDataTable } from 'moraine/data-table'
+import type { DataTableT } from 'moraine/data-table'
+
+interface User {
+  id: string
+  name: string
+  role: string
+}
+
+const users: User[] = [
+  { id: '1', name: 'Alice', role: 'Engineer' },
+  { id: '2', name: 'Bob', role: 'Designer' },
+]
+
+const columns: DataTableT.Column<User>[] = [
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'role', header: 'Role' },
+]
+
+export function Users() {
+  const table = createDataTable({
+    data: users,
+    columns,
+    getRowId: (user) => user.id,
+    selection: 'multiple',
+  })
+
+  return <DataTable table={table} aria-label="Users" />
+}
+```
+
+### Options and props
+
+`createDataTable` options configure behavior. The generated API reference does not cover them, so
+they are listed here. `DataTable` props configure presentation and are in the API reference below.
+
+| Concern     | `createDataTable` options                                                         | Default                                         |
+| ----------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Data        | `data`, `columns`, `getRowId`                                                     | Row ids are indexes (`'0'`, nested `'0.1'`).    |
+| Sorting     | `sorting`                                                                         | `true`                                          |
+| Selection   | `selection` (`'multiple'` or `'single'`), `canSelectRow`                          | No selection column.                            |
+| Expansion   | `expandable` (`true` or a row predicate)                                          | Only rows with sub-rows expand.                 |
+| Pagination  | `pagination` (`true` or `{ pageSize, pageSizes }`)                                | Off. When on: 10 rows, sizes `[5, 10, 20, 50]`. |
+| Resizing    | `resizable`                                                                       | `false`                                         |
+| Server mode | `manual`, `rowCount`                                                              | `false`                                         |
+| State       | `initialState`, `state`, `on[Slice]Change` callbacks                              | Uncontrolled.                                   |
+| Other       | `tableOptions`: TanStack options without a top-level option, such as `getSubRows` | None.                                           |
+
+| Concern       | `DataTable` props                                                               |
+| ------------- | ------------------------------------------------------------------------------- |
+| Instance      | `table` (required)                                                              |
+| Layout        | `sticky`, `maxHeight`, `size`, `striped`, `hoverEffect`, `showBorder`           |
+| Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualRender` |
+| Rows          | `rowClass`, `onRowClick`, `onRowDoubleClick`                                    |
+| Styling, i18n | `classes`, `styles`, `class`, `style`, `containerRef`, `translations`           |
+
+Other native `table` attributes, such as `aria-label`, are forwarded to the `table` element.
+
+### Reactive options
+
+Options are read reactively through the options object. Declare a getter for any value that
+changes, on the options object or inside `state`. A plain value is read once.
+
+```tsx
+const table = createDataTable({
+  get data() {
+    return rows()
+  },
+  columns,
+})
+```
+
+`createDataTable` tracks `data` and `columns` by reference. Return the same array until the data
+actually changes; a new array on every read resets pagination and expansion each time.
+
+### Columns
+
+Columns are TanStack column definitions typed as `DataTableT.Column<TData>`. A column's id is its
+`id`, else its `accessorKey` (with dots replaced by `_`), else a string `header`. State such as
+`columnOrder`, `columnPinning`, and `columnSizing` refers to these ids.
+
+`meta` adds Moraine presentation to the column's cells:
+
+| `meta` field | Effect                                                        |
+| ------------ | ------------------------------------------------------------- |
+| `align`      | `'left'` (default), `'center'`, or `'right'` text.            |
+| `truncated`  | Keeps cell text on one line with an ellipsis.                 |
+| `class`      | Extra classes on the column's header, body, and footer cells. |
+
+```tsx
+const columns: DataTableT.Column<Invoice>[] = [
+  { accessorKey: 'customer', header: 'Customer', meta: { truncated: true } },
+  { accessorKey: 'amount', header: 'Amount', size: 120, meta: { align: 'right' } },
+]
+```
+
+`selection` and `expandable` prepend generated columns with the reserved ids `'select'` and
+`'expand'`. Pin or order them by those ids. A column of your own whose id resolves to a reserved id
+replaces the generated column. When that id comes from `accessorKey` or `header`, a development
+warning suggests an explicit `id`, which keeps both columns.
+
+### Sorting
+
+Sorting is on by default, and each sortable header has a sort button. Shift-click a second
+header to sort by more than one column. While more than one column is sorted, each sorted header
+shows its priority (`sortIndex` slot), and screen readers hear it through the localized
+`sortPriority` message. Turn multi-column sorting off with `tableOptions.enableMultiSort: false`,
+or turn a column's sorting off with `enableSorting: false` in its definition.
+
+### Controlled state
+
+Each state slice is uncontrolled by default. Seed it with `initialState`, or control it through
+`state`. A slice listed in `state` is owned by you; pair it with its change callback. Callbacks
+receive the resolved next value, not a TanStack updater function, so a signal setter works
+directly.
+
+| Slice              | Callback                   |
+| ------------------ | -------------------------- |
+| `sorting`          | `onSortingChange`          |
+| `pagination`       | `onPaginationChange`       |
+| `rowSelection`     | `onRowSelectionChange`     |
+| `expanded`         | `onExpandedChange`         |
+| `columnOrder`      | `onColumnOrderChange`      |
+| `columnPinning`    | `onColumnPinningChange`    |
+| `columnVisibility` | `onColumnVisibilityChange` |
+| `columnSizing`     | `onColumnSizingChange`     |
+| `columnFilters`    | `onColumnFiltersChange`    |
+| `globalFilter`     | `onGlobalFilterChange`     |
+
+```tsx
+const [sorting, setSorting] = createSignal<DataTableT.State['sorting']>([])
+
+const table = createDataTable({
+  data,
+  columns,
+  state: {
+    get sorting() {
+      return sorting()
+    },
+  },
+  onSortingChange: setSorting,
+})
+```
+
+A callback without a matching `state` key only listens; the slice stays uncontrolled.
+
+`tableOptions` cannot set options that a top-level option already configures: `state`,
+`initialState`, the change callbacks, `getRowId`, `getRowCanExpand`, the `enable*` switches for
+sorting, selection, and resizing, `rowCount`, and the `manual*` modes. Use the top-level option
+instead.
+
+### Instance methods
+
+The instance is a TanStack Solid Table instance. Call its methods for actions that have no
+built-in control, such as filtering or reading the selection.
+
+```tsx
+table.setGlobalFilter('designer')
+table.getColumn('role')?.setFilterValue('Engineer')
+
+const selectedUsers = () => table.getSelectedRowModel().rows.map((row) => row.original)
+```
+
+The `includesString`, `equals`, `weakEquals`, `arrIncludes`, `inNumberRange`, and `inDateRange`
+filter functions are registered.
+
+### Selection
+
+`selection: 'multiple'` adds a checkbox to each row and a select-all checkbox to the header.
+Select-all toggles the rows on the current page, and is then named with the `selectPage` message.
+With tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed
+when some are. `selection: 'single'` adds radio buttons; selecting a row clears the others.
+`canSelectRow` disables the control of every row it rejects.
+
+```tsx
+const table = createDataTable({
+  data: nodes,
+  columns,
+  getRowId: (node) => node.id,
+  selection: 'single',
+  canSelectRow: (row) => row.original.status !== 'terminated',
+})
+```
+
+Set `getRowId` when you read or store `rowSelection`. Its keys are row ids, and index ids point to
+different records once the data is replaced or sorted on the server.
+
+Selected rows get `data-selected` for styling. They do not get `aria-selected`, which is only valid
+in a grid; the checkboxes and radios carry the selection semantics instead. Single-selection radios
+share one name per table, so the group is one tab stop and arrow keys move the selection, skipping
+disabled rows.
+
+### Expansion
+
+Rows expand in two different ways:
+
+- **Detail rows.** Set `expandable` and pass `expandedRowRender`. An expanded row shows a
+  full-width detail row below it, with an open and close animation. `expandable: true` lets every
+  row expand; a predicate decides per row.
+- **Tree data.** Pass `tableOptions.getSubRows`. Sub-rows render as ordinary rows under their
+  parent. Without `expandable`, only rows with sub-rows can expand. To also show the chevron
+  column, pass `expandable: (row) => row.subRows.length > 0`. Sub-rows indent the first data
+  column, after the selection and expand columns, by one step per level. The step is the
+  `--mo-data-table-indent` variable (`1.25rem`); override it with `styles.root`.
+
+```tsx
+const table = createDataTable({
+  data: orders,
+  columns,
+  expandable: true,
+})
+
+return (
+  <DataTable
+    table={table}
+    expandedRowRender={(props) => <OrderItems items={props.row.original.items} />}
+  />
+)
+```
+
+Control which rows are open with `state.expanded` and `onExpandedChange`.
+
+### Pagination and server data
+
+Pagination is off by default, and every row renders. Pass `pagination: true` for ten rows per
+page, or `pagination: { pageSize, pageSizes }`. The toolbar below the table shows page navigation,
+a page-size menu (`pageSizes: false` hides it), and the selected-row count when `selection` is set.
+
+For server-side sorting, filtering, and paging, set `manual: true`. Then `data` is the current
+page, `rowCount` is the total across all pages, and the change callbacks tell you what to fetch.
+In manual mode, the page index does not reset when the data changes.
+
+```tsx
+const [sorting, setSorting] = createSignal<DataTableT.State['sorting']>([])
+const [pagination, setPagination] = createSignal({ pageIndex: 0, pageSize: 20 })
+
+const table = createDataTable({
+  get data() {
+    return page()?.rows ?? []
+  },
+  get rowCount() {
+    return page()?.total ?? 0
+  },
+  columns,
+  manual: true,
+  pagination: { pageSizes: [10, 20, 50] },
+  state: {
+    get sorting() {
+      return sorting()
+    },
+    get pagination() {
+      return pagination()
+    },
+  },
+  onSortingChange: setSorting,
+  onPaginationChange: setPagination,
+})
+
+return <DataTable table={table} loading={page.loading} />
+```
+
+### Loading and empty states
+
+`loading` covers the table with an overlay and keeps the current rows visible underneath. While it
+is set, the table has `aria-busy="true"`, and a `status` region that stays mounted announces the
+localized `loading` text. The default overlay shows a spinner; replace it with `loadingRender`.
+
+With no rows, the body shows one full-width cell with the `empty` message, or `emptyRender`. The
+empty message is hidden while `loading` is set. Both render props receive `colSpan`.
+
+```tsx
+<DataTable
+  table={table}
+  loading={isFetching()}
+  emptyRender={
+    <Empty>
+      <Empty.Title>No invoices</Empty.Title>
+      <Empty.Description>Invoices you send appear here.</Empty.Description>
+    </Empty>
+  }
+/>
+```
+
+### Pinned columns and sticky sections
+
+Pin columns with `initialState.columnPinning` or `state.columnPinning`. Pinned columns stay at the
+start or end edge while the rest scroll horizontally. The innermost pinned column on each side
+draws a divider.
+
+```tsx
+const table = createDataTable({
+  data,
+  columns,
+  selection: 'multiple',
+  initialState: {
+    columnPinning: { start: ['select', 'id'], end: ['actions'] },
+  },
+})
+```
+
+Header and footer rows render each pinned region separately. A group header over both pinned and
+unpinned columns splits into one cell per region, so only the pinned part sticks.
+
+`sticky` keeps the header (`'header'`), the footer (`'footer'`), or both (`true`) in view. It needs
+a bounded height, so pair it with `maxHeight`. The whole `thead` or `tfoot` sticks, so grouped
+header and footer rows stay stacked.
+
+```tsx
+<DataTable table={table} sticky maxHeight={360} />
+```
+
+Pinning and resizing switch the table to a fixed layout with explicit column widths. Give columns a
+`size` to control those widths.
+
+### Column resizing
+
+`resizable: true` adds a resize handle to each column header. Widths stay within each column's
+`minSize` and `maxSize`. Columns without a `maxSize`, in their definition or in
+`tableOptions.defaultColumn`, are capped at 1000px so the handle can report a range. Only leaf
+headers have a handle: a group header is as wide as its columns, so resize those instead. The new
+width commits when a drag ends; set
+`tableOptions.columnResizeMode: 'onChange'` to resize while dragging.
+
+Each handle is a focusable separator named after its column, such as "Name Resize column". It
+reports the column's current, minimum, and maximum width.
+
+| Key                                          | Action                                             |
+| -------------------------------------------- | -------------------------------------------------- |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> | Narrows or widens the column by 10px.              |
+| <kbd>Shift</kbd> + arrows                    | Narrows or widens the column by 50px.              |
+| <kbd>Home</kbd>                              | Sets the column to its `minSize`.                  |
+| <kbd>End</kbd>                               | Sets the column to its `maxSize`, when one is set. |
+
+The arrows swap direction when `tableOptions.columnResizeDirection` is `'rtl'`.
+
+### Column order
+
+`state.columnOrder` lists column ids in display order. Columns it does not list follow in
+definition order.
+
+```tsx
+const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'])
+
+const table = createDataTable({
+  data,
+  columns,
+  state: {
+    get columnOrder() {
+      return columnOrder()
+    },
+  },
+  onColumnOrderChange: setColumnOrder,
+})
+```
+
+### Row events
+
+`onRowClick` and `onRowDoubleClick` receive the row and the mouse event, and give rows a pointer
+cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not reach them. Use
+`rowClass` to add classes per row.
+
+```tsx
+<DataTable
+  table={table}
+  onRowClick={(row) => navigate(`/users/${row.original.id}`)}
+  rowClass={(row) => row.original.archived && 'opacity-60'}
+/>
+```
+
+Row clicks are pointer-only. Keep a link or button in a cell so keyboard users can reach the same
+action.
+
+### Virtualization
+
+Pass `virtualRender` from `createTableVirtualizer` (`moraine/virtualizer`) to mount only the rows
+near the viewport. Give the table a bounded height with `maxHeight`. The virtualizer measures the
+header above the body, including a sticky header, so you do not set `scrollMargin`.
+
+```tsx
+import { createTableVirtualizer } from 'moraine/virtualizer'
+
+const virtualizer = createTableVirtualizer<DataTableT.Row<Task>>({
+  estimateSize: () => 41,
+  getItemKey: (row) => row.id,
+})
+
+return <DataTable table={table} virtualRender={virtualizer.virtualRender} sticky maxHeight={320} />
+```
+
+A virtualized table shows every row in one scroll, which changes three behaviors:
+
+- `pagination` is ignored, with a development warning.
+- Select-all toggles every row, not one page.
+- `expandedRowRender` is ignored, with a development warning, because the virtualizer cannot
+  measure a second row per entry. Tree sub-rows still expand, because each is its own entry.
+
+See the [Virtualization guide](/docs/virtualization#table) for sizing and keys.
+
+For tables with many columns, add the `columns` option to the virtualizer. DataTable then renders
+only the body cells of the unpinned columns near the viewport, using each column's `size` as its
+width:
+
+```tsx
+const virtualizer = createTableVirtualizer<DataTableT.Row<Metric>>({
+  estimateSize: () => 41,
+  getItemKey: (row) => row.id,
+  columns: { overscan: 2 },
+})
+```
+
+- Header and footer rows render every column, so grouped headers keep their `colSpan`. Body rows
+  replace the skipped columns with a placeholder cell on each side.
+- Pinned columns always render, so pin the columns users need while scrolling sideways.
+- The table switches to a fixed layout with a `<colgroup>` of column widths. Give columns a `size`;
+  columns without one are 150px wide.
+- The table gets `aria-colcount`, and each rendered body cell gets `aria-colindex`, so screen
+  readers still announce column positions.
+
+### Localization
+
+Override text for one table with `translations`, or for the whole app with the `dataTable` key of
+`MoraineProvider` `messages`. Sort buttons and resize handles prefix the column header to their
+text, so the sort button of a Name column is named "Name Sort", then "Name Sorted ascending".
+
+| Key                                           | Default                                         |
+| --------------------------------------------- | ----------------------------------------------- |
+| `empty`                                       | `No results.`                                   |
+| `loading`                                     | `Loading`                                       |
+| `selectAll`, `selectRow`                      | `Select all rows`, `Select row`                 |
+| `selectPage`                                  | `Select all rows on this page`                  |
+| `expandRow`, `collapseRow`                    | `Expand row`, `Collapse row`                    |
+| `sort`, `sortedAscending`, `sortedDescending` | `Sort`, `Sorted ascending`, `Sorted descending` |
+| `resizeColumn`                                | `Resize column`                                 |
+| `sortPriority({ index })`                     | `` `Sort priority ${index}` ``                  |
+| `rowCount({ total })`                         | `` `${total} rows` `` (`1 row` for one)         |
+| `selectedCount({ selected, total })`          | `` `${selected} of ${total} selected` ``        |
+| `pageSize({ size })`                          | `` `${size} / page` ``                          |
+
+## Examples
+
+### Sort, select, and page through team members
+
+A typical list: custom cells for the member and the role, multiple selection, and five rows per
+page. The table starts sorted by role, and the role column sorts by rank with a `sortingFn` instead
+of alphabetically. Shift-click another header to add a second sort; the headers then show their
+priority.
+
+<Preview path="./basic" />
+
+### Switch between single and multiple selection
+
+Read `selection` from a signal and control `state.rowSelection`, so the toolbar can count and clear
+the selection. `canSelectRow` locks terminated nodes, and `rowClass` mutes their text.
+
+<Preview path="./selection-modes" />
+
+### Search and filter rows
+
+Bind an `Input` to `state.globalFilter` for a search across all columns, and a `Select` to the role
+column's filter with `column.setFilterValue`. The role column uses `filterFn: 'equals'` for an
+exact match. TanStack returns to the first page whenever a filter changes, and the toolbar below
+the table counts the matching rows.
+
+<Preview path="./filtering" />
+
+### Load pages from a server
+
+Set `manual: true` and control `sorting` and `pagination`. Combine them with the debounced search
+into one query, so each change sends one request. Pass the current page as `data`, the total as
+`rowCount`, and the request state as `loading`. Sorting and searching return to the first page,
+and the previous page stays on screen while the next one loads.
+
+<Preview path="./server-data" />
+
+### Choose and reorder columns
+
+Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists
+the columns that can hide, the chips move visible columns, and Reset restores the defaults. The
+name column sets `enableHiding: false`, so it can move but not hide. The column definitions never
+change.
+
+<Preview path="./column-settings" />
+
+### Let users resize columns
+
+Set `resizable: true` and give columns a `size`, plus `minSize` and `maxSize` to bound them. Drag a
+header edge, or focus the handle and use the arrow keys.
+
+<Preview path="./resizable-columns" />
+
+### Keep the ID and actions visible while scrolling sideways
+
+Pin the selection and ID columns to the start and the actions column to the end with
+`initialState.columnPinning`. Give every column a `size`, because pinning uses a fixed layout.
+
+<Preview path="./pinned-columns" />
+
+### Keep the header and totals in view
+
+Set `sticky` and `maxHeight` so the header and footer stay in view while 30 audit events scroll.
+The footers read the current rows from the table, so they update with the data.
+
+<Preview path="./sticky-sections" />
+
+### Show order details in expandable rows
+
+Set `expandable: true` and render the line items, shipping address, and tracking code with
+`expandedRowRender`.
+
+<Preview path="./expandable-rows" />
+
+### Browse files as tree data
+
+Pass `tableOptions.getSubRows` to render nested rows, and `expandable` with a predicate so only
+folders get a chevron. Sub-rows indent the name column. Selecting a folder selects its files, and a
+partly selected folder shows a mixed checkbox. `getRowId` returns the file name; sub-row ids get
+their parent's id as a prefix (`src.components`), which is also how `initialState.expanded` opens
+the nested folders.
+
+<Preview path="./tree-data" />
+
+### Edit cells in place
+
+Render an editable value in the column's `cell`. Double-click it, or focus it and press Enter or
+F2, to swap in an `Input`. Enter or leaving the field saves a valid value into the `data` signal,
+and Escape cancels. The table reads `data` through a getter, so the saved value shows at once.
+
+<Preview path="./editable-cells" />
+
+### Scroll 10,000 rows and 100 columns
+
+Pass `virtualRender` from `createTableVirtualizer`, with `getItemKey` set to the row id, and bound
+the table with `maxHeight`. The virtualizer's `columns` option also virtualizes the hour columns, so
+only the cells near the viewport mount. The pinned server column stays in view while the hours
+scroll sideways. Leave out `columns` to virtualize rows only.
+
+<Preview path="./virtualization" />
