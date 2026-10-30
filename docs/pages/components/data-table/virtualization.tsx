@@ -60,7 +60,6 @@ export default function VirtualizationExample() {
       maxHeight={360}
       size="sm"
       aria-label="CPU usage per hour"
-      classes={{ container: 'border border-border rounded-lg' }}
     />
   )
 }

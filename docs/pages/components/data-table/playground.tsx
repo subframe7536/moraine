@@ -97,7 +97,6 @@ export default function DataTablePlayground(props: PlaygroundProps) {
             )
           : undefined
       }
-      classes={{ container: 'border border-border rounded-lg' }}
     />
   )
 }

@@ -108,7 +108,9 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     '--mo-collapsible-content-height': '0px',
     '--mo-data-table-indent': '1.25rem',
-    container: 'w-full relative',
+    // `overflow-hidden` clips opaque sticky and pinned cells to the rounded corners. The scroll
+    // viewport inside is already a scroll container, so it does not change sticky behavior.
+    container: 'border border-border rounded-lg w-full relative overflow-hidden',
     root: TABLE_ROOT_CLASS,
     header: TABLE_HEADER_CLASS,
     // Virtualized bodies end with a spacer row, so the last entry carries `data-last`.

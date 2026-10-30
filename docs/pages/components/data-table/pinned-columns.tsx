@@ -224,11 +224,7 @@ export default function PinnedColumnsExample() {
         Scroll horizontally: the selection and Customer ID columns stay pinned on the left, and the
         actions column stays pinned on the right.
       </div>
-      <DataTable
-        table={table}
-        hoverEffect
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} hoverEffect />
     </div>
   )
 }

@@ -128,7 +128,6 @@ export default function StickySectionsExample() {
         maxHeight={360}
         hoverEffect
         size="sm"
-        classes={{ container: 'border border-border rounded-lg' }}
       />
     </div>
   )

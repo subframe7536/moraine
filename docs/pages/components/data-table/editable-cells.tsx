@@ -170,11 +170,7 @@ export default function EditableCellsExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable
-        table={table}
-        aria-label="Inventory"
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} aria-label="Inventory" />
       <p class="text-sm text-muted-foreground" aria-live="polite">
         {lastChange()}
       </p>

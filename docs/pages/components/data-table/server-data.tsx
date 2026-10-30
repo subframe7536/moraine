@@ -134,12 +134,7 @@ export default function ServerDataExample() {
         onValueChange={onSearchInput}
         class="max-w-xs"
       />
-      <DataTable
-        table={table}
-        aria-label="Orders"
-        loading={page.loading}
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} aria-label="Orders" loading={page.loading} />
     </div>
   )
 }
