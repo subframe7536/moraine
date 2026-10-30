@@ -3,6 +3,7 @@ import type { Accessor } from 'solid-js'
 
 import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'
 import { createContextProvider } from '../shared/create-context-provider'
+import type { TableVirtualColumnWindow } from '../virtualizer/table-virtual-render'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'
@@ -18,6 +19,15 @@ export interface DataTableContextValue {
   readonly messages: Accessor<DataTableT.Messages>
   /** Whether rows render through `virtualRender`. Virtual tables show every row in one scroll. */
   readonly virtual: Accessor<boolean>
+  /**
+   * Center columns to render in body rows while the virtualizer virtualizes columns; otherwise
+   * `undefined`, and body rows render every column.
+   */
+  readonly columnWindow: Accessor<TableVirtualColumnWindow | undefined>
+  /** Whether `columnWindow` is set; stays stable while the window slides. */
+  readonly columnVirtual: Accessor<boolean>
+  /** One-based position of a visible leaf column, for `aria-colindex`. */
+  readonly columnIndex: (columnId: string) => number | undefined
   /** Whether columns can be resized interactively. */
   readonly resizable: Accessor<boolean>
   /** Number of visible leaf columns, at least 1, for full-width cells. */
@@ -40,8 +50,8 @@ export interface DataTableContextValue {
   /** Slot binding for the `header` or `footer` section, including its sticky position. */
   readonly sectionSlot: (section: 'header' | 'footer') => SlotBinding
   /** Pin placement of a body cell, from its leaf column. */
-  readonly columnPin: <TData extends RowData>(
-    column: Column<DataTableFeatures, TData>,
+  readonly createColumnPin: <TData extends RowData>(
+    column: Accessor<Column<DataTableFeatures, TData>>,
   ) => DataTableCellPin
 }
 

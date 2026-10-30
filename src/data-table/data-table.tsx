@@ -1,5 +1,5 @@
-import type { RowData } from '@tanstack/solid-table'
-import type { JSX } from 'solid-js'
+import type { Column, RowData } from '@tanstack/solid-table'
+import type { Accessor, JSX } from 'solid-js'
 import {
   DEV,
   For,
@@ -20,10 +20,15 @@ import { useMessages } from '../provider/locale/locale-context'
 import { renderWithProps } from '../shared/render-with-props'
 import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
+import type {
+  TableVirtualColumnLayout,
+  TableVirtualColumnWindow,
+} from '../virtualizer/table-virtual-render'
 
 import { getDataTableConfig } from './create-data-table'
 import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'
 import { DataTableProvider } from './data-table-context'
+import type { DataTableFeatures } from './data-table-features'
 import { DataTableFooter } from './data-table-footer'
 import { DataTableHeader } from './data-table-header'
 import { createDataTableLayout } from './data-table-layout'
@@ -87,16 +92,44 @@ export function DataTable<TData extends RowData = RowData>(
 
   const table = () => local.table
   const virtual = () => Boolean(local.virtualRender)
-  const layout = createDataTableLayout(table, () => local.sticky)
+  // The virtualizer hands over its column window only when created with the `columns` option.
+  const [columnWindowSource, setColumnWindowSource] =
+    createSignal<Accessor<TableVirtualColumnWindow>>()
+  const columnWindow = (): TableVirtualColumnWindow | undefined =>
+    virtual() ? columnWindowSource()?.() : undefined
+  const columnVirtual = createMemo(() => columnWindow() !== undefined)
+  const layout = createDataTableLayout(
+    table,
+    () => local.sticky,
+    () => columnVirtual(),
+  )
   const colSpan = () => Math.max(table().getVisibleLeafColumns().length, 1)
-  // Read in visual order: start-pinned, center, then end-pinned columns.
-  const treeColumnId = createMemo(() => {
+  // Visible leaf columns in visual order: start-pinned, center, then end-pinned.
+  const leafColumns = createMemo(() => {
     const instance = table()
     return [
       ...instance.getStartVisibleLeafColumns(),
       ...instance.getCenterVisibleLeafColumns(),
       ...instance.getEndVisibleLeafColumns(),
-    ].find((column) => column.id !== SELECT_COLUMN_ID && column.id !== EXPAND_COLUMN_ID)?.id
+    ]
+  })
+  const treeColumnId = createMemo(
+    () =>
+      leafColumns().find(
+        (column) => column.id !== SELECT_COLUMN_ID && column.id !== EXPAND_COLUMN_ID,
+      )?.id,
+  )
+  const columnIndexes = createMemo(
+    () => new Map(leafColumns().map((column, index) => [column.id, index + 1])),
+  )
+  // Pinned columns stay rendered around the virtualized center columns.
+  const columnLayout = createMemo((): TableVirtualColumnLayout => {
+    const start = table().getStartTotalSize()
+    return {
+      scrollMargin: start,
+      scrollPaddingStart: start,
+      scrollPaddingEnd: table().getEndTotalSize(),
+    }
   })
   // Virtual tables show every row in one scroll, so they read the rows before pagination.
   // Otherwise `pagination` would still slice the rows while its toolbar is hidden.
@@ -186,11 +219,14 @@ export function DataTable<TData extends RowData = RowData>(
         slotOverrides: pickSlotOverrides(local),
         messages,
         virtual,
+        columnWindow,
+        columnVirtual,
+        columnIndex: (columnId) => columnIndexes().get(columnId),
         resizable: layout.resizable,
         colSpan,
         treeColumnId,
         selectionName,
-        columnPin: layout.columnPin,
+        createColumnPin: layout.createColumnPin,
         cellSlot: (slot, column, pin, size, section) =>
           slotWith(
             slot,
@@ -221,10 +257,20 @@ export function DataTable<TData extends RowData = RowData>(
           <table
             data-slot="data-table"
             aria-busy={local.loading || undefined}
+            // Every visible column, including the pinned ones the virtualizer does not count.
+            aria-colcount={columnVirtual() ? leafColumns().length : undefined}
             {...rest}
             {...slotWith('root', () => ({ style: layout.tableStyle() }))}
             ref={local.ref}
           >
+            {/* Body rows of a column-virtualized table skip cells, so the widths come from here. */}
+            <Show when={columnVirtual()}>
+              <colgroup>
+                <For each={leafColumns()}>
+                  {(column) => <col style={{ width: `${column.getSize()}px` }} />}
+                </For>
+              </colgroup>
+            </Show>
             <DataTableHeader table={table()} />
 
             <tbody data-slot="data-table-body" {...slots.body}>
@@ -269,6 +315,15 @@ export function DataTable<TData extends RowData = RowData>(
                       component={virtualRender()}
                       entries={rows()}
                       scrollElement={scrollContainer()}
+                      columns={table().getCenterVisibleLeafColumns()}
+                      // These are the `columns` passed above.
+                      columnSize={(column: unknown) =>
+                        (column as Column<DataTableFeatures, TData>).getSize()
+                      }
+                      columnLayout={columnLayout()}
+                      onColumnWindow={(window: Accessor<TableVirtualColumnWindow> | undefined) =>
+                        setColumnWindowSource(() => window)
+                      }
                       render={(
                         row: DataTableT.Row<TData>,
                         index: number,

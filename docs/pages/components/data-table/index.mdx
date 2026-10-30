@@ -540,6 +540,26 @@ A virtualized table shows every row in one scroll, which changes three behaviors
 
 See the [Virtualization guide](/docs/virtualization#table) for sizing and keys.
 
+For tables with many columns, add the `columns` option to the virtualizer. DataTable then renders
+only the body cells of the unpinned columns near the viewport, using each column's `size` as its
+width:
+
+```tsx
+const virtualizer = createTableVirtualizer<DataTableT.Row<Metric>>({
+  estimateSize: () => 41,
+  getItemKey: (row) => row.id,
+  columns: { overscan: 2 },
+})
+```
+
+- Header and footer rows render every column, so grouped headers keep their `colSpan`. Body rows
+  replace the skipped columns with a placeholder cell on each side.
+- Pinned columns always render, so pin the columns users need while scrolling sideways.
+- The table switches to a fixed layout with a `<colgroup>` of column widths. Give columns a `size`;
+  columns without one are 150px wide.
+- The table gets `aria-colcount`, and each rendered body cell gets `aria-colindex`, so screen
+  readers still announce column positions.
+
 ### Localization
 
 Override text for one table with `translations`, or for the whole app with the `dataTable` key of
@@ -615,3 +635,10 @@ Pass `virtualRender` from `createTableVirtualizer` with `getItemKey` set to the 
 the table with `maxHeight`.
 
 <Preview path="./virtualization" />
+
+### Scroll a 10,000 × 100 metrics grid
+
+Add `columns` to the virtualizer so only the cells near the viewport mount, and pin the server
+column so it stays in view while the hours scroll sideways.
+
+<Preview path="./wide-virtualization" />

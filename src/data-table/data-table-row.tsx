@@ -1,13 +1,18 @@
 import { FlexRender } from '@tanstack/solid-table'
-import type { RowData } from '@tanstack/solid-table'
+import type { Cell, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, untrack } from 'solid-js'
+import { For, Show, createMemo, untrack } from 'solid-js'
 
 import type { ListT } from '../components/list'
 
 import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
-import { DATA_TABLE_TREE_ROW_STYLE, dataTableDataAttributes } from './data-table.recipe'
+import type { DataTableFeatures } from './data-table-features'
+import {
+  DATA_TABLE_COLUMN_SPACER_CLASS,
+  DATA_TABLE_TREE_ROW_STYLE,
+  dataTableDataAttributes,
+} from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
 export type DataTableRowProps<TData extends RowData> = Pick<
@@ -35,6 +40,54 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
   // Sub-rows of tree data indent their tree cell; top-level rows keep the plain cell padding.
   const depth = () => props.row.depth
 
+  // With column virtualization, only the center cells in the window render. TanStack caches a
+  // row's cells, so the `For` below keeps mounted cells while the window slides.
+  const windowCells = createMemo(() => {
+    const window = ctx.columnWindow()
+    if (!window) {
+      return undefined
+    }
+    const center = props.row.getCenterVisibleCells()
+    return {
+      skippedBefore: window.skippedBefore,
+      skippedAfter: window.skippedAfter,
+      cells: window.items.flatMap((item) => center[item.index] ?? []),
+    }
+  })
+
+  function BodyCell(cellProps: { cell: Cell<DataTableFeatures, TData> }): JSX.Element {
+    const cell = () => cellProps.cell
+    const pin = ctx.createColumnPin(() => cell().column)
+    return (
+      <td
+        data-slot="data-table-cell"
+        // Cells are missing from virtualized rows, so each one states its column.
+        aria-colindex={ctx.columnVirtual() ? ctx.columnIndex(cell().column.id) : undefined}
+        {...dataTableDataAttributes.cell({
+          pinned: pin.side,
+          pinnedEdge: () => pin.edge() && pin.side(),
+          tree: () => depth() > 0 && cell().column.id === ctx.treeColumnId(),
+        })}
+        {...ctx.cellSlot('cell', cell().column, pin, () => cell().column.getSize(), 'body')}
+      >
+        <FlexRender cell={cell()} />
+      </td>
+    )
+  }
+
+  function Spacer(spacerProps: { span: number }): JSX.Element {
+    return (
+      <Show when={spacerProps.span > 0}>
+        <td
+          aria-hidden="true"
+          data-slot="data-table-cell-spacer"
+          colSpan={spacerProps.span}
+          {...ctx.slotWith('cell', () => ({ class: DATA_TABLE_COLUMN_SPACER_CLASS }))}
+        />
+      </Show>
+    )
+  }
+
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
   return (
     <>
@@ -60,24 +113,24 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
               : undefined,
         }))}
       >
-        <For each={props.row.getVisibleCells()}>
-          {(cell) => {
-            const pin = ctx.columnPin(cell.column)
-            return (
-              <td
-                data-slot="data-table-cell"
-                {...dataTableDataAttributes.cell({
-                  pinned: pin.side,
-                  pinnedEdge: () => pin.edge() && pin.side(),
-                  tree: () => depth() > 0 && cell.column.id === ctx.treeColumnId(),
-                })}
-                {...ctx.cellSlot('cell', cell.column, pin, () => cell.column.getSize(), 'body')}
-              >
-                <FlexRender cell={cell} />
-              </td>
-            )
-          }}
-        </For>
+        <Show
+          when={windowCells()}
+          fallback={
+            <For each={props.row.getVisibleCells()}>{(cell) => <BodyCell cell={cell} />}</For>
+          }
+        >
+          {(window) => (
+            <>
+              <For each={props.row.getStartVisibleCells()}>
+                {(cell) => <BodyCell cell={cell} />}
+              </For>
+              <Spacer span={window().skippedBefore} />
+              <For each={window().cells}>{(cell) => <BodyCell cell={cell} />}</For>
+              <Spacer span={window().skippedAfter} />
+              <For each={props.row.getEndVisibleCells()}>{(cell) => <BodyCell cell={cell} />}</For>
+            </>
+          )}
+        </Show>
       </tr>
       <Show when={props.expandedRowRender}>
         {(expandedRowRender) => (

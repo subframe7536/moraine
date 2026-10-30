@@ -1506,6 +1506,262 @@ describe('DataTable', () => {
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
   })
 
+  describe('column virtualization', () => {
+    type Wide = Record<string, string>
+
+    const CENTER_COUNT = 20
+    const WIDE_COLUMNS: DataTableT.Column<Wide>[] = [
+      { accessorKey: 'id', header: 'ID', size: 60 },
+      ...Array.from({ length: CENTER_COUNT }, (_, index) => ({
+        accessorKey: `c${index}`,
+        header: `C${index}`,
+        size: 100,
+      })),
+      { accessorKey: 'actions', header: 'Actions', size: 80 },
+    ]
+    const WIDE_ROWS: Wide[] = Array.from({ length: 30 }, (_, row) =>
+      Object.fromEntries([
+        ['id', `r${row}`],
+        ['actions', `a${row}`],
+        ...Array.from({ length: CENTER_COUNT }, (_, index) => [`c${index}`, `r${row}c${index}`]),
+      ]),
+    )
+
+    function createWideVirtualizer() {
+      let emitColumnOffset: ((offset: number, isScrolling: boolean) => void) | undefined
+      const virtualizer = createTableVirtualizer<DataTableT.Row<Wide>>({
+        estimateSize: () => 30,
+        measureElement: () => 30,
+        observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        overscan: 0,
+        columns: {
+          // 440px viewport minus 60px start and 80px end pins leaves room for three columns.
+          observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
+          observeElementOffset: (_instance, callback) => {
+            emitColumnOffset = callback
+            callback(0, false)
+          },
+          overscan: 0,
+        },
+      })
+      return {
+        virtualizer,
+        scrollColumns: (offset: number) => emitColumnOffset?.(offset, false),
+      }
+    }
+
+    function createWideTable(options: Partial<DataTableT.Options<Wide>> = {}) {
+      const merged = mergeProps(
+        {
+          data: WIDE_ROWS,
+          columns: WIDE_COLUMNS,
+          initialState: { columnPinning: { start: ['id'], end: ['actions'] } },
+        },
+        options,
+      )
+      return createDataTable<Wide>(merged)
+    }
+
+    function firstBodyRow(container: HTMLElement): HTMLTableRowElement {
+      return container.querySelector<HTMLTableRowElement>('tbody tr[data-index="0"]')!
+    }
+
+    function cellTexts(row: HTMLTableRowElement): string[] {
+      return [...row.cells].map((cell) =>
+        cell.dataset.slot === 'data-table-cell-spacer' ? `<${cell.colSpan}>` : cell.textContent,
+      )
+    }
+
+    function spanSum(row: HTMLTableRowElement): number {
+      return [...row.cells].reduce((sum, cell) => sum + cell.colSpan, 0)
+    }
+
+    it('renders only the window of center cells between the pinned cells', async () => {
+      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createWideTable()
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      // Rows 0 and 1 are in view; the end spacer covers the 17 columns after the window.
+      expect(cellTexts(firstBodyRow(container))).toEqual([
+        'r0',
+        'r0c0',
+        'r0c1',
+        'r0c2',
+        'r0c3',
+        '<16>',
+        'a0',
+      ])
+
+      // The 60px start pin offsets the columns: columns 9 to 13 overlap the scrolled viewport.
+      scrollColumns(1000)
+      expect(cellTexts(firstBodyRow(container))).toEqual([
+        'r0',
+        '<9>',
+        'r0c9',
+        'r0c10',
+        'r0c11',
+        'r0c12',
+        'r0c13',
+        '<6>',
+        'a0',
+      ])
+    })
+
+    it('keeps the header complete and every body row spanning all columns', async () => {
+      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createWideTable({
+          columns: [
+            { accessorKey: 'id', header: 'ID', size: 60 },
+            {
+              id: 'group',
+              header: 'Group',
+              columns: WIDE_COLUMNS.slice(1, -1),
+            },
+            { accessorKey: 'actions', header: 'Actions', size: 80 },
+          ],
+        })
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+      scrollColumns(1000)
+
+      const headerRows = [...container.querySelectorAll<HTMLTableRowElement>('thead tr')]
+      expect(headerRows.map(spanSum)).toEqual([CENTER_COUNT + 2, CENTER_COUNT + 2])
+      expect(container.querySelectorAll('thead th').length).toBeGreaterThan(CENTER_COUNT)
+      for (const row of container.querySelectorAll<HTMLTableRowElement>('tbody tr[data-index]')) {
+        expect(spanSum(row)).toBe(CENTER_COUNT + 2)
+      }
+    })
+
+    it('sizes columns from a colgroup in a fixed layout', async () => {
+      const { virtualizer } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createWideTable()
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      const table = container.querySelector('table')!
+      expect(table.style.tableLayout).toBe('fixed')
+      const widths = [...table.querySelectorAll('colgroup col')].map(
+        (col) => (col as HTMLElement).style.width,
+      )
+      expect(widths).toEqual(['60px', ...new Array<string>(CENTER_COUNT).fill('100px'), '80px'])
+    })
+
+    it('announces the column count and the position of each rendered cell', async () => {
+      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createWideTable()
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+      scrollColumns(1000)
+
+      expect(container.querySelector('table')!.getAttribute('aria-colcount')).toBe('22')
+      const row = firstBodyRow(container)
+      const indexes = [...row.querySelectorAll('[data-slot="data-table-cell"]')].map((cell) =>
+        cell.getAttribute('aria-colindex'),
+      )
+      expect(indexes).toEqual(['1', '11', '12', '13', '14', '15', '22'])
+      for (const spacer of row.querySelectorAll('[data-slot="data-table-cell-spacer"]')) {
+        expect(spacer.getAttribute('aria-hidden')).toBe('true')
+      }
+      expect(container.querySelector('thead th')!.hasAttribute('aria-colindex')).toBe(false)
+    })
+
+    it('follows column size, order, and visibility changes', async () => {
+      const [sizing, setSizing] = createSignal<Record<string, number>>({})
+      const [order, setOrder] = createSignal<string[]>([])
+      const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
+      const { virtualizer } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createWideTable({
+          state: {
+            get columnSizing() {
+              return sizing()
+            },
+            get columnOrder() {
+              return order()
+            },
+            get columnVisibility() {
+              return visibility()
+            },
+          },
+          onColumnSizingChange: setSizing,
+          onColumnOrderChange: setOrder,
+          onColumnVisibilityChange: setVisibility,
+        })
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      setSizing({ c0: 300 })
+      await Promise.resolve()
+      expect(cellTexts(firstBodyRow(container))).toEqual(['r0', 'r0c0', 'r0c1', '<18>', 'a0'])
+
+      setSizing({})
+      setOrder(['id', 'c5', 'c4'])
+      await Promise.resolve()
+      expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c5', 'r0c4'])
+
+      setVisibility({ c5: false })
+      await Promise.resolve()
+      expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c4', 'r0c0'])
+      expect(spanSum(firstBodyRow(container))).toBe(CENTER_COUNT + 1)
+    })
+
+    it('works with row selection and tree indentation', async () => {
+      const { virtualizer } = createWideVirtualizer()
+      const { container } = render(() => {
+        const table = createDataTable<Wide>({
+          data: [{ name: 'parent' }],
+          columns: [
+            { accessorKey: 'name', header: 'Name', size: 100 },
+            ...WIDE_COLUMNS.slice(1, 4),
+          ],
+          selection: 'multiple',
+          initialState: { expanded: true },
+          tableOptions: {
+            getSubRows: (row) => (row.name === 'parent' ? [{ name: 'child' }] : undefined),
+          },
+        })
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      const child = container.querySelector<HTMLTableRowElement>('tbody tr[data-index="1"]')!
+      expect(child.querySelector('[role="checkbox"]')).not.toBeNull()
+      expect(child.querySelector('td[data-tree]')?.textContent).toBe('child')
+    })
+
+    it('renders every column when the virtualizer has no columns option', async () => {
+      const virtualizer = createTableVirtualizer<DataTableT.Row<Wide>>({
+        estimateSize: () => 30,
+        measureElement: () => 30,
+        observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        overscan: 0,
+      })
+      const { container } = render(() => {
+        const table = createWideTable()
+        return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+      })
+      await Promise.resolve()
+
+      const row = firstBodyRow(container)
+      expect(row.cells.length).toBe(CENTER_COUNT + 2)
+      expect(row.querySelector('[aria-colindex]')).toBeNull()
+      expect(container.querySelector('colgroup')).toBeNull()
+      expect(container.querySelector('table')!.hasAttribute('aria-colcount')).toBe(false)
+    })
+  })
+
   describe('pagination summary', () => {
     function summary(container: HTMLElement): string | null | undefined {
       return container.querySelector('[data-slot="data-table-pagination"]')?.firstElementChild

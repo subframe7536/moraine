@@ -190,6 +190,10 @@ export namespace DataTableT {
     readonly row: Row<TData>
   }
 
+  /**
+   * Props of a `virtualRender` component. The `columns` it receives are the TanStack leaf
+   * columns of the unpinned region, so the virtualizer needs no column type parameter.
+   */
   export type VirtualRenderProps<TData extends RowData = RowData> = TableVirtualRenderProps<
     Row<TData>
   >

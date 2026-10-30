@@ -38,9 +38,13 @@ type DataTableHeader<TRow extends RowData> = Header<DataTableFeatures, TRow>
 
 export interface DataTableLayout {
   readonly resizable: Accessor<boolean>
+  /** Whether the table uses `table-layout: fixed` with explicit column widths. */
+  readonly fixedLayout: Accessor<boolean>
   readonly tableStyle: Accessor<JSX.CSSProperties>
   /** Pin placement of a body cell, from its leaf column. */
-  readonly columnPin: <TRow extends RowData>(column: DataTableColumn<TRow>) => DataTableCellPin
+  readonly createColumnPin: <TRow extends RowData>(
+    column: Accessor<DataTableColumn<TRow>>,
+  ) => DataTableCellPin
   /** Column presentation the caller may still override (alignment, `meta.class`). */
   readonly cellClass: <TRow extends RowData>(
     column: DataTableColumn<TRow>,
@@ -113,6 +117,7 @@ export function createHeaderPin<TRow extends RowData>(
 export function createDataTableLayout<TData extends RowData>(
   table: Accessor<DataTableT.Instance<TData>>,
   sticky: Accessor<DataTableT.Props['sticky']>,
+  columnVirtual: Accessor<boolean>,
 ): DataTableLayout {
   const resizable = () => table().options.enableColumnResizing === true
   const hasPinning = createMemo(() =>
@@ -120,11 +125,13 @@ export function createDataTableLayout<TData extends RowData>(
       .getAllLeafColumns()
       .some((column) => Boolean(column.getIsPinned())),
   )
-  // Resizing and pinning both need explicit column widths and a fixed table layout.
-  const fixedLayout = () => resizable() || hasPinning()
+  // Resizing, pinning, and column virtualization need explicit column widths and a fixed table
+  // layout. Virtualized rows skip cells, so only the fixed layout keeps their columns aligned.
+  const fixedLayout = () => resizable() || hasPinning() || columnVirtual()
 
   return {
     resizable,
+    fixedLayout,
     sectionStyle: (section) => {
       const value = sticky()
       if (value !== true && value !== section) {
@@ -147,24 +154,26 @@ export function createDataTableLayout<TData extends RowData>(
             ...(hasPinning() ? { 'border-collapse': 'separate', 'border-spacing': '0' } : {}),
           }
         : {},
-    columnPin: (column) => ({
-      side: () => column.getIsPinned(),
+    createColumnPin: (column) => ({
+      side: () => column().getIsPinned(),
       offset: () => {
-        const side = column.getIsPinned()
+        const current = column()
+        const side = current.getIsPinned()
         return side === 'start'
-          ? column.getStart('start')
+          ? current.getStart('start')
           : side === 'end'
-            ? column.getAfter('end')
+            ? current.getAfter('end')
             : 0
       },
       edge: () => {
-        const side = column.getIsPinned()
+        const current = column()
+        const side = current.getIsPinned()
         if (!side) {
           return false
         }
         const pinned = table().getPinnedLeafColumns(side)
         const innermost = side === 'start' ? pinned[pinned.length - 1] : pinned[0]
-        return innermost?.id === column.id
+        return innermost?.id === current.id
       },
     }),
     cellClass: (column, section) => {

@@ -78,6 +78,12 @@ export const DATA_TABLE_TREE_ROW_STYLE = {
     'calc(var(--mo-data-table-pad) + var(--mo-data-table-depth) * var(--mo-data-table-indent))',
 }
 
+/**
+ * Placeholder cell that spans the columns a column-virtualized row skips. It keeps the row's
+ * borders and background but has no padding, so the `colgroup` widths decide its size.
+ */
+export const DATA_TABLE_COLUMN_SPACER_CLASS = 'p-0'
+
 /** Scroll viewport wrapping the table so only the body scrolls under a sticky header/footer. */
 export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
 
