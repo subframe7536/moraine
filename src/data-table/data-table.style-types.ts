@@ -25,6 +25,8 @@ export interface DataTableStyleSlot<T = unknown> {
   sortButton?: T
   /** Icon indicating sort direction. */
   sortIcon?: T
+  /** Sort priority number shown on sorted columns while more than one column is sorted. */
+  sortIndex?: T
   /** Pagination toolbar container. */
   pagination?: T
   /** Drag resize handle on column headers. */

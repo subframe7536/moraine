@@ -72,7 +72,11 @@ import DataTablePlayground from './playground'
                     element: 'button role="checkbox"',
                     children: [{ slot: 'checkboxIcon' }],
                   },
-                  { slot: 'sortButton', element: 'button', children: [{ slot: 'sortIcon' }] },
+                  {
+                    slot: 'sortButton',
+                    element: 'button',
+                    children: [{ slot: 'sortIcon' }, { slot: 'sortIndex' }],
+                  },
                   { slot: 'resizer', element: 'div role="separator"' },
                 ],
               },
@@ -241,6 +245,14 @@ const columns: DataTableT.Column<Invoice>[] = [
 `'expand'`. Pin or order them by those ids. A column of your own whose id resolves to a reserved id
 replaces the generated column. When that id comes from `accessorKey` or `header`, a development
 warning suggests an explicit `id`, which keeps both columns.
+
+### Sorting
+
+Sorting is on by default, and each sortable header has a sort button. Shift-click a second
+header to sort by more than one column. While more than one column is sorted, each sorted header
+shows its priority (`sortIndex` slot), and screen readers hear it through the localized
+`sortPriority` message. Turn multi-column sorting off with `tableOptions.enableMultiSort: false`,
+or turn a column's sorting off with `enableSorting: false` in its definition.
 
 ### Controlled state
 

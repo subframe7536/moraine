@@ -1505,6 +1505,113 @@ describe('DataTable', () => {
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
   })
 
+  describe('multi-column sort priority', () => {
+    function sortButton(container: HTMLElement, label: string): HTMLButtonElement {
+      const th = [...container.querySelectorAll('th')].find((cell) => headLabel(cell) === label)
+      return th!.querySelector<HTMLButtonElement>('[data-slot="data-table-sort-button"]')!
+    }
+
+    function priorities(container: HTMLElement): Record<string, string> {
+      return Object.fromEntries(
+        [...container.querySelectorAll('th')].flatMap((th) => {
+          const index = th.querySelector('[data-slot="data-table-sort-index"]')
+          return index ? [[headLabel(th), index.textContent]] : []
+        }),
+      )
+    }
+
+    function accessibleName(button: HTMLButtonElement): string {
+      return button
+        .getAttribute('aria-labelledby')!
+        .split(' ')
+        .map((id) => document.getElementById(id)?.textContent)
+        .join(' ')
+    }
+
+    it('hides the priority while only one column is sorted', () => {
+      const { container } = render(() => {
+        const table = createPersonTable()
+        return <DataTable table={table} />
+      })
+
+      fireEvent.click(sortButton(container, 'Name'))
+      expect(priorities(container)).toEqual({})
+      expect(accessibleName(sortButton(container, 'Name'))).toBe('Name Sorted ascending')
+    })
+
+    it('numbers sorted columns in priority order after a shift-click', () => {
+      const { container } = render(() => {
+        const table = createPersonTable()
+        return <DataTable table={table} />
+      })
+
+      fireEvent.click(sortButton(container, 'Role'))
+      fireEvent.click(sortButton(container, 'Age'), { shiftKey: true })
+
+      expect(priorities(container)).toEqual({ Role: '1', Age: '2' })
+      // TanStack sorts number columns descending first.
+      expect(accessibleName(sortButton(container, 'Age'))).toBe(
+        'Age Sorted descending Sort priority 2',
+      )
+      expect(
+        sortButton(container, 'Age')
+          .querySelector('[data-slot="data-table-sort-index"]')!
+          .getAttribute('aria-hidden'),
+      ).toBe('true')
+    })
+
+    it('renumbers the remaining columns when one leaves the sort', () => {
+      const [sorting, setSorting] = createSignal([
+        { id: 'name', desc: false },
+        { id: 'age', desc: true },
+        { id: 'role', desc: false },
+      ])
+      const { container } = render(() => {
+        const table = createPersonTable({
+          state: {
+            get sorting() {
+              return sorting()
+            },
+          },
+          onSortingChange: setSorting,
+        })
+        return <DataTable table={table} />
+      })
+
+      expect(priorities(container)).toEqual({ Name: '1', Age: '2', Role: '3' })
+
+      setSorting([
+        { id: 'age', desc: true },
+        { id: 'role', desc: false },
+      ])
+      expect(priorities(container)).toEqual({ Age: '1', Role: '2' })
+
+      setSorting([{ id: 'role', desc: false }])
+      expect(priorities(container)).toEqual({})
+    })
+
+    it('localizes the priority announcement', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({
+          initialState: {
+            sorting: [
+              { id: 'name', desc: false },
+              { id: 'age', desc: false },
+            ],
+          },
+        })
+        return (
+          <DataTable
+            table={table}
+            translations={{ sortPriority: ({ index }) => `Priorité ${index}` }}
+          />
+        )
+      })
+
+      expect(accessibleName(sortButton(container, 'Name'))).toBe('Name Sorted ascending Priorité 1')
+    })
+  })
+
   describe('tree data indentation', () => {
     interface TreeNode {
       id: string

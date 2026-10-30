@@ -3,6 +3,11 @@ export interface DataTableSelectedCountContext {
   total: number
 }
 
+export interface DataTableSortPriorityContext {
+  /** One-based position of the column in a multi-column sort. */
+  index: number
+}
+
 export interface DataTablePageSizeContext {
   size: number
 }
@@ -14,6 +19,7 @@ export const defaultDataTableMessages = /* @__PURE__ */ Object.freeze({
   sort: 'Sort',
   sortedAscending: 'Sorted ascending',
   sortedDescending: 'Sorted descending',
+  sortPriority: ({ index }: DataTableSortPriorityContext) => `Sort priority ${index}`,
   selectAll: 'Select all rows',
   selectRow: 'Select row',
   expandRow: 'Expand row',

@@ -76,9 +76,17 @@ function DataTableHeadCell<TData extends RowData>(props: {
     () => props.side,
   )
   const sorted = createMemo(() => column().getIsSorted() || 'none')
+  // The priority only matters once more than one column is sorted.
+  const sortPriority = createMemo((): number | undefined => {
+    if ((props.table.atoms.sorting?.get()?.length ?? 0) < 2 || sorted() === 'none') {
+      return undefined
+    }
+    return column().getSortIndex() + 1
+  })
   // Controls name their column: `aria-labelledby` joins the header label with the action text.
   const labelId = createUniqueId()
   const sortActionId = createUniqueId()
+  const sortPriorityId = createUniqueId()
   const sortLabel = () => {
     const messages = ctx.messages()
     const direction = sorted()
@@ -114,7 +122,11 @@ function DataTableHeadCell<TData extends RowData>(props: {
             <button
               type="button"
               data-slot="data-table-sort-button"
-              aria-labelledby={`${labelId} ${sortActionId}`}
+              aria-labelledby={
+                sortPriority() === undefined
+                  ? `${labelId} ${sortActionId}`
+                  : `${labelId} ${sortActionId} ${sortPriorityId}`
+              }
               {...ctx.slots.sortButton}
               onClick={(event) => {
                 event.stopPropagation()
@@ -131,6 +143,22 @@ function DataTableHeadCell<TData extends RowData>(props: {
               <span id={sortActionId} class={VISUALLY_HIDDEN_CLASS}>
                 {sortLabel()}
               </span>
+              <Show when={sortPriority()}>
+                {(priority) => (
+                  <>
+                    <span
+                      data-slot="data-table-sort-index"
+                      aria-hidden="true"
+                      {...ctx.slots.sortIndex}
+                    >
+                      {priority()}
+                    </span>
+                    <span id={sortPriorityId} class={VISUALLY_HIDDEN_CLASS}>
+                      {ctx.messages().sortPriority({ index: priority() })}
+                    </span>
+                  </>
+                )}
+              </Show>
             </button>
           </Show>
         </div>

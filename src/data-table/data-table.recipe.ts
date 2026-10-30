@@ -103,9 +103,11 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     empty: 'text-muted-foreground py-8 text-center',
     loading:
       'bg-background/50 flex items-center inset-0 justify-center absolute z-40 backdrop-blur-sm',
-    sortButton: `text-muted-foreground p-0 rounded inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center hover:(text-foreground bg-accent/60) ${FOCUS_VISIBLE_RING_CLASS}`,
+    sortButton: `text-muted-foreground p-0 rounded inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center relative hover:(text-foreground bg-accent/60) ${FOCUS_VISIBLE_RING_CLASS}`,
     sortIcon:
       'text-xs text-muted-foreground opacity-50 inline-flex shrink-0 transition-opacity items-center data-sorted:(text-foreground opacity-100)',
+    sortIndex:
+      'text-[0.625rem] text-foreground leading-none font-medium pointer-events-none select-none absolute tabular-nums -end-0.5 -top-0.5',
     pagination:
       'px-2 py-3 border-t border-border flex flex-wrap gap-2 items-center justify-between',
     resizer:
