@@ -236,11 +236,23 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         }
       >
         <Show when={contentProps.item.icon}>
-          <Icon
-            name={contentProps.item.icon}
-            data-slot={slotName('itemLeading')}
-            {...resolveSlot('itemLeading')}
-          />
+          {(icon) => (
+            <Show
+              when={typeof icon() !== 'function'}
+              fallback={
+                // A component icon may ignore incoming props, so a host span owns the slot.
+                <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>
+                  <Icon name={icon()} />
+                </span>
+              }
+            >
+              <Icon
+                name={icon()}
+                data-slot={slotName('itemLeading')}
+                {...resolveSlot('itemLeading')}
+              />
+            </Show>
+          )}
         </Show>
 
         <Show when={label() || description()}>
