@@ -19,11 +19,6 @@
           "name": "T",
           "constraint": "ValidComponent",
           "default": "'ul'"
-        },
-        {
-          "name": "TItemElement",
-          "constraint": "HTMLElement",
-          "default": "HTMLElement"
         }
       ],
       "defaultElement": "ul",
@@ -59,7 +54,7 @@
         {
           "name": "itemRender",
           "optional": false,
-          "type": "Component<ItemRenderProps<TItem, TItemElement>>",
+          "type": "Component<ItemRenderProps<TItem>>",
           "description": "Renders one collection item."
         },
         {
@@ -81,10 +76,10 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "virtualRender",
+          "name": "virtualizer",
           "optional": true,
-          "type": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>",
-          "description": "Replaces normal iteration with caller-controlled virtual rendering."
+          "type": "Virtualizer<TItem>",
+          "description": "Renders only the visible items. The list root is the scroll container."
         }
       ]
     }

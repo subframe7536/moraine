@@ -59,7 +59,7 @@ export namespace SelectT {
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      Omit<ContentProps<NormalizedItem<TItem>>, 'virtualRender' | 'scrollToItem'>,
+      Omit<ContentProps<NormalizedItem<TItem>>, 'virtualizer'>,
       FormValueOptions<NormalizedItem<TItem>['value']> {
     /** Localized message overrides for this select instance. */
     translations?: Translations

@@ -1,6 +1,6 @@
 ---
 title: Virtualization
-description: Configure virtual scrolling for long lists, searchable collections, trees, and tables.
+description: Configure virtual scrolling for long lists, searchable collections, trees, and data tables.
 sidebar:
   order: 6
 search:
@@ -11,14 +11,30 @@ search:
       virtualizer,
       virtual scrolling,
       list,
+      tree,
+      select,
       combobox,
+      multi-select,
+      command-palette,
       table,
       data-table,
       tanstack,
     ]
 ---
 
-Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, `MultiSelect`, or `Tree`, and `createTableVirtualizer` with `Table` or `DataTable`.
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Every component takes it the same way: create a virtualizer from `moraine/virtualizer` and pass it to the component's `virtualizer` prop.
+
+| Virtualizer              | Components                                                  |
+| ------------------------ | ----------------------------------------------------------- |
+| `createListVirtualizer`  | `List`, `Tree`, `Combobox`, `MultiSelect`, `CommandPalette` |
+| `createTableVirtualizer` | `DataTable`                                                 |
+
+The type argument is the entry type the component renders, such as `ComboboxT.Row` or
+`DataTableT.Row`. The component mounts the visible rows, supplies its scroll container, and scrolls
+through the virtualizer during keyboard navigation.
+
+`Table` always renders every row. Use `DataTable` for long tables. `Select` also renders every
+option: a list long enough to need virtualization also needs search, so use `Combobox`.
 
 ## When to virtualize
 
@@ -58,7 +74,7 @@ export function VirtualizedList() {
       role="list"
       aria-label="Results"
       class="h-72 overflow-y-auto"
-      virtualRender={virtualizer.virtualRender}
+      virtualizer={virtualizer}
       itemRender={(context) => (
         <div {...context.props} role="listitem">
           <div class="flex h-9 items-center px-3">{context.item.label}</div>
@@ -71,7 +87,7 @@ export function VirtualizedList() {
 
 Keep custom padding and row content inside the positioned row when they could replace its inline styles. See the [List examples](/components/list#row-ownership-and-virtualization) for fixed and dynamic heights.
 
-## Combobox
+## Combobox and MultiSelect
 
 A collection virtualizes **rows**, not just your input items. Group labels and options can both be virtual rows. Use `ComboboxT.Row<ComboboxT.Item<string>>` as the virtualizer item type, estimate each row kind, and key it with `row.key`.
 
@@ -92,11 +108,7 @@ const items: ComboboxT.Entry<ComboboxT.Item<string>>[] = [
 ]
 
 export function VirtualizedCombobox() {
-  const virtualizer = createListVirtualizer<
-    ComboboxT.Row<ComboboxT.Item<string>>,
-    HTMLDivElement,
-    HTMLDivElement
-  >({
+  const virtualizer = createListVirtualizer<ComboboxT.Row<ComboboxT.Item<string>>>({
     estimateSize: (row) => (row.type === 'label' ? 30 : 36),
     getItemKey: (row) => row.key,
     overscan: 8,
@@ -109,8 +121,7 @@ export function VirtualizedCombobox() {
       leadingIcon="icon-search"
       openOnControlClick
       classes={{ listbox: 'h-80 max-h-80' }}
-      virtualRender={virtualizer.virtualRender}
-      scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+      virtualizer={virtualizer}
     />
   )
 }
@@ -118,184 +129,71 @@ export function VirtualizedCombobox() {
 
 Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
 
-## Table
+`CommandPalette` flattens group labels and commands into `CommandPaletteT.VirtualEntry` rows; key them with `entry.key`.
 
-Tables virtualize through composition. Mount the adapter from `createTableVirtualizer` inside
-`Table.Body`, pass the `entries`, and spread the row props from `render` onto `Table.Row`. Rows stay
-in normal table flow: the adapter pads the body with two hidden spacer rows instead of positioning
-rows absolutely, so cells keep native column alignment.
+## DataTable
+
+Pass a virtualizer from `createTableVirtualizer`, keyed by row id, and bound the table with
+`maxHeight`. DataTable makes its scroll viewport the scroll container and measures the header above
+the body, so a sticky header does not hide the row that `scrollToIndex` reveals.
 
 ```tsx
-import { Table } from 'moraine'
+import { DataTable, createDataTable } from 'moraine/data-table'
+import type { DataTableT } from 'moraine/data-table'
 import { createTableVirtualizer } from 'moraine/virtualizer'
-import { Dynamic } from 'solid-js/web'
 
-type Row = { id: number; invoice: string; amount: number }
-const rows: Row[] = Array.from({ length: 10_000 }, (_, index) => ({
+type Invoice = { id: number; invoice: string; amount: number }
+const invoices: Invoice[] = Array.from({ length: 10_000 }, (_, index) => ({
   id: index + 1,
   invoice: `INV-${index + 1}`,
   amount: index * 25,
 }))
+const columns: DataTableT.Column<Invoice>[] = [
+  { accessorKey: 'invoice', header: 'Invoice' },
+  { accessorKey: 'amount', header: 'Amount', meta: { align: 'right' } },
+]
 
-export function VirtualizedTable() {
-  const virtualizer = createTableVirtualizer<Row>({
+export function VirtualizedInvoices() {
+  const table = createDataTable({
+    data: invoices,
+    columns,
+    getRowId: (row) => String(row.id),
+  })
+  const virtualizer = createTableVirtualizer<DataTableT.Row<Invoice>>({
     estimateSize: () => 41,
     getItemKey: (row) => row.id,
     overscan: 8,
   })
 
   return (
-    <Table
-      classes={{
-        root: 'block',
-        header: 'table w-full table-fixed',
-        body: 'block max-h-96 overflow-y-auto [&_tr]:table [&_tr]:w-full [&_tr]:table-fixed',
-      }}
-    >
-      <Table.Header>
-        <Table.Row>
-          <Table.Head class="w-1/2">Invoice</Table.Head>
-          <Table.Head class="w-1/2" align="right">
-            Amount
-          </Table.Head>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        <Dynamic
-          component={virtualizer.virtualRender}
-          entries={rows}
-          render={(row, _index, props) => (
-            <Table.Row {...props}>
-              <Table.Cell class="w-1/2">{row.invoice}</Table.Cell>
-              <Table.Cell class="w-1/2" align="right">
-                ${row.amount}.00
-              </Table.Cell>
-            </Table.Row>
-          )}
-        />
-      </Table.Body>
-    </Table>
+    <DataTable
+      table={table}
+      virtualizer={virtualizer}
+      sticky="header"
+      maxHeight={384}
+      aria-label="Invoices"
+    />
   )
 }
 ```
 
-[DataTable](/components/data-table#virtualization) accepts the same adapter through its
-`virtualRender` prop and handles the scroll container for you.
+`getItemKey` receives a `DataTableT.Row`, so `row.id` is the id from `getRowId`.
 
-### Choose the scroll container
+Rows stay in normal table flow: the virtualizer pads the body with two hidden spacer rows instead
+of positioning rows absolutely, so cells keep native column alignment.
 
-The adapter needs to know which element scrolls.
-
-- **The body scrolls (default).** The adapter observes its host `tbody`. A scrolling `tbody` must be
-  a block, which stops it from sharing column widths with the header. Use the layout from the
-  example: `block` on the root, `table w-full table-fixed` on the header, a bounded block body whose
-  rows are `table w-full table-fixed`, and the same width class on each column's `Table.Head` and
-  `Table.Cell`.
-- **An ancestor scrolls.** Pass that element as the adapter's `scrollElement`. The table keeps its
-  normal layout. The adapter measures how far the body starts below the top of the scroll container
-  (`scrollMargin`). It also measures a sticky header or footer (`scrollPaddingStart` and
-  `scrollPaddingEnd`), so `scrollToIndex` does not hide a row under a sticky header. Options you pass
-  explicitly take precedence over measured values.
-
-### Row props
-
-Always spread the row props onto `Table.Row`. They carry `data-index`, the measurement ref,
-`aria-rowindex`, `data-virtual-row`, `data-even` on every second row, and `data-last` on the last
-entry. Without them,
-rows are not measured, the scroll range drifts, screen readers lose row positions, and striping
-and the last row's border follow DOM position instead of the row index.
-
-Each entry must render exactly one `<tr>`. A second row per entry, such as a detail row, is not
-measured and shifts the scroll range. DataTable ignores `expandedRowRender` when virtualized for
-this reason.
-
-### Accessibility
-
-Only a window of rows exists in the DOM, so the adapter describes the full table:
-
-- `aria-rowcount` on the table counts body entries plus header and footer rows.
-- `aria-rowindex` on every rendered body, header, and footer row gives its position in the full
-  table.
-
-Both update when entries change and when header or footer rows are added or removed. A value you set
-yourself, at any time, is never overwritten or removed.
-
-### Table notes
-
-- `estimateSize` should be close to the rendered row height for your `size` variant: about `41` for
+- `estimateSize` should be close to the rendered row height for the `size` variant: about `41` for
   `md`. Rows are measured once mounted.
-- The spacer rows shift DOM position, so for virtualized rows `Table`'s `striped` variant and its
-  last-row border read the `data-virtual-row`, `data-even`, and `data-last` row props. Both work when you spread the
-  row props.
-- `virtualizer.scrollToIndex(index)` scrolls to a row, with the same options as the list
-  virtualizer.
-
-### Virtualize columns
-
-For tables with many columns, pass the `columns` option to also virtualize body cells
-horizontally. Only body cells are virtualized. Header and footer rows still render every column,
-which keeps grouped headers and their `colSpan` intact and costs little because there are only one
-or two of them.
-
-The render component then takes the columns to virtualize (`columns`) and their widths
-(`columnSize`), and `virtualizer.columnWindow()` lists the columns to render in each body row. Fill
-the skipped columns with one placeholder cell on each side whose `colSpan` is `skippedBefore` or
-`skippedAfter`, so every body row still spans the same columns as the header. Read `columnWindow()`
-while rendering cells: it changes in the same batch as the rows, so a row that mounts during a
-scroll already uses the new window.
-
-```tsx
-const virtualizer = createTableVirtualizer<Row, Column>({
-  estimateSize: () => 41,
-  getItemKey: (row) => row.id,
-  columns: { overscan: 2 },
-})
-
-<Table.Body>
-  <Dynamic
-    component={virtualizer.virtualRender}
-    entries={rows}
-    scrollElement={scrollElement()}
-    columns={columns}
-    columnSize={(column) => column.width}
-    render={(row, _index, props) => {
-      const window = () => virtualizer.columnWindow()
-      return (
-        <Table.Row {...props}>
-          <Show when={window()?.skippedBefore}>
-            {(span) => <td aria-hidden="true" colSpan={span()} class="p-0" />}
-          </Show>
-          <For each={window()?.items}>
-            {(item) => (
-              <Table.Cell aria-colindex={item.index + 1}>
-                {row[columns[item.index]!.key]}
-              </Table.Cell>
-            )}
-          </For>
-          <Show when={window()?.skippedAfter}>
-            {(span) => <td aria-hidden="true" colSpan={span()} class="p-0" />}
-          </Show>
-        </Table.Row>
-      )
-    }}
-  />
-</Table.Body>
-```
-
-- Scroll an ancestor of the table and pass it as `scrollElement`, as above. A scrolling block
-  `tbody` cannot share column widths with the header.
-- Give the table `table-layout: fixed` and set every column width in a `<colgroup>`. Column widths
-  are never measured, so `columnSize` (or `columns.estimateSize`) must return the rendered widths.
-- Pass `columnLayout` when cells outside `columns` sit before or after them, such as pinned columns:
-  `scrollMargin` is the width laid out before the first virtualized column, and
-  `scrollPaddingStart` and `scrollPaddingEnd` are the widths that sticky cells cover at each edge.
-- The adapter sets `aria-colcount` on the table to the number of `columns`. Set it yourself when the
-  table has more columns. Add `aria-colindex` to each rendered body cell, as above.
-- Rows and columns share one scroll listener, so one scroll event updates both in one batch.
-- `virtualizer.scrollToColumn(index)` scrolls to a column.
-
-[DataTable](/components/data-table#virtualization) does all of this for you when its virtualizer
-has the `columns` option.
+- Each entry renders one `<tr>`, so `expandedRowRender` and `pagination` are ignored while
+  virtualized, with a development warning. Select-all toggles every row. Tree sub-rows still
+  expand, because each is its own entry.
+- Only a window of rows exists in the DOM, so the table gets `aria-rowcount` and every rendered
+  row gets `aria-rowindex`.
+- Add the `columns` option to the virtualizer to also render only the unpinned body cells near the
+  viewport. See [DataTable virtualization](/components/data-table#virtualization) for the column
+  layout it uses.
+- `virtualizer.scrollToIndex(index)` scrolls to a row, and `virtualizer.scrollToColumn(index)` to a
+  column.
 
 ## How it works
 
@@ -319,15 +217,19 @@ Rows are measured automatically through the ref in the virtual row props. Conten
 
 ### Keyboard navigation
 
-Virtualized collection options outside the window have no DOM node to scroll into view. Connect the component's `scrollToItem` callback to `virtualizer.scrollToIndex(entryIndex)`. Use the second argument, which includes structural rows such as group labels; an option index can point to the wrong row.
+Options outside the window have no DOM node to scroll into view. `Tree`, `Combobox`, `MultiSelect`,
+and `CommandPalette` call `virtualizer.scrollToIndex` with the entry index of the
+highlighted or focused item, so keyboard navigation reaches every row without extra wiring.
 
-For a caller-owned `List`, the application owns keyboard behavior and can call `scrollToIndex` directly. `instance()` exposes the underlying TanStack virtualizer after virtual content mounts; before mounting it is undefined.
+`List` and `DataTable` have no keyboard navigation of their own. Call
+`virtualizer.scrollToIndex(index)` directly when your application needs to reveal a row. A call
+made while the virtual content is mounting runs once it has mounted. `instance()` exposes the
+underlying TanStack virtualizer after virtual content mounts; before mounting it is undefined.
 
 ## Common pitfalls
 
 - An unbounded scroll container can render the whole collection. Set a height or max height and scrolling overflow.
 - Applying `context.props` to an inner label prevents correct row positioning and measurement. Spread them onto the outer row DOM.
 - Using item values as collection row keys ignores group labels. Use the row type and `row.key`.
-- Omitting the keyboard bridge leaves off-screen options unreachable by collection navigation.
 - Sharing one adapter across multiple mounted lists makes its instance ambiguous. Create one per list.
 - Virtualization only mounts a window of rows, so browser find and DOM queries cannot inspect the full dataset. Provide filtering or search for large collections.

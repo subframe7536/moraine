@@ -167,11 +167,7 @@ export default function ColumnSettingsExample() {
           Reset
         </Button>
       </div>
-      <DataTable
-        table={table}
-        aria-label="Employees"
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} aria-label="Employees" />
     </div>
   )
 }

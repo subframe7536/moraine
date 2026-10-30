@@ -22,12 +22,7 @@ export const TABLE_FOOTER_CLASS = 'font-medium border-border bg-muted/50'
 export const TABLE_ROW_CLASS = 'border-border transition-colors data-selected:bg-accent'
 export const TABLE_HEAD_CLASS = 'text-muted-foreground font-medium align-middle border-border'
 export const TABLE_CELL_CLASS = 'align-middle border-border'
-/**
- * Static rows stripe by DOM position. Virtualized rows follow a spacer row, so the table adapter
- * marks them with `data-virtual-row` and they stripe by its `data-even` marker instead.
- */
-export const TABLE_STRIPED_ROW_CLASS =
-  '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50 [&[data-even]:not([data-selected])]:bg-muted/50'
+export const TABLE_STRIPED_ROW_CLASS = '[&:nth-child(even):not([data-selected])]:bg-muted/50'
 export const TABLE_HOVER_ROW_CLASS = '[tbody>&:not([data-selected]):hover]:bg-accent/50'
 export const TABLE_COLUMN_BORDER_CLASS = '[&:not(:last-child)]:border-r'
 
@@ -56,8 +51,7 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       container: 'w-full relative overflow-x-auto',
       root: `${TABLE_ROOT_CLASS} caption-bottom`,
       header: TABLE_HEADER_CLASS,
-      // Virtualized bodies end with a spacer row, so the last entry carries `data-last`.
-      body: '[&_tr:last-child]:border-0 [&_tr[data-last]]:border-0',
+      body: '[&_tr:last-child]:border-0',
       footer: `${TABLE_FOOTER_CLASS} [&>tr]:last:border-b-0`,
       row: TABLE_ROW_CLASS,
       head: TABLE_HEAD_CLASS,

@@ -311,7 +311,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           </Show>
           {local.children}
         </div>
-        <Show when={!context.props.virtualRender && local.item.hasChildren}>
+        <Show when={!context.props.virtualizer && local.item.hasChildren}>
           <TreeItemGroup item={local.item} />
         </Show>
       </li>

@@ -153,12 +153,7 @@ export default function TreeDataExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable
-        table={table}
-        aria-label="Project files"
-        hoverEffect
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} aria-label="Project files" hoverEffect />
       <p class="text-sm text-muted-foreground" aria-live="polite">
         {selectedFiles().length > 0
           ? `Selected files: ${selectedFiles().join(', ')}`

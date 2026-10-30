@@ -29,7 +29,7 @@ export function VirtualListHydrationFixture() {
     <List
       as="div"
       items={['Alpha', 'Beta']}
-      virtualRender={virtualizer.virtualRender}
+      virtualizer={virtualizer}
       itemRender={(context) => (
         <div {...context.props} role="listitem">
           {context.item}

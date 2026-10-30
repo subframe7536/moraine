@@ -104,7 +104,7 @@ describe('generateApiDoc', () => {
     const list = result.componentDocs.get('list')
     expect(list?.parts[0]?.defaultElement).toBe('ul')
     expect(list?.parts[0]?.props.map((prop) => prop.name)).toEqual(
-      expect.arrayContaining(['as', 'items', 'itemRender', 'virtualRender']),
+      expect.arrayContaining(['as', 'items', 'itemRender', 'virtualizer']),
     )
 
     const dialog = result.componentDocs.get('dialog')
@@ -165,11 +165,12 @@ describe('generateApiDoc', () => {
           'overflowPadding',
         ]),
       )
-      if (key !== 'select') {
+      if (key === 'select') {
+        expect(props.map((prop) => prop.name)).not.toContain('virtualizer')
+      } else {
         expect(props.map((prop) => prop.name)).toEqual(
           expect.arrayContaining([
-            'virtualRender',
-            'scrollToItem',
+            'virtualizer',
             'searchValue',
             'defaultSearchValue',
             'onSearch',
@@ -177,10 +178,9 @@ describe('generateApiDoc', () => {
             'searchMaxLength',
           ]),
         )
-      } else {
-        expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
-        expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
       }
+      expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
+      expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
     }
     for (const key of ['collapsible', 'sidebar']) {
       const trigger = result.componentDocs
@@ -265,14 +265,9 @@ describe('generateApiDoc', () => {
     expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
     const treeRootProps = tree?.parts[0]?.props.map((prop) => prop.name) ?? []
     expect(treeRootProps).toEqual(
-      expect.arrayContaining([
-        'loadingIcon',
-        'scrollToItem',
-        'transition',
-        'triggerIcon',
-        'virtualRender',
-      ]),
+      expect.arrayContaining(['loadingIcon', 'transition', 'triggerIcon', 'virtualizer']),
     )
+    expect(treeRootProps).not.toContain('scrollToItem')
     expect(treeRootProps).not.toContain('animate')
     expect(treeRootProps).not.toContain('icons')
     expect(treeRootProps).not.toContain('virtual')

@@ -175,7 +175,6 @@ export default function SelectionModesExample() {
         table={table}
         rowClass={(row) => row.original.status === 'terminated' && 'text-muted-foreground'}
         hoverEffect
-        classes={{ container: 'border border-border rounded-lg' }}
       />
 
       <div class="text-xs text-muted-foreground">

@@ -167,12 +167,7 @@ export default function ResizableColumnsExample() {
       <div class="text-sm text-muted-foreground">
         Drag the boundary between two column headers to resize a column.
       </div>
-      <DataTable
-        table={table}
-        showBorder="both"
-        hoverEffect
-        classes={{ container: 'border border-border rounded-lg' }}
-      />
+      <DataTable table={table} showBorder="both" hoverEffect />
     </div>
   )
 }

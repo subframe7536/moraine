@@ -1,5 +1,5 @@
 import type { Column, RowData } from '@tanstack/solid-table'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   DEV,
   For,
@@ -9,12 +9,12 @@ import {
   createSignal,
   createUniqueId,
   on,
+  onMount,
   splitProps,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../components/icon'
-import type { ListT } from '../components/list'
 import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
 import { renderWithProps } from '../shared/render-with-props'
@@ -23,7 +23,8 @@ import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 import type {
   TableVirtualColumnLayout,
   TableVirtualColumnWindow,
-} from '../virtualizer/table-virtual-render'
+  TableVirtualRowProps,
+} from '../virtualizer/virtualizer.types'
 
 import { getDataTableConfig } from './create-data-table'
 import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'
@@ -45,9 +46,9 @@ import type { DataTableT } from './data-table.types'
 
 const VIRTUAL_CONFLICT_WARNINGS = {
   pagination:
-    '[moraine] DataTable received both virtualRender and pagination. Pagination is disabled when virtualRender is active.',
+    '[moraine] DataTable received both virtualizer and pagination. Pagination is disabled when virtualizer is set.',
   expandedRowRender:
-    '[moraine] DataTable received both virtualRender and expandedRowRender. Detail rows are not rendered when virtualRender is active.',
+    '[moraine] DataTable received both virtualizer and expandedRowRender. Detail rows are not rendered when virtualizer is set.',
 } as const
 
 type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
@@ -75,9 +76,8 @@ export function DataTable<TData extends RowData = RowData>(
     'expandedRowRender',
     'onRowClick',
     'onRowDoubleClick',
-    'virtualRender',
+    'virtualizer',
     'size',
-    'striped',
     'hoverEffect',
     'showBorder',
     'classes',
@@ -92,12 +92,13 @@ export function DataTable<TData extends RowData = RowData>(
   const selectionName = `data-table-selection-${createUniqueId()}`
 
   const table = () => local.table
-  const virtual = () => Boolean(local.virtualRender)
-  // The virtualizer hands over its column window only when created with the `columns` option.
-  const [columnWindowSource, setColumnWindowSource] =
-    createSignal<Accessor<TableVirtualColumnWindow>>()
+  const virtual = () => Boolean(local.virtualizer)
+  // The virtualizer has a column window only when created with the `columns` option. It is read
+  // after mount: the server renders every column, so hydration must start from the same markup.
+  const [mounted, setMounted] = createSignal(false)
+  onMount(() => setMounted(true))
   const columnWindow = (): TableVirtualColumnWindow | undefined =>
-    virtual() ? columnWindowSource()?.() : undefined
+    mounted() ? local.virtualizer?.columnWindow() : undefined
   const columnVirtual = createMemo(() => columnWindow() !== undefined)
   const layout = createDataTableLayout(
     table,
@@ -288,7 +289,6 @@ export function DataTable<TData extends RowData = RowData>(
                     {...dataTableDataAttributes.row({
                       selected: false,
                       expanded: false,
-                      even: false,
                       empty: true,
                     })}
                     {...slots.row}
@@ -300,7 +300,7 @@ export function DataTable<TData extends RowData = RowData>(
                 }
               >
                 <Show
-                  when={local.virtualRender}
+                  when={local.virtualizer}
                   fallback={
                     <For each={rows()}>
                       {(row, index) => (
@@ -316,9 +316,9 @@ export function DataTable<TData extends RowData = RowData>(
                     </For>
                   }
                 >
-                  {(virtualRender) => (
+                  {(virtualizer) => (
                     <Dynamic
-                      component={virtualRender()}
+                      component={virtualizer().virtualRender}
                       entries={rows()}
                       scrollElement={scrollContainer()}
                       columns={table().getCenterVisibleLeafColumns()}
@@ -327,13 +327,10 @@ export function DataTable<TData extends RowData = RowData>(
                         (column as Column<DataTableFeatures, TData>).getSize()
                       }
                       columnLayout={columnLayout()}
-                      onColumnWindow={(window: Accessor<TableVirtualColumnWindow> | undefined) =>
-                        setColumnWindowSource(() => window)
-                      }
                       render={(
                         row: DataTableT.Row<TData>,
                         index: number,
-                        rowProps?: ListT.RowProps<HTMLTableRowElement>,
+                        rowProps: TableVirtualRowProps,
                       ) => (
                         <DataTableRow
                           row={row}

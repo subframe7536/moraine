@@ -228,11 +228,7 @@ Read the [Virtualization guide](/docs/virtualization) for setup, row measurement
 keyboard navigation.
 
 ```tsx
-<MultiSelect
-  items={items}
-  virtualRender={virtualizer.virtualRender}
-  scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
-/>
+<MultiSelect items={items} virtualizer={virtualizer} />
 ```
 
 ## Examples

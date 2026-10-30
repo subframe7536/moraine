@@ -222,7 +222,8 @@ export namespace TreeT {
   /** Item instance passed to `itemRender`, `actionRender`, and `tree.Item`'s `item` prop. */
   export type ItemRenderProps<T> = ItemInstance<T>
 
-  export type VirtualRenderProps<T = unknown> = ListT.VirtualRenderProps<ItemInstance<T>>
+  /** Virtualizer over the flattened visible items, such as `createListVirtualizer()`. */
+  export type Virtualizer<T = unknown> = ListT.Virtualizer<ItemInstance<T>>
 
   export interface Base<T = unknown> {
     /**
@@ -238,11 +239,11 @@ export namespace TreeT {
      */
     actionRender?: Component<ItemRenderProps<T>>
 
-    /** Replaces nested rendering with caller-controlled virtual rendering of flattened items. */
-    virtualRender?: Component<VirtualRenderProps<T>>
-
-    /** Scrolls a focused item into view using its flattened index. */
-    scrollToItem?: (item: ItemInstance<T>, entryIndex: number) => void
+    /**
+     * Renders only the visible items of the flattened tree instead of nesting them. The tree
+     * root is the scroll container, and keyboard focus scrolls through the virtualizer.
+     */
+    virtualizer?: Virtualizer<T>
 
     /**
      * Expand affordance icon.
@@ -341,7 +342,7 @@ export namespace TreeT {
   export type ItemActionProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
 
   export interface Parts<T> {
-    /** Tree root. Renders the visible items, nested or through `virtualRender`. */
+    /** Tree root. Renders the visible items, nested or through `virtualizer`. */
     Tree: (props: Props<T>) => JSX.Element
     Item: (props: ItemProps<T>) => JSX.Element
     ItemTrigger: <As extends ValidComponent = 'span'>(props: ItemTriggerProps<As>) => JSX.Element

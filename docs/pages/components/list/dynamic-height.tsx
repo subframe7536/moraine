@@ -14,7 +14,7 @@ export function DynamicHeight() {
 
   type Item = (typeof ITEMS)[number]
 
-  const virtualizer = createListVirtualizer<Item, HTMLElement, HTMLDivElement>({
+  const virtualizer = createListVirtualizer<Item>({
     estimateSize: () => 96,
     getItemKey: (item) => item.id,
     gap: 8,
@@ -25,7 +25,7 @@ export function DynamicHeight() {
     <List
       as="div"
       items={ITEMS}
-      virtualRender={virtualizer.virtualRender}
+      virtualizer={virtualizer}
       role="list"
       aria-label="Variable-height results"
       class="py-2 border border-border rounded-md h-80 w-full overflow-y-auto"

@@ -82,7 +82,6 @@ export default function FilteringExample() {
         table={table}
         aria-label="Employees"
         emptyRender={<span>No employees match the filters.</span>}
-        classes={{ container: 'border border-border rounded-lg' }}
       />
     </div>
   )

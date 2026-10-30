@@ -48,7 +48,7 @@
           "name": "expandedRowRender",
           "optional": true,
           "type": "Component<ExpandedRowRenderProps<TData>>",
-          "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualRender` is set."
+          "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualizer` is set."
         },
         {
           "name": "hoverEffect",
@@ -127,16 +127,6 @@
           }
         },
         {
-          "name": "striped",
-          "optional": true,
-          "type": "boolean",
-          "description": "Alternating background shading on even rows.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -161,10 +151,10 @@
           "description": "Localized message overrides for this data table instance."
         },
         {
-          "name": "virtualRender",
+          "name": "virtualizer",
           "optional": true,
-          "type": "Component<VirtualRenderProps<TData>>",
-          "description": "Component mounted inside `tbody` to render virtualized rows."
+          "type": "Virtualizer<TData>",
+          "description": "Renders only the visible rows, and the visible center columns when the virtualizer has the\n`columns` option. Disables pagination and `expandedRowRender`."
         }
       ]
     }
@@ -195,7 +185,6 @@
       "target": "row",
       "attributes": [
         "data-empty",
-        "data-even",
         "data-expanded",
         "data-selected"
       ]

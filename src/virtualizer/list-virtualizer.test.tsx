@@ -2,8 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { RowProps } from './list-virtualizer'
 import { createListVirtualizer } from './list-virtualizer'
+import type { VirtualRowProps as RowProps } from './virtualizer.types'
 
 describe('createListVirtualizer', () => {
   test('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
@@ -338,6 +338,50 @@ describe('createListVirtualizer', () => {
     scrollToFn.mockClear()
     virtualizer?.scrollToIndex(4)
     expect(scrollToFn).not.toHaveBeenCalled()
+    scrollElement.remove()
+  })
+
+  test('replays a scroll requested before the instance mounts', async () => {
+    const scrollElement = document.createElement('div')
+    Object.defineProperties(scrollElement, {
+      clientHeight: { configurable: true, value: 40 },
+      scrollHeight: { configurable: true, value: 200 },
+    })
+    document.body.append(scrollElement)
+    const scrollToFn = vi.fn()
+    const virtualizer = createListVirtualizer<string>({
+      estimateSize: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      scrollToFn,
+    })
+
+    // Nothing attached: the request is dropped instead of replayed on a later mount.
+    virtualizer.scrollToIndex(1)
+
+    const screen = render(() => {
+      const VirtualRender = virtualizer.virtualRender
+      const view = createComponent(VirtualRender, {
+        entries: Array.from({ length: 10 }, (_, index) => `Item ${index}`),
+        scrollElement,
+        render: (item, _index, props) => <div {...props}>{item}</div>,
+      })
+      virtualizer.scrollToIndex(3, { align: 'start' })
+      return view
+    })
+
+    expect(virtualizer.instance()).toBeUndefined()
+    expect(scrollToFn).not.toHaveBeenCalled()
+
+    await Promise.resolve()
+
+    // Mounting scrolls to the initial offset first; the queued request runs after it.
+    expect(scrollToFn).toHaveBeenLastCalledWith(
+      60,
+      expect.objectContaining({ behavior: 'auto' }),
+      virtualizer.instance(),
+    )
+    screen.unmount()
     scrollElement.remove()
   })
 

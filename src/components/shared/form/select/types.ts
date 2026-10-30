@@ -1,9 +1,9 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { ElementProps } from '../../../../shared/types'
+import type { ListVirtualizer } from '../../../../virtualizer/virtualizer.types'
 import type { BaseSelectT, BaseSelectValue } from '../../../base-select/base-select.types'
 import type { IconT } from '../../../icon/index'
-import type { ListT } from '../../../list/index'
 
 import type { SelectControlStyleVariants, SelectItemStyleSlot } from './style-types'
 
@@ -45,11 +45,7 @@ export interface SelectView<T extends BaseSelectT.Item> {
   rows: SelectRow<T>[]
   byValue?: ReadonlyMap<T['value'], T>
 }
-export type SelectVirtualRenderProps<T extends BaseSelectT.Item> = ListT.VirtualRenderProps<
-  SelectRow<T>,
-  HTMLDivElement,
-  HTMLDivElement
->
+export type SelectVirtualizer<T extends BaseSelectT.Item> = ListVirtualizer<SelectRow<T>>
 export interface SearchProps<T extends BaseSelectT.Item> {
   /** Controlled search text. */
   searchValue?: string
@@ -85,10 +81,12 @@ export interface ContentProps<T extends BaseSelectT.Item> {
   itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
   /** Additional listbox attributes. */
   listboxProps?: ElementProps<HTMLDivElement>
-  /** Virtual rendering adapter. */
-  virtualRender?: Component<SelectVirtualRenderProps<T>>
-  /** Scroll a highlighted item to its logical entry index. */
-  scrollToItem?: (item: T, entryIndex: number) => void
+  /**
+   * Renders only the visible rows, such as `createListVirtualizer()`. Rows include group labels
+   * and separators. The listbox is the scroll container, and keyboard highlight scrolls through
+   * the virtualizer.
+   */
+  virtualizer?: SelectVirtualizer<T>
   /** Called once when scrolling reaches the bottom. */
   onScrollBottom?: () => void
   /**

@@ -648,13 +648,15 @@ test('virtual rows remain a small view of canonical selection and compose both r
         items={[{ type: 'group', label: 'All items', items: leaves }]}
         defaultValue={[3999]}
         defaultOpen
-        scrollToItem={scroll}
         itemProps={() => ({ ref: userRef })}
-        virtualRender={(context) => (
-          <For each={context.entries.slice(0, 4)}>
-            {(entry, index) => <>{context.render(entry, index(), { ref: virtualRef })}</>}
-          </For>
-        )}
+        virtualizer={{
+          scrollToIndex: scroll,
+          virtualRender: (context) => (
+            <For each={context.entries.slice(0, 4)}>
+              {(entry, index) => <>{context.render(entry, index(), { ref: virtualRef })}</>}
+            </For>
+          ),
+        }}
       />
     </form>
   ))
@@ -665,7 +667,7 @@ test('virtual rows remain a small view of canonical selection and compose both r
   expect(
     within(document.body).getByRole('group', { hidden: true }).getAttribute('aria-labelledby'),
   ).toBe(within(document.body).getByText('All items').id)
-  expect(scroll).toHaveBeenCalledWith(leaves[3999], 4000)
+  expect(scroll).toHaveBeenCalledWith(4000)
   expect(userRef).toHaveBeenCalledWith(rows[0])
   expect(virtualRef).toHaveBeenCalledWith(rows[0])
   fireEvent.input(screen.getByRole('combobox'), { target: { value: 'Item 2' } })

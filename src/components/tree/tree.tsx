@@ -1,11 +1,10 @@
-import type { Component, JSX } from 'solid-js'
-import { Show, createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
-import type { ListT } from '../list/list.types'
+import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
 import type { TreeContext, TreeItemContext } from './tree-context'
@@ -25,8 +24,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'state',
     'itemRender',
     'actionRender',
-    'virtualRender',
-    'scrollToItem',
+    'virtualizer',
     'triggerIcon',
     'loadingIcon',
     'transition',
@@ -46,15 +44,15 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
 
   createEffect(
     on(
-      () => local.scrollToItem,
-      (scrollToItem) => {
+      () => local.virtualizer,
+      (virtualizer) => {
+        // Items outside the virtual window have no element to scroll into view.
         state.navigation.registerScroller(
-          scrollToItem
+          virtualizer
             ? (key) => {
                 const index = state.flattenedKeys().indexOf(key)
-                const item = state.flattenedItems()[index]
-                if (item) {
-                  scrollToItem(item, index)
+                if (index >= 0) {
+                  virtualizer.scrollToIndex(index)
                 }
               }
             : undefined,
@@ -108,16 +106,13 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
           callRef(local.ref, element)
         }}
       >
-        <Show when={local.virtualRender} fallback={<TreeItemList items={state.rootItems()} />}>
-          {(virtualRender) => (
-            <Dynamic<Component<ListT.VirtualRenderProps<TreeT.ItemInstance<T>>>>
-              component={virtualRender()}
-              entries={state.flattenedItems()}
-              scrollElement={scrollElement()}
-              render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}
-            />
-          )}
-        </Show>
+        <VirtualContent<TreeT.ItemInstance<T>>
+          virtualizer={local.virtualizer}
+          entries={state.flattenedItems()}
+          scrollElement={scrollElement()}
+          render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}
+          fallback={<TreeItemList items={state.rootItems()} />}
+        />
       </ul>
     </TreeProvider>
   )

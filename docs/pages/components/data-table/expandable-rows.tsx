@@ -169,7 +169,6 @@ export default function ExpandableRowsExample() {
       <DataTable
         table={table}
         hoverEffect
-        classes={{ container: 'border border-border rounded-lg' }}
         expandedRowRender={(props) => (
           <div class="flex flex-col gap-3">
             <div class="text-xs flex flex-wrap gap-x-6 gap-y-1">

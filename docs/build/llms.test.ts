@@ -135,8 +135,8 @@ describe('agent Markdown', () => {
     expect(select).toContain('https://moraine.subf.dev/components/combobox.md')
     const virtualization = result.find((item) => item.fileName === 'docs/virtualization.md')!.source
     expect(virtualization).toContain('ComboboxT.Row<ComboboxT.Item<string>>')
-    expect(virtualization).toContain('virtualizer.scrollToIndex(entryIndex)')
-    expect(virtualization).not.toContain('virtualizer.scrollToItem')
+    expect(virtualization).toContain('virtualizer={virtualizer}')
+    expect(virtualization).not.toContain('scrollToItem')
     const customization = result.find((item) => item.fileName === 'docs/customization.md')!.source
     expect(customization).toContain('https://moraine.subf.dev/docs/composition.md')
   })

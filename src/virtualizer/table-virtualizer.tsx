@@ -1,8 +1,6 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component } from 'solid-js'
 import {
-  For,
-  Show,
   createEffect,
   createMemo,
   createRenderEffect,
@@ -12,18 +10,17 @@ import {
   onCleanup,
 } from 'solid-js'
 
+import { createVirtualizerController } from './controller'
+import type { VirtualizerAdapterOptions, VirtualizerLayout } from './controller'
+import { createSharedElementOffsetObserver } from './offset-observer'
+import { VirtualRows } from './virtual-rows'
 import type {
   TableVirtualColumnLayout,
   TableVirtualColumnWindow,
   TableVirtualRenderProps,
-} from './table-virtual-render'
-import {
-  attachRowMeasurement,
-  createSharedElementOffsetObserver,
-  createVirtualRow,
-  createVirtualizerController,
-} from './virtualizer-core'
-import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
+  TableVirtualRowProps,
+  TableVirtualizer,
+} from './virtualizer.types'
 
 /**
  * Options of the horizontal column virtualizer. Scroll events are shared with the rows, so the row
@@ -58,19 +55,15 @@ export type TableVirtualizerOptions<TItem, TColumn = unknown> = Omit<
   columns?: TableVirtualizerColumnOptions<TColumn>
 }
 
-export type TableVirtualizerReturn<TItem, TColumn = unknown> = {
+export interface TableVirtualizerReturn<TItem, TColumn = unknown> extends TableVirtualizer<
+  TItem,
+  TColumn
+> {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<HTMLElement, HTMLTableRowElement> | undefined>
   /** Current column virtualizer instance when the `columns` option is set. */
   readonly columnInstance: Accessor<Virtualizer<HTMLElement, HTMLTableCellElement> | undefined>
-  /** Component mounted inside `Table.Body` to render virtualized rows. */
-  readonly virtualRender: Component<TableVirtualRenderProps<TItem, TColumn>>
-  /**
-   * Columns to render in each body row, while the render component is mounted with the
-   * `columns` option set; otherwise `undefined`.
-   */
-  readonly columnWindow: Accessor<TableVirtualColumnWindow | undefined>
-  scrollToIndex: Virtualizer<HTMLElement, HTMLTableRowElement>['scrollToIndex']
+  /** Scrolls a virtualized column into view. */
   scrollToColumn: Virtualizer<HTMLElement, HTMLTableCellElement>['scrollToIndex']
 }
 
@@ -195,7 +188,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
   const columnWindow = (): TableVirtualColumnWindow | undefined => windowSource()?.()
 
   const VirtualRender: Component<TableVirtualRenderProps<TItem, TColumn>> = (props) => {
-    const renderRow = createMemo(() => props.render)
     let spacerElement: HTMLTableRowElement | undefined
     let hostElement: HTMLTableSectionElement | null | undefined
     let tableElement: HTMLTableElement | undefined
@@ -306,17 +298,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       )
       setWindowSource(() => currentWindow)
       onCleanup(() => setWindowSource((source) => (source === currentWindow ? undefined : source)))
-      // A user effect, not a render effect: it never runs on the server and runs after hydration,
-      // so the host's column-dependent markup (such as DataTable's `colgroup`) matches the server.
-      createEffect(
-        on(
-          () => props.onColumnWindow,
-          (handOff) => {
-            handOff?.(currentWindow)
-            onCleanup(() => handOff?.(undefined))
-          },
-        ),
-      )
     }
 
     // Announce the virtualized dataset: the table declares its total row count and every row
@@ -487,34 +468,23 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           }}
           style={{ height: `${padBefore()}px` }}
         />
-        <For each={virtualItems}>
-          {(virtualItem) => {
-            const row = createVirtualRow(virtualItem, () => props.entries)
-
-            return (
-              <Show keyed when={row()}>
-                {(current) => {
-                  const measure = attachRowMeasurement(virtualizer)
-
-                  // The leading spacer row breaks `:nth-child` and `:last-child`, so rows carry
-                  // their parity and whether they are the last entry.
-                  return renderRow()(current.item, current.index, {
-                    get 'aria-rowindex'() {
-                      return current.index + sections().headerRows + 1
-                    },
-                    'data-index': current.index,
-                    'data-virtual-row': '',
-                    'data-even': current.index % 2 === 1 ? '' : undefined,
-                    get 'data-last'() {
-                      return current.index === props.entries.length - 1 ? '' : undefined
-                    },
-                    ref: measure,
-                  })
-                }}
-              </Show>
-            )
-          }}
-        </For>
+        <VirtualRows<TItem, HTMLTableRowElement, TableVirtualRowProps>
+          virtualizer={virtualizer}
+          virtualItems={virtualItems}
+          entries={props.entries}
+          render={props.render}
+          // The trailing spacer row breaks `:last-child`, so the last entry carries `data-last`.
+          rowProps={(current, _virtualItem, measure) => ({
+            get 'aria-rowindex'() {
+              return current.index + sections().headerRows + 1
+            },
+            'data-index': current.index,
+            get 'data-last'() {
+              return current.index === props.entries.length - 1 ? '' : undefined
+            },
+            ref: measure,
+          })}
+        />
         <tr aria-hidden="true" style={{ height: `${padAfter()}px` }} />
       </>
     )
@@ -525,9 +495,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     columnInstance: () => columnController?.instance(),
     virtualRender: VirtualRender,
     columnWindow,
-    scrollToIndex: (index, scrollOptions) =>
-      controller.instance()?.scrollToIndex(index, scrollOptions),
-    scrollToColumn: (index, scrollOptions) =>
-      columnController?.instance()?.scrollToIndex(index, scrollOptions),
+    scrollToIndex: controller.scrollToIndex,
+    scrollToColumn: (index, scrollOptions) => columnController?.scrollToIndex(index, scrollOptions),
   }
 }

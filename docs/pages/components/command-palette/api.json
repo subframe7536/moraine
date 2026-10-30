@@ -218,12 +218,6 @@
           "description": "Ref forwarded to the root `<div>` element."
         },
         {
-          "name": "scrollToItem",
-          "optional": true,
-          "type": "(item: TItem, entryIndex: number) => void",
-          "description": "Scrolls a highlighted command into view using its flattened entry index."
-        },
-        {
           "name": "searchMaxLength",
           "optional": true,
           "type": "number",
@@ -254,10 +248,10 @@
           "description": "Localized message overrides for this command palette instance."
         },
         {
-          "name": "virtualRender",
+          "name": "virtualizer",
           "optional": true,
-          "type": "Component<VirtualRenderProps<TItem>>",
-          "description": "Renders flattened group labels and commands through a virtualization layer."
+          "type": "Virtualizer<TItem>",
+          "description": "Renders only the visible rows of the flattened group labels and commands. The listbox is\nthe scroll container, and keyboard highlight scrolls through the virtualizer."
         }
       ]
     }

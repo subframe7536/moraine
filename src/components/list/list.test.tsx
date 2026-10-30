@@ -3,9 +3,9 @@ import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { createListVirtualizer } from '../../virtualizer'
+import type { VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { List } from './list'
-import type { ListT } from './list.types'
 
 describe('List', () => {
   test('renders fixed content from an item component', () => {
@@ -131,7 +131,7 @@ describe('List', () => {
 
   test('creates virtual content before mount and reactively exposes the scroll element', () => {
     let virtualScrollElement: HTMLElement | undefined
-    const VirtualRender = vi.fn((props: ListT.VirtualRenderProps<string>) => {
+    const VirtualRender = vi.fn((props: VirtualRenderProps<string>) => {
       createEffect(
         on(
           () => props.scrollElement,
@@ -158,7 +158,7 @@ describe('List', () => {
         as="div"
         role="feed"
         items={['Apple']}
-        virtualRender={VirtualRender}
+        virtualizer={{ virtualRender: VirtualRender, scrollToIndex: () => {} }}
         itemRender={(context) => <div {...context.props}>{context.item}</div>}
       />
     ))
@@ -173,7 +173,7 @@ describe('List', () => {
 
   test('switches between ordinary and virtual rows without replacing the root', () => {
     const [virtual, setVirtual] = createSignal(false)
-    const VirtualRender = (props: ListT.VirtualRenderProps<string>) => (
+    const VirtualRender = (props: VirtualRenderProps<string>) => (
       <For each={props.entries}>
         {(item, index) => <>{props.render(item, index(), { 'data-index': index() })}</>}
       </For>
@@ -182,7 +182,9 @@ describe('List', () => {
       <>
         <List
           items={['Alpha', 'Beta']}
-          virtualRender={virtual() ? VirtualRender : undefined}
+          virtualizer={
+            virtual() ? { virtualRender: VirtualRender, scrollToIndex: () => {} } : undefined
+          }
           itemRender={(context) => <li {...context.props}>{context.item}</li>}
         />
         <button type="button" onClick={() => setVirtual((value) => !value)}>
@@ -207,7 +209,7 @@ describe('List', () => {
 
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
-    const virtualRendering = createListVirtualizer<string, HTMLElement, HTMLDivElement>({
+    const virtualRendering = createListVirtualizer<string>({
       estimateSize: () => 36,
       measureElement: () => 36,
       observeElementRect: (instance, callback) => {
@@ -222,7 +224,7 @@ describe('List', () => {
         as="div"
         role="list"
         items={items}
-        virtualRender={virtualRendering.virtualRender}
+        virtualizer={virtualRendering}
         itemRender={(context) => <div {...context.props}>{context.item}</div>}
       />
     ))
@@ -240,7 +242,7 @@ describe('List', () => {
 
   test('keeps horizontal virtual rows and the scroll container in RTL directions', async () => {
     const screen = render(() => {
-      const virtualRendering = createListVirtualizer<number, HTMLElement, HTMLDivElement>({
+      const virtualRendering = createListVirtualizer<number>({
         estimateSize: () => 20,
         horizontal: true,
         isRtl: true,
@@ -254,7 +256,7 @@ describe('List', () => {
           as="div"
           dir="rtl"
           items={[20, 35, 25]}
-          virtualRender={virtualRendering.virtualRender}
+          virtualizer={virtualRendering}
           itemRender={(context) => <div {...context.props}>{context.item}</div>}
         />
       )
@@ -275,11 +277,7 @@ describe('List', () => {
       { id: 'second', label: 'Second', size: 48 },
       { id: 'third', label: 'Third', size: 30 },
     ]
-    const virtualRendering = createListVirtualizer<
-      (typeof items)[number],
-      HTMLElement,
-      HTMLDivElement
-    >({
+    const virtualRendering = createListVirtualizer<(typeof items)[number]>({
       estimateSize: (item) => item.size,
       getItemKey: (item) => item.id,
       gap: 6,
@@ -291,7 +289,7 @@ describe('List', () => {
         as="div"
         role="list"
         items={items}
-        virtualRender={virtualRendering.virtualRender}
+        virtualizer={virtualRendering}
         itemRender={(context) => (
           <div {...context.props} role="listitem" data-size={context.item.size}>
             {context.item.label}

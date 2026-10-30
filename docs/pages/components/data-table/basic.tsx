@@ -161,12 +161,5 @@ export default function BasicExample() {
     initialState: { sorting: [{ id: 'role', desc: false }] },
   })
 
-  return (
-    <DataTable
-      table={table}
-      aria-label="Team members"
-      hoverEffect
-      classes={{ container: 'border border-border rounded-lg' }}
-    />
-  )
+  return <DataTable table={table} aria-label="Team members" hoverEffect />
 }

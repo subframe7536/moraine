@@ -8,7 +8,6 @@ import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/vir
 import type { Accessor } from 'solid-js'
 import {
   batch,
-  createMemo,
   createRenderEffect,
   createSignal,
   mergeProps,
@@ -17,8 +16,6 @@ import {
   onMount,
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
-
-import { attachEventListenerMap } from '../shared/event-listener'
 
 export function scrollElementWithRtl<
   TScrollElement extends HTMLElement,
@@ -87,6 +84,12 @@ export function createVirtualizerController<
 ): {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>
+  /**
+   * `scrollToIndex` of the mounted instance. A call made while the adapter is attached but not yet
+   * mounted is kept and replayed once the instance is published, so a host can scroll to its
+   * initial entry right after mounting the content; calls with nothing attached are ignored.
+   */
+  scrollToIndex: Virtualizer<TScrollElement, TItemElement>['scrollToIndex']
   /** Binds the controller to a mounted adapter component; call inside the component body. */
   attach: (props: {
     entries: () => readonly TItem[]
@@ -101,10 +104,29 @@ export function createVirtualizerController<
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
   const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
+  type ScrollRequest = Parameters<Virtualizer<TScrollElement, TItemElement>['scrollToIndex']>
+  let attached = 0
+  let pendingScroll: ScrollRequest | undefined
 
   return {
     instance,
+    scrollToIndex: (...request) => {
+      const current = instance()
+      if (current) {
+        pendingScroll = undefined
+        current.scrollToIndex(...request)
+      } else if (attached > 0) {
+        pendingScroll = request
+      }
+    },
     attach: (adapterProps) => {
+      attached++
+      onCleanup(() => {
+        attached--
+        if (attached === 0) {
+          pendingScroll = undefined
+        }
+      })
       const [mounted, setMounted] = createSignal(false)
       const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
       const [totalSize, setTotalSize] = createSignal(0)
@@ -223,8 +245,16 @@ export function createVirtualizerController<
             return
           }
 
-          setInstance(virtualizer)
-          setMounted(true)
+          batch(() => {
+            setInstance(virtualizer)
+            setMounted(true)
+          })
+          // Replay after `mounted` so the scroll element and measurements are in place.
+          const request = pendingScroll
+          pendingScroll = undefined
+          if (request) {
+            virtualizer.scrollToIndex(...request)
+          }
         })
 
         onCleanup(() => {
@@ -246,155 +276,5 @@ export function createVirtualizerController<
         },
       }
     },
-  }
-}
-
-export interface VirtualRowEntry<TItem> {
-  readonly index: number
-  readonly item: TItem
-}
-
-/**
- * Pairs a virtual item with its entry. Returns `undefined` while the virtual window still points
- * past the end of shrunken entries, so callers never render a row for a missing item.
- */
-export function createVirtualRow<TItem>(
-  virtualItem: VirtualItem,
-  entries: () => readonly TItem[],
-): Accessor<VirtualRowEntry<TItem> | undefined> {
-  const row = createMemo(
-    () => {
-      const current = entries()
-      const index = virtualItem.index
-      return index < current.length ? { index, item: current[index]! } : undefined
-    },
-    undefined,
-    {
-      equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
-    },
-  )
-  return row
-}
-
-/** Registers row unmeasurement on cleanup and returns a deferred measurement ref. */
-export function attachRowMeasurement<
-  TScrollElement extends HTMLElement,
-  TItemElement extends HTMLElement,
->(virtualizer: Virtualizer<TScrollElement, TItemElement>): (element: TItemElement) => void {
-  onCleanup(() => {
-    queueMicrotask(() => virtualizer.measureElement(null))
-  })
-  return (element: TItemElement) => {
-    // Solid invokes spread refs before all following attributes are applied.
-    // Defer measurement so data attributes, styles, and children affect its size.
-    queueMicrotask(() => {
-      if (element.isConnected) {
-        virtualizer.measureElement(element)
-      }
-    })
-  }
-}
-
-type OffsetCallback = (offset: number, isScrolling: boolean) => void
-
-// Same check as `@tanstack/virtual-core`; servers report support so no fallback timer starts.
-const SUPPORTS_SCROLLEND = typeof window === 'undefined' ? true : 'onscrollend' in window
-
-const PASSIVE_LISTENER = { passive: true } as const
-
-/**
- * Creates an `observeElementOffset` option that shares one set of scroll listeners per scroll
- * element. Virtualizers on the same element, such as the rows and columns of a table, then get
- * their offsets inside one `batch`, so one scroll event runs downstream computations once.
- *
- * Mirrors `observeOffset` from `@tanstack/virtual-core` 3.19.6: `scrollend` when
- * `useScrollendEvent` is set and supported, otherwise an `isScrollingResetDelay` timer, and a
- * negated horizontal offset in RTL. Recheck it when upgrading `@tanstack/virtual-core`. The first
- * virtualizer that subscribes to an element decides its `scrollend` and delay settings.
- */
-export function createSharedElementOffsetObserver(): <
-  TScrollElement extends HTMLElement,
-  TItemElement extends HTMLElement,
->(
-  instance: Virtualizer<TScrollElement, TItemElement>,
-  callback: OffsetCallback,
-) => (() => void) | undefined {
-  interface Subscriber {
-    readonly instance: Virtualizer<HTMLElement, HTMLElement>
-    readonly callback: OffsetCallback
-  }
-  interface Listener {
-    readonly subscribers: Set<Subscriber>
-    readonly dispose: () => void
-  }
-  const listeners = new Map<HTMLElement, Listener>()
-
-  const readOffset = (instance: Subscriber['instance'], element: HTMLElement): number => {
-    const { horizontal, isRtl } = instance.options
-    return horizontal ? element.scrollLeft * (isRtl ? -1 : 1) : element.scrollTop
-  }
-
-  const listen = (
-    element: HTMLElement,
-    targetWindow: Window & typeof globalThis,
-    first: Subscriber['instance'],
-  ): Listener => {
-    const subscribers = new Set<Subscriber>()
-    const notify = (isScrolling: boolean) =>
-      batch(() => {
-        for (const subscriber of subscribers) {
-          subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
-        }
-      })
-    const useScrollend = first.options.useScrollendEvent && SUPPORTS_SCROLLEND
-    const resetDelay = first.options.isScrollingResetDelay
-    let resetTimer: number | undefined
-    const onScroll = () => {
-      if (!useScrollend) {
-        targetWindow.clearTimeout(resetTimer)
-        resetTimer = targetWindow.setTimeout(() => notify(false), resetDelay)
-      }
-      notify(true)
-    }
-    const onScrollEnd = () => notify(false)
-
-    const detach = attachEventListenerMap(
-      element,
-      { scroll: onScroll, scrollend: useScrollend ? onScrollEnd : undefined },
-      PASSIVE_LISTENER,
-    )
-    return {
-      subscribers,
-      dispose: () => {
-        detach()
-        targetWindow.clearTimeout(resetTimer)
-      },
-    }
-  }
-
-  return (instance, callback) => {
-    const element = instance.scrollElement
-    const targetWindow = instance.targetWindow
-    if (!element || !targetWindow) {
-      return undefined
-    }
-    const source = instance as unknown as Subscriber['instance']
-    let listener = listeners.get(element)
-    if (!listener) {
-      listener = listen(element, targetWindow, source)
-      listeners.set(element, listener)
-    }
-    const subscriber: Subscriber = { instance: source, callback }
-    listener.subscribers.add(subscriber)
-    const current = listener
-    return () => {
-      current.subscribers.delete(subscriber)
-      if (current.subscribers.size === 0) {
-        current.dispose()
-        if (listeners.get(element) === current) {
-          listeners.delete(element)
-        }
-      }
-    }
   }
 }

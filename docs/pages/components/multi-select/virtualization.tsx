@@ -8,11 +8,7 @@ const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, 
 }))
 
 export function Virtualization() {
-  const virtualizer = createListVirtualizer<
-    MultiSelectT.Row<MultiSelectT.Item<string>>,
-    HTMLDivElement,
-    HTMLDivElement
-  >({
+  const virtualizer = createListVirtualizer<MultiSelectT.Row<MultiSelectT.Item<string>>>({
     estimateSize: (entry) => (entry.type === 'label' ? 30 : 32),
     getItemKey: (entry) => entry.key,
     overscan: 8,
@@ -25,8 +21,7 @@ export function Virtualization() {
         search
         openOnControlClick
         placeholder="Search across 10,000 options..."
-        virtualRender={virtualizer.virtualRender}
-        scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+        virtualizer={virtualizer}
         classes={{ listbox: 'h-80 max-h-80' }}
       />
     </div>

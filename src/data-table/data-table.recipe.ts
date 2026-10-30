@@ -23,7 +23,7 @@ import type { DataAttributeContract } from '../theme/style-contract'
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
 
 export const dataTableDataAttributes = {
-  row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'even', 'empty'),
+  row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'empty'),
   head: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge'),
   cell: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge', 'tree'),
   sortIcon: /* @__PURE__ */ createDataAttributes('sorted'),
@@ -105,7 +105,9 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     '--mo-collapsible-content-height': '0px',
     '--mo-data-table-indent': '1.25rem',
-    container: 'w-full relative',
+    // `overflow-hidden` clips opaque sticky and pinned cells to the rounded corners. The scroll
+    // viewport inside is already a scroll container, so it does not change sticky behavior.
+    container: 'border border-border rounded-lg w-full relative overflow-hidden',
     root: TABLE_ROOT_CLASS,
     header: TABLE_HEADER_CLASS,
     // Virtualized bodies end with a spacer row, so the last entry carries `data-last`.
@@ -134,7 +136,6 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
-    striped: false,
     hoverEffect: false,
     showBorder: 'row',
     sticky: false,
@@ -164,14 +165,6 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         sortButton: 'size-7',
         pagination: 'text-base px-4',
         checkbox: CHECKBOX_CONTROL_SIZE_CLASS.lg,
-      },
-    },
-    // Rows carry `data-even` because spacer rows (virtualization) and detail rows (expansion)
-    // break `:nth-child` parity. Colors match `Table`.
-    striped: {
-      true: {
-        row: '[&[data-even]:not([data-selected])]:bg-muted/50',
-        cell: '[tr[data-even]:not([data-selected])>&]:data-pinned:bg-[color-mix(in_oklch,var(--muted)_50%,var(--background))]',
       },
     },
     hoverEffect: {

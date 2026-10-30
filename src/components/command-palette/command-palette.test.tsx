@@ -85,19 +85,22 @@ describe('CommandPalette', () => {
       <CommandPalette
         autofocus={false}
         groups={[{ id: 'actions', items: [{ value: 'run', label: 'Run' }] }]}
-        virtualRender={(context) => (
-          <For each={context.entries}>
-            {(entry) =>
-              context.render(entry, 0, {
-                id: 'wrong-row',
-                role: 'button',
-                'aria-selected': false,
-                'aria-posinset': 99,
-                'aria-setsize': 99,
-              })
-            }
-          </For>
-        )}
+        virtualizer={{
+          scrollToIndex: () => {},
+          virtualRender: (context) => (
+            <For each={context.entries}>
+              {(entry) =>
+                context.render(entry, 0, {
+                  id: 'wrong-row',
+                  role: 'button',
+                  'aria-selected': false,
+                  'aria-posinset': 99,
+                  'aria-setsize': 99,
+                })
+              }
+            </For>
+          ),
+        }}
       />
     ))
     const option = body().getByRole('option')
@@ -123,9 +126,12 @@ describe('CommandPalette', () => {
             {context.item.label}:{context.disabled ? 'disabled' : 'enabled'}
           </span>
         )}
-        virtualRender={(context) => {
-          const entry = context.entries[0]!
-          return context.render(entry, 0, { 'data-index': 0 })
+        virtualizer={{
+          scrollToIndex: () => {},
+          virtualRender: (context) => {
+            const entry = context.entries[0]!
+            return context.render(entry, 0, { 'data-index': 0 })
+          },
         }}
       />
     ))
@@ -960,19 +966,21 @@ describe('CommandPalette', () => {
 
   test('renders a virtual window while the input keeps active-descendant focus', async () => {
     const [entryIndex, setEntryIndex] = createSignal(1)
-    const scrollToItem = vi.fn()
+    const scrollToIndex = vi.fn()
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        scrollToItem={(item, index) => {
-          scrollToItem(item, index)
-          setEntryIndex(index)
+        virtualizer={{
+          scrollToIndex: (index) => {
+            scrollToIndex(index)
+            setEntryIndex(index)
+          },
+          virtualRender: (context) => (
+            <For each={[context.entries[entryIndex()]!]}>
+              {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+            </For>
+          ),
         }}
-        virtualRender={(context) => (
-          <For each={[context.entries[entryIndex()]!]}>
-            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
-          </For>
-        )}
       />
     ))
 
@@ -994,20 +1002,23 @@ describe('CommandPalette', () => {
       expect(input.getAttribute('aria-activedescendant')).toBe(option?.id)
     })
     expect(document.activeElement).toBe(input)
-    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPS[0]?.items?.[1], 2)
+    expect(scrollToIndex).toHaveBeenLastCalledWith(2)
   })
 
   test('renders virtual group labels with virtual row props', async () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        virtualRender={(context) => {
-          const firstEntry = context.entries[0]
-          return (
-            <For each={firstEntry ? [firstEntry] : []}>
-              {(entry) => context.render(entry, 0, { 'data-index': 'virtual-label' })}
-            </For>
-          )
+        virtualizer={{
+          scrollToIndex: () => {},
+          virtualRender: (context) => {
+            const firstEntry = context.entries[0]
+            return (
+              <For each={firstEntry ? [firstEntry] : []}>
+                {(entry) => context.render(entry, 0, { 'data-index': 'virtual-label' })}
+              </For>
+            )
+          },
         }}
       />
     ))

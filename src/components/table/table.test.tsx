@@ -224,20 +224,17 @@ describe('Table', () => {
     ))
 
     expect(slot(container, 'row')?.className).toContain(
-      '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50',
-    )
-    expect(slot(container, 'row')?.className).toContain(
-      '[&[data-even]:not([data-selected])]:bg-muted/50',
+      '[&:nth-child(even):not([data-selected])]:bg-muted/50',
     )
   })
 
-  test('stripes static rows by DOM position even when they carry data-index', () => {
+  test('stripes body rows by DOM position', () => {
     const { container } = render(() => (
       <Table striped>
         <Table.Body>
           <For each={[0, 1, 2, 3]}>
             {(index) => (
-              <Table.Row data-index={index}>
+              <Table.Row>
                 <Table.Cell>Row {index}</Table.Cell>
               </Table.Row>
             )}
@@ -246,17 +243,11 @@ describe('Table', () => {
       </Table>
     ))
 
-    // Each striping utility is `[&<selector>]:bg-...`; match rows against those selectors.
-    const selectors = TABLE_STRIPED_ROW_CLASS.split(' ').map((token) =>
-      token.slice(2, token.lastIndexOf(']:')),
+    // The striping utility is `[&<selector>]:bg-...`; match rows against that selector.
+    const selector = TABLE_STRIPED_ROW_CLASS.slice(2, TABLE_STRIPED_ROW_CLASS.lastIndexOf(']:'))
+    expect([...container.querySelectorAll('tbody tr')].map((row) => row.matches(selector))).toEqual(
+      [false, true, false, true],
     )
-    const striped = (row: Element) => selectors.some((selector) => row.matches(selector))
-    expect([...container.querySelectorAll('tbody tr')].map(striped)).toEqual([
-      false,
-      true,
-      false,
-      true,
-    ])
   })
 
   test('hoverEffect variant adds row hover background only when enabled (false by default)', () => {

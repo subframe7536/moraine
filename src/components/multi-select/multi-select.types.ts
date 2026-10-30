@@ -19,7 +19,7 @@ import type {
   SelectRow,
   SelectGroup,
   SelectEntry,
-  SelectVirtualRenderProps,
+  SelectVirtualizer,
 } from '../shared/form/select/types'
 
 import type { defaultMultiSelectMessages } from './multi-select.messages'
@@ -46,7 +46,8 @@ export namespace MultiSelectT {
   export type Group<TItem extends Item = Item> = SelectGroup<TItem>
   export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
   export type Row<TItem extends Item = Item> = SelectRow<TItem>
-  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
+  /** Virtualizer over `Row` entries, such as `createListVirtualizer<MultiSelectT.Row>()`. */
+  export type Virtualizer<TItem extends Item = Item> = SelectVirtualizer<TItem>
   export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemRenderProps<TItem>
 
   export interface TagRenderProps<TItem extends Item = Item> {

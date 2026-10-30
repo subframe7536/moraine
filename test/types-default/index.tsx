@@ -533,7 +533,7 @@ export type DataTableContracts = [
   Assert<'empty' extends keyof DataTableT.Slot ? true : false>,
   Assert<'loading' extends keyof DataTableT.Slot ? true : false>,
   Assert<'size' extends keyof DataTableT.Variants ? true : false>,
-  Assert<'striped' extends keyof DataTableT.Variants ? true : false>,
+  Assert<'striped' extends keyof DataTableT.Variants ? false : true>,
 ]
 
 const dataTableRows = [{ id: '1', name: 'Alice', spend: 100 }]
@@ -567,9 +567,10 @@ const dataTableInstance = createDataTable({
 })
 ;<DataTable
   table={dataTableInstance}
-  striped
   expandedRowRender={(props) => <div>{props.row.original.name}</div>}
 />
+// @ts-expect-error DataTable has no striped variant.
+;<DataTable table={dataTableInstance} striped />
 // @ts-expect-error Accessor-style options are not accepted; use getters.
 createDataTable({ data: () => dataTableRows, columns: dataTableCols })
 // @ts-expect-error DataTable requires a table instance.

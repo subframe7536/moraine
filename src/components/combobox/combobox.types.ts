@@ -20,7 +20,7 @@ import type {
   SelectEntry,
   SelectGroup,
   SelectRow,
-  SelectVirtualRenderProps,
+  SelectVirtualizer,
 } from '../shared/form/select/types'
 
 import type { defaultComboboxMessages } from './combobox.messages'
@@ -47,8 +47,10 @@ export namespace ComboboxT {
   export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
   export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
   export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
-  export type VirtualRenderProps<TItem extends string | Item = string | Item> =
-    SelectVirtualRenderProps<NormalizedItem<TItem>>
+  /** Virtualizer over `Row` entries, such as `createListVirtualizer<ComboboxT.Row>()`. */
+  export type Virtualizer<TItem extends string | Item = string | Item> = SelectVirtualizer<
+    NormalizedItem<TItem>
+  >
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {

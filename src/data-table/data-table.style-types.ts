@@ -44,8 +44,6 @@ export interface DataTableStyleSlot<T = unknown> {
 export type DataTableStyleVariants = {
   /** Size density of table cells, text, and padding. @default 'md' */
   size?: 'sm' | 'md' | 'lg'
-  /** Alternating background shading on even rows. @default false */
-  striped?: boolean
   /** Highlight row on mouse hover. @default false */
   hoverEffect?: boolean
   /** Border divider layout. @default 'row' */

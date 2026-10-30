@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js'
 
 import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'
 import { createContextProvider } from '../shared/create-context-provider'
-import type { TableVirtualColumnWindow } from '../virtualizer/table-virtual-render'
+import type { TableVirtualColumnWindow } from '../virtualizer/virtualizer.types'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'
@@ -17,7 +17,7 @@ export interface DataTableContextValue {
   readonly slotWith: DataTableRecipe['slotWith']
   readonly slotOverrides: SlotOverrides
   readonly messages: Accessor<DataTableT.Messages>
-  /** Whether rows render through `virtualRender`. Virtual tables show every row in one scroll. */
+  /** Whether rows render through `virtualizer`. Virtual tables show every row in one scroll. */
   readonly virtual: Accessor<boolean>
   /**
    * Center columns to render in body rows while the virtualizer virtualizes columns; otherwise
