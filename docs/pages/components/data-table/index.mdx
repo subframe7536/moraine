@@ -636,6 +636,38 @@ the table with `maxHeight`.
 
 <Preview path="./virtualization" />
 
+### Choose visible columns from a menu
+
+List the hideable columns in a `DropdownMenu` of checkbox items and call
+`column.toggleVisibility()`. Control `state.columnVisibility` to hide the email column at first, and
+set `enableHiding: false` on the name column so it stays in the table and out of the menu.
+
+<Preview path="./column-visibility" />
+
+### Search and filter rows
+
+Bind an `Input` to `state.globalFilter` for a search across all columns, and a `Select` to the role
+column's filter with `column.setFilterValue`. The role column uses `filterFn: 'equals'` for an
+exact match. TanStack returns to the first page whenever a filter changes.
+
+<Preview path="./filtering" />
+
+### Load pages from a server
+
+Set `manual: true` and control `sorting` and `pagination`. Combine them with the debounced search
+into one query, so each change sends one request. Pass the current page as `data`, the total as
+`rowCount`, and the request state as `loading`. Sorting and searching return to the first page.
+
+<Preview path="./server-data" />
+
+### Edit cells in place
+
+Render an editable value in the column's `cell`. Double-click it, or focus it and press Enter or
+F2, to swap in an `Input`. Enter or leaving the field saves a valid value into the `data` signal,
+and Escape cancels. The table reads `data` through a getter, so the saved value shows at once.
+
+<Preview path="./editable-cells" />
+
 ### Scroll a 10,000 × 100 metrics grid
 
 Add `columns` to the virtualizer so only the cells near the viewport mount, and pin the server

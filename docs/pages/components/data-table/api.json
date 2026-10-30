@@ -182,6 +182,7 @@
     "loading",
     "sortButton",
     "sortIcon",
+    "sortIndex",
     "pagination",
     "resizer",
     "expandedRow",
@@ -211,7 +212,8 @@
       "target": "cell",
       "attributes": [
         "data-pinned",
-        "data-pinned-edge"
+        "data-pinned-edge",
+        "data-tree"
       ]
     },
     {
