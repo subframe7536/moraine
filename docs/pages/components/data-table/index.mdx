@@ -43,7 +43,6 @@ import DataTablePlayground from './playground'
     { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
     { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-    { kind: 'switch', prop: 'remote', label: 'Remote Mode', defaultValue: false },
   ]}
 >
   {(props) => <DataTablePlayground {...props} />}
@@ -585,39 +584,69 @@ text, so the sort button of a Name column is named "Name Sort", then "Name Sorte
 
 ## Examples
 
-### Select users in a sortable list
+### Sort, select, and page through team members
 
-Pass `selection: 'multiple'` to add checkboxes. Sorting is on by default, and each sortable header
-has a sort button.
+A typical list: custom cells for the member and the role, multiple selection, and five rows per
+page. The table starts sorted by role, and the role column sorts by rank with a `sortingFn` instead
+of alphabetically. Shift-click another header to add a second sort; the headers then show their
+priority.
 
 <Preview path="./basic" />
 
+### Switch between single and multiple selection
+
+Read `selection` from a signal and control `state.rowSelection`, so the toolbar can count and clear
+the selection. `canSelectRow` locks terminated nodes, and `rowClass` mutes their text.
+
+<Preview path="./selection-modes" />
+
+### Search and filter rows
+
+Bind an `Input` to `state.globalFilter` for a search across all columns, and a `Select` to the role
+column's filter with `column.setFilterValue`. The role column uses `filterFn: 'equals'` for an
+exact match. TanStack returns to the first page whenever a filter changes, and the toolbar below
+the table counts the matching rows.
+
+<Preview path="./filtering" />
+
+### Load pages from a server
+
+Set `manual: true` and control `sorting` and `pagination`. Combine them with the debounced search
+into one query, so each change sends one request. Pass the current page as `data`, the total as
+`rowCount`, and the request state as `loading`. Sorting and searching return to the first page,
+and the previous page stays on screen while the next one loads.
+
+<Preview path="./server-data" />
+
+### Choose and reorder columns
+
+Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists
+the columns that can hide, the chips move visible columns, and Reset restores the defaults. The
+name column sets `enableHiding: false`, so it can move but not hide. The column definitions never
+change.
+
+<Preview path="./column-settings" />
+
+### Let users resize columns
+
+Set `resizable: true` and give columns a `size`, plus `minSize` and `maxSize` to bound them. Drag a
+header edge, or focus the handle and use the arrow keys.
+
+<Preview path="./resizable-columns" />
+
 ### Keep the ID and actions visible while scrolling sideways
 
-Pin the ID column to the start and the actions column to the end with
+Pin the selection and ID columns to the start and the actions column to the end with
 `initialState.columnPinning`. Give every column a `size`, because pinning uses a fixed layout.
 
 <Preview path="./pinned-columns" />
 
-### Browse an audit log with a sticky header
+### Keep the header and totals in view
 
-Set `sticky` and `maxHeight` so the header stays in view while 30 events scroll.
+Set `sticky` and `maxHeight` so the header and footer stay in view while 30 audit events scroll.
+The footers read the current rows from the table, so they update with the data.
 
-<Preview path="./sticky-header" />
-
-### Let users resize columns
-
-Set `resizable: true` and give columns a `size`. Drag a header edge, or focus the handle and use
-the arrow keys.
-
-<Preview path="./resizable-columns" />
-
-### Reorder columns from a toolbar
-
-Control `state.columnOrder` with a signal and move ids with buttons. The column definitions do not
-change.
-
-<Preview path="./column-order" />
+<Preview path="./sticky-sections" />
 
 ### Show order details in expandable rows
 
@@ -626,43 +655,15 @@ Set `expandable: true` and render the line items, shipping address, and tracking
 
 <Preview path="./expandable-rows" />
 
-### Switch between single and multiple selection
+### Browse files as tree data
 
-Read `selection` from a signal, lock terminated nodes with `canSelectRow`, and mute their text with
-`rowClass`.
+Pass `tableOptions.getSubRows` to render nested rows, and `expandable` with a predicate so only
+folders get a chevron. Sub-rows indent the name column. Selecting a folder selects its files, and a
+partly selected folder shows a mixed checkbox. `getRowId` returns the file name; sub-row ids get
+their parent's id as a prefix (`src.components`), which is also how `initialState.expanded` opens
+the nested folders.
 
-<Preview path="./selection-modes" />
-
-### Scroll through 10,000 tasks
-
-Pass `virtualRender` from `createTableVirtualizer` with `getItemKey` set to the row id, and bound
-the table with `maxHeight`.
-
-<Preview path="./virtualization" />
-
-### Choose visible columns from a menu
-
-List the hideable columns in a `DropdownMenu` of checkbox items and call
-`column.toggleVisibility()`. Control `state.columnVisibility` to hide the email column at first, and
-set `enableHiding: false` on the name column so it stays in the table and out of the menu.
-
-<Preview path="./column-visibility" />
-
-### Search and filter rows
-
-Bind an `Input` to `state.globalFilter` for a search across all columns, and a `Select` to the role
-column's filter with `column.setFilterValue`. The role column uses `filterFn: 'equals'` for an
-exact match. TanStack returns to the first page whenever a filter changes.
-
-<Preview path="./filtering" />
-
-### Load pages from a server
-
-Set `manual: true` and control `sorting` and `pagination`. Combine them with the debounced search
-into one query, so each change sends one request. Pass the current page as `data`, the total as
-`rowCount`, and the request state as `loading`. Sorting and searching return to the first page.
-
-<Preview path="./server-data" />
+<Preview path="./tree-data" />
 
 ### Edit cells in place
 
@@ -672,9 +673,11 @@ and Escape cancels. The table reads `data` through a getter, so the saved value 
 
 <Preview path="./editable-cells" />
 
-### Scroll a 10,000 × 100 metrics grid
+### Scroll 10,000 rows and 100 columns
 
-Add `columns` to the virtualizer so only the cells near the viewport mount, and pin the server
-column so it stays in view while the hours scroll sideways.
+Pass `virtualRender` from `createTableVirtualizer`, with `getItemKey` set to the row id, and bound
+the table with `maxHeight`. The virtualizer's `columns` option also virtualizes the hour columns, so
+only the cells near the viewport mount. The pinned server column stays in view while the hours
+scroll sideways. Leave out `columns` to virtualize rows only.
 
-<Preview path="./wide-virtualization" />
+<Preview path="./virtualization" />

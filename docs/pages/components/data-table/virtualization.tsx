@@ -1,86 +1,65 @@
-import { Badge } from '@src'
 import { DataTable, createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createTableVirtualizer } from '@src/virtualizer'
 
-interface TaskRecord {
+interface MetricRow {
   id: number
-  task: string
-  department: string
-  priority: 'Low' | 'Medium' | 'High' | 'Critical'
-  views: number
-  created: string
+  server: string
+  readings: number[]
 }
 
 const ROW_HEIGHT = 37
+const HOUR_COUNT = 100
 
-const ROWS: TaskRecord[] = Array.from({ length: 10_000 }, (_, index) => ({
-  id: index + 1,
-  task: `Task item #${index + 1}`,
-  department: ['Platform', 'Product', 'Infrastructure', 'Security', 'Design System'][index % 5]!,
-  priority: (['Low', 'Medium', 'High', 'Critical'] as const)[index % 4]!,
-  views: ((index * 37) % 800) + 12,
-  created: '2026-03-24',
+const REGIONS = ['eu-west', 'us-east', 'ap-south', 'sa-east'] as const
+
+const ROWS: MetricRow[] = Array.from({ length: 10_000 }, (_, row) => ({
+  id: row + 1,
+  server: `${REGIONS[row % REGIONS.length]}-${String(row + 1).padStart(5, '0')}`,
+  readings: Array.from({ length: HOUR_COUNT }, (_, hour) => ((row * 31 + hour * 17) % 97) + 1),
 }))
 
-const PRIORITY_TONE = {
-  Low: 'neutral',
-  Medium: 'info',
-  High: 'warning',
-  Critical: 'danger',
-} as const
-
-const COLUMNS: DataTableT.Column<TaskRecord>[] = [
+const COLUMNS: DataTableT.Column<MetricRow>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
-    size: 80,
-    cell: (props) => (
-      <span class="text-muted-foreground tabular-nums">{props.row.original.id}</span>
-    ),
+    accessorKey: 'server',
+    header: 'Server',
+    size: 160,
+    cell: (props) => <span class="font-medium">{props.row.original.server}</span>,
   },
-  { accessorKey: 'task', header: 'Task Name' },
-  { accessorKey: 'department', header: 'Department' },
-  {
-    accessorKey: 'priority',
-    header: 'Priority',
-    cell: (props) => (
-      <Badge tone={PRIORITY_TONE[props.row.original.priority]} variant="subtle" size="sm">
-        {props.row.original.priority}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: 'views',
-    header: 'Views',
+  ...Array.from({ length: HOUR_COUNT }, (_, hour): DataTableT.Column<MetricRow> => ({
+    id: `h${hour}`,
+    header: `H${hour + 1}`,
+    accessorFn: (row) => row.readings[hour],
+    size: 72,
     meta: { align: 'right' },
-    cell: (props) => <span class="tabular-nums">{props.row.original.views}</span>,
-  },
-  {
-    accessorKey: 'created',
-    header: 'Created',
-    cell: (props) => <span class="text-muted-foreground">{props.row.original.created}</span>,
-  },
+    cell: (props) => <span class="tabular-nums">{props.row.original.readings[hour]}%</span>,
+  })),
 ]
 
 export default function VirtualizationExample() {
-  const virtualizer = createTableVirtualizer<DataTableT.Row<TaskRecord>>({
+  const virtualizer = createTableVirtualizer<DataTableT.Row<MetricRow>>({
     estimateSize: () => ROW_HEIGHT,
     getItemKey: (row) => row.id,
     overscan: 10,
+    columns: { overscan: 2 },
   })
 
   const table = createDataTable({
     data: ROWS,
     columns: COLUMNS,
+    getRowId: (row) => String(row.id),
+    sorting: false,
+    initialState: { columnPinning: { start: ['server'], end: [] } },
   })
 
   return (
     <DataTable
       table={table}
       virtualRender={virtualizer.virtualRender}
-      sticky
-      maxHeight={320}
+      sticky="header"
+      maxHeight={360}
+      size="sm"
+      aria-label="CPU usage per hour"
       classes={{ container: 'border border-border rounded-lg' }}
     />
   )

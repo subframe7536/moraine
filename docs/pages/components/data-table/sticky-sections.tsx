@@ -55,6 +55,7 @@ const COLUMNS: DataTableT.Column<AuditEvent>[] = [
   {
     accessorKey: 'timestamp',
     header: 'Timestamp',
+    footer: (props) => <span>{props.table.getRowModel().rows.length} events</span>,
     size: 170,
     cell: (props) => (
       <span class="text-xs text-muted-foreground font-mono">{props.row.original.timestamp}</span>
@@ -95,6 +96,11 @@ const COLUMNS: DataTableT.Column<AuditEvent>[] = [
   {
     accessorKey: 'severity',
     header: 'Severity',
+    footer: (props) => {
+      const critical = () =>
+        props.table.getRowModel().rows.filter((row) => row.original.severity === 'critical').length
+      return <span class="text-danger">{critical()} critical</span>
+    },
     size: 110,
     cell: (props) => {
       const severity = () => SEVERITY[props.row.original.severity]
@@ -107,7 +113,7 @@ const COLUMNS: DataTableT.Column<AuditEvent>[] = [
   },
 ]
 
-export default function StickyHeaderExample() {
+export default function StickySectionsExample() {
   const table = createDataTable({
     data: AUDIT_EVENTS,
     columns: COLUMNS,
@@ -115,11 +121,9 @@ export default function StickyHeaderExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <div class="text-sm text-muted-foreground">
-        Scroll through 30 audit events; the header stays pinned to the top of the container.
-      </div>
       <DataTable
         table={table}
+        aria-label="Audit log"
         sticky
         maxHeight={360}
         hoverEffect
