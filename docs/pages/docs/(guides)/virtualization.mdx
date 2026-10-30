@@ -141,17 +141,42 @@ import { DataTable, createDataTable } from 'moraine/data-table'
 import type { DataTableT } from 'moraine/data-table'
 import { createTableVirtualizer } from 'moraine/virtualizer'
 
+type Invoice = { id: number; invoice: string; amount: number }
+const invoices: Invoice[] = Array.from({ length: 10_000 }, (_, index) => ({
+  id: index + 1,
+  invoice: `INV-${index + 1}`,
+  amount: index * 25,
+}))
+const columns: DataTableT.Column<Invoice>[] = [
+  { accessorKey: 'invoice', header: 'Invoice' },
+  { accessorKey: 'amount', header: 'Amount', meta: { align: 'right' } },
+]
+
 export function VirtualizedInvoices() {
-  const table = createDataTable({ data: invoices, columns, getRowId: (row) => row.id })
+  const table = createDataTable({
+    data: invoices,
+    columns,
+    getRowId: (row) => String(row.id),
+  })
   const virtualizer = createTableVirtualizer<DataTableT.Row<Invoice>>({
     estimateSize: () => 41,
     getItemKey: (row) => row.id,
     overscan: 8,
   })
 
-  return <DataTable table={table} virtualizer={virtualizer} sticky="header" maxHeight={384} />
+  return (
+    <DataTable
+      table={table}
+      virtualizer={virtualizer}
+      sticky="header"
+      maxHeight={384}
+      aria-label="Invoices"
+    />
+  )
 }
 ```
+
+`getItemKey` receives a `DataTableT.Row`, so `row.id` is the id from `getRowId`.
 
 Rows stay in normal table flow: the virtualizer pads the body with two hidden spacer rows instead
 of positioning rows absolutely, so cells keep native column alignment.
@@ -159,7 +184,8 @@ of positioning rows absolutely, so cells keep native column alignment.
 - `estimateSize` should be close to the rendered row height for the `size` variant: about `41` for
   `md`. Rows are measured once mounted.
 - Each entry renders one `<tr>`, so `expandedRowRender` and `pagination` are ignored while
-  virtualized. Tree sub-rows still expand, because each is its own entry.
+  virtualized, with a development warning. Select-all toggles every row. Tree sub-rows still
+  expand, because each is its own entry.
 - Only a window of rows exists in the DOM, so the table gets `aria-rowcount` and every rendered
   row gets `aria-rowindex`.
 - Add the `columns` option to the virtualizer to also render only the unpinned body cells near the
@@ -195,8 +221,9 @@ Options outside the window have no DOM node to scroll into view. `Tree`, `Select
 highlighted or focused item, so keyboard navigation reaches every row without extra wiring.
 
 `List` and `DataTable` have no keyboard navigation of their own. Call
-`virtualizer.scrollToIndex(index)` directly when your application needs to reveal a row. `instance()` exposes the underlying TanStack
-virtualizer after virtual content mounts; before mounting it is undefined.
+`virtualizer.scrollToIndex(index)` directly when your application needs to reveal a row. A call
+made while the virtual content is mounting runs once it has mounted. `instance()` exposes the
+underlying TanStack virtualizer after virtual content mounts; before mounting it is undefined.
 
 ## Common pitfalls
 

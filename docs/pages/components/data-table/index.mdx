@@ -125,8 +125,9 @@ import DataTablePlayground from './playground'
 
 The `table` sits inside a `container` element that also holds the `loading` overlay, a scroll
 viewport, and the `pagination` toolbar. The scroll viewport wraps only the table, so the toolbar
-stays in place while rows scroll. A body row renders either data `cell`s or, when there are no
-rows, one full-width `empty` cell.
+stays in place while rows scroll. The `container` draws the outer border and rounded corners and
+clips pinned and sticky cells to them; replace them through `classes.container`. A body row renders
+either data `cell`s or, when there are no rows, one full-width `empty` cell.
 
 ## Usage
 
@@ -540,7 +541,7 @@ A virtualized table shows every row in one scroll, which changes three behaviors
 - `expandedRowRender` is ignored, with a development warning, because the virtualizer cannot
   measure a second row per entry. Tree sub-rows still expand, because each is its own entry.
 
-See the [Virtualization guide](/docs/virtualization#datatable) for sizing and keys.
+See the [Virtualization guide](/docs/virtualization#data-table) for sizing and keys.
 
 For tables with many columns, add the `columns` option to the virtualizer. DataTable then renders
 only the body cells of the unpinned columns near the viewport, using each column's `size` as its
