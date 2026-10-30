@@ -11,7 +11,6 @@ import { TableFooter } from './table-footer'
 import { TableHead } from './table-head'
 import { TableHeader } from './table-header'
 import { TableRow } from './table-row'
-import { TableVirtualCells, TableVirtualRows } from './table-virtual'
 import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
@@ -50,5 +49,3 @@ Table.Row = TableRow
 Table.Head = TableHead
 Table.Cell = TableCell
 Table.Caption = TableCaption
-Table.VirtualRows = TableVirtualRows
-Table.VirtualCells = TableVirtualCells

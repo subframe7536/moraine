@@ -1,5 +1,6 @@
 import { Table } from '@src'
 import { createTableVirtualizer } from '@src/virtualizer'
+import { Dynamic } from 'solid-js/web'
 
 const ROWS = Array.from({ length: 10_000 }, (_, index) => ({
   id: index + 1,
@@ -37,16 +38,16 @@ export function Virtualization() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        <Table.VirtualRows
-          items={ROWS}
-          virtualizer={virtualizer}
-          itemRender={(context) => (
-            <Table.Row {...context.props}>
-              <Table.Cell class="font-medium w-1/4">{context.item.invoice}</Table.Cell>
-              <Table.Cell class="w-1/4">{context.item.status}</Table.Cell>
-              <Table.Cell class="w-1/4">{context.item.method}</Table.Cell>
+        <Dynamic
+          component={virtualizer.virtualRender}
+          entries={ROWS}
+          render={(row, _index, props) => (
+            <Table.Row {...props}>
+              <Table.Cell class="font-medium w-1/4">{row.invoice}</Table.Cell>
+              <Table.Cell class="w-1/4">{row.status}</Table.Cell>
+              <Table.Cell class="w-1/4">{row.method}</Table.Cell>
               <Table.Cell class="w-1/4" align="right">
-                ${context.item.amount}.00
+                ${row.amount}.00
               </Table.Cell>
             </Table.Row>
           )}

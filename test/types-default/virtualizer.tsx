@@ -3,9 +3,11 @@ import type { CommandPaletteT, ComboboxT, ListT, MultiSelectT, SelectT, TreeT } 
 import { DataTable } from 'moraine/data-table'
 import type { DataTableT, createDataTable } from 'moraine/data-table'
 import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualizer'
+import { Dynamic } from 'solid-js/web'
 
-// Every host takes the whole virtualizer through one `virtualizer` prop. Only the entry type is
-// passed; row and scroll element types never need to match a host by hand.
+// Every component except the presentational Table takes the whole virtualizer through one
+// `virtualizer` prop. Only the entry type is passed; row and scroll element types never need to
+// match a host by hand.
 
 type Item = { id: number; label: string }
 const items: Item[] = []
@@ -47,20 +49,16 @@ const options: SelectT.Item<string>[] = []
   virtualizer={createListVirtualizer<CommandPaletteT.VirtualEntry>({ estimateSize: () => 32 })}
 />
 
+// Table is presentational: the table virtualizer mounts inside `Table.Body` by hand.
+const tableVirtualizer = createTableVirtualizer<Item>({ estimateSize: () => 41 })
 ;<Table>
   <Table.Body>
-    <Table.VirtualRows
-      items={items}
-      virtualizer={createTableVirtualizer<Item, string>({
-        estimateSize: () => 41,
-        columns: { overscan: 2 },
-      })}
-      columns={['label']}
-      itemRender={(row) => (
-        <Table.Row {...row.props}>
-          <Table.VirtualCells<string>
-            itemRender={(cell) => <Table.Cell {...cell.props}>{cell.column}</Table.Cell>}
-          />
+    <Dynamic
+      component={tableVirtualizer.virtualRender}
+      entries={items}
+      render={(item, _index, props) => (
+        <Table.Row {...props}>
+          <Table.Cell>{item.label}</Table.Cell>
         </Table.Row>
       )}
     />
