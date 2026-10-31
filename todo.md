@@ -2,8 +2,8 @@
 
 ## Components
 
-- [ ] Table (tanstack solid table ?)
-- [ ] Tree
+- [x] Table (tanstack solid table ?)
+- [x] Tree
 
 ## Agent
 

@@ -123,7 +123,7 @@
     "@dnd-kit/solid": "^0.5.1",
     "@iconify/tailwind": "1.2.0",
     "@subf/unocss": "catalog:peers",
-    "@tanstack/solid-table": "^9.0.0",
+    "@tanstack/solid-table": "^9.1.2",
     "@tanstack/virtual-core": "^3.17.4",
     "solid-js": "catalog:",
     "tailwindcss": "catalog:peers"

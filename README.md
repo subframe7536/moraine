@@ -72,7 +72,7 @@ function App() {
 
 Import components and `MoraineProvider` from `moraine`. Component subpaths and internal files are not supported entry points.
 
-Use `moraine/theme` for Theme authoring, `moraine/utils` for composable behavior primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` and `createTableVirtualizer`, which components take through their `virtualizer` prop, and requires `@tanstack/virtual-core`.
+Use `moraine/theme` for Theme authoring, `moraine/utils` for composable behavior primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` and `createTableVirtualizer`, which components take through their `virtualizer` prop, and requires `@tanstack/virtual-core`. `moraine/data-table` provides `DataTable` and `createDataTable` and requires `@tanstack/solid-table`. `moraine/dnd` provides `createListSortable` and `createTreeSortable` for drag-and-drop reordering and requires `@dnd-kit/solid`.
 
 ## Development
 
