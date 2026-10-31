@@ -251,16 +251,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "truncated",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the header content should be truncated with an ellipsis.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         }
       ]
     },
@@ -300,16 +290,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "truncated",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the cell content should be truncated with an ellipsis.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         }
       ]
     },
