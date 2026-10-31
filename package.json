@@ -40,6 +40,11 @@
       "solid": "./dist/data-table.jsx",
       "default": "./dist/data-table.mjs"
     },
+    "./dnd": {
+      "types": "./dist/dnd.d.mts",
+      "solid": "./dist/dnd.jsx",
+      "default": "./dist/dnd.mjs"
+    },
     "./tailwind": {
       "types": "./dist/tailwind.d.mts",
       "default": "./dist/tailwind.mjs"
@@ -90,6 +95,7 @@
     "cn": "catalog:"
   },
   "devDependencies": {
+    "@dnd-kit/solid": "^0.5.1",
     "@iconify-json/lucide": "catalog:",
     "@iconify/tailwind": "1.2.0",
     "@solidjs/testing-library": "^0.8.10",
@@ -114,6 +120,7 @@
     "vitest": "^5.0.5"
   },
   "peerDependencies": {
+    "@dnd-kit/solid": "^0.5.1",
     "@iconify/tailwind": "1.2.0",
     "@subf/unocss": "catalog:peers",
     "@tanstack/solid-table": "^9.0.0",
@@ -122,6 +129,9 @@
     "tailwindcss": "catalog:peers"
   },
   "peerDependenciesMeta": {
+    "@dnd-kit/solid": {
+      "optional": true
+    },
     "@iconify/tailwind": {
       "optional": true
     },

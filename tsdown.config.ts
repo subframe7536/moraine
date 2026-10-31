@@ -49,6 +49,7 @@ export default defineConfig([
       utils: './src/utils.ts',
       virtualizer: './src/virtualizer/index.ts',
       'data-table': './src/data-table/index.ts',
+      dnd: './src/dnd/index.ts',
       unocss: './src/theme/unocss.ts',
       tailwind: './src/theme/tailwind.ts',
       theme: './src/theme.ts',
@@ -58,6 +59,7 @@ export default defineConfig([
     clean: true,
     deps: {
       neverBundle: [
+        '@dnd-kit/solid',
         '@subf/unocss',
         '@tanstack/solid-table',
         '@tanstack/virtual-core',
@@ -74,6 +76,7 @@ export default defineConfig([
       index: './src/index.ts',
       virtualizer: './src/virtualizer/index.ts',
       'data-table': './src/data-table/index.ts',
+      dnd: './src/dnd/index.ts',
     },
     unbundle: true,
     clean: false,
@@ -106,7 +109,7 @@ export default defineConfig([
       }),
     ],
     deps: {
-      neverBundle: ['@tanstack/solid-table', '@tanstack/virtual-core'],
+      neverBundle: ['@dnd-kit/solid', '@tanstack/solid-table', '@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,
