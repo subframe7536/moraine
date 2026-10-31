@@ -371,6 +371,57 @@ function functionReturnsJsx(fnNode: any): boolean {
   return found
 }
 
+const REF_LIFECYCLE_CALL =
+  /^(?:onCleanup|onMount|createEffect|createRenderEffect|createComputed|createEventListener(?:Map)?|attachEventListener(?:Map)?|register[A-Z]\w*)$/
+
+function calleeName(callee: any): string | undefined {
+  if (callee?.type === 'Identifier') {
+    return callee.name
+  }
+  if (callee?.type === 'MemberExpression' && !callee.computed) {
+    return callee.property?.name
+  }
+  return undefined
+}
+
+function isRefKey(key: any): boolean {
+  return (
+    (key?.type === 'Identifier' && key.name === 'ref') ||
+    (key?.type === 'Literal' && key.value === 'ref')
+  )
+}
+
+/** Whether a function node is a ref callback: `ref={(el) => ...}`, `ref: (el) => ...`, or `ref(el) {}`. */
+function isRefCallback(fn: any): boolean {
+  const parent = fn.parent
+  if (!parent) {
+    return false
+  }
+  if (parent.type === 'JSXExpressionContainer') {
+    const attribute = parent.parent
+    return attribute?.type === 'JSXAttribute' && attribute.name?.name === 'ref'
+  }
+  if (parent.type === 'Property' || parent.type === 'MethodDefinition') {
+    return parent.value === fn && isRefKey(parent.key)
+  }
+  return false
+}
+
+function nearestFunction(node: any): any {
+  let current = node.parent
+  while (current) {
+    if (
+      current.type === 'ArrowFunctionExpression' ||
+      current.type === 'FunctionExpression' ||
+      current.type === 'FunctionDeclaration'
+    ) {
+      return current
+    }
+    current = current.parent
+  }
+  return undefined
+}
+
 export default {
   meta: {
     name: 'moraine',
@@ -479,6 +530,37 @@ export default {
               if (binding && rest) {
                 context.report({ node: argument, messageId: 'beforeRest', data: { binding, rest } })
               }
+            }
+          },
+        }
+      },
+    },
+
+    'ref-callback-assign-only': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            'Ref callbacks only store the element and forward it; lifecycle work belongs in an owned scope.',
+        },
+        messages: {
+          lifecycleInRef:
+            'Do not call "{{name}}" inside a ref callback. Store the element in a signal and move this work into "bindElement" in the owner that renders it.',
+        },
+      },
+      create(context: any): Record<string, any> {
+        if (!/\/src\//.test(normalizePath(context.filename))) {
+          return {}
+        }
+        return {
+          CallExpression(node: any) {
+            const name = calleeName(node.callee)
+            if (!name || !REF_LIFECYCLE_CALL.test(name)) {
+              return
+            }
+            const fn = nearestFunction(node)
+            if (fn && isRefCallback(fn)) {
+              context.report({ node, messageId: 'lifecycleInRef', data: { name } })
             }
           },
         }

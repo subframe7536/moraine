@@ -39,6 +39,7 @@ render props (such as `itemRender`) instead of component props.
   - `moraine/data-attributes-in-slot-binding` (call `*DataAttributes` only as a `data` entry of `useRecipe` or `slotWith`)
   - `moraine/slot-binding-order` (destructure slot bindings to `<slot>Slot` and spread them before `{...rest}`)
   - `moraine/require-create-effect-on` (wrap `createEffect` in `on()`)
+  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onMount`, effects, event-listener helpers, or `register*` calls inside ref callbacks; use `bindElement`)
   - `moraine/no-emitted-extensions-in-imports` (disallow `.js`/`.jsx` extensions)
   - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
   - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls; require JSX-returning functions to be PascalCase components)

@@ -51,6 +51,7 @@ export default subfLint({
     'moraine/data-attributes-in-slot-binding': 'error',
     'moraine/slot-binding-order': 'error',
     'moraine/require-create-effect-on': 'error',
+    'moraine/ref-callback-assign-only': 'error',
     'moraine/no-emitted-extensions-in-imports': 'error',
     'moraine/no-string-style-prop': 'error',
     'moraine/no-direct-component-call': 'error',
