@@ -70,8 +70,8 @@ hide the native scrollbar while retaining wheel, touch, and keyboard scrolling. 
 detection also supports `dir="rtl"`; `left` and `right` refer to physical edges.
 
 ```tsx
-<ScrollArea orientation="horizontal" shadow hideScrollbar dir="rtl" class="max-w-lg">
-  <div class="flex gap-3">{milestones}</div>
+<ScrollArea orientation="horizontal" shadow hideScrollbar dir="rtl" class="flex gap-3 max-w-lg">
+  {milestones}
 </ScrollArea>
 ```
 

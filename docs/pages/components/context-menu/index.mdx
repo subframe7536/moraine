@@ -94,10 +94,8 @@ context-menu keys, or a supported touch/pen long press.
 
 ```tsx
 <ContextMenu>
-  <ContextMenu.Trigger as="div">
-    <div class="flex h-32 items-center justify-center">
-      Right-click or long-press inside this area
-    </div>
+  <ContextMenu.Trigger as="div" class="flex h-32 items-center justify-center">
+    Right-click or long-press inside this area
   </ContextMenu.Trigger>
   <ContextMenu.Content
     items={[

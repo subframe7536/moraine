@@ -51,14 +51,14 @@ import { Resizable } from 'moraine'
 
 export function Example() {
   return (
-    <div class="h-64 w-full border border-border rounded-xl overflow-hidden">
+    <div class="h-64 w-full border border-border/60 rounded-xl overflow-hidden bg-card/30">
       <Resizable defaultValue={['30%', '70%']}>
-        <Resizable.Panel min="20%">
-          <div class="p-4">Sidebar</div>
+        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
+          Sidebar
         </Resizable.Panel>
         <Resizable.Handle />
-        <Resizable.Panel min="30%">
-          <div class="p-4">Content</div>
+        <Resizable.Panel min="30%" class="p-4 bg-background/50">
+          Content
         </Resizable.Panel>
       </Resizable>
     </div>

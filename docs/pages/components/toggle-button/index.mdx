@@ -81,7 +81,7 @@ change the visible glyph with the pressed state without remounting the button's 
 ```tsx
 <ToggleButton size="icon-md" leading="i-lucide:bold" aria-label="Bold" />
 <ToggleButton size="icon-md" aria-label="Bookmark">
-  {(state) => <Icon name={state.pressed ? 'i-lucide:bookmark-check' : 'i-lucide:bookmark'} />}
+  {(state) => <Icon name="i-lucide:bookmark" class={state.pressed ? 'fill-current' : undefined} />}
 </ToggleButton>
 ```
 
