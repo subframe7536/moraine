@@ -18,6 +18,7 @@ import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createPolymorphicRoot } from '../../../shared/create-polymorphic-root'
+import { bindElement, publishElement } from '../../../shared/element-binding'
 import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
@@ -259,13 +260,22 @@ export function PopperContent(
     }),
   )
 
+  const [content, setContent] = createSignal<HTMLDivElement>()
+  bindElement(content, (element) => {
+    const unpublish = publishElement(contentElement, setContentElement)(element)
+    const release = contentPresence.registerElement(element)
+    return () => {
+      release()
+      unpublish()
+    }
+  })
+
   createEffect(
     on(contentMounted, (mounted) => {
       if (!mounted) {
-        setContentElement(undefined)
+        setContent(undefined)
         setPositionerElement(undefined)
         setPositionerPositioned(false)
-        contentPresence.setElement(undefined)
       }
     }),
   )
@@ -470,16 +480,7 @@ export function PopperContent(
       return contentId()
     },
     onKeyDown: onContentKeyDown,
-    ref: (element) => {
-      context.setContentElement(element)
-      context.contentPresence.setElement(element)
-      onCleanup(() => {
-        if (context.contentElement() === element) {
-          context.setContentElement(undefined)
-          context.contentPresence.setElement(undefined)
-        }
-      })
-    },
+    ref: setContent,
     get role() {
       return options.role
     },
@@ -512,14 +513,7 @@ export function PopperContent(
         return (
           <Portal mount={portalMount()}>
             <div
-              ref={(element) => {
-                setPositionerElement(element)
-                onCleanup(() => {
-                  if (positionerElement() === element) {
-                    setPositionerElement(undefined)
-                  }
-                })
-              }}
+              ref={setPositionerElement}
               dir={props.dir ?? direction()}
               data-slot={context.slotName('positioner')}
               style={{ visibility: 'hidden', ...props.positionerStyle }}

@@ -16,6 +16,43 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test('passes each mounted content element to the ref once and dismisses reopened content', async () => {
+    const ref = vi.fn()
+    const [open, setOpen] = createSignal(true)
+    const onOpenChange = vi.fn(setOpen)
+    render(() => (
+      <Modal open={open()} onOpenChange={onOpenChange}>
+        <Modal.Portal>
+          <Modal.Content ref={ref} aria-label="Bound content">
+            <button type="button">Inside</button>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const findContent = () =>
+      vi.waitFor(() => {
+        const content = document.body.querySelector<HTMLElement>('[data-slot="modal-content"]')
+        expect(content).not.toBeNull()
+        return content!
+      })
+    const first = await findContent()
+    expect(ref.mock.calls).toEqual([[first]])
+
+    setOpen(false)
+    await finishExitMotion()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+
+    setOpen(true)
+    const second = await findContent()
+    expect(second).not.toBe(first)
+    expect(ref.mock.calls).toEqual([[first], [second]])
+
+    fireEvent.keyDown(second, { key: 'Escape' })
+    await finishExitMotion()
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+  })
   test('honors a custom trigger that cancels click before forwarding it', async () => {
     const onOpenChange = vi.fn()
     const onCustomClick = vi.fn()

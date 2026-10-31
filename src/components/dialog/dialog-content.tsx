@@ -52,11 +52,6 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useModalContext()
-  const binding = createModalContentBinding(family, {
-    ref: () => local.ref,
-    onKeyDown: () =>
-      rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
-  })
   const merged = mergeProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     dialog,
@@ -95,6 +90,12 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
   function RenderDialogContent(): JSX.Element {
+    // The portal branch owns the content binding, so it releases when the content unmounts.
+    const binding = createModalContentBinding(family, {
+      ref: () => local.ref,
+      onKeyDown: () =>
+        rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+    })
     const contentShorthand = createShorthandContent(local)
     const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>

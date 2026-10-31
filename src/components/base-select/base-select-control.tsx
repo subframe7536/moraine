@@ -1,7 +1,8 @@
 import type { JSX } from 'solid-js'
-import { onCleanup, splitProps } from 'solid-js'
+import { createSignal, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { bindElement, publishElement } from '../../shared/element-binding'
 import { callRef } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
@@ -27,19 +28,16 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
     },
     context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
+  const [element, setElement] = createSignal<HTMLDivElement>()
+  bindElement(element, publishElement(state.anchor, state.setAnchor))
   return (
     <div
       data-slot={state.slotName('control')}
       {...controlSlot}
       {...rest}
       ref={(element) => {
-        state.setAnchor(element)
+        setElement(element)
         callRef(local.ref, element)
-        onCleanup(() => {
-          if (state.anchor() === element) {
-            state.setAnchor(undefined)
-          }
-        })
       }}
     />
   )

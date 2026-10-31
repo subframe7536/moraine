@@ -2,10 +2,11 @@ import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/soli
 import { createForm as createFormischForm, reset as resetForm } from '@formisch/solid'
 import { INTERNAL, validateFormInput } from '@formisch/solid/internals'
 import type { JSX } from 'solid-js'
-import { onCleanup, splitProps } from 'solid-js'
+import { createSignal, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { Field as FieldInternal } from '../field/field'
@@ -41,6 +42,16 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     data: { root: formDataAttributes.root({ submitting: () => local.of.isSubmitting }) },
   })
   const messages = useMessages('form', defaultFormMessages, () => local.translations)
+  const [element, setElement] = createSignal<HTMLFormElement>()
+  bindElement(
+    element,
+    publishElement(
+      () => local.of[INTERNAL].element,
+      (next) => {
+        local.of[INTERNAL].element = next
+      },
+    ),
+  )
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -99,13 +110,8 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       {...rootSlot}
       {...formProps}
       ref={(element) => {
-        local.of[INTERNAL].element = element
+        setElement(element)
         callRef(local.ref, element)
-        onCleanup(() => {
-          if (local.of[INTERNAL].element === element) {
-            local.of[INTERNAL].element = undefined
-          }
-        })
       }}
       novalidate
       onSubmit={onSubmit}

@@ -52,11 +52,6 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   const messages = useMessages('sheet', defaultSheetMessages, () => sheet.translations)
   const direction = useLocale().dir
   const family = useModalContext()
-  const binding = createModalContentBinding(family, {
-    ref: () => local.ref,
-    onKeyDown: () =>
-      rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
-  })
   const merged = mergeProps(
     { overlay: true, transition: true, closable: true, closeIcon: 'icon-close' as const },
     sheet,
@@ -133,6 +128,12 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
   function RenderSheetContent(): JSX.Element {
+    // The portal branch owns the content binding, so it releases when the content unmounts.
+    const binding = createModalContentBinding(family, {
+      ref: () => local.ref,
+      onKeyDown: () =>
+        rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+    })
     const contentShorthand = createShorthandContent(local)
     const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import { createEffect, createSignal, on, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
@@ -50,11 +50,6 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       ref={(element) => {
         setListbox(element)
         callRef(local.ref, element)
-        onCleanup(() => {
-          if (listbox() === element) {
-            setListbox(undefined)
-          }
-        })
       }}
     />
   )
