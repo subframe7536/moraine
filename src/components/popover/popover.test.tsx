@@ -212,6 +212,22 @@ describe('Popover', () => {
     expect(document.getElementById(trigger?.getAttribute('aria-controls') ?? '')).not.toBeNull()
   })
 
+  test('marks the trigger with the shared expanded overlay trigger class', () => {
+    render(() => (
+      <Popover open>
+        <Popover.Trigger as={Button} variant="outline">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Popover content'}</Popover.Content>
+      </Popover>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="popover-trigger"]')!
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.classList).toContain('aria-expanded:bg-muted')
+  })
+
   test('renders an anchor trigger root', () => {
     render(() => (
       <Popover open>

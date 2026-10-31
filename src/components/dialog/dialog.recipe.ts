@@ -7,7 +7,10 @@ import {
   MODAL_OVERLAY_CLASS,
   modalDataAttributes,
 } from '../modal/modal.recipe'
-import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
+import {
+  OVERLAY_TRIGGER_CLASS,
+  overlayTriggerDataAttributes,
+} from '../shared/overlay/trigger.recipe'
 
 import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
 
@@ -33,7 +36,7 @@ export const dialogRecipe = /* @__PURE__ */ defineRecipe<DialogStyleSlot, Dialog
   'dialog',
   {
     base: {
-      trigger: '',
+      trigger: OVERLAY_TRIGGER_CLASS,
       content: '',
       overlay: `${MODAL_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,
       header: `${DIALOG_HEADER_CLASS} min-w-0`,

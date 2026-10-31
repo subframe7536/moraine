@@ -6,7 +6,10 @@ import {
   POPPER_CONTENT_MAX_WIDTH_CLASS,
   POPPER_SIDE_CLASS,
 } from '../shared/overlay/popper.recipe'
-import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
+import {
+  OVERLAY_TRIGGER_CLASS,
+  overlayTriggerDataAttributes,
+} from '../shared/overlay/trigger.recipe'
 
 import type { PopoverStyleSlot } from './popover.style-types'
 
@@ -19,7 +22,7 @@ export const popoverContentDataAttributes = /* @__PURE__ */ createDataAttributes
 
 export const popoverRecipe = /* @__PURE__ */ defineRecipe<PopoverStyleSlot>('popover', {
   base: {
-    trigger: '',
+    trigger: OVERLAY_TRIGGER_CLASS,
     content: `text-popover-foreground outline-none border border-border rounded-md bg-popover flex flex-col gap-4 ${POPPER_CONTENT_MAX_WIDTH_CLASS} w-72 shadow-overlay origin-(--mo-popper-content-transform-origin) relative z-floating ${POPPER_SIDE_CLASS} data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none`,
     body: `${POPPER_CONTENT_MAX_HEIGHT_CLASS} overflow-auto`,
   },

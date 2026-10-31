@@ -3,7 +3,10 @@ import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { MODAL_OVERLAY_CLASS, modalDataAttributes } from '../modal/modal.recipe'
-import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
+import {
+  OVERLAY_TRIGGER_CLASS,
+  overlayTriggerDataAttributes,
+} from '../shared/overlay/trigger.recipe'
 
 import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 
@@ -18,7 +21,7 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
   'sheet',
   {
     base: {
-      trigger: '',
+      trigger: OVERLAY_TRIGGER_CLASS,
       '--sheet-keyboard-inset': '0px',
       content:
         'text-sm text-popover-foreground pb-(--sheet-keyboard-inset) outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-overlay fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
