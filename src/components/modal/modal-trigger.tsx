@@ -22,7 +22,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     tag,
     bridgeClick: true,
     ref: () => local.ref,
-    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+    registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
   const disabled = () => Boolean(local.disabled)
   const interactionProps = useButtonInteraction(

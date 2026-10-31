@@ -43,7 +43,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const root = createPolymorphicRoot({
     tag,
     ref: () => rest.ref,
-    registration: { element: context.triggerElement, ref: context.triggerProps.ref },
+    registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
   const disabled = () => Boolean(local.disabled ?? context.disabled())
   const a11y = () => getContextMenuTriggerAccessibility(context.triggerElement(), disabled())

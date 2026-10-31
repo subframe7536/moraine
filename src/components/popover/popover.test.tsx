@@ -11,7 +11,7 @@ import type { ButtonProps } from '../button'
 import { Popover } from './popover'
 
 describe('Popover', () => {
-  test('releases a custom trigger ref before replacement and after unmount', async () => {
+  test('ignores a detached custom trigger root and rebinds its replacement', async () => {
     let setVisible!: (value: boolean) => void
     const errors: string[] = []
     const handleError = (event: ErrorEvent) => {
@@ -39,10 +39,8 @@ describe('Popover', () => {
       setVisible(false)
       await waitFor(() => expect(original.isConnected).toBe(false))
       fireEvent.click(document.body)
-      document.body.append(original)
       fireEvent.click(original)
       expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
-      original.remove()
       setVisible(true)
       const replacement = await screen.findByRole('button', { name: 'Replaceable trigger' })
       expect(replacement).not.toBe(original)

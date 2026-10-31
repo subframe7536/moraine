@@ -73,10 +73,7 @@ export function mergePopperElementProps<T extends HTMLElement>(
     user,
     handlers,
     {
-      ref: (element: T | undefined) => {
-        if (!element) {
-          return
-        }
+      ref: (element: T) => {
         callRef(internal.ref, element)
         callRef(user.ref, element)
       },
@@ -160,7 +157,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     tag,
     bridgeClick: true,
     ref: () => local.ref,
-    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+    registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
   const disabled = () => Boolean(local.disabled || context.options.disabled)
   const interaction = useButtonInteraction(

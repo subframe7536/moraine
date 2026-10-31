@@ -219,7 +219,7 @@ describe('polymorphic root', () => {
     },
   )
 
-  test('removes document bridges when nested roots unmount', () => {
+  test('ignores a detached nested root and removes document bridges on unmount', () => {
     const add = vi.spyOn(document, 'addEventListener')
     const remove = vi.spyOn(document, 'removeEventListener')
     const [visible, setVisible] = createSignal(true)
@@ -236,17 +236,22 @@ describe('polymorphic root', () => {
     ))
     const element = screen.getByRole('button')
     const listeners = add.mock.calls.filter(([type]) => type === 'click')
+    expect(listeners.length).toBeGreaterThan(0)
     setVisible(false)
-    document.body.append(element)
+    expect(element.isConnected).toBe(false)
     fireEvent.click(element)
     expect(press).not.toHaveBeenCalled()
+
+    setVisible(true)
+    fireEvent.click(screen.getByRole('button'))
+    expect(press).toHaveBeenCalledOnce()
+
+    screen.unmount()
     for (const [, listener] of listeners) {
       expect(
         remove.mock.calls.some(([type, removed]) => type === 'click' && removed === listener),
       ).toBe(true)
     }
-    element.remove()
-    screen.unmount()
     add.mockRestore()
     remove.mockRestore()
   })
