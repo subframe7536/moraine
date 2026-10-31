@@ -5,7 +5,7 @@ search:
   tags: [createSlider, slider, range, dragging, pointer, keyboard, step, thumb]
 ---
 
-`createSlider` is the headless interaction engine behind Moraine's `Slider` component. It provides pointer capture dragging, keyboard arrow stepping, value clamping, step snapping, and thumb/range inline style calculations.
+`createSlider` is the interaction engine behind Moraine's `Slider`. It handles pointer dragging with pointer capture, keyboard stepping, value clamping and step snapping, and computes inline styles for the range and thumbs.
 
 ## Import
 
@@ -15,10 +15,10 @@ import { createSlider } from 'moraine/utils'
 
 ## Features
 
-- **Single & Multi-thumb**: Supports numeric values or tuples (`[min, max]`) for dual-thumb range selection.
-- **Pointer Capture**: Smooth pointer tracking that prevents cursor escape during fast mouse or touch gestures.
-- **Keyboard Stepping**: Handles Arrow Left/Right/Up/Down, PageUp/PageDown, and Home/End.
-- **Orientation & Inversion**: Supports horizontal or vertical orientation, as well as inverted axes and RTL.
+- Accepts a single number or a `[min, max]` tuple for a dual-thumb range.
+- Captures the pointer during a drag so tracking continues when the pointer leaves the track.
+- Handles Arrow Left/Right/Up/Down, PageUp/PageDown, and Home/End.
+- Supports horizontal and vertical orientation, inverted axes, and RTL.
 
 ## Signature
 

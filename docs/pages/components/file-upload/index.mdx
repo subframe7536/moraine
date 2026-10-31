@@ -8,37 +8,9 @@ search:
   tags: [dropzone, files, upload, progress, attachments, drag and drop]
 ---
 
-import { FileUpload } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'dropzone', label: 'Dropzone', defaultValue: true },
-  ]}
->
-  {(props) => {
-    return (
-      <FileUpload
-        label="Upload documents"
-        description="Click anywhere or drop PDF, PNG, or JPG up to 10MB"
-        size={props.size}
-        disabled={props.disabled}
-        dropzone={props.dropzone}
-      />
-    )
-  }}
-</Playground>
+<Playground />
 
 ## Anatomy
 

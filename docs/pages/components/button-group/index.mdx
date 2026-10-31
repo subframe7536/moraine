@@ -9,74 +9,9 @@ search:
   tags: [button, actions, toolbar, group, split button, segment]
 ---
 
-import { Button, ButtonGroup } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Solid', value: 'solid' },
-        { label: 'Soft', value: 'soft' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'Link', value: 'link' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'tone',
-      label: 'Tone',
-      defaultValue: 'primary',
-      options: [
-        { label: 'Primary', value: 'primary' },
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Neutral', value: 'neutral' },
-        { label: 'Danger', value: 'danger' },
-        { label: 'Info', value: 'info' },
-        { label: 'Success', value: 'success' },
-        { label: 'Warning', value: 'warning' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'orientation',
-      label: 'Orientation',
-      defaultValue: 'horizontal',
-      options: [
-        { label: 'Horizontal', value: 'horizontal' },
-        { label: 'Vertical', value: 'vertical' },
-      ],
-    },
-  ]}
->
-  {(props) => (
-    <ButtonGroup
-      variant={props.variant}
-      tone={props.tone}
-      size={props.size}
-      orientation={props.orientation}
-      aria-label="Document history"
-    >
-      <Button leading="i-lucide:undo-2">Undo</Button>
-      <Button leading="i-lucide:redo-2">Redo</Button>
-    </ButtonGroup>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -117,9 +52,8 @@ export function Example() {
 
 ### Composition
 
-Root `variant`, `tone`, `size`, and `orientation` set defaults for children. Root `classes` and `styles` set
-defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an
-action needs an overlay.
+Root `variant`, `tone`, `size`, and `orientation` set defaults for every child Button. A child can
+override any of them. Compose a menu or popover trigger as a child when an action needs an overlay.
 
 ```tsx
 <ButtonGroup variant="outline" size="sm" aria-label="Document actions">
@@ -131,9 +65,9 @@ action needs an overlay.
 
 ### Separator
 
-Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation follows the
-group axis: vertical in a horizontal group and horizontal in a vertical group. An explicit
-`orientation` overrides this default. The separator accepts direct `class` and `style`.
+Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation is
+perpendicular to the group axis: vertical in a horizontal group and horizontal in a vertical group.
+An explicit `orientation` on the separator overrides that default.
 
 ```tsx
 <ButtonGroup aria-label="Clipboard actions">

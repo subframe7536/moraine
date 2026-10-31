@@ -1,6 +1,6 @@
 ---
 title: Toast
-description: Show temporary status messages through stacked, accessible notifications.
+description: Show temporary status messages as a stack of notifications triggered from static methods.
 group: Overlay
 api:
   path: src/components/toast/toast
@@ -10,84 +10,9 @@ search:
   tags: [notification, message, feedback, promise, toast, alert]
 ---
 
-import { Button, Toast } from '@src'
+import Playground from './playground'
 
-<Toast closable />
-
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'tone',
-      label: 'Tone',
-      defaultValue: 'success',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Success', value: 'success' },
-        { label: 'Info', value: 'info' },
-        { label: 'Warning', value: 'warning' },
-        { label: 'Error', value: 'error' },
-        { label: 'Loading', value: 'loading' },
-      ],
-    },
-    { kind: 'switch', prop: 'large', label: 'Large', defaultValue: false },
-    { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
-    { kind: 'switch', prop: 'cancel', label: 'Cancel button', defaultValue: false },
-    { kind: 'switch', prop: 'closable', label: 'Close button', defaultValue: true },
-    { kind: 'switch', prop: 'progress', label: 'Progress bar', defaultValue: false },
-    { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const showToast = () => {
-      const options = {
-        title: 'Preferences updated',
-        description: 'Your account settings were saved.',
-        large: props.large,
-        closable: props.closable,
-        progress: props.progress,
-        preventDuplicate: props.preventDuplicate,
-        cancel: props.cancel ? true : undefined,
-        action: props.action
-          ? {
-              label: 'Undo',
-              onClick: () => {},
-            }
-          : undefined,
-      }
-
-      switch (props.tone) {
-        case 'default':
-          Toast.show(options)
-          break
-        case 'info':
-          Toast.info(options)
-          break
-        case 'warning':
-          Toast.warning(options)
-          break
-        case 'error':
-          Toast.error(options)
-          break
-        case 'loading':
-          Toast.loading(options)
-          break
-        default:
-          Toast.success(options)
-      }
-    }
-
-    return (
-      <div class="p-6 flex items-center justify-center">
-        <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
-          Trigger notification
-        </Button>
-      </div>
-    )
-
-}}
-
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -121,9 +46,9 @@ import { Button, Toast } from '@src'
   }}
 />
 
-`<Toast />` renders an accessible, portaled root live region and list stack. Individual toast
-notifications render as list items with status icon, wrapper with title and description, action and
-cancel buttons, close control, and duration progress bar.
+`<Toast />` renders a portaled `root` with `role="region"` and `aria-live="polite"`, holding one
+`list` stack per placement. Each notification is an `item`. The `icon` reflects the type, and the
+`action`, `cancel`, `close`, and `progress` slots appear when the matching option is set.
 
 ## Usage
 

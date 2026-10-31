@@ -8,26 +8,9 @@ search:
   tags: [Iconify, Lucide, symbol, SVG, icon, vector, glyph]
 ---
 
-import { Icon } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'input',
-      prop: 'fontSize',
-      label: 'Font size (px)',
-      defaultValue: 24,
-      inputType: 'number',
-    },
-    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide-sparkles' },
-  ]}
->
-  {(props) => (
-    <div class="p-4 flex items-center justify-center">
-      <Icon name={props.name} class="text-primary" style={{ 'font-size': `${props.fontSize}px` }} />
-    </div>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 

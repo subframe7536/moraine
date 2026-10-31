@@ -127,7 +127,7 @@ export function DocsSearchTrigger(
           ? 'size-11'
           : 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70',
       ]}
-      classes={{ label: 'flex-1 min-w-0' }}
+      classes={{ label: 'flex-1' }}
     >
       <Show when={variant() === 'desktop'}>
         <span class="text-sm flex gap-3 w-full items-center justify-between">

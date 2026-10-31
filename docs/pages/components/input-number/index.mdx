@@ -8,65 +8,9 @@ search:
   tags: [number, stepper, spinbutton, numeric, counter, quantity]
 ---
 
-import { InputNumber } from '@src'
-import { createSignal } from 'solid-js'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Subtle', value: 'subtle' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'None', value: 'none' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'orientation',
-      label: 'Orientation',
-      defaultValue: 'horizontal',
-      options: [
-        { label: 'Horizontal', value: 'horizontal' },
-        { label: 'Vertical', value: 'vertical' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'increment', label: 'Increment control', defaultValue: true },
-  ]}
->
-  {(props) => {
-    return (
-      <div class="max-w-full w-64">
-        <InputNumber
-          variant={props.variant}
-          size={props.size}
-          orientation={props.orientation}
-          disabled={props.disabled}
-          increment={props.increment}
-          defaultValue={24}
-          minValue={0}
-          maxValue={100}
-        />
-      </div>
-    )
-  }}
-</Playground>
+<Playground />
 
 ## Anatomy
 

@@ -8,36 +8,9 @@ search:
   tags: [loading, percentage, indicator, progress bar, meter]
 ---
 
-import { Progress } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Uploading design.fig' },
-    { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'showValue', label: 'Value', defaultValue: true },
-  ]}
->
-  {(props) => (
-    <Progress
-      label={props.label}
-      value={props.value}
-      size={props.size}
-      showValue={props.showValue}
-      aria-label="Upload progress"
-    />
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -71,9 +44,9 @@ export function Example() {
 
 ### Progress models
 
-Provide a numeric `value` for determinate progress. Omit `value` or pass `null` for indeterminate
-progress. `valueLabel` supplies `aria-valuetext` for determinate values. Indeterminate progress
-reads `aria-valuetext` from the `progress.indeterminate` message.
+Pass a numeric `value` for determinate progress. Omit `value` for indeterminate progress.
+`valueLabel` supplies `aria-valuetext` for a determinate value. Indeterminate progress sets
+`aria-valuetext` from the `progress.indeterminate` message.
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />
@@ -82,10 +55,9 @@ reads `aria-valuetext` from the `progress.indeterminate` message.
 
 ### Label and value
 
-The component exposes progressbar metadata. Supply `aria-label` or a relationship when visual
-context alone does not identify the operation. `label` fills the label slot. `showValue` shows the
-percentage in the value slot, and `valueRender` replaces that percentage. Indeterminate progress
-keeps the label and hides the value. Animation settings affect presentation, not progress ownership.
+Supply `aria-label` or a labelling relationship when the surrounding context does not name the
+operation. `label` fills the label slot. `showValue` shows the percentage in the value slot, and
+`valueRender` replaces that percentage. Indeterminate progress keeps the label and hides the value.
 
 ```tsx
 <Progress value={82} label="Downloading installation bundle" showValue aria-label="Download" />
