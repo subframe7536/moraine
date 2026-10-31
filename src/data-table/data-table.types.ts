@@ -8,6 +8,7 @@ import type {
   ColumnVisibilityState,
   ExpandedState,
   PaginationState,
+  Header as TanStackHeader,
   Row as TanStackRow,
   RowData,
   RowSelectionState,
@@ -72,6 +73,8 @@ export namespace DataTableT {
   > = ColumnDef<Features, TData, TValue>
 
   export type Row<TData extends RowData = RowData> = TanStackRow<Features, TData>
+
+  export type Header<TData extends RowData = RowData> = TanStackHeader<Features, TData>
 
   export type Instance<TData extends RowData = RowData> = SolidTable<Features, TData>
 
@@ -197,6 +200,22 @@ export namespace DataTableT {
     readonly index: number
   }
 
+  /** Header cell passed to `headProps`. */
+  export interface HeadPropsContext<TData extends RowData = RowData> {
+    readonly header: Header<TData>
+    /** Position among the cells of its header row, in display order. */
+    readonly index: number
+  }
+
+  /**
+   * Attributes for a header cell element. `class` and `style` come from the `head` slot instead;
+   * `ref` is composed with the table's own, and `colSpan` and `aria-sort` stay owned by the table.
+   */
+  export type HeadAttributes = Omit<
+    JSX.ThHTMLAttributes<HTMLTableCellElement>,
+    'children' | 'class' | 'classList' | 'style' | 'colSpan' | 'aria-sort'
+  >
+
   /**
    * Attributes for a body row element. `class` and `style` come from `rowClass` and the `row`
    * slot instead; `ref`, `onClick`, and `onDblClick` are composed with the table's own.
@@ -228,6 +247,12 @@ export namespace DataTableT {
      * row-level hooks; read `context` fields lazily to follow index changes.
      */
     rowProps?: (context: RowPropsContext<TData>) => RowAttributes
+    /**
+     * Extra attributes for each header cell (`<th>`), such as drag wiring from
+     * `createListSortable().useRow` to reorder columns. Called once per header cell, under its
+     * owner; read `context` fields lazily to follow index changes.
+     */
+    headProps?: (context: HeadPropsContext<TData>) => HeadAttributes
     /** Whether the table is currently in a loading state. */
     loading?: boolean
     /** Custom loading state content. */

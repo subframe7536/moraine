@@ -497,7 +497,9 @@ The arrows swap direction when `tableOptions.columnResizeDirection` is `'rtl'`.
 ### Column order
 
 `state.columnOrder` lists column ids in display order. Columns it does not list follow in
-definition order.
+definition order. To let users drag headers, pass the header registration from
+`createListSortable` (`moraine/dnd`) to `headProps`, as in
+[Reorder columns by dragging their headers](#reorder-columns-by-dragging-their-headers).
 
 ```tsx
 const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'])
@@ -684,25 +686,12 @@ and the previous page stays on screen while the next one loads.
 
 <Preview path="./server-data" />
 
-### Load data from remote
+### Reorder columns by dragging their headers
 
-The same manual setup, with a request function shaped like `fetch`: it takes an `AbortSignal` and
-can reject. A promise with a delay simulates the server here. Each new query aborts the request
-still in flight, so a slow response never replaces a newer page. Turn on the switch to make
-requests fail: an `Alert` shows the error with a Retry button that calls the resource's
-`refetch`, and the last loaded page stays visible. The simulated API sorts by one field, so
-`tableOptions.enableMultiSort` is `false`.
-
-<Preview path="./remote-data" />
-
-### Choose and reorder columns
-
-Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists
-the columns that can hide, and Reset restores the defaults. Drag a chip's grip to move a visible
-column: the chips are a horizontal `createListSortable`, and hidden columns keep their slots in the
-order. The
-name column sets `enableHiding: false`, so it can move but not hide. The column definitions never
-change.
+Drag a header to move its column; the sort button still sorts. `headProps` registers each header
+cell with a horizontal `createListSortable` over `table.getVisibleLeafColumns()`, and `onReorder`
+writes the new order to the controlled `state.columnOrder`. The header stays in place while a copy
+follows the pointer, and the target header shows a line on the side the column lands on.
 
 <Preview path="./column-settings" />
 

@@ -109,6 +109,14 @@ const DRAG_ROW_CLASS =
 const DRAG_CELL_CLASS =
   '[tr[data-drop-position=after]>&]:shadow-[inset_0_-2px_0_var(--primary)] [tr[data-drop-position=before]>&]:shadow-[inset_0_2px_0_var(--primary)]'
 
+/**
+ * Column drag presentation through `headProps`: the header stays in place while a copy follows the
+ * pointer, the target header keeps a hover background, and a straight line marks its inline start
+ * (`before`) or end (`after`) edge, mirrored in right-to-left layouts.
+ */
+const DRAG_HEAD_CLASS =
+  'data-[dnd-dragging]:bg-popover data-[drop-position]:bg-accent/50 data-[dnd-dragging]:opacity-60 data-[drop-position=after]:shadow-[inset_-2px_0_0_var(--primary)] data-[drop-position=before]:shadow-[inset_2px_0_0_var(--primary)] rtl:data-[drop-position=after]:shadow-[inset_2px_0_0_var(--primary)] rtl:data-[drop-position=before]:shadow-[inset_-2px_0_0_var(--primary)]'
+
 export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   DataTableStyleSlot,
   DataTableStyleVariants
@@ -125,7 +133,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0 [&>tr[data-last]]:border-b-0 [&>tr[data-last]>td]:border-b-0',
     footer: `${TABLE_FOOTER_CLASS} [&>tr:last-child>td]:border-b-0`,
     row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0 ${DRAG_ROW_CLASS}`,
-    head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}`,
+    head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}  ${DRAG_HEAD_CLASS}`,
     cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS}  ${DRAG_CELL_CLASS} data-tree:ps-(--mo-data-table-tree-pad)`,
     empty: 'text-muted-foreground py-8 text-center',
     loading:

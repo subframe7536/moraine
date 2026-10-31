@@ -92,7 +92,8 @@ const sortable = createListSortable({
 ```
 
 Read [DataTable drag to reorder rows](/components/data-table#drag-to-reorder-rows) for sorting,
-pagination, and sub-rows.
+pagination, and sub-rows. Columns reorder the same way through `headProps`, with
+`orientation: 'horizontal'` and `table.getVisibleLeafColumns()` as `items`.
 
 ## Tree
 

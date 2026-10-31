@@ -1,10 +1,11 @@
 import { FlexRender } from '@tanstack/solid-table'
 import type { Header, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
+import { For, Show, createMemo, createUniqueId, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
+import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
 import { useDataTableContext } from './data-table-context'
@@ -39,6 +40,7 @@ const UNBOUNDED_COLUMN_SIZE = Number.MAX_SAFE_INTEGER
  */
 export function DataTableHeader<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
+  headProps?: DataTableT.Base<TData>['headProps']
 }): JSX.Element {
   const ctx = useDataTableContext()
   const headerSlot = ctx.sectionSlot('header')
@@ -47,19 +49,39 @@ export function DataTableHeader<TData extends RowData>(props: {
     <thead data-slot="data-table-header" {...headerSlot}>
       {/* Row count comes from all columns, so it stays correct when one region is empty. */}
       <For each={props.table.getHeaderGroups()}>
-        {(_, depth) => (
-          <tr data-slot="data-table-row" {...ctx.slots.row}>
-            <For each={DATA_TABLE_PIN_SIDES}>
-              {(side) => (
-                <For each={pinnedHeaderGroups(props.table, 'header', side)[depth()]?.headers}>
-                  {(header) => (
-                    <DataTableHeadCell table={props.table} header={header} side={side} />
-                  )}
-                </For>
-              )}
-            </For>
-          </tr>
-        )}
+        {(_, depth) => {
+          // One row's headers across the pinned regions, in display order. `For` keys cells by
+          // the TanStack header, as when each region rendered its own list.
+          const regions = createMemo(() =>
+            DATA_TABLE_PIN_SIDES.map(
+              (side) =>
+                [
+                  side,
+                  pinnedHeaderGroups(props.table, 'header', side)[depth()]?.headers ?? [],
+                ] as const,
+            ),
+          )
+          const headers = createMemo(() => regions().flatMap(([, list]) => list))
+          const sides = createMemo(
+            () =>
+              new Map(regions().flatMap(([side, list]) => list.map((header) => [header, side]))),
+          )
+          return (
+            <tr data-slot="data-table-row" {...ctx.slots.row}>
+              <For each={headers()}>
+                {(header, index) => (
+                  <DataTableHeadCell
+                    table={props.table}
+                    header={header}
+                    side={sides().get(header)!}
+                    index={index()}
+                    headProps={props.headProps}
+                  />
+                )}
+              </For>
+            </tr>
+          )
+        }}
       </For>
     </thead>
   )
@@ -69,6 +91,8 @@ function DataTableHeadCell<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
   header: Header<DataTableFeatures, TData>
   side: DataTablePinSide
+  index: number
+  headProps?: DataTableT.Base<TData>['headProps']
 }): JSX.Element {
   const ctx = useDataTableContext()
   const column = () => props.header.column
@@ -105,6 +129,21 @@ function DataTableHeadCell<TData extends RowData>(props: {
       pinnedEdge: () => pin.edge() && pin.side(),
     }),
   })
+  // `headProps` runs once per head cell, here, so it can call cell-level hooks.
+  const [extraOwned, extraRest] = splitProps(
+    untrack(
+      () =>
+        props.headProps?.({
+          get header() {
+            return props.header
+          },
+          get index() {
+            return props.index
+          },
+        }) ?? {},
+    ),
+    ['ref'],
+  )
   const sortIconSlot = ctx.slotWith('sortIcon', {
     data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
   })
@@ -112,10 +151,12 @@ function DataTableHeadCell<TData extends RowData>(props: {
   return (
     <th
       data-slot="data-table-head"
+      {...headSlot}
+      {...extraRest}
+      ref={(element) => callRef(extraOwned.ref, element)}
       colSpan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}
-      {...headSlot}
     >
       <Show when={!props.header.isPlaceholder}>
         <div class={DATA_TABLE_HEAD_INNER_CLASS}>
