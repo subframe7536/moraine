@@ -22,7 +22,6 @@ export function Virtualization() {
         leadingIcon="i-lucide:search"
         openOnControlClick
         virtualizer={virtualizer}
-        classes={{ listbox: 'h-80 max-h-80' }}
       />
     </div>
   )

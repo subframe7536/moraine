@@ -18,133 +18,136 @@ export function FrameRender() {
   ]
 
   return (
-    <div class="border border-border rounded-xl bg-background flex flex-col h-[400px] w-full shadow-xs overflow-hidden">
-      {/* Global Topbar outside the Sidebar */}
-      <header class="px-4 border-b border-border bg-card/70 flex shrink-0 h-11 items-center justify-between">
+    <div class="border border-border rounded-xl bg-background flex flex-col h-[400px] w-full overflow-hidden">
+      {/* Global topbar outside the Sidebar frame */}
+      <header class="px-4 border-b border-border bg-card flex shrink-0 h-11 items-center justify-between">
         <div class="flex gap-3 items-center">
           <div class="text-xs font-bold flex gap-2 items-center">
-            <div class="text-white rounded-md bg-blue-600 flex size-6 items-center justify-center">
-              <Icon name="i-lucide:cloud" class="size-3.5" />
+            <div class="text-primary-foreground rounded-md bg-primary flex size-6 items-center justify-center">
+              <Icon name="i-lucide:cloud" />
             </div>
             <span>HyperScale Cloud</span>
           </div>
 
-          <div class="bg-border/60 h-4 w-px" />
+          <div class="bg-border h-4 w-px" />
 
-          <button class="text-xs text-muted-foreground font-medium px-2 py-1 rounded-md bg-muted/50 flex gap-1.5 transition-colors items-center hover:text-foreground hover:bg-muted">
+          <button class="text-xs text-muted-foreground font-medium px-2 py-1 rounded-md bg-muted flex gap-1.5 items-center hover:text-foreground">
             <span>Project: prod-omega</span>
-            <Icon name="i-lucide:chevron-down" class="size-3" />
+            <Icon name="i-lucide:chevron-down" />
           </button>
         </div>
 
         <div class="flex gap-2 items-center">
           <Button variant="ghost" size="icon-xs" aria-label="Cloud alarms">
-            <div class="relative">
-              <Icon name="i-lucide:bell" class="size-3.5" />
-              <span class="rounded-full bg-amber-500 size-1.5 absolute -right-0.5 -top-0.5" />
-            </div>
+            <Icon name="i-lucide:bell" />
           </Button>
           <Avatar text="HC" size="sm" />
         </div>
       </header>
 
-      {/* Embedded Sidebar taking remaining height */}
-      <Sidebar isMobile={false} class="flex-1 h-auto min-h-0">
-        <Sidebar.Panel class="border-r border-border/60 bg-card/30 w-56">
-          <Sidebar.Content>
-            <Sidebar.Group>
-              <Sidebar.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
-                Infrastructure
-              </Sidebar.GroupLabel>
-              <Sidebar.Menu>
-                <For each={cloudNav}>
-                  {(item) => (
-                    <Sidebar.MenuItem>
-                      <Sidebar.MenuButton href="#" leading={item.icon} isActive={item.active}>
-                        {item.label}
-                      </Sidebar.MenuButton>
-                    </Sidebar.MenuItem>
-                  )}
-                </For>
-              </Sidebar.Menu>
-            </Sidebar.Group>
-          </Sidebar.Content>
+      {/* Sidebar fills the remaining height below the topbar */}
+      <div class="flex-1 min-h-0">
+        <Sidebar isMobile={false} width="14rem">
+          <Sidebar.Panel>
+            <Sidebar.Content>
+              <Sidebar.Group>
+                <Sidebar.GroupLabel>Infrastructure</Sidebar.GroupLabel>
+                <Sidebar.Menu>
+                  <For each={cloudNav}>
+                    {(item) => (
+                      <Sidebar.MenuItem>
+                        <Sidebar.MenuButton href="#" leading={item.icon} isActive={item.active}>
+                          {item.label}
+                        </Sidebar.MenuButton>
+                      </Sidebar.MenuItem>
+                    )}
+                  </For>
+                </Sidebar.Menu>
+              </Sidebar.Group>
+            </Sidebar.Content>
 
-          <Sidebar.Footer class="text-[11px] text-muted-foreground px-4 py-2 border-t border-border/60 justify-between">
-            <span>Region: us-east-1</span>
-            <span class="rounded-full bg-emerald-500 size-2" />
-          </Sidebar.Footer>
-        </Sidebar.Panel>
-
-        <Sidebar.Inset class="p-4 overflow-y-auto space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-sm font-bold">Active Kubernetes Clusters</h3>
-              <p class="text-xs text-muted-foreground">
-                Manage and observe distributed workload clusters
-              </p>
-            </div>
-            <Button size="xs" leading="i-lucide:plus">
-              Provision Cluster
-            </Button>
-          </div>
-
-          <div class="gap-3 grid grid-cols-3">
-            <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
-              <div class="text-[11px] text-muted-foreground">Total CPU Allocation</div>
-              <div class="text-base font-bold mt-0.5">74%</div>
-              <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
-                <div class="rounded-full bg-blue-600 h-full w-3/4" />
+            <Sidebar.Footer>
+              <div class="text-xs text-muted-foreground flex w-full items-center justify-between">
+                <span>Region: us-east-1</span>
+                <span class="rounded-full bg-success size-2" />
               </div>
-            </div>
-            <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
-              <div class="text-[11px] text-muted-foreground">Cluster Memory Pool</div>
-              <div class="text-base font-bold mt-0.5">61%</div>
-              <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
-                <div class="rounded-full bg-indigo-600 h-full w-3/5" />
-              </div>
-            </div>
-            <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
-              <div class="text-[11px] text-muted-foreground">Network Ingress</div>
-              <div class="text-base font-bold mt-0.5">1.4 Gbps</div>
-              <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
-                <div class="rounded-full bg-emerald-600 h-full w-2/5" />
-              </div>
-            </div>
-          </div>
+            </Sidebar.Footer>
+          </Sidebar.Panel>
 
-          <div class="border border-border/60 rounded-lg bg-card/50 overflow-hidden">
-            <div class="divide-border/40 divide-y">
-              <For each={clusters}>
-                {(cluster) => (
-                  <div class="text-xs px-3 py-2.5 flex items-center justify-between">
-                    <div class="flex gap-2.5 items-center">
-                      <Icon name="i-lucide:server" class="text-muted-foreground size-4" />
-                      <div>
-                        <div class="font-semibold">{cluster.name}</div>
-                        <div class="text-[10px] text-muted-foreground">
-                          {cluster.nodes} • {cluster.region}
-                        </div>
-                      </div>
-                    </div>
-                    <Badge
-                      size="sm"
-                      variant={cluster.health === 'Healthy' ? 'soft' : 'outline'}
-                      leading={
-                        cluster.health === 'Healthy'
-                          ? 'i-lucide:check-circle-2'
-                          : 'i-lucide:alert-triangle'
-                      }
-                    >
-                      {cluster.health}
-                    </Badge>
+          <Sidebar.Inset>
+            <div class="p-4 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-bold">Active Kubernetes Clusters</h3>
+                  <p class="text-xs text-muted-foreground">
+                    Manage and observe distributed workload clusters
+                  </p>
+                </div>
+                <Button size="xs" leading="i-lucide:plus">
+                  Provision Cluster
+                </Button>
+              </div>
+
+              <div class="gap-3 grid grid-cols-3">
+                <div class="p-2.5 border border-border rounded-lg bg-card">
+                  <div class="text-xs text-muted-foreground">Total CPU Allocation</div>
+                  <div class="text-base font-bold mt-0.5">74%</div>
+                  <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
+                    <div class="rounded-full bg-primary h-full w-3/4" />
                   </div>
-                )}
-              </For>
+                </div>
+                <div class="p-2.5 border border-border rounded-lg bg-card">
+                  <div class="text-xs text-muted-foreground">Cluster Memory Pool</div>
+                  <div class="text-base font-bold mt-0.5">61%</div>
+                  <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
+                    <div class="rounded-full bg-primary h-full w-3/5" />
+                  </div>
+                </div>
+                <div class="p-2.5 border border-border rounded-lg bg-card">
+                  <div class="text-xs text-muted-foreground">Network Ingress</div>
+                  <div class="text-base font-bold mt-0.5">1.4 Gbps</div>
+                  <div class="mt-2 rounded-full bg-muted h-1.5 w-full overflow-hidden">
+                    <div class="rounded-full bg-success h-full w-2/5" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="border border-border rounded-lg bg-card overflow-hidden">
+                <div class="divide-border divide-y">
+                  <For each={clusters}>
+                    {(cluster) => (
+                      <div class="text-xs px-3 py-2.5 flex items-center justify-between">
+                        <div class="flex gap-2.5 items-center">
+                          <span class="text-muted-foreground">
+                            <Icon name="i-lucide:server" />
+                          </span>
+                          <div>
+                            <div class="font-semibold">{cluster.name}</div>
+                            <div class="text-xs text-muted-foreground">
+                              {cluster.nodes} • {cluster.region}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge
+                          size="sm"
+                          variant={cluster.health === 'Healthy' ? 'soft' : 'outline'}
+                          leading={
+                            cluster.health === 'Healthy'
+                              ? 'i-lucide:check-circle-2'
+                              : 'i-lucide:alert-triangle'
+                          }
+                        >
+                          {cluster.health}
+                        </Badge>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </div>
             </div>
-          </div>
-        </Sidebar.Inset>
-      </Sidebar>
+          </Sidebar.Inset>
+        </Sidebar>
+      </div>
     </div>
   )
 }

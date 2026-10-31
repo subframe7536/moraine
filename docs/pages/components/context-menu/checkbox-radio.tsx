@@ -37,11 +37,10 @@ export function CheckboxRadio() {
   return (
     <div class="space-y-3">
       <ContextMenu>
-        <ContextMenu.Trigger
-          as="div"
-          class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center"
-        >
-          Right click to change options
+        <ContextMenu.Trigger as="div">
+          <div class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center">
+            Right click to change options
+          </div>
         </ContextMenu.Trigger>
         <ContextMenu.Content items={items()} />
       </ContextMenu>

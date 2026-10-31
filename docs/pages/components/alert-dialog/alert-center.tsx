@@ -25,17 +25,15 @@ export function AlertCenter() {
         <div class="flex gap-2 items-center">
           <span class="text-sm font-medium">YubiKey 5C NFC</span>
           <Show when={status() === 'idle'}>
-            <Badge variant="outline" class="text-xs text-muted-foreground">
-              Not connected
-            </Badge>
+            <Badge variant="outline">Not connected</Badge>
           </Show>
           <Show when={status() === 'allowed'}>
-            <Badge variant="outline" class="text-xs text-success border-success/30 bg-success/10">
+            <Badge variant="soft" tone="success">
               Connected
             </Badge>
           </Show>
           <Show when={status() === 'blocked'}>
-            <Badge variant="outline" class="text-xs text-danger border-danger/30 bg-danger/10">
+            <Badge variant="soft" tone="danger">
               Blocked
             </Badge>
           </Show>

@@ -50,22 +50,24 @@ export default function FilteringExample() {
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="flex flex-wrap gap-2 items-center">
-        <Input
-          aria-label="Search employees"
-          placeholder="Search name, role, or department..."
-          value={globalFilter()}
-          onValueChange={(value) => table.setGlobalFilter(value)}
-          class="max-w-xs"
-        />
-        <Select
-          aria-label="Filter by role"
-          placeholder="All roles"
-          items={[...ROLES]}
-          value={roleFilter()}
-          onValueChange={(value) => table.getColumn('role')?.setFilterValue(value)}
-          allowClear
-          class="w-40"
-        />
+        <div class="max-w-xs w-full">
+          <Input
+            aria-label="Search employees"
+            placeholder="Search name, role, or department..."
+            value={globalFilter()}
+            onValueChange={(value) => table.setGlobalFilter(value)}
+          />
+        </div>
+        <div class="w-40">
+          <Select
+            aria-label="Filter by role"
+            placeholder="All roles"
+            items={[...ROLES]}
+            value={roleFilter()}
+            onValueChange={(value) => table.getColumn('role')?.setFilterValue(value)}
+            allowClear
+          />
+        </div>
         <Button
           variant="ghost"
           size="sm"

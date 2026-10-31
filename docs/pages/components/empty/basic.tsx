@@ -4,7 +4,9 @@ export function Basic() {
   return (
     <Empty>
       <Empty.Media>
-        <Icon name="i-lucide-folder-open" class="text-muted-foreground size-8" />
+        <span class="text-3xl text-muted-foreground">
+          <Icon name="i-lucide-folder-open" />
+        </span>
       </Empty.Media>
       <Empty.Title>No projects yet</Empty.Title>
       <Empty.Description>Create a project to organize your work.</Empty.Description>

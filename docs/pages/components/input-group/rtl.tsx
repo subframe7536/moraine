@@ -26,10 +26,12 @@ export function RightToLeft() {
       <InputGroup orientation="vertical">
         <Textarea aria-label="منطقة النص" placeholder="اكتب تعليقًا..." rows={3} />
         <InputGroup.Trailing>
-          <span>٠/٢٨٠</span>
-          <Button type="button" size="sm" class="ms-auto">
-            نشر
-          </Button>
+          <div class="flex gap-2 w-full items-center justify-between">
+            <span>٠/٢٨٠</span>
+            <Button type="button" size="sm">
+              نشر
+            </Button>
+          </div>
         </InputGroup.Trailing>
       </InputGroup>
     </div>

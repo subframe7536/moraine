@@ -22,7 +22,6 @@ export function Virtualization() {
         openOnControlClick
         placeholder="Search across 10,000 options..."
         virtualizer={virtualizer}
-        classes={{ listbox: 'h-80 max-h-80' }}
       />
     </div>
   )

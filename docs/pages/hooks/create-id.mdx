@@ -5,7 +5,7 @@ search:
   tags: [createId, id, accessibility, a11y, unique id, ssr]
 ---
 
-`createId` generates unique string identifiers for accessibility bindings (`aria-labelledby`, `aria-describedby`, `aria-controls`, `for`). It prioritizes user-supplied deterministic IDs when provided and falls back to prefixed, auto-generated unique IDs.
+`createId` returns a reactive accessor for a string identifier used in accessibility bindings (`aria-labelledby`, `aria-describedby`, `aria-controls`, `for`). It returns a caller-supplied id when one is given, and otherwise a prefixed id from Solid's `createUniqueId()`.
 
 ## Import
 

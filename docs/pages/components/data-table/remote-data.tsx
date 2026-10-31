@@ -187,13 +187,14 @@ export default function RemoteDataExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <Input
-        aria-label="Search products"
-        placeholder="Search products..."
-        value={searchInput()}
-        onValueChange={onSearchInput}
-        class="max-w-xs"
-      />
+      <div class="max-w-xs w-full">
+        <Input
+          aria-label="Search products"
+          placeholder="Search products..."
+          value={searchInput()}
+          onValueChange={onSearchInput}
+        />
+      </div>
       <Switch label="Simulate server errors" checked={fail()} onCheckedChange={setFail} />
       <Show when={page.error as Error | undefined}>
         {(error) => (

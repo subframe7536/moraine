@@ -75,18 +75,16 @@ export function Draggable() {
                 onPointerDown={handlePointerDown}
               >
                 <div class="flex gap-2 items-center">
-                  <Icon name="i-lucide:grip-vertical" class="text-muted-foreground size-4" />
+                  <Icon name="i-lucide:grip-vertical" />
                   <h3 class="text-sm text-foreground font-semibold">Draggable Window</h3>
                 </div>
                 <Button
                   variant="ghost"
-                  size="xs"
-                  class="p-0 rounded-md size-6"
+                  size="icon-xs"
+                  leading="i-lucide:x"
                   onClick={context.close}
                   aria-label="Close"
-                >
-                  <Icon name="i-lucide:x" class="size-3.5" />
-                </Button>
+                />
               </div>
 
               <div class="p-4 space-y-3">

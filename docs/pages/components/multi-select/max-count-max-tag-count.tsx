@@ -40,21 +40,20 @@ export function MaxCountMaxTagCount() {
           maxTagCount={1}
           tagOverflowRender={(props) => (
             <Tooltip openDelay={200}>
-              <Tooltip.Trigger
-                as="span"
-                class="text-muted-foreground px-1 flex cursor-default items-center"
-              >
-                +{props.count}
+              <Tooltip.Trigger as="span">
+                <span class="px-1 inline-flex cursor-default items-center">+{props.count}</span>
               </Tooltip.Trigger>
-              <Tooltip.Content class="p-2 flex gap-1">
-                <For each={props.tags}>
-                  {(tag) => (
-                    <span class="px-2 py-1 rounded bg-muted flex gap-1.5 items-center">
-                      {tag.label}
-                      <Icon name="i-lucide:x" class="text-muted-foreground size-3.5" />
-                    </span>
-                  )}
-                </For>
+              <Tooltip.Content>
+                <div class="p-2 flex gap-1">
+                  <For each={props.tags}>
+                    {(tag) => (
+                      <span class="px-2 py-1 rounded bg-muted flex gap-1.5 items-center">
+                        {tag.label}
+                        <Icon name="i-lucide:x" />
+                      </span>
+                    )}
+                  </For>
+                </div>
               </Tooltip.Content>
             </Tooltip>
           )}

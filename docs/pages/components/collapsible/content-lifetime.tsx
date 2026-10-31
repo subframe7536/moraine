@@ -7,11 +7,13 @@ export function ContentLifetime() {
         <Collapsible.Trigger as={Button} size="xs" variant="outline">
           Persistent filter fields
         </Collapsible.Trigger>
-        <Collapsible.Content class="mt-2 p-3 b-1 b-border rounded-lg space-y-2">
-          <p class="text-xs text-muted-foreground">
-            Input state persists while closed when unmountOnHide is false.
-          </p>
-          <Input defaultValue="tag:moraine" placeholder="Search filter" />
+        <Collapsible.Content>
+          <div class="mt-2 p-3 border border-border rounded-lg space-y-2">
+            <p class="text-xs text-muted-foreground">
+              Input state persists while closed when unmountOnHide is false.
+            </p>
+            <Input defaultValue="tag:moraine" placeholder="Search filter" />
+          </div>
         </Collapsible.Content>
       </Collapsible>
     </div>

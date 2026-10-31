@@ -28,7 +28,7 @@ export function DynamicHeight() {
       virtualizer={virtualizer}
       role="list"
       aria-label="Variable-height results"
-      class="py-2 border border-border rounded-md h-80 w-full overflow-y-auto"
+      class="h-80 overflow-y-auto"
       itemRender={(context) => (
         <div {...context.props} role="listitem">
           <div class="mx-2 px-3 py-2 border border-border rounded-md">

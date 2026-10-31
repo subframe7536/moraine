@@ -15,7 +15,7 @@ search:
     ]
 ---
 
-`createSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
+`createSelectableCollectionNavigation` adds keyboard navigation (Arrow Up/Down/Left/Right, Home, End) and activation handling to a collection of selectable items such as Tabs, Radio Groups, and Listboxes.
 
 ## Import
 
@@ -106,4 +106,4 @@ export function CustomTabs() {
 - **ArrowLeft / ArrowRight**: Move previous / next in horizontal collections (respects RTL).
 - **ArrowUp / ArrowDown**: Move previous / next in vertical collections.
 - **Home / End**: Jump directly to first / last enabled item.
-- **Automatic vs Manual**: In `automatic` mode, navigation selects immediately. In `manual` mode, pressing Enter or Space confirms selection.
+- **Automatic vs Manual**: In `automatic` mode, arrow keys move and select in one step. In `manual` mode, arrow keys only move focus, and Enter or Space selects. Enter and Space select in both modes.

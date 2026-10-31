@@ -9,7 +9,9 @@ export function CustomContainer() {
       classes={{ description: 'max-w-xs' }}
     >
       <Empty.Media>
-        <Icon name="i-lucide-chart-no-axes-combined" class="text-muted-foreground size-8" />
+        <span class="text-3xl text-muted-foreground">
+          <Icon name="i-lucide-chart-no-axes-combined" />
+        </span>
       </Empty.Media>
       <Empty.Title as="h2">No saved reports</Empty.Title>
       <Empty.Description>

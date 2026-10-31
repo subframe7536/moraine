@@ -4,19 +4,26 @@ import { createSignal } from 'solid-js'
 export function Compact() {
   const [txt, setTxt] = createSignal('')
   return (
-    <InputGroup class="max-w-sm w-full">
-      <InputGroup.Leading>https://</InputGroup.Leading>
-      <Input aria-label="Website" placeholder="example.com" value={txt()} onValueChange={setTxt} />
-      <InputGroup.Trailing compact>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Clear website"
-          onClick={() => setTxt('')}
-        >
-          <Icon name="i-lucide:x" />
-        </Button>
-      </InputGroup.Trailing>
-    </InputGroup>
+    <div class="max-w-sm w-full">
+      <InputGroup>
+        <InputGroup.Leading>https://</InputGroup.Leading>
+        <Input
+          aria-label="Website"
+          placeholder="example.com"
+          value={txt()}
+          onValueChange={setTxt}
+        />
+        <InputGroup.Trailing compact>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label="Clear website"
+            onClick={() => setTxt('')}
+          >
+            <Icon name="i-lucide:x" />
+          </Button>
+        </InputGroup.Trailing>
+      </InputGroup>
+    </div>
   )
 }

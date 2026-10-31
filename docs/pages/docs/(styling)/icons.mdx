@@ -7,7 +7,7 @@ search:
   tags: [icons, Lucide, Icon, leading, trailing, IconGallery, mask icons]
 ---
 
-Moraine provides built-in CSS mask styles for Lucide icons. Mask icons render as pure CSS, inheriting text color and size automatically without runtime SVGs or flash-of-unstyled-content.
+Moraine provides built-in CSS mask styles for Lucide icons. Mask icons render as pure CSS and inherit the current text color and font size, so no runtime SVG is loaded.
 
 ## Zero-Config Setup
 
@@ -30,7 +30,7 @@ Render standalone icons using the `<Icon>` component:
 import { Icon } from 'moraine'
 
 export function SearchIndicator() {
-  return <Icon name="icon-search" class="text-primary text-lg" />
+  return <Icon name="icon-search" />
 }
 ```
 

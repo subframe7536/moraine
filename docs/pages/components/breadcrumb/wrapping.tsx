@@ -14,10 +14,6 @@ export function Wrapping() {
       >
         <Breadcrumb
           wrap={wrap()}
-          classes={{
-            list: wrap() ? undefined : 'overflow-visible',
-            item: wrap() ? undefined : 'shrink-0',
-          }}
           items={[
             { label: 'Home', href: '#' },
             { label: 'Workspace', href: '#' },

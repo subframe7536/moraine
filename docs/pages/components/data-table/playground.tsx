@@ -1,6 +1,8 @@
 import { DataTable, createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
+import { DocsPlayground } from '../../../routes/components/markdown/playground'
+
 interface Employee {
   id: string
   name: string
@@ -51,7 +53,7 @@ interface PlaygroundProps {
   empty?: boolean
 }
 
-export default function DataTablePlayground(props: PlaygroundProps) {
+function EmployeesTable(props: PlaygroundProps) {
   const table = createDataTable({
     get data() {
       return props.empty ? NO_EMPLOYEES : EMPLOYEES
@@ -96,5 +98,47 @@ export default function DataTablePlayground(props: PlaygroundProps) {
           : undefined
       }
     />
+  )
+}
+
+export default function DataTablePlayground() {
+  return (
+    <DocsPlayground
+      controls={[
+        {
+          kind: 'select',
+          prop: 'size',
+          label: 'Size',
+          defaultValue: 'md',
+          options: [
+            { label: 'Small', value: 'sm' },
+            { label: 'Medium', value: 'md' },
+            { label: 'Large', value: 'lg' },
+          ],
+        },
+        { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
+        {
+          kind: 'select',
+          prop: 'showBorder',
+          label: 'Show Border',
+          defaultValue: 'row',
+          options: [
+            { label: 'Row', value: 'row' },
+            { label: 'Column', value: 'col' },
+            { label: 'Both', value: 'both' },
+          ],
+        },
+        { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
+        { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
+        { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
+        { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
+        { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
+        { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
+        { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+        { kind: 'switch', prop: 'empty', label: 'Empty', defaultValue: false },
+      ]}
+    >
+      {(props) => <EmployeesTable {...props} />}
+    </DocsPlayground>
   )
 }

@@ -7,11 +7,11 @@ export function HeaderFooter() {
   return (
     <div class="gap-6 grid w-full lg:grid-cols-3">
       <InputGroup orientation="vertical">
-        <InputGroup.Leading class="border-b border-border">
+        <InputGroup.Leading>
           <span class="font-semibold">Info text</span>
-          <Icon name="i-lucide:info" class="text-base ms-auto" />
+          <Icon name="i-lucide:info" />
         </InputGroup.Leading>
-        <Textarea placeholder="Ask, search or chat..." class="min-h-24" />
+        <Textarea placeholder="Ask, search or chat..." rows={3} />
       </InputGroup>
       <InputGroup orientation="vertical">
         <Textarea
@@ -19,24 +19,28 @@ export function HeaderFooter() {
           onValueChange={(next) => setValue(next ?? '')}
           placeholder="Write your message..."
           autoResize
-          class="min-h-24"
+          rows={3}
         />
-        <InputGroup.Trailing class="border-t border-border">
-          <span>{value().length}/280 characters</span>
-          <Button type="button" size="sm" class="ms-auto">
-            Send
-          </Button>
+        <InputGroup.Trailing>
+          <div class="flex w-full items-center justify-between">
+            <span>{value().length}/280 characters</span>
+            <Button type="button" size="sm">
+              Send
+            </Button>
+          </div>
         </InputGroup.Trailing>
       </InputGroup>
       <InputGroup orientation="vertical">
-        <InputGroup.Leading class="border-b border-border">
-          <Icon name="i-lucide:code" class="text-base" />
+        <InputGroup.Leading>
+          <Icon name="i-lucide:code" />
           <span>script.js</span>
         </InputGroup.Leading>
-        <Textarea placeholder="console.log('Hello, world!');" class="min-h-28" />
-        <InputGroup.Trailing class="border-t border-border">
-          <span>Line 1, Column 1</span>
-          <span class="ms-auto">JavaScript</span>
+        <Textarea placeholder="console.log('Hello, world!');" rows={4} />
+        <InputGroup.Trailing>
+          <div class="flex w-full items-center justify-between">
+            <span>Line 1, Column 1</span>
+            <span>JavaScript</span>
+          </div>
         </InputGroup.Trailing>
       </InputGroup>
     </div>

@@ -25,7 +25,6 @@ export function Virtualization() {
         placeholder="Search 10,000 commands..."
         groups={GROUPS}
         virtualizer={virtualizer}
-        classes={{ listbox: 'h-72' }}
       />
     </div>
   )

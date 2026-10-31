@@ -8,101 +8,9 @@ search:
   tags: [pages, previous, next, navigation, pagination, table paging]
 ---
 
-import { Pagination } from '@src'
-import { createSignal } from 'solid-js'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'tone',
-      label: 'Tone',
-      defaultValue: 'neutral',
-      options: [
-        { label: 'Neutral', value: 'neutral' },
-        { label: 'Primary', value: 'primary' },
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Danger', value: 'danger' },
-        { label: 'Info', value: 'info' },
-        { label: 'Success', value: 'success' },
-        { label: 'Warning', value: 'warning' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'ghost',
-      options: [
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'Solid', value: 'solid' },
-        { label: 'Soft', value: 'soft' },
-        { label: 'Outline', value: 'outline' },
-        { label: 'Link', value: 'link' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'activeVariant',
-      label: 'Active variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Solid', value: 'solid' },
-        { label: 'Soft', value: 'soft' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'Link', value: 'link' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    {
-      kind: 'input',
-      prop: 'itemsPerPage',
-      label: 'Items per page',
-      defaultValue: 10,
-      inputType: 'number',
-    },
-    { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
-  ]}
->
-  {(props) => {
-    const [page, setPage] = createSignal(1)
-    const itemsPerPage = () => {
-      const value = Number(props.itemsPerPage)
-      return Number.isFinite(value) ? Math.max(1, Math.trunc(value)) : 10
-    }
-    const pageCount = () => Math.ceil(100 / itemsPerPage())
-    const currentPage = () => Math.min(page(), pageCount())
-    return (
-      <div class="flex flex-col gap-3 items-center">
-        <Pagination
-          total={100}
-          page={currentPage()}
-          onPageChange={setPage}
-          itemsPerPage={itemsPerPage()}
-          size={props.size}
-          variant={props.variant}
-          activeVariant={props.activeVariant}
-          tone={props.tone}
-          showControls={props.showControls}
-        />
-        <span class="text-xs text-muted-foreground font-mono">
-          Current Page: {currentPage()} of {pageCount()}
-        </span>
-      </div>
-    )
-  }}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -179,7 +87,8 @@ even when `controlAs` is set.
 
 ### Keyboard interaction
 
-Pagination does not add collection-style arrow navigation. Each interactive page control uses the keyboard semantics of its rendered button, link, or custom polymorphic element.
+Pagination adds no arrow-key navigation across controls. Each page control keeps the keyboard
+semantics of the button or link it renders.
 
 ## Examples
 

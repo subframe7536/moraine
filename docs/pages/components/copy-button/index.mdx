@@ -1,6 +1,6 @@
 ---
 title: CopyButton
-description: Trigger clipboard write interactions with state, status transitions, and fallback support.
+description: Copy a value to the clipboard and show a short copied state.
 group: Buttons
 api:
   path: src/components/copy-button/copy-button
@@ -10,77 +10,9 @@ search:
   tags: [copy, clipboard, button, copy-button, snippet, command]
 ---
 
-import { CopyButton } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'ghost',
-      options: [
-        { label: 'Solid', value: 'solid' },
-        { label: 'Soft', value: 'soft' },
-        { label: 'Outline', value: 'outline' },
-        { label: 'Ghost', value: 'ghost' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'tone',
-      label: 'Tone',
-      defaultValue: 'neutral',
-      options: [
-        { label: 'Primary', value: 'primary' },
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Neutral', value: 'neutral' },
-        { label: 'Danger', value: 'danger' },
-        { label: 'Info', value: 'info' },
-        { label: 'Success', value: 'success' },
-        { label: 'Warning', value: 'warning' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Extra Small', value: 'xs' },
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-        { label: 'Extra Large', value: 'xl' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    {
-      kind: 'select',
-      prop: 'iconPosition',
-      label: 'Icon Position',
-      defaultValue: 'leading',
-      options: [
-        { label: 'Leading', value: 'leading' },
-        { label: 'Trailing', value: 'trailing' },
-      ],
-    },
-    { kind: 'switch', prop: 'label', label: 'Label', defaultValue: true },
-  ]}
->
-  {(props) => (
-    <CopyButton
-      value="pnpm add moraine"
-      variant={props.variant}
-      tone={props.tone}
-      size={props.size}
-      disabled={props.disabled}
-      iconPosition={props.iconPosition}
-    >
-      {props.label ? 'Copy snippet' : undefined}
-    </CopyButton>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -93,7 +25,9 @@ import { CopyButton } from '@src'
 
 ## Usage
 
-Use CopyButton to let users copy text snippets, tokens, or clipboard items to their clipboard with built-in feedback states and automatic fallback from modern Clipboard API to legacy execCommand.
+Use CopyButton to copy a string or `ClipboardItem` to the clipboard from a single control. It writes
+through `navigator.clipboard` and falls back to `document.execCommand('copy')` when the Clipboard API
+is unavailable. After a successful copy it shows a copied state, then returns to idle.
 
 ```tsx
 import { CopyButton } from 'moraine'
@@ -105,15 +39,17 @@ export function Example() {
 
 ### With text and icons
 
-CopyButton renders an icon by default and automatically scales to square icon button dimensions when rendered without children, or to standard button dimensions when children are present.
+Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
+button at the matching icon size.
 
 ```tsx
 <CopyButton value="npm i moraine">Copy Install Command</CopyButton>
 ```
 
-### Custom feedback duration and icons
+### Feedback duration and icons
 
-Configure the feedback display duration with `copiedDuration` in milliseconds (defaults to 2000ms), and customize the idle and copied icons.
+`copiedDuration` sets how long the copied state holds in milliseconds; it defaults to 2000. Set `icon`
+for the idle glyph and `copiedIcon` for the copied glyph.
 
 ```tsx
 <CopyButton
@@ -126,7 +62,8 @@ Configure the feedback display duration with `copiedDuration` in milliseconds (d
 
 ### Headless hook: `createCopy`
 
-Use `createCopy` from `moraine/utils` for custom clipboard interactions without UI constraints:
+`createCopy` from `moraine/utils` runs the same copy logic without a button. It returns `copy`,
+`reset`, and the `isCopied`, `isError`, `state`, and `isSupported` accessors.
 
 ```tsx
 import { createCopy } from 'moraine/utils'
@@ -142,14 +79,21 @@ copy.copy('Hello world')
 
 ## Examples
 
-### Code snippet copy
+### Copy a command from a read-only field
+
+Pair a read-only `Input` with an icon-only CopyButton so the user can read and copy the command.
 
 <Preview path="./copy-button-usage" />
 
-### Custom icons and extended duration
+### Swap icons and hold the copied state longer
+
+Set `icon` and `copiedIcon` for the two states, and raise `copiedDuration` to keep the confirmation
+visible.
 
 <Preview path="./custom-icons" />
 
-### Text label with render-prop feedback
+### Change the label while copied
+
+Pass a function child to read `state.isCopied` and show different label text after a copy.
 
 <Preview path="./with-label" />

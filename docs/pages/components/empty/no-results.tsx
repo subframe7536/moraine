@@ -13,7 +13,9 @@ export function NoResults() {
       />
       <Empty size="sm">
         <Empty.Media>
-          <Icon name="i-lucide-search" class="text-muted-foreground size-6" />
+          <span class="text-2xl text-muted-foreground">
+            <Icon name="i-lucide-search" />
+          </span>
         </Empty.Media>
         <Empty.Title>No matching projects</Empty.Title>
         <Empty.Description>Try a different keyword or clear your search.</Empty.Description>

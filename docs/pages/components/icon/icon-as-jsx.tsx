@@ -28,10 +28,9 @@ export function IconAsJSX() {
             <line x1="15" y1="9" x2="15.01" y2="9" />
           </svg>
         }
-        class="size-6"
         aria-label="Status"
       />
-      <Icon name={BoltGlyph} class="size-6" aria-label="Boost" />
+      <Icon name={BoltGlyph} aria-label="Boost" />
     </div>
   )
 }

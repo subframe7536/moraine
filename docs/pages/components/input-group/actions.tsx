@@ -1,5 +1,5 @@
 import { Button, Icon, Input, InputGroup } from '@src'
-import { createSignal, Show } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 const targetURL = 'https://github.com/subframe7536/moraine'
 
@@ -31,19 +31,18 @@ export function Actions() {
       </InputGroup>
       <InputGroup>
         <InputGroup.Leading>https://</InputGroup.Leading>
-        <Input placeholder="example.com" class="-ml-1.5" aria-label="Secure URL" />
+        <Input placeholder="example.com" aria-label="Secure URL" />
         <InputGroup.Trailing compact>
           <Button
             type="button"
             size="icon-sm"
-            variant="ghost"
+            variant={favorite() ? 'soft' : 'ghost'}
+            tone={favorite() ? 'warning' : 'neutral'}
             aria-label="Toggle favorite"
             aria-pressed={favorite()}
             onClick={() => setFavorite((value) => !value)}
           >
-            <Show when={favorite()} fallback={<Icon name="i-lucide:star" />}>
-              <Icon name="i-lucide:star" class="text-primary fill-primary" />
-            </Show>
+            <Icon name="i-lucide:star" />
           </Button>
         </InputGroup.Trailing>
       </InputGroup>

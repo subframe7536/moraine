@@ -7,13 +7,13 @@ search:
   tags: [composition, parts, slots, anatomy, dom ownership, single, composite]
 ---
 
-Moraine components balance ergonomic simplicity with deep compositional control. Every component exposes its structure through JSX parts and its styling surface through slots.
+Every Moraine component exposes its structure through JSX parts and its styling surface through slots. A component is either single or composite.
 
 ## Component Kinds
 
 ### Single Components
 
-A Single component renders through a single JSX element. It manages its internal DOM structure and styling slots internally.
+A single component renders through one JSX element and manages its internal DOM and styling slots.
 
 Examples include `Button`, `Badge`, `Input`, and `Checkbox`:
 
@@ -27,7 +27,7 @@ export function Action() {
 
 ### Composite Components
 
-A Composite component exposes modular, attached JSX parts that you arrange in your layout. This gives you direct control over markup order, nested text, and layout wrappers.
+A composite component exposes attached JSX parts that you arrange in your layout, so you control markup order, nested text, and layout wrappers.
 
 Examples include `Card`, `Dialog`, `Accordion`, and `Sidebar`:
 
@@ -52,7 +52,7 @@ export function UserCard() {
 
 ## Parts vs Slots
 
-Understanding the distinction between **parts** and **slots** is key to working effectively with Moraine:
+A part and a slot serve different purposes:
 
 | Concept  | What it is                                  | How to use                                         |
 | :------- | :------------------------------------------ | :------------------------------------------------- |
@@ -108,7 +108,7 @@ import { Button } from 'moraine'
 </Button>
 ```
 
-For complete details on type preservation and event forwarding, see the dedicated [Polymorphism guide](/docs/polymorphism).
+For type preservation and event forwarding, see the [Polymorphism guide](/docs/polymorphism).
 
 ## Reading Component Anatomy
 

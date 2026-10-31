@@ -43,8 +43,26 @@ export interface DocsPlaygroundControlsProps {
   controls: readonly DocsPlaygroundControl[]
 }
 
-export interface DocsPlaygroundProps extends DocsPlaygroundControlsProps {
-  children: (props: Record<string, unknown>) => JSX.Element
+/** The value type a control writes: switches are boolean, selects are one of their option values. */
+export type DocsPlaygroundControlValueOf<C extends DocsPlaygroundControl> =
+  C extends DocsPlaygroundSwitchControl
+    ? boolean
+    : C extends { kind: 'select'; options: readonly { value: infer V }[] }
+      ? V
+      : C extends { defaultValue: number }
+        ? number
+        : string
+
+/** Current control values keyed by `prop`, inferred from a `const` control list. */
+export type DocsPlaygroundValues<C extends readonly DocsPlaygroundControl[]> = {
+  readonly [K in C[number] as K['prop']]: DocsPlaygroundControlValueOf<K>
+}
+
+export interface DocsPlaygroundProps<
+  C extends readonly DocsPlaygroundControl[] = readonly DocsPlaygroundControl[],
+> {
+  controls: C
+  children: (values: DocsPlaygroundValues<C>) => JSX.Element
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

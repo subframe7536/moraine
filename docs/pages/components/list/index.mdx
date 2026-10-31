@@ -8,19 +8,9 @@ search:
   tags: [list, collection, virtualization, headless, virtual list, dynamic height]
 ---
 
-import { List } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[{ kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false }]}
->
-  {(props) => (
-    <List
-      items={props.empty ? [] : ['Alpha', 'Beta']}
-      fallback={<li>No items</li>}
-      itemRender={(item) => <li>{item.item}</li>}
-    />
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -66,8 +56,8 @@ and `as`. `fallback` renders when the collection is empty.
 ### Virtualization
 
 `createListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs
-`@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or
-measured row sizes.
+`@tanstack/virtual-core`. The List root is the scroll container, so give it a bounded height and
+`overflow-y-auto`. Row count and scroll behavior follow the estimated or measured row sizes.
 
 ```tsx
 import { createListVirtualizer } from 'moraine/virtualizer'
