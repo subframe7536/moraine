@@ -430,6 +430,58 @@ const virtualizer = createListVirtualizer<TreeT.ItemInstance<FileNode>>({
 Expanded branches are flattened into one list. Every row keeps `aria-level`, `aria-posinset`, and
 `aria-setsize`, so assistive technology still reads the full hierarchy.
 
+### Drag to move items
+
+`createTreeSortable` from `moraine/dnd` (needs `@dnd-kit/solid`) moves items by dragging. Wrap
+`tree.Tree` in `sortable.Provider`, call `sortable.useNode(item)` in `itemRender`, and spread its
+`props` onto `tree.Item`. `onMove` reports the new `parentKey` and sibling `index`;
+`moveTreeNode` applies it to `children`-shaped data.
+
+```tsx
+import { createTreeSortable, moveTreeNode } from 'moraine/dnd'
+
+const sortable = createTreeSortable(tree, {
+  canNest: (item) => item.raw.children !== undefined,
+  onMove: (event) => setFiles((files) => moveTreeNode(files, event, access)),
+})
+
+<sortable.Provider>
+  <tree.Tree
+    itemRender={(item) => {
+      const node = sortable.useNode(item)
+      return (
+        <tree.Item item={item} {...node.props}>
+          <tree.ItemTrigger />
+          <tree.ItemLabel />
+          <button ref={node.handleRef} aria-label={`Move ${item.textValue}`}>⋮⋮</button>
+        </tree.Item>
+      )
+    }}
+  />
+</sortable.Provider>
+```
+
+- The top and bottom quarters of a row drop before and after it; the middle drops inside, as the
+  last child, when `canNest` allows it. Dropping after an expanded item with children makes the
+  source its first child, which is where the indicator line sits.
+- Moves into the dragged item or its descendants are rejected. Pass `canDrop` for other rules.
+- Hovering inside a collapsed item for 600 ms expands it, which also loads lazy children. Set
+  `expandDelay` to change or disable it.
+- The tree styles the drag: the item stays in place while a copy at 60% opacity follows the
+  pointer, the row under the pointer keeps
+  its hover background, `before` and `after` draw a straight line from the label start, and
+  `inside` rings the row. They follow `data-dnd-dragging` and `data-drop-position` on `tree.Item`, so
+  override them through the `row` slot.
+- After the drop, the moved item slides from where it was released into its new place. A drop
+  inside a collapsed item expands it first. Set `dropAnimation: false` to place it at once.
+- Keyboard dragging starts only from `node.handleRef`, so Space and Enter on an item keep selecting
+  and activating it. Arrow keys move along the visible rows.
+- With a `virtualizer`, pass `rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer`
+  so the dragged row stays mounted while it is scrolled out of view.
+- `moveTreeNode` only moves nodes that are in your data. Children from `loadChildren` live in the
+  tree's cache, and a moved ancestor gets a new object, so merge loaded children into your data
+  before moving them.
+
 ### Custom items
 
 `itemRender` renders one visible item and receives its item handle. Return a `tree.Item` with
@@ -589,6 +641,13 @@ Pass a `virtualizer` from `createListVirtualizer`, and give the tree a bounded
 height. Expanded branches join the same virtual list.
 
 <Preview path="./virtual" />
+
+### Move files and folders by dragging
+
+Drag a grip, or Tab to it and press Space, then the arrow keys. Only folders accept drops inside,
+and hovering over the collapsed `docs` folder opens it.
+
+<Preview path="./sortable" />
 
 ### Add counts and custom icons
 

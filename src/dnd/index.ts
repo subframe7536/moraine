@@ -9,6 +9,14 @@ export type {
   ListSortableRow,
   ListSortableRowContext,
 } from './create-list-sortable'
+export { createTreeSortable, moveTreeNode } from './create-tree-sortable'
+export type {
+  MoveTreeNodeAccess,
+  TreeMoveEvent,
+  TreeSortable,
+  TreeSortableNode,
+  TreeSortableOptions,
+} from './create-tree-sortable'
 export type {
   Sortable,
   SortableDragState,

@@ -94,17 +94,25 @@ const sortable = createListSortable({
 Read [DataTable drag to reorder rows](/components/data-table#drag-to-reorder-rows) for sorting,
 pagination, and sub-rows.
 
+## Tree
+
+`createTreeSortable(tree, { onMove })` registers items through `itemRender`. Spread
+`sortable.useNode(item).props` onto `tree.Item`. Rows accept drops before, after, and, when
+`canNest` allows it, inside. Read [Tree drag to move items](/components/tree#drag-to-move-items)
+for the drop rules, auto-expansion, and `moveTreeNode`.
+
 ## How it works
 
 ### Rows stay in place
 
-Rows do not move while dragging. The dragged row follows the pointer, a hidden copy keeps its
-space, and the row under the pointer is marked as the drop target:
+Rows do not move while dragging. The dragged row stays in place as a copy, a second copy follows
+the pointer, and the row under the pointer is marked as the drop target:
 
-| Attribute            | Element      | Value                                                   |
-| -------------------- | ------------ | ------------------------------------------------------- |
-| `data-dragging`      | Dragged row  | Present while it is dragged                             |
-| `data-drop-position` | Row under it | `before` or `after`, from the pointer's half of the row |
+| Attribute            | Element                       | Value                                                                  |
+| -------------------- | ----------------------------- | ---------------------------------------------------------------------- |
+| `data-dragging`      | Dragged row and both copies   | Present while it is dragged                                            |
+| `data-dnd-dragging`  | Copy that follows the pointer | Set by dnd kit; style it, for example `data-[dnd-dragging]:opacity-60` |
+| `data-drop-position` | Row under it                  | `before` or `after`, from the pointer's half of the row                |
 
 Style the drop indicator from these attributes. For example, draw a line on the matching edge:
 
@@ -116,7 +124,10 @@ Style the drop indicator from these attributes. For example, draw a line on the 
 ```
 
 Keeping rows in place lets a sortable work with rows that Solid or a virtualizer owns, and keeps
-row state such as focus intact until the drop.
+row state such as focus intact until the drop. When the drag ends, the moved row slides from where
+it was released into its new place, also when the host renders it as a new element. Canceled drags
+slide back the same way. Pass `dropAnimation: { duration, easing }` to tune it, or `false` to turn
+it off; it is skipped under `prefers-reduced-motion`.
 
 ### Drag handles
 

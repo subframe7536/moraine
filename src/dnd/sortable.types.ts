@@ -58,6 +58,11 @@ export interface SortableItem {
   ref: (element: HTMLElement) => void
   /** Restricts drag activation to this element, such as a grip button. */
   handleRef: (element: HTMLElement) => void
+  /**
+   * Measures drop positions against this element instead of `ref`, such as the row of a tree item
+   * whose element also contains its children.
+   */
+  targetRef: (element: HTMLElement) => void
   /** Whether this item is the drag source. */
   dragging: Accessor<boolean>
   /** Where the source would land on this item; undefined when it is not the target. */
