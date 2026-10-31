@@ -14,6 +14,8 @@ export function VirtualContent<TEntry>(props: {
   virtualizer: ListVirtualizer<TEntry> | undefined
   entries: readonly TEntry[]
   scrollElement: HTMLElement | undefined
+  /** Entry indexes to keep rendered outside the visible range. */
+  pinnedIndexes?: readonly number[]
   render: (entry: TEntry, index: number, rowProps: VirtualRowProps) => JSX.Element
   /** Non-virtual content. */
   fallback: JSX.Element
@@ -25,6 +27,7 @@ export function VirtualContent<TEntry>(props: {
           component={virtualizer().virtualRender}
           entries={props.entries}
           scrollElement={props.scrollElement}
+          pinnedIndexes={props.pinnedIndexes}
           render={props.render}
         />
       )}

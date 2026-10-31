@@ -88,6 +88,37 @@ const virtualizer = createListVirtualizer<Item>({
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
 keyboard navigation.
 
+### Drag to reorder
+
+`createSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/solid`. Pass it to
+`sortable` and update `items` from `onReorder`. Spread `context.props` onto the row element, and
+pass `context.handleRef` to a grip button to start drags only from that button. Without a handle,
+a drag starts anywhere on the row once the pointer moves a few pixels, so clicks still work.
+
+```tsx
+import { createSortable } from 'moraine/dnd'
+
+;<List
+  items={items()}
+  sortable={createSortable()}
+  onReorder={(event) => setItems(event.items)}
+  itemRender={(context) => (
+    <li {...context.props}>
+      <button ref={context.handleRef} aria-label="Reorder">
+        ⋮⋮
+      </button>
+      {context.item.label}
+    </li>
+  )}
+/>
+```
+
+Rows stay in place while dragging. The row under the pointer gets `data-drop-position="before"` or
+`"after"`, and the dragged row gets `data-dragging`; style the drop indicator from those
+attributes. `sortable` works together with `virtualizer`: the dragged row stays mounted while it
+is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for keyboard dragging
+and options.
+
 ## Examples
 
 ### Clear an inbox to an empty fallback
@@ -103,6 +134,19 @@ Use `createListVirtualizer` when tens of thousands of rows would otherwise mount
 `context.props` onto the measured row element.
 
 <Preview path="./virtualization" />
+
+### Reorder a checklist from a grip handle
+
+The grip button is the drag handle, so it also starts a keyboard drag with Space or Enter. Arrow
+keys move to the next row, and Space, Enter, or Escape ends the drag.
+
+<Preview path="./sortable" />
+
+### Reorder a long virtual playlist
+
+Drag a row toward the list edge to scroll. The row is its own handle here.
+
+<Preview path="./sortable-virtualization" />
 
 ### Render result rows with extra detail lines
 

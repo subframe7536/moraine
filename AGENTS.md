@@ -15,12 +15,16 @@ Run workspace commands from the repository root.
 
 Features that need an optional peer dependency ship from their own entry and live in their own
 top-level directory, whose `index.ts` is that entry: `src/data-table/` is `moraine/data-table`
-(`@tanstack/solid-table`), and `src/virtualizer/` is `moraine/virtualizer` (`@tanstack/virtual-core`).
-The main `moraine` entry must never import either peer; `test/entry-boundaries.test.ts` checks the
+(`@tanstack/solid-table`), `src/virtualizer/` is `moraine/virtualizer` (`@tanstack/virtual-core`),
+and `src/dnd/` is `moraine/dnd` (`@dnd-kit/solid`).
+The main `moraine` entry must never import any of these peers; `test/entry-boundaries.test.ts` checks the
 built runtime and declaration output.
 The main entry may import only the peer-free files `src/virtualizer/virtualizer.types.ts`
 (the contract between virtualizers and their host components) and `src/virtualizer/virtual-content.tsx`
 (the host-side mount); every other file in `src/virtualizer/` imports `@tanstack/virtual-core`.
+Likewise, the main entry may import only `src/dnd/sortable.types.ts` (the contract between sortables
+and their host components) and `src/dnd/sortable-content.tsx` (the host-side `SortableRoot` and
+`useSortableItem`); every other file in `src/dnd/` imports `@dnd-kit/solid`.
 
 ### Build & Development
 
@@ -123,6 +127,10 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
 │   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/).
 ├── data-table/             # `moraine/data-table` entry: DataTable and createDataTable over TanStack Table.
+├── dnd/                    # `moraine/dnd` entry: createSortable over dnd kit.
+│   ├── sortable.types.ts   # Peer-free contract between sortables and host components.
+│   ├── sortable-content.tsx # Peer-free SortableRoot and useSortableItem that hosts use for their `sortable` prop.
+│   └── create-sortable.tsx # createSortable.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.

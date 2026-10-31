@@ -34,6 +34,11 @@ export interface VirtualRenderProps<TEntry> {
   readonly entries: readonly TEntry[]
   /** Scroll container, or undefined while it is not mounted. */
   readonly scrollElement?: HTMLElement
+  /**
+   * Entry indexes to keep rendered while they are outside the visible range, such as the source
+   * of an active drag.
+   */
+  readonly pinnedIndexes?: readonly number[]
   render: (entry: TEntry, index: number, props: VirtualRowProps) => JSX.Element
 }
 
@@ -86,6 +91,11 @@ export interface TableVirtualRenderProps<TEntry, TColumn = unknown> {
    */
   readonly scrollElement?: HTMLElement
   render: (entry: TEntry, index: number, props: TableVirtualRowProps) => JSX.Element
+  /**
+   * Entry indexes to keep rendered while they are outside the visible range, such as the source
+   * of an active drag.
+   */
+  readonly pinnedIndexes?: readonly number[]
   /**
    * Columns to virtualize horizontally, in display order. Used only when the virtualizer was
    * created with the `columns` option.

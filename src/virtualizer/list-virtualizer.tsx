@@ -28,6 +28,7 @@ export function createListVirtualizer<TItem>(
     const { virtualizer, virtualItems, totalSize } = controller.attach({
       entries: () => props.entries,
       scrollElement: () => props.scrollElement,
+      pinnedIndexes: () => props.pinnedIndexes,
     })
 
     const contentStyle = (): JSX.CSSProperties =>

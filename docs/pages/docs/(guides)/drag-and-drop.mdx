@@ -1,0 +1,134 @@
+---
+title: Drag and Drop
+description: Reorder list rows by pointer or keyboard with the optional dnd kit adapter.
+sidebar:
+  order: 8
+search:
+  tags: [createSortable, sortable, drag and drop, dnd, reorder, dnd-kit, list, virtualization]
+---
+
+Drag and drop reordering comes from an optional adapter. Create a sortable from `moraine/dnd` and
+pass it to the component's `sortable` prop. The component reports each completed move; your code
+updates the data.
+
+| Adapter          | Components |
+| ---------------- | ---------- |
+| `createSortable` | `List`     |
+
+## Installation
+
+<CodeTabs package="@dnd-kit/solid" />
+
+The main `moraine` entry never imports `@dnd-kit/solid`. Only `moraine/dnd` does, so apps that do
+not reorder anything do not need the package.
+
+## List
+
+```tsx
+import { List } from 'moraine'
+import { createSortable } from 'moraine/dnd'
+
+const [items, setItems] = createSignal(initialItems)
+const sortable = createSortable()
+
+<List
+  items={items()}
+  sortable={sortable}
+  onReorder={(event) => setItems(event.items)}
+  itemRender={(context) => (
+    <li {...context.props}>
+      <button ref={context.handleRef} aria-label={`Reorder ${context.item.label}`}>
+        ⋮⋮
+      </button>
+      {context.item.label}
+    </li>
+  )}
+/>
+```
+
+`onReorder` receives the moved `item`, its `from` and `to` indexes, and `items`, a copy of the
+collection with the move applied. A drop that leaves the item where it was reports nothing.
+
+Spread `context.props` onto the row element. It holds the drop target ref and the drag state
+attributes, and, with a `virtualizer`, the row position and measurement ref.
+
+## How it works
+
+### Rows stay in place
+
+Rows do not move while dragging. The dragged row follows the pointer, a hidden copy keeps its
+space, and the row under the pointer is marked as the drop target:
+
+| Attribute            | Element      | Value                                                   |
+| -------------------- | ------------ | ------------------------------------------------------- |
+| `data-dragging`      | Dragged row  | Present while it is dragged                             |
+| `data-drop-position` | Row under it | `before` or `after`, from the pointer's half of the row |
+
+Style the drop indicator from these attributes. For example, draw a line on the matching edge:
+
+```tsx
+<li
+  {...context.props}
+  class="data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)] data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)]"
+/>
+```
+
+Keeping rows in place is what lets a sortable work with rows the component does not keep mounted,
+such as virtual rows, and keeps component state such as row focus intact until the drop.
+
+### Drag handles
+
+Without `context.handleRef`, the whole row starts a drag once the mouse moves 5 pixels, or after a
+200 ms press, so clicks on the row still work. Touch drags start after a 250 ms press. Pass
+`context.handleRef` to an element such as a grip button to start drags only from that element; a
+mouse drag from a handle starts immediately.
+
+### Keyboard
+
+Focus the handle, or a focusable row without one, and press Space or Enter to pick it up. Arrow
+keys move to the next row; the side is the direction of travel. Space or Enter drops the row, and
+Escape cancels the drag. Screen readers hear dnd kit's announcements for each step.
+
+### Virtualization
+
+`sortable` and `virtualizer` work together. The dragged row stays mounted while it is scrolled out
+of view, and dragging near the edge of the scroll container scrolls it.
+
+```tsx
+<List
+  items={items()}
+  virtualizer={createListVirtualizer<Item>({
+    estimateSize: () => 36,
+    getItemKey: (item) => item.id,
+  })}
+  sortable={createSortable()}
+  onReorder={(event) => setItems(event.items)}
+  itemRender={(context) => <div {...context.props}>{context.item.label}</div>}
+/>
+```
+
+Pass `getItemKey` with a stable id so measured row sizes follow their items after a move.
+
+## Options
+
+`createSortable(options)` forwards these options to dnd kit's `DragDropProvider`:
+
+| Option      | Description                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| `sensors`   | Input sensors. An array replaces the pointer and keyboard defaults; a function extends them.   |
+| `plugins`   | Plugins such as announcements, auto-scroll, and drag feedback. An array replaces the defaults. |
+| `modifiers` | Movement modifiers, such as restricting the drag to one axis.                                  |
+
+```tsx
+import { PointerSensor } from '@dnd-kit/solid'
+
+// Pointer dragging only, without keyboard dragging.
+const sortable = createSortable({ sensors: [PointerSensor] })
+```
+
+## Common pitfalls
+
+- Update `items` in `onReorder`. List does not reorder its rows itself.
+- Spread `context.props` on the outer row element, not on an inner element, so the drop target
+  covers the whole row.
+- The server renders rows without drag behavior; rows become draggable after hydration.
