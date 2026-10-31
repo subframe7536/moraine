@@ -7,4 +7,13 @@ export interface IconStyleSlot<T = unknown> {
 
 export type IconStyleVariants = never
 
+/**
+ * Variants that Icon selects from `name`. They are not props, so they stay out of
+ * `IconStyleVariants`.
+ */
+export interface IconInternalVariants {
+  /** `true` for a string icon class, `false` for a JSX node or component. */
+  isMask?: boolean
+}
+
 export type IconStyleConfig = ComponentStyleConfig<IconStyleSlot>

@@ -44,3 +44,21 @@ export const DEFAULT_ICON_SHORTCUTS = [
   ['icon-upload', 'i-lucide-upload'],
   ['icon-warning', 'i-lucide-triangle-alert'],
 ] as const satisfies [string, string][]
+
+/**
+ * Shortcut class for forced colors handling of mask icons, applied by Icon to string icons.
+ *
+ * Mask icons paint with `background-color: currentColor`, which forced colors mode replaces with
+ * the page background. `preserve-parent-color` keeps the paint and resolves `currentColor` to the
+ * parent's forced text color; `none` is the fallback where it is unsupported. In forced colors
+ * mode the icon also drops its own color so it always follows the surrounding text.
+ *
+ * UnoCSS expands it as a shortcut; Tailwind registers the same declarations as a utility.
+ */
+export const ICON_MASK_CLASS = 'icon-mask'
+
+/** UnoCSS shortcut for `ICON_MASK_CLASS`. */
+export const ICON_MASK_SHORTCUT = [
+  ICON_MASK_CLASS,
+  'forced-color-adjust-none forced-colors:text-inherit supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]',
+] as const satisfies [string, string]

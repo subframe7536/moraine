@@ -1,7 +1,7 @@
 import plugin from 'tailwindcss/plugin'
 
 import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations'
-import { DEFAULT_ICON_SHORTCUTS } from './icons'
+import { DEFAULT_ICON_SHORTCUTS, ICON_MASK_CLASS } from './icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -44,6 +44,19 @@ export const moraineTailwind = plugin(
 
     // Icon styles come from the optional moraine/icon.css asset.
     addUtilities(Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}])))
+
+    // Tailwind plugins cannot expand class strings, so mirror the UnoCSS `ICON_MASK_SHORTCUT` as declarations.
+    addUtilities({
+      [`.${ICON_MASK_CLASS}`]: {
+        'forced-color-adjust': 'none',
+        '@supports (forced-color-adjust: preserve-parent-color)': {
+          'forced-color-adjust': 'preserve-parent-color',
+        },
+        '@media (forced-colors: active)': {
+          color: 'inherit',
+        },
+      },
+    })
 
     matchUtilities(
       {

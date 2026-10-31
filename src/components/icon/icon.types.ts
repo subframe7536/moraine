@@ -20,9 +20,11 @@ export namespace IconT {
 
   export type Name = IconStringName | JSX.Element | Component
   /**
-   * Base props for the Icon component. Every icon renders a `span` host that is a `1.2em` box,
-   * so it follows the inherited `font-size`. Set `font-size` (for example `text-lg`) on the icon
-   * or an ancestor, or a size utility such as `size-6` on the icon, to resize it.
+   * Base props for the Icon component. Every icon renders a `span` host that follows the
+   * inherited `font-size`. A string icon is sized by its icon class (`1.2em` in `moraine/icon.css`);
+   * a JSX or component icon gets a `1.2em` host box that the graphic fills. Set `font-size` (for
+   * example `text-lg`) on the icon or an ancestor, or a size utility such as `size-6` on the icon,
+   * to resize it.
    * Icon renders no `data-slot` of its own; pass a `data-slot` attribute when the icon is a slot.
    */
   export interface Base {

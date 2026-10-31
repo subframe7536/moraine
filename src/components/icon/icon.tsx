@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
-import { ICON_MASK_FORCED_COLORS_CLASS, iconRecipe } from './icon.recipe'
+import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
 
 /** Renders an icon from a UnoCSS icon class, JSX element, or Solid component inside a `span` host. */
@@ -23,10 +23,9 @@ export function Icon(props: IconProps): JSX.Element {
   const isString = createMemo(() => typeof name() === 'string')
 
   const { slots } = useRecipe(iconRecipe, local, {
+    contextVariants: () => ({ isMask: isString() }),
     own: () => ({
-      root: {
-        class: isString() ? [name() as string, ICON_MASK_FORCED_COLORS_CLASS] : undefined,
-      },
+      root: { class: isString() ? (name() as string) : undefined },
     }),
   })
 

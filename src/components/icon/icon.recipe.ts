@@ -1,26 +1,32 @@
+import { ICON_MASK_CLASS } from '../../theme/icons'
 import { defineRecipe } from '../../theme/recipe'
 
-import type { IconStyleSlot } from './icon.style-types'
+import type { IconInternalVariants, IconStyleSlot } from './icon.style-types'
 
-/**
- * Mask icons paint with `background-color: currentColor`, which forced colors mode replaces with
- * the page background. `preserve-parent-color` keeps the paint and resolves `currentColor` to the
- * parent's forced text color; `none` is the fallback where it is unsupported. In forced colors
- * mode the icon also drops its own color so it always follows the surrounding text.
- *
- * Only string (mask) icons get these classes. Element and component icons keep the default
- * forced colors behavior, so multi-color SVGs and images are still adjusted by the browser.
- */
-export const ICON_MASK_FORCED_COLORS_CLASS =
-  'forced-color-adjust-none forced-colors:text-inherit supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]'
-
-/**
- * Every icon is an Icon-owned `span` host. The host is a `1.2em` box that follows the font size,
- * and a JSX or component graphic inside it fills the host, so a size class on the host resizes
- * the graphic too.
- */
-export const iconRecipe = /* @__PURE__ */ defineRecipe<IconStyleSlot>('icon', {
-  base: {
-    root: 'inline-flex shrink-0 size-[1.2em] items-center justify-center *:size-full',
+export const iconRecipe = /* @__PURE__ */ defineRecipe<IconStyleSlot, IconInternalVariants>(
+  'icon',
+  {
+    base: {
+      root: '',
+    },
+    variants: {
+      isMask: {
+        /**
+         * A string `name` is a mask icon class that sizes itself. Only mask icons get the forced
+         * colors shortcut; element and component icons keep the default forced colors behavior,
+         * so multi-color SVGs and images are still adjusted by the browser.
+         */
+        true: {
+          root: `block ${ICON_MASK_CLASS}`,
+        },
+        /**
+         * A JSX or component `name` renders inside a `1.2em` host box that follows the font size.
+         * The graphic fills the host, so a size class on the host resizes the graphic too.
+         */
+        false: {
+          root: 'flex shrink-0 size-[1.2em] items-center justify-center *:size-full',
+        },
+      },
+    },
   },
-})
+)

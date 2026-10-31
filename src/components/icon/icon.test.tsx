@@ -29,11 +29,7 @@ describe('Icon', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
     const icon = screen.container.querySelector('.i-lucide-search')
 
-    expect(icon?.className).toContain('forced-color-adjust-none')
-    expect(icon?.className).toContain(
-      'supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]',
-    )
-    expect(icon?.className).toContain('forced-colors:text-inherit')
+    expect(icon?.classList).toContain('icon-mask')
   })
 
   test('keeps default forced colors behavior for element and component icons', () => {
@@ -47,10 +43,8 @@ describe('Icon', () => {
       </>
     ))
 
-    expect(screen.getByTestId('element').className).not.toContain('forced-color-adjust')
-    expect(screen.getByTestId('glyph').getAttribute('class') ?? '').not.toContain(
-      'forced-color-adjust',
-    )
+    expect(screen.getByTestId('element').classList).not.toContain('icon-mask')
+    expect(screen.getByTestId('glyph').getAttribute('class') ?? '').not.toContain('icon-mask')
   })
 
   test('inherits font size', () => {
@@ -136,7 +130,7 @@ describe('Icon', () => {
     expect(host.className).toContain('custom')
   })
 
-  test('sizes every source as a 1.2em host and lets a size class resize the graphic', () => {
+  test('sizes graphic sources as a 1.2em host and leaves mask sizing to the icon class', () => {
     const screen = render(() => (
       <>
         <Icon name="i-lucide-search" data-testid="mask" />
@@ -148,14 +142,27 @@ describe('Icon', () => {
     const elementHost = screen.getByTestId('element').parentElement!
     const componentHost = screen.getByTestId('component').parentElement!
 
-    for (const host of [mask, elementHost]) {
-      expect(host.className).toContain('size-[1.2em]')
-      expect(host.className).toContain('*:size-full')
-    }
+    expect(mask.className).toBe('block icon-mask i-lucide-search')
+    expect(elementHost.className).toContain('size-[1.2em]')
+    expect(elementHost.className).toContain('*:size-full')
+    expect(elementHost.classList).not.toContain('icon-mask')
     // The host takes the caller size; the graphic fills it through `*:size-full`.
     expect(componentHost.className).toContain('size-6')
     expect(componentHost.className).not.toContain('size-[1.2em]')
     expect(componentHost.className).toContain('*:size-full')
+  })
+
+  test('switches the host classes when name changes between a string and a graphic', () => {
+    const [name, setName] = createSignal<IconProps['name']>('i-lucide-search')
+    const screen = render(() => <Icon name={name()} data-testid="icon" />)
+    const host = screen.getByTestId('icon')
+
+    expect(host.classList).toContain('icon-mask')
+    setName(<svg />)
+    expect(screen.getByTestId('icon')).toBe(host)
+    expect(host.classList).not.toContain('icon-mask')
+    expect(host.classList).not.toContain('i-lucide-search')
+    expect(host.className).toContain('size-[1.2em]')
   })
 
   test('passes through HTML attributes to the span element', () => {

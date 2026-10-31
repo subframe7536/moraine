@@ -79,8 +79,9 @@ individual icon, or configure
 `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props
 because there are no child slots to target.
 
-The root is a `1.2em` box (`size-[1.2em]`), so every icon follows the surrounding font size. A JSX
-or component graphic inside it fills the root through `*:size-full`. Resize an icon with a
+Every icon follows the surrounding font size. A string icon is sized by its icon class, which is
+`1.2em` in `moraine/icon.css`. For a JSX or component graphic, the root is a `1.2em` box
+(`size-[1.2em]`) and the graphic fills it through `*:size-full`. Resize an icon with a
 font-size utility on the icon or an ancestor, such as `text-2xl`, or with a size utility such as
 `size-6` on the icon; the graphic follows the root. `moraine/icon.css` puts its rules in the
 `components` cascade layer, so these utilities override it in both UnoCSS and Tailwind. Icon renders no `data-slot` of its own;
@@ -94,9 +95,10 @@ pass a `data-slot` attribute when the icon fills a component slot.
 
 String icons are CSS masks painted with `background-color: currentColor`. In forced colors mode
 (such as Windows contrast themes) the browser would replace that background with the page
-background and hide the icon. For string icons, Icon sets `forced-color-adjust: preserve-parent-color`
-(falling back to `none`) and drops its own color, so the icon is painted with the surrounding
-forced text color. Element and component icons keep the browser's default forced colors handling.
+background and hide the icon. For string icons, Icon adds the `icon-mask` class, which sets
+`forced-color-adjust: preserve-parent-color` (falling back to `none`) and drops its own color, so
+the icon is painted with the surrounding forced text color. `presetMoraine` defines `icon-mask` as a
+shortcut and the Tailwind plugin defines it as a utility. Element and component icons keep the browser's default forced colors handling.
 
 ## Examples
 

@@ -446,6 +446,7 @@ describe('presetMoraine', () => {
 
     expect(shortcuts).toContain('z-floating')
     expect(shortcuts).toContain('icon-check')
+    expect(shortcuts).toContain('icon-mask')
     expect(preset.transformers).toBeUndefined()
     expect(preset.rules).toBeDefined()
   })
@@ -883,7 +884,7 @@ describe('icon host utilities', () => {
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
   ])('compiles the icon host classes with %s', async (_name, wind) => {
-    const tokens = cn(iconRecipe.config.base.root)?.split(' ') ?? []
+    const tokens = cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? []
     const css = await generate(tokens, false, wind)
 
     expect(css).toMatch(/\.size-\\\[1\\\.2em\\\]\{width:1\.2em;height:1\.2em;\}/)
@@ -895,24 +896,14 @@ describe('forced colors utilities', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('compiles the icon forced colors classes with %s', async (_name, wind) => {
-    const css = await generate(
-      [
-        'forced-color-adjust-none',
-        'supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]',
-        'forced-colors:text-inherit',
-      ],
-      false,
-      wind,
-    )
+  ])('expands the icon-mask shortcut with %s', async (_name, wind) => {
+    const css = await generate(['icon-mask'], false, wind)
 
-    expect(css).toMatch(/\.forced-color-adjust-none\{forced-color-adjust:none;\}/)
+    expect(css).toMatch(/\.icon-mask\{forced-color-adjust:none;\}/)
     expect(css).toMatch(
-      /@supports \(forced-color-adjust:preserve-parent-color\)\{\s*\S+\{forced-color-adjust:preserve-parent-color;\}/,
+      /@supports \(forced-color-adjust:preserve-parent-color\)\{\s*\.icon-mask\{forced-color-adjust:preserve-parent-color;\}/,
     )
-    expect(css).toMatch(
-      /@media \(forced-colors: active\)\{\s*\.forced-colors\\:text-inherit\{color:inherit;\}/,
-    )
+    expect(css).toMatch(/@media \(forced-colors: active\)\{\s*\.icon-mask\{color:inherit;\}/)
   })
 })
 

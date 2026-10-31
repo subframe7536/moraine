@@ -1341,8 +1341,10 @@ describe('DropdownMenu', () => {
     for (const leading of [maskLeading!, componentLeading!]) {
       expect(leading.className).toContain('size-6')
       expect(leading.className).not.toContain('size-4')
-      expect(leading.className).toContain('*:size-full')
     }
+    // Only a graphic host makes its child fill it; a mask icon has no child.
+    expect(maskLeading!.className).not.toContain('*:size-full')
+    expect(componentLeading!.className).toContain('*:size-full')
     expect(componentLeading!.querySelector('[data-testid="glyph"]')).not.toBeNull()
     // A trailing component icon fills the same kind of host.
     expect(subIndicator.querySelector('[data-testid="glyph"]')).not.toBeNull()
