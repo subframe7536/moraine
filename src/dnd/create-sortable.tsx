@@ -209,7 +209,8 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     }
     const attributes = itemDataAttributes({ dragging, dropPosition }) as SortableItemAttributes
     if (isServer) {
-      return { ref: () => {}, handleRef: () => {}, dragging, dropPosition, attributes }
+      const noop = (): void => {}
+      return { ref: noop, handleRef: noop, targetRef: noop, dragging, dropPosition, attributes }
     }
 
     const data: ItemData = {
@@ -250,6 +251,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     return {
       ref: (element) => sortable.ref(element),
       handleRef,
+      targetRef: (element) => sortable.targetRef(element),
       dragging,
       dropPosition,
       attributes,

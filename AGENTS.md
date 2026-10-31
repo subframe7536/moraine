@@ -129,7 +129,8 @@ The `src` directory is organized by flattened components and shared infrastructu
 ├── dnd/                    # `moraine/dnd` entry: sortables over dnd kit, composed through render props.
 │   ├── sortable.types.ts   # Public sortable types.
 │   ├── create-sortable.tsx # createSortable: drag state, drop positions, and item registration.
-│   └── create-list-sortable.ts # createListSortable: flat list reordering with useRow.
+│   ├── create-list-sortable.ts # createListSortable: flat list reordering with useRow.
+│   └── create-tree-sortable.ts # createTreeSortable and moveTreeNode: tree moves with useNode.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.
