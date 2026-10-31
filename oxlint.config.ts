@@ -9,6 +9,11 @@ export default subfLint({
         // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
         // same-scope reads before the declaration are still reported.
         'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
+        // Element bindings take accessors and track them in their own effect.
+        'subf/solid-reactivity': [
+          'warn',
+          { customReactiveFunctions: ['bindElement', 'publishElement'] },
+        ],
       },
     },
     {
