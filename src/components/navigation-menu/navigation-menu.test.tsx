@@ -93,16 +93,30 @@ afterEach(() => {
 })
 
 describe('NavigationMenu', () => {
-  test.each([undefined, 'start', 'end'] as const)(
-    'centers the panel by default and respects %s alignment',
-    async (align) => {
-      render(() => <TestMenu align={align} />)
-      fireEvent.click(page.getByRole('button', { name: 'Products' }))
-      await page.findByRole('link', { name: 'Overview' })
-      const panel = document.querySelector('[data-slot="navigation-menu-positioner"] > div')!
-      await waitFor(() => expect(panel.getAttribute('data-align')).toBe(align ?? 'center'))
-    },
-  )
+  test.each([
+    [undefined, 450],
+    ['start', 400],
+    ['end', 500],
+  ] as const)('centers the panel by default and respects %s alignment', async (align, x) => {
+    render(() => <TestMenu align={align} />)
+    const html = document.documentElement
+    // JSDOM has no layout: give the viewport a size so `shift` does not clamp the panel.
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this === html ? 1024 : 0
+    })
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(function (this: Element) {
+      return this === html ? 768 : 0
+    })
+    const trigger = page.getByRole('button', { name: 'Products' })
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(400, 10, 100, 30))
+    fireEvent.click(trigger)
+    await page.findByRole('link', { name: 'Overview' })
+    const positioner = document.querySelector<HTMLElement>(
+      '[data-slot="navigation-menu-positioner"]',
+    )!
+    // JSDOM reports a 0×0 panel, so the x offset is the trigger edge the alignment uses.
+    await waitFor(() => expect(positioner.style.transform).toMatch(`translate3d(${x}px,`))
+  })
 
   test.each(['window', 'container'] as const)(
     'follows %s scrolling immediately and restores movement on the next trigger',

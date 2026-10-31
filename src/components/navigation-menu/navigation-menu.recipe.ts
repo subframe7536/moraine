@@ -13,14 +13,10 @@ import type {
   NavigationMenuStyleVariants,
 } from './navigation-menu.style-types'
 
-export const NAVIGATION_MENU_POSITIONER_CLASS = `${POPPER_CONTENT_MAX_SIZE_CLASS} transition-none z-floating data-positioned:transition-transform`
-export const NAVIGATION_MENU_PANEL_CLASS = `text-popover-foreground border border-border rounded-md bg-popover ${POPPER_CONTENT_MAX_SIZE_CLASS} shadow-overlay origin-(--mo-popper-content-transform-origin) transition-[width,height] relative overflow-hidden motion-reduce:transition-none data-closed:(animate-mo-exit exit-opacity-0 exit-scale-90) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-90)`
+export const NAVIGATION_MENU_POSITIONER_CLASS =
+  'transition-none z-floating data-positioned:transition-transform'
+export const NAVIGATION_MENU_PANEL_CLASS = `text-popover-foreground border border-border rounded-md bg-popover shadow-overlay origin-(--mo-popper-content-transform-origin) transition-[width,height] relative overflow-hidden motion-reduce:transition-none data-closed:(animate-mo-exit exit-opacity-0 exit-scale-90) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-90)`
 export const NAVIGATION_MENU_FOCUS_GUARD_CLASS = VISUALLY_HIDDEN_CLASS
-
-export const navigationMenuPanelDataAttributes = /* @__PURE__ */ createDataAttributes(
-  'side',
-  'align',
-)
 
 export const navigationMenuDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'orientation'),
@@ -43,7 +39,7 @@ export const navigationMenuRecipe = /* @__PURE__ */ defineRecipe<
     trigger: `text-sm text-foreground font-medium px-3 outline-none rounded-md bg-background inline-flex gap-1.5 h-9 items-center justify-center data-expanded:(text-accent-foreground bg-accent) hover:[&:not([data-expanded])]:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
     triggerIcon: 'transition-transform data-expanded:rotate-180 motion-reduce:transition-none',
     content: `p-1 outline-none ${POPPER_CONTENT_MAX_SIZE_CLASS} w-fit left-0 top-0 absolute overflow-auto enter-opacity-0 exit-opacity-0 enter-scale-100 exit-scale-100 data-closed:(pointer-events-none animate-mo-exit) data-expanded:animate-mo-enter`,
-    link: `text-sm text-foreground p-2 outline-none rounded-sm flex flex-col gap-1 data-active:(text-accent-foreground bg-accent) hover:[&:not([data-active])]:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
+    link: `text-sm text-foreground p-2 outline-none rounded-sm flex flex-col gap-1 data-active:(text-accent-foreground bg-accent) hover:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
     '--mo-anim-ease': 'ease',
   },
   defaultVariants: { orientation: 'horizontal' },

@@ -4,7 +4,6 @@ import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createEventListener } from '../../shared/event-listener'
-import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent } from '../shared/overlay/popper'
 import { resolveDirection } from '../shared/overlay/utils'
 
@@ -12,7 +11,6 @@ import { isMousePointer, useNavigationMenuContext } from './navigation-menu-cont
 import {
   NAVIGATION_MENU_POSITIONER_CLASS,
   NAVIGATION_MENU_PANEL_CLASS,
-  navigationMenuPanelDataAttributes,
 } from './navigation-menu.recipe'
 
 /** One persistent surface owns positioning and size transitions for every item. */
@@ -132,10 +130,6 @@ export function NavigationMenuPanel(): JSX.Element {
         return (
           <div
             {...floating.contentProps}
-            {...navigationMenuPanelDataAttributes({
-              side: () => parseFloatingPlacement(floating.currentPlacement()).side,
-              align: () => parseFloatingPlacement(floating.currentPlacement()).align,
-            })}
             inert={!context.open() ? true : undefined}
             aria-hidden={!context.open() ? true : undefined}
             class={NAVIGATION_MENU_PANEL_CLASS}
