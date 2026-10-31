@@ -33,7 +33,6 @@ function AccordionItemPanel(props: {
     accordionRecipe,
     {},
     {
-      slot: 'content',
       varsSlot: 'content',
       contextSlots: () => props.slotOverrides,
       vars: () => ({

@@ -36,7 +36,6 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
     dataTableRecipe,
     {},
     {
-      slot: 'expandedRow',
       varsSlot: 'expandedCell',
       contextSlots: () => props.slotOverrides,
       vars: () => ({

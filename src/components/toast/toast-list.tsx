@@ -104,7 +104,6 @@ export function ToastList(props: ToastListProps): JSX.Element {
     toastRecipe,
     {},
     {
-      slot: 'list',
       varsSlot: 'list',
       contextVariants: position,
       contextSlots: () => ({

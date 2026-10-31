@@ -92,7 +92,6 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     treeRecipe,
     {},
     {
-      slot: 'content',
       contextVariants: () => context.variants,
       contextSlots: () => context.slotOverrides,
       own: () => ({
