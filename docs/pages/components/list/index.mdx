@@ -90,34 +90,37 @@ keyboard navigation.
 
 ### Drag to reorder
 
-`createSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/solid`. Pass it to
-`sortable` and update `items` from `onReorder`. Spread `context.props` onto the row element, and
-pass `context.handleRef` to a grip button to start drags only from that button. Without a handle,
-a drag starts anywhere on the row once the pointer moves a few pixels, so clicks still work.
+`createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/solid`. List has
+no drag props; the sortable composes through `itemRender`. Wrap the list in `sortable.Provider`,
+call `sortable.useRow(context)` in `itemRender`, and spread `row.props` onto the row element.
+Update the items from `onReorder`.
 
 ```tsx
-import { createSortable } from 'moraine/dnd'
+import { createListSortable } from 'moraine/dnd'
 
-;<List
-  items={items()}
-  sortable={createSortable()}
-  onReorder={(event) => setItems(event.items)}
-  itemRender={(context) => (
-    <li {...context.props}>
-      <button ref={context.handleRef} aria-label="Reorder">
-        ⋮⋮
-      </button>
-      {context.item.label}
-    </li>
-  )}
-/>
+const sortable = createListSortable({ items, onReorder: (event) => setItems(event.items) })
+
+<sortable.Provider>
+  <List
+    items={items()}
+    itemRender={(context) => {
+      const row = sortable.useRow(context)
+      return (
+        <li {...row.props}>
+          <button ref={row.handleRef} aria-label="Reorder">⋮⋮</button>
+          {context.item.label}
+        </li>
+      )
+    }}
+  />
+</sortable.Provider>
 ```
 
-Rows stay in place while dragging. The row under the pointer gets `data-drop-position="before"` or
-`"after"`, and the dragged row gets `data-dragging`; style the drop indicator from those
-attributes. `sortable` works together with `virtualizer`: the dragged row stays mounted while it
-is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for keyboard dragging
-and options.
+`row.props` keeps the virtual row props from `context.props` and adds the drag ref,
+`data-dragging`, and `data-drop-position`. With a `virtualizer`, also pass
+`rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer` so the dragged row stays
+mounted while it is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for
+handles, keyboard dragging, and options.
 
 ## Examples
 

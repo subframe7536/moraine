@@ -1,46 +1,36 @@
-import type { Component, JSX } from 'solid-js'
+import type { Accessor, FlowComponent } from 'solid-js'
 
-// Contract between sortables from `moraine/dnd` and the components that host them.
-// It must not import `@dnd-kit/solid`: the main entry and `moraine/data-table` name these types
-// without depending on the optional peer.
-
-/** Item identifier inside one sortable host. */
+/** Item identifier inside one sortable. */
 export type SortableId = string | number
 
 /** Where the dragged item lands relative to the target item. */
 export type SortableDropPosition = 'before' | 'after' | 'inside'
 
-/** Drop location under the pointer or keyboard focus while dragging. */
+/** Drag source and the drop location under the pointer or keyboard focus. */
 export interface SortableDragState {
   /** Item being dragged. */
   readonly sourceId: SortableId
-  /** Item the source is over; undefined while it is over no other item. */
+  /** Index the source item registered with. */
+  readonly sourceIndex: number
+  /** Item the source is over; undefined while it is over no other accepted item. */
   readonly targetId?: SortableId
   /** Position relative to `targetId`; set together with it. */
   readonly position?: SortableDropPosition
 }
 
-/** Completed drop on another item. */
+/** Completed or candidate drop on another item. */
 export interface SortableDropTarget {
   readonly sourceId: SortableId
+  readonly sourceIndex: number
   readonly targetId: SortableId
   readonly position: SortableDropPosition
 }
 
-/** Props a host passes to a sortable's `Provider`. */
-export interface SortableProviderProps {
-  children: JSX.Element
-  /** Reports the drag source and the current drop location; undefined when no drag is active. */
-  onChange: (state: SortableDragState | undefined) => void
-  /** Called once when a drag ends on a target. Not called for canceled drags. */
-  onDrop: (target: SortableDropTarget) => void
-}
-
-/** Item registration a host passes to a sortable's `useItem`. */
+/** Item registration for `useItem`. */
 export interface SortableItemInput {
-  /** Unique id among the host's items. */
+  /** Unique id among the sortable's items. */
   id: () => SortableId
-  /** Position in the host's rendered order. Keyboard dragging moves along this order. */
+  /** Position in the rendered order. Keyboard dragging moves along this order. */
   index: () => number
   /** Prevents dragging and dropping this item. */
   disabled?: () => boolean
@@ -51,21 +41,47 @@ export interface SortableItemInput {
   positions?: () => readonly SortableDropPosition[]
 }
 
-/** Element refs returned by a sortable's `useItem`. */
-export interface SortableItemRefs {
+/** Drag state attributes for an item element. */
+export interface SortableItemAttributes {
+  /** Present while the item is the drag source. */
+  readonly 'data-dragging': '' | undefined
+  /** Where the dragged item would land relative to this item. */
+  readonly 'data-drop-position': SortableDropPosition | undefined
+}
+
+/** One registered item. */
+export interface SortableItem {
   /** Item element. It is the drop target, and the drag handle when `handleRef` is unused. */
   ref: (element: HTMLElement) => void
   /** Restricts drag activation to this element, such as a grip button. */
   handleRef: (element: HTMLElement) => void
+  /** Whether this item is the drag source. */
+  dragging: Accessor<boolean>
+  /** Where the source would land on this item; undefined when it is not the target. */
+  dropPosition: Accessor<SortableDropPosition | undefined>
+  /** `data-dragging` and `data-drop-position` getters to spread onto the item element. */
+  attributes: SortableItemAttributes
 }
 
-/**
- * What a sortable host (`List`, `Tree`, `DataTable`) needs from its `sortable` prop.
- * `createSortable()` returns one.
- */
+/** Range a virtualizer passes to its `rangeExtractor`. */
+export interface SortableVirtualRange {
+  readonly startIndex: number
+  readonly endIndex: number
+  readonly overscan: number
+  readonly count: number
+}
+
+/** Drag and drop state shared by the items of one collection. */
 export interface Sortable {
-  /** Wraps the host's items. Hosts mount it; callers pass the whole sortable instead. */
-  readonly Provider: Component<SortableProviderProps>
+  /** Wraps the component that renders the items. Mount it once per sortable. */
+  readonly Provider: FlowComponent
   /** Registers one item; call it inside the item's owner, under `Provider`. */
-  useItem: (input: SortableItemInput) => SortableItemRefs
+  useItem: (input: SortableItemInput) => SortableItem
+  /** Current drag; undefined when no drag is active. */
+  readonly state: Accessor<SortableDragState | undefined>
+  /**
+   * Pass to a virtualizer's `rangeExtractor` option to keep the drag source mounted while it is
+   * scrolled out of view. Renders the visible range plus overscan, like the default extractor.
+   */
+  readonly rangeExtractor: (range: SortableVirtualRange) => number[]
 }

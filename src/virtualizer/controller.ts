@@ -1,11 +1,10 @@
 import {
   Virtualizer,
-  defaultRangeExtractor,
   elementScroll,
   observeElementOffset,
   observeElementRect,
 } from '@tanstack/virtual-core'
-import type { PartialKeys, Range, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
+import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
 import {
   batch,
@@ -15,7 +14,6 @@ import {
   on,
   onCleanup,
   onMount,
-  untrack,
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
@@ -103,8 +101,6 @@ export function createVirtualizerController<
      * reactive values it reads (such as host-provided column widths) refresh the sizes.
      */
     estimateSize?: (item: TItem, index: number) => number
-    /** Entry indexes to keep rendered outside the visible range, such as a drag source. */
-    pinnedIndexes?: () => readonly number[] | undefined
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
   const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
@@ -144,7 +140,6 @@ export function createVirtualizerController<
       let currentKeys: VirtualItem['key'][] = []
       let currentEstimates: number[] = []
       let initialized = false
-      let pinnedRangeExtractor: ((range: Range) => number[]) | undefined
       const virtualizerOptions = mergeProps(
         {
           observeElementRect,
@@ -168,9 +163,6 @@ export function createVirtualizerController<
           },
           get isRtl() {
             return (options as { isRtl?: boolean }).isRtl ?? adapterProps.layout?.().isRtl ?? false
-          },
-          get rangeExtractor() {
-            return pinnedRangeExtractor ?? options.rangeExtractor ?? defaultRangeExtractor
           },
           getScrollElement: () => (mounted() ? (adapterProps.scrollElement() ?? null) : null),
           estimateSize: (index: number) => currentEstimates[index]!,
@@ -228,33 +220,6 @@ export function createVirtualizerController<
         }
         sync(virtualizer)
       })
-
-      // A new `rangeExtractor` identity makes TanStack recompute the rendered indexes.
-      createRenderEffect(
-        on(
-          () => adapterProps.pinnedIndexes?.()?.join(','),
-          () => {
-            const pinned = untrack(() => adapterProps.pinnedIndexes?.()) ?? []
-            const extract = options.rangeExtractor ?? defaultRangeExtractor
-            pinnedRangeExtractor =
-              pinned.length > 0
-                ? (range) => {
-                    const indexes = extract(range)
-                    const extra = pinned.filter(
-                      (index) => index >= 0 && index < range.count && !indexes.includes(index),
-                    )
-                    return extra.length > 0 ? [...indexes, ...extra].sort((a, b) => a - b) : indexes
-                  }
-                : undefined
-            virtualizer.setOptions(virtualizerOptions)
-            if (mounted()) {
-              virtualizer._willUpdate()
-            }
-            sync(virtualizer)
-          },
-          { defer: true },
-        ),
-      )
 
       // `setOptions` snapshots getters, so re-apply options when measured layout changes.
       createRenderEffect(

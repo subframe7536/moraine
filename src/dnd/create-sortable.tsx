@@ -1,17 +1,21 @@
 import { DragDropProvider } from '@dnd-kit/solid'
 import type { DragDropProviderProps } from '@dnd-kit/solid'
 import { isSortable, useSortable } from '@dnd-kit/solid/sortable'
-import type { Component } from 'solid-js'
+import type { FlowComponent } from 'solid-js'
+import { createSignal, untrack } from 'solid-js'
 import { isServer } from 'solid-js/web'
+
+import { createDataAttributes } from '../theme/style-contract'
 
 import type {
   Sortable,
   SortableDragState,
   SortableDropPosition,
   SortableDropTarget,
+  SortableItem,
+  SortableItemAttributes,
   SortableItemInput,
-  SortableItemRefs,
-  SortableProviderProps,
+  SortableVirtualRange,
 } from './sortable.types'
 
 export interface SortableOptions {
@@ -27,10 +31,15 @@ export interface SortableOptions {
   plugins?: DragDropProviderProps['plugins']
   /** Modifiers applied to every drag, such as axis or container restrictions. */
   modifiers?: DragDropProviderProps['modifiers']
+  /** Rejects a drop location; rejected targets show no indicator and do not drop. */
+  canDrop?: (target: SortableDropTarget) => boolean
+  /** Called once when a drag ends on an accepted target. Not called for canceled drags. */
+  onDrop?: (target: SortableDropTarget) => void
 }
 
 type DragDropManager = Parameters<NonNullable<DragDropProviderProps['onDragMove']>>[1]
 type DragOperation = Parameters<NonNullable<DragDropProviderProps['onDragEnd']>>[0]['operation']
+type Point = { x: number; y: number }
 
 interface ItemData extends Record<string, unknown> {
   positions: readonly SortableDropPosition[]
@@ -38,10 +47,7 @@ interface ItemData extends Record<string, unknown> {
 
 const DEFAULT_POSITIONS: readonly SortableDropPosition[] = ['before', 'after']
 
-const NOOP_REFS: SortableItemRefs = {
-  ref: () => {},
-  handleRef: () => {},
-}
+const itemDataAttributes = /* @__PURE__ */ createDataAttributes('dragging', 'drop-position')
 
 /** Picks a drop position from where the source sits along the target, from 0 (start) to 1 (end). */
 function pickPosition(
@@ -72,15 +78,16 @@ function isKeyboardDrag(event: Event | null): boolean {
 /** Reads the drop location from a drag operation, optionally at a pointer position it has not applied yet. */
 function readDragState(
   operation: DragOperation,
-  point: { x: number; y: number } = operation.position.current,
+  point: Point = operation.position.current,
 ): SortableDragState | undefined {
   const { activatorEvent, source, target } = operation
   if (!source) {
     return undefined
   }
   const sourceId = source.id
+  const sourceIndex = isSortable(source) ? source.index : -1
   if (!target || target.id === source.id || target.disabled) {
-    return { sourceId }
+    return { sourceId, sourceIndex }
   }
 
   const positions = (target.data as ItemData | undefined)?.positions ?? DEFAULT_POSITIONS
@@ -88,31 +95,57 @@ function readDragState(
   let ratio: number
   if (isKeyboardDrag(activatorEvent) || !rect || rect.height <= 0) {
     // Keyboard moves step from item to item, so the direction of travel picks the side.
-    const sourceIndex = isSortable(source) ? source.index : 0
     const targetIndex = isSortable(target) ? target.index : 0
     ratio = targetIndex > sourceIndex ? 1 : 0
   } else {
     ratio = (point.y - rect.top) / rect.height
   }
 
-  const dropPosition = pickPosition(ratio, positions)
-  return dropPosition ? { sourceId, targetId: target.id, position: dropPosition } : { sourceId }
+  const position = pickPosition(ratio, positions)
+  return position
+    ? { sourceId, sourceIndex, targetId: target.id, position }
+    : { sourceId, sourceIndex }
+}
+
+function sameState(prev: SortableDragState | undefined, next: SortableDragState | undefined) {
+  return (
+    prev?.sourceId === next?.sourceId &&
+    prev?.sourceIndex === next?.sourceIndex &&
+    prev?.targetId === next?.targetId &&
+    prev?.position === next?.position
+  )
 }
 
 /**
- * Creates a sortable for `List`, `Tree`, and `DataTable` over `@dnd-kit/solid`. Pass the result to
- * the component's `sortable` prop.
+ * Creates drag and drop state for one collection over `@dnd-kit/solid`. Wrap the component that
+ * renders the items in `Provider` and register each item element with `useItem`.
  *
- * Items keep their place while dragging: the host marks the drop location on the target item
- * (`data-drop-position`) and reports the move when the drag ends, so rows that the host does not
- * own, such as virtual rows, stay in place.
+ * Items keep their place while dragging: the target item gets `data-drop-position`, and `onDrop`
+ * reports the location when the drag ends. Elements owned by Solid or a virtualizer are never
+ * moved by dnd kit. Use `createListSortable` for flat lists.
  */
 export function createSortable(options: SortableOptions = {}): Sortable {
-  const ClientProvider: Component<SortableProviderProps> = (props) => {
+  // Pointer moves report the same location many times; only changes notify items.
+  const [state, setState] = createSignal<SortableDragState | undefined>(undefined, {
+    equals: sameState,
+  })
+
+  const allowed = (next: SortableDragState | undefined): next is SortableDropTarget =>
+    next?.targetId !== undefined &&
+    next.position !== undefined &&
+    (options.canDrop?.(next as SortableDropTarget) ?? true)
+
+  const report = (next: SortableDragState | undefined): void => {
+    setState(
+      next && !allowed(next) ? { sourceId: next.sourceId, sourceIndex: next.sourceIndex } : next,
+    )
+  }
+
+  const ClientProvider: FlowComponent = (props) => {
     let active = false
-    const report = (manager: DragDropManager, point?: { x: number; y: number }): void => {
+    const update = (manager: DragDropManager, point?: Point): void => {
       if (active) {
-        props.onChange(readDragState(manager.dragOperation, point))
+        report(readDragState(manager.dragOperation, point))
       }
     }
 
@@ -123,24 +156,24 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         modifiers={options.modifiers}
         onDragStart={(_event, manager) => {
           active = true
-          report(manager)
+          update(manager)
         }}
         onDragMove={(event, manager) => {
           // `dragmove` is dispatched before the operation applies the new position.
           const { x, y } = manager.dragOperation.position.current
-          report(manager, event.to ?? { x: x + (event.by?.x ?? 0), y: y + (event.by?.y ?? 0) })
+          update(manager, event.to ?? { x: x + (event.by?.x ?? 0), y: y + (event.by?.y ?? 0) })
         }}
         onDragOver={(event, manager) => {
-          // Stops the optimistic sorting plugin from moving item elements: the host owns them.
+          // Stops the optimistic sorting plugin from moving item elements.
           event.preventDefault()
-          report(manager)
+          update(manager)
         }}
         onDragEnd={(event) => {
           active = false
-          props.onChange(undefined)
+          setState(undefined)
           const final = event.canceled ? undefined : readDragState(event.operation)
-          if (final?.targetId !== undefined && final.position !== undefined) {
-            props.onDrop(final as SortableDropTarget)
+          if (allowed(final)) {
+            options.onDrop?.(final)
           }
         }}
       >
@@ -148,15 +181,21 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       </DragDropProvider>
     )
   }
-  // The server renders items without a drag manager; they become sortable after hydration.
-  const Provider: Component<SortableProviderProps> = isServer
-    ? (props) => <>{props.children}</>
-    : ClientProvider
 
-  const useItem = (input: SortableItemInput): SortableItemRefs => {
-    if (isServer) {
-      return NOOP_REFS
+  // The server renders items without a drag manager; they become sortable after hydration.
+  const Provider: FlowComponent = isServer ? (props) => <>{props.children}</> : ClientProvider
+
+  const useItem = (input: SortableItemInput): SortableItem => {
+    const dragging = (): boolean => state()?.sourceId === input.id()
+    const dropPosition = (): SortableDropPosition | undefined => {
+      const current = state()
+      return current?.targetId === input.id() ? current.position : undefined
     }
+    const attributes = itemDataAttributes({ dragging, dropPosition }) as SortableItemAttributes
+    if (isServer) {
+      return { ref: () => {}, handleRef: () => {}, dragging, dropPosition, attributes }
+    }
+
     const data: ItemData = {
       get positions() {
         return input.positions?.() ?? DEFAULT_POSITIONS
@@ -177,8 +216,31 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     return {
       ref: (element) => sortable.ref(element),
       handleRef: (element) => sortable.handleRef(element),
+      dragging,
+      dropPosition,
+      attributes,
     }
   }
 
-  return { Provider, useItem }
+  const rangeExtractor = (range: SortableVirtualRange): number[] => {
+    const start = Math.max(range.startIndex - range.overscan, 0)
+    const end = Math.min(range.endIndex + range.overscan, range.count - 1)
+    const indexes: number[] = []
+    for (let index = start; index <= end; index++) {
+      indexes.push(index)
+    }
+    // Read untracked: virtualizers call this outside Solid, on every range change.
+    const source = untrack(state)?.sourceIndex
+    if (source === undefined || source < 0 || source >= range.count) {
+      return indexes
+    }
+    if (source < start) {
+      indexes.unshift(source)
+    } else if (source > end) {
+      indexes.push(source)
+    }
+    return indexes
+  }
+
+  return { Provider, useItem, state, rangeExtractor }
 }

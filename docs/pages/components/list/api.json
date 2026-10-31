@@ -64,18 +64,6 @@
           "description": "Reactive collection rendered by the list."
         },
         {
-          "name": "onReorder",
-          "optional": true,
-          "type": "(event: ReorderEvent<TItem>) => void",
-          "description": "Called when a drag moves a row to a new index."
-        },
-        {
-          "name": "sortable",
-          "optional": true,
-          "type": "Sortable",
-          "description": "Lets users reorder rows by dragging. Update `items` from `onReorder`."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

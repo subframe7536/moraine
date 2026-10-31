@@ -22,9 +22,8 @@ built runtime and declaration output.
 The main entry may import only the peer-free files `src/virtualizer/virtualizer.types.ts`
 (the contract between virtualizers and their host components) and `src/virtualizer/virtual-content.tsx`
 (the host-side mount); every other file in `src/virtualizer/` imports `@tanstack/virtual-core`.
-Likewise, the main entry may import only `src/dnd/sortable.types.ts` (the contract between sortables
-and their host components) and `src/dnd/sortable-content.tsx` (the host-side `SortableRoot` and
-`useSortableItem`); every other file in `src/dnd/` imports `@dnd-kit/solid`.
+The main entry imports nothing from `src/dnd/`: sortables compose with components through their
+render props (such as `itemRender`) instead of component props.
 
 ### Build & Development
 
@@ -127,10 +126,10 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
 │   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/).
 ├── data-table/             # `moraine/data-table` entry: DataTable and createDataTable over TanStack Table.
-├── dnd/                    # `moraine/dnd` entry: createSortable over dnd kit.
-│   ├── sortable.types.ts   # Peer-free contract between sortables and host components.
-│   ├── sortable-content.tsx # Peer-free SortableRoot and useSortableItem that hosts use for their `sortable` prop.
-│   └── create-sortable.tsx # createSortable.
+├── dnd/                    # `moraine/dnd` entry: sortables over dnd kit, composed through render props.
+│   ├── sortable.types.ts   # Public sortable types.
+│   ├── create-sortable.tsx # createSortable: drag state, drop positions, and item registration.
+│   └── create-list-sortable.ts # createListSortable: flat list reordering with useRow.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.

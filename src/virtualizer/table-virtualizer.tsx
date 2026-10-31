@@ -235,7 +235,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       entries: () => props.entries,
       scrollElement: () => props.scrollElement ?? resolveHost(),
       layout: () => sections().layout,
-      pinnedIndexes: () => props.pinnedIndexes,
     })
 
     const columnEntries = (): readonly TColumn[] => props.columns ?? []
