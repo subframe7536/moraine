@@ -122,6 +122,7 @@ export function createListSortable<TItem>(
       )
     },
     dropAnimation: options.dropAnimation,
+    orientation: options.orientation,
     onDrop: (target) => {
       const move = resolveMove(target)
       const items = options.items()

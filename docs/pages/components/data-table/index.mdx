@@ -461,7 +461,9 @@ The arrows swap direction when `tableOptions.columnResizeDirection` is `'rtl'`.
 ### Column order
 
 `state.columnOrder` lists column ids in display order. Columns it does not list follow in
-definition order.
+definition order. To let users drag headers, pass the header registration from
+`createListSortable` (`moraine/dnd`) to `headProps`, as in
+[Reorder columns by dragging their headers](#reorder-columns-by-dragging-their-headers).
 
 ```tsx
 const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'])
@@ -537,6 +539,10 @@ when the rows render in data order. Otherwise, update `data` from the moved `eve
   `data` with `moveItem(data, offset + event.from, offset + event.to)`.
 - **Sub-rows**: pass `canDrop: (source, target) => source.parentId === target.parentId` so rows
   move only among their siblings.
+
+The table styles the drag: the row stays in place while a copy at 60% opacity follows the pointer
+(`data-dnd-dragging`), the target row keeps the hover background, and its cells draw a line on the
+`before` or `after` edge. Override them through the `row` and `cell` slots.
 
 With a `virtualizer`, pass `table.getPrePaginatedRowModel().rows` as `items` and
 `rangeExtractor: sortable.rangeExtractor` to `createTableVirtualizer`, so the dragged row stays
@@ -644,12 +650,12 @@ and the previous page stays on screen while the next one loads.
 
 <Preview path="./server-data" />
 
-### Choose and reorder columns
+### Reorder columns by dragging their headers
 
-Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists
-the columns that can hide, the chips move visible columns, and Reset restores the defaults. The
-name column sets `enableHiding: false`, so it can move but not hide. The column definitions never
-change.
+Drag a header to move its column; the sort button still sorts. `headProps` registers each header
+cell with a horizontal `createListSortable` over `table.getVisibleLeafColumns()`, and `onReorder`
+writes the new order to the controlled `state.columnOrder`. The header stays in place while a copy
+follows the pointer, and the target header shows a line on the side the column lands on.
 
 <Preview path="./column-settings" />
 
@@ -702,8 +708,9 @@ and Escape cancels. The table reads `data` through a getter, so the saved value 
 ### Reorder a release queue
 
 Drag the grip in the first column, or focus it and press Space, then the arrow keys. The column
-renders the handle with `sortable.handleRefFor(row.id)`, and the row `rowClass` styles the drop
-indicator from `data-drop-position`.
+renders the handle with `sortable.handleRefFor(row.id)`. The table styles the drag itself: the row
+stays in place while a copy at 60% opacity follows the pointer, and the target row shows a line on
+the side the row lands on.
 
 <Preview path="./sortable-rows" />
 

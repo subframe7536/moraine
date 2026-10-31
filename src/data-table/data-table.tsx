@@ -69,6 +69,7 @@ export function DataTable<TData extends RowData = RowData>(
     'ref',
     'rowClass',
     'rowProps',
+    'headProps',
     'loading',
     'loadingRender',
     'emptyRender',
@@ -288,7 +289,7 @@ export function DataTable<TData extends RowData = RowData>(
                 </For>
               </colgroup>
             </Show>
-            <DataTableHeader table={table()} />
+            <DataTableHeader table={table()} headProps={local.headProps} />
 
             <tbody data-slot="data-table-body" {...bodySlot}>
               <Show
