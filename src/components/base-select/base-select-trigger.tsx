@@ -52,7 +52,7 @@ export function BaseSelectTrigger<
     ref: () => local.ref,
     registration: {
       element: state.focusOwner,
-      ref: state.setFocusOwner,
+      setElement: state.setFocusOwner,
     },
   })
   const eventProps = mergeProps({ role: 'combobox' as const }, rest, {

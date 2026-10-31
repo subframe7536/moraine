@@ -1,6 +1,7 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
+import { bindElement, publishElement } from '../../shared/element-binding'
 import { createCompositionState, isComposingKeyEvent } from '../shared/overlay/utils'
 
 import type { BaseSelectT } from './base-select.types'
@@ -48,6 +49,8 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   const displayValue = () => options.displayValue?.() ?? options.searchValue()
   const enabled = () => options.enabled?.() ?? true
   onCleanup(() => composition.dispose())
+  const [input, setInput] = createSignal<HTMLInputElement>()
+  bindElement(input, publishElement(state.focusOwner, state.setFocusOwner))
 
   function commit(value: string): string {
     const next = options.setSearchValue(options.transformInput?.(value) ?? value)
@@ -104,14 +107,7 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
     get value() {
       return compositionDraft() ?? displayValue()
     },
-    ref(element: HTMLInputElement) {
-      state.setFocusOwner(element)
-      onCleanup(() => {
-        if (state.focusOwner() === element) {
-          state.setFocusOwner(undefined)
-        }
-      })
-    },
+    ref: setInput,
     onInput(event: InputEvent) {
       const target = event.currentTarget as HTMLInputElement
       if (state.locked()) {

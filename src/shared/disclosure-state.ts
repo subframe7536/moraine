@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
@@ -54,10 +54,15 @@ export interface DisclosureState {
   setTriggerElement: (element: HTMLElement | undefined) => void
 
   contentElement: Accessor<HTMLElement | undefined>
-  setContentElement: (element: HTMLElement | undefined) => void
-  registerElement: (element: HTMLElement) => () => void
-  registerPresenceElement: (element: HTMLElement) => () => void
+  /**
+   * Registers the content shell: keeps it mounted through its exit animation and restores trigger
+   * focus when it closes while focused. Returns a release function.
+   */
   registerContentElement: (element: HTMLElement) => () => void
+  /**
+   * Registers the element whose `scrollHeight` feeds `contentHeight`. The latest registration wins;
+   * releasing it falls back to the previous one. Returns a release function.
+   */
   registerMeasureElement: (element: HTMLElement) => () => void
 
   restoreTriggerFocus: () => void
@@ -135,8 +140,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>()
 
   let contentEl: HTMLElement | undefined
-  let registeredContentElement: HTMLElement | undefined
-  let customMeasureElement: HTMLElement | undefined
+  // One record per registration, so releasing a duplicate removes only its own entry.
+  const measureRegistrations: Array<{ element: HTMLElement }> = []
   let resizeObserver: ResizeObserver | undefined
 
   let contentHasFocus = false
@@ -166,7 +171,10 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }),
   )
 
-  function setContentElement(element: HTMLElement | undefined): void {
+  function observeMeasureElement(element: HTMLElement | undefined): void {
+    if (element === contentEl) {
+      return
+    }
     resizeObserver?.disconnect()
     resizeObserver = undefined
     contentEl = element
@@ -187,11 +195,6 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
   }
 
-  function updateMeasurementTarget(): void {
-    const target = customMeasureElement ?? registeredContentElement
-    setContentElement(target)
-  }
-
   function restoreTriggerFocus(): void {
     const content = contentElement()
     const trigger = triggerElement()
@@ -210,7 +213,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }),
   )
 
-  function registerPresenceElement(element: HTMLElement): () => void {
+  function registerContentElement(element: HTMLElement): () => void {
     removeContentFocusListeners?.()
     removeContentFocusListeners = undefined
     setContentElementSignal(element)
@@ -235,34 +238,27 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     return () => {
       releasePresence()
       removeListeners()
-      removeContentFocusListeners = undefined
-      setContentElementSignal(undefined)
-    }
-  }
-
-  function registerContentElement(element: HTMLElement): () => void {
-    const releasePresence = registerPresenceElement(element)
-    registeredContentElement = element
-    updateMeasurementTarget()
-
-    return () => {
-      releasePresence()
-      if (registeredContentElement === element) {
-        registeredContentElement = undefined
-        updateMeasurementTarget()
+      if (removeContentFocusListeners === removeListeners) {
+        removeContentFocusListeners = undefined
+      }
+      if (untrack(contentElement) === element) {
+        setContentElementSignal(undefined)
       }
     }
   }
 
   function registerMeasureElement(element: HTMLElement): () => void {
-    customMeasureElement = element
-    updateMeasurementTarget()
+    const registration = { element }
+    measureRegistrations.push(registration)
+    observeMeasureElement(element)
 
     return () => {
-      if (customMeasureElement === element) {
-        customMeasureElement = undefined
-        updateMeasurementTarget()
+      const index = measureRegistrations.indexOf(registration)
+      if (index < 0) {
+        return
       }
+      measureRegistrations.splice(index, 1)
+      observeMeasureElement(measureRegistrations[measureRegistrations.length - 1]?.element)
     }
   }
 
@@ -292,11 +288,6 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     triggerElement,
     setTriggerElement,
     contentElement,
-    setContentElement,
-    registerElement(element: HTMLElement): () => void {
-      return registerContentElement(element)
-    },
-    registerPresenceElement,
     registerContentElement,
     registerMeasureElement,
     restoreTriggerFocus,

@@ -39,6 +39,7 @@ render props (such as `itemRender`) instead of component props.
   - `moraine/data-attributes-in-slot-binding` (call `*DataAttributes` only as a `data` entry of `useRecipe` or `slotWith`)
   - `moraine/slot-binding-order` (destructure slot bindings to `<slot>Slot` and spread them before `{...rest}`)
   - `moraine/require-create-effect-on` (wrap `createEffect` in `on()`)
+  - `moraine/ref-callback-assign-only` (no `onCleanup`, `onMount`, effects, event-listener helpers, or `register*` calls inside ref callbacks; use `bindElement`)
   - `moraine/no-emitted-extensions-in-imports` (disallow `.js`/`.jsx` extensions)
   - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
   - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls; require JSX-returning functions to be PascalCase components)
@@ -234,11 +235,15 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
 - **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
 - **DOM listeners:** Prefer `createEventListener` / `createEventListenerMap` from `src/shared/event-listener.ts` over raw `addEventListener`.
-  1. Call them inside the Solid owner that should own the lifetime (`createEffect`, `onMount`, component setup, or a ref callback). They are not reactive: re-run them from `createEffect(on(target, ...))` when the target or options change.
+  1. Call them inside the Solid owner that should own the lifetime (`createEffect`, `onMount`, component setup, or a `bindElement` callback), never in a ref callback. They are not reactive: re-run them from `createEffect(on(target, ...))` or `bindElement` when the target or options change.
   2. Use `createEventListenerMap` when attaching multiple events to the same target with the same options.
   3. Use `attachEventListener` / `attachEventListenerMap` only when the caller must hold or return the cleanup function (imperative register APIs, drag sessions, helpers that return `() => void`).
   4. Do not use either helper for JSX host events (`onClick`, `onInput`) or in tests that simulate or spy on the DOM. Do not call `addEventListener` / `removeEventListener` in library production code except inside `src/shared/event-listener.ts` and feature detects such as `typeof media.addEventListener === 'function'`.
 - **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
+  1. A ref callback only stores the element (a local variable or a signal setter) and forwards it with `callRef`. Do not call `onCleanup`, `onMount`, `createEffect`, event-listener helpers, `register*` APIs, or write to the DOM inside it.
+  2. Put element lifecycle work in the owner that renders the element with `bindElement(element, (el) => cleanup)` from `src/shared/element-binding.ts`. For an element inside `<Show>` / `<For>`, create its signal and `bindElement` inside that callback so the branch owns the binding.
+  3. Publish an element to a longer-lived signal (a parent context) with `bindElement(element, publishElement(ctx.element, ctx.setElement))`; it clears the signal only while it still holds that element.
+  4. Ref callbacks receive an element only. Never call a ref with `undefined` to signal unmount.
 - **`{...rest}` attribute overload:** Solid JSX uses later-wins. On every public host, apply attributes in this order:
   1. Default attributes the component generates (`data-slot`, default `role`, generated `aria-*`).
   2. The slot binding (`{...rootSlot}` or a `slotWith(...)` result), which carries merged `class` / `style` and generated `data-*`. Always split `class`, `style`, `classes`, and `styles` out of rest, so rest cannot replace the merged presentation; callers can still overload `data-*`. Non-recipe hosts put `class` / `style` from `useCn` after rest instead.

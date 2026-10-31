@@ -9,6 +9,17 @@ export default subfLint({
         // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
         // same-scope reads before the declaration are still reported.
         'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
+        // Element bindings take accessors and track them in their own effect.
+        'subf/solid-reactivity': [
+          'warn',
+          {
+            customReactiveFunctions: [
+              'bindElement',
+              'publishElement',
+              'bindSelectableItemHandlers',
+            ],
+          },
+        ],
       },
     },
     {
@@ -40,6 +51,7 @@ export default subfLint({
     'moraine/data-attributes-in-slot-binding': 'error',
     'moraine/slot-binding-order': 'error',
     'moraine/require-create-effect-on': 'error',
+    'moraine/ref-callback-assign-only': 'error',
     'moraine/no-emitted-extensions-in-imports': 'error',
     'moraine/no-string-style-prop': 'error',
     'moraine/no-direct-component-call': 'error',

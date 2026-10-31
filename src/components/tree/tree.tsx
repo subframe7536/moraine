@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
+import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
@@ -63,9 +64,9 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       },
     ),
   )
+  bindElement(scrollElement, (element) => state.navigation.registerRoot(element))
   onCleanup(() => {
     state.navigation.registerScroller(undefined)
-    state.navigation.registerRoot(undefined)
   })
 
   function RenderItem(itemProps: TreeItemContext): JSX.Element {
@@ -105,7 +106,6 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         {...rest}
         ref={(element: HTMLElement) => {
           setScrollElement(element)
-          state.navigation.registerRoot(element)
           callRef(local.ref, element)
         }}
       >

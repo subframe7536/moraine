@@ -459,9 +459,6 @@ export function createContextMenu(props: ContextMenuProps) {
     get tabIndex() {
       return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)).tabIndex
     },
-    ref: (element: HTMLElement | undefined) => {
-      setTriggerElement(element)
-    },
     onContextMenu: (event: MouseEvent) => {
       if (event.defaultPrevented) {
         clearLongPressTimeout()
@@ -514,6 +511,7 @@ export function createContextMenu(props: ContextMenuProps) {
     isOpen: () => open(),
     triggerProps,
     triggerElement,
+    setTriggerElement,
     menuProps: {
       get id() {
         return resolvedId()

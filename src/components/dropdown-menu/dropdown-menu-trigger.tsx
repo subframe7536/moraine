@@ -30,7 +30,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     tag,
     bridgeClick: true,
     ref: () => local.ref,
-    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+    registration: { element: context.triggerElement, setElement: context.setTriggerElement },
   })
   const disabled = () => Boolean(local.disabled ?? context.disabled())
   const userEvents = rest as Record<string, unknown>

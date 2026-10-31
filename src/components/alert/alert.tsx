@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
-import { createMemo, onCleanup, Show, splitProps } from 'solid-js'
+import { createMemo, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
+import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
@@ -118,59 +119,63 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
 
   return (
     <Show when={presence.present()}>
-      <Dynamic
-        component={local.as ?? 'div'}
-        data-slot="alert"
-        role={defaultRole()}
-        aria-live={defaultAriaLive()}
-        {...rootSlot}
-        {...rest}
-        ref={(element: HTMLElement) => {
-          callRef(local.ref, element)
-          if (element) {
-            onCleanup(presence.registerElement(element))
-          }
-        }}
-      >
-        <Show when={hasIcon()}>
-          <div data-slot="alert-icon" {...iconSlot}>
-            <Show
-              when={typeof resolvedIcon() === 'string'}
-              fallback={resolvedIcon() as JSX.Element}
-            >
-              <Icon name={resolvedIcon() as IconT.Name} />
-            </Show>
-          </div>
-        </Show>
-        <div data-slot="alert-content" {...contentSlot}>
-          <Show when={hasContent(title())}>
-            <div data-slot="alert-title" {...titleSlot}>
-              {title()}
-            </div>
-          </Show>
-          <Show when={hasDescription()}>
-            <div data-slot="alert-description" {...descriptionSlot}>
-              {description()}
-            </div>
-          </Show>
-          {local.children}
-        </div>
-        <Show when={hasContent(actions())}>
-          <div data-slot="alert-actions" {...actionsSlot}>
-            {actions()}
-          </div>
-        </Show>
-        <Show when={hasClose()}>
-          <button
-            data-slot="alert-close"
-            {...closeSlot}
-            aria-label={messages().close}
-            onClick={() => setOpen(false)}
+      {(_present) => {
+        const [element, setElement] = createSignal<HTMLElement>()
+        bindElement(element, presence.registerElement)
+        return (
+          <Dynamic
+            component={local.as ?? 'div'}
+            data-slot="alert"
+            role={defaultRole()}
+            aria-live={defaultAriaLive()}
+            {...rootSlot}
+            {...rest}
+            ref={(element: HTMLElement) => {
+              setElement(element)
+              callRef(local.ref, element)
+            }}
           >
-            <Icon name={local.closeIcon ?? 'icon-close'} />
-          </button>
-        </Show>
-      </Dynamic>
+            <Show when={hasIcon()}>
+              <div data-slot="alert-icon" {...iconSlot}>
+                <Show
+                  when={typeof resolvedIcon() === 'string'}
+                  fallback={resolvedIcon() as JSX.Element}
+                >
+                  <Icon name={resolvedIcon() as IconT.Name} />
+                </Show>
+              </div>
+            </Show>
+            <div data-slot="alert-content" {...contentSlot}>
+              <Show when={hasContent(title())}>
+                <div data-slot="alert-title" {...titleSlot}>
+                  {title()}
+                </div>
+              </Show>
+              <Show when={hasDescription()}>
+                <div data-slot="alert-description" {...descriptionSlot}>
+                  {description()}
+                </div>
+              </Show>
+              {local.children}
+            </div>
+            <Show when={hasContent(actions())}>
+              <div data-slot="alert-actions" {...actionsSlot}>
+                {actions()}
+              </div>
+            </Show>
+            <Show when={hasClose()}>
+              <button
+                data-slot="alert-close"
+                {...closeSlot}
+                aria-label={messages().close}
+                onClick={() => setOpen(false)}
+              >
+                <Icon name={local.closeIcon ?? 'icon-close'} />
+              </button>
+            </Show>
+          </Dynamic>
+        )
+      }}
     </Show>
   )
 }

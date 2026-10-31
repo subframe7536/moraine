@@ -39,7 +39,8 @@ export interface TreeNavigation {
   focus: (key: string, options?: { dom?: boolean }) => void
   onKeyDown: (event: KeyboardEvent, key: string) => void
   registerElement: (key: string, element: HTMLElement) => () => void
-  registerRoot: (element: HTMLElement | undefined) => void
+  /** Tracks focus within the tree root; returns a release function. */
+  registerRoot: (element: HTMLElement) => () => void
   registerScroller: (scroll: ((key: string) => void) | undefined) => void
   isFocusWithin: () => boolean
 }
@@ -305,20 +306,24 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     registerElement,
     registerRoot: (element) => {
       removeRootListeners?.()
-      removeRootListeners = undefined
       root = element
-      if (element) {
-        setHasFocusWithin(element.contains(element.ownerDocument.activeElement))
-        removeRootListeners = attachEventListenerMap(element, {
-          focusin: () => setHasFocusWithin(true),
-          focusout: (event: FocusEvent) => {
-            if (!element.contains(event.relatedTarget as Node | null)) {
-              setHasFocusWithin(false)
-            }
-          },
-        })
-      } else {
-        setHasFocusWithin(false)
+      setHasFocusWithin(element.contains(element.ownerDocument.activeElement))
+      const removeListeners = attachEventListenerMap(element, {
+        focusin: () => setHasFocusWithin(true),
+        focusout: (event: FocusEvent) => {
+          if (!element.contains(event.relatedTarget as Node | null)) {
+            setHasFocusWithin(false)
+          }
+        },
+      })
+      removeRootListeners = removeListeners
+      return () => {
+        removeListeners()
+        if (removeRootListeners === removeListeners) {
+          removeRootListeners = undefined
+          root = undefined
+          setHasFocusWithin(false)
+        }
       }
     },
     registerScroller: (scroll) => {

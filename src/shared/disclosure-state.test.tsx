@@ -74,7 +74,7 @@ describe('createDisclosureState', () => {
     setScrollHeight(element, () => scrollHeight)
     document.body.append(element)
 
-    lifecycle.state.setContentElement(element)
+    lifecycle.state.registerMeasureElement(element)
     expect(lifecycle.state.contentHeight()).toBe(10)
 
     scrollHeight = 20
@@ -97,7 +97,7 @@ describe('createDisclosureState', () => {
     setScrollHeight(element, () => scrollHeight)
     document.body.append(element)
 
-    lifecycle.state.setContentElement(element)
+    lifecycle.state.registerMeasureElement(element)
     scrollHeight = 20
 
     expect(observers[0]?.observe).toHaveBeenCalledWith(element)
@@ -123,7 +123,7 @@ describe('createDisclosureState', () => {
     setScrollHeight(element, () => scrollHeight)
     document.body.append(element)
 
-    lifecycle.state.setContentElement(element)
+    lifecycle.state.registerMeasureElement(element)
     await Promise.resolve()
     expect(lifecycle.state.contentHeight()).toBe(0)
 
@@ -150,8 +150,8 @@ describe('createDisclosureState', () => {
     setScrollHeight(secondElement, () => secondHeight)
     document.body.append(firstElement, secondElement)
 
-    lifecycle.state.setContentElement(firstElement)
-    lifecycle.state.setContentElement(secondElement)
+    lifecycle.state.registerMeasureElement(firstElement)
+    lifecycle.state.registerMeasureElement(secondElement)
 
     expect(observers[0]?.disconnect).toHaveBeenCalledTimes(1)
     expect(lifecycle.state.contentHeight()).toBe(20)
@@ -172,22 +172,28 @@ describe('createDisclosureState', () => {
     expect(observers[1]?.disconnect).toHaveBeenCalledTimes(1)
   })
 
-  test('releases element observers with registration cleanup', () => {
-    const observers = installResizeObserverMock()
+  test('measures the latest registration and falls back when it is released', () => {
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: createDisclosureState({ open: () => true }),
     }))
     const first = document.createElement('div')
     const second = document.createElement('div')
-    const releaseFirst = lifecycle.state.registerElement(first)
-    const releaseSecond = lifecycle.state.registerElement(second)
-    expect(observers[0]?.disconnect).toHaveBeenCalledTimes(1)
+    setScrollHeight(first, () => 10)
+    setScrollHeight(second, () => 20)
+    document.body.append(first, second)
+
+    const releaseFirst = lifecycle.state.registerMeasureElement(first)
+    const releaseSecond = lifecycle.state.registerMeasureElement(second)
+    expect(lifecycle.state.contentHeight()).toBe(20)
+
+    releaseSecond()
+    expect(lifecycle.state.contentHeight()).toBe(10)
 
     releaseFirst()
-    expect(observers[1]?.disconnect).not.toHaveBeenCalled()
-    releaseSecond()
-    expect(observers[1]?.disconnect).toHaveBeenCalledTimes(1)
+    expect(lifecycle.state.contentHeight()).toBe(0)
+    first.remove()
+    second.remove()
     lifecycle.dispose()
   })
 
@@ -227,32 +233,43 @@ describe('createDisclosureState', () => {
     })
   })
 
-  test('measures content element and switches to custom measure element when registered', () => {
+  test('keeps measuring the newest registration when an older duplicate is released', () => {
+    const lifecycle = createRoot((dispose) => ({
+      dispose,
+      state: createDisclosureState({ open: () => true }),
+    }))
+    const shell = document.createElement('div')
+    const body = document.createElement('div')
+    setScrollHeight(shell, () => 30)
+    setScrollHeight(body, () => 10)
+    document.body.append(shell, body)
+
+    const releaseFirstShell = lifecycle.state.registerMeasureElement(shell)
+    lifecycle.state.registerMeasureElement(body)
+    lifecycle.state.registerMeasureElement(shell)
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    releaseFirstShell()
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    shell.remove()
+    body.remove()
+    lifecycle.dispose()
+  })
+
+  test('keeps the newer content element when a superseded one is released', () => {
     createRoot((dispose) => {
-      const [open] = createSignal(true)
-      const state = createDisclosureState({ open })
+      const state = createDisclosureState({ open: () => true })
+      const first = document.createElement('div')
+      const second = document.createElement('div')
+      setScrollHeight(first, () => 40)
 
-      const contentEl = document.createElement('div')
-      setScrollHeight(contentEl, () => 100)
-      document.body.append(contentEl)
-
-      const unregisterContent = state.registerContentElement(contentEl)
-      expect(state.contentHeight()).toBe(100)
-
-      const innerEl = document.createElement('div')
-      setScrollHeight(innerEl, () => 150)
-      document.body.append(innerEl)
-
-      const unregisterMeasure = state.registerMeasureElement(innerEl)
-      expect(state.contentHeight()).toBe(150)
-
-      unregisterMeasure()
-      expect(state.contentHeight()).toBe(100)
-
-      unregisterContent()
+      const releaseFirst = state.registerContentElement(first)
       expect(state.contentHeight()).toBe(0)
-      contentEl.remove()
-      innerEl.remove()
+      state.registerContentElement(second)
+      releaseFirst()
+
+      expect(state.contentElement()).toBe(second)
       dispose()
     })
   })

@@ -247,6 +247,82 @@ describe('oxlint-plugin-moraine', () => {
     })
   })
 
+  describe('ref-callback-assign-only', () => {
+    const rule = morainePlugin.rules['ref-callback-assign-only']
+
+    /** Builds `call` inside `fn`, with parent links, and places `fn` under `container`. */
+    function callInFunction(callee: any, attach: (fn: any) => void): any {
+      const call: any = { type: 'CallExpression', callee, arguments: [] }
+      const statement: any = { type: 'ExpressionStatement', expression: call }
+      const body: any = { type: 'BlockStatement', body: [statement] }
+      const fn: any = { type: 'ArrowFunctionExpression', params: [], body }
+      call.parent = statement
+      statement.parent = body
+      body.parent = fn
+      attach(fn)
+      return call
+    }
+
+    function jsxRef(fn: any, name = 'ref'): void {
+      const container: any = { type: 'JSXExpressionContainer', expression: fn }
+      const attribute: any = {
+        type: 'JSXAttribute',
+        name: { type: 'JSXIdentifier', name },
+        value: container,
+      }
+      fn.parent = container
+      container.parent = attribute
+    }
+
+    function propertyRef(fn: any, key = 'ref'): void {
+      fn.parent = { type: 'Property', key: { type: 'Identifier', name: key }, value: fn }
+    }
+
+    it('reports lifecycle, listener, and register calls in JSX and object ref callbacks', () => {
+      const ctx = createMockContext('/project/src/components/tree/tree-item.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'onCleanup' }, jsxRef))
+      visitor.CallExpression(
+        callInFunction(
+          {
+            type: 'MemberExpression',
+            computed: false,
+            object: { type: 'Identifier', name: 'presence' },
+            property: { type: 'Identifier', name: 'registerElement' },
+          },
+          propertyRef,
+        ),
+      )
+      visitor.CallExpression(
+        callInFunction({ type: 'Identifier', name: 'createEventListener' }, jsxRef),
+      )
+
+      expect(ctx.reports.map((report) => report.data?.name)).toEqual([
+        'onCleanup',
+        'registerElement',
+        'createEventListener',
+      ])
+      expect(ctx.reports.every((report) => report.messageId === 'lifecycleInRef')).toBe(true)
+    })
+
+    it('allows assignments and callRef in refs, and lifecycle calls outside refs', () => {
+      const ctx = createMockContext('/project/src/components/tree/tree-item.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'callRef' }, jsxRef))
+      visitor.CallExpression(callInFunction({ type: 'Identifier', name: 'setElement' }, jsxRef))
+      visitor.CallExpression(
+        callInFunction({ type: 'Identifier', name: 'onCleanup' }, (fn) => jsxRef(fn, 'onClick')),
+      )
+      visitor.CallExpression(
+        callInFunction({ type: 'Identifier', name: 'onCleanup' }, (fn) => propertyRef(fn, 'bind')),
+      )
+
+      expect(ctx.reports).toHaveLength(0)
+    })
+  })
+
   describe('require-create-effect-on', () => {
     const rule = morainePlugin.rules['require-create-effect-on']
 

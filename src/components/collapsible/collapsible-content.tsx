@@ -1,8 +1,9 @@
 import type { JSX } from 'solid-js'
-import { onCleanup, Show, splitProps } from 'solid-js'
+import { createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
+import { bindElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
@@ -39,12 +40,19 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   })
 
   const shouldRenderContent = () => disclosure.shouldMount()
+  const [wrapper, setWrapper] = createSignal<HTMLDivElement>()
+  bindElement(wrapper, (element) => {
+    const releaseContent = disclosure.registerContentElement(element)
+    const releaseMeasure = disclosure.registerMeasureElement(element)
+    return () => {
+      releaseMeasure()
+      releaseContent()
+    }
+  })
 
   return (
     <div
-      ref={(element: HTMLElement) => {
-        onCleanup(disclosure.registerContentElement(element))
-      }}
+      ref={setWrapper}
       id={context.contentId()}
       aria-labelledby={context.triggerId()}
       aria-hidden={disclosure.ariaHidden()}

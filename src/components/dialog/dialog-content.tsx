@@ -4,6 +4,7 @@ import {
   children as resolveChildren,
   createEffect,
   createMemo,
+  createSignal,
   mergeProps,
   on,
   onCleanup,
@@ -14,6 +15,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -52,11 +54,6 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useModalContext()
-  const binding = createModalContentBinding(family, {
-    ref: () => local.ref,
-    onKeyDown: () =>
-      rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
-  })
   const merged = mergeProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     dialog,
@@ -94,7 +91,28 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     ariaLabel() === undefined ? registration.titleIds().join(' ') || undefined : undefined
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
+  function RenderDialogOverlay(): JSX.Element {
+    const [overlay, setOverlay] = createSignal<HTMLDivElement>()
+    // Only the backdrop element animates as part of the presence; a plain wrapper does not.
+    bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
+    return (
+      <div
+        data-slot={isOverlay() ? 'dialog-overlay' : undefined}
+        {...(isOverlay() ? overlaySlot : undefined)}
+        ref={setOverlay}
+      >
+        <RenderDialogContent />
+      </div>
+    )
+  }
+
   function RenderDialogContent(): JSX.Element {
+    // The portal branch owns the content binding, so it releases when the content unmounts.
+    const binding = createModalContentBinding(family, {
+      ref: () => local.ref,
+      onKeyDown: () =>
+        rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+    })
     const contentShorthand = createShorthandContent(local)
     const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>
@@ -156,24 +174,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
       }}
     >
       <ModalPortal>
-        <div
-          data-slot={isOverlay() ? 'dialog-overlay' : undefined}
-          {...(isOverlay() ? overlaySlot : undefined)}
-          ref={(element) => {
-            let unregister: (() => void) | undefined
-            createEffect(
-              on(isOverlay, (overlayActive) => {
-                unregister?.()
-                unregister = overlayActive ? family.presence.registerElement(element) : undefined
-              }),
-            )
-            onCleanup(() => {
-              unregister?.()
-            })
-          }}
-        >
-          <RenderDialogContent />
-        </div>
+        <RenderDialogOverlay />
       </ModalPortal>
     </DialogContentProvider>
   )

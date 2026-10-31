@@ -14,8 +14,8 @@ export interface TransitionPresenceState {
     readonly 'data-expanded'?: string
   }
   present: Accessor<boolean>
+  /** Tracks an element until its exit animation settles; call the returned function to release it. */
   registerElement: (element: HTMLElement) => () => void
-  setElement: (element: HTMLElement | undefined) => void
 }
 
 interface AnimationEntry {
@@ -121,7 +121,6 @@ export function createTransitionPresence(
   const pendingAnimations = new Map<HTMLElement, Array<string>>()
   let exitTimeout: ReturnType<typeof setTimeout> | undefined
   let nextRegistrationId = 0
-  let legacyRegistrationId: number | undefined
   let disposed = false
 
   const clearPendingAnimations = (): void => {
@@ -374,27 +373,6 @@ export function createTransitionPresence(
 
         active = false
         removeRegistration(registrationId)
-      }
-    },
-    setElement(nextElement) {
-      const previousRegistrationId = legacyRegistrationId
-
-      if (
-        nextElement &&
-        previousRegistrationId !== undefined &&
-        registrations().get(previousRegistrationId) === nextElement
-      ) {
-        return
-      }
-
-      if (nextElement) {
-        legacyRegistrationId = addRegistration(nextElement)
-      } else {
-        legacyRegistrationId = undefined
-      }
-
-      if (previousRegistrationId !== undefined) {
-        removeRegistration(previousRegistrationId)
       }
     },
   }

@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
-import { onCleanup } from 'solid-js'
+import { createSignal } from 'solid-js'
 
+import { bindElement, publishElement } from '../../shared/element-binding'
 import { callHandler, callRef } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/utils'
 
@@ -11,22 +12,29 @@ export interface ModalContentBindingOptions {
   onKeyDown?: () => JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent> | undefined
 }
 
-/** Reusable DOM wiring for modal content surfaces: presence ref registration and focus trapping. */
+/**
+ * Reusable DOM wiring for modal content surfaces: presence registration and focus trapping.
+ *
+ * Call it in the owner that renders the content element, so the binding releases on unmount.
+ */
 export function createModalContentBinding(
   context: ModalContext,
   options: ModalContentBindingOptions = {},
 ) {
+  const [element, setElement] = createSignal<HTMLDivElement>()
+  bindElement(element, (current) => {
+    const unpublish = publishElement(context.contentElement, context.setContentElement)(current)
+    const release = context.presence.registerElement(current)
+    return () => {
+      release()
+      unpublish()
+    }
+  })
+
   return {
     ref: (element: HTMLDivElement) => {
-      const unregister = context.presence.registerElement(element)
-      context.setContentElement(element)
+      setElement(element)
       callRef(options.ref?.(), element)
-      onCleanup(() => {
-        unregister()
-        if (context.contentElement() === element) {
-          context.setContentElement(undefined)
-        }
-      })
     },
     onKeyDown: (event: KeyboardEvent & { currentTarget: HTMLDivElement; target: Element }) => {
       callHandler(event, options.onKeyDown?.())

@@ -19,6 +19,7 @@ import { Portal } from 'solid-js/web'
 import { useCn } from '../../../../provider/cn-context'
 import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
+import { bindElement } from '../../../../shared/element-binding'
 import { createEventListener } from '../../../../shared/event-listener'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
@@ -30,7 +31,7 @@ import { useFloatingPosition } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 import { focusWithoutScrolling, resolveDirection } from '../utils'
 
-import { attachSelectableItemHandlers, createMenuItemRenderers } from './menu-item'
+import { bindSelectableItemHandlers, createMenuItemRenderers } from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import {
   createPointerGraceIntent,
@@ -62,7 +63,8 @@ export interface OverlayMenuLayerProps<
   present: Accessor<boolean>
   refState?: (state: OverlayMenuLayerState | undefined) => void
   registerBranch: (element: HTMLElement) => () => void
-  setPresenceElement: (element: HTMLElement | undefined) => void
+  /** Keeps this layer's content mounted through its exit animation. */
+  registerPresenceElement: (element: HTMLElement) => () => void
 }
 
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
@@ -217,14 +219,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     ),
   )
 
-  onMount(() => {
-    const branchElement = positionerElement()
-
-    if (!branchElement) {
-      return
+  bindElement(positionerElement, (positioner) => {
+    setIsPositioned(false)
+    // Stay hidden until the floating position commits; an exiting layer is shown by the effect above.
+    if (props.open) {
+      positioner.style.visibility = 'hidden'
     }
-
-    onCleanup(registerLayerBranch(branchElement))
+    return registerLayerBranch(positioner)
   })
 
   createEffect(
@@ -257,24 +258,21 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     ),
   )
 
-  createEffect(
-    on(layer.contentElement, (content) => {
-      if (!content) {
-        return
-      }
-
-      createEventListener(
-        content,
-        'keydown',
-        (event) => {
-          if (props.open && !event.defaultPrevented) {
-            layer.handleTypeaheadKeyDown(event)
-          }
-        },
-        true,
-      )
-    }),
-  )
+  bindElement(layer.contentElement, (content) => {
+    const release = props.registerPresenceElement(content)
+    createEventListener(
+      content,
+      'keydown',
+      (event) => {
+        if (props.open && !event.defaultPrevented) {
+          layer.handleTypeaheadKeyDown(event)
+        }
+      },
+      true,
+    )
+    createEventListener(content, 'keydown', onContentKeyDown)
+    return release
+  })
 
   createEffect(
     on(
@@ -399,7 +397,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         }
 
         submenuLayerState = undefined
-        contentPresence.setElement(undefined)
       }),
     )
 
@@ -546,7 +543,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           [event.clientX, event.clientY],
         )
       },
-    } satisfies Parameters<typeof attachSelectableItemHandlers>[1]
+    } satisfies Parameters<typeof bindSelectableItemHandlers>[1]
+    bindSelectableItemHandlers(triggerElement, handlers)
 
     const itemSlot = getItemSlot({
       get class() {
@@ -576,10 +574,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           aria-expanded={isOpen() ? 'true' : 'false'}
           aria-disabled={itemProps.item.disabled ? 'true' : undefined}
           {...itemSlot}
-          ref={(itemElement) => {
-            setTriggerElement(itemElement)
-            onCleanup(attachSelectableItemHandlers(itemElement, handlers))
-          }}
+          ref={setTriggerElement}
         >
           <RenderItemContent
             item={itemProps.item}
@@ -620,7 +615,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
               parentLayer={layer}
               present={contentPresence.present}
               registerBranch={registerLayerBranch}
-              setPresenceElement={contentPresence.setElement}
+              registerPresenceElement={contentPresence.registerElement}
               autoFocusStrategy={autoFocusStrategy()}
               onAutoFocusHandled={() => {
                 setAutoFocusStrategy('none')
@@ -733,17 +728,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   return (
     <div
-      ref={(element) => {
-        setPositionerElement(element)
-        element.style.position = 'absolute'
-        element.style.left = '0'
-        element.style.top = '0'
-        setIsPositioned(false)
-
-        if (props.open) {
-          element.style.visibility = 'hidden'
-        }
-      }}
+      ref={setPositionerElement}
       data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
     >
@@ -758,9 +743,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         {...contentPresentation}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
-          props.setPresenceElement(element)
           callRef(props.elementAttrs?.ref, element)
-          createEventListener(element, 'keydown', onContentKeyDown)
         }}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerDown)

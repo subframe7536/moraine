@@ -14,6 +14,7 @@ import {
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
+import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 
@@ -147,11 +148,14 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     },
   )
 
+  const [shell, setShell] = createSignal<HTMLDivElement>()
+  bindElement(shell, disclosure.registerContentElement)
+
   return (
     <div
       ref={(element) => {
         contentElement = element
-        onCleanup(disclosure.registerPresenceElement(element))
+        setShell(element)
       }}
       aria-hidden={disclosure.ariaHidden()}
       hidden={disclosure.hidden() && !allowHeightMotion()}
@@ -162,15 +166,15 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       onAnimationCancel={settle}
     >
       <Show when={disclosure.shouldMount()}>
-        <ul
-          ref={(element) => {
-            onCleanup(disclosure.registerMeasureElement(element))
-          }}
-          role="group"
-          class={TREE_LIST_CLASS}
-        >
-          <TreeItemList items={props.item.children} />
-        </ul>
+        {(_mounted) => {
+          const [list, setList] = createSignal<HTMLUListElement>()
+          bindElement(list, disclosure.registerMeasureElement)
+          return (
+            <ul ref={setList} role="group" class={TREE_LIST_CLASS}>
+              <TreeItemList items={props.item.children} />
+            </ul>
+          )
+        }}
       </Show>
     </div>
   )
@@ -200,6 +204,15 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
+  const [itemElement, setItemElement] = createSignal<HTMLElement>()
+  // Re-register when a reused row renders another item key.
+  createEffect(
+    on([itemElement, () => local.item.key], ([element, key]) => {
+      if (element) {
+        onCleanup(context.state.navigation.registerElement(key, element))
+      }
+    }),
+  )
   // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
   // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
   const rowAttributes = () => {
@@ -284,7 +297,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-disabled={local.item.isDisabled ? true : undefined}
         aria-busy={local.item.isLoading ? true : undefined}
         ref={(element: HTMLElement) => {
-          onCleanup(context.state.navigation.registerElement(local.item.key, element))
+          setItemElement(element)
           callRef(row()?.ref, element)
           callRef(local.ref, element)
         }}

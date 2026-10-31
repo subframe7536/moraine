@@ -1,8 +1,9 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, onCleanup, splitProps } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
+import { bindElement, publishElement } from '../../shared/element-binding'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -118,15 +119,18 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
       when={context.panelElement() && switchPresence.present() && (context.open() || displayed())}
     >
       {(_present) => {
+        const [element, setElement] = createSignal<HTMLDivElement>()
+        bindElement(element, (current) => {
+          const unpublish = publishElement(item.content, item.setContent)(current)
+          const release = switchPresence.registerElement(current)
+          return () => {
+            release()
+            unpublish()
+          }
+        })
         const attributes = mergePopperElementProps<HTMLDivElement>(
           {
-            ref: (element) => {
-              item.setContent(element)
-              onCleanup(switchPresence.registerElement(element))
-              onCleanup(() => {
-                item.setContent(undefined)
-              })
-            },
+            ref: setElement,
             onKeyDown,
           },
           rest,

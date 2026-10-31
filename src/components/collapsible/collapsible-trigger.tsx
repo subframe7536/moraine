@@ -43,7 +43,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     ref: () => local.ref,
     registration: {
       element: disclosure.triggerElement,
-      ref: disclosure.setTriggerElement,
+      setElement: disclosure.setTriggerElement,
     },
   })
 
