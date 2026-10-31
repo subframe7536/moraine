@@ -6,13 +6,22 @@ import type { InputT } from '../../../../../src'
 
 export type DocsPlaygroundControlValue = string | number | boolean
 
-export interface DocsPlaygroundInputControl {
-  kind: 'input'
-  prop: string
-  label: string
-  defaultValue: string | number
-  inputType?: 'text' | 'number'
-}
+/** A text input writes strings; a number input (`inputType: 'number'`) writes numbers. */
+export type DocsPlaygroundInputControl =
+  | {
+      kind: 'input'
+      prop: string
+      label: string
+      defaultValue: string
+      inputType?: 'text'
+    }
+  | {
+      kind: 'input'
+      prop: string
+      label: string
+      defaultValue: number
+      inputType: 'number'
+    }
 
 export interface DocsPlaygroundSwitchControl {
   kind: 'switch'
@@ -43,13 +52,16 @@ export interface DocsPlaygroundControlsProps {
   controls: readonly DocsPlaygroundControl[]
 }
 
-/** The value type a control writes: switches are boolean, selects are one of their option values. */
+/**
+ * The value type a control writes: switches are boolean, selects are one of their option values,
+ * number inputs are numbers, and text inputs are strings.
+ */
 export type DocsPlaygroundControlValueOf<C extends DocsPlaygroundControl> =
   C extends DocsPlaygroundSwitchControl
     ? boolean
     : C extends { kind: 'select'; options: readonly { value: infer V }[] }
       ? V
-      : C extends { defaultValue: number }
+      : C extends { inputType: 'number' }
         ? number
         : string
 
@@ -58,10 +70,30 @@ export type DocsPlaygroundValues<C extends readonly DocsPlaygroundControl[]> = {
   readonly [K in C[number] as K['prop']]: DocsPlaygroundControlValueOf<K>
 }
 
+/** The `prop` of each select whose `defaultValue` is not one of its option values. */
+type DocsPlaygroundInvalidSelect<K> = K extends {
+  kind: 'select'
+  prop: infer P
+  defaultValue: infer D
+  options: readonly { value: infer V }[]
+}
+  ? D extends V
+    ? never
+    : P
+  : never
+
+/** Fails the `controls` prop with a message when a select's `defaultValue` is not an option. */
+type DocsPlaygroundCheckedControls<C extends readonly DocsPlaygroundControl[]> = [
+  DocsPlaygroundInvalidSelect<C[number]>,
+] extends [never]
+  ? C
+  : C &
+      `select "${DocsPlaygroundInvalidSelect<C[number]> & string}" defaultValue is not one of its options`
+
 export interface DocsPlaygroundProps<
   C extends readonly DocsPlaygroundControl[] = readonly DocsPlaygroundControl[],
 > {
-  controls: C
+  controls: DocsPlaygroundCheckedControls<C>
   children: (values: DocsPlaygroundValues<C>) => JSX.Element
 }
 
@@ -107,22 +139,37 @@ export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPl
     }
 
     if (candidate.kind === 'input') {
-      if (
-        !isPrimitiveValue(candidate.defaultValue) ||
-        (candidate.inputType !== undefined &&
-          candidate.inputType !== 'text' &&
-          candidate.inputType !== 'number')
-      ) {
+      const label = candidate.label.trim()
+      if (candidate.inputType === 'number') {
+        if (
+          typeof candidate.defaultValue !== 'number' ||
+          !Number.isFinite(candidate.defaultValue)
+        ) {
+          throw new TypeError(
+            `[docs-playground] number input "${prop}" needs a numeric defaultValue`,
+          )
+        }
+        controls.push({
+          kind: 'input',
+          prop,
+          label,
+          defaultValue: candidate.defaultValue,
+          inputType: 'number',
+        })
+      } else if (candidate.inputType === undefined || candidate.inputType === 'text') {
+        if (typeof candidate.defaultValue !== 'string') {
+          throw new TypeError(`[docs-playground] text input "${prop}" needs a string defaultValue`)
+        }
+        controls.push({
+          kind: 'input',
+          prop,
+          label,
+          defaultValue: candidate.defaultValue,
+          inputType: candidate.inputType,
+        })
+      } else {
         continue
       }
-
-      controls.push({
-        kind: 'input',
-        prop,
-        label: candidate.label.trim(),
-        defaultValue: candidate.defaultValue,
-        inputType: candidate.inputType,
-      })
       props.add(prop)
       continue
     }
@@ -172,8 +219,14 @@ export function normalizeDocsPlaygroundControls(value: unknown): readonly DocsPl
       options.push({ label: option.label.trim(), value: optionValue })
     }
 
-    if (!validOptions || !values.has(getValueKey(candidate.defaultValue))) {
+    if (!validOptions) {
       continue
+    }
+
+    if (!values.has(getValueKey(candidate.defaultValue))) {
+      throw new TypeError(
+        `[docs-playground] select "${prop}" defaultValue ${JSON.stringify(candidate.defaultValue)} is not one of its options`,
+      )
     }
 
     controls.push({
