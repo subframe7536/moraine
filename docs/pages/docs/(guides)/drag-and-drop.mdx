@@ -22,10 +22,10 @@ Drag and drop reordering comes from an optional adapter in `moraine/dnd`. Compon
 props. A sortable composes through the render prop that already owns each row element, so it adds
 nothing to components that are not reordered.
 
-| Adapter              | Use it with                                                   |
-| -------------------- | ------------------------------------------------------------- |
-| `createListSortable` | `List`, and any flat collection whose row elements you render |
-| `createSortable`     | Custom collections that need their own drop rules             |
+| Adapter              | Use it with                                                                     |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `createListSortable` | `List`, `DataTable` rows, and any flat collection whose row elements you render |
+| `createSortable`     | Custom collections that need their own drop rules                               |
 
 ## Installation
 
@@ -72,6 +72,28 @@ const sortable = createListSortable({
   attributes. Spread it onto the outer row element.
 - Mount `sortable.Provider` once, around the component that renders the rows.
 
+## DataTable
+
+`DataTable` takes the row registration through `rowProps`, and a cell can render the handle with
+`handleRefFor`:
+
+```tsx
+const sortable = createListSortable({
+  items: () => table.getRowModel().rows,
+  getId: (row) => row.id,
+  onReorder: (event) => setData(event.items.map((row) => row.original)),
+})
+
+// In a column: cell: (props) => <button ref={sortable.handleRefFor(props.row.id)}>⋮⋮</button>
+
+<sortable.Provider>
+  <DataTable table={table} rowProps={(context) => sortable.useRow(context).props} />
+</sortable.Provider>
+```
+
+Read [DataTable drag to reorder rows](/components/data-table#drag-to-reorder-rows) for sorting,
+pagination, and sub-rows.
+
 ## How it works
 
 ### Rows stay in place
@@ -115,6 +137,8 @@ Pass `sortable.rangeExtractor` to the virtualizer. It renders the visible range 
 the default extractor, and adds the dragged row while it is scrolled out of view. Dragging near
 the edge of the scroll container scrolls it.
 
+`createTableVirtualizer` takes the same option.
+
 ```tsx
 const virtualizer = createListVirtualizer<Item>({
   estimateSize: () => 36,
@@ -142,8 +166,14 @@ import { PointerSensor } from '@dnd-kit/solid'
 const sortable = createListSortable({ items, onReorder, sensors: [PointerSensor] })
 ```
 
-`createListSortable` also takes `isDisabled(item, index)` to keep rows from being dragged or
-dropped on.
+`createListSortable` also takes:
+
+- `getId(item, index)`: a stable id, used by `handleRefFor`. Defaults to the index.
+- `isDisabled(item, index)`: keeps a row from being dragged or dropped on.
+- `canDrop(source, target, position)`: rejects a drop location before it shows an indicator.
+
+`onReorder` also receives the `target` item and the `position` (`before` or `after`) for data that
+is not a flat array. `moveItem(items, from, to)` returns a moved copy of an array.
 
 ## Custom collections
 

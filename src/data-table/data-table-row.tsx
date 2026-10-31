@@ -1,8 +1,9 @@
 import { FlexRender } from '@tanstack/solid-table'
 import type { Cell, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, untrack } from 'solid-js'
+import { For, Show, createMemo, splitProps, untrack } from 'solid-js'
 
+import { callHandler, callRef } from '../shared/utils'
 import type { TableVirtualRowProps } from '../virtualizer/virtualizer.types'
 
 import { useDataTableContext } from './data-table-context'
@@ -18,12 +19,12 @@ import type { DataTableT } from './data-table.types'
 
 export type DataTableRowProps<TData extends RowData> = Pick<
   DataTableT.Base<TData>,
-  'rowClass' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
+  'rowClass' | 'rowProps' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
 > & {
   row: DataTableT.Row<TData>
   index: number
   /** Virtual row wiring (`data-index`, measurement ref, `aria-rowindex`). */
-  rowProps?: TableVirtualRowProps
+  virtualRowProps?: TableVirtualRowProps
 }
 
 /** Body row plus its optional expanded detail row. */
@@ -114,15 +115,45 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
     }),
   })
 
+  // A virtual row keeps its wiring for its lifetime; `rowProps` runs once per row, here.
+  const [virtualOwned, virtualRest] = splitProps(untrack(() => props.virtualRowProps) ?? {}, [
+    'ref',
+  ])
+  const [extraOwned, extraRest] = splitProps(
+    untrack(
+      () =>
+        props.rowProps?.({
+          get row() {
+            return props.row
+          },
+          get index() {
+            return props.index
+          },
+        }) ?? {},
+    ),
+    ['ref', 'onClick', 'onDblClick'],
+  )
+
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
   return (
     <>
       <tr
-        {...props.rowProps}
+        {...virtualRest}
         data-slot="data-table-row"
         {...rowSlot}
-        onClick={(event) => props.onRowClick?.(props.row, event)}
-        onDblClick={(event) => props.onRowDoubleClick?.(props.row, event)}
+        {...extraRest}
+        ref={(element) => {
+          callRef(virtualOwned.ref, element)
+          callRef(extraOwned.ref, element)
+        }}
+        onClick={(event) => {
+          callHandler(event, extraOwned.onClick)
+          props.onRowClick?.(props.row, event)
+        }}
+        onDblClick={(event) => {
+          callHandler(event, extraOwned.onDblClick)
+          props.onRowDoubleClick?.(props.row, event)
+        }}
       >
         <Show
           when={windowCells()}

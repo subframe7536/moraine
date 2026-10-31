@@ -190,6 +190,22 @@ export namespace DataTableT {
     readonly row: Row<TData>
   }
 
+  /** Row passed to `rowProps`. */
+  export interface RowPropsContext<TData extends RowData = RowData> {
+    readonly row: Row<TData>
+    /** Position among the rendered body rows. */
+    readonly index: number
+  }
+
+  /**
+   * Attributes for a body row element. `class` and `style` come from `rowClass` and the `row`
+   * slot instead; `ref`, `onClick`, and `onDblClick` are composed with the table's own.
+   */
+  export type RowAttributes = Omit<
+    JSX.HTMLAttributes<HTMLTableRowElement>,
+    'children' | 'class' | 'classList' | 'style'
+  >
+
   /**
    * Virtualizer accepted by the `virtualizer` prop, such as
    * `createTableVirtualizer<DataTableT.Row<TData>>()`. The columns it virtualizes are the
@@ -206,6 +222,12 @@ export namespace DataTableT {
     containerRef?: Ref<HTMLDivElement>
     /** Custom class or class getter applied to each row (`<tr>`). */
     rowClass?: SlotClassValue | ((row: Row<TData>) => SlotClassValue)
+    /**
+     * Extra attributes for each body row (`<tr>`), such as drag wiring from
+     * `createListSortable().useRow`. Called once per row, under that row's owner, so it may call
+     * row-level hooks; read `context` fields lazily to follow index changes.
+     */
+    rowProps?: (context: RowPropsContext<TData>) => RowAttributes
     /** Whether the table is currently in a loading state. */
     loading?: boolean
     /** Custom loading state content. */
