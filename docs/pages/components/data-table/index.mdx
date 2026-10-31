@@ -574,6 +574,10 @@ when the rows render in data order. Otherwise, update `data` from the moved `eve
 - **Sub-rows**: pass `canDrop: (source, target) => source.parentId === target.parentId` so rows
   move only among their siblings.
 
+The table styles the drag: the row stays in place while a copy at 60% opacity follows the pointer
+(`data-dnd-dragging`), the target row keeps the hover background, and its cells draw a line on the
+`before` or `after` edge. Override them through the `row` and `cell` slots.
+
 With a `virtualizer`, pass `table.getPrePaginatedRowModel().rows` as `items` and
 `rangeExtractor: sortable.rangeExtractor` to `createTableVirtualizer`, so the dragged row stays
 mounted while it is scrolled out of view.
@@ -694,7 +698,9 @@ requests fail: an `Alert` shows the error with a Retry button that calls the res
 ### Choose and reorder columns
 
 Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists
-the columns that can hide, the chips move visible columns, and Reset restores the defaults. The
+the columns that can hide, and Reset restores the defaults. Drag a chip's grip to move a visible
+column: the chips are a horizontal `createListSortable`, and hidden columns keep their slots in the
+order. The
 name column sets `enableHiding: false`, so it can move but not hide. The column definitions never
 change.
 
@@ -749,8 +755,9 @@ and Escape cancels. The table reads `data` through a getter, so the saved value 
 ### Reorder a release queue
 
 Drag the grip in the first column, or focus it and press Space, then the arrow keys. The column
-renders the handle with `sortable.handleRefFor(row.id)`, and the row `rowClass` styles the drop
-indicator from `data-drop-position`.
+renders the handle with `sortable.handleRefFor(row.id)`. The table styles the drag itself: the row
+stays in place while a copy at 60% opacity follows the pointer, and the target row shows a line on
+the side the row lands on.
 
 <Preview path="./sortable-rows" />
 

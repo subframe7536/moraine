@@ -98,6 +98,17 @@ export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
 const PINNED_CELL_CLASS =
   'data-pinned:bg-background data-[pinned-edge=end]:shadow-[inset_1px_0_0_var(--border)] data-[pinned-edge=start]:shadow-[inset_-1px_0_0_var(--border)] [tr[data-selected]>&]:data-pinned:bg-accent'
 
+/**
+ * Drag presentation for `createListSortable` from `moraine/dnd` through `rowProps`. The row stays
+ * in place while a copy (`data-dnd-dragging`) follows the pointer at 60% opacity. The target row
+ * keeps the hover background while the drag captures the pointer, and its cells draw a straight
+ * line on the `before` or `after` edge.
+ */
+const DRAG_ROW_CLASS =
+  '[&[data-drop-position]:not([data-selected])]:bg-accent/50 data-[dnd-dragging]:bg-popover data-[dnd-dragging]:opacity-60'
+const DRAG_CELL_CLASS =
+  '[tr[data-drop-position=after]>&]:shadow-[inset_0_-2px_0_var(--primary)] [tr[data-drop-position=before]>&]:shadow-[inset_0_2px_0_var(--primary)]'
+
 export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   DataTableStyleSlot,
   DataTableStyleVariants
@@ -113,9 +124,9 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     // Virtualized bodies end with a spacer row, so the last entry carries `data-last`.
     body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0 [&>tr[data-last]]:border-b-0 [&>tr[data-last]>td]:border-b-0',
     footer: `${TABLE_FOOTER_CLASS} [&>tr:last-child>td]:border-b-0`,
-    row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0`,
+    row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0 ${DRAG_ROW_CLASS}`,
     head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}`,
-    cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS} data-tree:ps-(--mo-data-table-tree-pad)`,
+    cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS}  ${DRAG_CELL_CLASS} data-tree:ps-(--mo-data-table-tree-pad)`,
     empty: 'text-muted-foreground py-8 text-center',
     loading:
       'bg-background/50 flex items-center inset-0 justify-center absolute z-40 backdrop-blur-sm',
