@@ -1,5 +1,16 @@
 import type { JSX } from 'solid-js'
-import { For, Index, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import {
+  For,
+  Index,
+  Show,
+  createMemo,
+  createEffect,
+  createSignal,
+  on,
+  onCleanup,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -55,21 +66,32 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   const visualExpanded = () =>
     disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
-  // Clips the group only while its height animates, so focus rings of child rows stay visible.
-  const [animating, setAnimating] = createSignal(false)
+  // A toggle is in progress until its animation ends; the recipe applies the animation only then.
+  // A CSS animation that stays applied after it ends replays whenever the element is inserted
+  // again, such as when a drag library lifts or restores the item, or a reorder moves it. It also
+  // clips the group, so focus rings of child rows stay visible at rest.
+  //
+  // Derived rather than written on change: the state can change through methods, a controlled
+  // `expandedKeys`, or a late height measurement, and the attributes that start the animation must
+  // apply in the same update as each of them. Counting toggles keeps a reversal mid-animation in
+  // progress, so the opposite animation takes over. Toggles while height motion is off do not count.
+  const toggles = createMemo<number>(
+    on(visualExpanded, (_expanded, _previous, count?: number): number =>
+      count === undefined ? 0 : untrack(allowHeightMotion) ? count + 1 : count,
+    ),
+  )
+  const [settledToggles, setSettledToggles] = createSignal(untrack(toggles))
+  const animating = () => allowHeightMotion() && toggles() !== settledToggles()
+  const finish = () => setSettledToggles(untrack(toggles))
   let contentElement: HTMLElement | undefined
   createEffect(
     on(
-      visualExpanded,
+      toggles,
       () => {
-        if (!allowHeightMotion()) {
-          return
-        }
-        setAnimating(true)
         // No animation runs under reduced motion, so `animationend` never fires.
         requestAnimationFrame(() => {
           if (contentElement?.getAnimations?.().length === 0) {
-            setAnimating(false)
+            finish()
           }
         })
       },
@@ -78,7 +100,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
   const settle = (event: AnimationEvent) => {
     if (event.target === event.currentTarget) {
-      setAnimating(false)
+      finish()
     }
   }
   createEffect(

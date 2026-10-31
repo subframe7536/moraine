@@ -62,7 +62,7 @@ export default function SortableRowsExample() {
       <DataTable
         table={table}
         aria-label="Release queue"
-        rowClass="bg-background data-dragging:shadow-lg [&[data-drop-position=after]>td]:shadow-[inset_0_-2px_0_var(--primary)] [&[data-drop-position=before]>td]:shadow-[inset_0_2px_0_var(--primary)]"
+        rowClass="bg-background data-[dnd-dragging]:opacity-60 [&[data-drop-position=after]>td]:shadow-[inset_0_-2px_0_var(--primary)] [&[data-drop-position=before]>td]:shadow-[inset_0_2px_0_var(--primary)]"
         rowProps={(context) => sortable.useRow(context).props}
       />
     </sortable.Provider>
