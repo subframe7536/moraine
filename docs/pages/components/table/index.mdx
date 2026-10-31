@@ -143,13 +143,12 @@ highlights body rows under the pointer. Neither applies to selected rows.
 `'right'`. Because `Table.Head` defaults to left, header text is not centered the way the browser
 centers a plain `th`. Right-align numeric columns in both the header and the cells.
 
-`truncated` on `Table.Head` or `Table.Cell` clips overflow to one line with an ellipsis, but the
-element still needs a width to truncate at. Give it one by wrapping the content in a bounded element,
-such as a `div` with a `max-w-*` class that also sets `truncate`.
+`truncated` on `Table.Head` or `Table.Cell` keeps text on one line with an ellipsis. Add a
+`max-w-*` class to the same part.
 
 ```tsx
-<Table.Cell>
-  <div class="max-w-40 truncate">{customer.address}</div>
+<Table.Cell truncated class="max-w-40">
+  {customer.address}
 </Table.Cell>
 ```
 
