@@ -4,6 +4,7 @@ import {
   Show,
   createEffect,
   createMemo,
+  createSignal,
   mergeProps,
   on,
   onCleanup,
@@ -15,6 +16,7 @@ import type { SlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
+import { bindElement } from '../../shared/element-binding'
 import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
@@ -61,11 +63,12 @@ function AccordionItemPanel(props: {
     },
   )
 
+  const [element, setElement] = createSignal<HTMLDivElement>()
+  bindElement(element, (node) => props.disclosure.registerContentElement(node))
+
   return (
     <div
-      ref={(element) => {
-        onCleanup(props.disclosure.registerPresenceElement(element))
-      }}
+      ref={setElement}
       id={props.contentId}
       role="region"
       aria-labelledby={props.triggerId}
@@ -303,18 +306,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => (
-                  <div
-                    ref={(element) => {
-                      // Measure natural content, independently of the shell's animated height.
-                      onCleanup(disclosure.registerMeasureElement(element))
-                    }}
-                    data-slot="accordion-body"
-                    {...bodySlot}
-                  >
-                    {value()}
-                  </div>
-                )}
+                {(value) => {
+                  const [body, setBody] = createSignal<HTMLDivElement>()
+                  // Measure natural content, independently of the shell's animated height.
+                  bindElement(body, disclosure.registerMeasureElement)
+                  return (
+                    <div ref={setBody} data-slot="accordion-body" {...bodySlot}>
+                      {value()}
+                    </div>
+                  )
+                }}
               </Show>
             )
           }

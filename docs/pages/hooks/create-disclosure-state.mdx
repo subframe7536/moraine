@@ -24,8 +24,10 @@ function createDisclosureState(options: CreateDisclosureStateOptions): {
     readonly 'data-expanded'?: string
   }
   readonly disabled: Accessor<boolean>
-  readonly setContentElement: (element: HTMLElement | undefined) => void
-  readonly registerElement: (element: HTMLElement) => () => void
+  /** Keeps the content shell mounted through its exit animation; returns a release function. */
+  readonly registerContentElement: (element: HTMLElement) => () => void
+  /** Measures the element's `scrollHeight` into `contentHeight`; returns a release function. */
+  readonly registerMeasureElement: (element: HTMLElement) => () => void
 }
 
 interface CreateDisclosureStateOptions {
@@ -36,13 +38,25 @@ interface CreateDisclosureStateOptions {
 
 ## Usage Example
 
+Register elements from the component that renders them, not inside the `ref` callback, so the
+registration is released when the element unmounts.
+
 ```tsx title="src/MyCollapsible.tsx"
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { createDisclosureState } from 'moraine/utils'
 
 export function MyCollapsible() {
   const [open, setOpen] = createSignal(false)
   const disclosure = createDisclosureState({ open })
+  const [panel, setPanel] = createSignal<HTMLDivElement>()
+
+  createEffect(
+    on(panel, (element) => {
+      if (element) {
+        onCleanup(disclosure.registerMeasureElement(element))
+      }
+    }),
+  )
 
   return (
     <div>
@@ -50,7 +64,7 @@ export function MyCollapsible() {
 
       <div
         {...disclosure.dataAttrs}
-        ref={disclosure.setContentElement}
+        ref={setPanel}
         style={{
           '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
         }}
