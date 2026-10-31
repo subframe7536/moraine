@@ -8,58 +8,9 @@ search:
   tags: [single selection, options, radio, choice, radiogroup, plans, pricing]
 ---
 
-import { RadioGroup } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'card',
-      options: [
-        { label: 'Card', value: 'card' },
-        { label: 'List', value: 'list' },
-        { label: 'Table', value: 'table' },
-      ],
-    },
-    {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    {
-      kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'vertical',
-      options: [
-        { label: 'Vertical', value: 'vertical' },
-        { label: 'Horizontal', value: 'horizontal' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const PLAN_OPTIONS = [
-      { label: 'Hobby', value: 'hobby', description: 'Free forever for personal projects' },
-      { label: 'Pro', value: 'pro', description: '$20/month for growing teams' },
-      { label: 'Enterprise', value: 'enterprise', description: 'Custom scale and security' },
-    ]
-    return (
-      <div class="max-w-full w-96">
-        <RadioGroup
-          items={PLAN_OPTIONS}
-          defaultValue="pro"
-          variant={props.variant}
-          size={props.size}
-          disabled={props.disabled}
-          orientation={props.orientation}
-        />
-      </div>
-    )
-
-}}
-
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -141,15 +92,6 @@ labels and messages without binding a form store.
 <RadioGroup indicator="end" items={items} />
 <RadioGroup indicator="hidden" items={items} />
 ```
-
-### Keyboard interaction
-
-| Key                                          | Description                                                   |
-| -------------------------------------------- | ------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowRight</kbd> | Moves focus and selection to the next enabled radio item.     |
-| <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous enabled radio item. |
-| <kbd>Space</kbd>                             | Selects the focused radio item.                               |
-| <kbd>Tab</kbd>                               | Enters or leaves the group according to normal focus order.   |
 
 ## Examples
 

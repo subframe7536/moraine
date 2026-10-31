@@ -8,45 +8,9 @@ search:
   tags: [table, data, grid, rows, columns, data-table, tanstack, createDataTable]
 ---
 
-import DataTablePlayground from './playground'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
-    {
-      kind: 'select',
-      prop: 'showBorder',
-      label: 'Show Border',
-      defaultValue: 'row',
-      options: [
-        { label: 'Row', value: 'row' },
-        { label: 'Column', value: 'col' },
-        { label: 'Both', value: 'both' },
-      ],
-    },
-    { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
-    { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
-    { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
-    { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
-    { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
-    { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-    { kind: 'switch', prop: 'empty', label: 'Empty', defaultValue: false },
-  ]}
->
-  {(props) => <DataTablePlayground {...props} />}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -679,17 +643,6 @@ into one query, so each change sends one request. Pass the current page as `data
 and the previous page stays on screen while the next one loads.
 
 <Preview path="./server-data" />
-
-### Load data from remote
-
-The same manual setup, with a request function shaped like `fetch`: it takes an `AbortSignal` and
-can reject. A promise with a delay simulates the server here. Each new query aborts the request
-still in flight, so a slow response never replaces a newer page. Turn on the switch to make
-requests fail: an `Alert` shows the error with a Retry button that calls the resource's
-`refetch`, and the last loaded page stays visible. The simulated API sorts by one field, so
-`tableOptions.enableMultiSort` is `false`.
-
-<Preview path="./remote-data" />
 
 ### Choose and reorder columns
 

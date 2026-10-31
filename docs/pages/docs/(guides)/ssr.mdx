@@ -36,12 +36,12 @@ function CustomField() {
 
 ## Hydration-Safe Portals
 
-Floating overlays—such as `Dialog`, `Sheet`, `Popover`, `Tooltip`, and `ContextMenu`—frequently render into `document.body` via a Solid `<Portal>`.
+Floating overlays such as `Dialog`, `Sheet`, `Popover`, `Tooltip`, and `ContextMenu` render into `document.body` through a Solid `<Portal>`.
 
 In Moraine:
 
-- Overlays default to closed states, rendering nothing or minimal placeholders during initial server rendering.
-- When an overlay opens, Moraine delays portal insertion until hydration completes in the browser, preventing server/client DOM mismatch.
+- Overlays default to closed, so initial server rendering emits nothing or a minimal placeholder.
+- Content portals to the body on the client when the overlay opens, so the server and initial client tree match.
 - Read browser APIs in `onMount` or event handlers. For browser-only content, keep the server and
   initial client tree identical, then reveal that content after mounting.
 
@@ -138,8 +138,8 @@ SolidJS conditional `<Show>` primitives unmount elements immediately when their 
 
 During server rendering:
 
-- Hidden or transitioning elements maintain deterministic closed states.
-- Style attributes and animation variables (such as `--mo-collapsible-content-height`) resolve gracefully to safe initial values without triggering layout thrashing or browser DOM measurement calls.
+- Hidden or transitioning elements keep deterministic closed states.
+- Animation variables such as `--mo-collapsible-content-height` resolve to safe initial values without browser DOM measurement.
 
 ## Best Practices for SSR Safety
 

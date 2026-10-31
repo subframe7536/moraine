@@ -5,7 +5,7 @@ search:
   tags: [createMediaQuery, media query, responsive, mobile, matchMedia]
 ---
 
-`createMediaQuery` returns a reactive boolean accessor that tracks whether a CSS media query matches the current viewport or system setting. It updates automatically when the screen resizes or system settings change.
+`createMediaQuery` returns a reactive boolean accessor that tracks whether a CSS media query matches. It updates when the query's match state changes.
 
 ## Import
 
@@ -30,20 +30,17 @@ import { createMediaQuery } from 'moraine/utils'
 
 export function ResponsiveLayout() {
   const isMobile = createMediaQuery('(max-width: 768px)', false)
-  const prefersDark = createMediaQuery('(prefers-color-scheme: dark)', false)
 
   return (
-    <div>
-      <Show when={isMobile()} fallback={<div>Desktop Navigation</div>}>
-        <div>Mobile Drawer Navigation</div>
-      </Show>
-    </div>
+    <Show when={isMobile()} fallback={<div>Desktop Navigation</div>}>
+      <div>Mobile Drawer Navigation</div>
+    </Show>
   )
 }
 ```
 
 ## Features
 
-- **SSR Safe**: Uses `defaultValue` during server rendering and attaches `matchMedia` listeners in the browser.
-- **Dynamic Queries**: The `query` argument can be a reactive accessor function (e.g. `() => isDesktop() ? '(min-width: 1024px)' : '(min-width: 640px)'`).
-- **Auto Cleanup**: Disposes of the underlying media listener when the Solid owner scope disposes.
+- Returns `defaultValue` during server rendering, then attaches a `matchMedia` listener in the browser.
+- The `query` argument may be an accessor, so the tracked query can change reactively (for example, `() => isDesktop() ? '(min-width: 1024px)' : '(min-width: 640px)'`).
+- Removes the media listener when the Solid owner disposes.

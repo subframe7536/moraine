@@ -9,71 +9,9 @@ search:
   tags: [actions, menu, submenu, dropdown, dropdown menu, popover menu]
 ---
 
-import { Button, DropdownMenu } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
->
-  {(props) => (
-    <DropdownMenu disabled={props.disabled}>
-      <DropdownMenu.Trigger as={Button} variant="outline" trailing="i-lucide:chevron-down">
-        Account Actions
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content
-        items={[
-          {
-            type: 'group',
-            label: 'Account',
-            children: [
-              {
-                label: 'Profile',
-                description: 'Manage your public profile',
-                icon: 'i-lucide:user',
-              },
-              { label: 'Billing', icon: 'i-lucide:credit-card' },
-              { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
-              {
-                label: 'Workspace',
-                icon: 'i-lucide:building-2',
-                children: [
-                  { label: 'Personal', icon: 'i-lucide:user' },
-                  { label: 'Team', icon: 'i-lucide:users' },
-                ],
-              },
-            ],
-          },
-          {
-            type: 'group',
-            children: [
-              { type: 'separator' },
-              {
-                type: 'checkbox',
-                label: 'Notifications',
-                icon: 'i-lucide:bell',
-                defaultChecked: true,
-              },
-              { label: 'Sign out', icon: 'i-lucide:log-out', variant: 'danger' },
-            ],
-          },
-        ]}
-        size={props.size}
-      />
-    </DropdownMenu>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 

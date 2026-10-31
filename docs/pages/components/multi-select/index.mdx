@@ -8,90 +8,9 @@ search:
   tags: [combobox, multiple selection, items, multi-select, tags, chips]
 ---
 
-import { MultiSelect } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Subtle', value: 'subtle' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'None', value: 'none' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
-    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
-    {
-      kind: 'switch',
-      prop: 'openOnControlClick',
-      label: 'Open on control click',
-      defaultValue: true,
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
->
-  {(props) => (
-    <MultiSelect
-      items={
-        props.empty
-          ? []
-          : [
-              {
-                type: 'group',
-                label: 'Product',
-                items: [
-                  {
-                    label: 'Design',
-                    description: 'Interface and visual design',
-                    value: 'design',
-                    icon: 'i-lucide:palette',
-                  },
-                  { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
-                  { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
-                ],
-              },
-              { type: 'separator' },
-              {
-                type: 'group',
-                label: 'Go-to-market',
-                items: [
-                  { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
-                  { label: 'Research', value: 'research', icon: 'i-lucide:search' },
-                ],
-              },
-            ]
-      }
-      defaultValue={['design', 'dev']}
-      leadingIcon="i-lucide:tags"
-      allowClear
-      maxTagCount={1}
-      placeholder="Select topics..."
-      variant={props.variant}
-      size={props.size}
-      open={props.open}
-      search={props.search}
-      openOnControlClick={props.openOnControlClick}
-      disabled={props.disabled}
-      class="max-w-96 min-w-40 w-60%"
-    />
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -184,9 +103,8 @@ export function Example() {
 
 ### Values and tag lifecycle
 
-The control slot wraps the interactive tags container and floating anchor. When non-editable,
-clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking
-the control focuses the input without opening the panel so users can type immediately. Use
+When the control is non-editable, clicking it opens the panel. When it is editable (`search` or
+`createItem`), clicking it focuses the input without opening the panel so a user can type. Set
 `openOnControlClick` to override that default.
 
 `value` contains the selected item values as an array. An empty array means no selection; an empty

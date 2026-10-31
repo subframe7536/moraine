@@ -24,30 +24,28 @@ export function SortableVirtualization() {
 
   return (
     <sortable.Provider>
-      <div class="border border-border rounded-md w-full overflow-hidden">
-        <List
-          as="div"
-          items={items()}
-          virtualizer={virtualizer}
-          role="list"
-          aria-label="Playlist"
-          class="h-72 overflow-y-auto"
-          itemRender={(context) => {
-            const row = sortable.useRow(context)
-            return (
-              <div
-                {...row.props}
-                role="listitem"
-                class="bg-background cursor-grab data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)] data-dragging:shadow-lg"
-              >
-                <div class="text-sm px-3 border-b border-border flex h-9 items-center">
-                  {context.item.label}
-                </div>
+      <List
+        as="div"
+        items={items()}
+        virtualizer={virtualizer}
+        role="list"
+        aria-label="Playlist"
+        class="border border-border rounded-md h-72 w-full overflow-y-auto"
+        itemRender={(context) => {
+          const row = sortable.useRow(context)
+          return (
+            <div
+              {...row.props}
+              role="listitem"
+              class="bg-background cursor-grab data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)] data-dragging:shadow-lg"
+            >
+              <div class="text-sm px-3 border-b border-border flex h-9 items-center">
+                {context.item.label}
               </div>
-            )
-          }}
-        />
-      </div>
+            </div>
+          )
+        }}
+      />
     </sortable.Provider>
   )
 }
