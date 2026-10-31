@@ -27,7 +27,7 @@ import Playground from './playground'
 
 Use CopyButton to copy a string or `ClipboardItem` to the clipboard from a single control. It writes
 through `navigator.clipboard` and falls back to `document.execCommand('copy')` when the Clipboard API
-is unavailable. After a successful copy it shows a copied state, then returns to idle.
+is missing or the write fails. After a successful copy it shows a copied state, then returns to idle.
 
 ```tsx
 import { CopyButton } from 'moraine'

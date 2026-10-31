@@ -41,8 +41,8 @@ export function Example() {
 ### Native scrolling and sizing
 
 Set a height or maximum height for vertical scrolling and a width for horizontal scrolling.
-ScrollArea is one `<div>` root that renders its children directly, so wrap the children in a plain
-element when they need their own `flex`, `gap`, or spacing.
+ScrollArea is one `<div>` root that renders its children directly. Use `class`, `classes.root`,
+`style`, or `styles.root` for instance styling, such as `flex` and `gap` on the root.
 
 The root joins the tab order when its content overflows (`tabIndex={0}`) and leaves it when the
 content fits. Add `role="region"` and an accessible label when the content forms a named region, or

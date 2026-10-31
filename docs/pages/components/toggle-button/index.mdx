@@ -76,7 +76,7 @@ Keep the accessible name stable while toggling. Use `aria-label` for icon-only b
 `aria-pressed` then reports the on or off state. Disabled and loading buttons suppress activation.
 
 Children can be a render function that receives reactive `pressed` and `loading` values. Use it to
-change the visible glyph with the pressed state without remounting the button's children.
+style the content from the pressed state without remounting the button's children.
 
 ```tsx
 <ToggleButton size="icon-md" leading="i-lucide:bold" aria-label="Bold" />

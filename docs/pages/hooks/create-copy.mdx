@@ -5,7 +5,7 @@ search:
   tags: [createCopy, copy, clipboard, execCommand, headless, feedback, timeout]
 ---
 
-`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as a reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is unavailable, and holds a `copied` or `failed` state for a set duration before returning to `idle`.
+`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as a reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `failed` state for a set duration before returning to `idle`.
 
 ## Import
 
@@ -15,7 +15,7 @@ import { createCopy } from 'moraine/utils'
 
 ## Features
 
-- Writes with `navigator.clipboard.writeText` or `navigator.clipboard.write`, and falls back to `document.execCommand('copy')` when neither is available.
+- Writes with `navigator.clipboard.writeText` or `navigator.clipboard.write`, and falls back to `document.execCommand('copy')` when neither is available or the write throws.
 - Accepts a `string`, `ClipboardItem`, `ClipboardItem[]`, a `Promise` of any of these, or an accessor returning them.
 - In the fallback path, extracts plain text from a `ClipboardItem`, or serializes the data with `JSON.stringify` when no text type is present.
 - Exposes `isCopied()` and `state()` (`'idle' | 'copied' | 'failed'`); the active state resets to `idle` after `copiedDuration` milliseconds.
