@@ -120,24 +120,39 @@ export default function SidebarPlayground() {
         ]
 
         return (
-          <div class="border border-border rounded-xl bg-card h-[520px] max-w-4xl w-full overflow-hidden">
-            <Sidebar variant={props.variant} side={props.side} isMobile={false} width="15rem">
-              <Sidebar.Panel>
+          <div class="border border-border rounded-xl bg-card h-[520px] max-w-4xl w-full shadow-xs overflow-hidden">
+            <Sidebar variant={props.variant} side={props.side} isMobile={false}>
+              <Sidebar.Panel class="w-60">
                 <Sidebar.Header>
                   <DropdownMenu placement="bottom" align="start">
                     <DropdownMenu.Trigger
-                      as={Sidebar.MenuButton}
-                      leading={activeTeam().logo}
-                      trailing="i-lucide:chevrons-up-down"
+                      as="button"
+                      class="px-2 py-1 text-left outline-none rounded-lg flex gap-2 w-full transition-colors items-center overflow-hidden hover:bg-muted/60 group-data-[closed]/sidebar:cursor-pointer"
                     >
-                      <span class="leading-tight flex flex-col min-w-0">
-                        <span class="font-semibold truncate">{activeTeam().name}</span>
-                        <span class="text-xs text-muted-foreground truncate">
+                      <div class="text-background rounded-lg bg-foreground flex shrink-0 size-8 items-center justify-center">
+                        <Icon name={activeTeam().logo} class="size-4" />
+                      </div>
+                      <div class="text-left flex flex-1 flex-col min-w-0">
+                        <span class="text-sm leading-tight font-semibold truncate">
+                          {activeTeam().name}
+                        </span>
+                        <span class="text-xs text-muted-foreground leading-tight truncate">
                           {activeTeam().plan}
                         </span>
-                      </span>
+                      </div>
+                      <Icon
+                        name="i-lucide:chevrons-up-down"
+                        class="text-muted-foreground ms-auto shrink-0 size-4"
+                      />
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content items={teamMenuItems()} />
+                    <DropdownMenu.Content
+                      topRender={
+                        <div class="text-xs text-muted-foreground font-medium px-2 py-1.5">
+                          Teams
+                        </div>
+                      }
+                      items={teamMenuItems()}
+                    />
                   </DropdownMenu>
                 </Sidebar.Header>
 
@@ -175,16 +190,14 @@ export default function SidebarPlayground() {
                     <Sidebar.Menu>
                       <For each={data.projects}>
                         {(project) => (
-                          <Sidebar.MenuItem>
-                            <Sidebar.MenuButton leading={project.icon}>
+                          <Sidebar.MenuItem class="group/menu-item">
+                            <Sidebar.MenuButton leading={project.icon} class="pe-8">
                               {project.name}
                             </Sidebar.MenuButton>
                             <Sidebar.MenuAction>
                               <DropdownMenu placement="right" align="start">
                                 <DropdownMenu.Trigger
-                                  as={Button}
-                                  variant="ghost"
-                                  size="icon-xs"
+                                  class="text-xs p-1 rounded-sm opacity-0 aria-expanded:(bg-muted opacity-100) hover:bg-muted group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100"
                                   aria-label={`More options for ${project.name}`}
                                 >
                                   <Icon name="i-lucide:ellipsis" />
@@ -196,7 +209,12 @@ export default function SidebarPlayground() {
                         )}
                       </For>
                       <Sidebar.MenuItem>
-                        <Sidebar.MenuButton leading="i-lucide:ellipsis">More</Sidebar.MenuButton>
+                        <Sidebar.MenuButton
+                          leading="i-lucide:ellipsis"
+                          class="text-muted-foreground/70"
+                        >
+                          More
+                        </Sidebar.MenuButton>
                       </Sidebar.MenuItem>
                     </Sidebar.Menu>
                   </Sidebar.Group>
@@ -205,51 +223,80 @@ export default function SidebarPlayground() {
                 <Sidebar.Footer>
                   <DropdownMenu placement="top" align="start">
                     <DropdownMenu.Trigger
-                      as={Sidebar.MenuButton}
-                      trailing="i-lucide:chevrons-up-down"
+                      as="button"
+                      class="px-2 py-1 text-left outline-none rounded-lg flex gap-2 w-full transition-colors items-center overflow-hidden hover:bg-muted/60 group-data-[closed]/sidebar:cursor-pointer"
                     >
-                      <Avatar alt={data.user.name} fallback="i-lucide:user" text="CN" size="sm" />
-                      <span class="leading-tight flex flex-col min-w-0">
-                        <span class="font-semibold truncate">{data.user.name}</span>
-                        <span class="text-xs text-muted-foreground truncate">
+                      <Avatar
+                        alt={data.user.name}
+                        fallback="i-lucide:user"
+                        text="CN"
+                        size="md"
+                        class="shrink-0"
+                      />
+                      <div class="text-left flex flex-1 flex-col min-w-0">
+                        <span class="text-sm leading-tight font-semibold truncate">
+                          {data.user.name}
+                        </span>
+                        <span class="text-xs text-muted-foreground leading-tight truncate">
                           {data.user.email}
                         </span>
-                      </span>
+                      </div>
+                      <Icon
+                        name="i-lucide:chevrons-up-down"
+                        class="text-muted-foreground ms-auto shrink-0 size-4"
+                      />
                     </DropdownMenu.Trigger>
-                    <DropdownMenu.Content items={userMenuItems} />
+                    <DropdownMenu.Content
+                      topRender={
+                        <div class="p-2 border-b border-border/50 flex gap-2 items-center">
+                          <Avatar
+                            alt={data.user.name}
+                            fallback="i-lucide:user"
+                            text="CN"
+                            size="md"
+                            class="shrink-0"
+                          />
+                          <div class="text-left flex flex-col min-w-0">
+                            <span class="text-sm leading-tight font-semibold truncate">
+                              {data.user.name}
+                            </span>
+                            <span class="text-xs text-muted-foreground leading-tight truncate">
+                              {data.user.email}
+                            </span>
+                          </div>
+                        </div>
+                      }
+                      items={userMenuItems}
+                    />
                   </DropdownMenu>
                 </Sidebar.Footer>
               </Sidebar.Panel>
 
-              <Sidebar.Inset>
-                <div class="flex flex-col h-full">
-                  <div
-                    role="banner"
-                    class="px-4 border-b border-border flex shrink-0 gap-2 h-12 items-center"
+              <Sidebar.Inset class="flex flex-1 flex-col min-h-0 overflow-y-auto">
+                <div
+                  role="banner"
+                  class="px-4 border-b border-border/50 flex shrink-0 gap-2 h-12 items-center"
+                >
+                  <Sidebar.Trigger
+                    as={Button}
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Toggle sidebar"
                   >
-                    <Sidebar.Trigger
-                      as={Button}
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label="Toggle sidebar"
-                    >
-                      <Icon name="i-lucide:panel-left" />
-                    </Sidebar.Trigger>
-                    <div class="h-4">
-                      <Separator orientation="vertical" />
-                    </div>
-                    <Breadcrumb
-                      items={[{ label: 'Overview', href: '#' }, { label: 'Data Fetching' }]}
-                    />
+                    <Icon name="i-lucide:panel-left" class="size-4" />
+                  </Sidebar.Trigger>
+                  <Separator orientation="vertical" class="h-4" />
+                  <Breadcrumb
+                    items={[{ label: 'Overview', href: '#' }, { label: 'Data Fetching' }]}
+                  />
+                </div>
+                <div class="p-4 flex flex-1 flex-col gap-4">
+                  <div class="gap-4 grid grid-cols-3">
+                    <div class="rounded-xl bg-muted/50 aspect-video" />
+                    <div class="rounded-xl bg-muted/50 aspect-video" />
+                    <div class="rounded-xl bg-muted/50 aspect-video" />
                   </div>
-                  <div class="p-4 flex flex-1 flex-col gap-4">
-                    <div class="gap-4 grid grid-cols-3">
-                      <div class="rounded-xl bg-muted aspect-video" />
-                      <div class="rounded-xl bg-muted aspect-video" />
-                      <div class="rounded-xl bg-muted aspect-video" />
-                    </div>
-                    <div class="rounded-xl bg-muted flex-1 min-h-48" />
-                  </div>
+                  <div class="rounded-xl bg-muted/50 flex-1 min-h-48" />
                 </div>
               </Sidebar.Inset>
             </Sidebar>

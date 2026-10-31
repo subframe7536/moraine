@@ -22,10 +22,11 @@ export default function ContextMenuPlayground() {
     >
       {(props) => (
         <ContextMenu disabled={props.disabled} size={props.size}>
-          <ContextMenu.Trigger as="div">
-            <div class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center">
-              Right click or long press here
-            </div>
+          <ContextMenu.Trigger
+            as="div"
+            class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
+          >
+            Right click or long press here
           </ContextMenu.Trigger>
           <ContextMenu.Content
             items={[

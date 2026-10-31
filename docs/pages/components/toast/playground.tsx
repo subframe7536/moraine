@@ -73,7 +73,7 @@ export default function ToastPlayground() {
         }
 
         return (
-          <div class="flex items-center justify-center">
+          <div class="p-6 flex items-center justify-center">
             <Toast closable />
             <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
               Trigger notification

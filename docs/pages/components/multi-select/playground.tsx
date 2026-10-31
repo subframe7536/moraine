@@ -68,21 +68,20 @@ export default function MultiSelectPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-96 min-w-40 w-3/5">
-          <MultiSelect
-            items={props.empty ? [] : TOPICS}
-            defaultValue={['design', 'dev']}
-            leadingIcon="i-lucide:tags"
-            allowClear
-            maxTagCount={1}
-            placeholder="Select topics..."
-            variant={props.variant}
-            size={props.size}
-            search={props.search}
-            openOnControlClick={props.openOnControlClick}
-            disabled={props.disabled}
-          />
-        </div>
+        <MultiSelect
+          items={props.empty ? [] : TOPICS}
+          defaultValue={['design', 'dev']}
+          leadingIcon="i-lucide:tags"
+          allowClear
+          maxTagCount={1}
+          placeholder="Select topics..."
+          variant={props.variant}
+          size={props.size}
+          search={props.search}
+          openOnControlClick={props.openOnControlClick}
+          disabled={props.disabled}
+          class="max-w-96 min-w-40 w-60%"
+        />
       )}
     </DocsPlayground>
   )

@@ -29,9 +29,7 @@ export default function EmptyPlayground() {
       {(props) => (
         <Empty size={props.size}>
           <Empty.Media>
-            <span class="text-3xl text-muted-foreground">
-              <Icon name="i-lucide-folder-open" />
-            </span>
+            <Icon name="i-lucide-folder-open" class="text-muted-foreground size-8" />
           </Empty.Media>
           <Empty.Title>{props.title}</Empty.Title>
           <Empty.Description>{props.description}</Empty.Description>

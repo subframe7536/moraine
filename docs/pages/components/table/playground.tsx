@@ -1,28 +1,6 @@
 import { Badge, Table } from '@src'
-import { For } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
-const ROWS = [
-  { invoice: 'INV-001', status: 'Paid', tone: 'success', method: 'Credit Card', amount: '$250.00' },
-  { invoice: 'INV-002', status: 'Pending', tone: 'warning', method: 'PayPal', amount: '$150.00' },
-  {
-    invoice: 'INV-003',
-    status: 'Unpaid',
-    tone: 'danger',
-    method: 'Bank Transfer',
-    amount: '$350.00',
-  },
-  { invoice: 'INV-004', status: 'Paid', tone: 'success', method: 'Credit Card', amount: '$450.00' },
-  { invoice: 'INV-005', status: 'Paid', tone: 'success', method: 'PayPal', amount: '$550.00' },
-  {
-    invoice: 'INV-006',
-    status: 'Pending',
-    tone: 'warning',
-    method: 'Bank Transfer',
-    amount: '$200.00',
-  },
-] as const
 
 export default function TablePlayground() {
   return (
@@ -71,28 +49,72 @@ export default function TablePlayground() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            <For each={ROWS}>
-              {(row) => (
-                <Table.Row>
-                  <Table.Cell>
-                    <span class="font-medium">{row.invoice}</span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge tone={row.tone} variant="subtle">
-                      {row.status}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>{row.method}</Table.Cell>
-                  <Table.Cell align="right">{row.amount}</Table.Cell>
-                </Table.Row>
-              )}
-            </For>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-001</Table.Cell>
+              <Table.Cell>
+                <Badge tone="success" variant="subtle">
+                  Paid
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>Credit Card</Table.Cell>
+              <Table.Cell align="right">$250.00</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-002</Table.Cell>
+              <Table.Cell>
+                <Badge tone="warning" variant="subtle">
+                  Pending
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>PayPal</Table.Cell>
+              <Table.Cell align="right">$150.00</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-003</Table.Cell>
+              <Table.Cell>
+                <Badge tone="danger" variant="subtle">
+                  Unpaid
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>Bank Transfer</Table.Cell>
+              <Table.Cell align="right">$350.00</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-004</Table.Cell>
+              <Table.Cell>
+                <Badge tone="success" variant="subtle">
+                  Paid
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>Credit Card</Table.Cell>
+              <Table.Cell align="right">$450.00</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-005</Table.Cell>
+              <Table.Cell>
+                <Badge tone="success" variant="subtle">
+                  Paid
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>PayPal</Table.Cell>
+              <Table.Cell align="right">$550.00</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell class="font-medium">INV-006</Table.Cell>
+              <Table.Cell>
+                <Badge tone="warning" variant="subtle">
+                  Pending
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>Bank Transfer</Table.Cell>
+              <Table.Cell align="right">$200.00</Table.Cell>
+            </Table.Row>
           </Table.Body>
           <Table.Footer>
             <Table.Row>
               <Table.Cell colSpan={3}>Total</Table.Cell>
-              <Table.Cell align="right">
-                <span class="font-semibold">$1,950.00</span>
+              <Table.Cell align="right" class="font-semibold">
+                $1,950.00
               </Table.Cell>
             </Table.Row>
           </Table.Footer>

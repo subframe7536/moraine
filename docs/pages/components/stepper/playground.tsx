@@ -10,7 +10,11 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     description: 'Create credentials',
     icon: 'i-lucide:user',
     get content() {
-      return <p>Set up your profile and login credentials.</p>
+      return (
+        <p class="text-xs text-muted-foreground p-3">
+          Step 1: Set up your profile and login credentials.
+        </p>
+      )
     },
   },
   {
@@ -19,7 +23,11 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     description: 'Team settings',
     icon: 'i-lucide:building-2',
     get content() {
-      return <p>Name your organization and invite collaborators.</p>
+      return (
+        <p class="text-xs text-muted-foreground p-3">
+          Step 2: Define your organization name and invite collaborators.
+        </p>
+      )
     },
   },
   {
@@ -28,7 +36,11 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     description: 'Launch project',
     icon: 'i-lucide:check-circle',
     get content() {
-      return <p>Review settings and provision your instance.</p>
+      return (
+        <p class="text-xs text-muted-foreground p-3">
+          Step 3: Review settings and provision your instance.
+        </p>
+      )
     },
   },
 ]

@@ -15,13 +15,14 @@ const FAQ_ITEMS = [
     label: 'Is server-side rendering supported?',
     leading: 'i-lucide:server',
     content:
-      'Moraine components render on the server and hydrate on the client in a Solid application.',
+      'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
   },
   {
     value: 'customize',
     label: 'Can I customize component styles?',
     leading: 'i-lucide:palette',
-    content: 'Components expose root class and style props plus named slot classes and styles.',
+    content:
+      'Components expose root class/style props and named slot classes/styles where applicable.',
   },
 ]
 

@@ -39,14 +39,13 @@ export default function InputPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-sm w-full">
-          <Input
-            placeholder={props.placeholder}
-            variant={props.variant}
-            size={props.size}
-            disabled={props.disabled}
-          />
-        </div>
+        <Input
+          placeholder={props.placeholder}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          class="max-w-sm"
+        />
       )}
     </DocsPlayground>
   )

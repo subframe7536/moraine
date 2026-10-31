@@ -22,11 +22,12 @@ export default function IconPlayground() {
       ]}
     >
       {(props) => (
-        <div
-          class="flex items-center justify-center"
-          style={{ 'font-size': `${props.fontSize}px` }}
-        >
-          <Icon name={props.name} />
+        <div class="p-4 flex items-center justify-center">
+          <Icon
+            name={props.name}
+            class="text-primary"
+            style={{ 'font-size': `${props.fontSize}px` }}
+          />
         </div>
       )}
     </DocsPlayground>

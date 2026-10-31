@@ -63,132 +63,131 @@ export default function FormPlayground() {
             <form.Form
               onSubmit={(values) => setSubmitted(values)}
               onReset={() => setSubmitted(null)}
+              class="w-full"
             >
-              <div class="space-y-4">
-                <form.Field
-                  name="username"
-                  label="Username"
-                  orientation={props.orientation}
-                  size={props.size}
-                  required={props.required}
-                  hint={props.showHint ? (props.required ? 'Required' : undefined) : undefined}
-                  description={props.showDescription ? 'Your unique public handle.' : undefined}
-                  help={props.showHelp ? 'Visible to all members in workspace.' : undefined}
-                >
-                  <InputGroup>
-                    <InputGroup.Leading>
-                      <Icon name="i-lucide:user" />
-                    </InputGroup.Leading>
-                    <Input placeholder="alex_dev" disabled={props.disabled} />
-                  </InputGroup>
-                </form.Field>
+              <form.Field
+                name="username"
+                label="Username"
+                orientation={props.orientation}
+                size={props.size}
+                required={props.required}
+                hint={props.showHint ? (props.required ? 'Required' : undefined) : undefined}
+                description={props.showDescription ? 'Your unique public handle.' : undefined}
+                help={props.showHelp ? 'Visible to all members in workspace.' : undefined}
+              >
+                <InputGroup>
+                  <InputGroup.Leading>
+                    <Icon name="i-lucide:user" />
+                  </InputGroup.Leading>
+                  <Input placeholder="alex_dev" disabled={props.disabled} />
+                </InputGroup>
+              </form.Field>
 
-                <form.Field
-                  name="role"
-                  label="Role"
-                  orientation={props.orientation}
+              <form.Field
+                name="role"
+                label="Role"
+                orientation={props.orientation}
+                size={props.size}
+                required={props.required}
+                hint={props.showHint ? 'Team' : undefined}
+                description={
+                  props.showDescription ? 'Your primary function on the team.' : undefined
+                }
+                help={props.showHelp ? 'Used to configure team permissions.' : undefined}
+              >
+                <Select
+                  items={ROLE_OPTIONS}
+                  placeholder="Select a role"
+                  disabled={props.disabled}
+                  allowClear
+                />
+              </form.Field>
+
+              <form.Field
+                name="experience"
+                label="Experience"
+                orientation={props.orientation}
+                size={props.size}
+                hint={props.showHint ? '0–10 years' : undefined}
+                description={
+                  props.showDescription ? 'Years of experience in your role.' : undefined
+                }
+                help={props.showHelp ? 'Choose a whole number of years.' : undefined}
+              >
+                <Slider
+                  defaultValue={3}
+                  min={0}
+                  max={10}
+                  step={1}
                   size={props.size}
-                  required={props.required}
-                  hint={props.showHint ? 'Team' : undefined}
+                  disabled={props.disabled}
+                />
+              </form.Field>
+
+              <form.Field
+                name="bio"
+                label="About"
+                orientation={props.orientation}
+                size={props.size}
+                hint={props.showHint ? 'Optional' : undefined}
+                description={
+                  props.showDescription ? 'Brief introduction for your profile.' : undefined
+                }
+                help={props.showHelp ? 'Markdown is supported.' : undefined}
+              >
+                <Textarea
+                  placeholder="Tell us about yourself..."
+                  rows={2}
+                  disabled={props.disabled}
+                />
+              </form.Field>
+
+              <form.Field
+                name="notifications"
+                label={props.orientation === 'horizontal' ? 'Alerts' : undefined}
+                orientation={props.orientation}
+                size={props.size}
+              >
+                <Switch
+                  label="Email notifications"
                   description={
-                    props.showDescription ? 'Your primary function on the team.' : undefined
+                    props.showDescription
+                      ? 'Receive periodic digests and security updates'
+                      : undefined
                   }
-                  help={props.showHelp ? 'Used to configure team permissions.' : undefined}
-                >
-                  <Select
-                    items={ROLE_OPTIONS}
-                    placeholder="Select a role"
-                    disabled={props.disabled}
-                    allowClear
-                  />
-                </form.Field>
+                  disabled={props.disabled}
+                />
+              </form.Field>
 
-                <form.Field
-                  name="experience"
-                  label="Experience"
-                  orientation={props.orientation}
+              <div class="pt-2 flex gap-2 justify-end">
+                <Button
+                  type="reset"
+                  variant="outline"
                   size={props.size}
-                  hint={props.showHint ? '0–10 years' : undefined}
-                  description={
-                    props.showDescription ? 'Years of experience in your role.' : undefined
-                  }
-                  help={props.showHelp ? 'Choose a whole number of years.' : undefined}
+                  disabled={props.disabled || form.isSubmitting}
                 >
-                  <Slider
-                    defaultValue={3}
-                    min={0}
-                    max={10}
-                    step={1}
-                    size={props.size}
-                    disabled={props.disabled}
-                  />
-                </form.Field>
-
-                <form.Field
-                  name="bio"
-                  label="About"
-                  orientation={props.orientation}
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
                   size={props.size}
-                  hint={props.showHint ? 'Optional' : undefined}
-                  description={
-                    props.showDescription ? 'Brief introduction for your profile.' : undefined
-                  }
-                  help={props.showHelp ? 'Markdown is supported.' : undefined}
+                  loading={form.isSubmitting}
+                  disabled={props.disabled || form.isSubmitting}
                 >
-                  <Textarea
-                    placeholder="Tell us about yourself..."
-                    rows={2}
-                    disabled={props.disabled}
-                  />
-                </form.Field>
-
-                <form.Field
-                  name="notifications"
-                  label={props.orientation === 'horizontal' ? 'Alerts' : undefined}
-                  orientation={props.orientation}
-                  size={props.size}
-                >
-                  <Switch
-                    label="Email notifications"
-                    description={
-                      props.showDescription
-                        ? 'Receive periodic digests and security updates'
-                        : undefined
-                    }
-                    disabled={props.disabled}
-                  />
-                </form.Field>
-
-                <div class="pt-2 flex gap-2 justify-end">
-                  <Button
-                    type="reset"
-                    variant="outline"
-                    size={props.size}
-                    disabled={props.disabled || form.isSubmitting}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    type="submit"
-                    size={props.size}
-                    loading={form.isSubmitting}
-                    disabled={props.disabled || form.isSubmitting}
-                  >
-                    Save Profile
-                  </Button>
-                </div>
-
-                <Show when={submitted()}>
-                  {(data) => (
-                    <div class="text-xs font-mono mt-4 p-3 border border-border/80 rounded-lg bg-muted/40">
-                      <p class="text-primary font-medium mb-1">Form Submitted:</p>
-                      <pre class="text-foreground whitespace-pre-wrap overflow-x-auto">
-                        {JSON.stringify(data(), null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </Show>
+                  Save Profile
+                </Button>
               </div>
+
+              <Show when={submitted()}>
+                {(data) => (
+                  <div class="text-xs font-mono mt-4 p-3 border border-border/80 rounded-lg bg-muted/40">
+                    <p class="text-primary font-medium mb-1">Form Submitted:</p>
+                    <pre class="text-foreground whitespace-pre-wrap overflow-x-auto">
+                      {JSON.stringify(data(), null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </Show>
             </form.Form>
           </div>
         )

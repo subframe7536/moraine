@@ -40,16 +40,15 @@ export default function TextareaPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-sm w-full">
-          <Textarea
-            placeholder={props.placeholder}
-            variant={props.variant}
-            size={props.size}
-            disabled={props.disabled}
-            autoResize={props.autoResize}
-            rows={3}
-          />
-        </div>
+        <Textarea
+          placeholder={props.placeholder}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          autoResize={props.autoResize}
+          rows={3}
+          class="max-w-sm"
+        />
       )}
     </DocsPlayground>
   )

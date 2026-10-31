@@ -20,34 +20,30 @@ export default function ResizablePlayground() {
       ]}
     >
       {(props) => (
-        <div class="border border-border rounded-xl h-64 max-w-xl w-full overflow-hidden">
+        <div class="border border-border/60 rounded-xl bg-card/30 h-64 max-w-xl w-full shadow-xs overflow-hidden">
           <Resizable
             orientation={props.orientation}
             disabled={props.disabled}
             defaultValue={['35%', '65%']}
           >
-            <Resizable.Panel min="20%">
-              <div class="p-4 flex flex-col h-full justify-between">
-                <div class="space-y-1">
-                  <div class="text-xs font-medium">Navigation Rail</div>
-                  <div class="text-xs text-muted-foreground">
-                    Draggable boundary with a minimum.
-                  </div>
+            <Resizable.Panel min="20%" class="p-4 bg-muted/25 flex flex-col justify-between">
+              <div class="space-y-1">
+                <div class="text-xs text-foreground font-medium">Navigation Rail</div>
+                <div class="text-[11px] text-muted-foreground leading-relaxed">
+                  Draggable boundary with min constraint.
                 </div>
-                <span class="text-xs text-muted-foreground font-mono">min="20%"</span>
               </div>
+              <span class="text-[10px] text-muted-foreground/80 font-mono">min="20%"</span>
             </Resizable.Panel>
             <Resizable.Handle />
-            <Resizable.Panel min="30%">
-              <div class="p-4 flex flex-col h-full justify-between">
-                <div class="space-y-1">
-                  <div class="text-xs font-medium">Workspace Viewport</div>
-                  <div class="text-xs text-muted-foreground">
-                    Grows and shrinks as the handle moves.
-                  </div>
+            <Resizable.Panel min="30%" class="p-4 bg-background/50 flex flex-col justify-between">
+              <div class="space-y-1">
+                <div class="text-xs text-foreground font-medium">Workspace Viewport</div>
+                <div class="text-[11px] text-muted-foreground leading-relaxed">
+                  Expands or shrinks dynamically as adjacent handles move.
                 </div>
-                <span class="text-xs text-muted-foreground font-mono">min="30%"</span>
               </div>
+              <span class="text-[10px] text-muted-foreground/80 font-mono">min="30%"</span>
             </Resizable.Panel>
           </Resizable>
         </div>

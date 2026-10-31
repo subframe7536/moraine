@@ -73,19 +73,18 @@ export default function ComboboxPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-72 min-w-40 w-full">
-          <Combobox
-            items={props.empty ? [] : FRAMEWORK_ITEMS}
-            defaultValue="solid"
-            leadingIcon="i-lucide:code"
-            placeholder="Search frameworks..."
-            variant={props.variant}
-            size={props.size}
-            openOnControlClick={props.openOnControlClick}
-            allowClear={props.allowClear}
-            disabled={props.disabled}
-          />
-        </div>
+        <Combobox
+          items={props.empty ? [] : FRAMEWORK_ITEMS}
+          defaultValue="solid"
+          leadingIcon="i-lucide:code"
+          placeholder="Search frameworks..."
+          variant={props.variant}
+          size={props.size}
+          openOnControlClick={props.openOnControlClick}
+          allowClear={props.allowClear}
+          disabled={props.disabled}
+          class="max-w-72 min-w-40 w-60%"
+        />
       )}
     </DocsPlayground>
   )

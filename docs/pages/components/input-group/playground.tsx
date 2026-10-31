@@ -32,21 +32,24 @@ export default function InputGroupPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-md w-full">
-          <InputGroup size={props.size} orientation={props.orientation} aria-label="Account name">
-            <InputGroup.Leading>
-              <Icon name="i-lucide:at-sign" />
-            </InputGroup.Leading>
-            <Input
-              id="account-name"
-              aria-label="Account name"
-              placeholder="your-name"
-              disabled={props.disabled}
-              aria-invalid={props.invalid}
-            />
-            <InputGroup.Trailing>@example.com</InputGroup.Trailing>
-          </InputGroup>
-        </div>
+        <InputGroup
+          class="max-w-md"
+          size={props.size}
+          orientation={props.orientation}
+          aria-label="Account name"
+        >
+          <InputGroup.Leading>
+            <Icon name="i-lucide:at-sign" />
+          </InputGroup.Leading>
+          <Input
+            id="account-name"
+            aria-label="Account name"
+            placeholder="your-name"
+            disabled={props.disabled}
+            aria-invalid={props.invalid}
+          />
+          <InputGroup.Trailing>@example.com</InputGroup.Trailing>
+        </InputGroup>
       )}
     </DocsPlayground>
   )

@@ -21,13 +21,15 @@ export default function AvatarPlayground() {
       ]}
     >
       {(props) => (
-        <Avatar
-          alt="Sarah Connor"
-          text={props.text}
-          size={props.size}
-          badge="i-lucide:check"
-          badgePosition="bottom-right"
-        />
+        <div class="flex gap-4 items-center">
+          <Avatar
+            alt="Sarah Connor"
+            text={props.text}
+            size={props.size}
+            badge="i-lucide:check"
+            badgePosition="bottom-right"
+          />
+        </div>
       )}
     </DocsPlayground>
   )

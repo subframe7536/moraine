@@ -56,7 +56,7 @@ export default function CommandPalettePlayground() {
       controls={[{ kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false }]}
     >
       {(props) => (
-        <div class="max-w-full w-lg">
+        <div class="border border-border/60 rounded-xl bg-card/40 max-w-full w-lg shadow-xs overflow-hidden">
           <CommandPalette
             groups={GROUPS}
             placeholder="Search commands or pages..."
@@ -64,7 +64,7 @@ export default function CommandPalettePlayground() {
             autofocus={false}
             closable
             footerRender={() => (
-              <div class="flex gap-4 items-center justify-between">
+              <div class="text-xs text-muted-foreground flex gap-4 items-center justify-between">
                 <div class="flex flex-wrap gap-3 items-center">
                   <div class="flex gap-1.5 items-center">
                     <KbdGroup items={['↑', '↓']} size="sm" />

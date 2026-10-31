@@ -39,7 +39,7 @@ export default function SliderPlayground() {
               }`}
             >
               <span>Volume</span>
-              <span class="text-foreground font-medium font-mono">{value().toFixed(0)}%</span>
+              <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
             </div>
             <Slider
               defaultValue={60}

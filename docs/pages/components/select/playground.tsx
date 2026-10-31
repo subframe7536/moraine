@@ -66,18 +66,17 @@ export default function SelectPlayground() {
       ]}
     >
       {(props) => (
-        <div class="max-w-72 w-full">
-          <Select
-            items={ITEMS}
-            defaultValue="solid"
-            leadingIcon="i-lucide:code"
-            placeholder="Select a framework..."
-            variant={props.variant}
-            size={props.size}
-            allowClear={props.allowClear}
-            disabled={props.disabled}
-          />
-        </div>
+        <Select
+          items={ITEMS}
+          defaultValue="solid"
+          leadingIcon="i-lucide:code"
+          placeholder="Select a framework..."
+          variant={props.variant}
+          size={props.size}
+          allowClear={props.allowClear}
+          disabled={props.disabled}
+          class="max-w-72 min-w-40 w-60%"
+        />
       )}
     </DocsPlayground>
   )

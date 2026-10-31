@@ -9,7 +9,11 @@ const ITEMS: TabsT.Item[] = [
     value: 'overview',
     icon: 'i-lucide:layout-dashboard',
     get content() {
-      return <p>High-level metrics and system activity.</p>
+      return (
+        <p class="text-xs text-muted-foreground leading-relaxed pt-3">
+          High-level metrics and system activity overview.
+        </p>
+      )
     },
   },
   {
@@ -17,7 +21,11 @@ const ITEMS: TabsT.Item[] = [
     value: 'deployments',
     icon: 'i-lucide:rocket',
     get content() {
-      return <p>Production pipelines, recent builds, and rollout health.</p>
+      return (
+        <p class="text-xs text-muted-foreground leading-relaxed pt-3">
+          Production pipelines, recent builds, and rollout health.
+        </p>
+      )
     },
   },
   {
@@ -25,7 +33,11 @@ const ITEMS: TabsT.Item[] = [
     value: 'settings',
     icon: 'i-lucide:settings',
     get content() {
-      return <p>Environment variables, secrets, and domain management.</p>
+      return (
+        <p class="text-xs text-muted-foreground leading-relaxed pt-3">
+          Environment variables, security secrets, and domain management.
+        </p>
+      )
     },
   },
 ]

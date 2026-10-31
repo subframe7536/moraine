@@ -27,8 +27,9 @@ export default function NavigationMenuPlayground() {
             disabled={props.disabled}
             orientation={props.orientation}
             placement={props.orientation === 'vertical' ? 'right' : 'bottom'}
+            class="max-w-full"
           >
-            <NavigationMenu.List>
+            <NavigationMenu.List class="flex-wrap justify-center">
               <NavigationMenu.Item value="getting-started">
                 <NavigationMenu.Trigger>Getting started</NavigationMenu.Trigger>
                 <NavigationMenu.Content>
@@ -119,34 +120,45 @@ export default function NavigationMenuPlayground() {
                 <NavigationMenu.Content>
                   <ul class="m-0 p-0 list-none w-48">
                     <li>
-                      <NavigationMenu.Link href="/components/command-palette" closeOnClick>
-                        <span class="flex gap-2 items-center">
-                          <Icon name="i-lucide:circle-alert" />
-                          Backlog
-                        </span>
+                      <NavigationMenu.Link
+                        href="/components/command-palette"
+                        class="flex-row gap-2 items-center"
+                        closeOnClick
+                      >
+                        <Icon name="i-lucide:circle-alert" class="text-muted-foreground size-4" />
+                        Backlog
                       </NavigationMenu.Link>
                     </li>
                     <li>
-                      <NavigationMenu.Link href="/components/checkbox" closeOnClick>
-                        <span class="flex gap-2 items-center">
-                          <Icon name="i-lucide:circle-dashed" />
-                          To Do
-                        </span>
+                      <NavigationMenu.Link
+                        href="/components/checkbox"
+                        class="flex-row gap-2 items-center"
+                        closeOnClick
+                      >
+                        <Icon name="i-lucide:circle-dashed" class="text-muted-foreground size-4" />
+                        To Do
                       </NavigationMenu.Link>
                     </li>
                     <li>
-                      <NavigationMenu.Link href="/components/progress" closeOnClick>
-                        <span class="flex gap-2 items-center">
-                          <Icon name="i-lucide:circle-check" />
-                          Done
-                        </span>
+                      <NavigationMenu.Link
+                        href="/components/progress"
+                        class="flex-row gap-2 items-center"
+                        closeOnClick
+                      >
+                        <Icon name="i-lucide:circle-check" class="text-muted-foreground size-4" />
+                        Done
                       </NavigationMenu.Link>
                     </li>
                   </ul>
                 </NavigationMenu.Content>
               </NavigationMenu.Item>
               <NavigationMenu.Item>
-                <NavigationMenu.Link href="/docs/getting-started">Docs</NavigationMenu.Link>
+                <NavigationMenu.Link
+                  href="/docs/getting-started"
+                  class="font-medium px-3 h-9 justify-center"
+                >
+                  Docs
+                </NavigationMenu.Link>
               </NavigationMenu.Item>
             </NavigationMenu.List>
           </NavigationMenu>
