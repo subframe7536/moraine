@@ -77,7 +77,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
         <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>
         <Show when={page.badge}>
           {(badge) => (
-            <Badge variant="outline" size="sm" class="text-[0.7rem] ms-auto px-1.5 py-0 shrink-0">
+            <Badge variant="outline" size="sm" class="text-[0.7rem] ms-auto px-1.5 py-0">
               {badge()}
             </Badge>
           )}
@@ -161,10 +161,10 @@ export const DocsSidebarHeader = () => {
                   isActive={selected()}
                   leading={surface.icon}
                   class={cn(
-                    `text-sm font-medium px-3 border rounded-lg flex gap-3 h-12 transition-colors items-center relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+                    `font-medium px-3 border rounded-lg gap-3 h-12 transition-colors relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
                     selected()
                       ? 'text-foreground border-border bg-muted'
-                      : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',
+                      : 'border-transparent hover:(text-foreground bg-muted/60)',
                   )}
                 >
                   <Show when={selected()}>
