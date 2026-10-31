@@ -88,6 +88,40 @@ const virtualizer = createListVirtualizer<Item>({
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
 keyboard navigation.
 
+### Drag to reorder
+
+`createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/solid`. List has
+no drag props; the sortable composes through `itemRender`. Wrap the list in `sortable.Provider`,
+call `sortable.useRow(context)` in `itemRender`, and spread `row.props` onto the row element.
+Update the items from `onReorder`.
+
+```tsx
+import { createListSortable } from 'moraine/dnd'
+
+const sortable = createListSortable({ items, onReorder: (event) => setItems(event.items) })
+
+<sortable.Provider>
+  <List
+    items={items()}
+    itemRender={(context) => {
+      const row = sortable.useRow(context)
+      return (
+        <li {...row.props}>
+          <button ref={row.handleRef} aria-label="Reorder">⋮⋮</button>
+          {context.item.label}
+        </li>
+      )
+    }}
+  />
+</sortable.Provider>
+```
+
+`row.props` keeps the virtual row props from `context.props` and adds the drag ref,
+`data-dragging`, and `data-drop-position`. With a `virtualizer`, also pass
+`rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer` so the dragged row stays
+mounted while it is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for
+handles, keyboard dragging, and options.
+
 ## Examples
 
 ### Clear an inbox to an empty fallback
@@ -103,6 +137,19 @@ Use `createListVirtualizer` when tens of thousands of rows would otherwise mount
 `context.props` onto the measured row element.
 
 <Preview path="./virtualization" />
+
+### Reorder a checklist from a grip handle
+
+The grip button is the drag handle, so it also starts a keyboard drag with Space or Enter. Arrow
+keys move to the next row, and Space, Enter, or Escape ends the drag.
+
+<Preview path="./sortable" />
+
+### Reorder a long virtual playlist
+
+Drag a row toward the list edge to scroll. The row is its own handle here.
+
+<Preview path="./sortable-virtualization" />
 
 ### Render result rows with extra detail lines
 
