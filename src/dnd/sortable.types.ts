@@ -14,6 +14,8 @@ export interface SortableDragState {
   readonly sourceIndex: number
   /** Item the source is over; undefined while it is over no other accepted item. */
   readonly targetId?: SortableId
+  /** Index the target item registered with; set together with `targetId`. */
+  readonly targetIndex?: number
   /** Position relative to `targetId`; set together with it. */
   readonly position?: SortableDropPosition
 }
@@ -23,6 +25,7 @@ export interface SortableDropTarget {
   readonly sourceId: SortableId
   readonly sourceIndex: number
   readonly targetId: SortableId
+  readonly targetIndex: number
   readonly position: SortableDropPosition
 }
 
@@ -77,6 +80,11 @@ export interface Sortable {
   readonly Provider: FlowComponent
   /** Registers one item; call it inside the item's owner, under `Provider`. */
   useItem: (input: SortableItemInput) => SortableItem
+  /**
+   * Returns a ref that makes an element the drag handle of the item with `id`, for handles that
+   * render outside the code that registers the item, such as a `DataTable` cell.
+   */
+  handleRefFor: (id: SortableId) => (element: HTMLElement) => void
   /** Current drag; undefined when no drag is active. */
   readonly state: Accessor<SortableDragState | undefined>
   /**

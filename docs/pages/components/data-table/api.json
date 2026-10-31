@@ -97,6 +97,12 @@
           "description": "Custom class or class getter applied to each row (`<tr>`)."
         },
         {
+          "name": "rowProps",
+          "optional": true,
+          "type": "(context: RowPropsContext<TData>) => RowAttributes",
+          "description": "Extra attributes for each body row (`<tr>`), such as drag wiring from\n`createListSortable().useRow`. Called once per row, under that row's owner, so it may call\nrow-level hooks; read `context` fields lazily to follow index changes."
+        },
+        {
           "name": "showBorder",
           "optional": true,
           "type": "'row' | 'col' | 'both'",

@@ -68,6 +68,7 @@ export function DataTable<TData extends RowData = RowData>(
     'containerRef',
     'ref',
     'rowClass',
+    'rowProps',
     'loading',
     'loadingRender',
     'emptyRender',
@@ -309,6 +310,7 @@ export function DataTable<TData extends RowData = RowData>(
                           row={row}
                           index={index()}
                           rowClass={local.rowClass}
+                          rowProps={local.rowProps}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}
                           expandedRowRender={expandedRowRender()}
@@ -336,8 +338,9 @@ export function DataTable<TData extends RowData = RowData>(
                         <DataTableRow
                           row={row}
                           index={index}
-                          rowProps={rowProps}
+                          virtualRowProps={rowProps}
                           rowClass={local.rowClass}
+                          rowProps={local.rowProps}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}
                           expandedRowRender={expandedRowRender()}

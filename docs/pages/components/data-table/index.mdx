@@ -495,6 +495,53 @@ cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not rea
 Row clicks are pointer-only. Keep a link or button in a cell so keyboard users can reach the same
 action.
 
+`rowProps` adds attributes to each body `<tr>`. It runs once per row, inside that row, so it can
+call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with the table's own;
+`class` and `style` come from `rowClass` and the `row` slot instead.
+
+```tsx
+<DataTable
+  table={table}
+  rowProps={(context) => ({ 'aria-describedby': `hint-${context.row.id}` })}
+/>
+```
+
+### Drag to reorder rows
+
+`createListSortable` from `moraine/dnd` (needs `@dnd-kit/solid`) reorders rows through `rowProps`.
+Pass the rendered rows as `items`, wrap the table in `sortable.Provider`, and return
+`sortable.useRow(context).props` from `rowProps`. With `getId: (row) => row.id`, a cell can render
+the drag handle through `sortable.handleRefFor(row.id)`.
+
+```tsx
+import { createListSortable } from 'moraine/dnd'
+
+const sortable = createListSortable({
+  items: () => table.getRowModel().rows,
+  getId: (row) => row.id,
+  onReorder: (event) => setData(event.items.map((row) => row.original)),
+})
+
+<sortable.Provider>
+  <DataTable table={table} rowProps={(context) => sortable.useRow(context).props} />
+</sortable.Provider>
+```
+
+`event.items` holds the rendered rows in their new order, so mapping it back to `data` is right only
+when the rows render in data order. Otherwise, update `data` from the moved `event.item` and the
+`event.target` row with `event.position`:
+
+- **Sorting**: the rendered order is not the data order. Control `state.sorting` with a signal and
+  pause dragging with `isDisabled: () => sorting().length > 0`, or turn sorting off.
+- **Pagination**: `from` and `to` are page positions. Add the page offset and move the item in
+  `data` with `moveItem(data, offset + event.from, offset + event.to)`.
+- **Sub-rows**: pass `canDrop: (source, target) => source.parentId === target.parentId` so rows
+  move only among their siblings.
+
+With a `virtualizer`, pass `table.getPrePaginatedRowModel().rows` as `items` and
+`rangeExtractor: sortable.rangeExtractor` to `createTableVirtualizer`, so the dragged row stays
+mounted while it is scrolled out of view.
+
 ### Virtualization
 
 Pass a `virtualizer` from `createTableVirtualizer` (`moraine/virtualizer`) to mount only the rows
@@ -651,6 +698,14 @@ F2, to swap in an `Input`. Enter or leaving the field saves a valid value into t
 and Escape cancels. The table reads `data` through a getter, so the saved value shows at once.
 
 <Preview path="./editable-cells" />
+
+### Reorder a release queue
+
+Drag the grip in the first column, or focus it and press Space, then the arrow keys. The column
+renders the handle with `sortable.handleRefFor(row.id)`, and the row `rowClass` styles the drop
+indicator from `data-drop-position`.
+
+<Preview path="./sortable-rows" />
 
 ### Scroll 10,000 rows and 100 columns
 
