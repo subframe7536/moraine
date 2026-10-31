@@ -233,6 +233,30 @@ describe('createDisclosureState', () => {
     })
   })
 
+  test('keeps measuring the newest registration when an older duplicate is released', () => {
+    const lifecycle = createRoot((dispose) => ({
+      dispose,
+      state: createDisclosureState({ open: () => true }),
+    }))
+    const shell = document.createElement('div')
+    const body = document.createElement('div')
+    setScrollHeight(shell, () => 30)
+    setScrollHeight(body, () => 10)
+    document.body.append(shell, body)
+
+    const releaseFirstShell = lifecycle.state.registerMeasureElement(shell)
+    lifecycle.state.registerMeasureElement(body)
+    lifecycle.state.registerMeasureElement(shell)
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    releaseFirstShell()
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    shell.remove()
+    body.remove()
+    lifecycle.dispose()
+  })
+
   test('keeps the newer content element when a superseded one is released', () => {
     createRoot((dispose) => {
       const state = createDisclosureState({ open: () => true })

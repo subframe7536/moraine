@@ -140,7 +140,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>()
 
   let contentEl: HTMLElement | undefined
-  const measureElements: HTMLElement[] = []
+  // One record per registration, so releasing a duplicate removes only its own entry.
+  const measureRegistrations: Array<{ element: HTMLElement }> = []
   let resizeObserver: ResizeObserver | undefined
 
   let contentHasFocus = false
@@ -247,16 +248,17 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
 
   function registerMeasureElement(element: HTMLElement): () => void {
-    measureElements.push(element)
+    const registration = { element }
+    measureRegistrations.push(registration)
     observeMeasureElement(element)
 
     return () => {
-      const index = measureElements.lastIndexOf(element)
+      const index = measureRegistrations.indexOf(registration)
       if (index < 0) {
         return
       }
-      measureElements.splice(index, 1)
-      observeMeasureElement(measureElements[measureElements.length - 1])
+      measureRegistrations.splice(index, 1)
+      observeMeasureElement(measureRegistrations[measureRegistrations.length - 1]?.element)
     }
   }
 
