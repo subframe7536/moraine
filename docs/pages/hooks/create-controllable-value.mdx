@@ -5,7 +5,7 @@ search:
   tags: [createControllableValue, state, controlled, uncontrolled, hook]
 ---
 
-`createControllableValue` bridges controlled and uncontrolled component state. It allows custom form controls to seamlessly support both caller-managed values (`props.value`) and self-managed fallback values (`props.defaultValue`).
+`createControllableValue` bridges controlled and uncontrolled state for a custom component. It follows a caller-managed value when `value()` is defined, and otherwise manages its own state seeded from `defaultValue()`.
 
 ## Import
 
@@ -16,13 +16,14 @@ import { createControllableValue } from 'moraine/utils'
 ## Signature
 
 ```ts
-function createControllableValue<T extends {} | null>(
+function createControllableValue<T>(
   options: CreateControllableValueOptions<T>,
 ): readonly [Accessor<T>, (update: T | ((previous: T) => T)) => void]
 
 interface CreateControllableValueOptions<T> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
+  onChange?: (value: T) => void
 }
 ```
 
@@ -64,6 +65,6 @@ export function CustomToggle(props: CustomToggleProps) {
 
 ## Behavior
 
-- **Controlled Mode**: When `options.value()` returns a defined value, the returned accessor follows that value. Calling `setValue` will not mutate local state, but callers can intercept state in their event handlers.
-- **Uncontrolled Mode**: When `options.value()` returns `undefined`, the hook manages state internally starting with `options.defaultValue()`.
-- **Mode Switching**: Mode changes between controlled and uncontrolled are tracked reactively.
+- **Controlled**: When `value()` returns a defined value, the accessor returns it. `setValue` does not change internal state; it only calls `onChange` with the next value, so the caller updates its own `value`.
+- **Uncontrolled**: When `value()` returns `undefined`, the hook holds the state internally, seeded from `defaultValue()`. `setValue` updates that state and calls `onChange`.
+- `setValue` skips `onChange` when the next value is `Object.is`-equal to the current one.

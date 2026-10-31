@@ -194,6 +194,15 @@ test('component pages follow the shared content and anatomy contract', async () 
     } else if (firstSectionIndex >= 0 && playgroundIndex > firstSectionIndex) {
       failures.push(`${name}: Playground follows ${anatomyIndex >= 0 ? 'Anatomy' : 'Usage'}`)
     }
+    if (
+      playgroundIndex >= 0 &&
+      (!/^import Playground from '\.\/playground'$/m.test(source) ||
+        !/<Playground\s*\/>/.test(source) ||
+        source.includes('</Playground>') ||
+        !existsSync(path.join(path.dirname(page), 'playground.tsx')))
+    ) {
+      failures.push(`${name}: Playground must be imported from a colocated playground.tsx`)
+    }
     const usage = usageSection(source)
     if (usage?.includes('<Preview')) {
       failures.push(`${name}: Usage contains Preview`)

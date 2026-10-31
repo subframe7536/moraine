@@ -11,54 +11,9 @@ search:
   tags: [modal, primitive, overlay, focus trap, dialog primitive]
 ---
 
-import { Show } from 'solid-js'
-import { Button, Modal } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'switch',
-      prop: 'closeOnOverlayClick',
-      label: 'Close on overlay click',
-      defaultValue: true,
-    },
-    { kind: 'switch', prop: 'closeOnEscape', label: 'Close on Escape', defaultValue: true },
-    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
-  ]}
->
-  {(props) => {
-    return (
-      <Modal closeOnOverlayClick={props.closeOnOverlayClick} closeOnEscape={props.closeOnEscape}>
-        <Modal.Trigger as={Button} variant="outline">
-          Open Modal
-        </Modal.Trigger>
-        <Modal.Portal>
-          <Show when={props.overlay}>
-            <Modal.Overlay />
-          </Show>
-          <Modal.Content aria-label="Project details">
-            {() => (
-              <div class="p-5 gap-4 grid">
-                <div>
-                  <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
-                  <p class="text-xs text-muted-foreground leading-relaxed mt-1">
-                    Modal provides focus management, scroll locking, dismissal, and overridable
-                    default surface styles.
-                  </p>
-                </div>
-                <div class="flex gap-2 justify-end">
-                  <Modal.Close as={Button} size="sm" variant="outline">
-                    Got it
-                  </Modal.Close>
-                </div>
-              </div>
-            )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
-    )
-  }}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -139,8 +94,8 @@ Modal root for a second surface.
 </Modal>
 ```
 
-`Modal.Content` children may be JSX or a function that receives close helpers. Provide an accessible
-name with `ariaLabel` or `ariaLabelledBy` on `Modal.Content`.
+`Modal.Content` children may be JSX or a function that receives `close`. Give `Modal.Content` an
+accessible name with `aria-label` or `aria-labelledby`.
 
 ### Focus and outside interaction
 
@@ -164,7 +119,7 @@ Set root `portalMount` for a chosen container, including controlled surfaces wit
 ### State and exit lifecycle
 
 Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay
-and content exit animations to finish. An empty `class` does not disable built-in styles.
+and content exit animations to finish.
 
 ```tsx
 <Modal open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>

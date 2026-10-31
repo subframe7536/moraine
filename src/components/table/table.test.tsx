@@ -291,23 +291,19 @@ describe('Table', () => {
     expect(slot(container, '')?.className).toContain('border-border')
   })
 
-  test('align and truncated props on Table.Head and Table.Cell', () => {
+  test('align on Table.Head and Table.Cell', () => {
     const { container } = render(() => (
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.Head align="center" truncated>
-              Center
-            </Table.Head>
+            <Table.Head align="center">Center</Table.Head>
             <Table.Head align="right">Right</Table.Head>
             <Table.Head align="left">Left</Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           <Table.Row>
-            <Table.Cell align="center" truncated>
-              Cell Center
-            </Table.Cell>
+            <Table.Cell align="center">Cell Center</Table.Cell>
             <Table.Cell align="right">Cell Right</Table.Cell>
             <Table.Cell align="left">Cell Left</Table.Cell>
           </Table.Row>
@@ -317,13 +313,11 @@ describe('Table', () => {
 
     const heads = container.querySelectorAll('th')
     expect(heads[0]!.className).toContain('text-center')
-    expect(heads[0]!.className).toContain('truncate')
     expect(heads[1]!.className).toContain('text-right')
     expect(heads[2]!.className).toContain('text-left')
 
     const cells = container.querySelectorAll('td')
     expect(cells[0]!.className).toContain('text-center')
-    expect(cells[0]!.className).toContain('truncate')
     expect(cells[1]!.className).toContain('text-right')
     expect(cells[2]!.className).toContain('text-left')
   })

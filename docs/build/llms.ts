@@ -460,20 +460,12 @@ async function convertPageMarkdown(
 ): Promise<string> {
   const markdownSource = source
   const components = await collectMdxComponents(markdownSource, context.sourcePath)
-  const playgroundRanges = components.filter((node) => node.name === 'Playground')
-  const visibleComponents = components.filter(
-    (node) =>
-      !playgroundRanges.some(
-        (playground) =>
-          node !== playground && node.start >= playground.start && node.end <= playground.end,
-      ),
-  )
   const pageContext: PageConversionContext = {
     ...context,
     markdownSource,
   }
   const replacements = await Promise.all(
-    visibleComponents.map(async (node) => ({
+    components.map(async (node) => ({
       start: node.start,
       end: node.end,
       value: await renderComponentNode(node, pageContext),
