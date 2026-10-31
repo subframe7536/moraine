@@ -114,8 +114,8 @@ Each part renders one fixed element and forwards native attributes to it.
 | `Table.Body`    | `tbody`   | None                     |
 | `Table.Footer`  | `tfoot`   | None                     |
 | `Table.Row`     | `tr`      | `selected`               |
-| `Table.Head`    | `th`      | `align`, `truncated`     |
-| `Table.Cell`    | `td`      | `align`, `truncated`     |
+| `Table.Head`    | `th`      | `align`                  |
+| `Table.Cell`    | `td`      | `align`                  |
 
 Use native attributes for table semantics: `colSpan` and `rowSpan` on cells, and `scope="row"` on a
 `Table.Head` that labels a body row. Name the table with `Table.Caption`, or with `aria-label` when
@@ -143,13 +143,11 @@ highlights body rows under the pointer. Neither applies to selected rows.
 `'right'`. Because `Table.Head` defaults to left, header text is not centered the way the browser
 centers a plain `th`. Right-align numeric columns in both the header and the cells.
 
-`truncated` on `Table.Head` or `Table.Cell` keeps text on one line with an ellipsis. Add a
-`max-w-*` class to the same part.
+To keep long text on one line with an ellipsis, add the `truncate` class and a `max-w-*` class to
+`Table.Head` or `Table.Cell`.
 
 ```tsx
-<Table.Cell truncated class="max-w-40">
-  {customer.address}
-</Table.Cell>
+<Table.Cell class="max-w-40 truncate">{customer.address}</Table.Cell>
 ```
 
 ### Selected rows
@@ -193,7 +191,7 @@ right-aligned in both the header and the cells.
 
 ### Truncate long header and cell values
 
-Set `truncated` with a `max-w-*` class to keep long text on one line, and center or right-align
+Add `truncate` and a `max-w-*` class to keep long text on one line, and center or right-align
 the other columns with `align`.
 
 <Preview path="./custom-columns" />
