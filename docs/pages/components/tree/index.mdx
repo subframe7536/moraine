@@ -467,9 +467,10 @@ const sortable = createTreeSortable(tree, {
 - Moves into the dragged item or its descendants are rejected. Pass `canDrop` for other rules.
 - Hovering inside a collapsed item for 600 ms expands it, which also loads lazy children. Set
   `expandDelay` to change or disable it.
-- The tree styles the drag: the lifted row gets a solid surface, the row under the pointer keeps
+- The tree styles the drag: the item stays in place while a copy at 60% opacity follows the
+  pointer, the row under the pointer keeps
   its hover background, `before` and `after` draw a straight line from the label start, and
-  `inside` rings the row. They follow `data-dragging` and `data-drop-position` on `tree.Item`, so
+  `inside` rings the row. They follow `data-dnd-dragging` and `data-drop-position` on `tree.Item`, so
   override them through the `row` slot.
 - After the drop, the moved item slides from where it was released into its new place. A drop
   inside a collapsed item expands it first. Set `dropAnimation: false` to place it at once.

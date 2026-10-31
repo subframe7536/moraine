@@ -105,13 +105,14 @@ for the drop rules, auto-expansion, and `moveTreeNode`.
 
 ### Rows stay in place
 
-Rows do not move while dragging. The dragged row follows the pointer, a hidden copy keeps its
-space, and the row under the pointer is marked as the drop target:
+Rows do not move while dragging. The dragged row stays in place as a copy, a second copy follows
+the pointer, and the row under the pointer is marked as the drop target:
 
-| Attribute            | Element      | Value                                                   |
-| -------------------- | ------------ | ------------------------------------------------------- |
-| `data-dragging`      | Dragged row  | Present while it is dragged                             |
-| `data-drop-position` | Row under it | `before` or `after`, from the pointer's half of the row |
+| Attribute            | Element                       | Value                                                                  |
+| -------------------- | ----------------------------- | ---------------------------------------------------------------------- |
+| `data-dragging`      | Dragged row and both copies   | Present while it is dragged                                            |
+| `data-dnd-dragging`  | Copy that follows the pointer | Set by dnd kit; style it, for example `data-[dnd-dragging]:opacity-60` |
+| `data-drop-position` | Row under it                  | `before` or `after`, from the pointer's half of the row                |
 
 Style the drop indicator from these attributes. For example, draw a line on the matching edge:
 

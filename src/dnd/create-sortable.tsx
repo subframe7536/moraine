@@ -60,18 +60,29 @@ function prefersReducedMotion(): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
+type PluginList = Exclude<
+  NonNullable<DragDropProviderProps['plugins']>,
+  (...args: never[]) => unknown
+>
+
 /**
- * Turns off dnd kit's drop animation. It animates toward the hidden placeholder, which is gone or
- * in the wrong place once the host renders the move; the sortable animates the moved element
- * instead. `Feedback` is the only default plugin with an `overlay` accessor; its `dropAnimation`
- * field is not initialized, so it cannot be detected directly.
+ * Configures dnd kit's `Feedback` plugin. With `clone`, the item stays in place as a copy while the
+ * item element follows the pointer, marked `data-dnd-dragging`; the copy is
+ * `data-dnd-placeholder`. Its drop animation is off: it aims at the copy, which is gone or in the
+ * wrong place once the host renders the move, so the sortable animates the moved element instead.
+ * `Feedback` is the only default plugin with an `overlay` accessor; `@dnd-kit/solid` does not
+ * export the class to compare against.
  */
-function disableFeedbackDropAnimation(manager: DragDropManager): void {
-  for (const plugin of manager.plugins) {
-    if ('overlay' in plugin) {
-      ;(plugin as unknown as { dropAnimation: null }).dropAnimation = null
-    }
-  }
+function configureFeedback(plugins: PluginList): PluginList {
+  return plugins.map((plugin) =>
+    typeof plugin === 'function' && 'overlay' in plugin.prototype
+      ? (
+          plugin as unknown as {
+            configure: (options: Record<string, unknown>) => PluginList[number]
+          }
+        ).configure({ feedback: 'clone', dropAnimation: null })
+      : plugin,
+  )
 }
 
 interface ItemData extends Record<string, unknown> {
@@ -226,13 +237,16 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     return (
       <DragDropProvider
         sensors={options.sensors}
-        plugins={options.plugins}
+        plugins={(defaults) =>
+          configureFeedback(
+            typeof options.plugins === 'function'
+              ? options.plugins(defaults)
+              : (options.plugins ?? defaults),
+          )
+        }
         modifiers={options.modifiers}
         onDragStart={(_event, manager) => {
           active = true
-          if (animation) {
-            disableFeedbackDropAnimation(manager)
-          }
           update(manager)
         }}
         onDragMove={(event, manager) => {

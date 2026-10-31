@@ -37,7 +37,7 @@ export function SortableVirtualization() {
             <div
               {...row.props}
               role="listitem"
-              class="bg-background cursor-grab data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)] data-dragging:shadow-lg"
+              class="bg-background cursor-grab data-[dnd-dragging]:opacity-60 data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)]"
             >
               <div class="text-sm px-3 border-b border-border flex h-9 items-center">
                 {context.item.label}

@@ -48,14 +48,15 @@ export const TREE_ROW_PADDING_STYLE = {
 
 /**
  * Drop target presentation for `createTreeSortable` from `moraine/dnd`, which sets
- * `data-drop-position` on the item and `data-dragging` on the source. The lifted row gets a solid
- * surface, the target row keeps its hover background while the pointer is captured by the drag,
- * and a straight line from the label start marks `before` and `after`.
+ * `data-drop-position` on the item. The copy that follows the pointer (`data-dnd-dragging`, while
+ * the item stays in place) gets a solid surface, the target row keeps its hover background while
+ * the pointer is captured by the drag, and a straight line from the label start marks `before`
+ * and `after`.
  */
 // The `uno/order` autofix splits `start-(--var)` after an arbitrary variant into two tokens.
 /* oxlint-disable uno/order */
 export const TREE_DROP_TARGET_CLASS =
-  "[[data-dragging]>&]:bg-popover [[data-dragging]>&]:shadow-lg [[data-dragging]>&]:ring-1 [[data-dragging]>&]:ring-border [[data-drop-position]>&:not([data-selected])]:bg-muted [[data-drop-position=inside]>&]:ring-2 [[data-drop-position=inside]>&]:ring-primary/60 [[data-drop-position=before]>&]:before:content-[''] [[data-drop-position=before]>&]:before:absolute [[data-drop-position=before]>&]:before:h-0.5 [[data-drop-position=before]>&]:before:rounded-full [[data-drop-position=before]>&]:before:bg-primary [[data-drop-position=before]>&]:before:pointer-events-none [[data-drop-position=before]>&]:before:start-(--mo-tree-pad-start) [[data-drop-position=before]>&]:before:end-0 [[data-drop-position=before]>&]:before:-top-px [[data-drop-position=after]>&]:after:content-[''] [[data-drop-position=after]>&]:after:absolute [[data-drop-position=after]>&]:after:h-0.5 [[data-drop-position=after]>&]:after:rounded-full [[data-drop-position=after]>&]:after:bg-primary [[data-drop-position=after]>&]:after:pointer-events-none [[data-drop-position=after]>&]:after:start-(--mo-tree-pad-start) [[data-drop-position=after]>&]:after:end-0 [[data-drop-position=after]>&]:after:-bottom-px"
+  "[[data-dnd-dragging]>&]:bg-popover [[data-dnd-dragging]>&]:ring-1 [[data-dnd-dragging]>&]:ring-border [[data-drop-position]>&:not([data-selected])]:bg-muted [[data-drop-position=inside]>&]:ring-2 [[data-drop-position=inside]>&]:ring-primary/60 [[data-drop-position=before]>&]:before:content-[''] [[data-drop-position=before]>&]:before:absolute [[data-drop-position=before]>&]:before:h-0.5 [[data-drop-position=before]>&]:before:rounded-full [[data-drop-position=before]>&]:before:bg-primary [[data-drop-position=before]>&]:before:pointer-events-none [[data-drop-position=before]>&]:before:start-(--mo-tree-pad-start) [[data-drop-position=before]>&]:before:end-0 [[data-drop-position=before]>&]:before:-top-px [[data-drop-position=after]>&]:after:content-[''] [[data-drop-position=after]>&]:after:absolute [[data-drop-position=after]>&]:after:h-0.5 [[data-drop-position=after]>&]:after:rounded-full [[data-drop-position=after]>&]:after:bg-primary [[data-drop-position=after]>&]:after:pointer-events-none [[data-drop-position=after]>&]:after:start-(--mo-tree-pad-start) [[data-drop-position=after]>&]:after:end-0 [[data-drop-position=after]>&]:after:-bottom-px"
 /* oxlint-enable uno/order */
 
 /**
@@ -68,7 +69,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-gutter': '0.25rem',
     '--mo-tree-pad': '0.5rem',
     root: `text-foreground min-h-0 w-full relative ${TREE_LIST_CLASS}`,
-    item: 'outline-none relative focus-visible:z-1',
+    // The copy that follows the pointer while dragging; the item itself stays in place.
+    item: 'outline-none relative data-[dnd-dragging]:opacity-60 focus-visible:z-1',
     row: `group/tree-row mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-pad-start) rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center relative hover:bg-muted [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 [[role=treeitem]:focus-visible>&]:z-1 ${TREE_DROP_TARGET_CLASS}  ${DATA_DISABLED_CLASS}`,
     trigger:
       'text-inherit opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
@@ -108,11 +110,12 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     indentGuide: {
       true: {},
     },
-    // `data-transition` marks groups whose height may animate now; default-expanded groups skip it.
+    // `data-transition` marks groups whose height may animate; default-expanded groups skip it.
+    // `data-transitioning` marks a toggle in progress, so the animation never replays on reinsertion.
     transition: {
       true: {
         content:
-          'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transition:data-closed:animate-accordion-up data-transition:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
+          'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transitioning:data-closed:animate-accordion-up data-transitioning:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
       },
     },
     variant: {

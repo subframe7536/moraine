@@ -28,7 +28,7 @@ export function Sortable() {
           return (
             <li
               {...row.props}
-              class="text-sm px-2 py-2 border-b border-border bg-background flex gap-2 items-center last:border-b-0 data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)] data-dragging:shadow-lg"
+              class="text-sm px-2 py-2 border-b border-border bg-background flex gap-2 items-center last:border-b-0 data-[dnd-dragging]:opacity-60 data-[drop-position=after]:shadow-[inset_0_-2px_0_var(--primary)] data-[drop-position=before]:shadow-[inset_0_2px_0_var(--primary)]"
             >
               <button
                 ref={row.handleRef}

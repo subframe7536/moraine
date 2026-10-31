@@ -1,5 +1,16 @@
 import type { JSX } from 'solid-js'
-import { For, Index, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import {
+  For,
+  Index,
+  Show,
+  createComputed,
+  createEffect,
+  createSignal,
+  on,
+  onCleanup,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -55,14 +66,19 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   const visualExpanded = () =>
     disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
-  // Clips the group only while its height animates, so focus rings of child rows stay visible.
+  // Marks a toggle in progress; the recipe applies its animation only then. A CSS animation that
+  // stays applied after it ends replays whenever the element is inserted again, such as when a
+  // drag library lifts or restores the item, or a reorder moves it. It also clips the group, so
+  // focus rings of child rows stay visible at rest.
   const [animating, setAnimating] = createSignal(false)
   let contentElement: HTMLElement | undefined
-  createEffect(
+  // Computed, not an effect: the attributes that start the animation apply in the same update as
+  // the expanded state, so no frame renders the new state without them.
+  createComputed(
     on(
       visualExpanded,
       () => {
-        if (!allowHeightMotion()) {
+        if (!untrack(allowHeightMotion)) {
           return
         }
         setAnimating(true)
