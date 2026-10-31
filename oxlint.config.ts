@@ -12,7 +12,13 @@ export default subfLint({
         // Element bindings take accessors and track them in their own effect.
         'subf/solid-reactivity': [
           'warn',
-          { customReactiveFunctions: ['bindElement', 'publishElement'] },
+          {
+            customReactiveFunctions: [
+              'bindElement',
+              'publishElement',
+              'bindSelectableItemHandlers',
+            ],
+          },
         ],
       },
     },

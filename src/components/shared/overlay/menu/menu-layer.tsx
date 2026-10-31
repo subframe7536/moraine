@@ -31,7 +31,7 @@ import { useFloatingPosition } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 import { focusWithoutScrolling, resolveDirection } from '../utils'
 
-import { attachSelectableItemHandlers, createMenuItemRenderers } from './menu-item'
+import { bindSelectableItemHandlers, createMenuItemRenderers } from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import {
   createPointerGraceIntent,
@@ -219,14 +219,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     ),
   )
 
-  onMount(() => {
-    const branchElement = positionerElement()
-
-    if (!branchElement) {
-      return
+  bindElement(positionerElement, (positioner) => {
+    setIsPositioned(false)
+    // Stay hidden until the floating position commits; an exiting layer is shown by the effect above.
+    if (props.open) {
+      positioner.style.visibility = 'hidden'
     }
-
-    onCleanup(registerLayerBranch(branchElement))
+    return registerLayerBranch(positioner)
   })
 
   createEffect(
@@ -544,7 +543,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           [event.clientX, event.clientY],
         )
       },
-    } satisfies Parameters<typeof attachSelectableItemHandlers>[1]
+    } satisfies Parameters<typeof bindSelectableItemHandlers>[1]
+    bindSelectableItemHandlers(triggerElement, handlers)
 
     const itemSlot = getItemSlot({
       get class() {
@@ -574,10 +574,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           aria-expanded={isOpen() ? 'true' : 'false'}
           aria-disabled={itemProps.item.disabled ? 'true' : undefined}
           {...itemSlot}
-          ref={(itemElement) => {
-            setTriggerElement(itemElement)
-            onCleanup(attachSelectableItemHandlers(itemElement, handlers))
-          }}
+          ref={setTriggerElement}
         >
           <RenderItemContent
             item={itemProps.item}
@@ -731,17 +728,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   return (
     <div
-      ref={(element) => {
-        setPositionerElement(element)
-        element.style.position = 'absolute'
-        element.style.left = '0'
-        element.style.top = '0'
-        setIsPositioned(false)
-
-        if (props.open) {
-          element.style.visibility = 'hidden'
-        }
-      }}
+      ref={setPositionerElement}
       data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
     >

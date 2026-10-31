@@ -4,6 +4,7 @@ import { Show, createMemo, createSignal, mergeProps, onCleanup, onMount } from '
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
+import { bindElement } from '../../../../shared/element-binding'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createId } from '../../../../shared/utils'
@@ -115,19 +116,22 @@ export function createSelectableItemHandlers(
   }
 }
 
-export function attachSelectableItemHandlers(
-  element: HTMLDivElement,
+/** Attaches item handlers to each element the accessor yields, for the calling owner's lifetime. */
+export function bindSelectableItemHandlers(
+  element: Accessor<HTMLDivElement | undefined>,
   handlers: ReturnType<typeof createSelectableItemHandlers>,
-): () => void {
-  return attachEventListenerMap(element, {
-    click: handlers.onClick,
-    focus: handlers.onFocus,
-    keydown: handlers.onKeyDown,
-    pointerdown: handlers.onPointerDown,
-    pointerenter: handlers.onPointerEnter,
-    pointermove: handlers.onPointerMove,
-    pointerleave: handlers.onPointerLeave,
-  } as Record<string, ((event: Event) => void) | undefined>)
+): void {
+  bindElement(element, (current) =>
+    attachEventListenerMap(current, {
+      click: handlers.onClick,
+      focus: handlers.onFocus,
+      keydown: handlers.onKeyDown,
+      pointerdown: handlers.onPointerDown,
+      pointerenter: handlers.onPointerEnter,
+      pointermove: handlers.onPointerMove,
+      pointerleave: handlers.onPointerLeave,
+    } as Record<string, ((event: Event) => void) | undefined>),
+  )
 }
 
 interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
@@ -350,6 +354,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       element,
       itemId,
     })
+    bindSelectableItemHandlers(element, handlers)
 
     const itemSlot = getItemSlot({
       get class() {
@@ -375,10 +380,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
-        ref={(itemElement) => {
-          setElement(itemElement)
-          onCleanup(attachSelectableItemHandlers(itemElement, handlers))
-        }}
+        ref={setElement}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -427,6 +429,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       element,
       itemId,
     })
+    bindSelectableItemHandlers(element, handlers)
 
     const itemSlot = getItemSlot({
       get class() {
@@ -453,10 +456,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
-        ref={(itemElement) => {
-          setElement(itemElement)
-          onCleanup(attachSelectableItemHandlers(itemElement, handlers))
-        }}
+        ref={setElement}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -530,6 +530,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       element,
       itemId,
     })
+    bindSelectableItemHandlers(element, handlers)
 
     const itemSlot = getItemSlot({
       get class() {
@@ -556,10 +557,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
-        ref={(itemElement) => {
-          setElement(itemElement)
-          onCleanup(attachSelectableItemHandlers(itemElement, handlers))
-        }}
+        ref={setElement}
       >
         <RenderItemContent
           item={itemProps.item}

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { DEV, For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { DEV, For, Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -248,12 +248,19 @@ export function Stepper(props: StepperProps): JSX.Element {
             const separatorSlot = slotWith('separator', {
               data: stepperDataAttributes.separator({ state, disabled }),
             })
+            let trigger: HTMLButtonElement | undefined
+            onCleanup(() => {
+              if (triggerRefs.get(entry.instanceKey) === trigger) {
+                triggerRefs.delete(entry.instanceKey)
+              }
+            })
 
             return (
               <div data-slot="stepper-item" {...itemSlot}>
                 <button
                   id={triggerId()}
                   ref={(element) => {
+                    trigger = element
                     triggerRefs.set(entry.instanceKey, element)
                   }}
                   type="button"

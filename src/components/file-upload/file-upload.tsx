@@ -401,7 +401,7 @@ export function FileUpload<Multiple extends boolean = false>(
     },
   })
 
-  let hiddenInputEl: HTMLInputElement | undefined
+  const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement>()
   let controlEl: HTMLElement | undefined
 
   const selectedFiles = createMemo<File[]>(() => {
@@ -418,8 +418,8 @@ export function FileUpload<Multiple extends boolean = false>(
   })
 
   createEffect(
-    on(selectedFiles, (files) => {
-      syncNativeInputFiles(hiddenInputEl, files)
+    on([hiddenInput, selectedFiles], ([input, files]) => {
+      syncNativeInputFiles(input, files)
     }),
   )
 
@@ -489,7 +489,7 @@ export function FileUpload<Multiple extends boolean = false>(
       return
     }
 
-    hiddenInputEl?.click()
+    hiddenInput()?.click()
   }
 
   function processIncomingFiles(files: File[]): void {
@@ -498,7 +498,7 @@ export function FileUpload<Multiple extends boolean = false>(
     }
 
     if (field.disabled() || readOnly()) {
-      syncNativeInputFiles(hiddenInputEl, selectedFiles())
+      syncNativeInputFiles(hiddenInput(), selectedFiles())
       return
     }
 
@@ -534,7 +534,7 @@ export function FileUpload<Multiple extends boolean = false>(
     if (nextFiles !== currentFiles) {
       commitSelectedFiles(nextFiles)
     } else {
-      syncNativeInputFiles(hiddenInputEl, currentFiles)
+      syncNativeInputFiles(hiddenInput(), currentFiles)
     }
 
     if (rejected.length > 0) {
@@ -613,8 +613,9 @@ export function FileUpload<Multiple extends boolean = false>(
           return
         }
 
-        if (hiddenInputEl) {
-          hiddenInputEl.value = ''
+        const input = hiddenInput()
+        if (input) {
+          input.value = ''
         }
       },
     ),
@@ -627,7 +628,7 @@ export function FileUpload<Multiple extends boolean = false>(
   })
 
   useFormReset(
-    () => hiddenInputEl?.form,
+    () => hiddenInput()?.form,
     () => {
       setDragging(false)
       setNativeInvalid(false)
@@ -777,9 +778,8 @@ export function FileUpload<Multiple extends boolean = false>(
         type="file"
         id={field.id()}
         ref={(element) => {
-          hiddenInputEl = element
+          setHiddenInput(element)
           callRef(local.inputRef, element)
-          syncNativeInputFiles(element, selectedFiles())
         }}
         name={field.name()}
         accept={merged.accept}
