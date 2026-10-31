@@ -151,14 +151,20 @@ export function createTreeSortable<T>(
     ],
     plugins: options.plugins,
     modifiers: options.modifiers,
+    dropAnimation: options.dropAnimation,
     canDrop: (drop) => {
       const move = resolveMove(drop)
       return move !== undefined && (options.canDrop?.(move) ?? true)
     },
     onDrop: (drop) => {
       const move = resolveMove(drop)
-      if (move) {
-        options.onMove(move)
+      if (!move) {
+        return
+      }
+      options.onMove(move)
+      // Shows the moved item, and gives the drop animation an element to land on.
+      if (move.parentKey !== undefined && !move.target.isExpanded && move.position === 'inside') {
+        tree.expand(move.parentKey)
       }
     },
   })

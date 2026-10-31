@@ -34,13 +34,45 @@ export interface SortableOptions {
   modifiers?: DragDropProviderProps['modifiers']
   /** Rejects a drop location; rejected targets show no indicator and do not drop. */
   canDrop?: (target: SortableDropTarget) => boolean
-  /** Called once when a drag ends on an accepted target. Not called for canceled drags. */
-  onDrop?: (target: SortableDropTarget) => void
+  /**
+   * Called once when a drag ends on an accepted target. Not called for canceled drags. Return the
+   * id the source has after the move when it differs from `sourceId`, so the drop animation finds
+   * its element.
+   */
+  onDrop?: (target: SortableDropTarget) => SortableId | void
+  /**
+   * Animates the source from where it was released to its place after the drop or cancel. Pass
+   * `false` to place it at once.
+   * @default { duration: 200, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }
+   */
+  dropAnimation?: false | { duration?: number; easing?: string }
 }
 
 type DragDropManager = Parameters<NonNullable<DragDropProviderProps['onDragMove']>>[1]
 type DragOperation = Parameters<NonNullable<DragDropProviderProps['onDragEnd']>>[0]['operation']
 type Point = { x: number; y: number }
+type Rect = { top: number; left: number }
+
+const DRAGGING_ATTRIBUTE = 'data-dnd-dragging'
+const MAX_SETTLE_FRAMES = 10
+
+function prefersReducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/**
+ * Turns off dnd kit's drop animation. It animates toward the hidden placeholder, which is gone or
+ * in the wrong place once the host renders the move; the sortable animates the moved element
+ * instead. `Feedback` is the only default plugin with an `overlay` accessor; its `dropAnimation`
+ * field is not initialized, so it cannot be detected directly.
+ */
+function disableFeedbackDropAnimation(manager: DragDropManager): void {
+  for (const plugin of manager.plugins) {
+    if ('overlay' in plugin) {
+      ;(plugin as unknown as { dropAnimation: null }).dropAnimation = null
+    }
+  }
+}
 
 interface ItemData extends Record<string, unknown> {
   positions: readonly SortableDropPosition[]
@@ -143,6 +175,46 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     )
   }
 
+  // Current element of each registered item, for the drop animation.
+  const elements = new Map<SortableId, HTMLElement>()
+  const animation = options.dropAnimation === false ? undefined : (options.dropAnimation ?? {})
+
+  /** Slides the element of `id` from `from` (viewport position) to where it has settled. */
+  const animateInto = (manager: DragDropManager, id: SortableId, from: Rect): void => {
+    if (!animation || prefersReducedMotion()) {
+      return
+    }
+    void manager.renderer.rendering.then(() => {
+      let frames = 0
+      const run = (): void => {
+        const element = elements.get(id)
+        if (!element?.isConnected) {
+          return
+        }
+        // Wait until dnd kit releases the lifted element.
+        if (element.hasAttribute(DRAGGING_ATTRIBUTE)) {
+          if (frames++ < MAX_SETTLE_FRAMES) {
+            requestAnimationFrame(run)
+          }
+          return
+        }
+        const to = element.getBoundingClientRect()
+        const dx = from.left - to.left
+        const dy = from.top - to.top
+        if (Math.abs(dx) + Math.abs(dy) < 1 || typeof element.animate !== 'function') {
+          return
+        }
+        // `translate` composes with the `transform` that positions virtual rows.
+        element.animate([{ translate: `${dx}px ${dy}px` }, { translate: '0 0' }], {
+          duration: animation.duration ?? 200,
+          easing: animation.easing ?? 'cubic-bezier(0.25, 1, 0.5, 1)',
+        })
+      }
+      // The host has rendered the move by now; start before the next paint.
+      run()
+    })
+  }
+
   const ClientProvider: FlowComponent = (props) => {
     let active = false
     const update = (manager: DragDropManager, point?: Point): void => {
@@ -158,6 +230,9 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         modifiers={options.modifiers}
         onDragStart={(_event, manager) => {
           active = true
+          if (animation) {
+            disableFeedbackDropAnimation(manager)
+          }
           update(manager)
         }}
         onDragMove={(event, manager) => {
@@ -170,12 +245,20 @@ export function createSortable(options: SortableOptions = {}): Sortable {
           event.preventDefault()
           update(manager)
         }}
-        onDragEnd={(event) => {
+        onDragEnd={(event, manager) => {
           active = false
           setState(undefined)
+          const source = event.operation.source
+          // The lifted element is still where the user released it.
+          const released =
+            (source ? elements.get(source.id)?.getBoundingClientRect() : undefined) ??
+            event.operation.shape?.current.boundingRectangle
           const final = event.canceled ? undefined : readDragState(event.operation)
-          if (allowed(final)) {
-            options.onDrop?.(final)
+          const settledId = allowed(final)
+            ? (options.onDrop?.(final) ?? final.sourceId)
+            : source?.id
+          if (released && settledId !== undefined) {
+            animateInto(manager, settledId, released)
           }
         }}
       >
@@ -229,6 +312,9 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         return input.disabled?.() ?? false
       },
       data,
+      // Index changes come from the host's re-render after a drop, which the drop animation
+      // already covers; dnd kit's own index transition would animate from the stale index.
+      transition: null,
     })
     const handleRef = (element: HTMLElement): void => {
       sortable.handleRef(element)
@@ -248,8 +334,25 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         })
       }),
     )
+    let element: HTMLElement | undefined
+    createRenderEffect(
+      on(input.id, (id) => {
+        if (element) {
+          elements.set(id, element)
+        }
+        onCleanup(() => {
+          if (elements.get(id) === element) {
+            elements.delete(id)
+          }
+        })
+      }),
+    )
     return {
-      ref: (element) => sortable.ref(element),
+      ref: (next) => {
+        element = next
+        elements.set(untrack(input.id), next)
+        sortable.ref(next)
+      },
       handleRef,
       targetRef: (element) => sortable.targetRef(element),
       dragging,

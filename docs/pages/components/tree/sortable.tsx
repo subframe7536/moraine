@@ -28,10 +28,6 @@ const ACCESS = {
   withChildren: (node: FileNode, children: FileNode[]) => ({ ...node, children }),
 }
 
-// Draws the indicator on the row, because the item element also contains its children.
-const DROP_INDICATOR_CLASS =
-  'data-dragging:opacity-90 [&[data-drop-position=inside]>[data-slot=tree-row]]:ring-2 [&[data-drop-position=inside]>[data-slot=tree-row]]:ring-primary [&[data-drop-position=after]>[data-slot=tree-row]]:shadow-[inset_0_-2px_0_var(--primary)] [&[data-drop-position=before]>[data-slot=tree-row]]:shadow-[inset_0_2px_0_var(--primary)]'
-
 export function Sortable() {
   const [files, setFiles] = createSignal(FILES)
 
@@ -56,7 +52,7 @@ export function Sortable() {
           itemRender={(item) => {
             const node = sortable.useNode(item)
             return (
-              <tree.Item item={item} {...node.props} class={DROP_INDICATOR_CLASS}>
+              <tree.Item item={item} {...node.props}>
                 <tree.ItemTrigger />
                 <tree.ItemIcon icon={item.raw.children ? 'i-lucide:folder' : 'i-lucide:file'} />
                 <tree.ItemLabel />

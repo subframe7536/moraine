@@ -121,6 +121,7 @@ export function createListSortable<TItem>(
         (options.canDrop?.(source, over, target.position) ?? true)
       )
     },
+    dropAnimation: options.dropAnimation,
     onDrop: (target) => {
       const move = resolveMove(target)
       const items = options.items()
@@ -136,6 +137,8 @@ export function createListSortable<TItem>(
         target: items[target.targetIndex]!,
         position: target.position,
       })
+      // Index ids follow the item to its new index.
+      return options.getId ? undefined : move.to
     },
   })
 

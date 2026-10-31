@@ -123,7 +123,10 @@ Style the drop indicator from these attributes. For example, draw a line on the 
 ```
 
 Keeping rows in place lets a sortable work with rows that Solid or a virtualizer owns, and keeps
-row state such as focus intact until the drop.
+row state such as focus intact until the drop. When the drag ends, the moved row slides from where
+it was released into its new place, also when the host renders it as a new element. Canceled drags
+slide back the same way. Pass `dropAnimation: { duration, easing }` to tune it, or `false` to turn
+it off; it is skipped under `prefers-reduced-motion`.
 
 ### Drag handles
 
