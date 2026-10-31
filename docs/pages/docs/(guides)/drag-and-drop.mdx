@@ -92,7 +92,8 @@ const sortable = createListSortable({
 ```
 
 Read [DataTable drag to reorder rows](/components/data-table#drag-to-reorder-rows) for sorting,
-pagination, and sub-rows.
+pagination, and sub-rows. Columns reorder the same way through `headProps`, with
+`orientation: 'horizontal'` and `table.getVisibleLeafColumns()` as `items`.
 
 ## Tree
 
@@ -180,6 +181,8 @@ const sortable = createListSortable({ items, onReorder, sensors: [PointerSensor]
 `createListSortable` also takes:
 
 - `getId(item, index)`: a stable id, used by `handleRefFor`. Defaults to the index.
+- `orientation`: `'horizontal'` for items laid out in a row, such as chips. `before` and `after`
+  then come from the inline start and end halves of an item, mirrored in right-to-left layouts.
 - `isDisabled(item, index)`: keeps a row from being dragged or dropped on.
 - `canDrop(source, target, position)`: rejects a drop location before it shows an indicator.
 

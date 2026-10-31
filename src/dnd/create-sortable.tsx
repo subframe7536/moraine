@@ -32,6 +32,12 @@ export interface SortableOptions {
   plugins?: DragDropProviderProps['plugins']
   /** Modifiers applied to every drag, such as axis or container restrictions. */
   modifiers?: DragDropProviderProps['modifiers']
+  /**
+   * Axis the items are laid out along. `before` and `after` come from the pointer's position along
+   * it: top and bottom halves when vertical, inline start and end halves when horizontal.
+   * @default 'vertical'
+   */
+  orientation?: SortableOrientation
   /** Rejects a drop location; rejected targets show no indicator and do not drop. */
   canDrop?: (target: SortableDropTarget) => boolean
   /**
@@ -51,6 +57,8 @@ export interface SortableOptions {
 type DragDropManager = Parameters<NonNullable<DragDropProviderProps['onDragMove']>>[1]
 type DragOperation = Parameters<NonNullable<DragDropProviderProps['onDragEnd']>>[0]['operation']
 type Point = { x: number; y: number }
+
+export type SortableOrientation = 'vertical' | 'horizontal'
 type Rect = { top: number; left: number }
 
 const DRAGGING_ATTRIBUTE = 'data-dnd-dragging'
@@ -122,6 +130,7 @@ function isKeyboardDrag(event: Event | null): boolean {
 /** Reads the drop location from a drag operation, optionally at a pointer position it has not applied yet. */
 function readDragState(
   operation: DragOperation,
+  orientation: SortableOrientation,
   point: Point = operation.position.current,
 ): SortableDragState | undefined {
   const { activatorEvent, source, target } = operation
@@ -137,12 +146,21 @@ function readDragState(
 
   const positions = (target.data as ItemData | undefined)?.positions ?? DEFAULT_POSITIONS
   const rect = target.shape?.boundingRectangle
+  const horizontal = orientation === 'horizontal'
+  const size = rect ? (horizontal ? rect.width : rect.height) : 0
   let ratio: number
-  if (isKeyboardDrag(activatorEvent) || !rect || rect.height <= 0) {
+  if (isKeyboardDrag(activatorEvent) || !rect || size <= 0) {
     // Keyboard moves step from item to item, so the direction of travel picks the side.
     ratio = targetIndex > sourceIndex ? 1 : 0
+  } else if (horizontal) {
+    ratio = (point.x - rect.left) / size
+    // `before` is the inline start, which is on the right in right-to-left layouts.
+    const element = target.element
+    if (element && getComputedStyle(element).direction === 'rtl') {
+      ratio = 1 - ratio
+    }
   } else {
-    ratio = (point.y - rect.top) / rect.height
+    ratio = (point.y - rect.top) / size
   }
 
   const position = pickPosition(ratio, positions)
@@ -170,6 +188,7 @@ function sameState(prev: SortableDragState | undefined, next: SortableDragState 
  * moved by dnd kit. Use `createListSortable` for flat lists.
  */
 export function createSortable(options: SortableOptions = {}): Sortable {
+  const orientation = options.orientation ?? 'vertical'
   // Pointer moves report the same location many times; only changes notify items.
   const [state, setState] = createSignal<SortableDragState | undefined>(undefined, {
     equals: sameState,
@@ -230,7 +249,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     let active = false
     const update = (manager: DragDropManager, point?: Point): void => {
       if (active) {
-        report(readDragState(manager.dragOperation, point))
+        report(readDragState(manager.dragOperation, orientation, point))
       }
     }
 
@@ -267,7 +286,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
           const released =
             (source ? elements.get(source.id)?.getBoundingClientRect() : undefined) ??
             event.operation.shape?.current.boundingRectangle
-          const final = event.canceled ? undefined : readDragState(event.operation)
+          const final = event.canceled ? undefined : readDragState(event.operation, orientation)
           const settledId = allowed(final)
             ? (options.onDrop?.(final) ?? final.sourceId)
             : source?.id

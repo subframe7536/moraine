@@ -51,6 +51,12 @@
           "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualizer` is set."
         },
         {
+          "name": "headProps",
+          "optional": true,
+          "type": "(context: HeadPropsContext<TData>) => HeadAttributes",
+          "description": "Extra attributes for each header cell (`<th>`), such as drag wiring from\n`createListSortable().useRow` to reorder columns. Called once per header cell, under its\nowner; read `context` fields lazily to follow index changes."
+        },
+        {
           "name": "hoverEffect",
           "optional": true,
           "type": "boolean",
