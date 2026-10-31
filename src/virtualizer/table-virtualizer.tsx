@@ -1,6 +1,7 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component } from 'solid-js'
 import {
+  Show,
   createEffect,
   createMemo,
   createRenderEffect,
@@ -472,7 +473,24 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           virtualizer={virtualizer}
           virtualItems={virtualItems}
           entries={props.entries}
-          render={props.render}
+          render={(item, index, rowProps) => {
+            // A `rangeExtractor` can return indexes outside the contiguous window, such as a
+            // pinned or dragged row. Rows stay in table flow, so a spacer fills each gap.
+            const gapBefore = (): number => {
+              const position = virtualItems.findIndex((virtualItem) => virtualItem.index === index)
+              const previous = position > 0 ? virtualItems[position - 1] : undefined
+              const current = virtualItems[position]
+              return previous && current ? Math.max(current.start - previous.end, 0) : 0
+            }
+            return (
+              <>
+                <Show when={gapBefore() > 0}>
+                  <tr aria-hidden="true" style={{ height: `${gapBefore()}px` }} />
+                </Show>
+                {props.render(item, index, rowProps)}
+              </>
+            )
+          }}
           // The trailing spacer row breaks `:last-child`, so the last entry carries `data-last`.
           rowProps={(current, _virtualItem, measure) => ({
             get 'aria-rowindex'() {

@@ -2,7 +2,7 @@ import { DragDropProvider } from '@dnd-kit/solid'
 import type { DragDropProviderProps } from '@dnd-kit/solid'
 import { isSortable, useSortable } from '@dnd-kit/solid/sortable'
 import type { FlowComponent } from 'solid-js'
-import { createSignal, untrack } from 'solid-js'
+import { createRenderEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 import { createDataAttributes } from '../theme/style-contract'
@@ -12,6 +12,7 @@ import type {
   SortableDragState,
   SortableDropPosition,
   SortableDropTarget,
+  SortableId,
   SortableItem,
   SortableItemAttributes,
   SortableItemInput,
@@ -89,13 +90,13 @@ function readDragState(
   if (!target || target.id === source.id || target.disabled) {
     return { sourceId, sourceIndex }
   }
+  const targetIndex = isSortable(target) ? target.index : -1
 
   const positions = (target.data as ItemData | undefined)?.positions ?? DEFAULT_POSITIONS
   const rect = target.shape?.boundingRectangle
   let ratio: number
   if (isKeyboardDrag(activatorEvent) || !rect || rect.height <= 0) {
     // Keyboard moves step from item to item, so the direction of travel picks the side.
-    const targetIndex = isSortable(target) ? target.index : 0
     ratio = targetIndex > sourceIndex ? 1 : 0
   } else {
     ratio = (point.y - rect.top) / rect.height
@@ -103,7 +104,7 @@ function readDragState(
 
   const position = pickPosition(ratio, positions)
   return position
-    ? { sourceId, sourceIndex, targetId: target.id, position }
+    ? { sourceId, sourceIndex, targetId: target.id, targetIndex, position }
     : { sourceId, sourceIndex }
 }
 
@@ -112,6 +113,7 @@ function sameState(prev: SortableDragState | undefined, next: SortableDragState 
     prev?.sourceId === next?.sourceId &&
     prev?.sourceIndex === next?.sourceIndex &&
     prev?.targetId === next?.targetId &&
+    prev?.targetIndex === next?.targetIndex &&
     prev?.position === next?.position
   )
 }
@@ -182,6 +184,20 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     )
   }
 
+  // Handles rendered apart from their item attach by id, in either mount order.
+  const handleSetters = new Map<SortableId, (element: HTMLElement) => void>()
+  const pendingHandles = new Map<SortableId, HTMLElement>()
+  const handleRefFor =
+    (id: SortableId) =>
+    (element: HTMLElement): void => {
+      const setHandle = handleSetters.get(id)
+      if (setHandle) {
+        setHandle(element)
+      } else {
+        pendingHandles.set(id, element)
+      }
+    }
+
   // The server renders items without a drag manager; they become sortable after hydration.
   const Provider: FlowComponent = isServer ? (props) => <>{props.children}</> : ClientProvider
 
@@ -213,9 +229,27 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       },
       data,
     })
+    const handleRef = (element: HTMLElement): void => {
+      sortable.handleRef(element)
+    }
+    createRenderEffect(
+      on(input.id, (id) => {
+        handleSetters.set(id, handleRef)
+        const pending = pendingHandles.get(id)
+        if (pending) {
+          pendingHandles.delete(id)
+          handleRef(pending)
+        }
+        onCleanup(() => {
+          if (handleSetters.get(id) === handleRef) {
+            handleSetters.delete(id)
+          }
+        })
+      }),
+    )
     return {
       ref: (element) => sortable.ref(element),
-      handleRef: (element) => sortable.handleRef(element),
+      handleRef,
       dragging,
       dropPosition,
       attributes,
@@ -242,5 +276,5 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     return indexes
   }
 
-  return { Provider, useItem, state, rangeExtractor }
+  return { Provider, useItem, handleRefFor, state, rangeExtractor }
 }

@@ -4,7 +4,9 @@ import { createSortable } from './create-sortable'
 import type { SortableOptions } from './create-sortable'
 import type {
   Sortable,
+  SortableDropPosition,
   SortableDropTarget,
+  SortableId,
   SortableItem,
   SortableItemAttributes,
 } from './sortable.types'
@@ -19,6 +21,10 @@ export interface ListReorderEvent<TItem> {
   readonly to: number
   /** Copy of the items with the move applied. */
   readonly items: TItem[]
+  /** Item the source was dropped on. */
+  readonly target: TItem
+  /** Side of `target` the source was dropped on. */
+  readonly position: Exclude<SortableDropPosition, 'inside'>
 }
 
 export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDrop' | 'onDrop'> {
@@ -26,8 +32,22 @@ export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDr
   items: () => readonly TItem[]
   /** Called when a drag moves an item to a new index. Update the items from it. */
   onReorder: (event: ListReorderEvent<TItem>) => void
-  /** Prevents dragging and dropping an item. */
+  /**
+   * Stable item id. Pass it to look up rows by id, such as with `handleRefFor`.
+   * @default the item index
+   */
+  getId?: (item: TItem, index: number) => SortableId
+  /** Prevents dragging and dropping an item. Return true for every item to pause dragging. */
   isDisabled?: (item: TItem, index: number) => boolean
+  /**
+   * Rejects a drop location, such as a row under another parent. Rejected targets show no
+   * indicator and do not drop.
+   */
+  canDrop?: (
+    source: TItem,
+    target: TItem,
+    position: Exclude<SortableDropPosition, 'inside'>,
+  ) => boolean
 }
 
 /** Row context accepted by `useRow`, such as the props `List` passes to `itemRender`. */
@@ -57,22 +77,29 @@ export interface ListSortable<TItem> extends Sortable {
   readonly items: () => readonly TItem[]
 }
 
+/** Returns a copy of `items` with the item at `from` moved to `to`. */
+export function moveItem<TItem>(items: readonly TItem[], from: number, to: number): TItem[] {
+  const next = items.slice()
+  const [item] = next.splice(from, 1)
+  next.splice(to, 0, item!)
+  return next
+}
+
 /** Index the source ends up at, or undefined when the drop leaves it in place. */
 function resolveMove(target: SortableDropTarget): { from: number; to: number } | undefined {
-  const from = Number(target.sourceId)
-  let to = Number(target.targetId) + (target.position === 'after' ? 1 : 0)
+  const from = target.sourceIndex
+  let to = target.targetIndex + (target.position === 'after' ? 1 : 0)
   if (from < to) {
     to -= 1
   }
-  return from === to ? undefined : { from, to }
+  return from < 0 || target.targetIndex < 0 || from === to ? undefined : { from, to }
 }
 
 /**
  * Creates a sortable for a flat list, such as `List` or the rows of a `DataTable`. Wrap the list in
  * `Provider`, call `useRow` for each row, and update the items from `onReorder`.
  *
- * Row ids are item indexes. Rows keep their place while dragging, so indexes stay valid until
- * `onReorder` updates the items.
+ * Rows keep their place while dragging, so indexes stay valid until `onReorder` updates the items.
  */
 export function createListSortable<TItem>(
   options: ListSortableOptions<TItem>,
@@ -81,29 +108,52 @@ export function createListSortable<TItem>(
     sensors: options.sensors,
     plugins: options.plugins,
     modifiers: options.modifiers,
-    canDrop: (target) => resolveMove(target) !== undefined,
+    canDrop: (target) => {
+      if (!resolveMove(target) || target.position === 'inside') {
+        return false
+      }
+      const items = options.items()
+      const source = items[target.sourceIndex]
+      const over = items[target.targetIndex]
+      return (
+        source === undefined ||
+        over === undefined ||
+        (options.canDrop?.(source, over, target.position) ?? true)
+      )
+    },
     onDrop: (target) => {
       const move = resolveMove(target)
       const items = options.items()
-      if (!move || move.from >= items.length) {
+      if (!move || target.position === 'inside' || move.from >= items.length) {
         return
       }
-      const next = items.slice()
-      const [item] = next.splice(move.from, 1)
-      next.splice(move.to, 0, item!)
-      options.onReorder({ item: item!, from: move.from, to: move.to, items: next })
+      const next = moveItem(items, move.from, move.to)
+      options.onReorder({
+        item: items[move.from]!,
+        from: move.from,
+        to: move.to,
+        items: next,
+        target: items[target.targetIndex]!,
+        position: target.position,
+      })
     },
   })
+
+  const idAt = (index: number): SortableId => {
+    const item = options.items()[index]
+    return item === undefined ? index : (options.getId?.(item, index) ?? index)
+  }
 
   const useRow = <TRowProps extends object = {}>(
     context: ListSortableRowContext<TRowProps>,
   ): ListSortableRow<TRowProps> => {
     const item = sortable.useItem({
-      id: () => context.index,
+      id: () => idAt(context.index),
       index: () => context.index,
-      disabled: options.isDisabled
-        ? () => options.isDisabled!(options.items()[context.index]!, context.index)
-        : undefined,
+      disabled: () => {
+        const current = options.items()[context.index]
+        return current !== undefined && (options.isDisabled?.(current, context.index) ?? false)
+      },
     })
     const hostRef = (): ((element: HTMLElement) => void) | undefined =>
       (context.props as { ref?: (element: HTMLElement) => void } | undefined)?.ref
