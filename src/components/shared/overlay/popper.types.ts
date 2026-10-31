@@ -28,6 +28,7 @@ export interface PopperContentAttributes {
 
   id: string
   onKeyDown: (event: KeyboardEvent) => void
+  /** Stores the content host; see `PopperContentContext.contentProps` for its lifetime contract. */
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
   tabIndex: number
@@ -241,7 +242,13 @@ export interface PopperContentContext {
   /** Closes the positioned content. */
   close: () => void
 
-  /** Attributes and event handlers to forward to the content root. */
+  /**
+   * Attributes and event handlers to forward to the content root.
+   *
+   * Spread them on a host that lives as long as this render function: do not place the host in a
+   * conditional branch. Refs cannot observe their element unmounting, so the popper releases the
+   * host only when this render function unmounts or another host replaces it.
+   */
   contentProps: PopperContentAttributes
 
   /** Current placement after collision handling. */

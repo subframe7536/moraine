@@ -195,6 +195,46 @@ describe('Popper primitives', () => {
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
   })
 
+  test('publishes the content host while the content renders and releases it after closing', async () => {
+    let popper!: ReturnType<typeof createPopper>
+    const screen = render(() => (
+      <PopperFixture
+        contentRender={(context) => {
+          popper = context
+          return (
+            <>
+              <PopperTrigger context={context} type="button">
+                Open
+              </PopperTrigger>
+              <PopperContent context={context}>
+                {(content) => (
+                  <div data-testid="content-host" {...content.contentProps}>
+                    Content
+                  </div>
+                )}
+              </PopperContent>
+            </>
+          )
+        }}
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const host = await waitFor(() => {
+      const element = document.body.querySelector<HTMLElement>('[data-testid="content-host"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    expect(popper.contentElement()).toBe(host)
+
+    popper.setOpen(false)
+    await finishExitMotion(host)
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-testid="content-host"]')).toBeNull(),
+    )
+    expect(popper.contentElement()).toBeUndefined()
+  })
+
   test('uses an absolute positioner for the absolute Floating UI strategy', async () => {
     render(() => (
       <PopperFixture
