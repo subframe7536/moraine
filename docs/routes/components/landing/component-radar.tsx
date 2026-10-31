@@ -277,7 +277,7 @@ export function ComponentRadar() {
             classes={{
               root: 'border border-border rounded-lg',
               trigger: 'px-4',
-              content: 'px-4 text-sm',
+              content: 'px-4',
             }}
           />
         </SamplerItem>

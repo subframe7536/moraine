@@ -83,7 +83,7 @@ Define your theme variables in CSS. See the [Tailwind CSS Guide](/docs/tailwind)
 
 ## 3. Verify the Installation
 
-Render a test button in your application to confirm that behavioral scripts and utility classes are functioning correctly:
+Render a test button in your application to confirm that utility classes are generated:
 
 ```tsx title="src/App.tsx"
 import { Button } from 'moraine'
@@ -122,7 +122,7 @@ Changing `MoraineProvider` or importing the optional `moraine/icon.css` does not
 
 ### JSX TypeScript Errors
 
-If TypeScript complains about JSX elements or missing types, ensure your `tsconfig.json` includes:
+If TypeScript complains about JSX elements or missing types, check that your `tsconfig.json` includes:
 
 ```json title="tsconfig.json"
 {

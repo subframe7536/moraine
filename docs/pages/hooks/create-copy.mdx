@@ -1,25 +1,25 @@
 ---
 title: createCopy
-description: Headless reactive clipboard primitive with duration-based status tracking, ClipboardItem support, and legacy command fallback.
+description: Reactive clipboard primitive with duration-based status, ClipboardItem support, and an execCommand fallback.
 search:
   tags: [createCopy, copy, clipboard, execCommand, headless, feedback, timeout]
 ---
 
-`createCopy` is a headless SolidJS clipboard interaction primitive. It writes strings or `ClipboardItem` instances to the user's clipboard using the modern Clipboard API, automatically falls back to `document.execCommand('copy')` in non-secure or restricted environments, and manages duration-based feedback states (`idle`, `copied`, `failed`).
+`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as a reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `failed` state for a set duration before returning to `idle`.
 
 ## Import
 
 ```tsx
-import { createCopy } from 'moraine'
+import { createCopy } from 'moraine/utils'
 ```
 
 ## Features
 
-- **Modern & Legacy Support**: Writes with `navigator.clipboard.writeText` / `navigator.clipboard.write` and automatically falls back to `document.execCommand('copy')`.
-- **Rich Data Types**: Accepts `string`, `ClipboardItem`, `ClipboardItem[]`, or an accessor returning either.
-- **Graceful Fallback**: When copying `ClipboardItem` in legacy environments, extracts plain text from `item.getType()` or falls back to JSON serialization.
-- **Timed Feedback**: Manages reactive `copied()` and `state()` (`'idle' | 'copied' | 'failed'`) accessors with auto-reset via `copiedDuration`.
-- **SSR-Safe**: Guards all browser clipboard calls and global object access against server execution.
+- Writes with `navigator.clipboard.writeText` or `navigator.clipboard.write`, and falls back to `document.execCommand('copy')` when neither is available or the write throws.
+- Accepts a `string`, `ClipboardItem`, `ClipboardItem[]`, a `Promise` of any of these, or an accessor returning them.
+- In the fallback path, extracts plain text from a `ClipboardItem`, or serializes the data with `JSON.stringify` when no text type is present.
+- Exposes `isCopied()` and `state()` (`'idle' | 'copied' | 'failed'`); the active state resets to `idle` after `copiedDuration` milliseconds.
+- Returns `false` from `copy()` and skips clipboard calls on the server.
 
 ## Signature
 
@@ -51,24 +51,24 @@ interface CreateCopyOptions {
   /**
    * Callback invoked when the copy status changes.
    */
-  onStatusChange?: (details: { copied: boolean; state: CopyState; data?: CopyData }) => void
+  onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
 }
 
 interface CreateCopyReturn {
-  copied: Accessor<boolean>
+  isCopied: Accessor<boolean>
+  isError: Accessor<boolean>
   state: Accessor<'idle' | 'copied' | 'failed'>
   copy: (data?: CopySource) => Promise<boolean>
   reset: () => void
   error: Accessor<unknown>
   isSupported: Accessor<boolean>
-  data: Accessor<CopyData | undefined>
 }
 ```
 
 ## Usage Example
 
 ```tsx title="src/ClipboardSnippet.tsx"
-import { createCopy } from 'moraine'
+import { createCopy } from 'moraine/utils'
 
 export function ClipboardSnippet() {
   const clipboard = createCopy({
@@ -83,7 +83,7 @@ export function ClipboardSnippet() {
         onClick={() => clipboard.copy('pnpm add moraine')}
         class="text-xs px-2 py-1 rounded border"
       >
-        {clipboard.copied() ? 'Copied!' : 'Copy'}
+        {clipboard.isCopied() ? 'Copied!' : 'Copy'}
       </button>
     </div>
   )
@@ -92,7 +92,7 @@ export function ClipboardSnippet() {
 
 ## Fallback Mechanics
 
-When `navigator.clipboard` is unavailable (e.g. non-HTTPS, sandboxed iframe without clipboard-write permission, or older browsers):
+When `navigator.clipboard` is missing or its write call throws, `createCopy` falls back to `document.execCommand('copy')`:
 
-1. For string data, `createCopy` creates a visually hidden read-only `<textarea>`, selects the content, and calls `document.execCommand('copy')`.
-2. For `ClipboardItem` or `ClipboardItem[]`, `createCopy` inspects each item's types for `text/plain` or `text/*` and extracts the text via `blob.text()`. If none is found or extraction fails, it falls back to `JSON.stringify(data)` before executing the command.
+1. For a string, it adds a visually hidden read-only `<textarea>`, selects the content, and runs the command.
+2. For a `ClipboardItem` or `ClipboardItem[]`, it looks for a `text/plain` or `text/*` type, reads it through `item.getType(type)` and `blob.text()`, then runs the command on that text. If no text type is found or reading fails, it runs the command on `JSON.stringify(data)`.

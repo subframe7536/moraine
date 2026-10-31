@@ -8,45 +8,9 @@ search:
   tags: [path, hierarchy, navigation, trail, breadcrumb, routing, sitemap]
 ---
 
-import { Breadcrumb } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const TRAIL_ITEMS = [
-      { label: 'Home', href: '#', icon: 'i-lucide:home' },
-      { label: 'Projects', href: '#' },
-      { label: 'Design System', href: '#' },
-      { label: 'Components' },
-    ]
-
-    return (
-      <Breadcrumb
-        items={TRAIL_ITEMS}
-        separator={props.separator || 'i-lucide:chevron-right'}
-        wrap={props.wrap}
-        size={props.size}
-      />
-    )
-
-}}
-
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -78,9 +42,9 @@ import { Breadcrumb } from '@src'
 
 ## Usage
 
-Use Breadcrumb to show a resource’s place in a navigation hierarchy. Keep ancestor destinations as
-links. Represent the current page as a non-link item. Do not use Breadcrumb for in-page section
-switching; use [Tabs](/components/tabs) for peer panels.
+Use Breadcrumb to show where a resource sits in a navigation hierarchy. Keep ancestor destinations
+as links and render the current page as a non-link item. For in-page section switching, use
+[Tabs](/components/tabs) instead.
 
 ```tsx
 import { Breadcrumb } from 'moraine'

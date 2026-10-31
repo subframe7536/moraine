@@ -8,81 +8,9 @@ search:
   tags: [dropdown, items, select, listbox, typeahead]
 ---
 
-import { Select } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Subtle', value: 'subtle' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'None', value: 'none' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
->
-  {(props) => (
-    <Select
-      items={[
-        {
-          type: 'group',
-          label: 'Client frameworks',
-          items: [
-            {
-              label: 'SolidJS',
-              description: 'Fine-grained reactivity',
-              value: 'solid',
-              icon: 'i-lucide:atom',
-            },
-            {
-              label: 'Vue.js',
-              description: 'Progressive framework',
-              value: 'vue',
-              icon: 'i-lucide:sparkles',
-            },
-            { label: 'React', value: 'react', icon: 'i-lucide:box' },
-          ],
-        },
-        { type: 'separator' },
-        {
-          type: 'group',
-          label: 'Compiler-based frameworks',
-          items: [
-            { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
-            { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
-          ],
-        },
-      ]}
-      defaultValue="solid"
-      leadingIcon="i-lucide:code"
-      placeholder="Select a framework..."
-      variant={props.variant}
-      size={props.size}
-      open={props.open}
-      allowClear={props.allowClear}
-      disabled={props.disabled}
-      class="max-w-72 min-w-40 w-60%"
-    />
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -184,10 +112,10 @@ root or inside a group. Whitespace is preserved, and an empty string is a valid 
 />
 ```
 
-String items are converted to the same item shape used by callbacks: `'Apple'` becomes
-`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
-`SelectT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
-occurrence, including collisions between strings and objects.
+A string item normalizes to `{ value, label }` with both set to the string, so `'Apple'` becomes
+`{ value: 'Apple', label: 'Apple' }`. Object items keep their custom fields, and
+`SelectT.NormalizedItem<TItem>` is the item type passed to callbacks. When two items share a value,
+the first one wins, including a string that collides with an object.
 
 ### Value and collection
 
@@ -201,9 +129,6 @@ item values so each selection identifies one option.
 ```tsx
 <Select items={countries} value={selected()} onValueChange={setSelected} allowClear />
 ```
-
-Printable keys perform rapid typeahead navigation across available options without opening an
-editable input.
 
 ### Keyboard interaction
 

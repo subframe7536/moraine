@@ -9,63 +9,9 @@ search:
   tags: [floating panel, overlay, anchored, trigger, popover, flyout]
 ---
 
-import { Button, Field, Input, Popover } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'placement',
-      label: 'Placement',
-      defaultValue: 'bottom',
-      options: [
-        { label: 'Bottom', value: 'bottom' },
-        { label: 'Top', value: 'top' },
-        { label: 'Right', value: 'right' },
-        { label: 'Left', value: 'left' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'align',
-      label: 'Align',
-      defaultValue: 'center',
-      options: [
-        { label: 'Start', value: 'start' },
-        { label: 'Center', value: 'center' },
-        { label: 'End', value: 'end' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
-  ]}
->
-  {(props) => (
-    <Popover
-      placement={props.placement}
-      align={props.align}
-      disabled={props.disabled}
-      dismissible={props.dismissible}
-    >
-      <Popover.Trigger as={Button} variant="outline" size="sm">
-        Adjust dimensions
-      </Popover.Trigger>
-      <Popover.Content>
-        <div class="p-4 w-72 space-y-3">
-          <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
-          <div class="space-y-2">
-            <Field label="Width" orientation="horizontal">
-              <Input size="sm" defaultValue="100%" />
-            </Field>
-            <Field label="Max height" orientation="horizontal">
-              <Input size="sm" defaultValue="300px" />
-            </Field>
-          </div>
-        </div>
-      </Popover.Content>
-    </Popover>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -119,9 +65,9 @@ export function Example() {
 
 ### Trigger modes and state
 
-Render the trigger with the supplied props. Click mode is the default; hover mode also responds to
-focus and blur and can use open and close delays. Use controlled `open` state only when the
-application needs to coordinate visibility.
+Click mode is the default. Hover mode also opens on focus and closes on blur, and accepts
+`openDelay` and `closeDelay`. Use controlled `open` state when the application coordinates
+visibility.
 
 ```tsx
 <Popover>
@@ -137,7 +83,7 @@ application needs to coordinate visibility.
 ### Dismissal and accessibility
 
 Escape and outside interaction close a dismissible popover. Give `Popover.Content` an accessible
-name with `ariaLabel` when it has no visible label.
+name with `aria-label` when it has no visible label.
 
 `modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
 the content, outside content is hidden from assistive technology, and body scroll is locked.
