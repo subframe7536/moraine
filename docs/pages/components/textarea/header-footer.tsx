@@ -7,11 +7,11 @@ export function HeaderFooter() {
   return (
     <div class="gap-6 grid w-full lg:grid-cols-3">
       <InputGroup orientation="vertical">
-        <InputGroup.Leading>
+        <InputGroup.Leading class="border-b border-border">
           <span class="font-semibold">Info text</span>
-          <Icon name="i-lucide:info" />
+          <Icon name="i-lucide:info" class="text-base ms-auto" />
         </InputGroup.Leading>
-        <Textarea placeholder="Ask, search or chat..." rows={3} />
+        <Textarea placeholder="Ask, search or chat..." class="min-h-24" />
       </InputGroup>
       <InputGroup orientation="vertical">
         <Textarea
@@ -19,28 +19,24 @@ export function HeaderFooter() {
           onValueChange={(next) => setValue(next ?? '')}
           placeholder="Write your message..."
           autoResize
-          rows={3}
+          class="min-h-24"
         />
-        <InputGroup.Trailing>
-          <div class="flex w-full items-center justify-between">
-            <span>{value().length}/280 characters</span>
-            <Button type="button" size="sm">
-              Send
-            </Button>
-          </div>
+        <InputGroup.Trailing class="border-t border-border">
+          <span>{value().length}/280 characters</span>
+          <Button type="button" size="sm" class="ms-auto">
+            Send
+          </Button>
         </InputGroup.Trailing>
       </InputGroup>
       <InputGroup orientation="vertical">
-        <InputGroup.Leading>
-          <Icon name="i-lucide:code" />
+        <InputGroup.Leading class="border-b border-border">
+          <Icon name="i-lucide:code" class="text-base" />
           <span>script.js</span>
         </InputGroup.Leading>
-        <Textarea placeholder="console.log('Hello, world!');" rows={4} />
-        <InputGroup.Trailing>
-          <div class="flex w-full items-center justify-between">
-            <span>Line 1, Column 1</span>
-            <span>JavaScript</span>
-          </div>
+        <Textarea placeholder="console.log('Hello, world!');" class="min-h-28" />
+        <InputGroup.Trailing class="border-t border-border">
+          <span>Line 1, Column 1</span>
+          <span class="ms-auto">JavaScript</span>
         </InputGroup.Trailing>
       </InputGroup>
     </div>

@@ -1,4 +1,4 @@
-import { Avatar, Badge, Breadcrumb, Button, Icon, Separator, Sidebar } from '@src'
+import { Avatar, Badge, Breadcrumb, Button, Icon, Kbd, Separator, Sidebar } from '@src'
 import { For, Show } from 'solid-js'
 
 export function ResponsiveUsage() {
@@ -28,29 +28,38 @@ export function ResponsiveUsage() {
   ]
 
   return (
-    <div class="border border-border rounded-xl bg-background h-96 w-full overflow-hidden">
+    <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
       <Sidebar>
-        <Sidebar.Panel>
-          <Sidebar.Header>
-            <div class="flex gap-2.5 min-w-0 w-full items-center justify-between">
-              <div class="flex gap-2.5 min-w-0 items-center">
-                <div class="text-primary-foreground rounded-md bg-primary flex shrink-0 size-7 items-center justify-center">
-                  <Icon name="i-lucide:command" />
-                </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="text-xs leading-tight font-semibold truncate">Acme Cloud</span>
-                  <span class="text-xs text-muted-foreground leading-tight truncate">
-                    Production org
-                  </span>
-                </div>
+        <Sidebar.Panel class="border-r border-border/60 bg-card/40">
+          <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
+            <div class="flex gap-2.5 min-w-0 items-center">
+              <div class="text-xs text-primary-foreground font-bold rounded-md bg-primary flex shrink-0 size-7 items-center justify-center">
+                <Icon name="i-lucide:command" class="size-4" />
               </div>
-              <Badge size="sm" variant="soft">
-                Pro
-              </Badge>
+              <div class="flex flex-col min-w-0">
+                <span class="text-xs leading-tight font-semibold truncate">Acme Cloud</span>
+                <span class="text-[10px] text-muted-foreground leading-tight truncate">
+                  Production org
+                </span>
+              </div>
             </div>
+            <Badge size="sm" variant="soft">
+              Pro
+            </Badge>
           </Sidebar.Header>
 
           <Sidebar.Content>
+            <div class="text-xs text-muted-foreground mx-2 mt-2 px-2 py-1.5 border border-border/60 rounded-md bg-muted/30 flex items-center justify-between">
+              <div class="flex gap-1.5 items-center">
+                <Icon name="i-lucide:search" class="opacity-70 size-3.5" />
+                <span>Search...</span>
+              </div>
+              <div class="flex gap-0.5 items-center">
+                <Kbd size="sm" value="meta" />
+                <Kbd size="sm" value="K" />
+              </div>
+            </div>
+
             <Sidebar.Group>
               <Sidebar.GroupLabel>Platform</Sidebar.GroupLabel>
               <Sidebar.Menu>
@@ -64,7 +73,7 @@ export function ResponsiveUsage() {
                       >
                         <span class="flex-1 truncate">{item.label}</span>
                         <Show when={item.badge}>
-                          <Badge size="sm" variant="soft">
+                          <Badge size="sm" variant="soft" class="ml-auto shrink-0">
                             {item.badge}
                           </Badge>
                         </Show>
@@ -91,92 +100,83 @@ export function ResponsiveUsage() {
             </Sidebar.Group>
           </Sidebar.Content>
 
-          <Sidebar.Footer>
-            <div class="flex gap-2 min-w-0 w-full items-center justify-between">
-              <div class="flex gap-2 min-w-0 items-center">
-                <Avatar text="AR" size="sm" />
-                <div class="flex flex-col min-w-0">
-                  <span class="text-xs leading-tight font-medium truncate">Alex Rivers</span>
-                  <span class="text-xs text-muted-foreground leading-tight truncate">
-                    alex@acme.com
-                  </span>
-                </div>
+          <Sidebar.Footer class="px-4 py-2 border-t border-border/60 justify-between">
+            <div class="flex gap-2 min-w-0 items-center">
+              <Avatar text="AR" size="sm" />
+              <div class="flex flex-col min-w-0">
+                <span class="text-xs leading-tight font-medium truncate">Alex Rivers</span>
+                <span class="text-[10px] text-muted-foreground leading-tight truncate">
+                  alex@acme.com
+                </span>
               </div>
-              <Button variant="ghost" size="icon-xs" aria-label="User preferences">
-                <Icon name="i-lucide:ellipsis-vertical" />
-              </Button>
             </div>
+            <Button variant="ghost" size="icon-xs" aria-label="User preferences">
+              <Icon name="i-lucide:ellipsis-vertical" class="size-3.5" />
+            </Button>
           </Sidebar.Footer>
         </Sidebar.Panel>
 
-        <Sidebar.Inset>
-          <div class="flex flex-col h-full">
-            <header class="px-3 border-b border-border flex shrink-0 gap-2 h-11 items-center">
-              <Sidebar.Trigger
-                as={Button}
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Toggle sidebar"
-              >
-                <Icon name="i-lucide:menu" />
-              </Sidebar.Trigger>
-              <div class="h-4">
-                <Separator orientation="vertical" />
-              </div>
-              <Breadcrumb items={breadcrumbItems} />
-              <div class="flex-1" />
-              <Button size="xs" leading="i-lucide:plus">
-                New Deployment
-              </Button>
-            </header>
+        <Sidebar.Inset class="flex flex-col">
+          <header class="px-3 border-b border-border/60 flex shrink-0 gap-2 h-11 items-center">
+            <Sidebar.Trigger as={Button} variant="ghost" size="icon-sm" aria-label="Toggle sidebar">
+              <Icon name="i-lucide:menu" class="size-4" />
+            </Sidebar.Trigger>
+            <Separator orientation="vertical" class="h-4" />
+            <Breadcrumb items={breadcrumbItems} />
+            <div class="flex-1" />
+            <Button size="xs" leading="i-lucide:plus">
+              New Deployment
+            </Button>
+          </header>
 
-            <div class="p-4 flex-1 space-y-4">
-              <div class="gap-2.5 grid grid-cols-3">
-                <div class="p-2.5 border border-border rounded-lg bg-card">
-                  <div class="text-xs text-muted-foreground">Active Services</div>
-                  <div class="text-base font-bold mt-0.5">24 / 24</div>
-                </div>
-                <div class="p-2.5 border border-border rounded-lg bg-card">
-                  <div class="text-xs text-muted-foreground">Global Uptime</div>
-                  <div class="text-base font-bold mt-0.5">99.98%</div>
-                </div>
-                <div class="p-2.5 border border-border rounded-lg bg-card">
-                  <div class="text-xs text-muted-foreground">Avg Latency</div>
-                  <div class="text-base font-bold mt-0.5">42 ms</div>
+          <div class="p-4 flex-1 space-y-4">
+            <div class="gap-2.5 grid grid-cols-3">
+              <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
+                <div class="text-[11px] text-muted-foreground">Active Services</div>
+                <div class="text-base font-bold mt-0.5">24 / 24</div>
+              </div>
+              <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
+                <div class="text-[11px] text-muted-foreground">Global Uptime</div>
+                <div class="text-base text-emerald-600 font-bold mt-0.5 dark:text-emerald-400">
+                  99.98%
                 </div>
               </div>
+              <div class="p-2.5 border border-border/60 rounded-lg bg-card/60">
+                <div class="text-[11px] text-muted-foreground">Avg Latency</div>
+                <div class="text-base font-bold mt-0.5">42 ms</div>
+              </div>
+            </div>
 
-              <div class="border border-border rounded-lg bg-card overflow-hidden">
-                <div class="text-xs font-semibold px-3 py-2 border-b border-border flex items-center justify-between">
-                  <span>Recent Deployments</span>
-                  <span class="text-xs text-muted-foreground font-normal">Auto-synced</span>
-                </div>
-                <div class="divide-border divide-y">
-                  <For each={deployments}>
-                    {(item) => (
-                      <div class="text-xs px-3 py-2 flex items-center justify-between">
-                        <div class="flex flex-col">
-                          <span class="font-medium">{item.name}</span>
-                          <span class="text-muted-foreground">{item.env}</span>
-                        </div>
-                        <div class="flex gap-2 items-center">
-                          <Badge
-                            size="sm"
-                            variant={item.status === 'Live' ? 'soft' : 'outline'}
-                            leading={
-                              item.status === 'Live'
-                                ? 'i-lucide:check-circle-2'
-                                : 'i-lucide:loader-circle'
-                            }
-                          >
-                            {item.status}
-                          </Badge>
-                          <span class="text-muted-foreground">{item.time}</span>
-                        </div>
+            <div class="border border-border/60 rounded-lg bg-card/40 overflow-hidden">
+              <div class="text-xs font-semibold px-3 py-2 border-b border-border/60 flex items-center justify-between">
+                <span>Recent Deployments</span>
+                <span class="text-[10px] text-muted-foreground font-normal">Auto-synced</span>
+              </div>
+              <div class="divide-border/40 divide-y">
+                <For each={deployments}>
+                  {(item) => (
+                    <div class="text-xs px-3 py-2 flex items-center justify-between">
+                      <div class="flex flex-col">
+                        <span class="font-medium">{item.name}</span>
+                        <span class="text-[10px] text-muted-foreground">{item.env}</span>
                       </div>
-                    )}
-                  </For>
-                </div>
+                      <div class="flex gap-2 items-center">
+                        <Badge
+                          size="sm"
+                          variant={item.status === 'Live' ? 'soft' : 'outline'}
+                          leading={
+                            item.status === 'Live'
+                              ? 'i-lucide:check-circle-2'
+                              : 'i-lucide:loader-circle'
+                          }
+                        >
+                          {item.status}
+                        </Badge>
+                        <span class="text-[10px] text-muted-foreground">{item.time}</span>
+                      </div>
+                    </div>
+                  )}
+                </For>
               </div>
             </div>
           </div>

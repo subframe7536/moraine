@@ -78,19 +78,21 @@ export function AlertPublish() {
         <div class="flex gap-2 items-center">
           <span class="text-sm font-semibold">Release v2.4.0</span>
           <Show when={stage() === 'running'}>
-            <Badge variant="soft" tone="warning">
+            <Badge variant="outline" class="text-xs text-warning border-warning/30 bg-warning/10">
               <span class="mr-1 rounded-full bg-warning size-1.5 inline-block animate-pulse" />1
               check running
             </Badge>
           </Show>
           <Show when={stage() === 'passed'}>
-            <Badge variant="soft" tone="success">
+            <Badge variant="outline" class="text-xs text-success border-success/30 bg-success/10">
               <span class="mr-1 rounded-full bg-success size-1.5 inline-block" />
               All checks passed
             </Badge>
           </Show>
           <Show when={stage() === 'published'}>
-            <Badge variant="solid">Published</Badge>
+            <Badge variant="solid" class="text-xs">
+              Published
+            </Badge>
           </Show>
         </div>
         <span class="text-xs text-muted-foreground font-mono">main@8f3a1d</span>

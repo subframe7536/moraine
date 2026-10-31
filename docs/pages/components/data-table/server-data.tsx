@@ -127,14 +127,13 @@ export default function ServerDataExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <div class="max-w-xs w-full">
-        <Input
-          aria-label="Search orders"
-          placeholder="Search order, customer, or status..."
-          value={searchInput()}
-          onValueChange={onSearchInput}
-        />
-      </div>
+      <Input
+        aria-label="Search orders"
+        placeholder="Search order, customer, or status..."
+        value={searchInput()}
+        onValueChange={onSearchInput}
+        class="max-w-xs"
+      />
       <DataTable table={table} aria-label="Orders" loading={page.loading} />
     </div>
   )

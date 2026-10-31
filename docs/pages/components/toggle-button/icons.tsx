@@ -8,7 +8,8 @@ export function Icons() {
       <ToggleButton size="icon-md" aria-label="Bookmark" variant="outline" activeVariant="solid">
         {(state) => (
           <Icon
-            name={state.pressed ? 'i-lucide:bookmark-check' : 'i-lucide:bookmark'}
+            name="i-lucide:bookmark"
+            class={state.pressed ? 'fill-current' : undefined}
             aria-hidden="true"
           />
         )}

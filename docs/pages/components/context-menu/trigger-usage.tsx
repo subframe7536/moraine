@@ -10,10 +10,11 @@ export function TriggerUsage() {
   return (
     <div class="max-w-md w-full">
       <ContextMenu>
-        <ContextMenu.Trigger as="div">
-          <div class="text-xs text-muted-foreground b-2 b-border rounded-xl b-dashed flex h-32 w-full select-none items-center justify-center">
-            Right-click or long-press inside this area
-          </div>
+        <ContextMenu.Trigger
+          as="div"
+          class="text-xs text-muted-foreground b-2 b-border rounded-xl b-dashed flex h-32 w-full select-none items-center justify-center"
+        >
+          Right-click or long-press inside this area
         </ContextMenu.Trigger>
         <ContextMenu.Content items={MENU_ITEMS} />
       </ContextMenu>

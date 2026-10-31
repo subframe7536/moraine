@@ -3,10 +3,11 @@ import { ContextMenu } from '@src'
 export function Submenus() {
   return (
     <ContextMenu>
-      <ContextMenu.Trigger as="div">
-        <div class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center">
-          Right click for a submenu
-        </div>
+      <ContextMenu.Trigger
+        as="div"
+        class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center"
+      >
+        Right click for a submenu
       </ContextMenu.Trigger>
       <ContextMenu.Content
         items={[

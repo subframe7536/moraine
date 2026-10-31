@@ -60,7 +60,7 @@ export function CustomTags() {
                 }}
                 class="p-0.5 rounded-full inline-flex transition-opacity items-center justify-center hover:opacity-80"
               >
-                <Icon name="i-lucide:x" />
+                <Icon name="i-lucide:x" class="size-3" />
               </button>
             </span>
           )

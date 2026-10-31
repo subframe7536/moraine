@@ -5,21 +5,29 @@ export function Sides() {
     <div class="flex flex-wrap gap-3 items-center">
       <Sheet side="left">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:panel-left">
-          Left (navigation)
+          Left (Navigation)
         </Sheet.Trigger>
-        <Sheet.Content title="Application navigation" description="Jump to any workspace section.">
+        <Sheet.Content title="Application Navigation" description="Jump to any workspace section.">
           <Sheet.Body>
-            <div class="py-2 flex flex-col gap-1 items-stretch">
-              <Button variant="ghost" leading="i-lucide:layout-dashboard">
+            <div class="py-2 space-y-2">
+              <Button
+                variant="ghost"
+                class="w-full justify-start"
+                leading="i-lucide:layout-dashboard"
+              >
                 Dashboard
               </Button>
-              <Button variant="ghost" leading="i-lucide:git-pull-request">
-                Pull requests
+              <Button
+                variant="ghost"
+                class="w-full justify-start"
+                leading="i-lucide:git-pull-request"
+              >
+                Pull Requests
               </Button>
-              <Button variant="ghost" leading="i-lucide:server">
+              <Button variant="ghost" class="w-full justify-start" leading="i-lucide:server">
                 Deployments
               </Button>
-              <Button variant="ghost" leading="i-lucide:settings">
+              <Button variant="ghost" class="w-full justify-start" leading="i-lucide:settings">
                 Settings
               </Button>
             </div>
@@ -29,51 +37,51 @@ export function Sides() {
 
       <Sheet side="right">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:shopping-cart">
-          Right (cart drawer)
+          Right (Cart Drawer)
         </Sheet.Trigger>
         <Sheet.Content
-          title="Shopping cart (2 items)"
+          title="Shopping Cart (2 items)"
           description="Review your selected items before checkout."
         >
           <Sheet.Body>
-            <div class="text-sm py-2 space-y-3">
-              <div class="p-3 rounded-lg bg-muted flex items-center justify-between">
+            <div class="text-xs py-2 space-y-3">
+              <div class="p-2 rounded-lg bg-muted/40 flex items-center justify-between">
                 <div>
                   <p class="font-medium">Canvas backpack</p>
-                  <p class="text-xs text-muted-foreground">Qty: 1</p>
+                  <p class="text-muted-foreground">Qty: 1</p>
                 </div>
                 <span class="font-mono font-semibold">$199.00</span>
               </div>
-              <div class="p-3 rounded-lg bg-muted flex items-center justify-between">
+              <div class="p-2 rounded-lg bg-muted/40 flex items-center justify-between">
                 <div>
                   <p class="font-medium">Travel organizer</p>
-                  <p class="text-xs text-muted-foreground">Qty: 1</p>
+                  <p class="text-muted-foreground">Qty: 1</p>
                 </div>
                 <span class="font-mono font-semibold">$49.00</span>
               </div>
             </div>
           </Sheet.Body>
           <Sheet.Footer>
-            <Button>Proceed to checkout ($248.00)</Button>
+            <Button class="w-full">Proceed to Checkout ($248.00)</Button>
           </Sheet.Footer>
         </Sheet.Content>
       </Sheet>
 
       <Sheet side="bottom">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:share-2">
-          Bottom (share)
+          Bottom (Share)
         </Sheet.Trigger>
         <Sheet.Content
-          title="Share resource"
+          title="Share Resource"
           description="Share this repository or report with teammates."
         >
           <Sheet.Body>
             <div class="py-2 flex flex-wrap gap-2">
               <Button variant="outline" size="sm" leading="i-lucide:copy">
-                Copy link
+                Copy Link
               </Button>
               <Button variant="outline" size="sm" leading="i-lucide:mail">
-                Email team
+                Email Team
               </Button>
               <Button variant="outline" size="sm" leading="i-lucide:qr-code">
                 Show QR

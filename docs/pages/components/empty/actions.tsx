@@ -4,9 +4,7 @@ export function Actions() {
   return (
     <Empty>
       <Empty.Media>
-        <span class="text-3xl text-muted-foreground">
-          <Icon name="i-lucide-inbox" />
-        </span>
+        <Icon name="i-lucide-inbox" class="text-muted-foreground size-8" />
       </Empty.Media>
       <Empty.Title>Your inbox is empty</Empty.Title>
       <Empty.Description>Start a conversation with your team.</Empty.Description>

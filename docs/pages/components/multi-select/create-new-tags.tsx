@@ -29,7 +29,12 @@ export function CreateNewTags() {
         allowClear
         emptyRender={(ctx) => (
           <div class="p-2 text-center">
-            <Button variant="link" size="sm" onClick={() => ctx.create()}>
+            <Button
+              variant="link"
+              size="sm"
+              class="text-xs text-primary"
+              onClick={() => ctx.create()}
+            >
               Create &ldquo;{ctx.inputValue}&rdquo;
             </Button>
           </div>

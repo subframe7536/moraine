@@ -3,7 +3,7 @@ import { createSignal } from 'solid-js'
 
 export function Autoresize() {
   const [post, setPost] = createSignal(
-    'Moraine 0.3 is out. This release adds the Sidebar component, autoresize for Textarea, and fixes focus handling in nested overlays.',
+    'Just deployed the new Moraine component library docs! Smooth animations, fully typed SolidJS components, and accessible primitives out of the box 🚀',
   )
   const maxLength = 280
 

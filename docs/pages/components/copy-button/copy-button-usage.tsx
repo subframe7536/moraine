@@ -5,7 +5,7 @@ export function CopyButtonUsage() {
 
   return (
     <div class="flex gap-2 max-w-sm w-full items-center">
-      <Input value={code} readOnly />
+      <Input value={code} readOnly class="font-mono" />
       <CopyButton value={code} />
     </div>
   )

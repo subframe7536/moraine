@@ -597,17 +597,6 @@ and the previous page stays on screen while the next one loads.
 
 <Preview path="./server-data" />
 
-### Load data from remote
-
-The same manual setup, with a request function shaped like `fetch`: it takes an `AbortSignal` and
-can reject. A promise with a delay simulates the server here. Each new query aborts the request
-still in flight, so a slow response never replaces a newer page. Turn on the switch to make
-requests fail: an `Alert` shows the error with a Retry button that calls the resource's
-`refetch`, and the last loaded page stays visible. The simulated API sorts by one field, so
-`tableOptions.enableMultiSort` is `false`.
-
-<Preview path="./remote-data" />
-
 ### Choose and reorder columns
 
 Control `state.columnVisibility` and `state.columnOrder`, so one toolbar drives both. The menu lists

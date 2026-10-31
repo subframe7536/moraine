@@ -35,7 +35,7 @@ export function Virtual() {
       <tree.Tree
         aria-label="Ten thousand rows"
         virtualizer={virtualizer}
-        class="h-[280px] overflow-auto"
+        class="p-1 border border-border rounded-lg h-[280px] overflow-auto"
       />
       <p class="text-xs text-muted-foreground">
         Expand a group to flatten its 50 items into the same virtualized list.

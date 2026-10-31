@@ -29,32 +29,30 @@ export function Controlled() {
         </div>
       </div>
 
-      <div class="border border-border rounded-xl h-60 w-full overflow-hidden">
+      <div class="border border-border/60 rounded-xl bg-card/30 h-60 w-full shadow-xs overflow-hidden">
         <Resizable value={sizes()} onValueChange={setSizes}>
-          <Resizable.Panel min={150}>
-            <div class="p-4 flex flex-col h-full justify-between">
-              <div class="space-y-2">
-                <span class="text-xs font-semibold">Worker Logs</span>
-                <p class="text-xs text-muted-foreground">
-                  Sizes come from an external Solid signal that the preset buttons update.
-                </p>
-              </div>
-              <span class="text-xs text-muted-foreground font-mono">min: 150px</span>
+          <Resizable.Panel min={150} class="p-4 bg-muted/20 flex flex-col justify-between">
+            <div class="space-y-2">
+              <span class="text-xs text-foreground font-semibold">Worker Logs</span>
+              <p class="text-[11px] text-muted-foreground leading-relaxed">
+                Controlled through external Solid signal. Size updates trigger seamless state
+                synchronization.
+              </p>
             </div>
+            <span class="text-[10px] text-muted-foreground font-mono">min: 150px</span>
           </Resizable.Panel>
 
           <Resizable.Handle />
 
-          <Resizable.Panel min={150}>
-            <div class="p-4 flex flex-col h-full justify-between">
-              <div class="space-y-2">
-                <span class="text-xs font-semibold">Telemetry Output</span>
-                <p class="text-xs text-muted-foreground">
-                  Own the value when you persist the split to localStorage or the URL.
-                </p>
-              </div>
-              <span class="text-xs text-muted-foreground font-mono">min: 150px</span>
+          <Resizable.Panel min={150} class="p-4 bg-background/50 flex flex-col justify-between">
+            <div class="space-y-2">
+              <span class="text-xs text-foreground font-semibold">Telemetry Output</span>
+              <p class="text-[11px] text-muted-foreground leading-relaxed">
+                Use controlled state when persisting split configuration to localStorage or URL
+                parameters.
+              </p>
             </div>
+            <span class="text-[10px] text-muted-foreground font-mono">min: 150px</span>
           </Resizable.Panel>
         </Resizable>
       </div>

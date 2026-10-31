@@ -13,15 +13,13 @@ export function Visibility() {
         offset={8}
         visibility="auto"
         onVisibilityChange={setOverflow}
-        class="h-48"
+        class="pr-3 h-48 w-full space-y-1"
         role="region"
         aria-label="Notifications"
       >
-        <div class="pr-3 space-y-1">
-          <For each={Array.from({ length: 10 }, (_, index) => index + 1)}>
-            {(entry) => <p class="text-sm py-1.5">Notification {entry}</p>}
-          </For>
-        </div>
+        <For each={Array.from({ length: 10 }, (_, index) => index + 1)}>
+          {(entry) => <p class="text-sm py-1.5">Notification {entry}</p>}
+        </For>
       </ScrollArea>
       <p class="text-sm text-muted-foreground">
         Overflow: <output aria-live="polite">{overflow()}</output>

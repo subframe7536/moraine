@@ -54,7 +54,7 @@ export function InputWithIcons() {
       <InputGroup>
         <InputGroup.Leading compact>
           <div class="text-xs text-muted-foreground font-mono flex gap-1 items-center">
-            <Icon name="i-lucide:globe" />
+            <Icon name="i-lucide:globe" class="size-3.5" />
             https://
           </div>
         </InputGroup.Leading>

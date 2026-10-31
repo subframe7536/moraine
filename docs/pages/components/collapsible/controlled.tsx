@@ -20,38 +20,37 @@ export function Controlled() {
         />
       </div>
 
-      <div class="border border-border rounded-lg">
-        <Collapsible open={open()} disabled={locked()} onOpenChange={setOpen}>
-          <div class="px-4 py-3 flex items-center justify-between">
-            <span class="text-sm font-medium">June invoice #INV-2048</span>
-            <Collapsible.Trigger
-              as={Button}
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Toggle invoice details"
-              disabled={locked()}
-            >
-              <Icon name="i-lucide-chevron-down" aria-hidden="true" />
-            </Collapsible.Trigger>
-          </div>
-          <Collapsible.Content>
-            <div class="text-sm px-4 pb-4 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-muted-foreground">Plan</span>
-                <span>Team Pro</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-muted-foreground">Seats</span>
-                <span>18 active</span>
-              </div>
-              <div class="text-muted-foreground flex gap-2 items-center">
-                <Icon name="i-lucide-info" />
-                <span>Locked invoices cannot be expanded from the row trigger.</span>
-              </div>
+      <Collapsible
+        open={open()}
+        disabled={locked()}
+        onOpenChange={setOpen}
+        class="b-1 b-border rounded-lg w-full"
+      >
+        <Collapsible.Trigger class="group text-sm font-medium px-4 py-3 text-left flex w-full items-center justify-between data-disabled:opacity-60">
+          <span>June invoice #INV-2048</span>
+          <Icon
+            name="i-lucide-chevron-down"
+            aria-hidden="true"
+            class="group-data-expanded:rotate-180 text-muted-foreground transition-transform"
+          />
+        </Collapsible.Trigger>
+        <Collapsible.Content class="text-sm text-foreground px-4 pb-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground">Plan</span>
+              <span>Team Pro</span>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
-      </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground">Seats</span>
+              <span>18 active</span>
+            </div>
+            <div class="text-muted-foreground flex gap-2 items-center">
+              <Icon name="i-lucide-info" />
+              <span>Locked invoices cannot be expanded from the row trigger.</span>
+            </div>
+          </div>
+        </Collapsible.Content>
+      </Collapsible>
     </div>
   )
 }

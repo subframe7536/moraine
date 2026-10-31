@@ -1,4 +1,4 @@
-import { Avatar, Badge, DropdownMenu, Icon, Sidebar } from '@src'
+import { Avatar, Badge, Button, DropdownMenu, Icon, Sidebar } from '@src'
 import { For, createSignal } from 'solid-js'
 
 export function HeaderFooterSlots() {
@@ -22,7 +22,11 @@ export function HeaderFooterSlots() {
       onSelect: () => setCurrentTeam('Personal Space'),
     },
     { type: 'separator' as const },
-    { label: 'Add Workspace', icon: 'i-lucide:plus', onSelect: () => {} },
+    {
+      label: 'Add Workspace',
+      icon: 'i-lucide:plus',
+      onSelect: () => {},
+    },
   ]
 
   const userItems = [
@@ -34,41 +38,66 @@ export function HeaderFooterSlots() {
   ]
 
   const projects = [
-    { name: 'Core Engine v2', icon: 'i-lucide:cpu' },
-    { name: 'Design System', icon: 'i-lucide:palette' },
-    { name: 'Customer Portal', icon: 'i-lucide:layout-template' },
-    { name: 'Analytics Pipeline', icon: 'i-lucide:bar-chart-2' },
+    { name: 'Core Engine v2', role: 'Architecture Lead', icon: 'i-lucide:cpu', branch: 'main' },
+    {
+      name: 'Design System',
+      role: 'Core Maintainer',
+      icon: 'i-lucide:palette',
+      branch: 'release/v3',
+    },
+    {
+      name: 'Customer Portal',
+      role: 'Reviewer',
+      icon: 'i-lucide:layout-template',
+      branch: 'feature/auth',
+    },
+    {
+      name: 'Analytics Pipeline',
+      role: 'Contributor',
+      icon: 'i-lucide:bar-chart-2',
+      branch: 'trunk',
+    },
   ]
 
   return (
-    <div class="border border-border rounded-xl bg-background h-96 w-full overflow-hidden">
+    <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
       <Sidebar isMobile={false}>
-        <Sidebar.Panel>
-          <Sidebar.Header>
+        <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-60">
+          {/* Header slot: Team Switcher Dropdown */}
+          <Sidebar.Header class="border-b border-border/60 h-12">
             <DropdownMenu>
               <DropdownMenu.Trigger
-                as={Sidebar.MenuButton}
-                leading="i-lucide:gallery-vertical-end"
+                as={Button}
+                variant="ghost"
+                class="px-2 py-1.5 h-auto w-full justify-between"
                 trailing="i-lucide:chevrons-up-down"
               >
-                <span class="leading-tight flex flex-col min-w-0">
-                  <span class="font-semibold truncate">{currentTeam()}</span>
-                  <span class="text-xs text-muted-foreground truncate">Enterprise Tier</span>
-                </span>
+                <div class="text-left flex gap-2.5 min-w-0 items-center">
+                  <div class="text-xs text-primary-foreground font-bold rounded-md bg-primary flex shrink-0 size-7 items-center justify-center">
+                    <Icon name="i-lucide:gallery-vertical-end" class="size-3.5" />
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-xs leading-tight font-semibold truncate">
+                      {currentTeam()}
+                    </span>
+                    <span class="text-[10px] text-muted-foreground leading-tight truncate">
+                      Enterprise Tier
+                    </span>
+                  </div>
+                </div>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content items={teamItems} />
             </DropdownMenu>
           </Sidebar.Header>
 
+          {/* Body slot: Projects list */}
           <Sidebar.Content>
             <Sidebar.Group>
-              <Sidebar.GroupLabel>
-                <span class="flex w-full items-center justify-between">
-                  <span>Active Projects</span>
-                  <Badge size="sm" variant="outline">
-                    {projects.length}
-                  </Badge>
-                </span>
+              <Sidebar.GroupLabel class="text-[10px] tracking-wider font-semibold flex uppercase items-center justify-between">
+                <span>Active Projects</span>
+                <Badge size="sm" variant="outline">
+                  {projects.length}
+                </Badge>
               </Sidebar.GroupLabel>
               <Sidebar.Menu>
                 <For each={projects}>
@@ -88,66 +117,68 @@ export function HeaderFooterSlots() {
             </Sidebar.Group>
           </Sidebar.Content>
 
-          <Sidebar.Footer>
+          {/* Footer slot: User Profile Dropdown */}
+          <Sidebar.Footer class="border-t border-border/60">
             <DropdownMenu>
-              <DropdownMenu.Trigger as={Sidebar.MenuButton} trailing="i-lucide:chevrons-up-down">
-                <Avatar text="SC" size="sm" />
-                <span class="leading-tight flex flex-col min-w-0">
-                  <span class="font-medium truncate">Sarah Connor</span>
-                  <span class="text-xs text-muted-foreground truncate">sarah@acme.com</span>
-                </span>
+              <DropdownMenu.Trigger
+                as={Button}
+                variant="ghost"
+                class="px-2 py-1.5 h-auto w-full justify-between"
+                trailing="i-lucide:chevrons-up-down"
+              >
+                <div class="text-left flex gap-2 min-w-0 items-center">
+                  <Avatar text="SC" size="sm" />
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-xs leading-tight font-medium truncate">Sarah Connor</span>
+                    <span class="text-[10px] text-muted-foreground leading-tight truncate">
+                      sarah@acme.com
+                    </span>
+                  </div>
+                </div>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content items={userItems} />
             </DropdownMenu>
           </Sidebar.Footer>
         </Sidebar.Panel>
 
-        <Sidebar.Inset>
-          <div class="flex flex-col h-full overflow-hidden">
-            <div class="px-5 border-b border-border flex shrink-0 h-12 items-center justify-between">
-              <div class="flex gap-2 items-center">
-                <span class="text-primary">
-                  <Icon name="i-lucide:folder-git-2" />
-                </span>
-                <h3 class="text-sm font-bold">{currentProject()}</h3>
-              </div>
-              <Badge size="sm" variant="soft">
-                Active Repository
-              </Badge>
+        <Sidebar.Inset class="flex flex-col overflow-hidden">
+          <div class="px-5 border-b border-border/60 flex shrink-0 h-12 items-center justify-between">
+            <div class="flex gap-2 items-center">
+              <Icon name="i-lucide:folder-git-2" class="text-primary size-4" />
+              <h3 class="text-sm font-bold">{currentProject()}</h3>
             </div>
+            <Badge size="sm" variant="soft">
+              Active Repository
+            </Badge>
+          </div>
 
-            <div class="p-5 flex-1 overflow-y-auto space-y-4">
-              <p class="text-xs text-muted-foreground leading-relaxed">
-                Pipeline orchestration and workload routing, synchronized across production worker
-                fleets.
-              </p>
+          <div class="p-5 flex-1 overflow-y-auto space-y-4">
+            <p class="text-xs text-muted-foreground leading-relaxed">
+              Real-time pipeline orchestration and workload routing system. Synchronized across
+              production worker fleets.
+            </p>
 
-              <div class="gap-3 grid grid-cols-2">
-                <div class="p-3 border border-border rounded-lg bg-card">
-                  <div class="text-xs text-muted-foreground">Current Branch</div>
-                  <div class="text-xs font-bold font-mono mt-1 flex gap-1.5 items-center">
-                    <span class="text-primary">
-                      <Icon name="i-lucide:git-branch" />
-                    </span>
-                    main
-                  </div>
+            <div class="gap-3 grid grid-cols-2">
+              <div class="p-3 border border-border/60 rounded-lg bg-card/50">
+                <div class="text-[11px] text-muted-foreground">Current Branch</div>
+                <div class="text-xs font-bold font-mono mt-1 flex gap-1.5 items-center">
+                  <Icon name="i-lucide:git-branch" class="text-primary size-3" />
+                  main
                 </div>
-                <div class="p-3 border border-border rounded-lg bg-card">
-                  <div class="text-xs text-muted-foreground">Open Pull Requests</div>
-                  <div class="text-xs font-bold mt-1 flex gap-1.5 items-center">
-                    <span class="text-success">
-                      <Icon name="i-lucide:git-pull-request" />
-                    </span>
-                    4 ready for merge
-                  </div>
+              </div>
+              <div class="p-3 border border-border/60 rounded-lg bg-card/50">
+                <div class="text-[11px] text-muted-foreground">Open Pull Requests</div>
+                <div class="text-xs font-bold mt-1 flex gap-1.5 items-center">
+                  <Icon name="i-lucide:git-pull-request" class="text-emerald-600 size-3" />4 ready
+                  for merge
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="text-xs text-muted-foreground px-5 py-2.5 border-t border-border flex shrink-0 items-center justify-between">
-              <span>Workspace: {currentTeam()}</span>
-              <span>Last synced: just now</span>
-            </div>
+          <div class="text-xs text-muted-foreground px-5 py-2.5 border-t border-border/50 flex shrink-0 items-center justify-between">
+            <span>Workspace: {currentTeam()}</span>
+            <span>Last synced: just now</span>
           </div>
         </Sidebar.Inset>
       </Sidebar>

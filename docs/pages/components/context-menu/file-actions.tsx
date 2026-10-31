@@ -80,19 +80,18 @@ export function FileActions() {
         }
       >
         <ContextMenu>
-          <ContextMenu.Trigger as="div" aria-label="Actions for Project brief.pdf">
-            <div class="p-4 border border-border rounded-lg bg-card flex gap-3 select-none items-center">
-              <span class="text-2xl">
-                <Icon name="i-lucide:file-text" />
-              </span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate">Project brief.pdf</p>
-                <p class="text-xs text-muted-foreground">{folder()} · 240 KB</p>
-              </div>
-              <Show when={favorite()}>
-                <Icon name="i-lucide:star" />
-              </Show>
+          <ContextMenu.Trigger
+            class="p-4 outline-none border border-border rounded-lg bg-card flex gap-3 select-none items-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            aria-label="Actions for Project brief.pdf"
+          >
+            <Icon name="i-lucide:file-text" class="text-muted-foreground shrink-0 size-8" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">Project brief.pdf</p>
+              <p class="text-xs text-muted-foreground">{folder()} · 240 KB</p>
             </div>
+            <Show when={favorite()}>
+              <Icon name="i-lucide:star" class="text-primary size-4" />
+            </Show>
           </ContextMenu.Trigger>
           <ContextMenu.Content items={items()} />
         </ContextMenu>

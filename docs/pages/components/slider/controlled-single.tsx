@@ -1,4 +1,4 @@
-import { Button, Slider } from '@src'
+import { Button, Icon, Slider } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ControlledSingle() {
@@ -15,22 +15,24 @@ export function ControlledSingle() {
   }
 
   return (
-    <div class="p-4 border border-border rounded-xl max-w-md w-full space-y-2">
+    <div class="p-4 b-1 b-border rounded-xl max-w-md w-full space-y-2">
       <div class="flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <Button
             variant="ghost"
-            size="icon-sm"
-            leading={volumeIcon()}
+            size="sm"
+            class="p-0 size-8"
             onClick={() => setVolume((v) => (v === 0 ? 75 : 0))}
             aria-label="Mute / Unmute"
-          />
-          <span class="text-sm font-medium">Output volume</span>
+          >
+            <Icon name={volumeIcon()} class="size-4" />
+          </Button>
+          <span class="text-sm font-medium">Output Volume</span>
         </div>
         <span class="text-xs text-primary font-mono font-semibold">{volume()}%</span>
       </div>
 
-      <Slider value={volume()} min={0} max={100} step={1} onValueChange={setVolume} />
+      <Slider value={volume()} min={0} max={100} step={1} onValueChange={setVolume} class="mb-2" />
     </div>
   )
 }

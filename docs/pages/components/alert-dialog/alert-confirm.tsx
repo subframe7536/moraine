@@ -28,8 +28,15 @@ export function AlertConfirm() {
       <div class="flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <span class="text-sm font-medium">Production Sync Key</span>
-          <Show when={!revoked()} fallback={<Badge variant="outline">Revoked</Badge>}>
-            <Badge variant="soft" tone="success">
+          <Show
+            when={!revoked()}
+            fallback={
+              <Badge variant="outline" class="text-xs text-muted-foreground">
+                Revoked
+              </Badge>
+            }
+          >
+            <Badge variant="outline" class="text-xs text-success border-success/30 bg-success/10">
               Active
             </Badge>
           </Show>
@@ -51,7 +58,12 @@ export function AlertConfirm() {
             </Button>
           }
         >
-          <Button size="sm" variant="outline" tone="danger" onClick={() => void confirmRevoke()}>
+          <Button
+            size="sm"
+            variant="outline"
+            class="text-danger border-danger/30 hover:text-danger hover:bg-danger/10"
+            onClick={() => void confirmRevoke()}
+          >
             Revoke key
           </Button>
         </Show>

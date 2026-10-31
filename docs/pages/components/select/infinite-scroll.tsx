@@ -18,6 +18,9 @@ export function InfiniteScroll() {
     <div class="w-80 space-y-2">
       <Select
         items={infiniteOptions()}
+        classes={{
+          listbox: 'max-h-100',
+        }}
         onScrollBottom={() => {
           if (loadingMore()) {
             return

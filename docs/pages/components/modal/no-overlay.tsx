@@ -13,9 +13,9 @@ export function NoOverlay() {
               <p class="text-sm text-foreground">
                 Omit Modal.Overlay when the host surface provides context.
               </p>
-              <div class="justify-self-end">
-                <Button onClick={context.close}>Close</Button>
-              </div>
+              <Button class="justify-self-end" onClick={context.close}>
+                Close
+              </Button>
             </div>
           )}
         </Modal.Content>

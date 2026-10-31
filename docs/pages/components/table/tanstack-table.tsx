@@ -173,6 +173,7 @@ export function TanStackTable() {
             variant="ghost"
             size="sm"
             onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
+            class="h-8 -ml-3"
             trailing={sortIcon()}
           >
             Email
@@ -189,8 +190,8 @@ export function TanStackTable() {
       cell: (props) => {
         const status = () => props.row.getValue('status') as Payment['status']
         return (
-          <Badge tone={getStatusBadgeTone(status())} variant="subtle">
-            {status().charAt(0).toUpperCase() + status().slice(1)}
+          <Badge tone={getStatusBadgeTone(status())} variant="subtle" class="capitalize">
+            {status()}
           </Badge>
         )
       },
@@ -211,6 +212,7 @@ export function TanStackTable() {
               variant="ghost"
               size="sm"
               onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
+              class="h-8 -mr-3"
               trailing={sortIcon()}
             >
               Amount
@@ -307,18 +309,18 @@ export function TanStackTable() {
   return (
     <div class="w-full space-y-4">
       <div class="flex gap-4 items-center justify-between">
-        <div class="max-w-xs w-full">
-          <Input
-            placeholder="Filter emails..."
-            value={emailFilter()}
-            onValueChange={(v) => table.getColumn('email')?.setFilterValue(v)}
-          />
-        </div>
+        <Input
+          placeholder="Filter emails..."
+          value={emailFilter()}
+          onValueChange={(v) => table.getColumn('email')?.setFilterValue(v)}
+          class="max-w-xs"
+        />
         <DropdownMenu>
           <DropdownMenu.Trigger
             as={Button}
             variant="outline"
             size="sm"
+            class="ml-auto"
             trailing="i-lucide:chevron-down"
           >
             Columns
@@ -338,7 +340,10 @@ export function TanStackTable() {
                   <Table.Row>
                     <For each={headerGroup.headers}>
                       {(header) => (
-                        <Table.Head colSpan={header.colSpan}>
+                        <Table.Head
+                          colSpan={header.colSpan}
+                          class={header.column.id === 'select' && 'w-5'}
+                        >
                           <table.FlexRender header={header} />
                         </Table.Head>
                       )}
@@ -352,10 +357,11 @@ export function TanStackTable() {
                 when={table.getRowModel().rows.length > 0}
                 fallback={
                   <Table.Row>
-                    <Table.Cell colSpan={columns.length}>
-                      <div class="text-muted-foreground text-center flex h-24 items-center justify-center">
-                        No results.
-                      </div>
+                    <Table.Cell
+                      colSpan={columns.length}
+                      class="text-muted-foreground text-center h-24"
+                    >
+                      No results.
                     </Table.Cell>
                   </Table.Row>
                 }
@@ -365,7 +371,7 @@ export function TanStackTable() {
                     <Table.Row selected={row.getIsSelected()}>
                       <For each={row.getVisibleCells()}>
                         {(cell) => (
-                          <Table.Cell>
+                          <Table.Cell class={cell.column.id === 'select' && 'w-5'}>
                             <table.FlexRender cell={cell} />
                           </Table.Cell>
                         )}
@@ -385,6 +391,7 @@ export function TanStackTable() {
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <Pagination
+          class="justify-end"
           size="sm"
           page={pagination().pageIndex + 1}
           itemsPerPage={pagination().pageSize}

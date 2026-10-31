@@ -14,9 +14,7 @@ export function Basic() {
       </Table.Header>
       <Table.Body>
         <Table.Row>
-          <Table.Cell>
-            <span class="font-medium">INV-001</span>
-          </Table.Cell>
+          <Table.Cell class="font-medium">INV-001</Table.Cell>
           <Table.Cell>
             <Badge tone="success" variant="subtle">
               Paid
@@ -26,9 +24,7 @@ export function Basic() {
           <Table.Cell align="right">$250.00</Table.Cell>
         </Table.Row>
         <Table.Row>
-          <Table.Cell>
-            <span class="font-medium">INV-002</span>
-          </Table.Cell>
+          <Table.Cell class="font-medium">INV-002</Table.Cell>
           <Table.Cell>
             <Badge tone="warning" variant="subtle">
               Pending
@@ -38,9 +34,7 @@ export function Basic() {
           <Table.Cell align="right">$150.00</Table.Cell>
         </Table.Row>
         <Table.Row>
-          <Table.Cell>
-            <span class="font-medium">INV-003</span>
-          </Table.Cell>
+          <Table.Cell class="font-medium">INV-003</Table.Cell>
           <Table.Cell>
             <Badge tone="danger" variant="subtle">
               Unpaid
@@ -53,8 +47,8 @@ export function Basic() {
       <Table.Footer>
         <Table.Row>
           <Table.Cell colSpan={3}>Total</Table.Cell>
-          <Table.Cell align="right">
-            <span class="font-semibold">$750.00</span>
+          <Table.Cell align="right" class="font-semibold">
+            $750.00
           </Table.Cell>
         </Table.Row>
       </Table.Footer>
