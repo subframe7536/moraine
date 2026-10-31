@@ -107,7 +107,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <Show when={!isLanding() || frame.isMobile()}>
             <Sidebar.Panel data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
-                <Sidebar.Header class="p-0 shrink-0">
+                <Sidebar.Header class="p-0">
                   <DocsSidebarHeader />
                 </Sidebar.Header>
               </Show>
@@ -184,7 +184,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <Sidebar isMobile={isMobile()} class="flex-col overflow-hidden h-dvh max-h-dvh">
+      <Sidebar isMobile={isMobile()} class="flex-col h-dvh max-h-dvh">
         <DocsShell />
       </Sidebar>
     </>

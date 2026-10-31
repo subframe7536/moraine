@@ -17,10 +17,13 @@ import type {
   DocsPlaygroundControl,
   DocsPlaygroundControlValues,
   DocsPlaygroundProps,
+  DocsPlaygroundValues,
 } from './docs-playground-controls'
 
 /** Compact, controlled primitive inputs for an interactive docs example. */
-export function DocsPlayground(props: DocsPlaygroundProps) {
+export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>(
+  props: DocsPlaygroundProps<C>,
+) {
   const api = useContext(ComponentDocContext)?.api
   let previewElement: HTMLDivElement | undefined
   const controls = untrack(() => normalizeDocsPlaygroundControls(props.controls))
@@ -48,7 +51,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
             }}
           >
             <div class="flex min-w-0 w-full items-center justify-center">
-              {props.children(values)}
+              {props.children(values as DocsPlaygroundValues<C>)}
             </div>
           </div>
           <div

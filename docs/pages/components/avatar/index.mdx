@@ -8,36 +8,9 @@ search:
   tags: [profile, image, fallback, user, avatar, initials, status dot]
 ---
 
-import { Avatar } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-  ]}
->
-  {(props) => (
-    <div class="flex gap-4 items-center">
-      <Avatar
-        alt="Sarah Connor"
-        text={props.text}
-        size={props.size}
-        badge="i-lucide:check"
-        badgePosition="bottom-right"
-      />
-    </div>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 

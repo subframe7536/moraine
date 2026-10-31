@@ -8,45 +8,9 @@ search:
   tags: [table, data, grid, rows, columns, data-table, tanstack, createDataTable]
 ---
 
-import DataTablePlayground from './playground'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
-    {
-      kind: 'select',
-      prop: 'showBorder',
-      label: 'Show Border',
-      defaultValue: 'row',
-      options: [
-        { label: 'Row', value: 'row' },
-        { label: 'Column', value: 'col' },
-        { label: 'Both', value: 'both' },
-      ],
-    },
-    { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
-    { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
-    { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
-    { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
-    { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
-    { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-    { kind: 'switch', prop: 'empty', label: 'Empty', defaultValue: false },
-  ]}
->
-  {(props) => <DataTablePlayground {...props} />}
-</Playground>
+<Playground />
 
 ## Anatomy
 

@@ -7,7 +7,7 @@ search:
   tags: [polymorphism, as, polymorphic, element, trigger, component polymorphism]
 ---
 
-Moraine components and parts that expose `as` can render a different element or Solid component while preserving their styles and typed props. State-only roots and native form controls such as `Input` do not expose `as`. When changing an element, ensure the result still provides an accessible name and appropriate semantics.
+Moraine components and parts that expose `as` can render a different element or Solid component while preserving their styles and typed props. State-only roots and native form controls such as `Input` do not expose `as`. When you change the element, give the result an accessible name and the semantics its role needs.
 
 ## Rendering as an HTML Element (`as="tag"`)
 
@@ -42,7 +42,7 @@ import { Button } from 'moraine'
 
 ## Rendering as a Solid Component (`as={Component}`)
 
-You can pass another SolidJS component to `as`. Moraine preserves the target component's custom props, providing full IDE autocompletion, type validation, and direct props forwarding:
+You can pass another SolidJS component to `as`. Moraine forwards the target component's props and keeps its types, so IDE autocompletion and type checks apply:
 
 ```tsx
 import { Button, DropdownMenu } from 'moraine'
