@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { Sidebar } from './sidebar'
-import { useSidebar } from './sidebar-context'
 
 const originalMatchMedia = window.matchMedia
 
@@ -57,8 +56,6 @@ function createMatchMediaMock(matches = false) {
 }
 
 function FrameContent() {
-  const context = useSidebar()
-
   return (
     <>
       <Sidebar.Panel>
@@ -68,7 +65,6 @@ function FrameContent() {
       </Sidebar.Panel>
       <Sidebar.Inset>
         <Sidebar.Trigger>Toggle</Sidebar.Trigger>
-        <span data-testid="scroll-state">{context.scrolled() ? 'on' : 'off'}</span>
       </Sidebar.Inset>
     </>
   )
@@ -143,6 +139,8 @@ describe('Sidebar', () => {
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('flex')
     const sidebarClass = screen.container.querySelector('[data-slot="sidebar-panel"]')?.className
     expect(sidebarClass).toContain('w-(--mo-sidebar-width)')
+    expect(sidebarClass).toContain('bg-card')
+    expect(sidebarClass).toContain('data-closed:ms-(--mo-sidebar-offset)')
     expect(
       screen.container
         .querySelector<HTMLElement>('[data-slot="sidebar"]')
@@ -307,22 +305,49 @@ describe('Sidebar', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
 
-  test('toggles desktop visibility and updates scroll state', () => {
+  test('hides and inerts the desktop panel while collapsed', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} scrollThreshold={10}>
+      <Sidebar isMobile={false}>
         <FrameContent />
       </Sidebar>
     ))
-    const sidebar = screen.container.querySelector('[data-slot="sidebar-panel"]') as HTMLDivElement
-    const main = screen.container.querySelector('[data-slot="sidebar-inset"]') as HTMLDivElement
+    const sidebar = screen.container.querySelector('[data-slot="sidebar-panel"]') as HTMLElement
 
+    expect(sidebar.getAttribute('data-expanded')).toBe('')
     fireEvent.click(screen.getByText('Toggle'))
     expect(sidebar.getAttribute('data-closed')).toBe('')
+    expect(sidebar.hasAttribute('data-expanded')).toBe(false)
     expect(sidebar.getAttribute('aria-hidden')).toBe('true')
+    expect((sidebar as HTMLElement & { inert: boolean }).inert).toBe(true)
+  })
 
-    main.scrollTop = 20
-    fireEvent.scroll(main)
-    expect(screen.getByTestId('scroll-state').textContent).toBe('on')
+  test('sets the panel width through the width prop', () => {
+    const screen = render(() => (
+      <Sidebar isMobile={false} width="18rem">
+        <FrameContent />
+      </Sidebar>
+    ))
+    expect(
+      screen.container
+        .querySelector<HTMLElement>('[data-slot="sidebar"]')
+        ?.style.getPropertyValue('--mo-sidebar-width'),
+    ).toBe('18rem')
+  })
+
+  test('offsets the collapsed floating panel by its outer gap', () => {
+    const screen = render(() => (
+      <Sidebar isMobile={false} variant="floating">
+        <FrameContent />
+      </Sidebar>
+    ))
+    expect(
+      screen.container
+        .querySelector<HTMLElement>('[data-slot="sidebar"]')
+        ?.style.getPropertyValue('--mo-sidebar-offset'),
+    ).toBe('calc(-1 * var(--mo-sidebar-width) - 0.5rem)')
+    expect(screen.container.querySelector('[data-slot="sidebar-panel"]')?.className).toContain(
+      'me-2',
+    )
   })
 
   test('applies side and visual variants to the merged root', () => {
@@ -629,7 +654,7 @@ describe('Sidebar.Group', () => {
           </Sidebar.Footer>
           <Sidebar.MenuSub defaultOpen>
             <Sidebar.MenuSubTrigger>Sub</Sidebar.MenuSubTrigger>
-            <Sidebar.MenuSubContent as="ul" data-testid="submenu-content">
+            <Sidebar.MenuSubContent as="ol" data-testid="submenu-content">
               <li>Item</li>
             </Sidebar.MenuSubContent>
           </Sidebar.MenuSub>
@@ -639,34 +664,42 @@ describe('Sidebar.Group', () => {
     expect(screen.getByTestId('header').tagName).toBe('HEADER')
     expect(screen.getByTestId('body').tagName).toBe('SECTION')
     expect(screen.getByTestId('footer').tagName).toBe('FOOTER')
-    expect(screen.getByTestId('submenu-content').tagName).toBe('UL')
+    expect(screen.getByTestId('submenu-content').tagName).toBe('OL')
   })
 })
 
 describe('Sidebar.Menu', () => {
-  test('renders a menu container without list role inside a group', () => {
+  test('renders a list of menu items inside a group', () => {
     const screen = render(() => (
       <Sidebar>
         <Sidebar.Group>
           <Sidebar.GroupLabel>Platform</Sidebar.GroupLabel>
           <Sidebar.Menu>
-            <Sidebar.MenuItem href="/home">Home</Sidebar.MenuItem>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton href="/home">Home</Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton href="/inbox">Inbox</Sidebar.MenuButton>
+            </Sidebar.MenuItem>
           </Sidebar.Menu>
         </Sidebar.Group>
       </Sidebar>
     ))
-    const menu = screen.container.querySelector('[data-slot="sidebar-menu"]')
-    expect(menu?.tagName).toBe('DIV')
-    expect(menu?.getAttribute('role')).toBeNull()
-    expect(menu?.parentElement?.getAttribute('data-slot')).toBe('sidebar-group')
-    expect(menu?.querySelector('[data-slot="sidebar-menu-item"]')?.textContent).toBe('Home')
+    const menu = screen.getByRole('list')
+    expect(menu.tagName).toBe('UL')
+    expect(menu.getAttribute('data-slot')).toBe('sidebar-menu')
+    expect(menu.parentElement?.getAttribute('data-slot')).toBe('sidebar-group')
+    const items = screen.getAllByRole('listitem')
+    expect(items).toHaveLength(2)
+    expect(items[0]?.getAttribute('data-slot')).toBe('sidebar-menu-item')
+    expect(items[0]?.querySelector('[data-slot="sidebar-menu-button"]')?.textContent).toBe('Home')
   })
 
   test('forwards as, attributes, classes, and styles', () => {
     const screen = render(() => (
       <Sidebar classes={{ menu: 'theme-menu' }}>
         <Sidebar.Menu
-          as="nav"
+          as="ol"
           aria-label="Projects"
           class="custom-menu"
           style={{ color: 'red' }}
@@ -675,7 +708,7 @@ describe('Sidebar.Menu', () => {
       </Sidebar>
     ))
     const menu = screen.getByTestId('menu')
-    expect(menu.tagName).toBe('NAV')
+    expect(menu.tagName).toBe('OL')
     expect(menu.getAttribute('aria-label')).toBe('Projects')
     expect(menu.getAttribute('data-slot')).toBe('sidebar-menu')
     expect(menu.className).toContain('theme-menu')
@@ -684,25 +717,25 @@ describe('Sidebar.Menu', () => {
   })
 })
 
-describe('Sidebar.MenuItem', () => {
+describe('Sidebar.MenuButton', () => {
   test('MenuItem with href renders an a', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem href="/docs">Overview</Sidebar.MenuItem>
+        <Sidebar.MenuButton href="/docs">Overview</Sidebar.MenuButton>
       </Sidebar>
     ))
     const link = screen.getByRole('link', { name: 'Overview' })
     expect(link.tagName).toBe('A')
     expect(link.getAttribute('href')).toBe('/docs')
-    expect(link.getAttribute('data-slot')).toBe('sidebar-menu-item')
+    expect(link.getAttribute('data-slot')).toBe('sidebar-menu-button')
   })
 
   test('MenuItem with as overrides href', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem as="button" href="/docs">
+        <Sidebar.MenuButton as="button" href="/docs">
           Overview
-        </Sidebar.MenuItem>
+        </Sidebar.MenuButton>
       </Sidebar>
     ))
     const button = screen.getByRole('button', { name: 'Overview' })
@@ -714,10 +747,10 @@ describe('Sidebar.MenuItem', () => {
     const handleClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem onClick={handleClick}>Action</Sidebar.MenuItem>
-        <Sidebar.MenuItem disabled onClick={handleClick}>
+        <Sidebar.MenuButton onClick={handleClick}>Action</Sidebar.MenuButton>
+        <Sidebar.MenuButton disabled onClick={handleClick}>
           Disabled Action
-        </Sidebar.MenuItem>
+        </Sidebar.MenuButton>
       </Sidebar>
     ))
     const button = screen.getByRole('button', { name: 'Action' })
@@ -739,9 +772,9 @@ describe('Sidebar.MenuItem', () => {
     const handleClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem href="/docs" disabled onClick={handleClick}>
+        <Sidebar.MenuButton href="/docs" disabled onClick={handleClick}>
           Disabled Link
-        </Sidebar.MenuItem>
+        </Sidebar.MenuButton>
       </Sidebar>
     ))
     const anchor = screen.getByText('Disabled Link').closest('a')!
@@ -757,13 +790,26 @@ describe('Sidebar.MenuItem', () => {
     expect(handleClick).not.toHaveBeenCalled()
   })
 
+  test('owns hover, active, and focus styles', () => {
+    const screen = render(() => (
+      <Sidebar>
+        <Sidebar.MenuButton isActive>Button</Sidebar.MenuButton>
+      </Sidebar>
+    ))
+    const button = screen.getByRole('button', { name: 'Button' })
+    expect(button.className).toContain('hover:bg-muted-hover')
+    expect(button.className).not.toContain('hover:bg-accent-hover')
+    expect(button.className).toContain('data-active:bg-accent')
+    expect(button.className).toContain('focus-visible:ring-3')
+  })
+
   test('isActive sets data-active on both a and button', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem href="/docs" isActive>
+        <Sidebar.MenuButton href="/docs" isActive>
           Link
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem isActive>Button</Sidebar.MenuItem>
+        </Sidebar.MenuButton>
+        <Sidebar.MenuButton isActive>Button</Sidebar.MenuButton>
       </Sidebar>
     ))
     const link = screen.getByRole('link', { name: 'Link' })
@@ -775,10 +821,10 @@ describe('Sidebar.MenuItem', () => {
   test('isActive on a additionally sets aria-current="page"', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem href="/docs" isActive>
+        <Sidebar.MenuButton href="/docs" isActive>
           Link
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem isActive>Button</Sidebar.MenuItem>
+        </Sidebar.MenuButton>
+        <Sidebar.MenuButton isActive>Button</Sidebar.MenuButton>
       </Sidebar>
     ))
     const link = screen.getByRole('link', { name: 'Link' })
@@ -791,102 +837,84 @@ describe('Sidebar.MenuItem', () => {
   test('MenuItem with leading and trailing renders icons with respective data slots', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem leading="i-lucide:house" trailing="i-lucide:chevron-right">
+        <Sidebar.MenuButton leading="i-lucide:house" trailing="i-lucide:chevron-right">
           Home
-        </Sidebar.MenuItem>
+        </Sidebar.MenuButton>
       </Sidebar>
     ))
-    const leading = screen.container.querySelector('[data-slot="sidebar-menu-item-leading"]')
-    const trailing = screen.container.querySelector('[data-slot="sidebar-menu-item-trailing"]')
-    const label = screen.container.querySelector('[data-slot="sidebar-menu-item-label"]')
+    const leading = screen.container.querySelector('[data-slot="sidebar-menu-button-leading"]')
+    const trailing = screen.container.querySelector('[data-slot="sidebar-menu-button-trailing"]')
+    const label = screen.container.querySelector('[data-slot="sidebar-menu-button-label"]')
     expect(leading).not.toBeNull()
     expect(trailing).not.toBeNull()
     expect(label).not.toBeNull()
     expect(label?.textContent).toBe('Home')
   })
 
-  test('Standalone MenuItem with trailing icon renders without data-expanded and trailing icon does not rotate', () => {
+  test('standalone trailing icon has no expanded parent to rotate it', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem trailing="i-lucide:chevron-right">Standalone</Sidebar.MenuItem>
+        <Sidebar.MenuButton trailing="i-lucide:chevron-right">Standalone</Sidebar.MenuButton>
       </Sidebar>
     ))
     const button = screen.getByRole('button', { name: 'Standalone' })
     expect(button.hasAttribute('data-expanded')).toBe(false)
-    const trailing = screen.container.querySelector('[data-slot="sidebar-menu-item-trailing"]')
-    expect(trailing?.hasAttribute('data-expanded')).toBe(false)
-    expect(trailing?.className).toContain('data-expanded:rotate-90')
+    const trailing = screen.container.querySelector('[data-slot="sidebar-menu-button-trailing"]')
+    expect(trailing?.parentElement).toBe(button)
+    expect(trailing?.className).toContain('[[data-expanded]>&]:rotate-90')
   })
 
-  test('Mobile sidebar sets data-mobile on MenuItem', () => {
+  test('Mobile sidebar sets data-mobile on MenuButton', () => {
     const screen = render(() => (
       <Sidebar isMobile={true}>
-        <Sidebar.MenuItem>Mobile Item</Sidebar.MenuItem>
+        <Sidebar.MenuButton>Mobile Item</Sidebar.MenuButton>
       </Sidebar>
     ))
     const button = screen.getByRole('button', { name: 'Mobile Item' })
     expect(button.getAttribute('data-mobile')).toBe('')
   })
 
-  test('MenuItem with action renders wrapper with trigger and action container', () => {
+  test('MenuItem wraps MenuButton and MenuAction as siblings', () => {
     const handleItemClick = vi.fn()
     const handleActionClick = vi.fn()
 
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuItem
-          onClick={handleItemClick}
-          action={
+        <Sidebar.MenuItem class="group/menu-item">
+          <Sidebar.MenuButton onClick={handleItemClick}>Project</Sidebar.MenuButton>
+          <Sidebar.MenuAction>
             <button type="button" onClick={handleActionClick} aria-label="More options">
               More
             </button>
-          }
-        >
-          Project
+          </Sidebar.MenuAction>
         </Sidebar.MenuItem>
       </Sidebar>
     ))
 
-    const wrapper = screen.container.querySelector('[data-slot="sidebar-menu-item"]')
-    expect(wrapper).not.toBeNull()
-    expect(wrapper?.tagName).toBe('DIV')
+    const item = screen.container.querySelector('[data-slot="sidebar-menu-item"]')!
+    expect(item.tagName).toBe('LI')
+    expect(item.classList).toContain('group/menu-item')
+    expect(item.classList).toContain('relative')
 
-    const trigger = screen.container.querySelector('[data-slot="sidebar-menu-item-trigger"]')
-    expect(trigger).not.toBeNull()
-    expect(trigger?.tagName).toBe('BUTTON')
-    expect(trigger?.textContent).toBe('Project')
+    const button = screen.getByRole('button', { name: 'Project' })
+    expect(button.getAttribute('data-slot')).toBe('sidebar-menu-button')
+    expect(button.parentElement).toBe(item)
+    expect(button.classList).not.toContain('pe-8')
 
-    const actionsContainer = screen.container.querySelector('[data-slot="sidebar-menu-action"]')
-    expect(actionsContainer).not.toBeNull()
+    const action = screen.container.querySelector('[data-slot="sidebar-menu-action"]')!
+    expect(action.parentElement).toBe(item)
+    expect(action.classList).toContain('absolute')
+    expect(action.classList).toContain('top-1')
 
     const actionButton = screen.getByRole('button', { name: 'More options' })
-    expect(actionButton).not.toBeNull()
+    expect(button.contains(actionButton)).toBe(false)
 
     fireEvent.click(actionButton)
     expect(handleActionClick).toHaveBeenCalledTimes(1)
     expect(handleItemClick).not.toHaveBeenCalled()
 
-    fireEvent.click(trigger!)
+    fireEvent.click(button)
     expect(handleItemClick).toHaveBeenCalledTimes(1)
-  })
-
-  test('MenuItem with action and href renders anchor trigger as sibling of action', () => {
-    const screen = render(() => (
-      <Sidebar>
-        <Sidebar.MenuItem href="/project/1" action={<button type="button">Options</button>}>
-          Project Link
-        </Sidebar.MenuItem>
-      </Sidebar>
-    ))
-
-    const trigger = screen.getByRole('link', { name: 'Project Link' })
-    expect(trigger.tagName).toBe('A')
-    expect(trigger.getAttribute('href')).toBe('/project/1')
-
-    const actionButton = screen.getByRole('button', { name: 'Options' })
-    expect(actionButton.tagName).toBe('BUTTON')
-
-    expect(trigger.contains(actionButton)).toBe(false)
   })
 })
 
@@ -894,12 +922,16 @@ describe('Sidebar.MenuSub', () => {
   test('MenuSub with MenuSubTrigger renders a button trigger and collapsible content', async () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuSub>
-          <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
-          <Sidebar.MenuSubContent>
-            <Sidebar.MenuItem>Sub Item</Sidebar.MenuItem>
-          </Sidebar.MenuSubContent>
-        </Sidebar.MenuSub>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuSub>
+            <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
+            <Sidebar.MenuSubContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>Sub Item</Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.MenuSubContent>
+          </Sidebar.MenuSub>
+        </Sidebar.MenuItem>
       </Sidebar>
     ))
     const sub = screen.container.querySelector('[data-slot="sidebar-menu-sub"]')
@@ -920,12 +952,16 @@ describe('Sidebar.MenuSub', () => {
   test('MenuSub defaults to closed and hides content until the trigger is clicked', async () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuSub>
-          <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
-          <Sidebar.MenuSubContent>
-            <Sidebar.MenuItem>Sub Item</Sidebar.MenuItem>
-          </Sidebar.MenuSubContent>
-        </Sidebar.MenuSub>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuSub>
+            <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
+            <Sidebar.MenuSubContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>Sub Item</Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.MenuSubContent>
+          </Sidebar.MenuSub>
+        </Sidebar.MenuItem>
       </Sidebar>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
@@ -941,12 +977,16 @@ describe('Sidebar.MenuSub', () => {
   test('MenuSub with disabled marks the trigger disabled and prevents toggling', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuSub disabled>
-          <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
-          <Sidebar.MenuSubContent>
-            <Sidebar.MenuItem>Sub Item</Sidebar.MenuItem>
-          </Sidebar.MenuSubContent>
-        </Sidebar.MenuSub>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuSub disabled>
+            <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
+            <Sidebar.MenuSubContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>Sub Item</Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.MenuSubContent>
+          </Sidebar.MenuSub>
+        </Sidebar.MenuItem>
       </Sidebar>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
@@ -957,64 +997,93 @@ describe('Sidebar.MenuSub', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('link and disclosure stay separate when composed as MenuItem + icon MenuSubTrigger', async () => {
+  test('renders the trigger as a menu button and the content as a nested list', async () => {
+    const onClick = vi.fn()
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuSub>
-          <div class="flex gap-1 items-center">
-            <Sidebar.MenuItem href="/docs/installation" isActive class="flex-1">
-              Installation
-            </Sidebar.MenuItem>
-            <Sidebar.MenuSubTrigger aria-label="Toggle Installation submenu" />
-          </div>
-          <Sidebar.MenuSubContent>
-            <Sidebar.MenuItem href="/docs/unocss">UnoCSS</Sidebar.MenuItem>
-          </Sidebar.MenuSubContent>
-        </Sidebar.MenuSub>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem data-testid="parent-item">
+            <Sidebar.MenuSub defaultOpen>
+              <Sidebar.MenuSubTrigger leading="i-lucide:folder" onClick={onClick}>
+                Projects
+              </Sidebar.MenuSubTrigger>
+              <Sidebar.MenuSubContent>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton href="/alpha">Alpha</Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              </Sidebar.MenuSubContent>
+            </Sidebar.MenuSub>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
       </Sidebar>
     ))
-    const link = screen.getByRole('link', { name: 'Installation' })
-    expect(link.tagName).toBe('A')
-    expect(link.getAttribute('href')).toBe('/docs/installation')
-    expect(link.getAttribute('aria-current')).toBe('page')
-    expect(link.hasAttribute('aria-expanded')).toBe(false)
+    const parent = screen.getByTestId('parent-item')
+    const sub = parent.querySelector('[data-slot="sidebar-menu-sub"]')
+    expect(sub?.parentElement).toBe(parent)
 
-    const chevron = screen.getByRole('button', { name: 'Toggle Installation submenu' })
-    expect(chevron.getAttribute('aria-expanded')).toBe('false')
-    expect(chevron.getAttribute('data-slot')).toBe('sidebar-menu-sub-trigger')
+    const trigger = screen.getByRole('button', { name: 'Projects' })
+    expect(trigger.getAttribute('data-slot')).toBe('sidebar-menu-sub-trigger')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.className).toContain('hover:bg-muted-hover')
+    expect(trigger.querySelector('[data-slot="sidebar-menu-button-leading"]')).not.toBeNull()
+    expect(trigger.querySelector('[data-slot="sidebar-menu-button-trailing"]')).not.toBeNull()
 
-    fireEvent.click(link)
-    expect(chevron.getAttribute('aria-expanded')).toBe('false')
+    const content = screen.container.querySelector('[data-slot="sidebar-menu-sub-content"]')
+    expect(content?.tagName).toBe('UL')
+    expect(content?.querySelector('li [data-slot="sidebar-menu-button"]')?.textContent).toBe(
+      'Alpha',
+    )
 
-    fireEvent.click(chevron)
-    await waitFor(() => {
-      expect(chevron.getAttribute('aria-expanded')).toBe('true')
-    })
-    expect(screen.getByRole('link', { name: 'UnoCSS' })).not.toBeNull()
+    fireEvent.click(trigger)
+    expect(onClick).toHaveBeenCalledOnce()
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+  })
+
+  test('MenuSubTrigger accepts a custom trailing icon and Sidebar classes', () => {
+    const screen = render(() => (
+      <Sidebar classes={{ menuSubTrigger: 'theme-sub-trigger' }}>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuSub>
+            <Sidebar.MenuSubTrigger trailing="i-lucide:chevron-down" class="custom-trigger">
+              Submenu
+            </Sidebar.MenuSubTrigger>
+          </Sidebar.MenuSub>
+        </Sidebar.MenuItem>
+      </Sidebar>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Submenu' })
+    expect(trigger.className).toContain('theme-sub-trigger')
+    expect(trigger.className).toContain('custom-trigger')
+    expect(
+      trigger.querySelector('[data-slot="sidebar-menu-button-trailing"]')?.className,
+    ).toContain('i-lucide:chevron-down')
   })
 
   test('chevron rotation is driven by trigger expanded state', async () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuSub>
-          <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
-          <Sidebar.MenuSubContent>
-            <Sidebar.MenuItem>Sub Item</Sidebar.MenuItem>
-          </Sidebar.MenuSubContent>
-        </Sidebar.MenuSub>
+        <Sidebar.MenuItem>
+          <Sidebar.MenuSub>
+            <Sidebar.MenuSubTrigger>Submenu</Sidebar.MenuSubTrigger>
+            <Sidebar.MenuSubContent>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton>Sub Item</Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.MenuSubContent>
+          </Sidebar.MenuSub>
+        </Sidebar.MenuItem>
       </Sidebar>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
-    const trailing = () => trigger.querySelector('[data-slot="sidebar-menu-item-trailing"]')
+    const trailing = trigger.querySelector('[data-slot="sidebar-menu-button-trailing"]')
+    expect(trailing?.parentElement).toBe(trigger)
+    expect(trailing?.className).toContain('[[data-expanded]>&]:rotate-90')
     expect(trigger.hasAttribute('data-expanded')).toBe(false)
-    expect(trailing()?.hasAttribute('data-expanded')).toBe(false)
-    expect(trailing()?.className).toContain('data-expanded:rotate-90')
 
     fireEvent.click(trigger)
     await waitFor(() => {
       expect(trigger.getAttribute('data-expanded')).toBe('')
     })
-    expect(trailing()?.getAttribute('data-expanded')).toBe('')
   })
 })
 
@@ -1094,7 +1163,7 @@ describe('Sidebar closeOnSelect', () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>
-          <Sidebar.MenuItem href="/docs">Docs</Sidebar.MenuItem>
+          <Sidebar.MenuButton href="/docs">Docs</Sidebar.MenuButton>
         </Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1114,7 +1183,7 @@ describe('Sidebar closeOnSelect', () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>
-          <Sidebar.MenuItem>Action</Sidebar.MenuItem>
+          <Sidebar.MenuButton>Action</Sidebar.MenuButton>
         </Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1126,7 +1195,7 @@ describe('Sidebar closeOnSelect', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
 
     fireEvent.click(
-      document.body.querySelector('[data-slot="sidebar-menu-item"]') as HTMLButtonElement,
+      document.body.querySelector('[data-slot="sidebar-menu-button"]') as HTMLButtonElement,
     )
     expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
   })
@@ -1135,9 +1204,9 @@ describe('Sidebar closeOnSelect', () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>
-          <Sidebar.MenuItem href="/docs" closeOnSelect={false}>
+          <Sidebar.MenuButton href="/docs" closeOnSelect={false}>
             Docs
-          </Sidebar.MenuItem>
+          </Sidebar.MenuButton>
         </Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1185,7 +1254,7 @@ describe('Sidebar context validation', () => {
   test.each([
     ['Menu', () => <Sidebar.Group />],
     ['Label', () => <Sidebar.GroupLabel />],
-    ['Item', () => <Sidebar.MenuItem />],
+    ['Item', () => <Sidebar.MenuButton />],
     [
       'Submenu',
       () => (

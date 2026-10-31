@@ -18,35 +18,37 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
-  const resolved = useSidebarStyles('panel', local)
+  const { slots } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
-  const mobileAriaLabel = () => {
-    const restRecord = rest as Record<string, unknown>
-    return local['aria-label'] ?? (restRecord.title as string | undefined) ?? messages().label
-  }
+  const mobileAriaLabel = () =>
+    local['aria-label'] ?? (rest as { title?: string }).title ?? messages().label
 
-  const PanelContent = (contentProps: { mobile: boolean }) => (
-    <Dynamic
-      component={(local.as ?? 'aside') as ValidComponent}
-      id={context.panelId()}
-      data-slot="sidebar-panel"
-      {...sidebarDataAttributes.panel({
-        closed: () => !context.isOpen(),
-        expanded: () => context.isOpen(),
-        mobile: () => contentProps.mobile,
-        side: () => context.side,
-        variant: () => context.variant,
-      })}
-      aria-hidden={!context.isOpen() ? true : undefined}
-      inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
-      aria-label={local['aria-label']}
-      {...(rest as object)}
-      {...resolved.slots.panel}
-    >
-      {content()}
-    </Dynamic>
-  )
+  // The mobile Sheet owns presence, so only the inline desktop panel reflects the closed state.
+  const PanelContent = (contentProps: { mobile: boolean }) => {
+    const closed = () => !contentProps.mobile && !context.isOpen()
+    return (
+      <Dynamic
+        component={(local.as ?? 'aside') as ValidComponent}
+        id={context.panelId()}
+        data-slot="sidebar-panel"
+        {...sidebarDataAttributes.panel({
+          closed,
+          expanded: () => !closed(),
+          mobile: () => contentProps.mobile,
+          side: () => context.side,
+          variant: () => context.variant,
+        })}
+        aria-hidden={closed() ? true : undefined}
+        inert={closed() ? true : undefined}
+        aria-label={local['aria-label']}
+        {...(rest as object)}
+        {...slots.panel}
+      >
+        {content()}
+      </Dynamic>
+    )
+  }
 
   return (
     <Show when={context.isMobile()} fallback={<PanelContent mobile={false} />}>

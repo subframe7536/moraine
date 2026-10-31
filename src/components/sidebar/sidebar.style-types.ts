@@ -25,31 +25,34 @@ export interface SidebarStyleSlot<T = unknown> {
   /** Section heading within a group. */
   groupLabel?: T
 
-  /** Container for menu items. */
+  /** List (`ul`) of menu items. */
   menu?: T
 
-  /** Interactive menu item. */
+  /** List item (`li`) that wraps a menu button, an optional action, or a sub-menu. */
   menuItem?: T
 
-  /** Leading icon for a menu item. */
-  menuItemLeading?: T
+  /** Interactive button or link of a menu item. */
+  menuButton?: T
 
-  /** Label text for a menu item. */
-  menuItemLabel?: T
+  /** Leading icon for a menu button. */
+  menuButtonLeading?: T
 
-  /** Trailing icon for a menu item. */
-  menuItemTrailing?: T
+  /** Label text for a menu button. */
+  menuButtonLabel?: T
 
-  /** Action container for a menu item. */
+  /** Trailing icon for a menu button. */
+  menuButtonTrailing?: T
+
+  /** Action container placed over the end of a menu item. */
   menuAction?: T
 
-  /** Expandable sub-navigation container. */
+  /** Expandable sub-navigation inside a menu item. */
   menuSub?: T
 
-  /** Trigger button for sub-navigation. */
+  /** Menu button that expands or collapses sub-navigation. */
   menuSubTrigger?: T
 
-  /** Collapsible content for sub-navigation. */
+  /** Collapsible list (`ul`) of sub-navigation items. */
   menuSubContent?: T
 }
 

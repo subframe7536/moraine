@@ -102,12 +102,14 @@ export function HeaderFooterSlots() {
               <Sidebar.Menu>
                 <For each={projects}>
                   {(proj) => (
-                    <Sidebar.MenuItem
-                      leading={proj.icon}
-                      isActive={currentProject() === proj.name}
-                      onClick={() => setCurrentProject(proj.name)}
-                    >
-                      {proj.name}
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton
+                        leading={proj.icon}
+                        isActive={currentProject() === proj.name}
+                        onClick={() => setCurrentProject(proj.name)}
+                      >
+                        {proj.name}
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
                   )}
                 </For>

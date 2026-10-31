@@ -7,7 +7,7 @@ import { Resizable } from '../components/resizable/resizable'
 import { Separator } from '../components/separator/separator'
 import { Sheet } from '../components/sheet/sheet'
 import { Sidebar } from '../components/sidebar/sidebar'
-import { useSidebar } from '../components/sidebar/sidebar-context'
+import { useSidebarContext } from '../components/sidebar/sidebar-context'
 import { Slider } from '../components/slider/slider'
 import { Stepper } from '../components/stepper/stepper'
 import { Tabs } from '../components/tabs/tabs'
@@ -116,7 +116,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   })
 
   function FrameToggle() {
-    const frame = useSidebar()
+    const frame = useSidebarContext()
     return (
       <button type="button" onClick={frame.toggle}>
         Toggle Sidebar

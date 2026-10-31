@@ -3,7 +3,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, ToggleButton, cn, useSidebar } from '../../../../src'
+import { Badge, Sidebar, ToggleButton, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
@@ -21,7 +21,7 @@ export interface DocsHeaderProps {
 }
 
 export function DocsHeader(props: DocsHeaderProps): JSX.Element {
-  const frame = useSidebar()
+  const frame = Sidebar.useContext()
   const location = useLocation()
   const isComponents = createMemo(() => location.pathname.startsWith('/components'))
   const isHooks = createMemo(() => location.pathname.startsWith('/hooks'))

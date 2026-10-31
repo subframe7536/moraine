@@ -65,13 +65,19 @@ export function ResponsiveUsage() {
               <Sidebar.Menu>
                 <For each={navPlatform}>
                   {(item) => (
-                    <Sidebar.MenuItem href={item.href} leading={item.icon} isActive={item.active}>
-                      <span class="flex-1 truncate">{item.label}</span>
-                      <Show when={item.badge}>
-                        <Badge size="sm" variant="soft" class="ml-auto shrink-0">
-                          {item.badge}
-                        </Badge>
-                      </Show>
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton
+                        href={item.href}
+                        leading={item.icon}
+                        isActive={item.active}
+                      >
+                        <span class="flex-1 truncate">{item.label}</span>
+                        <Show when={item.badge}>
+                          <Badge size="sm" variant="soft" class="ml-auto shrink-0">
+                            {item.badge}
+                          </Badge>
+                        </Show>
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
                   )}
                 </For>
@@ -83,8 +89,10 @@ export function ResponsiveUsage() {
               <Sidebar.Menu>
                 <For each={navSettings}>
                   {(item) => (
-                    <Sidebar.MenuItem href={item.href} leading={item.icon}>
-                      {item.label}
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton href={item.href} leading={item.icon}>
+                        {item.label}
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
                   )}
                 </For>

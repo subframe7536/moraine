@@ -13,16 +13,10 @@ export interface SidebarContext extends SidebarT.Context {
     classes?: SidebarT.Classes
     styles?: SidebarT.Styles
   }
-  scrollThreshold: number
-  setScrolled: (scrolled: boolean) => void
 }
 
 export const [SidebarProvider, useSidebarContext] =
   /* @__PURE__ */ createContextProvider<SidebarContext>('Sidebar')
-
-export function useSidebar(): SidebarT.Context {
-  return useSidebarContext()
-}
 
 export function useSidebarStyles(
   slot: keyof SidebarStyleSlot,

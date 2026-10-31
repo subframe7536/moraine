@@ -45,8 +45,6 @@ export {
   Separator,
   Sheet,
   Sidebar,
-  useSidebar,
-  useSidebarMenuSub,
   Skeleton,
   Slider,
   Stepper,

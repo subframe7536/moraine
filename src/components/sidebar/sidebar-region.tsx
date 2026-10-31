@@ -10,7 +10,7 @@ import type { SidebarStyleSlot } from './sidebar.style-types'
 
 export type RegionSlot = Extract<
   keyof SidebarStyleSlot,
-  'header' | 'content' | 'footer' | 'group' | 'menu'
+  'header' | 'content' | 'footer' | 'group' | 'menu' | 'menuItem'
 >
 
 export type RegionProps<T extends ValidComponent = 'div'> = Omit<
@@ -23,13 +23,18 @@ export type RegionProps<T extends ValidComponent = 'div'> = Omit<
   children?: JSX.Element
 }
 
-export function createRegion<S extends RegionSlot>(slot: S, dataSlot: string) {
+export function createRegion<S extends RegionSlot>(
+  slot: S,
+  dataSlot: string,
+  defaultTag: ValidComponent = 'div',
+) {
   return function SidebarRegion<T extends ValidComponent = 'div'>(
     props: RegionProps<T>,
   ): JSX.Element {
     const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-    const resolved = useSidebarStyles(slot, local)
-    const tag = (): ValidComponent => local.as ?? 'div'
-    return <Dynamic component={tag()} data-slot={dataSlot} {...rest} {...resolved.slots[slot]} />
+    const { slots } = useSidebarStyles(slot, local)
+    return (
+      <Dynamic component={local.as ?? defaultTag} data-slot={dataSlot} {...rest} {...slots[slot]} />
+    )
   }
 }

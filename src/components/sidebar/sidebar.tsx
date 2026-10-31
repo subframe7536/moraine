@@ -7,13 +7,15 @@ import { createMediaQuery } from '../../shared/media-query'
 import { createId } from '../../shared/utils'
 
 import { SidebarContent } from './sidebar-content'
-import { SidebarProvider } from './sidebar-context'
+import { SidebarProvider, useSidebarContext } from './sidebar-context'
 import { SidebarFooter } from './sidebar-footer'
 import { SidebarGroup } from './sidebar-group'
 import { SidebarGroupLabel } from './sidebar-group-label'
 import { SidebarHeader } from './sidebar-header'
 import { SidebarInset } from './sidebar-inset'
 import { SidebarMenu } from './sidebar-menu'
+import { SidebarMenuAction } from './sidebar-menu-action'
+import { SidebarMenuButton } from './sidebar-menu-button'
 import { SidebarMenuItem } from './sidebar-menu-item'
 import { SidebarMenuSub } from './sidebar-menu-sub'
 import { SidebarMenuSubContent } from './sidebar-menu-sub-content'
@@ -24,7 +26,6 @@ import { sidebarDataAttributes, sidebarRecipe } from './sidebar.recipe'
 import type { SidebarProps, SidebarT } from './sidebar.types'
 
 const SIDEBAR_DEFAULT_BREAKPOINT = 768
-const SIDEBAR_DEFAULT_SCROLL_THRESHOLD = 60
 
 /** Responsive sidebar layout with a mobile Sheet fallback. */
 export function Sidebar(props: SidebarProps): JSX.Element {
@@ -37,15 +38,17 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'isMobile',
     'onOpenChange',
     'open',
-    'scrollThreshold',
     'panelId',
     'side',
     'styles',
     'style',
     'variant',
     'translations',
+    'width',
   ])
-  const { slots, variants } = useRecipe(sidebarRecipe, local)
+  const { slots, variants } = useRecipe(sidebarRecipe, local, {
+    vars: () => ({ '--mo-sidebar-width': local.width }),
+  })
 
   const panelId = createId(() => local.panelId, 'sidebar-panel')
   const mediaMatches = createMediaQuery(
@@ -60,7 +63,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
   })
   const [mobileOpen, setMobileOpen] = createSignal(false)
-  const [scrolled, setScrolled] = createSignal(false)
 
   createEffect(
     on(isMobile, (mobile, previous) => {
@@ -95,14 +97,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     get slotOverrides() {
       return { classes: local.classes, styles: local.styles }
     },
-    get scrollThreshold() {
-      return local.scrollThreshold ?? SIDEBAR_DEFAULT_SCROLL_THRESHOLD
-    },
     isMobile,
     state,
     panelId,
-    scrolled,
-    setScrolled,
     isOpen,
     setOpen,
     toggle: () => setOpen(!isOpen()),
@@ -143,6 +140,11 @@ Sidebar.Group = SidebarGroup
 Sidebar.GroupLabel = SidebarGroupLabel
 Sidebar.Menu = SidebarMenu
 Sidebar.MenuItem = SidebarMenuItem
+Sidebar.MenuButton = SidebarMenuButton
+Sidebar.MenuAction = SidebarMenuAction
 Sidebar.MenuSub = SidebarMenuSub
 Sidebar.MenuSubTrigger = SidebarMenuSubTrigger
 Sidebar.MenuSubContent = SidebarMenuSubContent
+Sidebar.useContext = function useContext(): SidebarT.Context {
+  return useSidebarContext()
+}

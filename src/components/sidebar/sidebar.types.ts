@@ -30,7 +30,6 @@ export namespace SidebarT {
     variant?: Variants['variant'] | null
     state: Accessor<State>
     isMobile: Accessor<boolean>
-    scrolled: Accessor<boolean>
     isOpen: Accessor<boolean>
     setOpen: (open: boolean) => void
     toggle: () => void
@@ -53,10 +52,10 @@ export namespace SidebarT {
     /** Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`. */
     isMobile?: boolean
     /**
-     * Inset scroll offset that changes `scrolled` to true.
-     * @default 60
+     * Desktop panel width as a CSS length. Defaults to the global `--sidebar-width`,
+     * or `clamp(14rem, 25%, 20rem)` when that is unset.
      */
-    scrollThreshold?: number
+    width?: string
     /**
      * Max viewport width in pixels that counts as mobile.
      * Used as `(max-width: ${breakpoint}px)` when `isMobile` is omitted.
@@ -132,7 +131,6 @@ export namespace SidebarT {
   export interface InsetBase<T extends ValidComponent = 'main'> {
     children?: JSX.Element
     as?: T
-    onScroll?: JSX.EventHandlerUnion<HTMLElement, UIEvent>
   }
   export type InsetProps<T extends ValidComponent = 'main'> = BaseProps<
     T,
@@ -182,52 +180,101 @@ export namespace SidebarT {
     'div'
   >
 
-  export interface MenuBase<T extends ValidComponent = 'div'> {
+  export interface MenuBase<T extends ValidComponent = 'ul'> {
     as?: T
+    /** `MenuItem` entries. */
     children?: JSX.Element
   }
-  export type MenuProps<T extends ValidComponent = 'div'> = BaseProps<
+  export type MenuProps<T extends ValidComponent = 'ul'> = BaseProps<
     T,
     MenuBase<T>,
     never,
     never,
     never,
-    'div'
+    'ul'
   >
 
-  export type MenuItemBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
+  export interface MenuItemBase<T extends ValidComponent = 'li'> {
+    as?: T
+    /** A `MenuButton` with an optional `MenuAction`, or a `MenuSub`. */
+    children?: JSX.Element
+  }
+
+  export type MenuItemProps<T extends ValidComponent = 'li'> = BaseProps<
+    T,
+    MenuItemBase<T>,
+    never,
+    never,
+    never,
+    'li'
+  >
+
+  export type MenuButtonBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     href?: string
     isActive?: boolean
     leading?: IconT.Name
     trailing?: IconT.Name
     /**
-     * Trailing action (e.g. action buttons or dropdown menu) rendered alongside the item.
-     */
-    action?: JSX.Element
-    /**
-     * Whether activating this item on mobile closes the sheet.
-     * When omitted, items with `href` close the sheet.
+     * Whether activating this button on mobile closes the sheet.
+     * When omitted, buttons with `href` close the sheet.
      */
     closeOnSelect?: boolean
   }
 
-  export type MenuItemProps<T extends ValidComponent = 'button'> = BaseProps<
+  export type MenuButtonProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
-    MenuItemBase<T>,
+    MenuButtonBase<T>,
     never,
     never,
     never,
     'button'
   >
 
-  export interface MenuSubBase {
+  export interface MenuActionBase<T extends ValidComponent = 'div'> {
+    as?: T
+    /**
+     * Controls placed over the end of the enclosing `MenuItem`'s first row, such as a dropdown
+     * menu trigger. The `MenuButton` stays highlighted while the pointer is over these controls.
+     */
     children?: JSX.Element
+  }
+
+  export type MenuActionProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    MenuActionBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
+
+  export interface MenuSubBase {
+    /** A `MenuSubTrigger` followed by a `MenuSubContent`. */
+    children?: JSX.Element
+    /** Controlled expanded state. */
     open?: boolean
+    /**
+     * Initial expanded state when uncontrolled.
+     * @default false
+     */
     defaultOpen?: boolean
+    /** Callback invoked when the expanded state changes. */
     onOpenChange?: (open: boolean) => void
+    /**
+     * Whether the trigger is disabled.
+     * @default false
+     */
     disabled?: boolean
+    /**
+     * Whether to animate the content height.
+     * @default false
+     */
     transition?: boolean
+    /**
+     * Whether to unmount the content when collapsed.
+     * @default true
+     */
     unmountOnHide?: boolean
   }
 
@@ -236,6 +283,10 @@ export namespace SidebarT {
   export type MenuSubTriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     leading?: IconT.Name
+    /**
+     * Disclosure icon that rotates while expanded.
+     * @default 'i-lucide:chevron-right'
+     */
     trailing?: IconT.Name
   }
 
@@ -248,17 +299,18 @@ export namespace SidebarT {
     'button'
   >
 
-  export interface MenuSubContentBase<T extends ValidComponent = 'div'> {
+  export interface MenuSubContentBase<T extends ValidComponent = 'ul'> {
     as?: T
+    /** Nested `MenuItem` entries. */
     children?: JSX.Element
   }
-  export type MenuSubContentProps<T extends ValidComponent = 'div'> = BaseProps<
+  export type MenuSubContentProps<T extends ValidComponent = 'ul'> = BaseProps<
     T,
     MenuSubContentBase<T>,
     never,
     never,
     never,
-    'div'
+    'ul'
   >
 }
 

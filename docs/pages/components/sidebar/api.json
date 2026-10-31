@@ -75,16 +75,6 @@
           "description": "Stable identifier used for associating Trigger `aria-controls` with Panel."
         },
         {
-          "name": "scrollThreshold",
-          "optional": true,
-          "type": "number",
-          "description": "Inset scroll offset that changes `scrolled` to true.",
-          "default": {
-            "kind": "literal",
-            "value": 60
-          }
-        },
-        {
           "name": "side",
           "optional": true,
           "type": "'left' | 'right'",
@@ -119,6 +109,12 @@
             "kind": "literal",
             "value": "default"
           }
+        },
+        {
+          "name": "width",
+          "optional": true,
+          "type": "string",
+          "description": "Desktop panel width as a CSS length. Defaults to the global `--sidebar-width`,\nor `clamp(14rem, 25%, 20rem)` when that is unset."
         }
       ]
     },
@@ -346,11 +342,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "onScroll",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, UIEvent>"
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -518,10 +509,10 @@
         {
           "name": "T",
           "constraint": "ValidComponent",
-          "default": "'div'"
+          "default": "'ul'"
         }
       ],
-      "defaultElement": "div",
+      "defaultElement": "ul",
       "props": [
         {
           "name": "as",
@@ -529,13 +520,14 @@
           "type": "T",
           "default": {
             "kind": "literal",
-            "value": "div"
+            "value": "ul"
           }
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "`MenuItem` entries."
         },
         {
           "name": "class",
@@ -563,17 +555,57 @@
         {
           "name": "T",
           "constraint": "ValidComponent",
+          "default": "'li'"
+        }
+      ],
+      "defaultElement": "li",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "li"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "A `MenuButton` with an optional `MenuAction`, or a `MenuSub`."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sidebar-menu-button",
+      "name": "Sidebar.MenuButton",
+      "access": {
+        "kind": "attached",
+        "root": "Sidebar",
+        "member": "MenuButton"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
           "default": "'button'"
         }
       ],
       "defaultElement": "button",
       "props": [
-        {
-          "name": "action",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Trailing action (e.g. action buttons or dropdown menu) rendered alongside the item."
-        },
         {
           "name": "as",
           "optional": true,
@@ -600,7 +632,7 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether activating this item on mobile closes the sheet.\nWhen omitted, items with `href` close the sheet."
+          "description": "Whether activating this button on mobile closes the sheet.\nWhen omitted, buttons with `href` close the sheet."
         },
         {
           "name": "disabled",
@@ -642,6 +674,52 @@
       ]
     },
     {
+      "id": "sidebar-menu-action",
+      "name": "Sidebar.MenuAction",
+      "access": {
+        "kind": "attached",
+        "root": "Sidebar",
+        "member": "MenuAction"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Controls placed over the end of the enclosing `MenuItem`'s first row, such as a dropdown\nmenu trigger. The `MenuButton` stays highlighted while the pointer is over these controls."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
       "id": "sidebar-menu-sub",
       "name": "Sidebar.MenuSub",
       "access": {
@@ -654,7 +732,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "A `MenuSubTrigger` followed by a `MenuSubContent`."
         },
         {
           "name": "class",
@@ -665,22 +744,34 @@
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Initial expanded state when uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether the trigger is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": "(open: boolean) => void"
+          "type": "(open: boolean) => void",
+          "description": "Callback invoked when the expanded state changes."
         },
         {
           "name": "open",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Controlled expanded state."
         },
         {
           "name": "style",
@@ -691,12 +782,22 @@
         {
           "name": "transition",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether to animate the content height.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "unmountOnHide",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether to unmount the content when collapsed.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -764,7 +865,12 @@
         {
           "name": "trailing",
           "optional": true,
-          "type": "IconT.Name"
+          "type": "IconT.Name",
+          "description": "Disclosure icon that rotates while expanded.",
+          "default": {
+            "kind": "literal",
+            "value": "i-lucide:chevron-right"
+          }
         }
       ]
     },
@@ -780,10 +886,10 @@
         {
           "name": "T",
           "constraint": "ValidComponent",
-          "default": "'div'"
+          "default": "'ul'"
         }
       ],
-      "defaultElement": "div",
+      "defaultElement": "ul",
       "props": [
         {
           "name": "as",
@@ -791,13 +897,14 @@
           "type": "T",
           "default": {
             "kind": "literal",
-            "value": "div"
+            "value": "ul"
           }
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Nested `MenuItem` entries."
         },
         {
           "name": "class",
@@ -825,9 +932,10 @@
     "groupLabel",
     "menu",
     "menuItem",
-    "menuItemLeading",
-    "menuItemLabel",
-    "menuItemTrailing",
+    "menuButton",
+    "menuButtonLeading",
+    "menuButtonLabel",
+    "menuButtonTrailing",
     "menuAction",
     "menuSub",
     "menuSubTrigger",
@@ -861,18 +969,17 @@
       ]
     },
     {
-      "target": "menuItem",
+      "target": "menuButton",
       "attributes": [
         "data-active",
         "data-disabled",
-        "data-mobile",
-        "data-with-action"
+        "data-mobile"
       ]
     },
     {
-      "target": "menuItemTrailing",
+      "target": "menuAction",
       "attributes": [
-        "data-expanded"
+        "data-mobile"
       ]
     }
   ]

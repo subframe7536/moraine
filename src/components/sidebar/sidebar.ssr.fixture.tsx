@@ -1,10 +1,10 @@
 import { renderToString } from 'solid-js/web'
 
 import { Sidebar } from './sidebar'
-import { useSidebar } from './sidebar-context'
+import { useSidebarContext } from './sidebar-context'
 
 function FixtureContent() {
-  const frame = useSidebar()
+  const frame = useSidebarContext()
 
   return (
     <>
@@ -16,15 +16,27 @@ function FixtureContent() {
           <Sidebar.Group>
             <Sidebar.GroupLabel as="h2">Navigation</Sidebar.GroupLabel>
             <Sidebar.Menu>
-              <Sidebar.MenuItem leading="i-lucide:house" href="/home">
-                Home
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton leading="i-lucide:house" href="/home">
+                  Home
+                </Sidebar.MenuButton>
               </Sidebar.MenuItem>
-              <Sidebar.MenuSub>
-                <Sidebar.MenuSubTrigger leading="i-lucide:folder">Submenu</Sidebar.MenuSubTrigger>
-                <Sidebar.MenuSubContent>
-                  <Sidebar.MenuItem href="/sub-item">Sub Item</Sidebar.MenuItem>
-                </Sidebar.MenuSubContent>
-              </Sidebar.MenuSub>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton href="/project">Project</Sidebar.MenuButton>
+                <Sidebar.MenuAction>
+                  <button type="button">Project options</button>
+                </Sidebar.MenuAction>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuSub>
+                  <Sidebar.MenuSubTrigger leading="i-lucide:folder">Submenu</Sidebar.MenuSubTrigger>
+                  <Sidebar.MenuSubContent>
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton href="/sub-item">Sub Item</Sidebar.MenuButton>
+                    </Sidebar.MenuItem>
+                  </Sidebar.MenuSubContent>
+                </Sidebar.MenuSub>
+              </Sidebar.MenuItem>
             </Sidebar.Menu>
           </Sidebar.Group>
         </Sidebar.Content>

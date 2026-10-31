@@ -59,8 +59,10 @@ export function FrameRender() {
               <Sidebar.Menu>
                 <For each={cloudNav}>
                   {(item) => (
-                    <Sidebar.MenuItem href="#" leading={item.icon} isActive={item.active}>
-                      {item.label}
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton href="#" leading={item.icon} isActive={item.active}>
+                        {item.label}
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
                   )}
                 </For>

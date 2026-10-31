@@ -21,7 +21,7 @@ import { Resizable } from '../../components/resizable/resizable'
 import { Select } from '../../components/select/select'
 import { Sheet } from '../../components/sheet/sheet'
 import { Sidebar } from '../../components/sidebar/sidebar'
-import { useSidebar } from '../../components/sidebar/sidebar-context'
+import { useSidebarContext } from '../../components/sidebar/sidebar-context'
 import { Slider } from '../../components/slider/slider'
 import { Toast } from '../../components/toast/toast'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -216,7 +216,7 @@ describe('localized component text', () => {
 
   test('uses the sidebar message and lets ariaLabel win', async () => {
     function OpenSidebar(props: { label?: string }) {
-      const frame = useSidebar()
+      const frame = useSidebarContext()
       onMount(() => frame.setOpen(true))
       return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }

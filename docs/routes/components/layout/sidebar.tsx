@@ -2,7 +2,7 @@ import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
-import { Badge, Sidebar, cn, useSidebar } from '../../../../src'
+import { Badge, Sidebar, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 
@@ -30,7 +30,7 @@ function getCurrentSurface(pathname: string) {
 }
 
 export const DocsSidebar = (props: DocsSidebarProps) => {
-  const frame = useSidebar()
+  const frame = Sidebar.useContext()
   const location = useLocation()
   let nav: HTMLElement | undefined
   const currentSurface = createMemo(() => getCurrentSurface(location.pathname))
@@ -68,19 +68,21 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
   )
 
   const renderSidebarItem = (page: SidebarPage) => (
-    <Sidebar.MenuItem
-      href={page.path}
-      isActive={props.activePage() === page.path}
-      class={DOCS_FOCUS_RING_OFFSET_CLASS}
-    >
-      <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>
-      <Show when={page.badge}>
-        {(badge) => (
-          <Badge variant="outline" size="sm" class="text-[0.7rem] ms-auto px-1.5 py-0 shrink-0">
-            {badge()}
-          </Badge>
-        )}
-      </Show>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton
+        href={page.path}
+        isActive={props.activePage() === page.path}
+        class={DOCS_FOCUS_RING_OFFSET_CLASS}
+      >
+        <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>
+        <Show when={page.badge}>
+          {(badge) => (
+            <Badge variant="outline" size="sm" class="text-[0.7rem] ms-auto px-1.5 py-0 shrink-0">
+              {badge()}
+            </Badge>
+          )}
+        </Show>
+      </Sidebar.MenuButton>
     </Sidebar.MenuItem>
   )
 
@@ -104,14 +106,16 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
                     Agents
                   </Sidebar.GroupLabel>
                   <Sidebar.Menu>
-                    <Sidebar.MenuItem
-                      as="a"
-                      href="/llms.txt"
-                      rel="alternate external"
-                      type="text/markdown"
-                      class={DOCS_FOCUS_RING_OFFSET_CLASS}
-                    >
-                      llms.txt
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton
+                        as="a"
+                        href="/llms.txt"
+                        rel="alternate external"
+                        type="text/markdown"
+                        class={DOCS_FOCUS_RING_OFFSET_CLASS}
+                      >
+                        llms.txt
+                      </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
                   </Sidebar.Menu>
                 </Sidebar.Group>
@@ -144,34 +148,38 @@ export const DocsSidebarHeader = () => {
   return (
     <nav
       aria-label="Documentation sections"
-      class="font-sans px-4 py-4 border-b border-border flex flex-col gap-1 w-full"
+      class="font-sans px-4 py-4 border-b border-border w-full"
     >
-      <For each={SURFACES}>
-        {(surface) => {
-          const selected = () => getCurrentSurface(location.pathname) === surface.value
-          return (
-            <Sidebar.MenuItem
-              href={surface.href}
-              isActive={selected()}
-              leading={surface.icon}
-              class={cn(
-                `text-sm font-medium px-3 border rounded-lg flex gap-3 h-12 transition-colors items-center relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
-                selected()
-                  ? 'text-foreground border-border bg-muted'
-                  : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',
-              )}
-            >
-              <Show when={selected()}>
-                <span
-                  aria-hidden="true"
-                  class="rounded-full bg-foreground h-5 w-0.5 start-0 top-1/2 absolute -translate-y-1/2"
-                />
-              </Show>
-              {surface.label}
-            </Sidebar.MenuItem>
-          )
-        }}
-      </For>
+      <Sidebar.Menu class="gap-1">
+        <For each={SURFACES}>
+          {(surface) => {
+            const selected = () => getCurrentSurface(location.pathname) === surface.value
+            return (
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton
+                  href={surface.href}
+                  isActive={selected()}
+                  leading={surface.icon}
+                  class={cn(
+                    `text-sm font-medium px-3 border rounded-lg flex gap-3 h-12 transition-colors items-center relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+                    selected()
+                      ? 'text-foreground border-border bg-muted'
+                      : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',
+                  )}
+                >
+                  <Show when={selected()}>
+                    <span
+                      aria-hidden="true"
+                      class="rounded-full bg-foreground h-5 w-0.5 start-0 top-1/2 absolute -translate-y-1/2"
+                    />
+                  </Show>
+                  {surface.label}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            )
+          }}
+        </For>
+      </Sidebar.Menu>
     </nav>
   )
 }

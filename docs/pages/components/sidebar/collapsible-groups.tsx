@@ -32,19 +32,23 @@ export function CollapsibleGroups() {
                 Overview
               </Sidebar.GroupLabel>
               <Sidebar.Menu>
-                <Sidebar.MenuItem
-                  leading="i-lucide:compass"
-                  isActive={activePage() === 'Getting Started'}
-                  onClick={() => setActivePage('Getting Started')}
-                >
-                  Getting Started
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton
+                    leading="i-lucide:compass"
+                    isActive={activePage() === 'Getting Started'}
+                    onClick={() => setActivePage('Getting Started')}
+                  >
+                    Getting Started
+                  </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
-                <Sidebar.MenuItem
-                  leading="i-lucide:rocket"
-                  isActive={activePage() === 'Quickstart'}
-                  onClick={() => setActivePage('Quickstart')}
-                >
-                  Quickstart
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton
+                    leading="i-lucide:rocket"
+                    isActive={activePage() === 'Quickstart'}
+                    onClick={() => setActivePage('Quickstart')}
+                  >
+                    Quickstart
+                  </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.Group>
@@ -54,41 +58,51 @@ export function CollapsibleGroups() {
                 Architecture
               </Sidebar.GroupLabel>
               <Sidebar.Menu>
-                <Sidebar.MenuSub defaultOpen transition>
-                  <Sidebar.MenuSubTrigger leading="i-lucide:route">Routing</Sidebar.MenuSubTrigger>
-                  <Sidebar.MenuSubContent>
-                    <For each={['Defining Routes', 'Pages and Layouts', 'Navigation & Links']}>
-                      {(item) => (
-                        <Sidebar.MenuItem
-                          isActive={activePage() === item}
-                          onClick={() => setActivePage(item)}
-                        >
-                          {item}
-                        </Sidebar.MenuItem>
-                      )}
-                    </For>
-                  </Sidebar.MenuSubContent>
-                </Sidebar.MenuSub>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuSub defaultOpen transition>
+                    <Sidebar.MenuSubTrigger leading="i-lucide:route">
+                      Routing
+                    </Sidebar.MenuSubTrigger>
+                    <Sidebar.MenuSubContent>
+                      <For each={['Defining Routes', 'Pages and Layouts', 'Navigation & Links']}>
+                        {(item) => (
+                          <Sidebar.MenuItem>
+                            <Sidebar.MenuButton
+                              isActive={activePage() === item}
+                              onClick={() => setActivePage(item)}
+                            >
+                              {item}
+                            </Sidebar.MenuButton>
+                          </Sidebar.MenuItem>
+                        )}
+                      </For>
+                    </Sidebar.MenuSubContent>
+                  </Sidebar.MenuSub>
+                </Sidebar.MenuItem>
 
-                <Sidebar.MenuSub transition>
-                  <Sidebar.MenuSubTrigger leading="i-lucide:database">
-                    Data Fetching
-                  </Sidebar.MenuSubTrigger>
-                  <Sidebar.MenuSubContent>
-                    <For
-                      each={['Server Actions', 'Streaming & Suspense', 'Caching & Revalidation']}
-                    >
-                      {(item) => (
-                        <Sidebar.MenuItem
-                          isActive={activePage() === item}
-                          onClick={() => setActivePage(item)}
-                        >
-                          {item}
-                        </Sidebar.MenuItem>
-                      )}
-                    </For>
-                  </Sidebar.MenuSubContent>
-                </Sidebar.MenuSub>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuSub transition>
+                    <Sidebar.MenuSubTrigger leading="i-lucide:database">
+                      Data Fetching
+                    </Sidebar.MenuSubTrigger>
+                    <Sidebar.MenuSubContent>
+                      <For
+                        each={['Server Actions', 'Streaming & Suspense', 'Caching & Revalidation']}
+                      >
+                        {(item) => (
+                          <Sidebar.MenuItem>
+                            <Sidebar.MenuButton
+                              isActive={activePage() === item}
+                              onClick={() => setActivePage(item)}
+                            >
+                              {item}
+                            </Sidebar.MenuButton>
+                          </Sidebar.MenuItem>
+                        )}
+                      </For>
+                    </Sidebar.MenuSubContent>
+                  </Sidebar.MenuSub>
+                </Sidebar.MenuItem>
               </Sidebar.Menu>
             </Sidebar.Group>
           </Sidebar.Content>

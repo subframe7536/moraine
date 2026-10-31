@@ -1,4 +1,4 @@
-import { Button, Icon, Resizable, Sidebar, useSidebar } from '@src'
+import { Button, Icon, Resizable, Sidebar } from '@src'
 import { For, Show } from 'solid-js'
 
 function FileExplorerContent() {
@@ -136,7 +136,7 @@ function EditorContent() {
 }
 
 function ResizableLayout() {
-  const frame = useSidebar()
+  const frame = Sidebar.useContext()
 
   return (
     <Show
@@ -144,17 +144,11 @@ function ResizableLayout() {
       fallback={
         <Resizable class="flex-1 h-full" defaultValue={['32%', '68%']}>
           <Resizable.Panel min={180} max={360} collapsible collapsibleMin={56}>
-            <Sidebar.Panel class="border-0 bg-card/30 max-w-none! w-full!">
+            <Sidebar.Panel class="border-0 bg-card/30 w-full">
               <FileExplorerContent />
             </Sidebar.Panel>
           </Resizable.Panel>
-          <Resizable.Handle action="collapse">
-            {(state) => (
-              <Icon
-                name={state.collapsed ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'}
-              />
-            )}
-          </Resizable.Handle>
+          <Resizable.Handle action="collapse" />
           <Resizable.Panel>
             <EditorContent />
           </Resizable.Panel>

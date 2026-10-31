@@ -4,7 +4,7 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import { Button, MoraineProvider, Progress, Sidebar, useSidebar } from '../../src'
+import { Button, MoraineProvider, Progress, Sidebar } from '../../src'
 import { createMediaQuery } from '../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
@@ -83,7 +83,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   })
 
   function DocsShell() {
-    const frame = useSidebar()
+    const frame = Sidebar.useContext()
 
     return (
       <>
@@ -184,11 +184,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <Sidebar
-        isMobile={isMobile()}
-        class="flex-col overflow-hidden h-dvh max-h-dvh"
-        scrollThreshold={4}
-      >
+      <Sidebar isMobile={isMobile()} class="flex-col overflow-hidden h-dvh max-h-dvh">
         <DocsShell />
       </Sidebar>
     </>

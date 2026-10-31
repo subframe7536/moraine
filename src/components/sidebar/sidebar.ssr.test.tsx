@@ -4,10 +4,10 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Sidebar } from './sidebar'
-import { useSidebar } from './sidebar-context'
+import { useSidebarContext } from './sidebar-context'
 
 function FixtureContent() {
-  const frame = useSidebar()
+  const frame = useSidebarContext()
 
   return (
     <>
@@ -19,15 +19,27 @@ function FixtureContent() {
           <Sidebar.Group>
             <Sidebar.GroupLabel as="h2">Navigation</Sidebar.GroupLabel>
             <Sidebar.Menu>
-              <Sidebar.MenuItem leading="i-lucide:house" href="/home">
-                Home
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton leading="i-lucide:house" href="/home">
+                  Home
+                </Sidebar.MenuButton>
               </Sidebar.MenuItem>
-              <Sidebar.MenuSub>
-                <Sidebar.MenuSubTrigger leading="i-lucide:folder">Submenu</Sidebar.MenuSubTrigger>
-                <Sidebar.MenuSubContent>
-                  <Sidebar.MenuItem href="/sub-item">Sub Item</Sidebar.MenuItem>
-                </Sidebar.MenuSubContent>
-              </Sidebar.MenuSub>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton href="/project">Project</Sidebar.MenuButton>
+                <Sidebar.MenuAction>
+                  <button type="button">Project options</button>
+                </Sidebar.MenuAction>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuSub>
+                  <Sidebar.MenuSubTrigger leading="i-lucide:folder">Submenu</Sidebar.MenuSubTrigger>
+                  <Sidebar.MenuSubContent>
+                    <Sidebar.MenuItem>
+                      <Sidebar.MenuButton href="/sub-item">Sub Item</Sidebar.MenuButton>
+                    </Sidebar.MenuItem>
+                  </Sidebar.MenuSubContent>
+                </Sidebar.MenuSub>
+              </Sidebar.MenuItem>
             </Sidebar.Menu>
           </Sidebar.Group>
         </Sidebar.Content>
@@ -83,10 +95,10 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
 
   const dialog = document.body.querySelector('[role="dialog"]')!
   expect(dialog.querySelector('[data-slot="sidebar-group"]')).not.toBeNull()
-  expect(dialog.querySelector('[data-slot="sidebar-menu"]')).not.toBeNull()
+  expect(dialog.querySelector('ul[data-slot="sidebar-menu"] > li')).not.toBeNull()
   expect(dialog.querySelector('h2')?.textContent).toBe('Navigation')
   expect(dialog.querySelector('a[href="/home"]')?.textContent).toBe('Home')
-  expect(dialog.querySelector('[data-slot="sidebar-menu-item-leading"]')).not.toBeNull()
+  expect(dialog.querySelector('[data-slot="sidebar-menu-button-leading"]')).not.toBeNull()
   expect(dialog.querySelector('[data-slot="sidebar-menu-sub"]')).not.toBeNull()
   expect(
     container.querySelector('[data-slot="sidebar-trigger"]')?.getAttribute('aria-controls'),

@@ -5,7 +5,7 @@ import type { ValidComponent } from '../../shared/types'
 import { createRegion } from './sidebar-region'
 import type { SidebarT } from './sidebar.types'
 
-/** Container for sidebar menu items. */
-export const SidebarMenu: <T extends ValidComponent = 'div'>(
+/** List of sidebar menu items. */
+export const SidebarMenu: <T extends ValidComponent = 'ul'>(
   props: SidebarT.MenuProps<T>,
-) => JSX.Element = /* @__PURE__ */ createRegion('menu', 'sidebar-menu')
+) => JSX.Element = /* @__PURE__ */ createRegion('menu', 'sidebar-menu', 'ul')

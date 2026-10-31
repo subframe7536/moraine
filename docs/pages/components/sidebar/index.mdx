@@ -16,6 +16,8 @@ api:
       GroupLabel,
       Menu,
       MenuItem,
+      MenuButton,
+      MenuAction,
       MenuSub,
       MenuSubTrigger,
       MenuSubContent,
@@ -215,20 +217,24 @@ import { Avatar, Badge, Breadcrumb, Button, DropdownMenu, Icon, Separator, Sideb
                 <Sidebar.Menu>
                   <For each={data.navMain}>
                     {(item) => (
-                      <Sidebar.MenuSub defaultOpen={item.defaultOpen} transition>
-                        <Sidebar.MenuSubTrigger leading={item.icon}>
-                          {item.title}
-                        </Sidebar.MenuSubTrigger>
-                        <Sidebar.MenuSubContent>
-                          <For each={item.items}>
-                            {(subItem) => (
-                              <Sidebar.MenuItem href={subItem.url}>
-                                {subItem.title}
-                              </Sidebar.MenuItem>
-                            )}
-                          </For>
-                        </Sidebar.MenuSubContent>
-                      </Sidebar.MenuSub>
+                      <Sidebar.MenuItem>
+                        <Sidebar.MenuSub defaultOpen={item.defaultOpen} transition>
+                          <Sidebar.MenuSubTrigger leading={item.icon}>
+                            {item.title}
+                          </Sidebar.MenuSubTrigger>
+                          <Sidebar.MenuSubContent>
+                            <For each={item.items}>
+                              {(subItem) => (
+                                <Sidebar.MenuItem>
+                                  <Sidebar.MenuButton href={subItem.url}>
+                                    {subItem.title}
+                                  </Sidebar.MenuButton>
+                                </Sidebar.MenuItem>
+                              )}
+                            </For>
+                          </Sidebar.MenuSubContent>
+                        </Sidebar.MenuSub>
+                      </Sidebar.MenuItem>
                     )}
                   </For>
                 </Sidebar.Menu>
@@ -239,31 +245,28 @@ import { Avatar, Badge, Breadcrumb, Button, DropdownMenu, Icon, Separator, Sideb
                 <Sidebar.Menu>
                   <For each={data.projects}>
                     {(project) => (
-                      <Sidebar.MenuItem
-                        leading={project.icon}
-                        action={
+                      <Sidebar.MenuItem class="group/menu-item">
+                        <Sidebar.MenuButton leading={project.icon} class="pe-8">
+                          {project.name}
+                        </Sidebar.MenuButton>
+                        <Sidebar.MenuAction>
                           <DropdownMenu placement="right" align="start">
                             <DropdownMenu.Trigger
-                              as="button"
-                              class="text-muted-foreground p-0.5 rounded-md flex size-5 cursor-pointer items-center justify-center hover:(text-foreground bg-muted-hover) opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 data-expanded:opacity-100"
+                              class="hover:bg-muted p-1 rounded-sm text-xs opacity-0 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 aria-expanded:(opacity-100 bg-muted)"
                               aria-label={`More options for ${project.name}`}
                             >
-                              <Icon name="i-lucide:ellipsis" class="size-4" />
+                              <Icon name="i-lucide:ellipsis" />
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Content items={projectMenuItems} />
                           </DropdownMenu>
-                        }
-                      >
-                        {project.name}
+                        </Sidebar.MenuAction>
                       </Sidebar.MenuItem>
                     )}
                   </For>
-                  <Sidebar.MenuItem
-                    leading="i-lucide:ellipsis"
-                    class="text-muted-foreground/70"
-                    tooltip="More"
-                  >
-                    More
+                  <Sidebar.MenuItem>
+                    <Sidebar.MenuButton leading="i-lucide:ellipsis" class="text-muted-foreground/70">
+                      More
+                    </Sidebar.MenuButton>
                   </Sidebar.MenuItem>
                 </Sidebar.Menu>
               </Sidebar.Group>
@@ -395,18 +398,28 @@ import { Avatar, Badge, Breadcrumb, Button, DropdownMenu, Icon, Separator, Sideb
                         part: 'Sidebar.MenuItem',
                         slot: 'menuItem',
                         children: [
-                          { slot: 'menuItemLeading' },
-                          { slot: 'menuItemLabel' },
-                          { slot: 'menuItemTrailing' },
-                          { slot: 'menuAction' },
-                        ],
-                      },
-                      {
-                        part: 'Sidebar.MenuSub',
-                        slot: 'menuSub',
-                        children: [
-                          { part: 'Sidebar.MenuSubTrigger', slot: 'menuSubTrigger' },
-                          { part: 'Sidebar.MenuSubContent', slot: 'menuSubContent' },
+                          {
+                            part: 'Sidebar.MenuButton',
+                            slot: 'menuButton',
+                            children: [
+                              { slot: 'menuButtonLeading' },
+                              { slot: 'menuButtonLabel' },
+                              { slot: 'menuButtonTrailing' },
+                            ],
+                          },
+                          { part: 'Sidebar.MenuAction', slot: 'menuAction' },
+                          {
+                            part: 'Sidebar.MenuSub',
+                            slot: 'menuSub',
+                            children: [
+                              { part: 'Sidebar.MenuSubTrigger', slot: 'menuSubTrigger' },
+                              {
+                                part: 'Sidebar.MenuSubContent',
+                                slot: 'menuSubContent',
+                                children: [{ part: 'Sidebar.MenuItem', slot: 'menuItem' }],
+                              },
+                            ],
+                          },
                         ],
                       },
                     ],
@@ -453,10 +466,14 @@ export function Example() {
           <Sidebar.Group>
             <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
             <Sidebar.Menu>
-              <Sidebar.MenuItem leading="i-lucide:home" isActive>
-                Home
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton leading="i-lucide:home" isActive>
+                  Home
+                </Sidebar.MenuButton>
               </Sidebar.MenuItem>
-              <Sidebar.MenuItem leading="i-lucide:settings">Settings</Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton leading="i-lucide:settings">Settings</Sidebar.MenuButton>
+              </Sidebar.MenuItem>
             </Sidebar.Menu>
           </Sidebar.Group>
         </Sidebar.Content>
@@ -471,7 +488,7 @@ export function Example() {
 
 Keep one navigation tree inside `Sidebar.Panel`. Put the application header outside the
 frame, then place `Sidebar.Trigger` where users need to reveal or collapse navigation. If a
-child needs to coordinate with the sidebar, read `useSidebar()` within the provider rather
+child needs to coordinate with the sidebar, read `Sidebar.useContext()` within the provider rather
 than maintaining a second open state.
 
 ```tsx
@@ -482,8 +499,8 @@ than maintaining a second open state.
 
 Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` /
 `onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop.
-Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to
-keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
+Menu buttons with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on a
+button to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
 `(max-width: ${breakpoint}px)` via `matchMedia`. Pass `isMobile` to force either layout.
 
 Root `classes` and `styles` set defaults for the panel, region, group, menu, menu item, and sub-menu slots.
@@ -491,18 +508,20 @@ On mobile, the sidebar renders inside a Sheet. Style the Sidebar regions through
 slots; Sidebar overrides do not style the internal Sheet. See [Theming](/docs/theming) for
 nested Provider behavior.
 
-`Sidebar` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or
-with `presetMoraine`. Width classes on `Sidebar.Panel` take precedence.
+`Sidebar` declares `--mo-sidebar-width` on its root. Pass `width` for one instance, or set the
+global `--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the desktop panel keeps
+its width and slides out with a negative margin, so its content does not reflow during the
+transition.
 
 The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
 `class="h-dvh"` (or `h-svh`) on the root.
 
-Call `useSidebar()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`,
-`setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop
+Call `Sidebar.useContext()` from a descendant for `isMobile`, `isOpen`, `state`, `setOpen`, and
+`toggle`. A global application header belongs outside the frame. For desktop
 resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
 ```tsx
-const frame = useSidebar()
+const frame = Sidebar.useContext()
 
 <Show when={frame.isMobile()} fallback={<Resizable>...</Resizable>}>
   <Sidebar.Panel>...</Sidebar.Panel>
@@ -519,27 +538,38 @@ Build labeled navigation with these parts:
 
 - `Sidebar.Group`: section container that holds a label and a menu
 - `Sidebar.GroupLabel`: section title; set `as="h2"` or another tag when the page needs a heading
-- `Sidebar.Menu`: container for the items of a group
-- `Sidebar.MenuItem`: polymorphic trigger (`button`, `a`, or a custom link) with `leading`,
-  `trailing`, `action`, and `isActive`. `leading` and `trailing` accept icon names or JSX
+- `Sidebar.Menu`: `<ul>` list of the items of a group
+- `Sidebar.MenuItem`: `<li>` that holds one `MenuButton` with an optional `MenuAction`, or a
+  `MenuSub`
+- `Sidebar.MenuButton`: polymorphic button (`button`, `a`, or a custom link) with `leading`,
+  `trailing`, and `isActive`. It owns the hover, active, focus, and disabled styles. `leading` and
+  `trailing` accept icon names
+- `Sidebar.MenuAction`: controls placed over the end of the item's first row, such as a dropdown
+  menu trigger. The button stays highlighted while the pointer is over the action. The button does
+  not reserve space for the action, so add `pe-8` to a `MenuButton` whose label can run under it
 - `Sidebar.MenuSub` / `MenuSubTrigger` / `MenuSubContent`: collapsible sub-navigation on
-  `Collapsible`. Keep a parent `href` and disclosure on separate elements
+  `Collapsible`, placed inside a `MenuItem`. `MenuSubTrigger` renders a `MenuButton` with a
+  chevron that rotates while expanded. `MenuSubContent` renders a nested `<ul>` of `MenuItem`s
 
 ```tsx
 <Sidebar.Group>
   <Sidebar.GroupLabel>Architecture</Sidebar.GroupLabel>
   <Sidebar.Menu>
-    <Sidebar.MenuSub defaultOpen>
-      <Sidebar.MenuSubTrigger leading="i-lucide:route">Routing</Sidebar.MenuSubTrigger>
-      <Sidebar.MenuSubContent>
-        <Sidebar.MenuItem href="/layouts">Pages and Layouts</Sidebar.MenuItem>
-      </Sidebar.MenuSubContent>
-    </Sidebar.MenuSub>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuSub defaultOpen>
+        <Sidebar.MenuSubTrigger leading="i-lucide:route">Routing</Sidebar.MenuSubTrigger>
+        <Sidebar.MenuSubContent>
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton href="/layouts">Pages and Layouts</Sidebar.MenuButton>
+          </Sidebar.MenuItem>
+        </Sidebar.MenuSubContent>
+      </Sidebar.MenuSub>
+    </Sidebar.MenuItem>
   </Sidebar.Menu>
 </Sidebar.Group>
 ```
 
-Use [DropdownMenu](/components/dropdown-menu) inside header, footer, or item `action` for workspace
+Use [DropdownMenu](/components/dropdown-menu) inside header, footer, or `Sidebar.MenuAction` for workspace
 switchers and row actions. Those menus are actions, not the sidebar's navigation tree.
 
 ## Examples
@@ -553,8 +583,8 @@ viewports can open the drawer.
 
 ### Docs tree with collapsible sections
 
-Compose `MenuSub` inside `Menu` for multi-level docs. Use `MenuSubTrigger` for disclosure
-and a separate `MenuItem` when the parent label is also a link.
+Put a `MenuSub` inside a `MenuItem` for multi-level docs. The trigger only toggles its section,
+so link the section's pages from the nested items.
 
 <Preview path="./collapsible-groups" />
 
@@ -579,7 +609,7 @@ height.
 
 ### Resize the explorer on desktop
 
-Branch on `useSidebar().isMobile()`. Compose `Resizable` on desktop; the same sidebar content
+Branch on `Sidebar.useContext().isMobile()`. Compose `Resizable` on desktop; the same sidebar content
 moves into the mobile Sheet.
 
 <Preview path="./sheet-resizable-render" />

@@ -815,8 +815,10 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
       <Sidebar.Group>
         <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
         <Sidebar.Menu>
-          <Sidebar.MenuItem href="/home" leading="i-lucide-house" isActive>
-            Home
+          <Sidebar.MenuItem>
+            <Sidebar.MenuButton href="/home" leading="i-lucide-house" isActive>
+              Home
+            </Sidebar.MenuButton>
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.Group>
