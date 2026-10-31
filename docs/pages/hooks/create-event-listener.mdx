@@ -6,7 +6,7 @@ search:
     [createEventListener, createEventListenerMap, events, addEventListener, cleanup, window, dom]
 ---
 
-`createEventListener` and `createEventListenerMap` attach DOM event listeners to Window, Document, or HTML elements. They automatically register `onCleanup()` in the active SolidJS reactive scope to prevent memory leaks.
+`createEventListener` and `createEventListenerMap` attach DOM event listeners to a `Window`, `Document`, or element target. Each registers its removal with `onCleanup` in the active Solid owner, so the listener detaches when that scope disposes.
 
 ## Import
 
@@ -77,6 +77,6 @@ export function DragObserver() {
 
 ## Features
 
-- **Type Inferred**: Event types automatically narrow according to the target (e.g. `window.resize` gives `UIEvent`, `document.keydown` gives `KeyboardEvent`).
-- **Owner Scope Bound**: Cleanups are registered with `onCleanup` in the active Solid owner, including when called from `onMount`.
-- **Safe Null Handling**: Passes `null` or `undefined` targets safely without runtime exceptions.
+- The event type and `event` argument narrow from the target: `window` `keydown` gives a `KeyboardEvent`, `window` `resize` gives a `UIEvent`.
+- Cleanup registers through `onCleanup` in the active owner, including when you call the hook from `onMount`.
+- A `null` or `undefined` target is a no-op; no listener is attached.

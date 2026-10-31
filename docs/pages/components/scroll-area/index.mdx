@@ -10,64 +10,9 @@ search:
   tags: [scroll, overflow, shadow, fade, horizontal, vertical, scrollbar, rtl]
 ---
 
-import { For } from 'solid-js'
-import { ScrollArea } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'orientation',
-      label: 'Orientation',
-      defaultValue: 'vertical',
-      options: [
-        { label: 'Vertical', value: 'vertical' },
-        { label: 'Horizontal', value: 'horizontal' },
-      ],
-    },
-    { kind: 'switch', prop: 'shadow', label: 'Edge shadows', defaultValue: true },
-    { kind: 'switch', prop: 'hideScrollbar', label: 'Hide scrollbar', defaultValue: false },
-    {
-      kind: 'input',
-      prop: 'shadowSize',
-      label: 'Shadow size (px)',
-      defaultValue: 40,
-      inputType: 'number',
-    },
-    {
-      kind: 'input',
-      prop: 'offset',
-      label: 'Edge offset (px)',
-      defaultValue: 0,
-      inputType: 'number',
-    },
-  ]}
->
-  {(props) => (
-    <ScrollArea
-      orientation={props.orientation}
-      shadow={props.shadow}
-      hideScrollbar={props.hideScrollbar}
-      shadowSize={props.shadowSize}
-      offset={props.offset}
-      class={
-        'flex h-48 w-full max-w-lg ' +
-        (props.orientation === 'horizontal' ? 'items-start gap-3 pb-2' : 'flex-col gap-1 pr-3')
-      }
-      role="region"
-      aria-label="Activity playground"
-    >
-      <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
-        {(entry) => (
-          <div class={'shrink-0 py-1.5 ' + (props.orientation === 'horizontal' ? 'w-40' : '')}>
-            <p class="text-sm font-medium">Activity entry {entry}</p>
-            <p class="text-xs text-muted-foreground">Project updates and decisions.</p>
-          </div>
-        )}
-      </For>
-    </ScrollArea>
-  )}
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -95,14 +40,13 @@ export function Example() {
 
 ### Native scrolling and sizing
 
-Set a height or maximum height for vertical scrolling and a width for horizontal scrolling. The
-component has one `<div>` root and renders children directly inside it, so layout utilities such as
-`flex`, `gap-4`, and `space-y-3` apply to your content.
+Set a height or maximum height for vertical scrolling and a width for horizontal scrolling.
+ScrollArea is one `<div>` root that renders its children directly. Use `class`, `classes.root`,
+`style`, or `styles.root` for instance styling, such as `flex` and `gap` on the root.
 
-The root is keyboard-focusable when its content overflows (`tabIndex={0}`) and leaves the tab
-order when it fits. Supply `role="region"` and an accessible label when the content forms a named
-region. Use `tabIndex={-1}` when the container should stay out of the tab order. Native scroll
-events and refs are forwarded to the root.
+The root joins the tab order when its content overflows (`tabIndex={0}`) and leaves it when the
+content fits. Add `role="region"` and an accessible label when the content forms a named region, or
+`tabIndex={-1}` to keep it out of the tab order. Native scroll events and refs reach the root.
 
 ### Optional shadows
 
@@ -160,18 +104,16 @@ visibility is forced. It receives `top`, `bottom`, `left`, `right`, `both`, or `
 
 ### Theme and instance overrides
 
-Configure `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The
-recipe exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start`
-and `--scroll-area-shadow-end`. Single-edge masks use the corresponding stop list; the double-edge
-mask combines both. Keep size-dependent stops expressed with `var(--scroll-area-shadow-size)` so
-`shadowSize` continues to affect them.
+Set `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The recipe
+exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start` and
+`--scroll-area-shadow-end`. A single-edge mask uses one stop list; the double-edge mask combines
+both. Express size-dependent stops with `var(--scroll-area-shadow-size)` so `shadowSize` keeps
+affecting them.
 
-For the size variable, overrides apply in this order, from highest to lowest: root `style`,
-`styles.root`, an explicit `shadowSize`, then recipe and Theme defaults. Omitting `shadowSize`
-preserves the Theme's value. Recipe variables are written on the root, so an ancestor's same-named
-CSS variable does not replace the local default.
-
-Use `class`, `classes.root`, `style`, or `styles.root` for instance styling.
+The size variable resolves in this order, highest first: root `style`, `styles.root`, an explicit
+`shadowSize`, then recipe and Theme defaults. Omitting `shadowSize` keeps the Theme value. Recipe
+variables are written on the root, so an ancestor's same-named variable does not replace the local
+default.
 
 ```tsx
 <ScrollArea shadow shadowSize={12} class="h-48" role="region" aria-label="Updates">

@@ -20,15 +20,14 @@ export const DOCS_CODE_CONTENT_CLASS =
 export const DOCS_CODE_FALLBACK_PRE_CLASS =
   'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 outline-none overflow-x-auto'
 
-export const DOCS_CODE_EXPAND_BUTTON_CLASS = `text-xs border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm ${FOCUS_VISIBLE_RING_CLASS} -translate-x-1/2`
+export const DOCS_CODE_EXPAND_BUTTON_CLASS = `border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm ${FOCUS_VISIBLE_RING_CLASS} -translate-x-1/2`
 
 export const DOCS_TABS_ROOT_CLASS = DOCS_BLOCK_CONTAINER_CLASS
 export const DOCS_TABS_LIST_CLASS =
-  'p-1.5 border-b border-border/60 rounded-none bg-muted/40 w-full justify-start overflow-x-auto'
-export const DOCS_TABS_INDICATOR_CLASS =
-  'border border-border/60 rounded-lg bg-background shadow-none'
+  'p-1.5 border-b border-border/60 rounded-none bg-muted/40 justify-start overflow-x-auto'
+export const DOCS_TABS_INDICATOR_CLASS = 'border-border/60 rounded-lg shadow-none'
 export const DOCS_TABS_TRIGGER_CLASS =
-  'text-xs text-muted-foreground px-3 py-1 rounded-lg flex-none transition-colors duration-150 z-base data-selected:text-foreground data-selected:font-medium hover:not-disabled:text-foreground'
+  'px-3 py-1 rounded-lg flex-none duration-150 z-base data-selected:text-foreground'
 export const DOCS_TABS_CONTENT_CLASS = 'p-0 relative'
 
 export const DOCS_DEMO_BLOCK_CLASS = DOCS_BLOCK_CONTAINER_CLASS

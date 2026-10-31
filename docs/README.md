@@ -45,6 +45,16 @@ PageHeader → Playground → Anatomy? → Usage → Examples → generated API 
 ```
 
 Playground has no heading. Playground controls show only visually meaningful primitive states.
+Each component keeps its Playground in a colocated `playground.tsx` that default-exports a component
+rendering `DocsPlayground` from `docs/routes/components/markdown/playground` with a static
+`controls` list; the render callback receives values typed from those controls. The page imports it
+with `import Playground from './playground'` and renders `<Playground />`, so the MDX holds no
+control configuration or Playground JSX.
+
+The docs site UI in `docs/routes/**` passes `class`, `classes`, `style`, or `styles` to Moraine
+components only to change what the recipe renders. Do not repeat utilities the component already
+applies for the variant and size in use. Page content (Previews, Playgrounds, and code in MDX) may
+style components as a consumer would.
 
 `Usage` is text and fenced code only: no `<Preview />`. It teaches when to use the component, when not to, and how to compose the public API. Start with a short choice-oriented introduction and one complete TSX example that imports `moraine`. Follow with subsections that explain state, composition, and constraints the API table cannot convey; put a small code fence next to a behavior when a snippet teaches it faster than prose. Keep keyboard or accessibility rules that Moraine adds beside the relevant subsection. Do not repeat native browser behavior.
 

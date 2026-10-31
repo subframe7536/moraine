@@ -38,8 +38,6 @@ export namespace TableT {
   export interface HeadBase {
     /** Text alignment for the column header. @default 'left' */
     align?: 'left' | 'center' | 'right'
-    /** Whether the header content should be truncated with an ellipsis. @default false */
-    truncated?: boolean
     children?: JSX.Element
   }
   export type HeadProps = BaseProps<'th', HeadBase, never, never, never>
@@ -47,8 +45,6 @@ export namespace TableT {
   export interface CellBase {
     /** Text alignment for the cell. @default 'left' */
     align?: 'left' | 'center' | 'right'
-    /** Whether the cell content should be truncated with an ellipsis. @default false */
-    truncated?: boolean
     children?: JSX.Element
   }
   export type CellProps = BaseProps<'td', CellBase, never, never, never>

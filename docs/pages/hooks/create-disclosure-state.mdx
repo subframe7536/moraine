@@ -5,7 +5,7 @@ search:
   tags: [createDisclosureState, disclosure, collapsible, accordion, height, animation]
 ---
 
-`createDisclosureState` manages open state, content height measurements, and data-attribute getters for expandable/collapsible components like `Collapsible` and `Accordion`.
+`createDisclosureState` tracks open state, measures content height, and exposes data-attribute getters for expandable components such as `Collapsible` and `Accordion`.
 
 ## Import
 
@@ -56,7 +56,9 @@ export function MyCollapsible() {
         }}
         class="overflow-hidden transition-[height] duration-200"
       >
-        <div class="p-4 bg-muted rounded-md">Collapsible panel content dynamically measured!</div>
+        <div class="p-4 bg-muted rounded-md">
+          Panel content. Its height feeds the CSS variable above.
+        </div>
       </div>
     </div>
   )
@@ -65,5 +67,5 @@ export function MyCollapsible() {
 
 ## Features
 
-- **Height Tracking**: Automatically attaches a `ResizeObserver` to the content element to measure `scrollHeight` accurately even when children change dynamically.
-- **Data attributes**: Supplies `data-expanded`, `data-closed`, and `data-disabled` as getters so each attribute tracks independently when spread.
+- Attaches a `ResizeObserver` to the content element and reports its `scrollHeight` through `contentHeight()`, remeasuring when the content changes size.
+- Exposes `data-expanded`, `data-closed`, and `data-disabled` as getters, so each attribute tracks its own condition when you spread `dataAttrs`.

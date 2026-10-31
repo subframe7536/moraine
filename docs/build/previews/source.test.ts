@@ -27,7 +27,11 @@ test('documentation previews are self-contained in one file', async () => {
   const pagesRoot = path.resolve(__dirname, '../../pages')
   const localImports: string[] = []
 
-  for (const filePath of collectTsxFiles(pagesRoot)) {
+  // `playground.tsx` hosts the docs-only Playground UI and is never a Preview source.
+  const previewFiles = collectTsxFiles(pagesRoot).filter(
+    (filePath) => path.basename(filePath) !== 'playground.tsx',
+  )
+  for (const filePath of previewFiles) {
     const source = readFileSync(filePath, 'utf8')
     const program = await parsePreviewCode(source)
     if (/\b(?:import|require)\s*\(\s*['"]\./u.test(source)) {

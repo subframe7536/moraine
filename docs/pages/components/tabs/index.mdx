@@ -8,51 +8,9 @@ search:
   tags: [tablist, panels, navigation, selection, tabs, segmented control]
 ---
 
-import { Tabs } from '@src'
+import Playground from './playground'
 
-<Playground
-  controls={[
-    {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'pill',
-      options: [
-        { label: 'Pill', value: 'pill' },
-        { label: 'Link', value: 'link' },
-      ],
-    },
-    {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const ITEMS = [
-      { label: 'Overview', value: 'overview', icon: 'i-lucide:layout-dashboard', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">High-level metrics and system activity overview.</p> } },
-      { label: 'Deployments', value: 'deployments', icon: 'i-lucide:rocket', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">Production pipelines, recent builds, and rollout health.</p> } },
-      { label: 'Settings', value: 'settings', icon: 'i-lucide:settings', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">Environment variables, security secrets, and domain management.</p> } },
-    ]
-
-    return (
-      <div class="max-w-lg w-full">
-        <Tabs
-          aria-label="Project sections"
-          defaultValue="overview"
-          variant={props.variant}
-          size={props.size}
-          disabled={props.disabled}
-          items={ITEMS}
-        />
-      </div>
-    )
-
-}}
-
-</Playground>
+<Playground />
 
 ## Anatomy
 
@@ -97,9 +55,9 @@ export function Example() {
 Use `value` with `onValueChange` for controlled tabs, or `defaultValue` for an initial local selection.
 Disabled items are skipped during selection and keyboard navigation.
 
-For JSX panel content, use an item `content` getter so inactive panels are not constructed before
-they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted
-component can consume hydration keys that have no matching HTML.
+For JSX panel content, use an item `content` getter. Tabs reads it lazily, so a panel is built only
+when its tab is selected. This matters in SSR and MDX, where building an unselected panel eagerly
+can emit markup the hydrated tree does not expect.
 
 ```tsx
 <Tabs
@@ -119,18 +77,14 @@ component can consume hydration keys that have no matching HTML.
 
 ### Activation and keyboard navigation
 
-`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode,
-arrows move focus and Enter or Space selects. `loop` controls whether navigation wraps at the first
-and last enabled items.
+`activationMode="automatic"` selects a tab as arrow navigation moves focus. In manual mode, arrows
+move focus and Enter or Space selects. `loop` wraps navigation at the first and last enabled items.
+Arrow keys follow the list orientation.
 
 ```tsx
 <Tabs items={TABS} activationMode="automatic" defaultValue="overview" />
 <Tabs items={TABS} activationMode="manual" defaultValue="overview" />
 ```
-
-### Keyboard interaction
-
-Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
 
 | Key                                 | Description                                          |
 | ----------------------------------- | ---------------------------------------------------- |
