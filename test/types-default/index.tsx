@@ -475,12 +475,16 @@ export type CardContracts = [
   <Table.Caption>Caption</Table.Caption>
   <Table.Header>
     <Table.Row>
-      <Table.Head align="center">H</Table.Head>
+      <Table.Head align="center" truncated>
+        H
+      </Table.Head>
     </Table.Row>
   </Table.Header>
   <Table.Body>
     <Table.Row selected>
-      <Table.Cell align="left">C</Table.Cell>
+      <Table.Cell align="left" truncated>
+        C
+      </Table.Cell>
     </Table.Row>
   </Table.Body>
   <Table.Footer>
