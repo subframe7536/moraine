@@ -8,6 +8,7 @@ import { describe, expect, test } from 'vitest'
 import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
 import { ICON_MASK_FORCED_COLORS_CLASS, iconRecipe } from '../components/icon/icon.recipe'
+import { TOOLTIP_INSTANT_POSITIONER_CLASS } from '../components/tooltip/tooltip.recipe'
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'
@@ -489,6 +490,11 @@ describe('animations', () => {
     expect(css).toContain('[data-instant-motion][data-closed]')
     expect(css).toContain('animation: none')
     expect(css).toContain('@keyframes accordion-down')
+  })
+  test('compiles the instant tooltip positioner without :has', async () => {
+    const css = await compileCSS(TOOLTIP_INSTANT_POSITIONER_CLASS.split(' '))
+    expect(css).toContain('[data-positioned]')
+    expect(css).not.toContain(':has(')
   })
   test('animate-mo-enter uses CSS variable duration and easing', async () => {
     const css = await compileCSS(['animate-mo-enter'])

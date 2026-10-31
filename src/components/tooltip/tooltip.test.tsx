@@ -668,6 +668,10 @@ describe('Tooltip', () => {
       '[data-slot=tooltip-positioner]',
     )!
     expect(firstPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
+    expect(firstPositioner.classList).not.toContain(
+      'motion-safe:data-positioned:transition-transform',
+    )
+    expect(firstPositioner.className).not.toContain('has-[')
     vi.spyOn(firstPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 200, 0, 0))
 
     fireEvent.pointerLeave(firstTrigger)
@@ -687,6 +691,7 @@ describe('Tooltip', () => {
     const secondPositioner = document.body.querySelector<HTMLElement>(
       '[data-slot=tooltip-positioner]',
     )!
+    expect(secondPositioner.classList).toContain('motion-safe:data-positioned:transition-transform')
     expect(firstPositioner.isConnected).toBe(false)
     expect(secondPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
     await vi.advanceTimersByTimeAsync(16)

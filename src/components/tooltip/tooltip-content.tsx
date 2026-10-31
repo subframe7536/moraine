@@ -8,6 +8,7 @@ import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper
 
 import { useTooltipContext } from './tooltip-context'
 import {
+  TOOLTIP_INSTANT_POSITIONER_CLASS,
   TOOLTIP_POSITIONER_CLASS,
   tooltipContentDataAttributes,
   tooltipRecipe,
@@ -52,7 +53,9 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       overflowPadding={4}
       role="tooltip"
       restoreFocusOnClose={false}
-      positionerClass={TOOLTIP_POSITIONER_CLASS}
+      positionerClass={
+        behavior.instantMotion() ? TOOLTIP_INSTANT_POSITIONER_CLASS : TOOLTIP_POSITIONER_CLASS
+      }
     >
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
