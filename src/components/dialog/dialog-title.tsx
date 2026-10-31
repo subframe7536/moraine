@@ -17,18 +17,19 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
   const dialog = useDialogContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
-  const { slots } = useRecipe(dialogRecipe, local, {
+  const {
+    slots: { title: titleSlot },
+  } = useRecipe(dialogRecipe, local, {
     slot: 'title',
-    contextVariants: () => content.variants,
-    contextSlots: () => dialog.slotOverrides,
+    context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   return (
     <Dynamic
       component={local.as ?? 'h2'}
       data-slot="dialog-title"
+      {...titleSlot}
       {...rest}
       id={id()}
-      {...slots.title}
     />
   )
 }

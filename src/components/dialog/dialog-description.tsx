@@ -17,18 +17,19 @@ export function DialogDescription<T extends ValidComponent = 'p'>(
   const dialog = useDialogContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
-  const { slots } = useRecipe(dialogRecipe, local, {
+  const {
+    slots: { description: descriptionSlot },
+  } = useRecipe(dialogRecipe, local, {
     slot: 'description',
-    contextVariants: () => content.variants,
-    contextSlots: () => dialog.slotOverrides,
+    context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   return (
     <Dynamic
       component={local.as ?? 'p'}
       data-slot="dialog-description"
+      {...descriptionSlot}
       {...rest}
       id={id()}
-      {...slots.description}
     />
   )
 }

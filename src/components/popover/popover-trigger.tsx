@@ -18,7 +18,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
   const context = usePopoverContext()
   const { slots } = useRecipe(popoverRecipe, props, {
     slot: 'trigger',
-    contextSlots: () => context.slotOverrides,
+    context: () => context.slotOverrides,
   })
   const popper = context.popper
   const triggerProps = mergeProps(

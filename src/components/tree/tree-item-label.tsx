@@ -21,14 +21,15 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
   ])
   const item = useTreeItemContext()!.item
   const context = useTreeContext()
-  const { slots } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { label: labelSlot },
+  } = useRecipe(treeRecipe, local, {
     slot: 'label',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...rest} {...slots.label}>
+    <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...labelSlot} {...rest}>
       <Show when={local.children} fallback={item.textValue}>
         {local.children}
       </Show>

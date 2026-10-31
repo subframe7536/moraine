@@ -29,7 +29,20 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'aria-label',
     'translations',
   ])
-  const { slots } = useRecipe(breadcrumbRecipe, local)
+  const {
+    slots: {
+      root: rootSlot,
+      list: listSlot,
+      item: itemSlot,
+      page: pageSlot,
+      leading: leadingSlot,
+      label: labelSlot,
+      separator: separatorSlot,
+    },
+    slotWith,
+  } = useRecipe(breadcrumbRecipe, local, {
+    data: { page: breadcrumbDataAttributes.page({ current: true }) },
+  })
   const messages = useMessages('breadcrumb', defaultBreadcrumbMessages, () => local.translations)
 
   const separator = () => local.separator ?? 'icon-chevron-right'
@@ -45,12 +58,12 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   return (
     <nav
       data-slot="breadcrumb"
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       ref={(el) => callRef(local.ref, el)}
       aria-label={local['aria-label'] ?? messages().label}
     >
-      <ol data-slot="breadcrumb-list" {...slots.list}>
+      <ol data-slot="breadcrumb-list" {...listSlot}>
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
@@ -61,10 +74,13 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             const leading = createMemo(() => item.icon)
             const label = createMemo(() => item.label)
             const hasLabel = () => hasContent(label())
+            const linkSlot = slotWith('link', {
+              data: breadcrumbDataAttributes.link({ disabled: isDisabledLink }),
+            })
 
             return (
               <>
-                <li data-slot="breadcrumb-item" {...slots.item}>
+                <li data-slot="breadcrumb-item" {...itemSlot}>
                   <Show
                     when={local.itemRender}
                     keyed
@@ -72,15 +88,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       <Dynamic
                         component={isInteractive() ? 'a' : 'span'}
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
-                        {...slots[isCurrent() ? 'page' : 'link']}
+                        {...(isCurrent() ? pageSlot : linkSlot)}
                         role={isDisabledLink() ? 'link' : undefined}
                         aria-disabled={isDisabledLink() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
-                        {...(isCurrent()
-                          ? breadcrumbDataAttributes.page({ current: true })
-                          : isDisabledLink()
-                            ? breadcrumbDataAttributes.link({ disabled: true })
-                            : undefined)}
                         href={isInteractive() ? (item.to ?? item.href) : undefined}
                         target={isInteractive() ? item.target : undefined}
                         rel={isInteractive() ? item.rel : undefined}
@@ -88,11 +99,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       >
                         <Show when={leading()}>
                           {(icon) => (
-                            <Icon name={icon()} data-slot="breadcrumb-leading" {...slots.leading} />
+                            <Icon name={icon()} data-slot="breadcrumb-leading" {...leadingSlot} />
                           )}
                         </Show>
                         <Show when={hasLabel()}>
-                          <span data-slot="breadcrumb-label" {...slots.label}>
+                          <span data-slot="breadcrumb-label" {...labelSlot}>
                             {label()}
                           </span>
                         </Show>
@@ -115,7 +126,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     data-slot="breadcrumb-separator"
                     role="presentation"
                     aria-hidden="true"
-                    {...slots.separator}
+                    {...separatorSlot}
                   >
                     <Icon name={separator()} />
                   </li>

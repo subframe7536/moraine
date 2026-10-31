@@ -12,14 +12,16 @@ export function SidebarMenuSubContent<T extends ValidComponent = 'ul'>(
   props: SidebarT.MenuSubContentProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-  const { slots } = useSidebarStyles('menuSubContent', local)
+  const {
+    slots: { menuSubContent: menuSubContentSlot },
+  } = useSidebarStyles('menuSubContent', local)
 
   return (
     <Collapsible.Content
       as={(local.as ?? 'ul') as ValidComponent}
       data-slot="sidebar-menu-sub-content"
+      {...menuSubContentSlot}
       {...(rest as object)}
-      {...slots.menuSubContent}
     />
   )
 }

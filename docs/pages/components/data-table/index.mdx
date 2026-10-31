@@ -139,7 +139,21 @@ yourself, as in the TanStack example on the Table page.
 DataTable ships from `moraine/data-table`, so the main `moraine` entry never imports TanStack Table.
 Install the optional peer dependency first:
 
-<CodeTabs package="@tanstack/solid-table" />
+```shell title="pnpm" group-id="install"
+pnpm add @tanstack/solid-table
+```
+
+```shell title="bun" group-id="install"
+bun add @tanstack/solid-table
+```
+
+```shell title="npm" group-id="install"
+npm install @tanstack/solid-table
+```
+
+```shell title="yarn" group-id="install"
+yarn add @tanstack/solid-table
+```
 
 Create the instance with `createDataTable` inside a component, then pass it to `DataTable`.
 Behavior lives on the instance; presentation lives on `DataTable`.

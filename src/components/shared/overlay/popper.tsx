@@ -177,15 +177,18 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const rootBinding = root.bind(interaction)
+  // The trigger has no recipe slot: callers style it through `rest`, so the state stays a separate bag.
+  // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- no recipe slot binding on this host
+  const triggerData = popperDataAttributes.trigger({
+    closed: () => !context.isOpen(),
+    disabled,
+    expanded: context.isOpen,
+  })
   return (
     <Dynamic
       component={tag()}
       data-slot={context.slotName('trigger')}
-      {...popperDataAttributes.trigger({
-        closed: () => !context.isOpen(),
-        disabled,
-        expanded: context.isOpen,
-      })}
+      {...triggerData}
       aria-haspopup={local.describeTrigger ? undefined : true}
       aria-controls={
         !local.describeTrigger && context.contentPresence.present()
@@ -485,6 +488,7 @@ export function PopperContent(
   Object.defineProperties(
     contentProps,
     Object.getOwnPropertyDescriptors(
+      // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- contentProps is a render-prop bag, not a recipe slot binding
       popperDataAttributes.content({
         closed: () => !context.isOpen(),
         expanded: context.isOpen,

@@ -18,7 +18,11 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const { slots, variants, overrides } = useRecipe(avatarGroupRecipe, local)
+  const {
+    slots: { root: rootSlot, item: itemSlot, count: countSlot },
+    variants,
+    overrides,
+  } = useRecipe(avatarGroupRecipe, local)
 
   const size = () => variants.size
   const items = createMemo(() => local.items ?? [])
@@ -36,20 +40,25 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="avatar-group" {...rest} {...slots.root}>
+      <div data-slot="avatar-group" {...rootSlot} {...rest}>
         <For each={visibleItems()}>
           {(item) => (
             <Avatar
               {...item}
               size={size()}
               slotName="avatar-group-item"
-              {...slots.item}
-              {...overrides(['image', 'fallback', 'fallbackContent', 'badge'])}
+              {...itemSlot}
+              {...overrides({
+                image: 'image',
+                fallback: 'fallback',
+                fallbackContent: 'fallbackContent',
+                badge: 'badge',
+              })}
             />
           )}
         </For>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="avatar-group-count" {...slots.count}>
+          <span data-slot="avatar-group-count" {...countSlot}>
             +{hiddenCount()}
           </span>
         </Show>

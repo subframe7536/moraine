@@ -32,6 +32,17 @@ describe('style contract helpers', () => {
     })
   })
 
+  test('reads accessor state lazily on every attribute read', () => {
+    const [open, setOpen] = createSignal(false)
+    let state: { expanded: () => boolean } | undefined
+    const attributes = createDataAttributes('expanded')(() => state!)
+    state = { expanded: open }
+
+    expect(attributes['data-expanded']).toBeUndefined()
+    setOpen(true)
+    expect(attributes['data-expanded']).toBe('')
+  })
+
   test('infers camel-case state and exact data attribute keys', () => {
     const overlay = createDataAttributes('closed', 'overlay-scroll')
     const attributes = overlay({ closed: true, overlayScroll: 'auto' })

@@ -30,10 +30,19 @@ export function BaseSelectTrigger<
     'onBlur',
     'ref' as any,
   ])
-  const { slots } = useRecipe(baseSelectRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
+    data: {
+      trigger: baseSelectDataAttributes.trigger({
+        invalid: state.field.invalid,
+        expanded: state.open,
+        closed: () => !state.open(),
+        disabled: () => Boolean(state.field.disabled() || local.disabled),
+      }),
+    },
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
   const child = resolveChildren(() => local.children)
   const resolvedChildren = createMemo(() => renderWithProps(child(), state.presentation))
@@ -94,13 +103,8 @@ export function BaseSelectTrigger<
     <Dynamic
       component={tag()}
       data-slot={state.slotName('trigger')}
-      {...baseSelectDataAttributes.trigger({
-        invalid: state.field.invalid,
-        expanded: state.open,
-        closed: () => !state.open(),
-        disabled: () => Boolean(state.field.disabled() || local.disabled),
-      })}
       aria-haspopup="listbox"
+      {...triggerSlot}
       {...rootBinding}
       {...state.field.ariaAttrs()}
       id={state.field.id()}
@@ -111,7 +115,6 @@ export function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      {...slots.trigger}
     >
       {resolvedChildren()}
     </Dynamic>

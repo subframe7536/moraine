@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Owner } from 'solid-js'
-import { createMemo, getOwner } from 'solid-js'
+import { getOwner } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 import { useMoraineContext } from '../provider/moraine-context'
@@ -9,18 +9,14 @@ import { createLazyMemo } from '../shared/create-lazy-memo'
 import type { Cn } from './cn'
 import { cn as defaultCn } from './cn'
 import type {
-  RecipeContribution,
   RecipeDefinition,
-  RecipeLayerConfig,
   RecipeSlots,
   RecipeVariants,
   RecipeVariantSelection,
-  ResolvedRecipe,
 } from './recipe'
-import { getRecipeDefaultVariants } from './recipe'
+import { compileRecipe, matchEntries } from './recipe'
+import type { DataAttributeBag } from './style-contract'
 import type { SlotClassValue } from './style-types'
-
-const EMPTY_STYLE: JSX.CSSProperties = /* @__PURE__ */ Object.freeze({})
 
 export type SlotValue = {
   class?: SlotClassValue
@@ -38,34 +34,48 @@ type ResolvedVariantInput<V> = [V] extends [never]
   ? object
   : { readonly [K in keyof V]-?: Exclude<V[K], undefined> }
 
+/** Ancestor presentation: fallback variants plus slot overrides. */
+export type RecipeContext<S extends string, V> = SlotOverrides<S> & {
+  variants?: Partial<V> | VariantInput<V>
+}
+
+/** Per-slot accessors; each slot is memoized separately so slots do not invalidate each other. */
+export type SlotLayer<S extends string> = { readonly [K in S]?: () => SlotValue | undefined }
+
 type StyleProps<S extends string, V> = VariantInput<V> &
   SlotOverrides<S> & {
     class?: SlotClassValue
     style?: JSX.CSSProperties
   }
 
-type CssVariables = Partial<Record<`--${string}`, string | number | null | undefined>>
-
-export type SlotLayerItem = SlotValue | (() => SlotValue | undefined)
-export type SlotLayerAccessor<S extends string> =
-  | Partial<{ [K in S]: SlotLayerItem }>
-  | (() => Partial<Record<S, SlotValue>> | undefined)
-
 export interface UseRecipeOptions<S extends string, V> {
-  /** Root slot that receives `class` / `style` props. Defaults to `root`. */
+  /** Host slot that receives `class` / `style` props. Defaults to `root`. */
   slot?: S
-  /** Receives recipe and instance CSS variables. Defaults to `root`, or `slot` when no root exists. */
+  /** Receives recipe CSS variables. Defaults to `root`, or `slot` when the recipe has no root. */
   varsSlot?: S
-  /** Instance CSS variables for `varsSlot`. Applied after recipe keys and before context/caller styles. */
-  vars?: () => CssVariables | undefined
-  /** Fallback variant values from an ancestor Context when props omit them. */
-  contextVariants?: () => Partial<V> | VariantInput<V> | undefined
-  /** Slot class/style overrides from an ancestor Context. */
-  contextSlots?: () => SlotOverrides<S> | undefined
-  /** Component-owned presentation the user may still override. Supports per-slot accessor map for fine-grained reactivity. */
-  own?: SlotLayerAccessor<S>
-  /** Functional styles that must win over user overrides (layout, virtualization, a11y). Supports per-slot accessor map. */
-  enforced?: SlotLayerAccessor<S>
+  /** Ancestor Context presentation, below `own` and caller overrides. */
+  context?: () => RecipeContext<S, V> | undefined
+  /** Component-owned presentation the caller may still override. */
+  own?: SlotLayer<S>
+  /** Functional presentation that wins over caller overrides (layout, virtualization, a11y). */
+  enforced?: SlotLayer<S>
+  /**
+   * Per-slot `data-*` getters from a `*DataAttributes.<slot>(() => state)` resolver. The binding
+   * carries them, so the host spreads one object before `{...rest}`.
+   */
+  data?: SlotData<S>
+}
+
+/** Per-slot resolved `data-*` getters; the key set is fixed by the resolver. */
+export type SlotData<S extends string> = { readonly [K in S]?: DataAttributeBag }
+
+export interface SlotWithOptions {
+  /** Item-owned presentation over the parent slot. */
+  own?: () => SlotValue | undefined
+  /** Item functional presentation that wins over `own`. */
+  enforced?: () => SlotValue | undefined
+  /** Item `data-*` getters, added after the parent slot's `data`. */
+  data?: DataAttributeBag
 }
 
 type RequiredSlotOptions<S extends string, V> = 'root' extends S
@@ -79,28 +89,21 @@ export interface SlotBinding {
 
 type SlotBindings<S extends string> = { readonly [K in S]: SlotBinding }
 
-export type SlotOverridesHelper<S extends string> = {
-  (): SlotOverrides<S>
-  <T extends S>(slots: readonly T[]): SlotOverrides<T>
-  <TargetSlot extends string>(mapping: Record<TargetSlot, S>): SlotOverrides<TargetSlot>
-}
-
 export type UseRecipeResult<R extends RecipeDefinition> = {
   slots: SlotBindings<Extract<keyof RecipeSlots<R>, string>>
   variants: ResolvedVariantInput<RecipeVariants<R>>
-  slotWith: (
-    slot: Extract<keyof RecipeSlots<R>, string>,
-    extra?: () => SlotValue | undefined,
-    enforcedExtra?: () => SlotValue | undefined,
-  ) => SlotBinding
-  overrides: SlotOverridesHelper<Extract<keyof RecipeSlots<R>, string>>
+  /** Per-item binding over a parent slot; call under the item owner. */
+  slotWith: (slot: Extract<keyof RecipeSlots<R>, string>, options?: SlotWithOptions) => SlotBinding
+  /** Forwards resolved slots to a sub-component as `{ classes, styles }`, keyed by target slot. */
+  overrides: <T extends string>(
+    mapping: Record<T, Extract<keyof RecipeSlots<R>, string>>,
+  ) => SlotOverrides<T>
 }
 
-/** Picks `{ classes, styles }` from props for Context `slotOverrides`. */
-export function pickSlotOverrides<S extends string>(props: {
-  classes?: Partial<Record<S, SlotClassValue>>
-  styles?: Partial<Record<S, JSX.CSSProperties>>
-}): SlotOverrides<S> {
+type Style = Record<string, unknown>
+
+/** Picks `{ classes, styles }` from props as live getters for a Context `slotOverrides` value. */
+export function pickSlotOverrides<S extends string>(props: SlotOverrides<S>): SlotOverrides<S> {
   return {
     get classes() {
       return props.classes
@@ -111,350 +114,101 @@ export function pickSlotOverrides<S extends string>(props: {
   }
 }
 
-function resolveCssVariables(
-  values: CssVariables | undefined,
-): Partial<Record<`--${string}`, string | number>> | undefined {
-  if (!values) {
-    return undefined
-  }
-  const style: Partial<Record<`--${string}`, string | number>> = {}
-  let hasValue = false
-  for (const [key, value] of Object.entries(values)) {
-    if (value !== undefined && value !== null) {
-      style[key as `--${string}`] = value
-      hasValue = true
-    }
-  }
-  return hasValue ? style : undefined
+/** Client: lazy memo under `owner`. Server: the plain computation, evaluated on every read. */
+function memo<T>(
+  fn: () => T,
+  owner: Owner | null,
+  equals?: (prev: T, next: T) => boolean,
+): Accessor<T> {
+  return isServer ? fn : createLazyMemo(fn, { owner, equals })
 }
 
-function resolveRootSlot<S extends string>(slots: readonly string[], rootSlot: S | undefined): S {
-  if (rootSlot !== undefined) {
-    return rootSlot
-  }
-  const root = slots.find((name) => name === 'root')
-  if (root === undefined) {
-    throw new Error('useRecipe requires slot for recipes without a root slot')
-  }
-  return root as S
-}
-
-function shallowEqualStyle(
-  prev: JSX.CSSProperties | undefined,
-  next: JSX.CSSProperties | undefined,
-): boolean {
+function sameStyle(prev: object | undefined, next: object | undefined): boolean {
   if (prev === next) {
     return true
   }
   if (!prev || !next) {
     return false
   }
-  const prevKeys = Object.keys(prev)
-  const nextKeys = Object.keys(next)
-  if (prevKeys.length !== nextKeys.length) {
-    return false
-  }
-  for (const key of nextKeys) {
-    if ((prev as Record<string, unknown>)[key] !== (next as Record<string, unknown>)[key]) {
-      return false
-    }
-  }
-  return true
-}
-
-function assignDefinedStyle(
-  target: Record<string, unknown>,
-  source: Record<string, unknown> | undefined,
-): void {
-  if (!source) {
-    return
-  }
-  for (const [key, value] of Object.entries(source)) {
-    if (value !== undefined && value !== null) {
-      target[key] = value
-    }
-  }
-}
-
-function hasOwnKeys(value: object): boolean {
-  for (const _key in value) {
-    return true
-  }
-  return false
-}
-
-function readLayerSlot<S extends string>(
-  layer: SlotLayerAccessor<S> | undefined,
-  slot: S,
-): SlotValue | undefined {
-  if (!layer) {
-    return undefined
-  }
-  if (typeof layer === 'function') {
-    return layer()?.[slot]
-  }
-  const entry = layer[slot]
-  return typeof entry === 'function' ? entry() : entry
+  const keys = Object.keys(next)
+  return (
+    Object.keys(prev).length === keys.length &&
+    keys.every((key) => (prev as Style)[key] === (next as Style)[key])
+  )
 }
 
 function sameSlotValue(prev: SlotValue | undefined, next: SlotValue | undefined): boolean {
   return (
     prev === next ||
-    (prev !== undefined &&
-      next !== undefined &&
-      prev.class === next.class &&
-      shallowEqualStyle(prev.style, next.style))
+    (!!prev && !!next && prev.class === next.class && sameStyle(prev.style, next.style))
   )
 }
 
-/** Reads one layer per slot through a single lazy memo; static and missing entries need none. */
-function createLayerReader<S extends string>(
-  read: (slot: S) => SlotLayerItem | undefined,
-  owner: Owner | null,
-): (slot: S) => SlotValue | undefined {
-  const memos = new Map<S, Accessor<SlotValue | undefined>>()
-  return (slot) => {
-    let memo = memos.get(slot)
-    if (!memo) {
-      const entry = read(slot)
-      memo =
-        typeof entry === 'function'
-          ? createLazyMemo(entry, { owner, equals: sameSlotValue })
-          : () => entry
-      memos.set(slot, memo)
+/** Later sources win; `undefined` / `null` values never overwrite earlier ones. */
+function mergeStyles(...sources: (object | undefined)[]): JSX.CSSProperties {
+  const style: Style = {}
+  for (const source of sources) {
+    for (const key in source) {
+      const value = (source as Style)[key]
+      if (value !== undefined && value !== null) {
+        style[key] = value
+      }
     }
-    return memo()
   }
+  return style as JSX.CSSProperties
 }
 
-function createSlotLayer<S extends string>(
-  layer: SlotLayerAccessor<S> | undefined,
-  owner: Owner | null,
-): ((slot: S) => SlotValue | undefined) | undefined {
-  if (!layer) {
-    return undefined
+function isEmptyStyle(style: JSX.CSSProperties): boolean {
+  for (const _key in style) {
+    return false
   }
-  if (typeof layer === 'function') {
-    const all = createLazyMemo(layer, { owner })
-    return createLayerReader((slot) => () => all()?.[slot], owner)
-  }
-  return createLayerReader((slot) => layer[slot], owner)
+  return true
 }
 
-type ActiveVariants = Record<string, string>
-
-function readActiveVariants(keys: readonly string[], variants: object): ActiveVariants {
-  const active: ActiveVariants = {}
-  for (const key of keys) {
-    const value = (variants as Record<string, unknown>)[key]
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      active[key] = String(value)
+/**
+ * Client: one object with fixed keys (`class`, `style`, then each `data-*`) as getters, so a
+ * plain-object `mergeProps` keeps every key reactive.
+ * Server: a view whose keys are computed when the element renders and omit an empty `class` /
+ * `style`, because `ssrElement` prints `style=""` for any present `style` key.
+ */
+function binding(
+  cls: Accessor<string | undefined>,
+  style: Accessor<JSX.CSSProperties>,
+  data: (DataAttributeBag | undefined)[],
+): SlotBinding {
+  const target = {
+    get class() {
+      return cls()
+    },
+    get style() {
+      return style()
+    },
+  }
+  for (const bag of data) {
+    if (bag) {
+      for (const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(bag))) {
+        Object.defineProperty(target, key, { ...descriptor, configurable: true })
+      }
     }
   }
-  return active
+  if (!isServer) {
+    return target
+  }
+  const keys = () =>
+    Reflect.ownKeys(target).filter(
+      (key) => (key !== 'class' || !!cls()) && (key !== 'style' || !isEmptyStyle(style())),
+    )
+  return new Proxy(target, {
+    ownKeys: keys,
+    has: (_target, key) => keys().includes(key),
+    getOwnPropertyDescriptor: (_target, key) =>
+      keys().includes(key)
+        ? { enumerable: true, configurable: true, value: Reflect.get(target, key) }
+        : undefined,
+  })
 }
 
-function matchesVariants(activeVariants: ActiveVariants, expectedVariants: object): boolean {
-  const entries = Object.entries(expectedVariants) as [
-    string,
-    string | number | boolean | readonly (string | number | boolean)[] | null | undefined,
-  ][]
-  return (
-    entries.length > 0 &&
-    entries.every(([name, expected]) => {
-      const active = activeVariants[name]
-      if (active === undefined || expected === undefined || expected === null) {
-        return false
-      }
-      return (Array.isArray(expected) ? expected : [expected]).some(
-        (value) => active === String(value),
-      )
-    })
-  )
-}
-
-interface CompiledRecipe {
-  readonly slots: readonly string[]
-  readonly layers: readonly RecipeLayerConfig<object, unknown>[]
-  readonly slotClassVariantKeys: ReadonlyMap<string, readonly string[]>
-  readonly varVariantKeys: readonly string[]
-  readonly allVariantKeys: readonly string[]
-  readonly defaultVariants: Readonly<Record<string, unknown>>
-  readonly hasVars: boolean
-}
-
-const compileCache = new WeakMap<object, CompiledRecipe>()
-
-function getLayers(
-  recipe: RecipeDefinition | ResolvedRecipe,
-): readonly RecipeLayerConfig<object, unknown>[] {
-  return ('layers' in recipe ? recipe.layers : [recipe.config]) as readonly RecipeLayerConfig<
-    object,
-    unknown
-  >[]
-}
-
-function compileRecipe(recipe: RecipeDefinition | ResolvedRecipe): CompiledRecipe {
-  const cached = compileCache.get(recipe)
-  if (cached) {
-    return cached
-  }
-
-  const definition = 'layers' in recipe ? recipe.definition : recipe
-  const layers = getLayers(recipe)
-  const slots = definition.slots
-  const slotClassKeys = new Map<string, Set<string>>()
-  for (const slot of slots) {
-    slotClassKeys.set(slot, new Set())
-  }
-  const varKeys = new Set<string>()
-  let hasVars = false
-  const allVariantKeys = new Set<string>([
-    ...Object.keys(definition.config.defaultVariants ?? {}),
-    ...Object.keys(definition.config.variants ?? {}),
-    ...(definition.config.compoundVariants ?? []).flatMap((compound) =>
-      Object.keys(compound.variants),
-    ),
-  ])
-
-  const noteContribution = (
-    contribution: RecipeContribution<object> | undefined,
-    variantNames: readonly string[],
-  ) => {
-    if (!contribution) {
-      return
-    }
-    for (const key of Object.keys(contribution)) {
-      if (key === 'variants') {
-        continue
-      }
-      if (key.startsWith('--')) {
-        hasVars = true
-        for (const name of variantNames) {
-          varKeys.add(name)
-        }
-      } else {
-        const keys = slotClassKeys.get(key)
-        if (keys) {
-          for (const name of variantNames) {
-            keys.add(name)
-          }
-        }
-      }
-    }
-  }
-
-  for (const layer of layers) {
-    for (const [name, value] of Object.entries(layer.defaultVariants ?? {})) {
-      if (value !== undefined) {
-        allVariantKeys.add(name)
-      }
-    }
-    for (const name of Object.keys(layer.variants ?? {})) {
-      allVariantKeys.add(name)
-    }
-    noteContribution(layer.base, [])
-    for (const [variantName, values] of Object.entries(layer.variants ?? {})) {
-      for (const contribution of Object.values(values ?? {})) {
-        noteContribution(contribution as RecipeContribution<object>, [variantName])
-      }
-    }
-    for (const compound of layer.compoundVariants ?? []) {
-      const matchKeys = Object.keys(compound.variants)
-      for (const name of matchKeys) {
-        allVariantKeys.add(name)
-      }
-      const { variants: _variants, ...contribution } = compound
-      noteContribution(contribution, matchKeys)
-    }
-  }
-
-  const compiled: CompiledRecipe = {
-    slots,
-    layers,
-    slotClassVariantKeys: new Map(
-      [...slotClassKeys.entries()].map(([slot, keys]) => [slot, Object.freeze([...keys])]),
-    ),
-    varVariantKeys: Object.freeze([...varKeys]),
-    allVariantKeys: Object.freeze([...allVariantKeys]),
-    defaultVariants: Object.freeze(getRecipeDefaultVariants(recipe)),
-    hasVars,
-  }
-  compileCache.set(recipe, compiled)
-  return compiled
-}
-
-function resolveSlotClasses(
-  compiled: CompiledRecipe,
-  slot: string,
-  activeVariants: ActiveVariants,
-  merge: Cn,
-): string | undefined {
-  const parts: ClassValue[] = []
-  for (const layer of compiled.layers) {
-    const baseClass = (layer.base as Record<string, unknown> | undefined)?.[slot]
-    if (baseClass !== undefined) {
-      parts.push(baseClass)
-    }
-    for (const [name, values] of Object.entries(layer.variants ?? {})) {
-      const selected = activeVariants[name]
-      if (selected === undefined) {
-        continue
-      }
-      const slotClass = (values as Record<string, Record<string, unknown>>)?.[selected]?.[slot]
-      if (slotClass !== undefined) {
-        parts.push(slotClass)
-      }
-    }
-    for (const compound of layer.compoundVariants ?? []) {
-      if (!matchesVariants(activeVariants, compound.variants)) {
-        continue
-      }
-      const slotClass = (compound as Record<string, unknown>)[slot]
-      if (slotClass !== undefined) {
-        parts.push(slotClass)
-      }
-    }
-  }
-  return parts.length > 0 ? merge(parts) : undefined
-}
-
-function resolveRecipeVars(
-  compiled: CompiledRecipe,
-  activeVariants: ActiveVariants,
-): Partial<Record<`--${string}`, string | number>> | undefined {
-  const style: Partial<Record<`--${string}`, string | number>> = {}
-  let hasValue = false
-  const apply = (contribution: Record<string, unknown> | undefined) => {
-    if (!contribution) {
-      return
-    }
-    for (const [key, value] of Object.entries(contribution)) {
-      if (key.startsWith('--') && value !== undefined && value !== null && key !== 'variants') {
-        style[key as `--${string}`] = value as string | number
-        hasValue = true
-      }
-    }
-  }
-  for (const layer of compiled.layers) {
-    apply(layer.base)
-    for (const [name, values] of Object.entries(layer.variants ?? {})) {
-      const selected = activeVariants[name]
-      if (selected !== undefined) {
-        apply((values as Record<string, Record<string, unknown>>)?.[selected])
-      }
-    }
-    for (const compound of layer.compoundVariants ?? []) {
-      if (matchesVariants(activeVariants, compound.variants)) {
-        const { variants: _variants, ...contribution } = compound
-        apply(contribution)
-      }
-    }
-  }
-  return hasValue ? style : undefined
-}
-
-/** Resolves one component recipe into reactive, stable slot bindings and variant selections. */
+/** Resolves one component recipe into reactive per-slot bindings and variant selections. */
 export function useRecipe<R extends RecipeDefinition>(
   recipe: R,
   props: StyleProps<Extract<keyof RecipeSlots<R>, string>, RecipeVariants<R>>,
@@ -463,333 +217,146 @@ export function useRecipe<R extends RecipeDefinition>(
     : [options: RequiredSlotOptions<Extract<keyof RecipeSlots<R>, string>, RecipeVariants<R>>]
 ): UseRecipeResult<R> {
   type Slots = Extract<keyof RecipeSlots<R>, string>
-  type Variants = RecipeVariants<R>
-  const options = (args[0] ?? {}) as RequiredSlotOptions<Slots, Variants>
-  const context = useMoraineContext()
-  const cn: Cn = context ? (...classes) => context.cn(...classes) : defaultCn
-  const definitionCompiled = compileRecipe(recipe)
-  let compiled: Accessor<CompiledRecipe> = () => definitionCompiled
-  if (context) {
-    const themed = createMemo(() => compileRecipe(context.resolver.resolve(recipe)))
-    compiled = themed
-  }
-
+  const options: UseRecipeOptions<Slots, unknown> = args[0] ?? {}
+  const { context, own, enforced, data } = options
+  const moraine = useMoraineContext()
+  const cn: Cn = moraine ? (...classes) => moraine.cn(...classes) : defaultCn
   const owner = getOwner()
-  const variants = {} as ResolvedVariantInput<Variants>
-  const ensureVariant = (key: string) => {
-    if (Object.prototype.hasOwnProperty.call(variants, key)) {
-      return
-    }
-    const selection = createLazyMemo(
-      () => {
-        const supplied = (props as Record<string, unknown>)[key]
-        if (supplied !== undefined) {
-          return supplied
+  const definition = compileRecipe(recipe)
+  const compiled = moraine
+    ? memo(() => compileRecipe(recipe, moraine.theme), owner)
+    : () => definition
+
+  const variants = {} as ResolvedVariantInput<RecipeVariants<R>>
+  const variantMemos = new Map<string, Accessor<unknown>>()
+  const variantOf = (key: string) => {
+    let read = variantMemos.get(key)
+    if (!read) {
+      read = memo(() => {
+        const value = (props as Style)[key]
+        if (value !== undefined) {
+          return value
         }
-        const contextVal = (options.contextVariants?.() as Record<string, unknown> | undefined)?.[
-          key
-        ]
-        return contextVal === undefined ? compiled().defaultVariants[key] : contextVal
-      },
-      { owner },
-    )
-    Object.defineProperty(variants, key, {
-      enumerable: true,
-      configurable: true,
-      get: selection,
-    })
-  }
-  for (const key of definitionCompiled.allVariantKeys) {
-    ensureVariant(key)
-  }
-
-  const rootSlot = resolveRootSlot(recipe.slots, options.slot)
-  const recipeStyleSlot =
-    options.varsSlot ?? (recipe.slots.includes('root') ? ('root' as Slots) : rootSlot)
-
-  const slots = {} as { [Slot in Slots]: SlotBinding }
-  const ssrCache = isServer
-    ? new Map<string, { class?: string | undefined; style?: JSX.CSSProperties }>()
-    : undefined
-
-  // Fine-grained per-slot recipe class memoization
-  const recipeClassMemos = !isServer ? new Map<Slots, () => string | undefined>() : undefined
-  function getRecipeSlotClassMemo(slot: Slots): () => string | undefined {
-    let memo = recipeClassMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(
-        () => {
-          const current = compiled()
-          const variantKeys = current.slotClassVariantKeys.get(slot) ?? []
-          for (const key of variantKeys) {
-            ensureVariant(key)
-          }
-          const active = readActiveVariants(variantKeys, variants)
-          return resolveSlotClasses(current, slot, active, cn)
-        },
-        { owner },
-      )
-      recipeClassMemos!.set(slot, memo)
+        const inherited = (context?.()?.variants as Style | undefined)?.[key]
+        return inherited === undefined ? compiled().defaults[key] : inherited
+      }, owner)
+      variantMemos.set(key, read)
+      // Theme layers may add variant keys at runtime.
+      Object.defineProperty(variants, key, { enumerable: true, get: read })
     }
-    return memo
+    return read
+  }
+  const variant = (key: string) => variantOf(key)()
+  for (const key of definition.keys) {
+    variantOf(key)
   }
 
-  // Fine-grained recipe CSS variables memoization
-  const recipeVarsMemo = !isServer
-    ? createLazyMemo(
-        () => {
-          const current = compiled()
-          for (const key of current.varVariantKeys) {
-            ensureVariant(key)
-          }
-          const active = readActiveVariants(current.varVariantKeys, variants)
-          return resolveRecipeVars(current, active)
-        },
-        {
-          owner,
-          equals: (prev, next) => {
-            if (prev === next) {
-              return true
-            }
-            if (!prev || !next) {
-              return false
-            }
-            return shallowEqualStyle(prev, next)
-          },
-        },
-      )
-    : undefined
+  const rootSlot = (options.slot ?? 'root') as Slots
+  const varsSlot = options.varsSlot ?? ('root' in definition.bySlot ? 'root' : rootSlot)
 
-  // Fine-grained instance CSS variables memoization
-  const vars = options.vars
-  const instanceVarsMemo =
-    !isServer && vars
-      ? createLazyMemo(() => resolveCssVariables(vars()), {
-          owner,
-          equals: shallowEqualStyle,
-        })
-      : undefined
-
-  const ownLayer = isServer ? undefined : createSlotLayer(options.own, owner)
-  const enforcedLayer = isServer ? undefined : createSlotLayer(options.enforced, owner)
-  const contextSlots = options.contextSlots
-  const contextLayer =
-    !isServer && contextSlots
-      ? createLayerReader<Slots>(
-          (slot) => () => {
-            const overrides = contextSlots()
-            return (
-              overrides && { class: overrides.classes?.[slot], style: overrides.styles?.[slot] }
-            )
-          },
-          owner,
-        )
-      : undefined
-
-  function computeSlotClass(slot: Slots): string | undefined {
-    if (isServer) {
-      const current = compiled()
-      const variantKeys = current.slotClassVariantKeys.get(slot) ?? []
-      for (const key of variantKeys) {
-        ensureVariant(key)
+  /** One equality-checked memo per slot; slots without an accessor create nothing. */
+  const layer = (read: ((slot: Slots) => (() => SlotValue | undefined) | undefined) | false) => {
+    const memos = new Map<Slots, Accessor<SlotValue | undefined>>()
+    return (slot: Slots): SlotValue | undefined => {
+      if (!read) {
+        return undefined
       }
-      const active = readActiveVariants(variantKeys, variants)
-      const recipeClass = resolveSlotClasses(current, slot, active, cn)
-      return cn(
-        recipeClass,
-        options.contextSlots?.()?.classes?.[slot],
-        readLayerSlot(options.own, slot)?.class,
+      let value = memos.get(slot)
+      if (!value) {
+        const accessor = read(slot)
+        value = accessor ? memo(accessor, owner, sameSlotValue) : () => undefined
+        memos.set(slot, value)
+      }
+      return value()
+    }
+  }
+  const contextLayer = layer(
+    !!context &&
+      ((slot) => () => {
+        const value = context()
+        return value && { class: value.classes?.[slot], style: value.styles?.[slot] }
+      }),
+  )
+  const ownLayer = layer(!!own && ((slot) => own[slot]))
+  const enforcedLayer = layer(!!enforced && ((slot) => enforced[slot]))
+
+  const recipeVars = memo(
+    () => mergeStyles(...matchEntries(compiled().vars, variant)),
+    owner,
+    sameStyle,
+  )
+
+  const createSlot = (slot: Slots): SlotBinding => {
+    const recipeClass = memo(() => {
+      const classes = matchEntries<ClassValue>(compiled().bySlot[slot] ?? [], variant)
+      return classes.length > 0 ? cn(classes) : undefined
+    }, owner)
+    const cls = memo(() => {
+      const layers = [
+        contextLayer(slot)?.class,
+        ownLayer(slot)?.class,
         props.classes?.[slot],
         slot === rootSlot ? props.class : undefined,
-        readLayerSlot(options.enforced, slot)?.class,
-      )
-    }
-
-    const recipeClass = getRecipeSlotClassMemo(slot)()
-    const contextClass = contextLayer?.(slot)?.class
-    const ownClass = ownLayer?.(slot)?.class
-    const userClass = props.classes?.[slot]
-    const rootClass = slot === rootSlot ? props.class : undefined
-    const enforcedClass = enforcedLayer?.(slot)?.class
-    if (
-      contextClass === undefined &&
-      ownClass === undefined &&
-      userClass === undefined &&
-      rootClass === undefined &&
-      enforcedClass === undefined
-    ) {
-      return recipeClass
-    }
-    return cn(recipeClass, contextClass, ownClass, userClass, rootClass, enforcedClass)
-  }
-
-  function computeSlotStyle(slot: Slots): JSX.CSSProperties {
-    const isVarsSlot = slot === recipeStyleSlot
-    const merged: Record<string, unknown> = {}
-
-    if (isServer) {
-      if (isVarsSlot) {
-        const current = compiled()
-        for (const key of current.varVariantKeys) {
-          ensureVariant(key)
-        }
-        const active = readActiveVariants(current.varVariantKeys, variants)
-        assignDefinedStyle(merged, resolveRecipeVars(current, active))
-        assignDefinedStyle(merged, resolveCssVariables(options.vars?.()))
-      }
-      assignDefinedStyle(
-        merged,
-        options.contextSlots?.()?.styles?.[slot] as Record<string, unknown> | undefined,
-      )
-      assignDefinedStyle(
-        merged,
-        readLayerSlot(options.own, slot)?.style as Record<string, unknown> | undefined,
-      )
-      assignDefinedStyle(merged, props.styles?.[slot] as Record<string, unknown> | undefined)
-      if (slot === rootSlot) {
-        assignDefinedStyle(merged, props.style as Record<string, unknown> | undefined)
-      }
-      assignDefinedStyle(
-        merged,
-        readLayerSlot(options.enforced, slot)?.style as Record<string, unknown> | undefined,
-      )
-      return merged as JSX.CSSProperties
-    }
-
-    if (isVarsSlot) {
-      if (compiled().hasVars) {
-        assignDefinedStyle(merged, recipeVarsMemo!())
-      }
-      assignDefinedStyle(merged, instanceVarsMemo?.())
-    }
-    assignDefinedStyle(merged, contextLayer?.(slot)?.style as Record<string, unknown> | undefined)
-    assignDefinedStyle(merged, ownLayer?.(slot)?.style as Record<string, unknown> | undefined)
-    assignDefinedStyle(merged, props.styles?.[slot] as Record<string, unknown> | undefined)
-    if (slot === rootSlot) {
-      assignDefinedStyle(merged, props.style as Record<string, unknown> | undefined)
-    }
-    assignDefinedStyle(merged, enforcedLayer?.(slot)?.style as Record<string, unknown> | undefined)
-    return hasOwnKeys(merged) ? (merged as JSX.CSSProperties) : EMPTY_STYLE
-  }
-
-  function createSlotBinding(slot: Slots): SlotBinding {
-    if (isServer) {
-      return {
-        get class() {
-          const cached = ssrCache!.get(slot)
-          if (cached && 'class' in cached) {
-            return cached.class
-          }
-          const value = computeSlotClass(slot)
-          const entry = ssrCache!.get(slot) ?? {}
-          entry.class = value
-          ssrCache!.set(slot, entry)
-          return value
-        },
-        get style() {
-          const cached = ssrCache!.get(slot)
-          if (cached && 'style' in cached) {
-            return cached.style!
-          }
-          const value = computeSlotStyle(slot)
-          const entry = ssrCache!.get(slot) ?? {}
-          entry.style = value
-          ssrCache!.set(slot, entry)
-          return value
-        },
-      }
-    }
-
-    const classMemo = createLazyMemo(computeSlotClass.bind(null, slot), { owner })
-    const styleMemo = createLazyMemo(computeSlotStyle.bind(null, slot), {
+        enforcedLayer(slot)?.class,
+      ]
+      const base = recipeClass()
+      return layers.every((value) => value === undefined) ? base : cn(base, ...layers)
+    }, owner)
+    const style = memo(
+      () =>
+        mergeStyles(
+          slot === varsSlot ? recipeVars() : undefined,
+          contextLayer(slot)?.style,
+          ownLayer(slot)?.style,
+          props.styles?.[slot],
+          slot === rootSlot ? props.style : undefined,
+          enforcedLayer(slot)?.style,
+        ),
       owner,
-      equals: shallowEqualStyle,
-    })
-    return {
-      get class() {
-        return classMemo()
-      },
-      get style() {
-        return styleMemo()
-      },
-    }
+      sameStyle,
+    )
+    return binding(cls, style, [data?.[slot]])
   }
 
-  for (const slot of recipe.slots as readonly Slots[]) {
-    slots[slot] = createSlotBinding(slot)
+  const slots = {} as { [K in Slots]: SlotBinding }
+  for (const slot of definition.slots as Slots[]) {
+    slots[slot] = createSlot(slot)
   }
 
-  function slotWith(
-    slot: Slots,
-    extra?: () => SlotValue | undefined,
-    enforcedExtra?: () => SlotValue | undefined,
-  ): SlotBinding {
+  const slotWith: UseRecipeResult<R>['slotWith'] = (slot, item) => {
     const parent = slots[slot]
-    if (isServer) {
-      return {
-        get class() {
-          return cn(parent.class, extra?.()?.class, enforcedExtra?.()?.class)
-        },
-        get style() {
-          const merged: Record<string, unknown> = { ...(parent.style as Record<string, unknown>) }
-          assignDefinedStyle(merged, extra?.()?.style as Record<string, unknown> | undefined)
-          assignDefinedStyle(
-            merged,
-            enforcedExtra?.()?.style as Record<string, unknown> | undefined,
-          )
-          return merged as JSX.CSSProperties
-        },
-      }
+    // Memos belong to the item owner so they are disposed with the item.
+    const itemOwner = getOwner()
+    const itemOwn = item?.own
+    const itemEnforced = item?.enforced
+    const itemData = [data?.[slot], item?.data]
+    if (!itemOwn && !itemEnforced) {
+      // Data-only items read the parent slot memos directly.
+      return binding(
+        () => parent.class,
+        () => parent.style,
+        itemData,
+      )
     }
-
-    // createLazyMemo captures the For-item owner at call time.
-    const classMemo = createLazyMemo(() =>
-      cn(parent.class, extra?.()?.class, enforcedExtra?.()?.class),
+    return binding(
+      memo(() => cn(parent.class, itemOwn?.()?.class, itemEnforced?.()?.class), itemOwner),
+      memo(
+        () => mergeStyles(parent.style, itemOwn?.()?.style, itemEnforced?.()?.style),
+        itemOwner,
+        sameStyle,
+      ),
+      itemData,
     )
-    const styleMemo = createLazyMemo(
-      () => {
-        const merged: Record<string, unknown> = { ...(parent.style as Record<string, unknown>) }
-        assignDefinedStyle(merged, extra?.()?.style as Record<string, unknown> | undefined)
-        assignDefinedStyle(merged, enforcedExtra?.()?.style as Record<string, unknown> | undefined)
-        return merged as JSX.CSSProperties
-      },
-      { equals: shallowEqualStyle },
-    )
-    return {
-      get class() {
-        return classMemo()
-      },
-      get style() {
-        return styleMemo()
-      },
-    }
   }
 
-  function overrides<TargetSlot extends string>(
-    mapping?: readonly Slots[] | Record<TargetSlot, Slots>,
-  ): SlotOverrides<TargetSlot> {
-    const classes = {} as Record<string, string | undefined>
-    const styles = {} as Record<string, JSX.CSSProperties>
-    const entries: [string, Slots][] =
-      mapping === undefined
-        ? (recipe.slots as readonly Slots[]).map((slot) => [slot, slot])
-        : Array.isArray(mapping)
-          ? mapping.map((slot) => [slot, slot as Slots])
-          : Object.entries(mapping)
-
-    for (const [target, source] of entries) {
-      Object.defineProperty(classes, target, {
-        enumerable: true,
-        configurable: true,
-        get: () => slots[source].class,
-      })
-      Object.defineProperty(styles, target, {
-        enumerable: true,
-        configurable: true,
-        get: () => slots[source].style,
-      })
+  const overrides: UseRecipeResult<R>['overrides'] = (mapping) => {
+    const classes = {}
+    const styles = {}
+    for (const [target, source] of Object.entries(mapping) as [string, Slots][]) {
+      Object.defineProperty(classes, target, { enumerable: true, get: () => slots[source].class })
+      Object.defineProperty(styles, target, { enumerable: true, get: () => slots[source].style })
     }
-    return { classes, styles } as SlotOverrides<TargetSlot>
+    return { classes, styles }
   }
 
   return { slots, variants, slotWith, overrides }

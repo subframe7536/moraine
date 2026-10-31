@@ -42,7 +42,17 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
     'class',
     'style',
   ])
-  const { slots, variants } = useRecipe(navigationMenuRecipe, local)
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(navigationMenuRecipe, local, {
+    data: {
+      root: navigationMenuDataAttributes.root(() => ({
+        disabled: () => local.disabled,
+        orientation: context.orientation,
+      })),
+    },
+  })
   const context = createNavigationMenuState(local, () => variants.orientation)
   const attributes = mergePopperElementProps<HTMLElement>(
     {
@@ -62,16 +72,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   )
   return (
     <NavigationMenuProvider value={context}>
-      <nav
-        {...attributes}
-        id={context.id()}
-        data-slot="navigation-menu"
-        {...navigationMenuDataAttributes.root({
-          disabled: () => local.disabled,
-          orientation: context.orientation,
-        })}
-        {...slots.root}
-      >
+      <nav {...attributes} id={context.id()} data-slot="navigation-menu" {...rootSlot}>
         {local.children}
         <NavigationMenuPanel />
       </nav>

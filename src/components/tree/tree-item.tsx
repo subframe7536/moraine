@@ -88,32 +88,39 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }
     }),
   )
-  const { slots } = useRecipe(
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(
     treeRecipe,
     {},
     {
-      contextVariants: () => context.variants,
-      contextSlots: () => context.slotOverrides,
-      own: () => ({
-        content: {
+      data: {
+        content: treeDataAttributes.content({
+          closed: () => !visualExpanded(),
+          expanded: visualExpanded,
+          transition: allowHeightMotion,
+          transitioning: animating,
+        }),
+      },
+      context: () => ({ variants: context.variants, ...context.slotOverrides }),
+      own: {
+        content: () => ({
           style: {
             '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
           },
-        },
-      }),
-      enforced: () => {
-        if (!allowHeightMotion()) {
-          return {
-            content: {
-              style: {
-                animation: 'none',
-                height: disclosure.open() ? 'auto' : undefined,
-                overflow: 'visible',
+        }),
+      },
+      enforced: {
+        content: () =>
+          allowHeightMotion()
+            ? undefined
+            : {
+                style: {
+                  animation: 'none',
+                  height: disclosure.open() ? 'auto' : undefined,
+                  overflow: 'visible',
+                },
               },
-            },
-          }
-        }
-        return {}
       },
     },
   )
@@ -128,13 +135,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       hidden={disclosure.hidden() && !allowHeightMotion()}
       inert={disclosure.inert()}
       data-slot="tree-content"
-      {...treeDataAttributes.content({
-        closed: () => !visualExpanded(),
-        expanded: visualExpanded,
-        transition: allowHeightMotion,
-        transitioning: animating,
-      })}
-      {...slots.content}
+      {...contentSlot}
       onAnimationEnd={settle}
       onAnimationCancel={settle}
     >
@@ -187,19 +188,38 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     const { ref: _ref, style: _style, ...attributes } = current
     return attributes
   }
-  const { slots, variants } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { item: itemSlot, row: rowSlot, guide: guideSlot },
+    variants,
+  } = useRecipe(treeRecipe, local, {
     slot: 'item',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
-    own: () => ({
-      item: {
+    data: {
+      item: treeDataAttributes.item({
+        checked: () => local.item.checkedState === 'checked',
+        disabled: () => local.item.isDisabled,
+        expanded: () => local.item.isExpanded,
+        indeterminate: () => local.item.checkedState === 'indeterminate',
+        leaf: () => local.item.isLeaf,
+        loading: () => local.item.isLoading,
+        selected: () => local.item.isSelected,
+      }),
+      row: treeDataAttributes.row({
+        disabled: () => local.item.isDisabled,
+        expanded: () => local.item.isExpanded,
+        leaf: () => local.item.isLeaf,
+        selected: () => local.item.isSelected,
+      }),
+    },
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
+    own: {
+      item: () => ({
         style: { '--mo-tree-level': local.item.level - 1 },
-      },
-      row: {
+      }),
+      row: () => ({
         style: TREE_ROW_PADDING_STYLE,
-      },
-    }),
-    enforced: () => ({ item: { style: row()?.style } }),
+      }),
+    },
+    enforced: { item: () => ({ style: row()?.style }) },
   })
 
   return (
@@ -217,17 +237,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         data-slot="tree-item"
         role="treeitem"
         aria-label={local.item.textValue}
-        {...treeDataAttributes.item({
-          checked: () => local.item.checkedState === 'checked',
-          disabled: () => local.item.isDisabled,
-          expanded: () => local.item.isExpanded,
-          indeterminate: () => local.item.checkedState === 'indeterminate',
-          leaf: () => local.item.isLeaf,
-          loading: () => local.item.isLoading,
-          selected: () => local.item.isSelected,
-        })}
+        {...itemSlot}
         {...rest}
-        {...slots.item}
         {...rowAttributes()}
         tabIndex={
           local.item.isDisabled
@@ -291,20 +302,11 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           }
         }}
       >
-        <div
-          data-slot="tree-row"
-          {...treeDataAttributes.row({
-            disabled: () => local.item.isDisabled,
-            expanded: () => local.item.isExpanded,
-            leaf: () => local.item.isLeaf,
-            selected: () => local.item.isSelected,
-          })}
-          {...slots.row}
-        >
+        <div data-slot="tree-row" {...rowSlot}>
           <Show when={variants.indentGuide && local.item.level > 1}>
             <span data-slot="tree-guides" aria-hidden="true" class={TREE_GUIDES_CLASS}>
               <Index each={Array.from({ length: local.item.level - 1 })}>
-                {() => <span data-slot="tree-guide" {...slots.guide} />}
+                {() => <span data-slot="tree-guide" {...guideSlot} />}
               </Index>
             </span>
           </Show>

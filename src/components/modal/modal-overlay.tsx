@@ -22,9 +22,18 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   const context = useModalContext()
   const presence = context.presence
   const isOverlay = () => local.overlay !== false
-  const { slots } = useRecipe(modalRecipe, local, {
+  const {
+    slots: { overlay: overlaySlot },
+  } = useRecipe(modalRecipe, local, {
     slot: 'overlay',
-    contextSlots: () => context.slotOverrides,
+    data: {
+      overlay: modalDataAttributes.overlay({
+        overlayScroll: () => local.scrollable,
+        expanded: context.open,
+        closed: () => !context.open(),
+      }),
+    },
+    context: () => context.slotOverrides,
   })
 
   createEffect(on(() => Boolean(local.scrollable && isOverlay()), context.setOverlayScroll))
@@ -36,13 +45,7 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
     <Show when={isOverlay() || hasChildren()} fallback={null}>
       <div
         data-slot={isOverlay() ? 'modal-overlay' : undefined}
-        {...(isOverlay()
-          ? modalDataAttributes.overlay({
-              overlayScroll: () => local.scrollable,
-              expanded: context.open,
-              closed: () => !context.open(),
-            })
-          : {})}
+        {...(isOverlay() ? overlaySlot : undefined)}
         {...rest}
         ref={(element) => {
           let unregister: (() => void) | undefined
@@ -54,7 +57,6 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
             unregister?.()
           })
         }}
-        {...(isOverlay() ? slots.overlay : undefined)}
       >
         {local.children}
       </div>

@@ -1,9 +1,20 @@
 import type { Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  mergeProps,
+  Show,
+  Switch,
+  on,
+} from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { callHandler, callRef } from '../../../../shared/utils'
+import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { VirtualContent } from '../../../../virtualizer/virtual-content'
 import type { VirtualRowProps } from '../../../../virtualizer/virtualizer.types'
@@ -57,6 +68,21 @@ function DefaultSelectContentBody<T extends SelectItem>(
     ),
   )
   let atBottom = false
+  // The item bindings come from the owning select; per-item `data-*` state is added here.
+  function slotWithData(name: 'itemDescription', options: { data: DataAttributeBag }): SlotBinding {
+    const binding = mergeProps(
+      {
+        get class() {
+          return props.slot(name).class
+        },
+        get style() {
+          return props.slot(name).style
+        },
+      },
+      options.data,
+    )
+    return binding
+  }
   function SelectItem(itemProps: { item: T; rowProps?: VirtualRowProps }) {
     const item = () => props.view.byValue?.get(itemProps.item.value) ?? itemProps.item
     const presentation: BaseSelectT.ItemRenderProps<T> = {
@@ -123,17 +149,21 @@ function DefaultSelectContentBody<T extends SelectItem>(
                     {item().label}
                   </span>
                   <Show when={item().description}>
-                    {(description) => (
-                      <span
-                        data-slot={state.slotName('itemDescription')}
-                        {...selectItemDataAttributes.itemDescription({
+                    {(description) => {
+                      const itemDescriptionSlot = slotWithData('itemDescription', {
+                        data: selectItemDataAttributes.itemDescription({
                           highlighted: () => itemState.highlighted,
-                        })}
-                        {...props.slot('itemDescription')}
-                      >
-                        {description()}
-                      </span>
-                    )}
+                        }),
+                      })
+                      return (
+                        <span
+                          data-slot={state.slotName('itemDescription')}
+                          {...itemDescriptionSlot}
+                        >
+                          {description()}
+                        </span>
+                      )
+                    }}
                   </Show>
                 </span>
                 <Show when={itemState.selected}>

@@ -28,10 +28,12 @@ export function useSidebarStyles(
   const context = useSidebarContext()
   return useRecipe(sidebarRecipe, local, {
     slot,
-    contextSlots: () => context.slotOverrides,
-    contextVariants: () => ({
-      side: context.side,
-      variant: context.variant,
+    context: () => ({
+      variants: {
+        side: context.side,
+        variant: context.variant,
+      },
+      ...context.slotOverrides,
     }),
   })
 }

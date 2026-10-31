@@ -83,7 +83,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
     },
   }
 
-  const { slots } = useRecipe(toastRecipe, local)
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(toastRecipe, local)
 
   createEffect(
     on(
@@ -147,12 +149,12 @@ function ToastRoot(props: ToastProps): JSX.Element {
         data-slot="toast"
         role="region"
         tabIndex={-1}
+        {...rootSlot}
         {...rest}
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
         aria-label={local['aria-label'] ?? messages().viewport}
-        {...slots.root}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (

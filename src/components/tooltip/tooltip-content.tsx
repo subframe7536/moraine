@@ -38,10 +38,13 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       }
     },
   }
-  const { slots, variants } = useRecipe(tooltipRecipe, local, {
+  const {
+    slots: { text: textSlot, kbds: kbdsSlot },
+    slotWith,
+    variants,
+  } = useRecipe(tooltipRecipe, local, {
     slot: 'content',
-    contextSlots: () => behavior.slotOverrides,
-    contextVariants: () => ({ invert: behavior.options.invert }),
+    context: () => ({ variants: { invert: behavior.options.invert }, ...behavior.slotOverrides }),
   })
   return (
     <PopperContent
@@ -65,19 +68,21 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
           return value === undefined ? resolveChildren(() => local.children)() : value
         })
         const kbds = createMemo(() => local.kbds)
+        const contentSlot = slotWith('content', {
+          data: tooltipContentDataAttributes({
+            side: () => parseFloatingPlacement(context.currentPlacement()).side,
+            align: () => parseFloatingPlacement(context.currentPlacement()).align,
+            instantMotion: behavior.instantMotion,
+          }),
+        })
         return (
           <div
             data-slot="tooltip-content"
-            {...tooltipContentDataAttributes({
-              side: () => parseFloatingPlacement(context.currentPlacement()).side,
-              align: () => parseFloatingPlacement(context.currentPlacement()).align,
-              instantMotion: behavior.instantMotion,
-            })}
+            {...contentSlot}
             {...mergePopperElementProps(contentProps, rest)}
-            {...slots.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>
-              <span data-slot="tooltip-text" {...slots.text}>
+              <span data-slot="tooltip-text" {...textSlot}>
                 {text()}
               </span>
             </Show>
@@ -88,7 +93,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
                   variant={local.kbdVariant ?? (variants.invert ? 'invert' : undefined)}
                   size="sm"
                   items={keys()}
-                  {...slots.kbds}
+                  {...kbdsSlot}
                 />
               )}
             </Show>

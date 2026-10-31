@@ -33,6 +33,13 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interactionProps)
+  // The trigger has no recipe slot, so its state stays a separate bag.
+  // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- no recipe slot binding on this host
+  const triggerData = sidebarDataAttributes.trigger({
+    open: context.isOpen,
+    closed: () => !context.isOpen(),
+    disabled,
+  })
 
   return (
     <Dynamic
@@ -40,11 +47,7 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
       data-slot="sidebar-trigger"
       aria-expanded={context.isOpen()}
       aria-controls={defaultAriaControls()}
-      {...sidebarDataAttributes.trigger({
-        open: context.isOpen,
-        closed: () => !context.isOpen(),
-        disabled,
-      })}
+      {...triggerData}
       {...binding}
     />
   )

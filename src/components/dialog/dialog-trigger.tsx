@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -11,10 +12,13 @@ import type { DialogT } from './dialog.types'
 export function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props, ['class', 'style'])
   const dialog = useDialogContext()
-  const { slots } = useRecipe(dialogRecipe, props, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(dialogRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => dialog.slotOverrides,
+    context: () => dialog.slotOverrides,
   })
-  return <Modal.Trigger data-slot="dialog-trigger" {...props} {...slots.trigger} />
+  return <Modal.Trigger data-slot="dialog-trigger" {...triggerSlot} {...rest} />
 }

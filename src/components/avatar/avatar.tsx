@@ -50,7 +50,21 @@ export function Avatar(props: AvatarProps): JSX.Element {
     'styles',
     'size',
   ])
-  const { slots } = useRecipe(avatarRecipe, local)
+  const {
+    slots: {
+      root: rootSlot,
+      image: imageSlot,
+      fallback: fallbackSlot,
+      fallbackContent: fallbackContentSlot,
+      badge: badgeSlot,
+    },
+  } = useRecipe(avatarRecipe, local, {
+    data: {
+      root: avatarDataAttributes.root(() => ({ status })),
+      image: avatarDataAttributes.image(() => ({ status })),
+      fallback: avatarDataAttributes.fallback(() => ({ status })),
+    },
+  })
 
   const slotName = () => local.slotName ?? 'avatar'
   const source = createMemo(() => local.src?.trim() || undefined)
@@ -108,14 +122,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
   return (
     <span
       data-slot={slotName()}
-      {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
     >
       <img
         data-slot={`${slotName()}-image`}
-        {...avatarDataAttributes.image({ status })}
+        {...imageSlot}
         ref={(element) => {
           imageElement = element
         }}
@@ -132,12 +145,11 @@ export function Avatar(props: AvatarProps): JSX.Element {
         }}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        {...slots.image}
       />
 
       <span
         data-slot={`${slotName()}-fallback`}
-        {...avatarDataAttributes.fallback({ status })}
+        {...fallbackSlot}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
             ? 'img'
@@ -149,14 +161,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        {...slots.fallback}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
               data-slot={`${slotName()}-fallback-content`}
-              {...slots.fallbackContent}
+              {...fallbackContentSlot}
             />
           )}
         </Show>
@@ -164,7 +175,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot={`${slotName()}-badge`} {...slots.badge}>
+          <span data-slot={`${slotName()}-badge`} {...badgeSlot}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}

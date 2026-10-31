@@ -21,7 +21,10 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const { slots, variants } = useRecipe(buttonGroupRecipe, local)
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(buttonGroupRecipe, local)
 
   return (
     <ButtonGroupProvider
@@ -43,7 +46,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="button-group" {...rest} {...slots.root} />
+      <div role={local.role ?? 'group'} data-slot="button-group" {...rootSlot} {...rest} />
     </ButtonGroupProvider>
   )
 }

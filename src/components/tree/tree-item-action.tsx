@@ -11,14 +11,15 @@ import type { TreeT } from './tree.types'
 export function TreeItemAction(props: TreeT.ItemActionProps): JSX.Element {
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   const context = useTreeContext()
-  const { slots } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { action: actionSlot },
+  } = useRecipe(treeRecipe, local, {
     slot: 'action',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
   return (
-    <div data-slot="tree-action" {...rest} {...slots.action}>
+    <div data-slot="tree-action" {...actionSlot} {...rest}>
       {local.children}
     </div>
   )

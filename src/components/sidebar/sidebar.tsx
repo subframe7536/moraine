@@ -46,8 +46,18 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'translations',
     'width',
   ])
-  const { slots, variants } = useRecipe(sidebarRecipe, local, {
-    vars: () => ({ '--mo-sidebar-width': local.width }),
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(sidebarRecipe, local, {
+    data: {
+      root: sidebarDataAttributes.root(() => ({
+        mobile: isMobile,
+        side: () => context.side,
+        variant: () => context.variant,
+      })),
+    },
+    own: { root: () => ({ style: { '--mo-sidebar-width': local.width } }) },
   })
 
   const panelId = createId(() => local.panelId, 'sidebar-panel')
@@ -103,10 +113,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     isOpen,
     setOpen,
     toggle: () => setOpen(!isOpen()),
-    get variant() {
+    get variant(): SidebarT.Context['variant'] {
       return variants.variant
     },
-    get side() {
+    get side(): SidebarT.Context['side'] {
       return variants.side
     },
     translations: () => local.translations,
@@ -114,16 +124,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   return (
     <SidebarProvider value={context}>
-      <div
-        data-slot="sidebar"
-        {...sidebarDataAttributes.root({
-          mobile: isMobile,
-          side: () => context.side,
-          variant: () => context.variant,
-        })}
-        {...rest}
-        {...slots.root}
-      >
+      <div data-slot="sidebar" {...rootSlot} {...rest}>
         {local.children}
       </div>
     </SidebarProvider>

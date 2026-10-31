@@ -101,8 +101,21 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'style',
   ])
   const themeField = useFieldContext()
-  const { slots, variants, overrides } = useRecipe(checkboxGroupRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots: { root: rootSlot, fieldset: fieldsetSlot, legend: legendSlot },
+    variants,
+    overrides,
+  } = useRecipe(checkboxGroupRecipe, local, {
+    data: {
+      root: checkboxGroupDataAttributes.root(() => ({
+        disabled: field.disabled,
+        readonly: () => merged.readOnly,
+        required: field.required,
+        invalid: field.invalid,
+      })),
+      legend: checkboxGroupDataAttributes.legend(() => ({ required: field.required })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
 
   const merged = mergeProps(
@@ -275,21 +288,10 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="checkbox-group"
-      {...checkboxGroupDataAttributes.root({
-        disabled: field.disabled,
-        readonly: () => merged.readOnly,
-        required: field.required,
-        invalid: field.invalid,
-      })}
-      {...rest}
-      {...slots.root}
-      id={`${groupId()}-root`}
-    >
+    <div data-slot="checkbox-group" {...rootSlot} {...rest} id={`${groupId()}-root`}>
       <fieldset
         data-slot="checkbox-group-fieldset"
-        {...slots.fieldset}
+        {...fieldsetSlot}
         id={groupId()}
         disabled={field.disabled()}
         aria-labelledby={
@@ -303,12 +305,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         onFocusOut={onFieldsetFocusOut}
       >
         <Show when={legend()}>
-          <legend
-            id={legendId()}
-            data-slot="checkbox-group-legend"
-            {...checkboxGroupDataAttributes.legend({ required: field.required })}
-            {...slots.legend}
-          >
+          <legend id={legendId()} data-slot="checkbox-group-legend" {...legendSlot}>
             {legend()}
           </legend>
         </Show>

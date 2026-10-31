@@ -113,7 +113,32 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'aria-label',
     'translations',
   ])
-  const { slots, variants, overrides } = useRecipe(paginationRecipe, local)
+  const {
+    slots: {
+      root: rootSlot,
+      list: listSlot,
+      listItem: listItemSlot,
+      prev: prevSlot,
+      next: nextSlot,
+      ellipsis: ellipsisSlot,
+    },
+    slotWith,
+    variants,
+    overrides,
+  } = useRecipe(paginationRecipe, local, {
+    data: {
+      prev: paginationDataAttributes.prev(() => ({
+        disabled: undefined,
+        loading: undefined,
+        text: () => Boolean(merged.prevText),
+      })),
+      next: paginationDataAttributes.next(() => ({
+        disabled: undefined,
+        loading: undefined,
+        text: () => Boolean(merged.nextText),
+      })),
+    },
+  })
   const messages = useMessages('pagination', defaultPaginationMessages, () => local.translations)
 
   const merged = mergeProps(
@@ -225,26 +250,21 @@ export function Pagination(props: PaginationProps): JSX.Element {
     <nav
       data-slot="pagination"
       role={merged.role}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       ref={(el) => callRef(local.ref, el)}
       aria-label={local['aria-label'] ?? messages().label}
     >
-      <ul data-slot="pagination-list" {...slots.list}>
+      <ul data-slot="pagination-list" {...listSlot}>
         <Show when={merged.showControls}>
-          <li data-slot="pagination-list-item" {...slots.listItem}>
+          <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
               slotName="pagination-prev"
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
-              {...paginationDataAttributes.prev({
-                disabled: undefined,
-                loading: undefined,
-                text: () => Boolean(merged.prevText),
-              })}
-              {...slots.prev}
+              {...prevSlot}
               {...(merged.prevText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() - 1, event)}
               {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
@@ -258,67 +278,68 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </Show>
 
         <For each={items()}>
-          {(item) => (
-            <li
-              data-slot="pagination-list-item"
-              aria-hidden={typeof item === 'number' ? undefined : true}
-              {...paginationDataAttributes.ellipsis({
+          {(item) => {
+            const itemListItemSlot = slotWith('listItem', {
+              data: paginationDataAttributes.ellipsis({
                 ellipsis: () => typeof item !== 'number',
-              })}
-              {...slots.listItem}
-            >
-              <Show
-                when={typeof item === 'number' ? item : undefined}
-                fallback={
-                  <Icon
-                    data-slot="pagination-ellipsis"
-                    name={merged.ellipsisIcon}
-                    {...slots.ellipsis}
-                  />
-                }
+              }),
+            })
+            return (
+              <li
+                data-slot="pagination-list-item"
+                aria-hidden={typeof item === 'number' ? undefined : true}
+                {...itemListItemSlot}
               >
-                {(pageNumber) => {
-                  const isActive = () => pageNumber() === currentPage()
-                  return (
-                    <Button
-                      slotName="pagination-item"
-                      variant={isActive() ? variants.activeVariant : variants.variant}
-                      tone={variants.tone}
-                      size={getSize(variants.size)}
-                      aria-current={isActive() ? 'page' : undefined}
-                      aria-label={getPageLabel(pageNumber(), isActive())}
-                      {...paginationDataAttributes.item({
+                <Show
+                  when={typeof item === 'number' ? item : undefined}
+                  fallback={
+                    <Icon
+                      data-slot="pagination-ellipsis"
+                      name={merged.ellipsisIcon}
+                      {...ellipsisSlot}
+                    />
+                  }
+                >
+                  {(pageNumber) => {
+                    const isActive = () => pageNumber() === currentPage()
+                    const itemSlot = slotWith('item', {
+                      data: paginationDataAttributes.item({
                         current: isActive,
                         disabled: undefined,
                         loading: undefined,
-                      })}
-                      {...slots.item}
-                      onClick={(event) => selectPage(pageNumber(), event)}
-                      {...getItemProps(pageNumber())}
-                    >
-                      {pageNumber()}
-                    </Button>
-                  )
-                }}
-              </Show>
-            </li>
-          )}
+                      }),
+                    })
+                    return (
+                      <Button
+                        slotName="pagination-item"
+                        variant={isActive() ? variants.activeVariant : variants.variant}
+                        tone={variants.tone}
+                        size={getSize(variants.size)}
+                        aria-current={isActive() ? 'page' : undefined}
+                        aria-label={getPageLabel(pageNumber(), isActive())}
+                        {...itemSlot}
+                        onClick={(event) => selectPage(pageNumber(), event)}
+                        {...getItemProps(pageNumber())}
+                      >
+                        {pageNumber()}
+                      </Button>
+                    )
+                  }}
+                </Show>
+              </li>
+            )
+          }}
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="pagination-list-item" {...slots.listItem}>
+          <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
               slotName="pagination-next"
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.nextText)}
               aria-label={getNextLabel()}
-              {...paginationDataAttributes.next({
-                disabled: undefined,
-                loading: undefined,
-                text: () => Boolean(merged.nextText),
-              })}
-              {...slots.next}
+              {...nextSlot}
               {...(merged.nextText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() + 1, event)}
               trailing={merged.nextText ? merged.nextIcon : undefined}

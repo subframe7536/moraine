@@ -40,9 +40,31 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   )
   const field = useFieldContext()
   const messages = useMessages('combobox', defaultComboboxMessages, () => local.translations)
-  const { slots, variants } = useRecipe(comboboxRecipe, props, {
+  const {
+    slots,
+    slots: {
+      control: controlSlot,
+      leading: leadingSlot,
+      input: inputSlot,
+      clear: clearSlot,
+      trigger: triggerSlot,
+    },
+    variants,
+  } = useRecipe(comboboxRecipe, props, {
     slot: 'control',
-    contextVariants: () => ({ size: field?.size }),
+    data: {
+      control: comboboxDataAttributes.control({
+        closed: undefined,
+        disabled: undefined,
+        editable: true,
+        expanded: undefined,
+        invalid: undefined,
+        readonly: undefined,
+        required: undefined,
+      }),
+      trigger: comboboxDataAttributes.trigger({ loading: () => local.loading }),
+    },
+    context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
   const source = createMemo(
@@ -123,17 +145,8 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     return (
       <>
         <BaseSelect.Control
+          {...controlSlot}
           {...rootProps}
-          {...slots.control}
-          {...comboboxDataAttributes.control({
-            closed: undefined,
-            disabled: undefined,
-            editable: true,
-            expanded: undefined,
-            invalid: undefined,
-            readonly: undefined,
-            required: undefined,
-          })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -156,13 +169,13 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...slots.leading} />}
+            {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
           </Show>
           <input
             {...input.inputProps}
             {...state.field.ariaAttrs()}
             data-slot="combobox-input"
-            {...slots.input}
+            {...inputSlot}
             placeholder={(local.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
@@ -176,7 +189,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
               data-slot="combobox-clear"
               aria-label={messages().clear}
               tabIndex={0}
-              {...slots.clear}
+              {...clearSlot}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -199,9 +212,8 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             aria-controls={state.listboxId()}
             aria-expanded={state.open() ? 'true' : 'false'}
             aria-busy={local.loading ? 'true' : undefined}
-            {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
+            {...triggerSlot}
             disabled={state.field.disabled() || Boolean(local.loading)}
-            {...slots.trigger}
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
@@ -218,6 +230,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
                   ? (local.loadingIcon ?? 'icon-loading')
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
+              // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- the loading icon is not a recipe slot; it only needs data-loading for SELECT_LOADING_ICON_CLASS
               {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
               class={SELECT_LOADING_ICON_CLASS}
             />

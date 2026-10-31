@@ -42,8 +42,13 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // Slider positions the range and markers in the track's padding box and maps the pointer onto
   // it, so values spread over the rest of the track while the range reaches back over the border.
   const insetSide = () => (props.inverted ? 'end' : 'start')
-  const { slots, variants, slotWith, overrides } = useRecipe(boldSliderRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots: { content: contentSlot },
+    variants,
+    slotWith,
+    overrides,
+  } = useRecipe(boldSliderRecipe, local, {
+    context: () => ({ variants: { size: themeField?.size } }),
     enforced: {
       track: () => ({
         style: { [`border-inline-${insetSide()}`]: 'var(--bs-inset) solid transparent' },
@@ -91,26 +96,26 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         },
       }
     }
+    const indicatorSlot = slotWith('indicator', { enforced: indicatorStyle })
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
 
     function Texts(textProps: { fill?: boolean }): JSX.Element {
+      const labelSlot = slotWith('label', {
+        data: boldSliderDataAttributes.label({ fill: () => textProps.fill }),
+      })
+      const valueSlot = slotWith('value', {
+        data: boldSliderDataAttributes.value({ fill: () => textProps.fill }),
+      })
+
       return (
         <>
           <Show when={local.label}>
-            <span
-              data-slot="bold-slider-label"
-              {...boldSliderDataAttributes.label({ fill: () => textProps.fill })}
-              {...slots.label}
-            >
+            <span data-slot="bold-slider-label" {...labelSlot}>
               {local.label}
             </span>
           </Show>
           <Show when={local.showValue ?? true}>
-            <span
-              data-slot="bold-slider-value"
-              {...boldSliderDataAttributes.value({ fill: () => textProps.fill })}
-              {...slots.value}
-            >
+            <span data-slot="bold-slider-value" {...valueSlot}>
               {formatted()}
             </span>
           </Show>
@@ -120,7 +125,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
 
     return (
       <>
-        <div data-slot="bold-slider-content" aria-hidden="true" {...slots.content}>
+        <div data-slot="bold-slider-content" aria-hidden="true" {...contentSlot}>
           <Texts />
         </div>
         <div
@@ -131,11 +136,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         >
           <Texts fill />
         </div>
-        <div
-          data-slot="bold-slider-indicator"
-          aria-hidden="true"
-          {...slotWith('indicator', undefined, indicatorStyle)}
-        />
+        <div data-slot="bold-slider-indicator" aria-hidden="true" {...indicatorSlot} />
       </>
     )
   }
@@ -146,7 +147,13 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       orientation="horizontal"
       size={variants.size}
       aria-label={local['aria-label'] ?? local.label}
-      {...overrides(['root', 'track', 'range', 'marker', 'thumb'])}
+      {...overrides({
+        root: 'root',
+        track: 'track',
+        range: 'range',
+        marker: 'marker',
+        thumb: 'thumb',
+      })}
     >
       {(state: SliderT.ChildrenRenderProps<number>) => <Overlay {...state} />}
     </Slider>

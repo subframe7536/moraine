@@ -29,12 +29,15 @@ export function Table(props: TableT.Props): JSX.Element {
     'ref',
     'children',
   ])
-  const { slots, variants } = useRecipe(tableRecipe, local)
+  const {
+    slots: { container: containerSlot, root: rootSlot },
+    variants,
+  } = useRecipe(tableRecipe, local)
 
   return (
     <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(local) }}>
-      <div ref={local.containerRef} data-slot="table-container" {...slots.container}>
-        <table data-slot="table" {...rest} {...slots.root} ref={local.ref}>
+      <div ref={local.containerRef} data-slot="table-container" {...containerSlot}>
+        <table data-slot="table" {...rootSlot} {...rest} ref={local.ref}>
           {local.children}
         </table>
       </div>

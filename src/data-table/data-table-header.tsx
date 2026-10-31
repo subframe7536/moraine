@@ -1,7 +1,7 @@
 import { FlexRender } from '@tanstack/solid-table'
 import type { Header, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createUniqueId } from 'solid-js'
+import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
@@ -41,9 +41,10 @@ export function DataTableHeader<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
 }): JSX.Element {
   const ctx = useDataTableContext()
+  const headerSlot = ctx.sectionSlot('header')
 
   return (
-    <thead data-slot="data-table-header" {...ctx.sectionSlot('header')}>
+    <thead data-slot="data-table-header" {...headerSlot}>
       {/* Row count comes from all columns, so it stays correct when one region is empty. */}
       <For each={props.table.getHeaderGroups()}>
         {(_, depth) => (
@@ -96,6 +97,17 @@ function DataTableHeadCell<TData extends RowData>(props: {
         ? messages.sortedDescending
         : messages.sort
   }
+  // `For` keeps one header per head cell, so the binding reads it once.
+  const header = untrack(() => props.header)
+  const headSlot = ctx.cellSlot('head', header.column, pin, () => header.getSize(), 'header', {
+    data: dataTableDataAttributes.head({
+      pinned: pin.side,
+      pinnedEdge: () => pin.edge() && pin.side(),
+    }),
+  })
+  const sortIconSlot = ctx.slotWith('sortIcon', {
+    data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
+  })
 
   return (
     <th
@@ -103,11 +115,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
       colSpan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}
-      {...dataTableDataAttributes.head({
-        pinned: pin.side,
-        pinnedEdge: () => pin.edge() && pin.side(),
-      })}
-      {...ctx.cellSlot('head', column(), pin, () => props.header.getSize(), 'header')}
+      {...headSlot}
     >
       <Show when={!props.header.isPlaceholder}>
         <div class={DATA_TABLE_HEAD_INNER_CLASS}>
@@ -136,8 +144,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
               <Icon
                 name={SORT_ICONS[sorted()]}
                 data-slot="data-table-sort-icon"
-                {...dataTableDataAttributes.sortIcon({ sorted: column().getIsSorted() })}
-                {...ctx.slots.sortIcon}
+                {...sortIconSlot}
                 aria-hidden="true"
               />
               <span id={sortActionId} class={VISUALLY_HIDDEN_CLASS}>
@@ -194,6 +201,12 @@ function DataTableResizer<TData extends RowData>(props: {
     const id = column().id
     props.table.setColumnSizing((sizing) => ({ ...sizing, [id]: next }))
   }
+  const resizerSlot = ctx.slotWith('resizer', {
+    own: () => ({ style: resizerOffset(props.table, props.header) }),
+    data: dataTableDataAttributes.resizer({
+      resizing: () => column().getIsResizing(),
+    }),
+  })
 
   return (
     <div
@@ -205,9 +218,7 @@ function DataTableResizer<TData extends RowData>(props: {
       aria-valuemin={minSize()}
       aria-valuemax={maxSize()}
       tabIndex={0}
-      {...dataTableDataAttributes.resizer({
-        resizing: () => column().getIsResizing(),
-      })}
+      {...resizerSlot}
       onMouseDown={(event) => props.header.getResizeHandler()(event)}
       onTouchStart={(event) => props.header.getResizeHandler()(event)}
       onKeyDown={(event) => {
@@ -224,9 +235,6 @@ function DataTableResizer<TData extends RowData>(props: {
         }
       }}
       onClick={(event) => event.stopPropagation()}
-      {...ctx.slotWith('resizer', () => ({
-        style: resizerOffset(props.table, props.header),
-      }))}
     >
       <span id={actionId} class={VISUALLY_HIDDEN_CLASS}>
         {ctx.messages().resizeColumn}

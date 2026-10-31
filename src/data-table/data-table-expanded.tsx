@@ -32,37 +32,38 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
   render: Component<DataTableT.ExpandedRowRenderProps<TData>>
   slotOverrides: SlotOverrides
 }): JSX.Element {
-  const { slots } = useRecipe(
+  const {
+    slots: { expandedRow: expandedRowSlot, expandedCell: expandedCellSlot },
+  } = useRecipe(
     dataTableRecipe,
     {},
     {
       varsSlot: 'expandedCell',
-      contextSlots: () => props.slotOverrides,
-      vars: () => ({
-        '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
-      }),
+      data: {
+        expandedRow: dataTableDataAttributes.expandedRow(() => ({
+          expanded: props.disclosure.open,
+          closed: props.disclosure.closed,
+        })),
+        expandedCell: dataTableDataAttributes.expandedCell(() => ({
+          expanded: props.disclosure.open,
+          closed: props.disclosure.closed,
+        })),
+      },
+      context: () => props.slotOverrides,
+      own: {
+        expandedCell: () => ({
+          style: {
+            '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
+          },
+        }),
+      },
     },
   )
 
   return (
     <Show when={props.disclosure.shouldMount()}>
-      <tr
-        data-slot="data-table-expanded-row"
-        {...dataTableDataAttributes.expandedRow({
-          expanded: props.disclosure.open,
-          closed: props.disclosure.closed,
-        })}
-        {...slots.expandedRow}
-      >
-        <td
-          data-slot="data-table-expanded-cell"
-          colSpan={props.colSpan}
-          {...dataTableDataAttributes.expandedCell({
-            expanded: props.disclosure.open,
-            closed: props.disclosure.closed,
-          })}
-          {...slots.expandedCell}
-        >
+      <tr data-slot="data-table-expanded-row" {...expandedRowSlot}>
+        <td data-slot="data-table-expanded-cell" colSpan={props.colSpan} {...expandedCellSlot}>
           <div
             ref={(element) => {
               onCleanup(props.disclosure.registerPresenceElement(element))
@@ -78,6 +79,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
               height:
                 props.initiallyExpanded && props.disclosure.initialOpen() ? 'auto' : undefined,
             }}
+            // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The wrapper is a private host with a static class constant and no recipe slot.
             {...dataTableExpandedWrapperDataAttributes({
               expanded: props.disclosure.open,
               closed: props.disclosure.closed,

@@ -3,6 +3,7 @@ import type { Accessor } from 'solid-js'
 
 import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'
 import { createContextProvider } from '../shared/create-context-provider'
+import type { DataAttributeBag } from '../theme/style-contract'
 import type { TableVirtualColumnWindow } from '../virtualizer/virtualizer.types'
 
 import type { DataTableFeatures } from './data-table-features'
@@ -48,6 +49,7 @@ export interface DataTableContextValue {
     pin: DataTableCellPin,
     size: () => number,
     section: DataTableSection,
+    options?: { data?: DataAttributeBag },
   ) => SlotBinding
   /** Slot binding for the `header` or `footer` section, including its sticky position. */
   readonly sectionSlot: (section: 'header' | 'footer') => SlotBinding

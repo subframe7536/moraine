@@ -134,6 +134,9 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
       const ctx = useDataTableContext()
       const canExpand = () => props.row.getCanExpand()
       const isExpanded = () => props.row.getIsExpanded()
+      const expandButtonSlot = ctx.slotWith('expandButton', {
+        data: dataTableDataAttributes.expandButton({ expanded: isExpanded }),
+      })
 
       return (
         <Show when={canExpand()} fallback={<div class={DATA_TABLE_EXPAND_PLACEHOLDER_CLASS} />}>
@@ -142,12 +145,11 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
             data-slot="data-table-expand-button"
             aria-label={isExpanded() ? ctx.messages().collapseRow : ctx.messages().expandRow}
             aria-expanded={isExpanded()}
-            {...dataTableDataAttributes.expandButton({ expanded: isExpanded })}
+            {...expandButtonSlot}
             onClick={(e) => {
               e.stopPropagation()
               props.row.toggleExpanded()
             }}
-            {...ctx.slots.expandButton}
           >
             <Icon name="icon-chevron-right" />
           </button>

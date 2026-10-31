@@ -25,9 +25,17 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     throw new Error('Collapsible.Content must be used within Collapsible')
   }
   const disclosure = context.disclosure
-  const { slots } = useRecipe(collapsibleRecipe, local, {
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(collapsibleRecipe, local, {
     slot: 'content',
-    contextSlots: () => context.slotOverrides,
+    data: {
+      content: collapsibleDataAttributes.content({
+        expanded: disclosure.open,
+        closed: disclosure.closed,
+      }),
+    },
+    context: () => context.slotOverrides,
   })
 
   const shouldRenderContent = () => disclosure.shouldMount()
@@ -41,6 +49,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       aria-labelledby={context.triggerId()}
       aria-hidden={disclosure.ariaHidden()}
       data-slot="collapsible-content-wrapper"
+      // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- the private wrapper is not a recipe slot; it uses COLLAPSIBLE_CONTENT_WRAPPER_CLASS
       {...collapsibleWrapperDataAttributes({
         transition: disclosure.transition,
         expanded: disclosure.open,
@@ -58,12 +67,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
         <Dynamic
           component={local.as ?? 'div'}
           data-slot="collapsible-content"
-          {...collapsibleDataAttributes.content({
-            expanded: disclosure.open,
-            closed: disclosure.closed,
-          })}
+          {...contentSlot}
           {...rest}
-          {...slots.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
         />
       </Show>

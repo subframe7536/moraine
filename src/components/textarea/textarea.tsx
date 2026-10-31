@@ -65,11 +65,24 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const { slots } = useRecipe(textareaRecipe, local, {
-    contextVariants: () => ({
-      grouped: Boolean(group?.grouped),
-      groupedOrientation: group?.orientation,
-      size: group?.size ?? themeField?.size,
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(textareaRecipe, local, {
+    data: {
+      root: textareaDataAttributes.root(() => ({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        required: field.required,
+        readonly: field.readOnly,
+        autoresize: () => merged.autoResize,
+      })),
+    },
+    context: () => ({
+      variants: {
+        grouped: Boolean(group?.grouped),
+        groupedOrientation: group?.orientation,
+        size: group?.size ?? themeField?.size,
+      },
     }),
   })
 
@@ -270,15 +283,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <textarea
       data-slot="textarea"
-      {...textareaDataAttributes.root({
-        invalid: field.invalid,
-        disabled: field.disabled,
-        required: field.required,
-        readonly: field.readOnly,
-        autoresize: () => merged.autoResize,
-      })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       id={field.id()}
       name={field.name()}
       rows={merged.rows ?? 3}

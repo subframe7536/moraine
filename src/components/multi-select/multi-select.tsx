@@ -48,9 +48,29 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   const field = useFieldContext()
   const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => local.translations)
   const locale = useLocale().locale
-  const { slots, variants } = useRecipe(multiSelectRecipe, props, {
+  const {
+    slots,
+    slots: {
+      leading: leadingSlot,
+      tagsContainer: tagsContainerSlot,
+      tagOverflow: tagOverflowSlot,
+      clear: clearSlot,
+      trigger: triggerSlot,
+    },
+    slotWith,
+    variants,
+  } = useRecipe(multiSelectRecipe, props, {
     slot: 'control',
-    contextVariants: () => ({ size: field?.size }),
+    data: {
+      trigger: multiSelectDataAttributes.trigger({
+        closed: undefined,
+        disabled: undefined,
+        expanded: undefined,
+        invalid: undefined,
+        loading: () => local.loading,
+      }),
+    },
+    context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
   const [created, setCreated] = createSignal<T[]>([])
@@ -280,21 +300,27 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       }
     }
 
+    const controlSlot = slotWith('control', {
+      data: multiSelectDataAttributes.control({
+        closed: undefined,
+        disabled: undefined,
+        editable,
+        expanded: undefined,
+        invalid: undefined,
+        readonly: undefined,
+        required: undefined,
+        tags: () => tags.tags().length > 0,
+      }),
+    })
+    const inputSlot = slotWith('input', {
+      data: multiSelectDataAttributes.input({ duplicate: isDuplicate }),
+    })
+
     return (
       <>
         <BaseSelect.Control
+          {...controlSlot}
           {...rootProps}
-          {...slots.control}
-          {...multiSelectDataAttributes.control({
-            closed: undefined,
-            disabled: undefined,
-            editable,
-            expanded: undefined,
-            invalid: undefined,
-            readonly: undefined,
-            required: undefined,
-            tags: () => tags.tags().length > 0,
-          })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -321,9 +347,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...slots.leading} />}
+            {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
           </Show>
-          <div data-slot="multi-select-tags-container" {...slots.tagsContainer}>
+          <div data-slot="multi-select-tags-container" {...tagsContainerSlot}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
@@ -349,7 +375,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   <span
                     data-slot="multi-select-tag-overflow"
                     aria-label={messages().overflow({ count: tags.overflow() })}
-                    {...slots.tagOverflow}
+                    {...tagOverflowSlot}
                   >
                     +{tags.overflow()}
                   </span>
@@ -379,8 +405,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 {...inputBinding.inputProps}
                 {...state.field.ariaAttrs()}
                 data-slot="multi-select-input"
-                {...multiSelectDataAttributes.input({ duplicate: isDuplicate })}
-                {...slots.input}
+                {...inputSlot}
                 placeholder={tags.tags().length ? '' : local.placeholder}
                 ref={(element) => {
                   inputBinding.inputProps.ref(element)
@@ -398,7 +423,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               data-slot="multi-select-clear"
               aria-label={messages().clear}
               disabled={state.locked()}
-              {...slots.clear}
+              {...clearSlot}
               onPointerDown={tags.isolatePointer}
               onClick={(event) => {
                 event.stopPropagation()
@@ -413,15 +438,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             fallback={
               <BaseSelect.Trigger<'button', T>
                 aria-busy={local.loading ? 'true' : undefined}
-                {...multiSelectDataAttributes.trigger({
-                  closed: undefined,
-                  disabled: undefined,
-                  expanded: undefined,
-                  invalid: undefined,
-                  loading: () => local.loading,
-                })}
+                {...triggerSlot}
                 disabled={Boolean(local.loading)}
-                {...slots.trigger}
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
               >
@@ -439,6 +457,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                       ? (local.loadingIcon ?? 'icon-loading')
                       : (local.trailingIcon ?? 'icon-chevron-down')
                   }
+                  // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The trailing icon has no recipe slot; data-loading only drives SELECT_LOADING_ICON_CLASS.
                   {...multiSelectDataAttributes.trigger({
                     closed: undefined,
                     disabled: undefined,
@@ -459,15 +478,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
-              {...multiSelectDataAttributes.trigger({
-                closed: undefined,
-                disabled: undefined,
-                expanded: undefined,
-                invalid: undefined,
-                loading: () => local.loading,
-              })}
+              {...triggerSlot}
               disabled={state.field.disabled() || Boolean(local.loading)}
-              {...slots.trigger}
               onPointerDown={(event) => {
                 event.preventDefault()
                 event.stopPropagation()
@@ -484,6 +496,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                     ? (local.loadingIcon ?? 'icon-loading')
                     : (local.trailingIcon ?? 'icon-chevron-down')
                 }
+                // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The trailing icon has no recipe slot; data-loading only drives SELECT_LOADING_ICON_CLASS.
                 {...multiSelectDataAttributes.trigger({
                   closed: undefined,
                   disabled: undefined,

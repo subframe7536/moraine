@@ -17,12 +17,13 @@ export function DialogFooter<T extends ValidComponent = 'div'>(
   const content = useDialogContent()
   const unregister = content.registerFooter()
   onCleanup(unregister)
-  const { slots } = useRecipe(dialogRecipe, local, {
+  const {
+    slots: { footer: footerSlot },
+  } = useRecipe(dialogRecipe, local, {
     slot: 'footer',
-    contextVariants: () => content.variants,
-    contextSlots: () => dialog.slotOverrides,
+    context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="dialog-footer" {...rest} {...slots.footer} />
+    <Dynamic component={local.as ?? 'div'} data-slot="dialog-footer" {...footerSlot} {...rest} />
   )
 }

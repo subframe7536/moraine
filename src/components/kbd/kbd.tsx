@@ -25,7 +25,9 @@ export function Kbd(props: KbdProps): JSX.Element {
     'aria-label',
     'translations',
   ])
-  const { slots } = useRecipe(kbdRecipe, local)
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(kbdRecipe, local)
   const messages = useMessages('kbd', defaultKbdMessages, () => local.translations)
 
   const aliasKey = createMemo(() => {
@@ -46,7 +48,7 @@ export function Kbd(props: KbdProps): JSX.Element {
 
   return (
     <Show when={text()}>
-      <kbd data-slot={local.slotName ?? 'kbd'} aria-label={label()} {...rest} {...slots.root}>
+      <kbd data-slot={local.slotName ?? 'kbd'} aria-label={label()} {...rootSlot} {...rest}>
         {text()}
       </kbd>
     </Show>

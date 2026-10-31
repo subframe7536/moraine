@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
-import { pickSlotOverrides, useRecipe } from '../../provider'
+import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
@@ -22,9 +22,14 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'class',
     'style',
   ])
-  const { slots } = useRecipe(navigationMenuRecipe, local, {
+  const {
+    slots: { link: linkSlot },
+  } = useRecipe(navigationMenuRecipe, local, {
     slot: 'link',
-    contextSlots: () => pickSlotOverrides(context.options),
+    data: {
+      link: navigationMenuDataAttributes.link(() => ({ active: () => local.active, disabled })),
+    },
+    context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
   const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
   const attributes = mergeProps(
@@ -54,24 +59,26 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       },
     },
   )
-  const linkProps = mergeProps(attributes, {
-    get id() {
-      return local.id
+  const linkProps = mergeProps(
+    attributes,
+    {
+      get id() {
+        return local.id
+      },
+      get role() {
+        return disabled() ? 'link' : rest.role
+      },
+      get 'aria-disabled'() {
+        return disabled() ? true : undefined
+      },
+      get 'aria-current'() {
+        return local.active ? 'page' : rest['aria-current']
+      },
+      'data-slot': 'navigation-menu-link',
+      'data-moraine-navigation-menu-control': '',
     },
-    get role() {
-      return disabled() ? 'link' : rest.role
-    },
-    get 'aria-disabled'() {
-      return disabled() ? true : undefined
-    },
-    get 'aria-current'() {
-      return local.active ? 'page' : rest['aria-current']
-    },
-    'data-slot': 'navigation-menu-link',
-    'data-moraine-navigation-menu-control': '',
-    ...navigationMenuDataAttributes.link({ active: () => local.active, disabled }),
-    ...slots.link,
-  })
+    linkSlot,
+  )
   return (
     <Show when={local.linkRender} keyed fallback={<a {...linkProps} />}>
       {(linkRender) => renderWithProps(linkRender, linkProps)}

@@ -24,10 +24,18 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     'onPointerDown',
     'onMouseDown',
   ])
-  const { slots } = useRecipe(baseSelectRecipe, local, {
+  const {
+    slots: { item: itemSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'item',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
+    data: {
+      item: baseSelectDataAttributes.item(() => ({
+        selected,
+        highlighted,
+        disabled,
+      })),
+    },
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
   const item = () => local.item
   const selected = () => state.isSelected(item().value)
@@ -59,18 +67,13 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     <div
       role="option"
       data-slot={state.slotName('item')}
-      {...baseSelectDataAttributes.item({
-        selected,
-        highlighted,
-        disabled,
-      })}
+      {...itemSlot}
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={state.itemId(item().value)}
       tabIndex={-1}
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
-      {...slots.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (

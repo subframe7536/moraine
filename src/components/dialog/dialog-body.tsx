@@ -15,22 +15,18 @@ export function DialogBody<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const dialog = useDialogContext()
   const content = useDialogContent()
-  const { slots } = useRecipe(dialogRecipe, local, {
+  const {
+    slots: { body: bodySlot },
+  } = useRecipe(dialogRecipe, local, {
     slot: 'body',
-    contextVariants: () => content.variants,
-    contextSlots: () => dialog.slotOverrides,
-  })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-body"
-      {...dialogDataAttributes.body({
+    data: {
+      body: dialogDataAttributes.body({
         header: content.hasHeader,
         footer: content.hasFooter,
         scroll: () => !content.overlayScroll(),
-      })}
-      {...rest}
-      {...slots.body}
-    />
-  )
+      }),
+    },
+    context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
+  })
+  return <Dynamic component={local.as ?? 'div'} data-slot="dialog-body" {...bodySlot} {...rest} />
 }

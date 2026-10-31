@@ -22,11 +22,11 @@ export function Icon(props: IconProps): JSX.Element {
   const name = createMemo(() => local.name)
   const isString = createMemo(() => typeof name() === 'string')
 
-  const { slots } = useRecipe(iconRecipe, local, {
-    contextVariants: () => ({ isMask: isString() }),
-    own: () => ({
-      root: { class: isString() ? (name() as string) : undefined },
-    }),
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(iconRecipe, local, {
+    context: () => ({ variants: { isMask: isString() } }),
+    own: { root: () => ({ class: isString() ? (name() as string) : undefined }) },
   })
 
   const accessibilityProps = () => {
@@ -41,7 +41,7 @@ export function Icon(props: IconProps): JSX.Element {
   // The host owns every attribute and slot binding. A component graphic is rendered without
   // props, so slot styling never depends on whether it forwards them.
   return (
-    <span {...rest} {...accessibilityProps()} {...slots.root}>
+    <span {...rootSlot} {...rest} {...accessibilityProps()}>
       <Show when={!isString()}>
         <Show when={typeof name() === 'function'} fallback={name() as JSX.Element}>
           <Dynamic component={name() as ValidComponent} />

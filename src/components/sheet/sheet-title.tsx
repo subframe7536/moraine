@@ -17,18 +17,19 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
   const sheet = useSheetContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
-  const { slots } = useRecipe(sheetRecipe, local, {
+  const {
+    slots: { title: titleSlot },
+  } = useRecipe(sheetRecipe, local, {
     slot: 'title',
-    contextVariants: () => content.variants,
-    contextSlots: () => sheet.slotOverrides,
+    context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   return (
     <Dynamic
       component={local.as ?? 'h2'}
       data-slot="sheet-title"
+      {...titleSlot}
       {...rest}
       id={id()}
-      {...slots.title}
     />
   )
 }

@@ -80,13 +80,15 @@ function createAlertDialogRecipe(options: () => AlertDialogT.Options) {
     },
     {
       slot: 'content',
-      own: () => {
-        const width = maxWidth()
-        const tone = iconToneClass(options())
-        return {
-          content: width === undefined ? undefined : { style: { 'max-width': width } },
-          icon: tone === undefined ? undefined : { class: tone },
-        }
+      own: {
+        content: () => {
+          const width = maxWidth()
+          return width === undefined ? undefined : { style: { 'max-width': width } }
+        },
+        icon: () => {
+          const tone = iconToneClass(options())
+          return tone === undefined ? undefined : { class: tone }
+        },
       },
     },
   )
@@ -96,6 +98,13 @@ function AlertDialogDefault(props: {
   record: AlertDialogRecord
   recipe: AlertDialogRecipe
 }): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- AlertDialogEntry creates the recipe once and never replaces it.
+  const recipe = props.recipe
+  const {
+    slots: { header: headerSlot, icon: iconSlot, copy: copySlot, footer: footerSlot },
+    slotWith,
+    variants,
+  } = recipe
   const options = () => props.record.options()
   const messages = useMessages('dialog', defaultDialogMessages, () => options().translations)
   const title = createMemo(() => options().title)
@@ -111,35 +120,37 @@ function AlertDialogDefault(props: {
     const cancel = options().cancel
     return cancel && typeof cancel !== 'boolean' ? cancel : undefined
   }
+  const cancelSlot = slotWith('cancel', {
+    own: () => ({
+      class: cancelConfig()?.class,
+      style: cancelConfig()?.style,
+    }),
+  })
+  const actionSlot = slotWith('action', {
+    own: () => ({
+      class: options().action?.class,
+      style: options().action?.style,
+    }),
+  })
   const showHeader = () => hasContent(icon()) || hasContent(title()) || hasContent(description())
 
   return (
     <>
       <Show when={showHeader()}>
-        <Dialog.Header {...props.recipe.slots.header}>
+        <Dialog.Header {...headerSlot}>
           <Show when={icon()}>
             {(current) => (
               <Show
-                when={props.recipe.variants.center}
-                fallback={
-                  <Icon
-                    name={current()}
-                    data-slot="alert-dialog-icon"
-                    {...props.recipe.slots.icon}
-                  />
-                }
+                when={variants.center}
+                fallback={<Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />}
               >
                 <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                  <Icon
-                    name={current()}
-                    data-slot="alert-dialog-icon"
-                    {...props.recipe.slots.icon}
-                  />
+                  <Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />
                 </div>
               </Show>
             )}
           </Show>
-          <div data-slot="alert-dialog-copy" {...props.recipe.slots.copy}>
+          <div data-slot="alert-dialog-copy" {...copySlot}>
             <Show when={hasContent(title())}>
               <Dialog.Title>{title()}</Dialog.Title>
             </Show>
@@ -149,7 +160,7 @@ function AlertDialogDefault(props: {
           </div>
         </Dialog.Header>
       </Show>
-      <Dialog.Footer {...props.recipe.slots.footer}>
+      <Dialog.Footer {...footerSlot}>
         <Show when={showsCancel(props.record.mode, options().cancel)}>
           <FeedbackActionButton
             action={cancelConfig()}
@@ -159,10 +170,7 @@ function AlertDialogDefault(props: {
             loading={props.record.pending() === 'cancel'}
             disabled={props.record.pending() === 'action'}
             slotName="alert-dialog-cancel"
-            {...props.recipe.slotWith('cancel', () => ({
-              class: cancelConfig()?.class,
-              style: cancelConfig()?.style,
-            }))}
+            {...cancelSlot}
             onClick={(event) => props.record.presentation.cancel(event)}
           />
         </Show>
@@ -174,10 +182,7 @@ function AlertDialogDefault(props: {
           loading={props.record.pending() === 'action'}
           disabled={props.record.pending() === 'cancel'}
           slotName="alert-dialog-action"
-          {...props.recipe.slotWith('action', () => ({
-            class: options().action?.class,
-            style: options().action?.style,
-          }))}
+          {...actionSlot}
           onClick={(event) => props.record.presentation.action(event)}
         />
       </Dialog.Footer>
@@ -192,6 +197,9 @@ export function AlertDialogEntry(props: {
   const options = () => props.record.options()
   const customRender = () => props.record.render ?? props.dialogRender()
   const recipe = createAlertDialogRecipe(options)
+  const {
+    slots: { content: contentSlot },
+  } = recipe
 
   createEffect(
     on(
@@ -227,7 +235,7 @@ export function AlertDialogEntry(props: {
         aria-label={
           customRender() || !hasContent(options().title) ? options().ariaLabel : undefined
         }
-        {...recipe.slots.content}
+        {...contentSlot}
       >
         <Show
           when={customRender()}

@@ -14,14 +14,16 @@ export function SidebarMenuAction<T extends ValidComponent = 'div'>(
 ): JSX.Element {
   const context = useSidebarContext()
   const [local, rest] = splitProps(props as SidebarT.MenuActionProps, ['as', 'class', 'style'])
-  const { slots } = useSidebarStyles('menuAction', local)
+  const { slotWith } = useSidebarStyles('menuAction', local)
+  const menuActionSlot = slotWith('menuAction', {
+    data: sidebarDataAttributes.menuAction({ mobile: context.isMobile }),
+  })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sidebar-menu-action"
-      {...sidebarDataAttributes.menuAction({ mobile: context.isMobile })}
+      {...menuActionSlot}
       {...rest}
-      {...slots.menuAction}
     />
   )
 }

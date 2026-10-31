@@ -105,42 +105,74 @@ describe('oxlint-plugin-moraine', () => {
     })
   })
 
-  describe('inline-data-attributes-in-jsx', () => {
-    const rule = morainePlugin.rules['inline-data-attributes-in-jsx']
+  describe('data-attributes-in-slot-binding', () => {
+    const rule = morainePlugin.rules['data-attributes-in-slot-binding']
 
-    it('reports assigning *DataAttributes.* to a variable in component JSX files', () => {
+    function dataCall(name = 'dialogDataAttributes') {
+      return {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier', name },
+          property: { type: 'Identifier', name: 'body' },
+        },
+        arguments: [],
+      } as any
+    }
+
+    function property(name: string, value: any, parent?: any) {
+      const node = {
+        type: 'Property',
+        key: { type: 'Identifier', name },
+        value,
+        parent,
+      } as any
+      value.parent = node
+      return node
+    }
+
+    it('reports calls outside a slot data option', () => {
       const ctx = createMockContext('/project/src/components/dialog/dialog-body.tsx')
       const visitor = rule.create(ctx)
 
-      visitor.VariableDeclarator({
-        id: { type: 'Identifier', name: 'bodyAttrs' },
-        init: {
-          type: 'CallExpression',
-          callee: {
-            type: 'MemberExpression',
-            object: { type: 'Identifier', name: 'dialogDataAttributes' },
-            property: { type: 'Identifier', name: 'body' },
-          },
-          arguments: [],
-        },
-      })
-      expect(ctx.reports).toHaveLength(1)
-      expect(ctx.reports[0]?.messageId).toBe('mustInline')
-      expect(ctx.reports[0]?.data?.name).toBe('bodyAttrs')
+      // <div {...dialogDataAttributes.body()} />
+      const spread = dataCall()
+      spread.parent = { type: 'JSXSpreadAttribute', argument: spread }
+      visitor.CallExpression(spread)
+
+      // const bodyAttrs = popoverDataAttributes.body()
+      const assigned = dataCall('popoverDataAttributes')
+      assigned.parent = { type: 'VariableDeclarator', init: assigned }
+      visitor.CallExpression(assigned)
+
+      expect(ctx.reports.map((report) => report.data?.callee)).toEqual([
+        'dialogDataAttributes.body',
+        'popoverDataAttributes.body',
+      ])
+      expect(ctx.reports[0]?.messageId).toBe('mustBind')
     })
 
-    it('reports direct *DataAttributes call assignments', () => {
-      const ctx = createMockContext('/project/src/components/popover/popover-content.tsx')
+    it('allows useRecipe and slotWith data entries', () => {
+      const ctx = createMockContext('/project/src/data-table/data-table-row.tsx')
       const visitor = rule.create(ctx)
 
-      visitor.VariableDeclarator({
-        id: { type: 'Identifier', name: 'contentAttrs' },
-        init: {
-          type: 'CallExpression',
-          callee: { type: 'Identifier', name: 'popoverContentDataAttributes' },
-          arguments: [],
-        },
-      })
+      // useRecipe(recipe, props, { data: { body: dialogDataAttributes.body() } })
+      const slotEntry = dataCall()
+      const slots = { type: 'ObjectExpression', properties: [] } as any
+      slots.properties.push(property('body', slotEntry, slots))
+      property('data', slots)
+      visitor.CallExpression(slotEntry)
+
+      // slotWith('row', { data: dialogDataAttributes.body() })
+      const itemEntry = dataCall()
+      property('data', itemEntry)
+      visitor.CallExpression(itemEntry)
+
+      // { own: dialogDataAttributes.body() } is not a data entry.
+      const misplaced = dataCall()
+      property('own', misplaced)
+      visitor.CallExpression(misplaced)
+
       expect(ctx.reports).toHaveLength(1)
     })
 
@@ -152,6 +184,66 @@ describe('oxlint-plugin-moraine', () => {
 
       const testCtx = createMockContext('/project/src/components/dialog/dialog.test.tsx')
       expect(rule.create(testCtx)).toEqual({})
+    })
+  })
+
+  describe('slot-binding-order', () => {
+    const rule = morainePlugin.rules['slot-binding-order']
+    const spread = (argument: any) => ({ type: 'JSXSpreadAttribute', argument })
+    const id = (name: string) => ({ type: 'Identifier', name })
+    const slotsMember = (slot: string) => ({
+      type: 'MemberExpression',
+      computed: false,
+      object: id('slots'),
+      property: id(slot),
+    })
+
+    it('reports bindings spread after rest', () => {
+      const ctx = createMockContext('/project/src/components/badge/badge.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXOpeningElement({
+        attributes: [
+          spread(id('rest')),
+          spread(id('rootSlot')),
+          spread({ type: 'CallExpression', callee: id('slotWith'), arguments: [] }),
+        ],
+      })
+      expect(ctx.reports.map((report) => report.data?.binding)).toEqual([
+        'rootSlot',
+        'slotWith(...)',
+      ])
+      expect(ctx.reports[0]?.messageId).toBe('beforeRest')
+    })
+
+    it('allows bindings before rest and other spreads after rest', () => {
+      const ctx = createMockContext('/project/src/data-table/data-table.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXOpeningElement({
+        attributes: [
+          { type: 'JSXAttribute', name: { name: 'data-slot' } },
+          spread(id('rootSlot')),
+          spread(id('rest')),
+          spread(id('handlers')),
+        ],
+      })
+      expect(ctx.reports).toHaveLength(0)
+    })
+
+    it('requires destructuring static slots members', () => {
+      const ctx = createMockContext('/project/src/components/badge/badge.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXOpeningElement({
+        attributes: [
+          spread(slotsMember('label')),
+          spread({ ...slotsMember('label'), computed: true, property: id('key') }),
+        ],
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('destructure')
+      expect(ctx.reports[0]?.data?.slot).toBe('label')
     })
   })
 

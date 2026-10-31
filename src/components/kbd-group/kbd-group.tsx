@@ -29,7 +29,10 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const { slots, variants } = useRecipe(kbdGroupRecipe, local)
+  const {
+    slots: { root: rootSlot, item: itemSlot },
+    variants,
+  } = useRecipe(kbdGroupRecipe, local)
 
   const normalizedItems = createMemo<NormalizedKbdItem[]>((previous = []) => {
     const rawItems = local.items ?? []
@@ -57,7 +60,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
 
   return (
     <Show when={normalizedItems().length > 0}>
-      <kbd data-slot="kbd-group" {...rest} {...slots.root}>
+      <kbd data-slot="kbd-group" {...rootSlot} {...rest}>
         <For each={normalizedItems()}>
           {(entry, index) => (
             <>
@@ -65,7 +68,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 {...toItemProps(entry.item)}
                 size={variants.size}
                 variant={variants.variant}
-                {...slots.item}
+                {...itemSlot}
                 slotName="kbd-group-item"
               />
               <Show when={index() < normalizedItems().length - 1}>

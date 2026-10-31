@@ -12,14 +12,16 @@ export function SidebarInset<T extends ValidComponent = 'main'>(
   props: SidebarT.InsetProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-  const { slots } = useSidebarStyles('inset', local)
+  const {
+    slots: { inset: insetSlot },
+  } = useSidebarStyles('inset', local)
 
   return (
     <Dynamic
       component={(local.as ?? 'main') as ValidComponent}
       data-slot="sidebar-inset"
+      {...insetSlot}
       {...(rest as object)}
-      {...slots.inset}
     />
   )
 }

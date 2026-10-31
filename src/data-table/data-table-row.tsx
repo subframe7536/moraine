@@ -59,17 +59,21 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
   function BodyCell(cellProps: { cell: Cell<DataTableFeatures, TData> }): JSX.Element {
     const cell = () => cellProps.cell
     const pin = ctx.createColumnPin(() => cell().column)
+    // `For` keeps one cell per body cell, so its column is fixed for the binding.
+    const column = untrack(() => cell().column)
+    const cellSlot = ctx.cellSlot('cell', column, pin, () => column.getSize(), 'body', {
+      data: dataTableDataAttributes.cell({
+        pinned: pin.side,
+        pinnedEdge: () => pin.edge() && pin.side(),
+        tree: () => depth() > 0 && cell().column.id === ctx.treeColumnId(),
+      }),
+    })
     return (
       <td
         data-slot="data-table-cell"
         // Cells are missing from virtualized rows, so each one states its column.
         aria-colindex={ctx.columnVirtual() ? ctx.columnIndex(cell().column.id) : undefined}
-        {...dataTableDataAttributes.cell({
-          pinned: pin.side,
-          pinnedEdge: () => pin.edge() && pin.side(),
-          tree: () => depth() > 0 && cell().column.id === ctx.treeColumnId(),
-        })}
-        {...ctx.cellSlot('cell', cell().column, pin, () => cell().column.getSize(), 'body')}
+        {...cellSlot}
       >
         <FlexRender cell={cell()} />
       </td>
@@ -77,17 +81,38 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
   }
 
   function Spacer(spacerProps: { span: number }): JSX.Element {
+    const spacerSlot = ctx.slotWith('cell', {
+      own: () => ({ class: DATA_TABLE_COLUMN_SPACER_CLASS }),
+    })
     return (
       <Show when={spacerProps.span > 0}>
         <td
           aria-hidden="true"
           data-slot="data-table-cell-spacer"
           colSpan={spacerProps.span}
-          {...ctx.slotWith('cell', () => ({ class: DATA_TABLE_COLUMN_SPACER_CLASS }))}
+          {...spacerSlot}
         />
       </Show>
     )
   }
+
+  const rowSlot = ctx.slotWith('row', {
+    own: () => ({
+      class: [
+        typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
+        clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS,
+      ],
+      style:
+        depth() > 0
+          ? { '--mo-data-table-depth': depth(), ...DATA_TABLE_TREE_ROW_STYLE }
+          : undefined,
+    }),
+    data: dataTableDataAttributes.row({
+      selected: isSelected,
+      expanded: showsDetail,
+      empty: false,
+    }),
+  })
 
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
   return (
@@ -95,23 +120,9 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
       <tr
         {...props.rowProps}
         data-slot="data-table-row"
-        {...dataTableDataAttributes.row({
-          selected: isSelected,
-          expanded: showsDetail,
-          empty: false,
-        })}
+        {...rowSlot}
         onClick={(event) => props.onRowClick?.(props.row, event)}
         onDblClick={(event) => props.onRowDoubleClick?.(props.row, event)}
-        {...ctx.slotWith('row', () => ({
-          class: [
-            typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
-            clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS,
-          ],
-          style:
-            depth() > 0
-              ? { '--mo-data-table-depth': depth(), ...DATA_TABLE_TREE_ROW_STYLE }
-              : undefined,
-        }))}
       >
         <Show
           when={windowCells()}

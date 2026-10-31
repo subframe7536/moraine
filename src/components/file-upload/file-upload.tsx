@@ -297,8 +297,39 @@ export function FileUpload<Multiple extends boolean = false>(
   ])
   const messages = useMessages('fileUpload', defaultFileUploadMessages, () => local.translations)
   const themeField = useFieldContext()
-  const { slots, variants } = useRecipe(fileUploadRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots: {
+      root: rootSlot,
+      control: controlSlot,
+      wrapper: wrapperSlot,
+      icon: iconSlot,
+      label: labelSlot,
+      description: descriptionSlot,
+      files: filesSlot,
+      file: fileSlot,
+      filePreview: filePreviewSlot,
+      fileMeta: fileMetaSlot,
+      fileName: fileNameSlot,
+      fileSize: fileSizeSlot,
+      fileRemove: fileRemoveSlot,
+    },
+    variants,
+  } = useRecipe(fileUploadRecipe, local, {
+    data: {
+      root: fileUploadDataAttributes.root(() => ({
+        disabled: field.disabled,
+        readonly: readOnly,
+        required: field.required,
+        invalid,
+      })),
+      control: fileUploadDataAttributes.control(() => ({
+        dropzone,
+        dragging: () => (dropzone() ? dragging() : undefined),
+        invalid,
+      })),
+      wrapper: fileUploadDataAttributes.wrapper(() => ({ dropzone })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
 
   const merged = mergeProps(
@@ -531,7 +562,7 @@ export function FileUpload<Multiple extends boolean = false>(
         type="button"
         aria-label={messages().remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
-        {...slots.fileRemove}
+        {...fileRemoveSlot}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -606,21 +637,17 @@ export function FileUpload<Multiple extends boolean = false>(
 
   function Content(): JSX.Element {
     return (
-      <div
-        data-slot="file-upload-wrapper"
-        {...fileUploadDataAttributes.wrapper({ dropzone })}
-        {...slots.wrapper}
-      >
-        <Icon name={merged.icon} data-slot="file-upload-icon" {...slots.icon} />
+      <div data-slot="file-upload-wrapper" {...wrapperSlot}>
+        <Icon name={merged.icon} data-slot="file-upload-icon" {...iconSlot} />
 
         <Show when={label()}>
-          <span id={labelId()} data-slot="file-upload-label" {...slots.label}>
+          <span id={labelId()} data-slot="file-upload-label" {...labelSlot}>
             {label()}
           </span>
         </Show>
 
         <Show when={description()}>
-          <span id={descriptionId()} data-slot="file-upload-description" {...slots.description}>
+          <span id={descriptionId()} data-slot="file-upload-description" {...descriptionSlot}>
             {description()}
           </span>
         </Show>
@@ -698,14 +725,8 @@ export function FileUpload<Multiple extends boolean = false>(
     <div
       role="group"
       data-slot="file-upload"
-      {...fileUploadDataAttributes.root({
-        disabled: field.disabled,
-        readonly: readOnly,
-        required: field.required,
-        invalid,
-      })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       id={`${field.id()}-root`}
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
       aria-label={
@@ -722,12 +743,7 @@ export function FileUpload<Multiple extends boolean = false>(
             type="button"
             data-slot="file-upload-control"
             {...controlAriaAttrs()}
-            {...fileUploadDataAttributes.control({
-              dragging: undefined,
-              dropzone,
-              invalid,
-            })}
-            {...slots.control}
+            {...controlSlot}
             ref={setControlElement}
             disabled={field.disabled()}
             onFocus={(event) => field.emit('focus', event)}
@@ -742,12 +758,7 @@ export function FileUpload<Multiple extends boolean = false>(
           role="button"
           data-slot="file-upload-control"
           {...controlAriaAttrs()}
-          {...fileUploadDataAttributes.control({
-            dropzone,
-            dragging,
-            invalid,
-          })}
-          {...slots.control}
+          {...controlSlot}
           ref={setControlElement}
           tabIndex={field.disabled() ? undefined : 0}
           onFocus={(event) => field.emit('focus', event)}
@@ -790,26 +801,26 @@ export function FileUpload<Multiple extends boolean = false>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul data-slot="file-upload-files" {...slots.files}>
+        <ul data-slot="file-upload-files" {...filesSlot}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file-upload-file" {...slots.file}>
-                <span data-slot="file-upload-file-preview" {...slots.filePreview}>
+              <li data-slot="file-upload-file" {...fileSlot}>
+                <span data-slot="file-upload-file-preview" {...filePreviewSlot}>
                   <Show
                     when={previewUrls().get(file)}
                     fallback={
-                      <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...slots.icon} />
+                      <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...iconSlot} />
                     }
                   >
                     {(url) => <img class="size-full object-cover" src={url()} alt={file.name} />}
                   </Show>
                 </span>
 
-                <div data-slot="file-upload-file-meta" {...slots.fileMeta}>
-                  <span data-slot="file-upload-file-name" {...slots.fileName}>
+                <div data-slot="file-upload-file-meta" {...fileMetaSlot}>
+                  <span data-slot="file-upload-file-name" {...fileNameSlot}>
                     {file.name}
                   </span>
-                  <span data-slot="file-upload-file-size" {...slots.fileSize}>
+                  <span data-slot="file-upload-file-size" {...fileSizeSlot}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

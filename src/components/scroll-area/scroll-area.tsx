@@ -4,6 +4,7 @@ import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { createEventListener } from '../../shared/event-listener'
 import { callRef } from '../../shared/utils'
+import type { Orientation } from '../../theme/style-types'
 
 import { scrollAreaDataAttributes, scrollAreaRecipe } from './scroll-area.recipe'
 import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
@@ -24,15 +25,21 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'classes',
     'styles',
   ])
-  const { slots, variants } = useRecipe(scrollAreaRecipe, local, {
-    vars: () => {
-      if (local.shadowSize === undefined) {
-        return undefined
-      }
-      return { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` }
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(scrollAreaRecipe, local, {
+    data: {
+      root: scrollAreaDataAttributes.root(() => ({ orientation, shadowStart, shadowEnd })),
+    },
+    own: {
+      root: () =>
+        local.shadowSize === undefined
+          ? undefined
+          : { style: { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` } },
     },
   })
-  const orientation = () => variants.orientation
+  const orientation = (): Orientation | undefined => variants.orientation
   const shadow = () => variants.shadow === true
   const [overflow, setOverflow] = createSignal<Exclude<ScrollAreaT.Visibility, 'auto'>>('none')
   const [canScroll, setCanScroll] = createSignal(true)
@@ -45,9 +52,9 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     const visibility = local.visibility ?? 'auto'
     return visibility === 'auto' ? overflow() : visibility
   }
-  const shadowStart = () =>
+  const shadowStart = (): boolean =>
     visible() === 'both' || visible() === (orientation() === 'horizontal' ? 'left' : 'top')
-  const shadowEnd = () =>
+  const shadowEnd = (): boolean =>
     visible() === 'both' || visible() === (orientation() === 'horizontal' ? 'right' : 'bottom')
 
   createEffect(
@@ -139,9 +146,8 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     <div
       data-slot="scroll-area"
       tabIndex={canScroll() ? 0 : -1}
-      {...scrollAreaDataAttributes.root({ orientation, shadowStart, shadowEnd })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       ref={(element) => {
         root = element
         callRef(local.ref, element)

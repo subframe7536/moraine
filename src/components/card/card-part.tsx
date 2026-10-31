@@ -31,18 +31,22 @@ export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidC
       ['as', 'class', 'style'],
     )
     const context = useCardContext()
-    const { slots } = useRecipe(cardRecipe, local, {
+    const {
+      slots: { [slot]: partSlot },
+    } = useRecipe(cardRecipe, local, {
       slot,
-      contextVariants: () => ({ variant: context.variant, size: context.size }),
-      contextSlots: () => context.slotOverrides,
+      context: () => ({
+        variants: { variant: context.variant, size: context.size },
+        ...context.slotOverrides,
+      }),
     })
 
     return (
       <Dynamic
         component={local.as ?? fallback}
         data-slot={`card-${slot}`}
+        {...partSlot}
         {...rest}
-        {...slots[slot]}
       />
     )
   }
@@ -53,18 +57,23 @@ export function CardPart(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useCardContext()
-  const { slots } = useRecipe(cardRecipe, local, {
-    slot: untrack(() => local.slot),
-    contextVariants: () => ({ variant: context.variant, size: context.size }),
-    contextSlots: () => context.slotOverrides,
+  const slot = untrack(() => local.slot)
+  const {
+    slots: { [slot]: partSlot },
+  } = useRecipe(cardRecipe, local, {
+    slot,
+    context: () => ({
+      variants: { variant: context.variant, size: context.size },
+      ...context.slotOverrides,
+    }),
   })
 
   return (
     <Dynamic
       component={local.as ?? local.fallback}
-      data-slot={`card-${local.slot}`}
+      data-slot={`card-${slot}`}
+      {...partSlot}
       {...rest}
-      {...slots[local.slot]}
     />
   )
 }

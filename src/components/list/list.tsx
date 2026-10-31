@@ -26,7 +26,9 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     'class',
     'style',
   ])
-  const { slots } = useRecipe(listRecipe, local)
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(listRecipe, local)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   return (
@@ -34,8 +36,8 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       component={local.as ?? 'ul'}
       role="list"
       data-slot="list"
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       ref={(element: HTMLElement) => {
         setScrollElement(() => element)
         callRef(local.ref, element)

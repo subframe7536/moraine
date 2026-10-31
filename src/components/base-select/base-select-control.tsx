@@ -11,24 +11,27 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
-  const { slots } = useRecipe(baseSelectRecipe, local, {
+  const {
+    slots: { control: controlSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'control',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
-  })
-  return (
-    <div
-      data-slot={state.slotName('control')}
-      {...baseSelectDataAttributes.control({
+    data: {
+      control: baseSelectDataAttributes.control({
         disabled: state.field.disabled,
         readonly: state.field.readOnly,
         required: state.field.required,
         invalid: state.field.invalid,
         expanded: state.open,
         closed: () => !state.open(),
-      })}
+      }),
+    },
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+  })
+  return (
+    <div
+      data-slot={state.slotName('control')}
+      {...controlSlot}
       {...rest}
-      {...slots.control}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)

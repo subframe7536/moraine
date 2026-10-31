@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { createSignal, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 
@@ -11,19 +11,21 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectGroup(props: BaseSelectT.GroupProps): JSX.Element {
   const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
-  const { slots } = useRecipe(baseSelectRecipe, props, {
+  const [local, rest] = splitProps(props, ['class', 'style'])
+  const {
+    slots: { group: groupSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'group',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
   return (
     <GroupProvider value={{ labelId, setLabelId }}>
       <div
         role="group"
         data-slot={state.slotName('group')}
-        {...props}
+        {...groupSlot}
+        {...rest}
         aria-labelledby={labelId() ?? props['aria-labelledby']}
-        {...slots.group}
       >
         {props.children}
       </div>

@@ -24,10 +24,17 @@ interface DataAttributeResolverMarker {
   readonly [DATA_ATTRIBUTE_RESOLVER]: true
 }
 
+/**
+ * Resolves a fixed set of `data-*` getters. Pass the state as an accessor when it is defined
+ * after the call site (for example, in `useRecipe({ data })`); it is read only on attribute reads.
+ */
 export type DataAttributeResolver<Names extends readonly string[]> = ((
-  state: DataAttributeState<Names>,
+  state: DataAttributeState<Names> | (() => DataAttributeState<Names>),
 ) => DataAttributeResult<Names>) &
   DataAttributeResolverMarker
+
+/** Resolved `data-*` getters, as returned by a `createDataAttributes` resolver. */
+export type DataAttributeBag = { readonly [key: `data-${string}`]: string | number | undefined }
 
 export type DataAttributeContract<Slot extends string> = Partial<
   Record<Slot, DataAttributeResolverMarker>
@@ -61,18 +68,16 @@ export function createDataAttributes<const Names extends readonly string[]>(
   }
 ): DataAttributeResolver<Names> {
   const mappings = names.map((name) => [`data-${name}`, stateKey(name)] as const)
-  return ((state: DataAttributeState<Names>) => {
+  return ((state: DataAttributeState<Names> | (() => DataAttributeState<Names>)) => {
     const result = {} as DataAttributeResult<Names>
+    const read = (typeof state === 'function' ? state : () => state) as () => Readonly<
+      Record<string, MaybeAccessor<DataAttributeValue>>
+    >
     for (const [attributeName, sourceName] of mappings) {
       Object.defineProperty(result, attributeName, {
         enumerable: true,
         configurable: false,
-        get: () =>
-          normalizeStyleContractValue(
-            readSource(
-              (state as Readonly<Record<string, MaybeAccessor<DataAttributeValue>>>)[sourceName],
-            ),
-          ),
+        get: () => normalizeStyleContractValue(readSource(read()[sourceName])),
       })
     }
     return result

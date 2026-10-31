@@ -12,14 +12,16 @@ export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   props: SidebarT.GroupLabelProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-  const resolved = useSidebarStyles('groupLabel', local)
+  const {
+    slots: { groupLabel: groupLabelSlot },
+  } = useSidebarStyles('groupLabel', local)
 
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sidebar-group-label"
+      {...groupLabelSlot}
       {...rest}
-      {...resolved.slots.groupLabel}
     />
   )
 }

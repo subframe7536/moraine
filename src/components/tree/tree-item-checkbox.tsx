@@ -16,10 +16,11 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
   const [local, rest] = splitProps(props, ['checkedIcon', 'indeterminateIcon', 'class', 'style'])
   const context = useTreeContext()
   const item = useTreeItemContext()!.item
-  const { slots } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { checkbox: checkboxSlot },
+  } = useRecipe(treeRecipe, local, {
     slot: 'checkbox',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
   return (
@@ -28,8 +29,8 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
         slotName="tree-checkbox"
         aria-hidden={true}
         tabIndex={-1}
+        {...checkboxSlot}
         {...rest}
-        {...slots.checkbox}
         checked={
           item.checkedState === 'indeterminate' ? 'indeterminate' : item.checkedState === 'checked'
         }

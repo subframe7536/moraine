@@ -64,8 +64,26 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'onFocusOut',
   ])
   const themeField = useFieldContext()
-  const { slots, variants } = useRecipe(radioGroupRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots: {
+      root: rootSlot,
+      container: containerSlot,
+      wrapper: wrapperSlot,
+      label: labelSlot,
+      description: descriptionSlot,
+    },
+    slotWith,
+    variants,
+  } = useRecipe(radioGroupRecipe, local, {
+    data: {
+      root: radioGroupDataAttributes.root(() => ({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        required: field.required,
+      })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
   const merged = mergeProps(
     {
@@ -301,14 +319,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       data-slot="radio-group"
       aria-orientation={merged.orientation}
-      {...radioGroupDataAttributes.root({
-        invalid: field.invalid,
-        disabled: field.disabled,
-        readonly: field.readOnly,
-        required: field.required,
-      })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       id={groupId()}
       {...field.ariaAttrs()}
       ref={(element) => {
@@ -322,6 +334,24 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         {(item) => {
           const disabled = createMemo(() => item.disabled || field.disabled())
           const selected = createMemo(() => isSelected(item))
+          const itemSlot = slotWith('item', {
+            data: radioGroupDataAttributes.item({
+              checked: selected,
+              disabled,
+            }),
+          })
+          const controlSlot = slotWith('control', {
+            data: radioGroupDataAttributes.control({
+              checked: selected,
+              invalid: field.invalid,
+              disabled,
+              readonly: field.readOnly,
+              required: field.required,
+            }),
+          })
+          const indicatorSlot = slotWith('indicator', {
+            data: radioGroupDataAttributes.indicator({ checked: selected }),
+          })
 
           onCleanup(() => {
             const input = inputRefs.get(item.id)
@@ -340,13 +370,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={variants.variant === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="radio-group-item"
-              {...radioGroupDataAttributes.item({
-                checked: selected,
-                disabled,
-              })}
-              {...slots.item}
+              {...itemSlot}
             >
-              <div data-slot="radio-group-container" {...slots.container}>
+              <div data-slot="radio-group-container" {...containerSlot}>
                 <HiddenInput
                   ref={(element) => {
                     inputRefs.set(item.id, element)
@@ -387,34 +413,20 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   }}
                 />
 
-                <div
-                  data-slot="radio-group-control"
-                  {...radioGroupDataAttributes.control({
-                    checked: selected,
-                    invalid: field.invalid,
-                    disabled,
-                    readonly: field.readOnly,
-                    required: field.required,
-                  })}
-                  {...slots.control}
-                >
+                <div data-slot="radio-group-control" {...controlSlot}>
                   <Show when={selected()}>
-                    <div
-                      data-slot="radio-group-indicator"
-                      {...slots.indicator}
-                      {...radioGroupDataAttributes.indicator({ checked: selected })}
-                    />
+                    <div data-slot="radio-group-indicator" {...indicatorSlot} />
                   </Show>
                 </div>
               </div>
 
               <Show when={item.label || item.description}>
-                <div data-slot="radio-group-wrapper" {...slots.wrapper}>
+                <div data-slot="radio-group-wrapper" {...wrapperSlot}>
                   <Show when={item.label}>
                     <Show
                       when={variants.variant === 'list'}
                       fallback={
-                        <p id={item.labelId} data-slot="radio-group-label" {...slots.label}>
+                        <p id={item.labelId} data-slot="radio-group-label" {...labelSlot}>
                           {item.label}
                         </p>
                       }
@@ -423,7 +435,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         id={item.labelId}
                         for={item.inputId}
                         data-slot="radio-group-label"
-                        {...slots.label}
+                        {...labelSlot}
                       >
                         {item.label}
                       </label>
@@ -434,7 +446,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     <p
                       id={item.descriptionId}
                       data-slot="radio-group-description"
-                      {...slots.description}
+                      {...descriptionSlot}
                     >
                       {item.description}
                     </p>

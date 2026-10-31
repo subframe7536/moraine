@@ -46,11 +46,23 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const { slots } = useRecipe(inputRecipe, local, {
-    contextVariants: () => ({
-      grouped: Boolean(group?.grouped),
-      groupedOrientation: group?.orientation,
-      size: group?.size ?? themeField?.size,
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(inputRecipe, local, {
+    data: {
+      root: inputDataAttributes.root(() => ({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        required: field.required,
+        readonly: field.readOnly,
+      })),
+    },
+    context: () => ({
+      variants: {
+        grouped: Boolean(group?.grouped),
+        groupedOrientation: group?.orientation,
+        size: group?.size ?? themeField?.size,
+      },
     }),
   })
 
@@ -166,14 +178,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <input
       data-slot="input"
-      {...inputDataAttributes.root({
-        invalid: field.invalid,
-        disabled: field.disabled,
-        required: field.required,
-        readonly: field.readOnly,
-      })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       id={field.id()}
       type={merged.type}
       name={field.name()}

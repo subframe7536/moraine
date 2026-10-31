@@ -91,6 +91,9 @@ function findSlotsClassOrStyleAccess(node: any): any {
       if (node.object?.type === 'MemberExpression' && isSlotsAccess(node.object.object)) {
         return node
       }
+      if (node.object?.type === 'Identifier' && node.object.name.endsWith('Slot')) {
+        return node
+      }
     }
     return findSlotsClassOrStyleAccess(node.object)
   }
@@ -129,6 +132,98 @@ function findSlotsClassOrStyleAccess(node: any): any {
     }
   }
   return null
+}
+
+/** Component and feature-entry implementation files that render slot hosts. */
+function isSlotHostFile(filePath: string): boolean {
+  const normalized = normalizePath(filePath)
+  if (!normalized.endsWith('.tsx') && !normalized.endsWith('.jsx')) {
+    return false
+  }
+  if (isComponentFile(filePath)) {
+    return true
+  }
+  return isSourceFile(filePath) && /\/src\/(data-table|virtualizer)\//.test(normalized)
+}
+
+const REST_NAMES = new Set(['rest', 'others'])
+
+/** Returns the printed callee of a `*DataAttributes.<slot>(...)` or `*DataAttributes(...)` call. */
+function dataAttributesCallee(callee: any): string | undefined {
+  if (callee?.type === 'Identifier' && callee.name.endsWith('DataAttributes')) {
+    return callee.name
+  }
+  if (
+    callee?.type === 'MemberExpression' &&
+    callee.object?.type === 'Identifier' &&
+    callee.object.name.endsWith('DataAttributes')
+  ) {
+    const property = callee.computed ? '[...]' : `.${callee.property?.name}`
+    return `${callee.object.name}${property}`
+  }
+  return undefined
+}
+
+function propertyKeyName(property: any): string | undefined {
+  if (property?.type !== 'Property' || property.computed) {
+    return undefined
+  }
+  return property.key?.type === 'Identifier'
+    ? property.key.name
+    : typeof property.key?.value === 'string'
+      ? property.key.value
+      : undefined
+}
+
+/** `data: { slot: <call> }` (useRecipe) or `data: <call>` (slotWith). */
+function isSlotDataEntry(call: any): boolean {
+  const property = call.parent
+  if (property?.type !== 'Property' || property.value !== call) {
+    return false
+  }
+  if (propertyKeyName(property) === 'data') {
+    return true
+  }
+  const slots = property.parent
+  const dataProperty = slots?.type === 'ObjectExpression' ? slots.parent : undefined
+  return dataProperty?.value === slots && propertyKeyName(dataProperty) === 'data'
+}
+
+/** Slot name for `{...slots.<slot>}` with a static key. */
+function staticSlotsMember(argument: any): string | undefined {
+  if (
+    argument?.type === 'MemberExpression' &&
+    !argument.computed &&
+    argument.object?.type === 'Identifier' &&
+    argument.object.name === 'slots' &&
+    argument.property?.type === 'Identifier'
+  ) {
+    return argument.property.name
+  }
+  return undefined
+}
+
+/** Printed name of a slot binding spread: `xSlot`, `slots.x`, `slots[k]`, or `slotWith(...)`. */
+function slotBindingName(argument: any): string | undefined {
+  if (argument?.type === 'Identifier' && argument.name.endsWith('Slot')) {
+    return argument.name
+  }
+  if (argument?.type === 'MemberExpression' && isSlotsAccess(argument.object)) {
+    return argument.computed ? 'slots[...]' : `slots.${argument.property?.name}`
+  }
+  if (argument?.type === 'CallExpression') {
+    const callee = argument.callee
+    const name =
+      callee?.type === 'Identifier'
+        ? callee.name
+        : callee?.type === 'MemberExpression'
+          ? callee.property?.name
+          : undefined
+    if (name === 'slotWith') {
+      return 'slotWith(...)'
+    }
+  }
+  return undefined
 }
 
 const GLOBAL_BUILTINS = new Set([
@@ -286,11 +381,11 @@ export default {
         type: 'problem',
         docs: {
           description:
-            'Disallow passing slots.<slot>.class or slots.<slot>.style directly to JSX attributes.',
+            'Disallow passing a slot binding class or style (slots.<slot>.class, <slot>Slot.style) directly to JSX attributes.',
         },
         messages: {
           forbidden:
-            'Do not pass "slots.<slot>.class" or "slots.<slot>.style" to JSX attributes. Spread "{...slots.<slot>}" directly or use "slotWith" / "overrides".',
+            'Do not pass a slot binding "class" or "style" to JSX attributes. Spread the binding ("{...<slot>Slot}") or use "slotWith" / "overrides".',
         },
       },
       create(context: any) {
@@ -319,43 +414,70 @@ export default {
       },
     },
 
-    'inline-data-attributes-in-jsx': {
+    'data-attributes-in-slot-binding': {
       meta: {
         type: 'problem',
         docs: {
           description:
-            'Enforce calling *DataAttributes.*(...) directly inside JSX spreads rather than assigning to an intermediate variable.',
+            'Require *DataAttributes.*(...) calls to be slot `data` entries of useRecipe or slotWith options.',
         },
         messages: {
-          mustInline:
-            'Call "...DataAttributes.*(...)" directly inside JSX spreads instead of assigning to variable "{{name}}".',
+          mustBind:
+            'Pass "{{callee}}(...)" as a slot entry of the `data` option of useRecipe or slotWith, so the slot binding carries it.',
         },
       },
       create(context: any): Record<string, any> {
-        const normalized = normalizePath(context.filename)
-        if (
-          !isComponentFile(context.filename) ||
-          (!normalized.endsWith('.tsx') && !normalized.endsWith('.jsx'))
-        ) {
+        if (!isSlotHostFile(context.filename)) {
           return {}
         }
         return {
-          VariableDeclarator(node: any) {
-            if (node.init?.type === 'CallExpression') {
-              const callee = node.init.callee
-              const isDirectCall =
-                callee.type === 'Identifier' && callee.name.endsWith('DataAttributes')
-              const isMemberCall =
-                callee.type === 'MemberExpression' &&
-                callee.object?.type === 'Identifier' &&
-                callee.object.name.endsWith('DataAttributes')
+          CallExpression(node: any) {
+            const callee = dataAttributesCallee(node.callee)
+            if (callee && !isSlotDataEntry(node)) {
+              context.report({ node, messageId: 'mustBind', data: { callee } })
+            }
+          },
+        }
+      },
+    },
 
-              if (isDirectCall || isMemberCall) {
-                context.report({
-                  node,
-                  messageId: 'mustInline',
-                  data: { name: node.id.type === 'Identifier' ? node.id.name : 'variable' },
-                })
+    'slot-binding-order': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            'Spread destructured slot bindings, and spread them before {...rest} so callers can overload generated attributes.',
+        },
+        messages: {
+          beforeRest:
+            'Spread the slot binding "{{binding}}" before "{...{{rest}}}"; owned wiring goes after rest.',
+          destructure:
+            'Destructure the slot binding (`slots: { {{slot}}: {{slot}}Slot }`) and spread "{...{{slot}}Slot}" instead of "{...slots.{{slot}}}".',
+        },
+      },
+      create(context: any): Record<string, any> {
+        if (!isSlotHostFile(context.filename)) {
+          return {}
+        }
+        return {
+          JSXOpeningElement(node: any) {
+            let rest: string | undefined
+            for (const attribute of node.attributes ?? []) {
+              if (attribute.type !== 'JSXSpreadAttribute') {
+                continue
+              }
+              const argument = attribute.argument
+              const member = staticSlotsMember(argument)
+              if (member) {
+                context.report({ node: argument, messageId: 'destructure', data: { slot: member } })
+              }
+              if (argument?.type === 'Identifier' && REST_NAMES.has(argument.name)) {
+                rest ??= argument.name
+                continue
+              }
+              const binding = slotBindingName(argument)
+              if (binding && rest) {
+                context.report({ node: argument, messageId: 'beforeRest', data: { binding, rest } })
               }
             }
           },

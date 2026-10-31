@@ -20,10 +20,18 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['ref', 'class', 'style'])
-  const { slots } = useRecipe(baseSelectRecipe, local, {
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'content',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
+    data: {
+      content: baseSelectDataAttributes.content(() => ({
+        expanded: state.open,
+        closed: () => !state.open(),
+        side,
+      })),
+    },
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
   const presence = createTransitionPresence({
     open: state.open,
@@ -93,13 +101,8 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
         >
           <div
             data-slot={state.slotName('content')}
-            {...baseSelectDataAttributes.content({
-              expanded: state.open,
-              closed: () => !state.open(),
-              side,
-            })}
+            {...contentSlot}
             {...rest}
-            {...slots.content}
             ref={(element) => {
               setContent(element)
               presence.setElement(element)

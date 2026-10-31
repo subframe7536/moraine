@@ -12,24 +12,29 @@ import type { ButtonGroupT } from './button-group.types'
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['class', 'style'])
   const group = useButtonGroupContext()
-  const { slots, variants } = useRecipe(buttonGroupRecipe, local, {
+  const {
+    slots: { separator: separatorSlot },
+    variants,
+  } = useRecipe(buttonGroupRecipe, local, {
     slot: 'separator',
     varsSlot: 'separator',
-    contextVariants: () => ({
-      variant: group?.tone ? group?.variant : undefined,
-      tone: group?.tone,
-      orientation:
-        group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
+    context: () => ({
+      variants: {
+        variant: group?.tone ? group?.variant : undefined,
+        tone: group?.tone,
+        orientation:
+          group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
+      },
+      ...group?.slotOverrides,
     }),
-    contextSlots: () => group?.slotOverrides,
   })
 
   return (
     <Separator
       data-slot="button-group-separator"
       orientation={variants.orientation}
+      {...separatorSlot}
       {...rest}
-      {...slots.separator}
     />
   )
 }

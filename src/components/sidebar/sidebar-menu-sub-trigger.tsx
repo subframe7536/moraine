@@ -21,7 +21,9 @@ export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
     'style',
     'trailing',
   ])
-  const { slots } = useSidebarStyles('menuSubTrigger', local)
+  const {
+    slots: { menuSubTrigger: menuSubTriggerSlot },
+  } = useSidebarStyles('menuSubTrigger', local)
   const TriggerRoot = (rootProps: object) => (
     <Collapsible.Trigger as={local.as as ValidComponent | undefined} {...rootProps} />
   )
@@ -31,8 +33,8 @@ export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
       as={TriggerRoot}
       data-slot="sidebar-menu-sub-trigger"
       trailing={local.trailing ?? DEFAULT_SUBMENU_TRAILING}
+      {...menuSubTriggerSlot}
       {...(rest as object)}
-      {...slots.menuSubTrigger}
     />
   )
 }

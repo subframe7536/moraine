@@ -99,8 +99,19 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 
   const hasIcon = () => local.icon !== false && local.icon !== null
 
-  const { slots } = useRecipe(copyButtonRecipe, local, {
-    contextVariants: () => {
+  const {
+    slots: { root: rootSlot, icon: iconSlot, label: labelSlot },
+  } = useRecipe(copyButtonRecipe, local, {
+    data: {
+      root: copyButtonDataAttributes.root(() => ({
+        copied: clipboard.isCopied,
+        disabled: () => local.disabled,
+      })),
+      icon: copyButtonDataAttributes.icon(() => ({
+        copied: clipboard.isCopied,
+      })),
+    },
+    context: () => {
       const s = String(variantProps.size ?? group?.size ?? 'md')
       const resolvedSize =
         hasIcon() && !hasContent(resolvedChildren())
@@ -110,14 +121,16 @@ export function CopyButton<T extends ValidComponent = 'button'>(
           : s.replace(/^icon-/, '')
 
       return {
-        get size() {
-          return resolvedSize as CopyButtonStyleVariants['size']
-        },
-        get variant() {
-          return group?.variant !== 'link' ? group?.variant : undefined
-        },
-        get tone() {
-          return group?.tone
+        variants: {
+          get size() {
+            return resolvedSize as CopyButtonStyleVariants['size']
+          },
+          get variant() {
+            return group?.variant !== 'link' ? group?.variant : undefined
+          },
+          get tone() {
+            return group?.tone
+          },
         },
       }
     },
@@ -154,28 +167,15 @@ export function CopyButton<T extends ValidComponent = 'button'>(
           : local.icon,
     )
 
-    return (
-      <Icon
-        name={icon()}
-        data-slot="copy-button-icon"
-        {...copyButtonDataAttributes.icon({
-          copied: clipboard.isCopied,
-        })}
-        {...slots.icon}
-      />
-    )
+    return <Icon name={icon()} data-slot="copy-button-icon" {...iconSlot} />
   }
 
   return (
     <Dynamic
       component={tag()}
       data-slot={local.slotName || 'copy-button'}
-      {...copyButtonDataAttributes.root({
-        copied: clipboard.isCopied,
-        disabled: () => local.disabled,
-      })}
+      {...rootSlot}
       {...binding}
-      {...slots.root}
       aria-invalid={clipboard.isError() ? true : undefined}
       aria-label={
         local['aria-label'] ?? (clipboard.isCopied() ? messages().copied : messages().copy)
@@ -186,7 +186,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       </Show>
 
       <Show when={hasContent(resolvedChildren())}>
-        <span data-slot="copy-button-label" {...slots.label}>
+        <span data-slot="copy-button-label" {...labelSlot}>
           {resolvedChildren()}
         </span>
       </Show>

@@ -41,25 +41,25 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     ],
   )
   const { variants, overrides } = useRecipe(toggleButtonRecipe, local, {
-    contextVariants: () => {
-      if (!group) {
-        return undefined
-      }
-      return {
-        get size() {
-          return group.size
-        },
-        get variant() {
-          return group.variant
-        },
-        get tone() {
-          return group.tone
-        },
-        get activeTone() {
-          return group.tone
-        },
-      }
-    },
+    context: () =>
+      group
+        ? {
+            variants: {
+              get size() {
+                return group.size
+              },
+              get variant() {
+                return group.variant
+              },
+              get tone() {
+                return group.tone
+              },
+              get activeTone() {
+                return group.tone
+              },
+            },
+          }
+        : undefined,
   })
   const [pressed, setPressed] = createControllableValue<boolean>({
     value: () => local.pressed,
@@ -94,6 +94,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
   return (
     <Button
       slotName="toggle-button"
+      // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Button renders the host; presentation is forwarded through overrides, so there is no slot binding to carry data.
       {...toggleButtonDataAttributes.root({ pressed })}
       {...rest}
       as={local.as}
@@ -102,7 +103,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       tone={pressed() ? variants.activeTone : variants.tone}
       size={variants.size}
       activeEffect="none"
-      {...overrides()}
+      {...overrides({ root: 'root', leading: 'leading', label: 'label', trailing: 'trailing' })}
       onClick={handleClick}
       children={buttonChildren()}
     />

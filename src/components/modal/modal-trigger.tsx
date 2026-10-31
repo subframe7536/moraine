@@ -56,6 +56,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
         context.contentElement() ? context.contentElement()?.id || context.contentId() : undefined
       }
       aria-expanded={context.open() ? 'true' : 'false'}
+      // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The trigger has no recipe slot to carry its data.
       {...overlayTriggerDataAttributes({
         expanded: context.open,
         closed: () => !context.open(),

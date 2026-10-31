@@ -9,7 +9,12 @@ import type { SeparatorProps } from './separator.types'
 /** Semantic divider with configurable horizontal or vertical orientation. */
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'class', 'style', 'classes', 'styles'])
-  const { slots, variants } = useRecipe(separatorRecipe, local)
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(separatorRecipe, local, {
+    data: { root: separatorDataAttributes.root(() => ({ orientation })) },
+  })
   const orientation = () => variants.orientation
 
   return (
@@ -17,9 +22,8 @@ export function Separator(props: SeparatorProps): JSX.Element {
       data-slot="separator"
       role="separator"
       aria-orientation={orientation()}
-      {...separatorDataAttributes.root({ orientation })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
     />
   )
 }

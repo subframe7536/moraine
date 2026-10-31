@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, onCleanup, splitProps } from 'solid-js'
 
-import { pickSlotOverrides, useRecipe } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -25,11 +25,23 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     throw new Error('NavigationMenu.Content must be used within NavigationMenu.Item')
   }
   const [local, rest] = splitProps(props, ['class', 'style'])
-  const { slots } = useRecipe(navigationMenuRecipe, local, {
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
     varsSlot: 'content',
-    contextVariants: () => ({ orientation: context.orientation() }),
-    contextSlots: () => pickSlotOverrides(context.options),
+    data: {
+      content: navigationMenuDataAttributes.content(() => ({
+        expanded: displayed,
+        closed: () => !displayed(),
+        orientation: context.orientation,
+      })),
+    },
+    context: () => ({
+      variants: { orientation: context.orientation() },
+      classes: context.options.classes,
+      styles: context.options.styles,
+    }),
   })
   const expanded = createMemo(() => context.open() && context.activeItem() === item)
   // Item switches animate content; closing animates the shared panel with its content intact.
@@ -122,13 +134,8 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
         return (
           <div
             data-slot="navigation-menu-content"
-            {...navigationMenuDataAttributes.content({
-              expanded: displayed,
-              closed: () => !displayed(),
-              orientation: context.orientation,
-            })}
+            {...contentSlot}
             {...attributes}
-            {...slots.content}
             id={`${context.id()}-${item.value()}-content`}
             role={rest.role ?? 'region'}
             aria-labelledby={item.trigger()?.id}

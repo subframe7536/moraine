@@ -35,7 +35,11 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'onReset',
     'translations',
   ])
-  const { slots } = useRecipe(formRecipe, local)
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(formRecipe, local, {
+    data: { root: formDataAttributes.root({ submitting: () => local.of.isSubmitting }) },
+  })
   const messages = useMessages('form', defaultFormMessages, () => local.translations)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
@@ -92,9 +96,8 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
   return (
     <form
       data-slot="form"
-      {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
+      {...rootSlot}
       {...formProps}
-      {...slots.root}
       ref={(element) => {
         local.of[INTERNAL].element = element
         callRef(local.ref, element)

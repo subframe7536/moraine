@@ -34,18 +34,19 @@ export function createEmptyPart<S extends EmptyPartSlot>(
       ['as', 'class', 'style'],
     )
     const context = useEmptyContext()
-    const { slots } = useRecipe(emptyRecipe, local, {
+    const {
+      slots: { [slot]: partSlot },
+    } = useRecipe(emptyRecipe, local, {
       slot,
-      contextVariants: () => ({ size: context.size }),
-      contextSlots: () => context.slotOverrides,
+      context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
     })
 
     return (
       <Dynamic
         component={local.as ?? fallback}
         data-slot={`empty-${slot}`}
+        {...partSlot}
         {...rest}
-        {...slots[slot]}
       />
     )
   }
@@ -56,18 +57,20 @@ export function EmptyPart(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useEmptyContext()
-  const { slots } = useRecipe(emptyRecipe, local, {
-    slot: untrack(() => local.slot),
-    contextVariants: () => ({ size: context.size }),
-    contextSlots: () => context.slotOverrides,
+  const slot = untrack(() => local.slot)
+  const {
+    slots: { [slot]: partSlot },
+  } = useRecipe(emptyRecipe, local, {
+    slot,
+    context: () => ({ variants: { size: context.size }, ...context.slotOverrides }),
   })
 
   return (
     <Dynamic
       component={local.as ?? local.fallback}
-      data-slot={`empty-${local.slot}`}
+      data-slot={`empty-${slot}`}
+      {...partSlot}
       {...rest}
-      {...slots[local.slot]}
     />
   )
 }

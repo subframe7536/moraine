@@ -55,6 +55,7 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
       type="button"
       role="checkbox"
       data-slot={local.slotName}
+      // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Private host without a recipe; callers pass class and style.
       {...checkControlDataAttributes({ checked, unchecked, indeterminate, disabled })}
       {...rest}
       class={local.class}

@@ -118,7 +118,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
   const { variants } = useRecipe(baseSelectRecipe, props, {
     slot: 'control',
-    contextVariants: () => ({ size: field.size() ?? undefined }),
+    context: () => ({ variants: { size: field.size() ?? undefined } }),
   })
   const slotOverrides = {
     get classes() {

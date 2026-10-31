@@ -18,18 +18,14 @@ function createDialogHeader(headerKind: 'explicit' | 'shorthand') {
     const content = useDialogContent()
     const unregister = content.registerHeader(headerKind)
     onCleanup(unregister)
-    const { slots } = useRecipe(dialogRecipe, local, {
+    const {
+      slots: { header: headerSlot },
+    } = useRecipe(dialogRecipe, local, {
       slot: 'header',
-      contextVariants: () => content.variants,
-      contextSlots: () => dialog.slotOverrides,
+      context: () => ({ variants: content.variants, ...dialog.slotOverrides }),
     })
     return (
-      <Dynamic
-        component={local.as ?? 'div'}
-        data-slot="dialog-header"
-        {...rest}
-        {...slots.header}
-      />
+      <Dynamic component={local.as ?? 'div'} data-slot="dialog-header" {...headerSlot} {...rest} />
     )
   }
 }

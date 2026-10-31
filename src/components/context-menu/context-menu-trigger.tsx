@@ -25,12 +25,19 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled'])
   const context = useContextMenuContext()
 
-  const { slots } = useRecipe(contextMenuRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(contextMenuRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => context.slotOverrides,
-    own: () => ({
-      trigger: { class: CONTEXT_MENU_TRIGGER_CLASS },
-    }),
+    data: {
+      trigger: contextMenuDataAttributes.trigger(() => ({
+        closed: () => !context.isOpen(),
+        disabled,
+        expanded: context.isOpen,
+      })),
+    },
+    context: () => context.slotOverrides,
+    own: { trigger: () => ({ class: CONTEXT_MENU_TRIGGER_CLASS }) },
   })
   const tag = () => local.as ?? 'div'
   const root = createPolymorphicRoot({
@@ -63,11 +70,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const triggerProps = mergeProps(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
-    contextMenuDataAttributes.trigger({
-      closed: () => !context.isOpen(),
-      disabled,
-      expanded: context.isOpen,
-    }),
+    triggerSlot,
     {
       get disabled() {
         return a11y().disabled
@@ -84,5 +87,5 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   )
   const binding = root.bind(triggerProps)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
-  return <Dynamic component={tag()} type={undefined} {...binding} {...slots.trigger} />
+  return <Dynamic component={tag()} type={undefined} {...binding} />
 }

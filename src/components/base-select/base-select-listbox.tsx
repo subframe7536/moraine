@@ -13,10 +13,11 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
-  const { slots } = useRecipe(baseSelectRecipe, local, {
+  const {
+    slots: { listbox: listboxSlot },
+  } = useRecipe(baseSelectRecipe, local, {
     slot: 'listbox',
-    contextSlots: () => state.slotOverrides,
-    contextVariants: () => ({ size: state.styleSize }),
+    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
   })
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
@@ -42,8 +43,8 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       data-slot={state.slotName('listbox')}
       aria-readonly={state.field.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
+      {...listboxSlot}
       {...rest}
-      {...slots.listbox}
       id={state.listboxId()}
       tabIndex={-1}
       ref={(element) => {

@@ -24,8 +24,7 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
   const { slots } = useRecipe(contextMenuRecipe, local, {
     slot: 'content',
-    contextSlots: () => context.slotOverrides,
-    contextVariants: () => ({ size: context.size?.() }),
+    context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),
   })
   return (
     <OverlayMenu

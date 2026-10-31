@@ -86,7 +86,11 @@ export function DataTable<TData extends RowData = RowData>(
     'style',
   ])
 
-  const { slots, slotWith } = useRecipe(dataTableRecipe, local)
+  const {
+    slots,
+    slots: { container: containerSlot, loading: loadingSlot, body: bodySlot, empty: emptySlot },
+    slotWith,
+  } = useRecipe(dataTableRecipe, local)
   const messages = useMessages('dataTable', defaultDataTableMessages, () => local.translations)
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
   const selectionName = `data-table-selection-${createUniqueId()}`
@@ -210,6 +214,11 @@ export function DataTable<TData extends RowData = RowData>(
     )
   }
 
+  const rootSlot = slotWith('root', { own: () => ({ style: layout.tableStyle() }) })
+  const emptyRowSlot = slotWith('row', {
+    data: dataTableDataAttributes.row({ selected: false, expanded: false, empty: true }),
+  })
+
   return (
     <DataTableProvider
       value={{
@@ -227,20 +236,20 @@ export function DataTable<TData extends RowData = RowData>(
         treeColumnId,
         selectionName,
         createColumnPin: layout.createColumnPin,
-        cellSlot: (slot, column, pin, size, section) =>
-          slotWith(
-            slot,
-            () => layout.cellClass(column, section),
-            () => layout.cellStyle(column, pin, size),
-          ),
+        cellSlot: (slot, column, pin, size, section, options) =>
+          slotWith(slot, {
+            own: () => layout.cellClass(column, section),
+            enforced: () => layout.cellStyle(column, pin, size),
+            data: options?.data,
+          }),
         sectionSlot: (section) =>
-          slotWith(section, undefined, () => ({ style: layout.sectionStyle(section) })),
+          slotWith(section, { enforced: () => ({ style: layout.sectionStyle(section) }) }),
       }}
     >
       <div
         ref={(el) => callRef(local.containerRef, el)}
         data-slot="data-table-container"
-        {...slots.container}
+        {...containerSlot}
       >
         {/* Screen readers announce changes inside a live region that already exists, so the
             status stays mounted and only its text follows `loading`. */}
@@ -248,7 +257,7 @@ export function DataTable<TData extends RowData = RowData>(
           {local.loading ? messages().loading : ''}
         </span>
         <Show when={local.loading}>
-          <div data-slot="data-table-loading" {...slots.loading}>
+          <div data-slot="data-table-loading" {...loadingSlot}>
             <RenderLoading />
           </div>
         </Show>
@@ -264,8 +273,8 @@ export function DataTable<TData extends RowData = RowData>(
             aria-busy={local.loading || undefined}
             // Every visible column, including the pinned ones the virtualizer does not count.
             aria-colcount={columnVirtual() ? leafColumns().length : undefined}
+            {...rootSlot}
             {...rest}
-            {...slotWith('root', () => ({ style: layout.tableStyle() }))}
             ref={local.ref}
           >
             {/* A fixed layout takes widths from the first row, which is a group header when
@@ -280,20 +289,12 @@ export function DataTable<TData extends RowData = RowData>(
             </Show>
             <DataTableHeader table={table()} />
 
-            <tbody data-slot="data-table-body" {...slots.body}>
+            <tbody data-slot="data-table-body" {...bodySlot}>
               <Show
                 when={rows().length > 0}
                 fallback={
-                  <tr
-                    data-slot="data-table-row"
-                    {...dataTableDataAttributes.row({
-                      selected: false,
-                      expanded: false,
-                      empty: true,
-                    })}
-                    {...slots.row}
-                  >
-                    <td data-slot="data-table-empty" colSpan={colSpan()} {...slots.empty}>
+                  <tr data-slot="data-table-row" {...emptyRowSlot}>
+                    <td data-slot="data-table-empty" colSpan={colSpan()} {...emptySlot}>
                       <RenderEmpty />
                     </td>
                   </tr>

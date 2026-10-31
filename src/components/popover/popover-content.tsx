@@ -80,9 +80,12 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
   }
-  const { slots } = useRecipe(popoverRecipe, local, {
+  const {
+    slots: { body: bodySlot },
+    slotWith,
+  } = useRecipe(popoverRecipe, local, {
     slot: 'content',
-    contextSlots: () => behavior.slotOverrides,
+    context: () => behavior.slotOverrides,
   })
 
   return (
@@ -132,18 +135,20 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
+        const contentSlot = slotWith('content', {
+          data: popoverContentDataAttributes({
+            side: () => parseFloatingPlacement(context.currentPlacement()).side,
+            align: () => parseFloatingPlacement(context.currentPlacement()).align,
+          }),
+        })
         return (
           <div
             data-slot="popover-content"
-            {...popoverContentDataAttributes({
-              side: () => parseFloatingPlacement(context.currentPlacement()).side,
-              align: () => parseFloatingPlacement(context.currentPlacement()).align,
-            })}
+            {...contentSlot}
             {...mergePopperElementProps(contentProps, rest)}
-            {...slots.content}
           >
             <Show when={hasContent(content())}>
-              <div data-slot="popover-body" {...slots.body}>
+              <div data-slot="popover-body" {...bodySlot}>
                 {content()}
               </div>
             </Show>

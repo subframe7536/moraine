@@ -63,11 +63,25 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   )
   const isOverlay = () => merged.overlay !== false
   const [keyboardInset, setKeyboardInset] = createSignal(0)
-  const { slots, variants } = useRecipe(sheetRecipe, local, {
+  const {
+    slots: { content: contentSlot, contentClose: contentCloseSlot, overlay: overlaySlot },
+    variants,
+  } = useRecipe(sheetRecipe, local, {
     slot: 'content',
-    contextVariants: () => ({ side: sheet.side, inset: sheet.inset }),
-    contextSlots: () => sheet.slotOverrides,
-    vars: () => ({ '--sheet-keyboard-inset': `${keyboardInset()}px` }),
+    data: {
+      content: sheetDataAttributes.content({
+        closed: () => !family.open(),
+        expanded: family.open,
+        transition: () => merged.transition,
+      }),
+      overlay: sheetDataAttributes.overlay({
+        overlayScroll: undefined,
+        expanded: family.open,
+        closed: () => !family.open(),
+      }),
+    },
+    context: () => ({ variants: { side: sheet.side, inset: sheet.inset }, ...sheet.slotOverrides }),
+    own: { content: () => ({ style: { '--sheet-keyboard-inset': `${keyboardInset()}px` } }) },
   })
   const registration = createContentAnatomy()
 
@@ -140,13 +154,8 @@ export function SheetContent<T extends ValidComponent = 'div'>(
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
-        {...sheetDataAttributes.content({
-          closed: () => !family.open(),
-          expanded: family.open,
-          transition: () => merged.transition,
-        })}
+        {...contentSlot}
         {...rest}
-        {...slots.content}
         ref={binding.ref}
         onKeyDown={binding.onKeyDown}
       >
@@ -164,7 +173,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
           <Modal.Close
             data-slot="sheet-content-close"
             aria-label={messages().close}
-            {...slots.contentClose}
+            {...contentCloseSlot}
           >
             <Icon name={closeIcon()} />
           </Modal.Close>
@@ -186,13 +195,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
       <ModalPortal>
         <div
           data-slot={isOverlay() ? 'sheet-overlay' : undefined}
-          {...(isOverlay()
-            ? sheetDataAttributes.overlay({
-                overlayScroll: undefined,
-                expanded: family.open,
-                closed: () => !family.open(),
-              })
-            : {})}
+          {...(isOverlay() ? overlaySlot : undefined)}
           ref={(element) => {
             let unregister: (() => void) | undefined
             createEffect(
@@ -205,7 +208,6 @@ export function SheetContent<T extends ValidComponent = 'div'>(
               unregister?.()
             })
           }}
-          {...(isOverlay() ? slots.overlay : undefined)}
         >
           <RenderSheetContent />
         </div>

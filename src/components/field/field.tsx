@@ -51,11 +51,30 @@ export function Field<T extends ValidComponent = 'div'>(
   const showDescription = () => hasContent(description())
   const hasLabelText = () => (showLabel() && !labelHidden()) || showHint()
   const hasText = () => hasLabelText() || showDescription()
-  const { slots, variants } = useRecipe(fieldRecipe, local, {
-    contextVariants: () => ({
-      labelHidden: labelHidden(),
-      hasLabelText: hasLabelText(),
-      hasText: hasText(),
+  const {
+    slots: {
+      root: rootSlot,
+      wrapper: wrapperSlot,
+      labelWrapper: labelWrapperSlot,
+      label: labelSlot,
+      hint: hintSlot,
+      description: descriptionSlot,
+      container: containerSlot,
+      help: helpSlot,
+      error: errorSlot,
+    },
+    variants,
+  } = useRecipe(fieldRecipe, local, {
+    data: {
+      label: fieldDataAttributes.label({ required: isRequired }),
+      container: fieldDataAttributes.container({ hasText }),
+    },
+    context: () => ({
+      variants: {
+        labelHidden: labelHidden(),
+        hasLabelText: hasLabelText(),
+        hasText: hasText(),
+      },
     }),
   })
 
@@ -169,49 +188,44 @@ export function Field<T extends ValidComponent = 'div'>(
     )
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...slots.root}>
-        <div data-slot="field-wrapper" {...slots.wrapper}>
+      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...rest}>
+        <div data-slot="field-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
-            <div data-slot="field-label-wrapper" {...slots.labelWrapper}>
+            <div data-slot="field-label-wrapper" {...labelWrapperSlot}>
               <label
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="field-label"
-                {...fieldDataAttributes.label({ required: isRequired })}
-                {...slots.label}
+                {...labelSlot}
               >
                 {label()}
               </label>
               <Show when={showHint()}>
-                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...slots.hint}>
+                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...hintSlot}>
                   {hint()}
                 </span>
               </Show>
             </div>
           </Show>
           <Show when={showDescription()}>
-            <p id={`${ariaId()}-description`} data-slot="field-description" {...slots.description}>
+            <p id={`${ariaId()}-description`} data-slot="field-description" {...descriptionSlot}>
               {description()}
             </p>
           </Show>
         </div>
-        <div
-          data-slot="field-container"
-          {...fieldDataAttributes.container({ hasText })}
-          {...slots.container}
-        >
+        <div data-slot="field-container" {...containerSlot}>
           {fieldChildren()}
           <Show
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div id={`${ariaId()}-help`} data-slot="field-help" {...slots.help}>
+                <div id={`${ariaId()}-help`} data-slot="field-help" {...helpSlot}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div id={`${ariaId()}-error`} data-slot="field-error" {...slots.error}>
+            <div id={`${ariaId()}-error`} data-slot="field-error" {...errorSlot}>
               {resolvedError()}
             </div>
           </Show>

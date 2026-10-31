@@ -56,7 +56,14 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     'trailing',
   ])
 
-  const { slots } = useSidebarStyles('menuButton', local)
+  const {
+    slots: {
+      menuButtonLeading: menuButtonLeadingSlot,
+      menuButtonLabel: menuButtonLabelSlot,
+      menuButtonTrailing: menuButtonTrailingSlot,
+    },
+    slotWith,
+  } = useSidebarStyles('menuButton', local)
 
   const resolvedTag = createMemo<ValidComponent>(() => {
     if (local.as) {
@@ -67,6 +74,13 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   })
 
   const disabled = () => Boolean(local.disabled)
+  const menuButtonSlot = slotWith('menuButton', {
+    data: sidebarDataAttributes.menuButton({
+      active: () => Boolean(local.isActive),
+      disabled,
+      mobile: context.isMobile,
+    }),
+  })
 
   const root = createPolymorphicRoot({
     tag: resolvedTag,
@@ -128,26 +142,21 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     <Dynamic
       component={resolvedTag()}
       data-slot="sidebar-menu-button"
-      {...sidebarDataAttributes.menuButton({
-        active: () => Boolean(local.isActive),
-        disabled,
-        mobile: context.isMobile,
-      })}
+      {...menuButtonSlot}
       {...binding}
-      {...slots.menuButton}
     >
       <Show when={local.leading}>
         {(iconName) => (
           <Icon
             name={iconName()}
             data-slot="sidebar-menu-button-leading"
-            {...slots.menuButtonLeading}
+            {...menuButtonLeadingSlot}
             aria-hidden={true}
           />
         )}
       </Show>
       <Show when={hasChildren()}>
-        <span data-slot="sidebar-menu-button-label" {...slots.menuButtonLabel}>
+        <span data-slot="sidebar-menu-button-label" {...menuButtonLabelSlot}>
           {children()}
         </span>
       </Show>
@@ -156,7 +165,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
           <Icon
             name={iconName()}
             data-slot="sidebar-menu-button-trailing"
-            {...slots.menuButtonTrailing}
+            {...menuButtonTrailingSlot}
             aria-hidden={true}
           />
         )}

@@ -2,16 +2,29 @@ import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { cn } from './cn'
+import { defineTheme } from './create-theme'
 import type { RecipeConfig, RecipeVariantSelection } from './recipe'
-import { defineRecipe, resolveRecipe } from './recipe'
+import { compileRecipe, defineRecipe, matchEntries } from './recipe'
 
 function testRecipe<S extends object, V = never>(key: string, config: RecipeConfig<S, V>) {
   const definition = defineRecipe<S, V>(key, config)
-  const fn = (variants?: RecipeVariantSelection<V>) => resolveRecipe(definition, variants, cn)
-  return Object.assign(fn, {
-    resolve: (variants: RecipeVariantSelection<V> | undefined, merge: typeof cn) =>
-      resolveRecipe(definition, variants, merge),
-  })
+  const resolve = (variants: RecipeVariantSelection<V> | undefined, merge: typeof cn) => {
+    const compiled = compileRecipe(definition)
+    const read = (name: string) => {
+      const value = (variants as Record<string, unknown> | undefined)?.[name]
+      return value === undefined ? compiled.defaults[name] : value
+    }
+    const classes: Record<string, string | undefined> = {}
+    for (const slot of compiled.slots) {
+      const matched = matchEntries(compiled.bySlot[slot]!, read)
+      if (matched.length > 0) {
+        classes[slot] = merge(matched)
+      }
+    }
+    return { classes, style: Object.assign({}, ...matchEntries(compiled.vars, read)) }
+  }
+  const fn = (variants?: RecipeVariantSelection<V>) => resolve(variants, cn)
+  return Object.assign(fn, { resolve })
 }
 
 interface RootSlot {
@@ -244,16 +257,7 @@ test('resolves classes and variables from the same matched branches', () => {
       ],
     },
   )
-  let reads = 0
-  const result = recipe({
-    get size() {
-      reads++
-      return 'lg' as const
-    },
-    enabled: false,
-    count: 0,
-  })
-  expect(reads).toBe(1)
+  const result = recipe({ size: 'lg', enabled: false, count: 0 })
   expect(result).toEqual({
     classes: { root: 'p-6' },
     style: { '--size': '24px', '--retained': 'base', '--enabled': 0, '--count': 0 },
@@ -297,4 +301,39 @@ test.each([
     compoundVariants: [{ variants: { columns: 2, enabled: true }, root: 'gap-4' }],
   })
   expect(recipe({ columns, enabled }).classes.root).toBe(expected)
+})
+
+test('compiles each recipe once per Theme and shares the built-in result when a Theme has no layer', () => {
+  const recipe = defineRecipe<RootSlot, { size?: 'sm' | 'lg' }>('cached', {
+    base: { root: 'p-2' },
+    variants: { size: { sm: { root: 'text-sm' }, lg: { root: 'text-lg' } } },
+  })
+  const themed = defineTheme({ cached: { base: { root: 'p-4' } } } as never)
+  const unrelated = defineTheme({ other: { base: { root: 'p-4' } } } as never)
+  const builtIn = compileRecipe(recipe)
+  expect(compileRecipe(recipe)).toBe(builtIn)
+  expect(compileRecipe(recipe, null)).toBe(builtIn)
+  expect(compileRecipe(recipe, unrelated)).toBe(builtIn)
+  const layered = compileRecipe(recipe, themed)
+  expect(layered).not.toBe(builtIn)
+  expect(compileRecipe(recipe, themed)).toBe(layered)
+  expect(layered.slots).toEqual(['root'])
+  expect(layered.keys).toEqual(['size'])
+  expect(layered.bySlot.root!.map((entry) => [entry.when, entry.value])).toEqual([
+    [undefined, 'p-2'],
+    [{ size: ['sm'] }, 'text-sm'],
+    [{ size: ['lg'] }, 'text-lg'],
+    [undefined, 'p-4'],
+  ])
+})
+
+test('drops compound entries that can never match', () => {
+  const recipe = defineRecipe<RootSlot, { a?: boolean }>('never', {
+    base: { root: '' },
+    compoundVariants: [
+      { variants: {}, root: 'empty-match' },
+      { variants: { a: undefined }, root: 'undefined-match' },
+    ],
+  })
+  expect(compileRecipe(recipe).bySlot.root!.map((entry) => entry.value)).toEqual([''])
 })

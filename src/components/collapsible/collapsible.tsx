@@ -44,10 +44,20 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     unmountOnHide: () => local.unmountOnHide,
     forceMount: () => Boolean(local.forceMount),
   })
-  const { slots } = useRecipe(collapsibleRecipe, local, {
-    vars: () => ({
-      '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
-    }),
+  const {
+    slots: { root: rootSlot },
+  } = useRecipe(collapsibleRecipe, local, {
+    data: {
+      root: collapsibleDataAttributes.root({
+        expanded: disclosure.open,
+        closed: disclosure.closed,
+      }),
+    },
+    own: {
+      root: () => ({
+        style: { '--mo-collapsible-content-height': `${disclosure.contentHeight()}px` },
+      }),
+    },
   })
 
   function setOpen(nextOpen: boolean): void {
@@ -77,16 +87,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
 
   return (
     <CollapsibleProvider value={context}>
-      <div
-        id={rootId()}
-        data-slot="collapsible"
-        {...collapsibleDataAttributes.root({
-          expanded: disclosure.open,
-          closed: disclosure.closed,
-        })}
-        {...rest}
-        {...slots.root}
-      />
+      <div id={rootId()} data-slot="collapsible" {...rootSlot} {...rest} />
     </CollapsibleProvider>
   )
 }

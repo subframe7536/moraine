@@ -15,18 +15,12 @@ export function SheetBody<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const sheet = useSheetContext()
   const content = useSheetContent()
-  const { slots } = useRecipe(sheetRecipe, local, {
+  const {
+    slots: { body: bodySlot },
+  } = useRecipe(sheetRecipe, local, {
     slot: 'body',
-    contextVariants: () => content.variants,
-    contextSlots: () => sheet.slotOverrides,
+    data: { body: sheetDataAttributes.body({ header: content.hasHeader }) },
+    context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="sheet-body"
-      {...sheetDataAttributes.body({ header: content.hasHeader })}
-      {...rest}
-      {...slots.body}
-    />
-  )
+  return <Dynamic component={local.as ?? 'div'} data-slot="sheet-body" {...bodySlot} {...rest} />
 }

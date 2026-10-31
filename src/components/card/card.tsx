@@ -26,7 +26,10 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
     'class',
     'style',
   ])
-  const { slots, variants } = useRecipe(cardRecipe, local)
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(cardRecipe, local)
 
   return (
     <CardProvider
@@ -42,7 +45,7 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rest} {...slots.root} />
+      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rootSlot} {...rest} />
     </CardProvider>
   )
 }

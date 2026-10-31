@@ -137,7 +137,13 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'translations',
   ])
   const messages = useMessages('resizable', defaultResizableMessages, () => localProps.translations)
-  const { slots, variants, slotWith } = useRecipe(resizableRecipe, localProps)
+  const {
+    slots: { root: rootSlot },
+    variants,
+    slotWith,
+  } = useRecipe(resizableRecipe, localProps, {
+    data: { root: resizableDataAttributes.root({ resizableRoot: true }) },
+  })
   const local = mergeProps({ keyboardDelta: '10%' as const }, localProps)
 
   const panelIdPrefix = createId(() => local.id, 'resizable')
@@ -682,14 +688,13 @@ export function Resizable(props: ResizableProps): JSX.Element {
   return (
     <div
       data-slot="resizable"
-      {...resizableDataAttributes.root({ resizableRoot: true })}
+      {...rootSlot}
       {...rest}
       ref={(element) => {
         rootRef = element
         callRef(local.ref, element)
       }}
       id={local.id}
-      {...slots.root}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
@@ -698,31 +703,31 @@ export function Resizable(props: ResizableProps): JSX.Element {
           const size = () => sizes()[index] ?? 0
           const collapsed = () => isPanelCollapsed(size(), panelItem())
           const isTransitioning = createMemo(() => transitioningPanelIndexes().includes(index))
+          const panelSlot = slotWith('panel', {
+            own: () => ({ class: panelItem().class, style: panelItem().style }),
+            enforced: () => ({
+              style: {
+                'flex-grow': size(),
+                'flex-shrink': 1,
+                'flex-basis': '0px',
+              },
+            }),
+            data: resizableDataAttributes.panel({
+              collapsed,
+              expanded: () => panelItem().collapsible && !collapsed(),
+              resizing: interactionResizing,
+              transitioning: isTransitioning,
+            }),
+          })
 
           return (
             <>
               <div
                 ref={(element) => callRef(panelPart()!.local.ref, element)}
+                {...panelSlot}
                 {...panelPart()!.rest}
                 id={panelItem().panelId}
                 data-slot="resizable-panel"
-                {...resizableDataAttributes.panel({
-                  collapsed,
-                  expanded: () => panelItem().collapsible && !collapsed(),
-                  resizing: interactionResizing,
-                  transitioning: isTransitioning,
-                })}
-                {...slotWith(
-                  'panel',
-                  () => ({ class: panelItem().class, style: panelItem().style }),
-                  () => ({
-                    style: {
-                      'flex-grow': size(),
-                      'flex-shrink': 1,
-                      'flex-basis': '0px',
-                    },
-                  }),
-                )}
                 onTransitionEnd={(event) => {
                   const result = callHandler(event, panelPart()!.local.onTransitionEnd)
                   if (!result.defaultPrevented) {
@@ -805,6 +810,35 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     toggleHandleCollapse(index)
                   }
 
+                  const handleSlot = slotWith('handle', {
+                    own: () => ({
+                      class: handlePart().local.class,
+                      style: handlePart().local.style,
+                    }),
+                    data: resizableDataAttributes.handle({
+                      active: bindings.active,
+                      cross: bindings.crossHovered,
+                      dragging: bindings.dragging,
+                    }),
+                  })
+                  const startIntersectionSlot = slotWith('intersection', {
+                    data: resizableDataAttributes.intersection({
+                      resizableHandleStartTarget: true,
+                      resizableHandleEndTarget: undefined,
+                    }),
+                  })
+                  const endIntersectionSlot = slotWith('intersection', {
+                    data: resizableDataAttributes.intersection({
+                      resizableHandleStartTarget: undefined,
+                      resizableHandleEndTarget: true,
+                    }),
+                  })
+                  const handleControlSlot = slotWith('handleControl', {
+                    data: resizableDataAttributes.handleControl({
+                      collapse: () => handleCollapseAction(),
+                    }),
+                  })
+
                   const handleContext: ResizableT.HandleRenderProps = {
                     get orientation() {
                       return orientation()
@@ -835,6 +869,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         bindings.setElement(element)
                         callRef(handlePart().local.ref, element)
                       }}
+                      {...handleSlot}
                       {...handlePart().rest}
                       role="separator"
                       aria-controls={aria().controls}
@@ -845,15 +880,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       aria-disabled={handleDisabled() ? 'true' : undefined}
                       tabIndex={handleDisabled() ? -1 : 0}
                       data-slot="resizable-handle"
-                      {...resizableDataAttributes.handle({
-                        active: bindings.active,
-                        cross: bindings.crossHovered,
-                        dragging: bindings.dragging,
-                      })}
-                      {...slotWith('handle', () => ({
-                        class: handlePart().local.class,
-                        style: handlePart().local.style,
-                      }))}
                       onMouseEnter={(event) =>
                         callHandleEvent(
                           event,
@@ -883,11 +909,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       <Show when={bindings.startIntersectionVisible()}>
                         <div
                           data-slot="resizable-intersection"
-                          {...resizableDataAttributes.intersection({
-                            resizableHandleStartTarget: true,
-                            resizableHandleEndTarget: undefined,
-                          })}
-                          {...slots.intersection}
+                          {...startIntersectionSlot}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                           }
@@ -910,10 +932,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           }
                           onPointerDown={onGripPointerDown}
                           onClick={onHandleClick}
-                          {...resizableDataAttributes.handleControl({
-                            collapse: () => handleCollapseAction(),
-                          })}
-                          {...slots.handleControl}
+                          {...handleControlSlot}
                         >
                           <Show when={handlePart().content() !== undefined}>
                             {renderWithProps(handlePart().content(), handleContext)}
@@ -924,11 +943,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       <Show when={bindings.endIntersectionVisible()}>
                         <div
                           data-slot="resizable-intersection"
-                          {...resizableDataAttributes.intersection({
-                            resizableHandleStartTarget: undefined,
-                            resizableHandleEndTarget: true,
-                          })}
-                          {...slots.intersection}
+                          {...endIntersectionSlot}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                           }

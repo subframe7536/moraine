@@ -61,10 +61,25 @@ export function Tabs(props: TabsProps): JSX.Element {
     'aria-labelledby',
   ])
   let indicatorStyle!: () => JSX.CSSProperties
-  const { slots, variants } = useRecipe(tabsRecipe, local, {
-    enforced: () => ({
-      indicator: { style: indicatorStyle() },
-    }),
+  const {
+    slots: {
+      root: rootSlot,
+      list: listSlot,
+      indicator: indicatorSlot,
+      leading: leadingSlot,
+      label: labelSlot,
+      content: contentSlot,
+    },
+    slotWith,
+    variants,
+  } = useRecipe(tabsRecipe, local, {
+    data: {
+      root: tabsDataAttributes.root(() => ({
+        disabled: (): boolean | undefined => merged.disabled,
+      })),
+      content: tabsDataAttributes.content({ selected: true }),
+    },
+    enforced: { indicator: () => ({ style: indicatorStyle() }) },
   })
   const direction = useLocale().dir
   const merged = mergeProps(
@@ -289,13 +304,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   return (
-    <div
-      data-slot="tabs"
-      {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
-      {...rest}
-      id={rootId()}
-      {...slots.root}
-    >
+    <div data-slot="tabs" {...rootSlot} {...rest} id={rootId()}>
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
@@ -303,14 +312,21 @@ export function Tabs(props: TabsProps): JSX.Element {
         aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="tabs-list"
-        {...slots.list}
+        {...listSlot}
       >
-        <div aria-hidden="true" data-slot="tabs-indicator" {...slots.indicator} />
+        <div aria-hidden="true" data-slot="tabs-indicator" {...indicatorSlot} />
 
         <For each={normalizedItems()}>
           {(item) => {
             const selected = createMemo(() => selectedKey() === item.instanceKey)
             const highlighted = createMemo(() => effectiveHighlighted() === item.instanceKey)
+            const triggerSlot = slotWith('trigger', {
+              data: tabsDataAttributes.trigger({
+                selected,
+                highlighted,
+                disabled: () => Boolean(merged.disabled || item.disabled),
+              }),
+            })
             let trigger: HTMLButtonElement | undefined
 
             onCleanup(() => {
@@ -338,14 +354,9 @@ export function Tabs(props: TabsProps): JSX.Element {
                 tabIndex={highlighted() ? 0 : -1}
                 aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
                 aria-selected={selected()}
-                {...tabsDataAttributes.trigger({
-                  selected,
-                  highlighted,
-                  disabled: () => Boolean(merged.disabled || item.disabled),
-                })}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="tabs-trigger"
-                {...slots.trigger}
+                {...triggerSlot}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
@@ -356,13 +367,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span data-slot="tabs-leading" {...slots.leading}>
+                  <span data-slot="tabs-leading" {...leadingSlot}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span data-slot="tabs-label" {...slots.label}>
+                  <span data-slot="tabs-label" {...labelSlot}>
                     {item.label}
                   </span>
                 </Show>
@@ -383,9 +394,8 @@ export function Tabs(props: TabsProps): JSX.Element {
                 role="tabpanel"
                 tabIndex={0}
                 aria-labelledby={getTriggerId(item.instanceKey)}
-                {...tabsDataAttributes.content({ selected: true })}
                 data-slot="tabs-content"
-                {...slots.content}
+                {...contentSlot}
               >
                 {item.content}
               </div>

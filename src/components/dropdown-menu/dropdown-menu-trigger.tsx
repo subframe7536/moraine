@@ -19,9 +19,11 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled', 'ref' as any])
   const context = useDropdownMenuContext()
 
-  const { slots } = useRecipe(dropdownMenuRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(dropdownMenuRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => context.slotOverrides,
+    context: () => context.slotOverrides,
   })
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
@@ -86,9 +88,10 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const triggerProps = mergeProps(
     { 'data-slot': 'dropdown-menu-trigger' },
     context.triggerProps,
+    triggerSlot,
     interaction,
   )
   const binding = root.bind(triggerProps)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
-  return <Dynamic component={tag()} {...binding} {...slots.trigger} />
+  return <Dynamic component={tag()} {...binding} />
 }

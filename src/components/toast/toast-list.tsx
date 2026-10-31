@@ -100,27 +100,30 @@ export function ToastList(props: ToastListProps): JSX.Element {
     return total + (count > 1 ? (count - 1) * gap : 0)
   })
 
-  const { slots } = useRecipe(
+  const {
+    slots: { list: listSlot },
+  } = useRecipe(
     toastRecipe,
     {},
     {
       varsSlot: 'list',
-      contextVariants: position,
-      contextSlots: () => ({
+      data: { list: toastDataAttributes.list(() => ({ expanded: layoutExpanded })) },
+      context: () => ({
+        variants: position(),
         classes: props.host.classes,
         styles: props.host.styles,
       }),
-      own: () => {
-        const height = listHeight()
-        return {
-          list: {
-            style: { height: height > 0 ? `${height}px` : 'auto' },
-          },
-        }
+      own: {
+        list: () => {
+          const height = listHeight()
+          return {
+            style: {
+              height: height > 0 ? `${height}px` : 'auto',
+              '--toast-gap': `${props.gap}px`,
+            },
+          }
+        },
       },
-      vars: () => ({
-        '--toast-gap': `${props.gap}px`,
-      }),
     },
   )
 
@@ -129,8 +132,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
       <ul
         data-slot="toast-list"
         tabIndex={-1}
-        {...toastDataAttributes.list({ expanded: layoutExpanded })}
-        {...slots.list}
+        {...listSlot}
         onMouseEnter={() => setIsHovered(true)}
         onMouseMove={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

@@ -15,12 +15,13 @@ export function SheetFooter<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const sheet = useSheetContext()
   const content = useSheetContent()
-  const { slots } = useRecipe(sheetRecipe, local, {
+  const {
+    slots: { footer: footerSlot },
+  } = useRecipe(sheetRecipe, local, {
     slot: 'footer',
-    contextVariants: () => content.variants,
-    contextSlots: () => sheet.slotOverrides,
+    context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="sheet-footer" {...rest} {...slots.footer} />
+    <Dynamic component={local.as ?? 'div'} data-slot="sheet-footer" {...footerSlot} {...rest} />
   )
 }

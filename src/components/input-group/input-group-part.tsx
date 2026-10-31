@@ -19,25 +19,32 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
       const name = part === 'leading' ? 'Leading' : 'Trailing'
       throw new Error(`InputGroup.${name} must be used within InputGroup`)
     }
-    const { slots, variants } = useRecipe(inputGroupRecipe, local, {
+    const {
+      slots: { [part]: partSlot },
+      variants,
+    } = useRecipe(inputGroupRecipe, local, {
       slot: part,
-      contextVariants: () => ({
-        size: group.size,
-        orientation: group.orientation,
-        variant: group.variant,
+      data: {
+        [part]: inputGroupDataAttributes[part](() => ({
+          orientation: () => group.orientation,
+          compact: (): boolean | undefined => variants.compact,
+        })),
+      },
+      context: () => ({
+        variants: {
+          size: group.size,
+          orientation: group.orientation,
+          variant: group.variant,
+        },
+        ...group.slotOverrides,
       }),
-      contextSlots: () => group.slotOverrides,
     })
     return (
       <Dynamic
         component={local.as ?? 'div'}
         data-slot={`input-group-${part}`}
-        {...inputGroupDataAttributes[part]({
-          orientation: () => group.orientation,
-          compact: () => variants.compact,
-        })}
+        {...partSlot}
         {...rest}
-        {...slots[part]}
       />
     )
   }

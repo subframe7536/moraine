@@ -62,10 +62,26 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     dialog,
   )
   const isOverlay = () => merged.overlay !== false
-  const { slots, variants } = useRecipe(dialogRecipe, local, {
+  const {
+    slots: { content: contentSlot, contentClose: contentCloseSlot, overlay: overlaySlot },
+    variants,
+  } = useRecipe(dialogRecipe, local, {
     slot: 'content',
-    contextVariants: () => ({ fullscreen: dialog.fullscreen, scrollable: dialog.scrollable }),
-    contextSlots: () => dialog.slotOverrides,
+    data: {
+      content: dialogDataAttributes.content({
+        expanded: family.open,
+        closed: () => !family.open(),
+      }),
+      overlay: dialogDataAttributes.overlay(() => ({
+        overlayScroll,
+        expanded: family.open,
+        closed: () => !family.open(),
+      })),
+    },
+    context: () => ({
+      variants: { fullscreen: dialog.fullscreen, scrollable: dialog.scrollable },
+      ...dialog.slotOverrides,
+    }),
   })
   const registration = createDialogContentRegistration()
   const overlayScroll = () => variants.scrollable && isOverlay() && !variants.fullscreen
@@ -100,12 +116,8 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
-        {...dialogDataAttributes.content({
-          expanded: family.open,
-          closed: () => !family.open(),
-        })}
+        {...contentSlot}
         {...rest}
-        {...slots.content}
         ref={binding.ref}
         onKeyDown={binding.onKeyDown}
       >
@@ -123,7 +135,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
           <Modal.Close
             data-slot="dialog-content-close"
             aria-label={messages().close}
-            {...slots.contentClose}
+            {...contentCloseSlot}
           >
             <Icon name={closeIcon()} />
           </Modal.Close>
@@ -146,13 +158,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
       <ModalPortal>
         <div
           data-slot={isOverlay() ? 'dialog-overlay' : undefined}
-          {...(isOverlay()
-            ? dialogDataAttributes.overlay({
-                overlayScroll,
-                expanded: family.open,
-                closed: () => !family.open(),
-              })
-            : {})}
+          {...(isOverlay() ? overlaySlot : undefined)}
           ref={(element) => {
             let unregister: (() => void) | undefined
             createEffect(
@@ -165,7 +171,6 @@ export function DialogContent<T extends ValidComponent = 'div'>(
               unregister?.()
             })
           }}
-          {...(isOverlay() ? slots.overlay : undefined)}
         >
           <RenderDialogContent />
         </div>

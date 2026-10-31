@@ -35,22 +35,24 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
       return square()
     },
   })
-  const { slots } = useRecipe(badgeRecipe, styleProps)
+  const {
+    slots: { root: rootSlot, leading: leadingSlot, label: labelSlot, trailing: trailingSlot },
+  } = useRecipe(badgeRecipe, styleProps)
 
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rest} {...slots.root}>
+    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rootSlot} {...rest}>
       <Show when={leading()}>
-        {(leading) => <Icon name={leading()} data-slot="badge-leading" {...slots.leading} />}
+        {(leading) => <Icon name={leading()} data-slot="badge-leading" {...leadingSlot} />}
       </Show>
 
       <Show when={hasChildren()}>
-        <span data-slot="badge-label" {...slots.label}>
+        <span data-slot="badge-label" {...labelSlot}>
           {resolvedChildren()}
         </span>
       </Show>
 
       <Show when={trailing()}>
-        <Icon name={trailing()} data-slot="badge-trailing" {...slots.trailing} />
+        <Icon name={trailing()} data-slot="badge-trailing" {...trailingSlot} />
       </Show>
     </Dynamic>
   )

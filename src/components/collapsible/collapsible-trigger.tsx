@@ -21,9 +21,18 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     throw new Error('Collapsible.Trigger must be used within Collapsible')
   }
   const disclosure = context.disclosure
-  const { slots } = useRecipe(collapsibleRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(collapsibleRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => context.slotOverrides,
+    data: {
+      trigger: collapsibleDataAttributes.trigger(() => ({
+        expanded: disclosure.open,
+        closed: disclosure.closed,
+        disabled,
+      })),
+    },
+    context: () => context.slotOverrides,
   })
   const tag: Accessor<ValidComponent> = () =>
     local.as ?? ((rest as any).href !== undefined && (rest as any).href !== null ? 'a' : 'button')
@@ -56,14 +65,9 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       data-slot="collapsible-trigger"
       aria-controls={context.contentId()}
       aria-expanded={disclosure.open()}
-      {...collapsibleDataAttributes.trigger({
-        expanded: disclosure.open,
-        closed: disclosure.closed,
-        disabled,
-      })}
+      {...triggerSlot}
       {...binding}
       id={context.triggerId()}
-      {...slots.trigger}
     />
   )
 }

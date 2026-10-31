@@ -18,13 +18,14 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
     const content = useSheetContent()
     const unregister = content.registerHeader(headerKind)
     onCleanup(unregister)
-    const { slots } = useRecipe(sheetRecipe, local, {
+    const {
+      slots: { header: headerSlot },
+    } = useRecipe(sheetRecipe, local, {
       slot: 'header',
-      contextVariants: () => content.variants,
-      contextSlots: () => sheet.slotOverrides,
+      context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
     })
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...rest} {...slots.header} />
+      <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...headerSlot} {...rest} />
     )
   }
 }

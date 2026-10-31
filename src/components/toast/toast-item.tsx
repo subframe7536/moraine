@@ -262,7 +262,19 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     return `translate3d(0, ${currentYOffset()}px, 0) scale(${scale()})`
   })
 
-  const { slots, slotWith } = useRecipe(
+  const {
+    slots: {
+      item: itemSlot,
+      icon: iconSlot,
+      wrapper: wrapperSlot,
+      title: titleSlot,
+      description: descriptionSlot,
+      actions: actionsSlot,
+      close: closeSlot,
+      progress: progressSlot,
+    },
+    slotWith,
+  } = useRecipe(
     toastRecipe,
     {
       get type() {
@@ -296,11 +308,26 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     {
       slot: 'item',
       varsSlot: 'item',
-      own: () => {
-        const measured = measuredHeight()
-        return {
-          item: {
+      data: {
+        item: toastDataAttributes.item(() => ({
+          front: isFront,
+          behind: () => !isFront(),
+          expanded: () => props.expanded,
+          limited: () => !isVisible(),
+          bump: isBumping,
+          swiping,
+          swipeOut,
+          closed: () => props.toast.closed || removed(),
+        })),
+      },
+      own: {
+        item: () => {
+          const measured = measuredHeight()
+          return {
             style: {
+              '--toast-index': props.index,
+              '--toast-offset-y': `${props.offsetY}px`,
+              '--toast-gap': `${props.gap}px`,
               transform: transform(),
               opacity: !mounted() || removed() || !isVisible() ? 0 : 1,
               height: measured > 0 ? `${measured}px` : 'auto',
@@ -310,14 +337,9 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   : restZ
                 : Math.max(1, props.toastsCount - props.index),
             },
-          },
-        }
+          }
+        },
       },
-      vars: () => ({
-        '--toast-index': props.index,
-        '--toast-offset-y': `${props.offsetY}px`,
-        '--toast-gap': `${props.gap}px`,
-      }),
     },
   )
 
@@ -538,6 +560,19 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const description = createMemo(() => options().description)
   const icon = createMemo(() => resolveFeedbackIcon({ type: options().type, icon: options().icon }))
 
+  const cancelSlot = slotWith('cancel', {
+    own: () => ({
+      class: cancelAction(options().cancel)?.class,
+      style: cancelAction(options().cancel)?.style,
+    }),
+  })
+  const actionSlot = slotWith('action', {
+    own: () => ({
+      class: options().action?.class,
+      style: options().action?.style,
+    }),
+  })
+
   return (
     <li
       ref={(element) => {
@@ -547,17 +582,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       role={options().type === 'error' ? 'alert' : 'status'}
       tabIndex={0}
       inert={!isVisible() ? true : undefined}
-      {...toastDataAttributes.item({
-        front: isFront,
-        behind: () => !isFront(),
-        expanded: () => props.expanded,
-        limited: () => !isVisible(),
-        bump: isBumping,
-        swiping,
-        swipeOut,
-        closed: () => props.toast.closed || removed(),
-      })}
-      {...slots.item}
+      {...itemSlot}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -572,25 +597,25 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           <>
             <Show when={icon()}>
               {(source) => (
-                <div data-slot="toast-icon" {...slots.icon}>
+                <div data-slot="toast-icon" {...iconSlot}>
                   <Icon name={source()} />
                 </div>
               )}
             </Show>
-            <div data-slot="toast-wrapper" {...slots.wrapper}>
+            <div data-slot="toast-wrapper" {...wrapperSlot}>
               <Show when={hasContent(title())}>
-                <div data-slot="toast-title" {...slots.title}>
+                <div data-slot="toast-title" {...titleSlot}>
                   {title()}
                 </div>
               </Show>
               <Show when={hasContent(description())}>
-                <div data-slot="toast-description" {...slots.description}>
+                <div data-slot="toast-description" {...descriptionSlot}>
                   {description()}
                 </div>
               </Show>
             </div>
             <Show when={showsCancel(options().cancel) || options().action}>
-              <div data-slot="toast-actions" {...slots.actions}>
+              <div data-slot="toast-actions" {...actionsSlot}>
                 <Show when={showsCancel(options().cancel)}>
                   <FeedbackActionButton
                     action={cancelAction(options().cancel)}
@@ -601,10 +626,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                     loading={runner.pending() === 'cancel'}
                     disabled={runner.pending() === 'action'}
                     slotName="toast-cancel"
-                    {...slotWith('cancel', () => ({
-                      class: cancelAction(options().cancel)?.class,
-                      style: cancelAction(options().cancel)?.style,
-                    }))}
+                    {...cancelSlot}
                     onClick={(event) => presentation.cancel(event)}
                   />
                 </Show>
@@ -618,10 +640,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                     loading={runner.pending() === 'action'}
                     disabled={runner.pending() === 'cancel'}
                     slotName="toast-action"
-                    {...slotWith('action', () => ({
-                      class: options().action?.class,
-                      style: options().action?.style,
-                    }))}
+                    {...actionSlot}
                     onClick={(event) => presentation.action(event)}
                   />
                 </Show>
@@ -636,12 +655,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 tone="neutral"
                 leading="icon-close"
                 aria-label={messages().close}
-                {...slots.close}
+                {...closeSlot}
                 onClick={() => presentation.close('dismiss')}
               />
             </Show>
             <Show when={options().progress && !isLoading()}>
-              <div data-slot="toast-progress" {...slots.progress}>
+              <div data-slot="toast-progress" {...progressSlot}>
                 <Show when={progressEpoch()} keyed>
                   {(_epoch) => (
                     <div

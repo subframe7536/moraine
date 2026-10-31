@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createSignal, splitProps } from 'solid-js'
 
-import { pickSlotOverrides, useRecipe } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
 
 import { NavigationMenuItemProvider, useNavigationMenuContext } from './navigation-menu-context'
@@ -12,9 +12,17 @@ import type { NavigationMenuT } from './navigation-menu.types'
 export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
   const context = useNavigationMenuContext()
   const [local, rest] = splitProps(props, ['value', 'disabled', 'class', 'style'])
-  const { slots } = useRecipe(navigationMenuRecipe, local, {
+  const {
+    slots: { item: itemSlot },
+  } = useRecipe(navigationMenuRecipe, local, {
     slot: 'item',
-    contextSlots: () => pickSlotOverrides(context.options),
+    data: {
+      item: navigationMenuDataAttributes.item(() => ({
+        disabled: item.disabled,
+        expanded: () => context.open() && context.activeItem() === item,
+      })),
+    },
+    context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
   const value = createId(() => local.value, 'navigation-menu-item')
   const [trigger, setTrigger] = createSignal<HTMLButtonElement>()
@@ -40,15 +48,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
   context.registerItem(item)
   return (
     <NavigationMenuItemProvider value={item}>
-      <li
-        data-slot="navigation-menu-item"
-        {...navigationMenuDataAttributes.item({
-          disabled: item.disabled,
-          expanded: () => context.open() && context.activeItem() === item,
-        })}
-        {...rest}
-        {...slots.item}
-      />
+      <li data-slot="navigation-menu-item" {...itemSlot} {...rest} />
     </NavigationMenuItemProvider>
   )
 }

@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import type { SlotValue, UseRecipeResult } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import type { DataAttributeBag } from '../../theme/style-contract'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import { useTableContext } from './table-context'
@@ -22,14 +23,14 @@ interface TablePartProps {
 export function useTablePart(
   slot: TablePartSlot,
   props: TablePartProps,
-  own?: () => SlotValue,
+  options: { own?: () => SlotValue; data?: DataAttributeBag } = {},
 ): UseRecipeResult<typeof tableRecipe>['slots'] {
   const context = useTableContext()
   const { slots } = useRecipe(tableRecipe, props, {
     slot,
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
-    ...(own ? { own: { [slot]: own } } : {}),
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
+    ...(options.own ? { own: { [slot]: options.own } } : {}),
+    ...(options.data ? { data: { [slot]: options.data } } : {}),
   })
   return slots
 }
@@ -43,6 +44,6 @@ export function createTablePart<P extends TablePartProps>(
     const [local, rest] = splitProps(props, ['class', 'style'])
     const slots = useTablePart(slot, local)
 
-    return <Dynamic component={tag} data-slot={`table-${slot}`} {...rest} {...slots[slot]} />
+    return <Dynamic component={tag} data-slot={`table-${slot}`} {...slots[slot]} {...rest} />
   }
 }

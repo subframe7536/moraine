@@ -9,7 +9,9 @@ import type { SidebarT } from './sidebar.types'
 /** Expandable sub-navigation placed inside a `MenuItem`. */
 export function SidebarMenuSub(props: SidebarT.MenuSubProps): JSX.Element {
   const [local, rest] = splitProps(props, ['class', 'style'])
-  const { slots } = useSidebarStyles('menuSub', local)
+  const {
+    slots: { menuSub: menuSubSlot },
+  } = useSidebarStyles('menuSub', local)
 
-  return <Collapsible data-slot="sidebar-menu-sub" {...rest} {...slots.menuSub} />
+  return <Collapsible data-slot="sidebar-menu-sub" {...menuSubSlot} {...rest} />
 }

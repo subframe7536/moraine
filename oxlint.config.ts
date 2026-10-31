@@ -4,6 +4,14 @@ export default subfLint({
   solid: true,
   overrides: [
     {
+      files: ['**/*.{ts,tsx}'],
+      rules: {
+        // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
+        // same-scope reads before the declaration are still reported.
+        'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
+      },
+    },
+    {
       ...unocss,
       rules: {
         ...unocss.rules,
@@ -29,7 +37,8 @@ export default subfLint({
   rules: {
     'typescript/unbound-method': 'off',
     'moraine/no-slots-class-style-in-jsx': 'error',
-    'moraine/inline-data-attributes-in-jsx': 'error',
+    'moraine/data-attributes-in-slot-binding': 'error',
+    'moraine/slot-binding-order': 'error',
     'moraine/require-create-effect-on': 'error',
     'moraine/no-emitted-extensions-in-imports': 'error',
     'moraine/no-string-style-prop': 'error',

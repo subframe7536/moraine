@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, onCleanup, splitProps } from 'solid-js'
 
-import { pickSlotOverrides, useRecipe } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
@@ -40,10 +40,16 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
     'class',
     'style',
   ])
-  const { slots } = useRecipe(navigationMenuRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot, triggerIcon: triggerIconSlot },
+  } = useRecipe(navigationMenuRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => pickSlotOverrides(context.options),
-    contextVariants: () => ({ orientation: context.orientation() }),
+    data: { triggerIcon: navigationMenuDataAttributes.triggerIcon(() => ({ expanded })) },
+    context: () => ({
+      variants: { orientation: context.orientation() },
+      classes: context.options.classes,
+      styles: context.options.styles,
+    }),
   })
   const triggerId = createId(() => local.id, 'navigation-menu-trigger')
   const disabled = item.disabled
@@ -114,14 +120,13 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
         disabled={disabled()}
         aria-haspopup={false}
         data-moraine-navigation-menu-control=""
-        {...slots.trigger}
+        {...triggerSlot}
       >
         {local.children}
         <Icon
           name="icon-chevron-down"
           data-slot="navigation-menu-trigger-icon"
-          {...navigationMenuDataAttributes.triggerIcon({ expanded })}
-          {...slots.triggerIcon}
+          {...triggerIconSlot}
         />
       </PopperTrigger>
       <Show when={expanded()}>

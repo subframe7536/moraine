@@ -52,13 +52,50 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   ])
   const themeField = useFieldContext()
   let indicator!: () => string | undefined
-  const { slots, variants } = useRecipe(checkboxRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
-    enforced: () => ({
-      control: {
+  const {
+    slots: {
+      root: rootSlot,
+      container: containerSlot,
+      control: controlSlot,
+      indicator: indicatorSlot,
+      wrapper: wrapperSlot,
+      label: labelSlot,
+      description: descriptionSlot,
+    },
+    variants,
+  } = useRecipe(checkboxRecipe, local, {
+    data: {
+      root: checkboxDataAttributes.root(() => ({
+        checked: resolvedChecked,
+        unchecked: () => !resolvedChecked() && !indeterminate(),
+        indeterminate,
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        required: field.required,
+        invalid: field.invalid,
+      })),
+      control: checkboxDataAttributes.control(() => ({
+        checked: resolvedChecked,
+        unchecked: () => !resolvedChecked() && !indeterminate(),
+        disabled: field.disabled,
+        indeterminate,
+        readonly: field.readOnly,
+        required: field.required,
+        invalid: field.invalid,
+      })),
+      indicator: checkboxDataAttributes.indicator(() => ({
+        checked: resolvedChecked,
+        disabled: field.disabled,
+        indeterminate,
+      })),
+      label: checkboxDataAttributes.label(() => ({ required: field.required })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
+    enforced: {
+      control: () => ({
         class: indicator() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
-      },
-    }),
+      }),
+    },
   })
   indicator = () => variants.indicator
 
@@ -339,22 +376,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="checkbox"
-      {...checkboxDataAttributes.root({
-        checked: resolvedChecked,
-        unchecked: () => !resolvedChecked() && !indeterminate(),
-        indeterminate,
-        disabled: field.disabled,
-        readonly: field.readOnly,
-        required: field.required,
-        invalid: field.invalid,
-      })}
-      {...rest}
-      {...slots.root}
-      onClick={onRootClick}
-    >
-      <div data-slot="checkbox-container" {...slots.container}>
+    <div data-slot="checkbox" {...rootSlot} {...rest} onClick={onRootClick}>
+      <div data-slot="checkbox-container" {...containerSlot}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -392,16 +415,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           type="button"
           role="checkbox"
           {...checkboxAriaAttrs()}
-          {...checkboxDataAttributes.control({
-            checked: resolvedChecked,
-            unchecked: () => !resolvedChecked() && !indeterminate(),
-            disabled: field.disabled,
-            indeterminate,
-            readonly: field.readOnly,
-            required: field.required,
-            invalid: field.invalid,
-          })}
-          {...slots.control}
+          {...controlSlot}
           ref={field.setControlRef}
           id={field.id()}
           tabIndex={local.tabIndex}
@@ -415,15 +429,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onBlur={onControlBlur}
         >
           <Show when={resolvedChecked() || indeterminate()}>
-            <span
-              data-slot="checkbox-indicator"
-              {...slots.indicator}
-              {...checkboxDataAttributes.indicator({
-                checked: resolvedChecked,
-                disabled: field.disabled,
-                indeterminate,
-              })}
-            >
+            <span data-slot="checkbox-indicator" {...indicatorSlot}>
               <Icon
                 name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
                 data-slot="checkbox-icon"
@@ -435,35 +441,24 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       </div>
 
       <Show when={label() || description()}>
-        <div data-slot="checkbox-wrapper" {...slots.wrapper}>
+        <div data-slot="checkbox-wrapper" {...wrapperSlot}>
           <Show when={label()}>
             <Show
               when={variants.variant === 'card'}
               fallback={
-                <label
-                  for={field.id()}
-                  id={labelId()}
-                  data-slot="checkbox-label"
-                  {...checkboxDataAttributes.label({ required: field.required })}
-                  {...slots.label}
-                >
+                <label for={field.id()} id={labelId()} data-slot="checkbox-label" {...labelSlot}>
                   {label()}
                 </label>
               }
             >
-              <p
-                id={labelId()}
-                data-slot="checkbox-label"
-                {...checkboxDataAttributes.label({ required: field.required })}
-                {...slots.label}
-              >
+              <p id={labelId()} data-slot="checkbox-label" {...labelSlot}>
                 {label()}
               </p>
             </Show>
           </Show>
 
           <Show when={description()}>
-            <p id={descriptionId()} data-slot="checkbox-description" {...slots.description}>
+            <p id={descriptionId()} data-slot="checkbox-description" {...descriptionSlot}>
               {description()}
             </p>
           </Show>

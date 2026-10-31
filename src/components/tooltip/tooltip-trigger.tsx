@@ -17,7 +17,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
   const context = useTooltipContext()
   const { slots } = useRecipe(tooltipRecipe, props, {
     slot: 'trigger',
-    contextSlots: () => context.slotOverrides,
+    context: () => context.slotOverrides,
   })
   const popper = context.popper
   const triggerProps = mergeProps(

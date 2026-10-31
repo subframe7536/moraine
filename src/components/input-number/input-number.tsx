@@ -143,8 +143,27 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const messages = useMessages('inputNumber', defaultInputNumberMessages, () => local.translations)
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
-  const { slots, variants } = useRecipe(inputNumberRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots,
+    slots: { root: rootSlot, input: inputSlot, controls: controlsSlot },
+    variants,
+  } = useRecipe(inputNumberRecipe, local, {
+    data: {
+      root: inputNumberDataAttributes.root(() => fieldDataState),
+      input: inputNumberDataAttributes.input(() => ({
+        ...fieldDataState,
+        autoAlign: (): boolean => variants.align === undefined && !isVertical() && !showDecrement(),
+      })),
+      increment: inputNumberDataAttributes.increment(() => ({
+        active: () => press.isActive('increment'),
+        disabled: () => !isControlInteractive('increment'),
+      })),
+      decrement: inputNumberDataAttributes.decrement(() => ({
+        active: () => press.isActive('decrement'),
+        disabled: () => !isControlInteractive('decrement'),
+      })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
 
   const merged = mergeProps(
@@ -387,28 +406,21 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
-    const controlProps = mergeProps(
-      inputNumberDataAttributes[kind]({
-        active: () => press.isActive(kind),
-        disabled: isControlDisabled,
-      }),
-      {
-        'data-slot': `input-number-${kind}`,
-        type: 'button',
-        tabIndex: -1,
-        get 'aria-label'() {
-          return isIncrement ? messages().increment : messages().decrement
-        },
-        get 'aria-controls'() {
-          return field.id()
-        },
-        get disabled() {
-          return isControlDisabled()
-        },
-        ...slots[kind],
-        ...press.handlers(kind),
+    const controlProps = mergeProps(slots[kind], {
+      'data-slot': `input-number-${kind}`,
+      type: 'button',
+      tabIndex: -1,
+      get 'aria-label'() {
+        return isIncrement ? messages().increment : messages().decrement
       },
-    )
+      get 'aria-controls'() {
+        return field.id()
+      },
+      get disabled() {
+        return isControlDisabled()
+      },
+      ...press.handlers(kind),
+    })
     return controlProps as InputNumberControlProps
   }
 
@@ -527,9 +539,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     <div
       role="group"
       data-slot="input-number"
-      {...inputNumberDataAttributes.root(fieldDataState)}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       id={`${field.id()}-root`}
       ref={(element) => callRef(local.ref, element)}
     >
@@ -546,11 +557,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         inputMode={isIOSUserAgent() && minValue() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         placeholder={merged.placeholder}
-        {...inputNumberDataAttributes.input({
-          ...fieldDataState,
-          autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
-        })}
-        {...slots.input}
+        {...inputSlot}
         ref={(e) => {
           inputEl = e
           field.setControlRef(e)
@@ -673,7 +680,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="input-number-controls" {...slots.controls}>
+        <div data-slot="input-number-controls" {...controlsSlot}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} />

@@ -59,11 +59,28 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
   let slider!: ReturnType<typeof createSlider<TValue>>
-  const { slots, variants, slotWith } = useRecipe(sliderRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
-    enforced: () => ({
-      range: { style: slider.rangeStyle() },
-    }),
+  const {
+    slots: { root: rootSlot, track: trackSlot, range: rangeSlot },
+    variants,
+    slotWith,
+  } = useRecipe(sliderRecipe, local, {
+    data: {
+      root: sliderDataAttributes.root(() => ({
+        dragging: slider.dragging,
+        disabled: field.disabled,
+        invalid: field.invalid,
+        readonly: () => merged.readOnly,
+        required: field.required,
+        inverted: () => merged.inverted,
+        multiple: isMultiple,
+      })),
+      range: sliderDataAttributes.range(() => ({
+        multiple: isMultiple,
+        inverted: () => merged.inverted,
+      })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
+    enforced: { range: () => ({ style: slider.rangeStyle() }) },
   })
   const merged = mergeProps(
     {
@@ -167,75 +184,55 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     <div
       role="group"
       data-slot="slider"
-      {...sliderDataAttributes.root({
-        dragging: slider.dragging,
-        disabled: field.disabled,
-        invalid: field.invalid,
-        readonly: () => merged.readOnly,
-        required: field.required,
-        inverted: () => merged.inverted,
-        multiple: isMultiple,
-      })}
+      {...rootSlot}
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       aria-label={local['aria-label']}
       {...field.ariaAttrs()}
-      {...slots.root}
     >
       <div
         ref={(element) => {
           slider.setTrackRef(element)
         }}
         data-slot="slider-track"
-        {...slots.track}
+        {...trackSlot}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
         onPointerCancel={slider.onPointerCancel}
         onLostPointerCapture={slider.onPointerCancel}
       >
-        <div
-          data-slot="slider-range"
-          {...sliderDataAttributes.range({
-            multiple: isMultiple,
-            inverted: () => merged.inverted,
-          })}
-          {...slots.range}
-        />
+        <div data-slot="slider-range" {...rangeSlot} />
 
         <Show when={merged.marker}>
           <For each={slider.markerIndexes()}>
-            {(markerIndex) => (
-              <div
-                data-slot="slider-marker"
-                {...sliderDataAttributes.marker({
+            {(markerIndex) => {
+              const markerSlot = slotWith('marker', {
+                enforced: () => ({ style: slider.getMarkerStyle(markerIndex) }),
+                data: sliderDataAttributes.marker({
                   active: () => slider.isMarkerInRange(markerIndex),
-                })}
-                {...slotWith('marker', undefined, () => ({
-                  style: slider.getMarkerStyle(markerIndex),
-                }))}
-              />
-            )}
+                }),
+              })
+
+              return <div data-slot="slider-marker" {...markerSlot} />
+            }}
           </For>
         </Show>
       </div>
 
       <For each={thumbIndexes()}>
-        {(thumbIndex) => (
-          <div
-            ref={(element) => {
-              slider.setThumbRefs((previous) => {
-                const next = [...previous]
-                next[thumbIndex] = element
-                return next
-              })
-              if (thumbIndex === 0) {
-                field.setControlRef(element)
-              }
-            }}
-            data-slot="slider-thumb"
-            {...sliderDataAttributes.thumb({
+        {(thumbIndex) => {
+          const thumbSlot = slotWith('thumb', {
+            enforced: () => ({
+              style: {
+                left: slider.thumbStyles()[thumbIndex]?.left,
+                right: slider.thumbStyles()[thumbIndex]?.right,
+                top: slider.thumbStyles()[thumbIndex]?.top,
+                bottom: slider.thumbStyles()[thumbIndex]?.bottom,
+              },
+            }),
+            data: sliderDataAttributes.thumb({
               inverted: () => merged.inverted,
               dragging: () => slider.dragging() && slider.activeThumbIndexState() === thumbIndex,
               focusVisible: () => slider.focusVisibleThumbIndex() === thumbIndex,
@@ -243,71 +240,80 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               invalid: field.invalid,
               readonly: () => merged.readOnly,
               required: field.required,
-            })}
-            role="slider"
-            tabIndex={field.disabled() ? undefined : 0}
-            {...slotWith('thumb', undefined, () => ({
-              style: {
-                left: slider.thumbStyles()[thumbIndex]?.left,
-                right: slider.thumbStyles()[thumbIndex]?.right,
-                top: slider.thumbStyles()[thumbIndex]?.top,
-                bottom: slider.thumbStyles()[thumbIndex]?.bottom,
-              },
-            }))}
-            aria-valuemin={slider.getThumbMinValue(thumbIndex)}
-            aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
-            aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
-            aria-valuetext={slider.getThumbValueText(thumbIndex)}
-            aria-orientation={merged.orientation ?? undefined}
-            aria-label={messages().thumb({
-              index: thumbIndex,
-              total: slider.currentValues().length,
-            })}
-            {...field.ariaAttrs()}
-            onPointerDown={(event) => {
-              slider.onThumbPointerDown(thumbIndex, event)
-            }}
-            onPointerMove={(event) => {
-              slider.onThumbPointerMove(event)
-            }}
-            onPointerUp={(event) => {
-              slider.onThumbPointerUp(event)
-            }}
-            onPointerCancel={slider.onPointerCancel}
-            onLostPointerCapture={slider.onPointerCancel}
-            onKeyDown={(event) => {
-              slider.onThumbKeyDown(thumbIndex, event)
-            }}
-            onKeyUp={slider.onThumbKeyUp}
-            onFocus={(event) => {
-              slider.onThumbFocus(thumbIndex, event)
-            }}
-            onBlur={slider.onThumbBlur}
-          >
-            <HiddenInput
+            }),
+          })
+
+          return (
+            <div
               ref={(element) => {
-                inputEls[thumbIndex] = element
+                slider.setThumbRefs((previous) => {
+                  const next = [...previous]
+                  next[thumbIndex] = element
+                  return next
+                })
                 if (thumbIndex === 0) {
-                  callRef(local.inputRef, element)
+                  field.setControlRef(element)
                 }
               }}
-              type="range"
-              id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
-              name={field.name()}
-              min={slider.getThumbMinValue(thumbIndex)}
-              max={slider.getThumbMaxValue(thumbIndex)}
-              step={slider.definedStep() ?? 'any'}
-              value={slider.currentValues()[thumbIndex] ?? merged.min}
-              required={field.required()}
-              disabled={field.disabled()}
-              readonly={merged.readOnly}
-              tabIndex={field.disabled() ? undefined : -1}
+              data-slot="slider-thumb"
+              {...thumbSlot}
+              role="slider"
+              tabIndex={field.disabled() ? undefined : 0}
+              aria-valuemin={slider.getThumbMinValue(thumbIndex)}
+              aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
+              aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
               aria-valuetext={slider.getThumbValueText(thumbIndex)}
               aria-orientation={merged.orientation ?? undefined}
+              aria-label={messages().thumb({
+                index: thumbIndex,
+                total: slider.currentValues().length,
+              })}
               {...field.ariaAttrs()}
-            />
-          </div>
-        )}
+              onPointerDown={(event) => {
+                slider.onThumbPointerDown(thumbIndex, event)
+              }}
+              onPointerMove={(event) => {
+                slider.onThumbPointerMove(event)
+              }}
+              onPointerUp={(event) => {
+                slider.onThumbPointerUp(event)
+              }}
+              onPointerCancel={slider.onPointerCancel}
+              onLostPointerCapture={slider.onPointerCancel}
+              onKeyDown={(event) => {
+                slider.onThumbKeyDown(thumbIndex, event)
+              }}
+              onKeyUp={slider.onThumbKeyUp}
+              onFocus={(event) => {
+                slider.onThumbFocus(thumbIndex, event)
+              }}
+              onBlur={slider.onThumbBlur}
+            >
+              <HiddenInput
+                ref={(element) => {
+                  inputEls[thumbIndex] = element
+                  if (thumbIndex === 0) {
+                    callRef(local.inputRef, element)
+                  }
+                }}
+                type="range"
+                id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
+                name={field.name()}
+                min={slider.getThumbMinValue(thumbIndex)}
+                max={slider.getThumbMaxValue(thumbIndex)}
+                step={slider.definedStep() ?? 'any'}
+                value={slider.currentValues()[thumbIndex] ?? merged.min}
+                required={field.required()}
+                disabled={field.disabled()}
+                readonly={merged.readOnly}
+                tabIndex={field.disabled() ? undefined : -1}
+                aria-valuetext={slider.getThumbValueText(thumbIndex)}
+                aria-orientation={merged.orientation ?? undefined}
+                {...field.ariaAttrs()}
+              />
+            </div>
+          )
+        }}
       </For>
 
       {resolvedChildren()}

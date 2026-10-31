@@ -17,18 +17,19 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
   const sheet = useSheetContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
-  const { slots } = useRecipe(sheetRecipe, local, {
+  const {
+    slots: { description: descriptionSlot },
+  } = useRecipe(sheetRecipe, local, {
     slot: 'description',
-    contextVariants: () => content.variants,
-    contextSlots: () => sheet.slotOverrides,
+    context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
   })
   return (
     <Dynamic
       component={local.as ?? 'p'}
       data-slot="sheet-description"
+      {...descriptionSlot}
       {...rest}
       id={id()}
-      {...slots.description}
     />
   )
 }

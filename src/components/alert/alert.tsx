@@ -84,9 +84,31 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
 
   const hasIcon = () => resolvedIcon() !== undefined
 
-  const { slots } = useRecipe(alertRecipe, local, {
-    contextVariants: () => ({
-      hasDescription: hasDescription(),
+  const {
+    slots: {
+      root: rootSlot,
+      icon: iconSlot,
+      content: contentSlot,
+      title: titleSlot,
+      description: descriptionSlot,
+      actions: actionsSlot,
+      close: closeSlot,
+    },
+  } = useRecipe(alertRecipe, local, {
+    data: {
+      root: alertDataAttributes.root(() => ({
+        close: hasClose(),
+        closed: presence.dataAttrs['data-closed'] !== undefined,
+        expanded: presence.dataAttrs['data-expanded'] !== undefined,
+        fullWidth: isFullWidth(),
+        hasDescription: hasDescription(),
+        type: resolvedType(),
+      })),
+    },
+    context: () => ({
+      variants: {
+        hasDescription: hasDescription(),
+      },
     }),
   })
 
@@ -101,16 +123,8 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
         data-slot="alert"
         role={defaultRole()}
         aria-live={defaultAriaLive()}
-        {...alertDataAttributes.root({
-          close: hasClose(),
-          closed: presence.dataAttrs['data-closed'] !== undefined,
-          expanded: presence.dataAttrs['data-expanded'] !== undefined,
-          fullWidth: isFullWidth(),
-          hasDescription: hasDescription(),
-          type: resolvedType(),
-        })}
+        {...rootSlot}
         {...rest}
-        {...slots.root}
         ref={(element: HTMLElement) => {
           callRef(local.ref, element)
           if (element) {
@@ -119,7 +133,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
         }}
       >
         <Show when={hasIcon()}>
-          <div data-slot="alert-icon" {...slots.icon}>
+          <div data-slot="alert-icon" {...iconSlot}>
             <Show
               when={typeof resolvedIcon() === 'string'}
               fallback={resolvedIcon() as JSX.Element}
@@ -128,30 +142,30 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
             </Show>
           </div>
         </Show>
-        <div data-slot="alert-content" {...slots.content}>
+        <div data-slot="alert-content" {...contentSlot}>
           <Show when={hasContent(title())}>
-            <div data-slot="alert-title" {...slots.title}>
+            <div data-slot="alert-title" {...titleSlot}>
               {title()}
             </div>
           </Show>
           <Show when={hasDescription()}>
-            <div data-slot="alert-description" {...slots.description}>
+            <div data-slot="alert-description" {...descriptionSlot}>
               {description()}
             </div>
           </Show>
           {local.children}
         </div>
         <Show when={hasContent(actions())}>
-          <div data-slot="alert-actions" {...slots.actions}>
+          <div data-slot="alert-actions" {...actionsSlot}>
             {actions()}
           </div>
         </Show>
         <Show when={hasClose()}>
           <button
             data-slot="alert-close"
+            {...closeSlot}
             aria-label={messages().close}
             onClick={() => setOpen(false)}
-            {...slots.close}
           >
             <Icon name={local.closeIcon ?? 'icon-close'} />
           </button>

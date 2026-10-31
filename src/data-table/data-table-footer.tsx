@@ -23,9 +23,11 @@ export function DataTableFooter<TData extends RowData>(props: {
         group.headers.some((header) => !header.isPlaceholder && header.column.columnDef.footer),
       )
 
+  const footerSlot = ctx.sectionSlot('footer')
+
   return (
     <Show when={hasFooter()}>
-      <tfoot data-slot="data-table-footer" {...ctx.sectionSlot('footer')}>
+      <tfoot data-slot="data-table-footer" {...footerSlot}>
         {/* Row count comes from all columns, so it stays correct when one region is empty. */}
         <For each={props.table.getFooterGroups()}>
           {(_, depth) => (
@@ -38,23 +40,22 @@ export function DataTableFooter<TData extends RowData>(props: {
                         () => header,
                         () => side,
                       )
-                      return (
-                        <td
-                          data-slot="data-table-cell"
-                          colSpan={header.colSpan}
-                          {...dataTableDataAttributes.cell({
+                      const cellSlot = ctx.cellSlot(
+                        'cell',
+                        header.column,
+                        pin,
+                        () => header.getSize(),
+                        'footer',
+                        {
+                          data: dataTableDataAttributes.cell({
                             pinned: pin.side,
                             pinnedEdge: () => pin.edge() && pin.side(),
                             tree: false,
-                          })}
-                          {...ctx.cellSlot(
-                            'cell',
-                            header.column,
-                            pin,
-                            () => header.getSize(),
-                            'footer',
-                          )}
-                        >
+                          }),
+                        },
+                      )
+                      return (
+                        <td data-slot="data-table-cell" colSpan={header.colSpan} {...cellSlot}>
                           <Show when={!header.isPlaceholder}>
                             <FlexRender footer={header} />
                           </Show>

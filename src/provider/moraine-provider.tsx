@@ -3,16 +3,12 @@ import { createMemo } from 'solid-js'
 
 import type { CnConfig } from '../theme/cn'
 import { cn as defaultCn, createCn } from '../theme/cn'
-import { getThemeRecipeLayers } from '../theme/create-theme'
-import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { createDetectedLocale } from './locale/default-locale'
 import { resolveLocale } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineContextProvider, useMoraineContext } from './moraine-context'
-import { defaultRecipeResolver } from './theme-context'
-import type { ThemeResolver } from './theme-context'
 
 export interface MoraineProviderProps {
   /** `undefined` inherits the parent Theme; a Theme replaces it; null clears inherited overrides. */
@@ -40,46 +36,10 @@ export interface MoraineProviderProps {
 /** Provides theme overrides and class merging rules to descendant components. */
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   const parent = useMoraineContext()
-  const cache = new WeakMap<
-    MoraineTheme,
-    WeakMap<RecipeDefinition, RecipeDefinition | ResolvedRecipe>
-  >()
 
-  const resolverFor = (theme: MoraineTheme): ThemeResolver => ({
-    resolve<S extends object, V>(recipe: RecipeDefinition<S, V>) {
-      let themeCache = cache.get(theme)
-      if (!themeCache) {
-        themeCache = new WeakMap()
-        cache.set(theme, themeCache)
-      }
-      const cached = themeCache.get(recipe) as RecipeDefinition<S, V> | ResolvedRecipe<S, V>
-      if (cached) {
-        return cached
-      }
-
-      const overrides = getThemeRecipeLayers<S, V>(theme, recipe.key)
-      const resolved =
-        overrides.length === 0
-          ? recipe
-          : (Object.freeze({
-              definition: recipe,
-              layers: Object.freeze([recipe.config, ...overrides]),
-            }) as ResolvedRecipe<S, V>)
-      themeCache.set(recipe, resolved)
-      return resolved
-    },
-  })
-
-  const resolver = createMemo<ThemeResolver>(() => {
-    const theme = props.theme
-    if (theme === undefined) {
-      return parent?.resolver ?? defaultRecipeResolver
-    }
-    if (theme === null) {
-      return defaultRecipeResolver
-    }
-    return resolverFor(theme)
-  })
+  const theme = createMemo<MoraineTheme | null>(() =>
+    props.theme === undefined ? (parent?.theme ?? null) : props.theme,
+  )
 
   const cn = createMemo(() => {
     const config = props.cnConfig
@@ -105,8 +65,8 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   return (
     <MoraineContextProvider
       value={{
-        get resolver() {
-          return resolver()
+        get theme() {
+          return theme()
         },
         get cn() {
           return cn()

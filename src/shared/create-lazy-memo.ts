@@ -10,11 +10,13 @@ export function createLazyMemo<T>(
   },
 ): Accessor<T> {
   const owner = options?.owner !== undefined ? options.owner : getOwner()
+  const equals = options?.equals
+  // An explicit `equals: undefined` would replace Solid's default equality check, so omit it.
   const createMemoForValue = (
-    options === undefined
+    equals === undefined
       ? createMemo.bind(null, value)
       : // oxlint-disable-next-line subf/solid-reactivity -- Lazy memo factory; equals options require an explicit createMemo call.
-        () => createMemo(value, undefined, options)
+        () => createMemo(value, undefined, { equals })
   ) as () => Accessor<T>
   let memo: Accessor<T> | undefined
 

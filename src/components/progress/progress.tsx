@@ -66,24 +66,36 @@ export function Progress(props: ProgressProps): JSX.Element {
 
     return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
   })
-  const { slots } = useRecipe(progressRecipe, style, {
-    vars: () => {
-      const next = percent()
-      if (next === undefined) {
-        return undefined
-      }
-
-      return { '--p-value': next / 100 }
+  const {
+    slots: {
+      root: rootSlot,
+      label: labelSlot,
+      value: valueSlot,
+      track: trackSlot,
+      indicator: indicatorSlot,
     },
-    enforced: () => ({
-      root: {
+  } = useRecipe(progressRecipe, style, {
+    data: {
+      root: progressDataAttributes.root(() => progressState),
+      indicator: progressDataAttributes.indicator(() => progressState),
+    },
+    own: {
+      root: () => {
+        const next = percent()
+        return next === undefined ? undefined : { style: { '--p-value': next / 100 } }
+      },
+    },
+    enforced: {
+      root: () => ({
         class:
           hasLabel() && showValueSlot() ? 'grid-cols-[minmax(0,1fr)_auto] gap-x-2' : 'grid-cols-1',
-      },
-      label: { class: 'col-start-1 row-start-1' },
-      value: { class: hasLabel() ? 'col-start-2 row-start-1' : 'col-start-1 row-start-1' },
-      track: { class: showHeader() ? 'col-span-full row-start-2' : 'col-span-full row-start-1' },
-    }),
+      }),
+      label: () => ({ class: 'col-start-1 row-start-1' }),
+      value: () => ({ class: hasLabel() ? 'col-start-2 row-start-1' : 'col-start-1 row-start-1' }),
+      track: () => ({
+        class: showHeader() ? 'col-span-full row-start-2' : 'col-span-full row-start-1',
+      }),
+    },
   })
 
   const progressState = {
@@ -108,22 +120,21 @@ export function Progress(props: ProgressProps): JSX.Element {
     <div
       role="progressbar"
       data-slot="progress"
-      {...progressDataAttributes.root(progressState)}
+      {...rootSlot}
       {...rest}
       aria-valuemin={minValue}
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
-      {...slots.root}
     >
       <Show when={hasLabel()}>
-        <span data-slot="progress-label" {...slots.label}>
+        <span data-slot="progress-label" {...labelSlot}>
           {labelContent()}
         </span>
       </Show>
 
       <Show when={showValueSlot()}>
-        <span data-slot="progress-value" {...slots.value}>
+        <span data-slot="progress-value" {...valueSlot}>
           <Show when={valueRender()} fallback={`${percent() ?? 0}%`}>
             {renderWithProps(valueRender(), {
               get percent() {
@@ -134,12 +145,8 @@ export function Progress(props: ProgressProps): JSX.Element {
         </span>
       </Show>
 
-      <div data-slot="progress-track" {...slots.track}>
-        <div
-          data-slot="progress-indicator"
-          {...progressDataAttributes.indicator(progressState)}
-          {...slots.indicator}
-        />
+      <div data-slot="progress-track" {...trackSlot}>
+        <div data-slot="progress-indicator" {...indicatorSlot} />
       </div>
     </div>
   )

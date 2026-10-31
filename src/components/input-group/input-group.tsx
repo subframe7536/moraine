@@ -3,6 +3,7 @@ import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callHandler } from '../../shared/utils'
+import type { Orientation } from '../../theme/style-types'
 import { useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/form/is-interactive-target'
 import { containsComposed, isNode } from '../shared/overlay/dom'
@@ -25,8 +26,17 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     'onPointerDown',
   ])
   const field = useFieldContext()
-  const { slots, variants } = useRecipe(inputGroupRecipe, local, {
-    contextVariants: () => ({ size: field?.size }),
+  const {
+    slots: { root: rootSlot, frame: frameSlot },
+    variants,
+  } = useRecipe(inputGroupRecipe, local, {
+    data: {
+      root: inputGroupDataAttributes.root(() => ({
+        inputGroup: true,
+        orientation: (): Orientation | undefined => variants.orientation,
+      })),
+    },
+    context: () => ({ variants: { size: field?.size } }),
   })
 
   const onPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
@@ -70,16 +80,12 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
       <div
         role="group"
         data-slot="input-group"
-        {...inputGroupDataAttributes.root({
-          inputGroup: true,
-          orientation: () => variants.orientation,
-        })}
+        {...rootSlot}
         {...rest}
-        {...slots.root}
         onPointerDown={onPointerDown}
       >
         {local.children}
-        <span aria-hidden="true" data-slot="input-group-frame" {...slots.frame} />
+        <span aria-hidden="true" data-slot="input-group-frame" {...frameSlot} />
       </div>
     </InputGroupProvider>
   )

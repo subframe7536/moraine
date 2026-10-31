@@ -1,5 +1,13 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -52,12 +60,17 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
+  // Effects run after the root's attributes are applied, so `activeEffect` reads the caller's
+  // attributes even though the class binding is spread before them.
+  const [effectElement, setEffectElement] = createSignal<HTMLElement>()
+  createEffect(on(root.element, setEffectElement))
+
   function customActiveEffectClass() {
     const effect = local.activeEffect
     if (typeof effect !== 'function') {
       return
     }
-    const el = root.element()
+    const el = effectElement()
     return el ? effect(el) : undefined
   }
 
@@ -68,8 +81,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
   const isTrailingLoading = createMemo(() => isLoading() && (!leading() || !trailing()))
 
-  const { slots } = useRecipe(buttonRecipe, local, {
-    contextVariants: () => group ?? undefined,
+  const {
+    slots: { root: rootSlot, leading: leadingSlot, label: labelSlot, trailing: trailingSlot },
+  } = useRecipe(buttonRecipe, local, {
+    data: {
+      root: buttonDataAttributes.root({
+        loading: isLoading,
+        disabled: () => local.disabled,
+      }),
+    },
+    context: () => ({ variants: group ?? undefined }),
     own: {
       root: () => ({ class: customActiveEffectClass() }),
       leading: () => ({ class: isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined }),
@@ -129,12 +150,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       component={tag()}
       data-slot={local.slotName || 'button'}
       aria-busy={isLoading() ? true : undefined}
-      {...buttonDataAttributes.root({
-        loading: isLoading,
-        disabled: () => local.disabled,
-      })}
+      {...rootSlot}
       {...binding}
-      {...slots.root}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
@@ -142,13 +159,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={leading()}
             data-slot="button-leading"
             aria-hidden={isLeadingLoading() ? true : undefined}
-            {...slots.leading}
+            {...leadingSlot}
           />
         )}
       </Show>
 
       <Show when={hasChildren()}>
-        <span data-slot="button-label" {...slots.label}>
+        <span data-slot="button-label" {...labelSlot}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -159,7 +176,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={trailing()}
             data-slot="button-trailing"
             aria-hidden={isTrailingLoading() ? true : undefined}
-            {...slots.trailing}
+            {...trailingSlot}
           />
         )}
       </Show>

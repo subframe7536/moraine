@@ -8,6 +8,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  mergeProps,
   on,
   onCleanup,
   onMount,
@@ -23,6 +24,8 @@ import { renderWithProps } from '../../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
+import type { DataAttributeBag } from '../../../../theme/style-contract'
+import type { SlotBinding } from '../../../../theme/use-recipe'
 import { useFloatingPosition } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 import { focusWithoutScrolling, resolveDirection } from '../utils'
@@ -69,6 +72,23 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   const layer = useOverlayMenuLayerState()
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => props.slotBinding(slot)
   const slotName = (slot: string) => dataSlotName(props.owner, slot)
+  function slotWithData(
+    slot: keyof OverlayMenuSharedSlots,
+    options: { data: DataAttributeBag },
+  ): SlotBinding {
+    const binding = mergeProps(
+      {
+        get class() {
+          return resolveSlot(slot).class
+        },
+        get style() {
+          return resolveSlot(slot).style
+        },
+      },
+      options.data,
+    )
+    return binding
+  }
   const resolvedPlacement = () =>
     resolveFloatingPlacement(props.placement ?? 'bottom', props.align ?? 'start')
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
@@ -528,6 +548,22 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       },
     } satisfies Parameters<typeof attachSelectableItemHandlers>[1]
 
+    const itemSlot = getItemSlot({
+      get class() {
+        return itemProps.item.class
+      },
+      get style() {
+        return itemProps.item.style
+      },
+      data: overlayMenuDataAttributes.item({
+        danger: () => itemProps.item.variant === 'danger',
+        disabled: () => itemProps.item.disabled,
+        highlighted: () => layer.isHighlighted(submenuId()),
+        expanded: isOpen,
+        selected: undefined,
+      }),
+    })
+
     return (
       <>
         <div
@@ -539,18 +575,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           aria-controls={isOpen() ? submenuContentId() : undefined}
           aria-expanded={isOpen() ? 'true' : 'false'}
           aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-          {...overlayMenuDataAttributes.item({
-            danger: () => itemProps.item.variant === 'danger',
-            disabled: () => itemProps.item.disabled,
-            highlighted: () => layer.isHighlighted(submenuId()),
-            expanded: isOpen,
-            selected: undefined,
-          })}
+          {...itemSlot}
           ref={(itemElement) => {
             setTriggerElement(itemElement)
             onCleanup(attachSelectableItemHandlers(itemElement, handlers))
           }}
-          {...getItemSlot(itemProps.item.style, itemProps.item.class)}
         >
           <RenderItemContent
             item={itemProps.item}
@@ -621,6 +650,29 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     if (!defaultPrevented) {
       onLayerKeyDown(event, layer, props.close, closeParentKey(), props.closeOnTab)
     }
+  }
+
+  // The content binding comes from the owning menu; the layer adds its own `data-*` state.
+  const contentSlot = slotWithData('content', {
+    data: overlayMenuDataAttributes.content({
+      expanded: () => props.open && isPositioned(),
+      closed: () => !props.open,
+      side,
+      align,
+    }),
+  })
+
+  // `elementAttrs` class/style merge over the content binding instead of replacing it.
+  const contentPresentation = {
+    get class() {
+      return cn(contentSlot.class, props.elementAttrs?.class)
+    },
+    get style() {
+      return {
+        ...contentSlot.style,
+        ...(typeof props.elementAttrs?.style === 'object' ? props.elementAttrs.style : undefined),
+      }
+    },
   }
 
   function MenuGroup(groupProps: { group: OverlayMenuGroup<TItem> }): JSX.Element {
@@ -701,19 +753,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         id={props.id}
         aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
-        {...overlayMenuDataAttributes.content({
-          expanded: () => props.open && isPositioned(),
-          closed: () => !props.open,
-          side,
-          align,
-        })}
+        {...contentSlot}
         {...props.elementAttrs}
-        {...resolveSlot('content')}
-        class={cn(resolveSlot('content').class, props.elementAttrs?.class)}
-        style={{
-          ...resolveSlot('content').style,
-          ...(typeof props.elementAttrs?.style === 'object' ? props.elementAttrs.style : undefined),
-        }}
+        {...contentPresentation}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)

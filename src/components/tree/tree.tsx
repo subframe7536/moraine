@@ -38,7 +38,10 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'style',
     'ref',
   ])
-  const { slots, variants } = useRecipe(treeRecipe, local)
+  const {
+    slots: { root: rootSlot },
+    variants,
+  } = useRecipe(treeRecipe, local)
   const state = untrack(() => local.state)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
@@ -98,8 +101,8 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         data-slot="tree"
         role="tree"
         aria-multiselectable={state.selectionMode() === 'multiple' ? true : undefined}
+        {...rootSlot}
         {...rest}
-        {...slots.root}
         ref={(element: HTMLElement) => {
           setScrollElement(element)
           state.navigation.registerRoot(element)

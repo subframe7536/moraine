@@ -52,8 +52,47 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
   const themeField = useFieldContext()
-  const { slots } = useRecipe(switchRecipe, local, {
-    contextVariants: () => ({ size: themeField?.size }),
+  const {
+    slots: {
+      root: rootSlot,
+      track: trackSlot,
+      thumb: thumbSlot,
+      icon: iconSlot,
+      wrapper: wrapperSlot,
+      label: labelSlot,
+      description: descriptionSlot,
+    },
+  } = useRecipe(switchRecipe, local, {
+    data: {
+      root: switchDataAttributes.root(() => ({
+        checked,
+        unchecked: () => !checked(),
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        required: field.required,
+        invalid: field.invalid,
+        loading: () => merged.loading,
+      })),
+      track: switchDataAttributes.track(() => ({
+        checked,
+        unchecked: () => !checked(),
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        invalid: field.invalid,
+      })),
+      thumb: switchDataAttributes.thumb(() => ({
+        checked,
+        unchecked: () => !checked(),
+        disabled: field.disabled,
+      })),
+      icon: switchDataAttributes.icon(() => ({
+        checked: () => !merged.loading && checked(),
+        unchecked: () => !merged.loading && !checked(),
+        loading: () => merged.loading,
+      })),
+      label: switchDataAttributes.label(() => ({ required: field.required })),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
 
   const merged = mergeProps(
@@ -265,17 +304,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       data-slot="switch"
-      {...switchDataAttributes.root({
-        checked,
-        unchecked: () => !checked(),
-        disabled: field.disabled,
-        readonly: field.readOnly,
-        required: field.required,
-        invalid: field.invalid,
-        loading: () => merged.loading,
-      })}
+      {...rootSlot}
       {...rest}
-      {...slots.root}
       ref={(element) => callRef(local.ref, element)}
       onClick={onRootClick}
     >
@@ -314,14 +344,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         type="button"
         role="switch"
         {...switchAriaAttrs()}
-        {...switchDataAttributes.track({
-          checked,
-          unchecked: () => !checked(),
-          disabled: field.disabled,
-          readonly: field.readOnly,
-          invalid: field.invalid,
-        })}
-        {...slots.track}
+        {...trackSlot}
         ref={field.setControlRef}
         id={field.id()}
         disabled={field.disabled()}
@@ -330,48 +353,23 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         onFocus={onTrackFocus}
         onBlur={onTrackBlur}
       >
-        <span
-          data-slot="switch-thumb"
-          {...switchDataAttributes.thumb({
-            checked,
-            unchecked: () => !checked(),
-            disabled: field.disabled,
-          })}
-          {...slots.thumb}
-        >
+        <span data-slot="switch-thumb" {...thumbSlot}>
           <Show when={resolvedIconName()} keyed>
-            {(iconName) => (
-              <Icon
-                data-slot="switch-icon"
-                name={iconName}
-                {...switchDataAttributes.icon({
-                  checked: () => !merged.loading && checked(),
-                  unchecked: () => !merged.loading && !checked(),
-                  loading: () => merged.loading,
-                })}
-                {...slots.icon}
-              />
-            )}
+            {(iconName) => <Icon data-slot="switch-icon" name={iconName} {...iconSlot} />}
           </Show>
         </span>
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="switch-wrapper" {...slots.wrapper}>
+        <span data-slot="switch-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
-            <label
-              for={field.id()}
-              id={labelId()}
-              data-slot="switch-label"
-              {...switchDataAttributes.label({ required: field.required })}
-              {...slots.label}
-            >
+            <label for={field.id()} id={labelId()} data-slot="switch-label" {...labelSlot}>
               {label()}
             </label>
           </Show>
 
           <Show when={showDescription()}>
-            <span id={descriptionId()} data-slot="switch-description" {...slots.description}>
+            <span id={descriptionId()} data-slot="switch-description" {...descriptionSlot}>
               {description()}
             </span>
           </Show>

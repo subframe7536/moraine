@@ -9,9 +9,11 @@ export function TableHead(props: TableT.HeadProps): JSX.Element {
   const [local, rest] = splitProps(props, ['align', 'truncated', 'class', 'style'])
   // Always set the alignment: a `th` outside `thead` would otherwise fall back to the
   // browser's centered default.
-  const slots = useTablePart('head', local, () => ({
-    class: [TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'], local.truncated && 'truncate'],
-  }))
+  const { head: headSlot } = useTablePart('head', local, {
+    own: () => ({
+      class: [TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'], local.truncated && 'truncate'],
+    }),
+  })
 
-  return <th data-slot="table-head" {...rest} {...slots.head} />
+  return <th data-slot="table-head" {...headSlot} {...rest} />
 }

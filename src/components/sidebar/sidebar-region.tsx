@@ -32,9 +32,11 @@ export function createRegion<S extends RegionSlot>(
     props: RegionProps<T>,
   ): JSX.Element {
     const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-    const { slots } = useSidebarStyles(slot, local)
+    const {
+      slots: { [slot]: regionSlot },
+    } = useSidebarStyles(slot, local)
     return (
-      <Dynamic component={local.as ?? defaultTag} data-slot={dataSlot} {...rest} {...slots[slot]} />
+      <Dynamic component={local.as ?? defaultTag} data-slot={dataSlot} {...regionSlot} {...rest} />
     )
   }
 }

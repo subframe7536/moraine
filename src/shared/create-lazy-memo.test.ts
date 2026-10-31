@@ -37,4 +37,23 @@ describe('createLazyMemo', () => {
       disposeOwner()
     })
   })
+
+  it('keeps default equality when equals is passed as undefined', () => {
+    createRoot((dispose) => {
+      const [value, setValue] = createSignal('a', { equals: false })
+      const memo = createLazyMemo(value, { equals: undefined })
+      let downstream = 0
+      const reader = createLazyMemo(() => {
+        downstream += 1
+        return memo()
+      })
+
+      expect(reader()).toBe('a')
+      setValue('a')
+      expect(reader()).toBe('a')
+      expect(downstream).toBe(1)
+
+      dispose()
+    })
+  })
 })

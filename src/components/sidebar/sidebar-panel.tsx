@@ -18,7 +18,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
-  const { slots } = useSidebarStyles('panel', local)
+  const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
   const mobileAriaLabel = () =>
@@ -27,23 +27,25 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   // The mobile Sheet owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
     const closed = () => !contentProps.mobile && !context.isOpen()
+    const panelSlot = slotWith('panel', {
+      data: sidebarDataAttributes.panel({
+        closed,
+        expanded: () => !closed(),
+        mobile: () => contentProps.mobile,
+        side: () => context.side,
+        variant: () => context.variant,
+      }),
+    })
     return (
       <Dynamic
         component={(local.as ?? 'aside') as ValidComponent}
         id={context.panelId()}
         data-slot="sidebar-panel"
-        {...sidebarDataAttributes.panel({
-          closed,
-          expanded: () => !closed(),
-          mobile: () => contentProps.mobile,
-          side: () => context.side,
-          variant: () => context.variant,
-        })}
+        {...panelSlot}
         aria-hidden={closed() ? true : undefined}
         inert={closed() ? true : undefined}
         aria-label={local['aria-label']}
         {...(rest as object)}
-        {...slots.panel}
       >
         {content()}
       </Dynamic>

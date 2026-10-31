@@ -13,22 +13,18 @@ export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
   const [local, rest] = splitProps(props, ['icon', 'class', 'style'])
   const item = useTreeItemContext()!.item
   const context = useTreeContext()
-  const { slots } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { icon: iconSlot },
+  } = useRecipe(treeRecipe, local, {
     slot: 'icon',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
-  })
-
-  return (
-    <Icon
-      name={local.icon}
-      data-slot="tree-icon"
-      {...treeDataAttributes.icon({
+    data: {
+      icon: treeDataAttributes.icon({
         expanded: () => item.isExpanded,
         leaf: () => item.isLeaf,
-      })}
-      {...rest}
-      {...slots.icon}
-    />
-  )
+      }),
+    },
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
+  })
+
+  return <Icon name={local.icon} data-slot="tree-icon" {...iconSlot} {...rest} />
 }

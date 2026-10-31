@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, Component, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createMemo, createSignal, mergeProps, onCleanup, onMount } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -8,6 +8,7 @@ import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createId } from '../../../../shared/utils'
 import type { Cn } from '../../../../theme/cn'
+import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { Icon } from '../../../icon'
 import type { IconT } from '../../../icon'
@@ -140,13 +141,19 @@ interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
     isRadio: boolean
     item: TItem
   }) => JSX.Element
-  getItemSlot: (style?: JSX.CSSProperties, className?: ClassValue) => SlotBinding
+  getItemSlot: (item: MenuItemSlotOptions) => SlotBinding
   getItemRenderProps: (
     item: TItem,
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
   ) => OverlayMenuItemRenderProps<TItem>
+}
+
+interface MenuItemSlotOptions {
+  class?: ClassValue
+  style?: JSX.CSSProperties
+  data: DataAttributeBag
 }
 
 export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem>(options: {
@@ -176,16 +183,20 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     cn,
   } = options
 
-  function getItemSlot(itemAttrsStyle?: JSX.CSSProperties, itemAttrsClass?: ClassValue) {
+  function getItemSlot(item: MenuItemSlotOptions): SlotBinding {
     const binding = resolveSlot('item')
-    return {
-      get class() {
-        return cn(binding.class, itemAttrsClass)
+    const itemSlot = mergeProps(
+      {
+        get class() {
+          return cn(binding.class, item.class)
+        },
+        get style() {
+          return { ...item.style, ...binding.style }
+        },
       },
-      get style() {
-        return { ...itemAttrsStyle, ...binding.style }
-      },
-    }
+      item.data,
+    )
+    return itemSlot
   }
 
   function getItemRenderProps(
@@ -340,6 +351,22 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       itemId,
     })
 
+    const itemSlot = getItemSlot({
+      get class() {
+        return itemProps.item.class
+      },
+      get style() {
+        return itemProps.item.style
+      },
+      data: overlayMenuDataAttributes.item({
+        danger: () => itemProps.item.variant === 'danger',
+        disabled: () => itemProps.item.disabled,
+        expanded: undefined,
+        highlighted: () => layer.isHighlighted(itemId()),
+        selected: undefined,
+      }),
+    })
+
     return (
       <div
         id={itemId()}
@@ -347,18 +374,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         role="menuitem"
         tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        {...overlayMenuDataAttributes.item({
-          danger: () => itemProps.item.variant === 'danger',
-          disabled: () => itemProps.item.disabled,
-          expanded: undefined,
-          highlighted: () => layer.isHighlighted(itemId()),
-          selected: undefined,
-        })}
+        {...itemSlot}
         ref={(itemElement) => {
           setElement(itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -408,6 +428,22 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       itemId,
     })
 
+    const itemSlot = getItemSlot({
+      get class() {
+        return itemProps.item.class
+      },
+      get style() {
+        return itemProps.item.style
+      },
+      data: overlayMenuDataAttributes.item({
+        danger: () => itemProps.item.variant === 'danger',
+        selected: checked,
+        disabled: () => itemProps.item.disabled,
+        expanded: undefined,
+        highlighted: () => layer.isHighlighted(itemId()),
+      }),
+    })
+
     return (
       <div
         id={itemId()}
@@ -416,18 +452,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        {...overlayMenuDataAttributes.item({
-          danger: () => itemProps.item.variant === 'danger',
-          selected: checked,
-          disabled: () => itemProps.item.disabled,
-          expanded: undefined,
-          highlighted: () => layer.isHighlighted(itemId()),
-        })}
+        {...itemSlot}
         ref={(itemElement) => {
           setElement(itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -502,6 +531,22 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
       itemId,
     })
 
+    const itemSlot = getItemSlot({
+      get class() {
+        return itemProps.item.class
+      },
+      get style() {
+        return itemProps.item.style
+      },
+      data: overlayMenuDataAttributes.item({
+        danger: () => itemProps.item.variant === 'danger',
+        selected: checked,
+        disabled: () => itemProps.item.disabled,
+        expanded: undefined,
+        highlighted: () => layer.isHighlighted(itemId()),
+      }),
+    })
+
     return (
       <div
         id={itemId()}
@@ -510,18 +555,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        {...overlayMenuDataAttributes.item({
-          danger: () => itemProps.item.variant === 'danger',
-          selected: checked,
-          disabled: () => itemProps.item.disabled,
-          expanded: undefined,
-          highlighted: () => layer.isHighlighted(itemId()),
-        })}
+        {...itemSlot}
         ref={(itemElement) => {
           setElement(itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}

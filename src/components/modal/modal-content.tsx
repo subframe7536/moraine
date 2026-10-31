@@ -28,9 +28,17 @@ export function ModalContent<T extends ValidComponent = 'div'>(
     onKeyDown: () =>
       rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
-  const { slots } = useRecipe(modalRecipe, local, {
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(modalRecipe, local, {
     slot: 'content',
-    contextSlots: () => context.slotOverrides,
+    data: {
+      content: modalDataAttributes.content({
+        expanded: context.open,
+        closed: () => !context.open(),
+      }),
+    },
+    context: () => context.slotOverrides,
   })
 
   const child = resolveChildren(() => local.children)
@@ -50,12 +58,8 @@ export function ModalContent<T extends ValidComponent = 'div'>(
       id={context.contentId()}
       tabIndex={binding.tabIndex}
       aria-modal={binding.ariaModal()}
-      {...modalDataAttributes.content({
-        expanded: context.open,
-        closed: () => !context.open(),
-      })}
+      {...contentSlot}
       {...rest}
-      {...slots.content}
       ref={binding.ref}
       onKeyDown={binding.onKeyDown}
     >

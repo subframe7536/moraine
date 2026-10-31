@@ -29,23 +29,35 @@ function AccordionItemPanel(props: {
   slotOverrides: SlotOverrides<Extract<keyof AccordionStyleSlot, string>>
   children: JSX.Element
 }): JSX.Element {
-  const { slots } = useRecipe(
+  const {
+    slots: { content: contentSlot },
+  } = useRecipe(
     accordionRecipe,
     {},
     {
       varsSlot: 'content',
-      contextSlots: () => props.slotOverrides,
-      vars: () => ({
-        '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
-      }),
-      enforced: () => ({
-        content: {
+      data: {
+        content: accordionDataAttributes.content(() => ({
+          closed: props.disclosure.closed,
+          expanded: props.disclosure.open,
+        })),
+      },
+      context: () => props.slotOverrides,
+      own: {
+        content: () => ({
+          style: {
+            '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
+          },
+        }),
+      },
+      enforced: {
+        content: () => ({
           style: {
             animation: props.disclosure.initialOpen() ? 'none' : undefined,
             height: props.disclosure.initialOpen() ? 'auto' : undefined,
           },
-        },
-      }),
+        }),
+      },
     },
   )
 
@@ -61,11 +73,7 @@ function AccordionItemPanel(props: {
       hidden={props.disclosure.hidden()}
       inert={props.disclosure.inert()}
       data-slot="accordion-content"
-      {...slots.content}
-      {...accordionDataAttributes.content({
-        closed: props.disclosure.closed,
-        expanded: props.disclosure.open,
-      })}
+      {...contentSlot}
     >
       {props.children}
     </div>
@@ -92,7 +100,18 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
-  const { slots, slotWith } = useRecipe(accordionRecipe, local)
+  const {
+    slots: {
+      root: rootSlot,
+      header: headerSlot,
+      leading: leadingSlot,
+      label: labelSlot,
+      body: bodySlot,
+    },
+    slotWith,
+  } = useRecipe(accordionRecipe, local, {
+    data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
+  })
 
   const merged = mergeProps(
     {
@@ -236,14 +255,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
   return (
     <div
       data-slot="accordion"
-      {...accordionDataAttributes.root({ disabled: () => merged.disabled })}
+      {...rootSlot}
       {...rest}
       ref={(element) => {
         rootElement = element
         callRef(local.ref, element)
       }}
       id={rootId()}
-      {...slots.root}
     >
       <For each={items()}>
         {(item) => {
@@ -264,6 +282,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
             disabled,
             expanded,
           }
+          const itemSlot = slotWith('item', {
+            own: () => ({ class: item.class }),
+            data: accordionDataAttributes.item(itemState),
+          })
+          const triggerSlot = slotWith('trigger', {
+            data: accordionDataAttributes.trigger(itemState),
+          })
+          const trailingSlot = slotWith('trailing', {
+            data: accordionDataAttributes.trailing({ expanded }),
+          })
 
           const triggerId = () => `${rootId()}-${itemIdSegment()}-trigger`
           const contentId = () => `${rootId()}-${itemIdSegment()}-content`
@@ -282,7 +310,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       onCleanup(disclosure.registerMeasureElement(element))
                     }}
                     data-slot="accordion-body"
-                    {...slots.body}
+                    {...bodySlot}
                   >
                     {value()}
                   </div>
@@ -336,12 +364,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
           }
 
           return (
-            <div
-              data-slot="accordion-item"
-              {...slotWith('item', () => ({ class: item.class }))}
-              {...accordionDataAttributes.item(itemState)}
-            >
-              <h3 data-slot="accordion-header" {...slots.header}>
+            <div data-slot="accordion-item" {...itemSlot}>
+              <h3 data-slot="accordion-header" {...headerSlot}>
                 <button
                   ref={(element) => {
                     disclosure.setTriggerElement(element)
@@ -353,7 +377,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-label={item.ariaLabel ?? (label() === undefined ? itemValue() : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
-                  {...slots.trigger}
+                  {...triggerSlot}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -364,29 +388,23 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     lastFocusedIndex = getTriggers().indexOf(event.currentTarget)
                     lastFocusedTrigger = event.currentTarget
                   }}
-                  {...accordionDataAttributes.trigger(itemState)}
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon name={value()} data-slot="accordion-leading" {...slots.leading} />
+                      <Icon name={value()} data-slot="accordion-leading" {...leadingSlot} />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span data-slot="accordion-label" {...slots.label}>
+                      <span data-slot="accordion-label" {...labelSlot}>
                         {value()}
                       </span>
                     )}
                   </Show>
 
                   <Show when={trailing()}>
-                    <Icon
-                      name={trailing()}
-                      data-slot="accordion-trailing"
-                      {...slots.trailing}
-                      {...accordionDataAttributes.trailing({ expanded })}
-                    />
+                    <Icon name={trailing()} data-slot="accordion-trailing" {...trailingSlot} />
                   </Show>
                 </button>
               </h3>

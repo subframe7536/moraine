@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -12,9 +13,12 @@ export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
   const sheet = useSheetContext()
-  const { slots } = useRecipe(sheetRecipe, props, {
+  const [local, rest] = splitProps(props as SheetT.TriggerProps, ['class', 'style'])
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(sheetRecipe, local, {
     slot: 'trigger',
-    contextSlots: () => sheet.slotOverrides,
+    context: () => sheet.slotOverrides,
   })
-  return <Modal.Trigger data-slot="sheet-trigger" {...props} {...slots.trigger} />
+  return <Modal.Trigger data-slot="sheet-trigger" {...triggerSlot} {...rest} />
 }

@@ -7,9 +7,11 @@ import type { TableT } from './table.types'
 
 export function TableCell(props: TableT.CellProps): JSX.Element {
   const [local, rest] = splitProps(props, ['align', 'truncated', 'class', 'style'])
-  const slots = useTablePart('cell', local, () => ({
-    class: [TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'], local.truncated && 'truncate'],
-  }))
+  const { cell: cellSlot } = useTablePart('cell', local, {
+    own: () => ({
+      class: [TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'], local.truncated && 'truncate'],
+    }),
+  })
 
-  return <td data-slot="table-cell" {...rest} {...slots.cell} />
+  return <td data-slot="table-cell" {...cellSlot} {...rest} />
 }

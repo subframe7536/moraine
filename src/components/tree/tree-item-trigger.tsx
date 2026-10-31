@@ -34,10 +34,18 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     }
     return host === 'button' ? { tabIndex: -1, type: 'button' as const } : { tabIndex: -1 }
   }
-  const { slots } = useRecipe(treeRecipe, local, {
+  const {
+    slots: { trigger: triggerSlot },
+  } = useRecipe(treeRecipe, local, {
     slot: 'trigger',
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
+    data: {
+      trigger: treeDataAttributes.trigger({
+        expanded: () => item.isExpanded,
+        leaf: () => item.isLeaf,
+        loading: () => item.isLoading,
+      }),
+    },
+    context: () => ({ variants: context.variants, ...context.slotOverrides }),
   })
 
   return (
@@ -46,13 +54,8 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         component={local.as ?? 'span'}
         data-slot="tree-trigger"
         aria-hidden={true}
-        {...treeDataAttributes.trigger({
-          expanded: () => item.isExpanded,
-          leaf: () => item.isLeaf,
-          loading: () => item.isLoading,
-        })}
+        {...triggerSlot}
         {...rest}
-        {...slots.trigger}
         {...ownedHostAttributes()}
         onClick={(event: MouseEvent) => {
           const custom = callHandler(event, local.onClick)
