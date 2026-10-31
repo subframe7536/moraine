@@ -1,7 +1,8 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, on, onCleanup, splitProps } from 'solid-js'
+import { Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { bindElement } from '../../shared/element-binding'
 import { callRef } from '../../shared/utils'
 
 import { useModalContext } from './modal-context'
@@ -43,23 +44,24 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
 
   return (
     <Show when={isOverlay() || hasChildren()} fallback={null}>
-      <div
-        data-slot={isOverlay() ? 'modal-overlay' : undefined}
-        {...(isOverlay() ? overlaySlot : undefined)}
-        {...rest}
-        ref={(element) => {
-          let unregister: (() => void) | undefined
-          if (isOverlay()) {
-            unregister = presence.registerElement(element)
-          }
-          callRef(local.ref, element)
-          onCleanup(() => {
-            unregister?.()
-          })
-        }}
-      >
-        {local.children}
-      </div>
+      {(_visible) => {
+        const [element, setElement] = createSignal<HTMLDivElement>()
+        // Only the backdrop element animates as part of the presence; a plain wrapper does not.
+        bindElement(() => isOverlay() && element(), presence.registerElement)
+        return (
+          <div
+            data-slot={isOverlay() ? 'modal-overlay' : undefined}
+            {...(isOverlay() ? overlaySlot : undefined)}
+            {...rest}
+            ref={(element) => {
+              setElement(element)
+              callRef(local.ref, element)
+            }}
+          >
+            {local.children}
+          </div>
+        )
+      }}
     </Show>
   )
 }

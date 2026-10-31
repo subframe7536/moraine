@@ -35,16 +35,6 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    on(contentPresence.present, (present) => {
-      if (present) {
-        return
-      }
-
-      contentPresence.setElement(undefined)
-    }),
-  )
-
-  createEffect(
     on(
       [() => props.open, pendingFocusOnClose, () => props.triggerElement],
       ([open, pendingFocus, triggerElement]) => {
@@ -205,7 +195,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
               branches.delete(element)
             }
           }}
-          setPresenceElement={contentPresence.setElement}
+          registerPresenceElement={contentPresence.registerElement}
           refState={setRootLayerState}
         />
       </Portal>

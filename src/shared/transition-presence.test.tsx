@@ -1,9 +1,30 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createRoot, createSignal, onCleanup, Show } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { createRoot, createSignal, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { bindElement } from './element-binding'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
+
+/** Renders a div registered with the presence for its mounted lifetime. */
+function PresenceElement(props: {
+  presence: TransitionPresenceState
+  onElement?: (element: HTMLDivElement) => void
+  attrs?: TransitionPresenceState['dataAttrs']
+}): JSX.Element {
+  const [element, setElement] = createSignal<HTMLDivElement>()
+  bindElement(element, (node) => props.presence.registerElement(node))
+  return (
+    <div
+      {...props.attrs}
+      ref={(node) => {
+        setElement(node)
+        props.onElement?.(node)
+      }}
+    />
+  )
+}
 
 interface PresenceFixture {
   element: HTMLElement
@@ -20,11 +41,11 @@ function renderPresence(): PresenceFixture {
 
     return (
       <Show when={presence.present()}>
-        <div
-          {...presence.dataAttrs}
-          ref={(element) => {
+        <PresenceElement
+          presence={presence}
+          attrs={presence.dataAttrs}
+          onElement={(element) => {
             fixture = { element, presence, setOpen }
-            presence.setElement(element)
           }}
         />
       </Show>
@@ -90,10 +111,10 @@ describe('createTransitionPresence', () => {
       setOpen = updateOpen
       presence = state
       return (
-        <div
-          ref={(node) => {
+        <PresenceElement
+          presence={state}
+          onElement={(node) => {
             element = node
-            onCleanup(state.registerElement(node))
           }}
         />
       )
@@ -257,16 +278,16 @@ describe('createTransitionPresence', () => {
 
       return (
         <Show when={currentPresence.present()}>
-          <div
-            ref={(element) => {
+          <PresenceElement
+            presence={currentPresence}
+            onElement={(element) => {
               first = element
-              onCleanup(currentPresence.registerElement(element))
             }}
           />
-          <div
-            ref={(element) => {
+          <PresenceElement
+            presence={currentPresence}
+            onElement={(element) => {
               second = element
-              onCleanup(currentPresence.registerElement(element))
             }}
           />
         </Show>
@@ -309,17 +330,20 @@ describe('createTransitionPresence', () => {
 
       return (
         <Show when={currentPresence.present()}>
-          <div
-            ref={(element) => {
+          <PresenceElement
+            presence={currentPresence}
+            onElement={(element) => {
               first = element
-              onCleanup(currentPresence.registerElement(element))
             }}
           />
-          <div
-            ref={(element) => {
-              second = element
-              unregisterSecond = currentPresence.registerElement(element)
-              onCleanup(unregisterSecond)
+          <PresenceElement
+            presence={{
+              ...currentPresence,
+              registerElement: (element) => {
+                second = element
+                unregisterSecond = currentPresence.registerElement(element)
+                return unregisterSecond
+              },
             }}
           />
         </Show>
@@ -358,7 +382,8 @@ describe('createTransitionPresence', () => {
     closed = true
     await flushExitDetection()
 
-    fixture.presence.setElement(replacement)
+    fixture.presence.registerElement(replacement)
+    fixture.element.remove()
     await flushExitDetection()
 
     dispatchAnimationEvent(replacement, 'animationend', 'replacement-exit')
@@ -406,29 +431,6 @@ describe('createTransitionPresence', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
-  test('does not remeasure or replace a legacy registration for the same element', async () => {
-    const fixture = renderPresence()
-    let closed = false
-    let reads = 0
-    installComputedStyle(() => {
-      reads += 1
-      return {
-        animationDuration: '100ms',
-        animationName: closed ? 'mo-exit' : 'mo-enter',
-      }
-    })
-
-    fixture.setOpen(false)
-    closed = true
-    await flushExitDetection()
-    expect(reads).toBe(1)
-
-    fixture.presence.setElement(fixture.element)
-    await flushExitDetection()
-
-    expect(reads).toBe(1)
-  })
-
   test('releases animation listeners when its owner is disposed during an exit', () => {
     const removeEventListener = vi.spyOn(HTMLElement.prototype, 'removeEventListener')
     let setOpen: ((open: boolean) => void) | undefined
@@ -440,7 +442,7 @@ describe('createTransitionPresence', () => {
 
       return (
         <Show when={presence.present()}>
-          <div ref={presence.setElement} />
+          <PresenceElement presence={presence} />
         </Show>
       )
     })
@@ -485,7 +487,7 @@ test('notifies completed exits without animations and never initial absence or d
     const presence = createTransitionPresence({ open, onExitComplete: exit })
     return (
       <Show when={presence.present()}>
-        <div ref={presence.setElement} />
+        <PresenceElement presence={presence} />
       </Show>
     )
   })

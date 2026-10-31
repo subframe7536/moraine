@@ -19,6 +19,7 @@ import { Portal } from 'solid-js/web'
 import { useCn } from '../../../../provider/cn-context'
 import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
+import { bindElement } from '../../../../shared/element-binding'
 import { createEventListener } from '../../../../shared/event-listener'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
@@ -62,7 +63,8 @@ export interface OverlayMenuLayerProps<
   present: Accessor<boolean>
   refState?: (state: OverlayMenuLayerState | undefined) => void
   registerBranch: (element: HTMLElement) => () => void
-  setPresenceElement: (element: HTMLElement | undefined) => void
+  /** Keeps this layer's content mounted through its exit animation. */
+  registerPresenceElement: (element: HTMLElement) => () => void
 }
 
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
@@ -257,24 +259,21 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     ),
   )
 
-  createEffect(
-    on(layer.contentElement, (content) => {
-      if (!content) {
-        return
-      }
-
-      createEventListener(
-        content,
-        'keydown',
-        (event) => {
-          if (props.open && !event.defaultPrevented) {
-            layer.handleTypeaheadKeyDown(event)
-          }
-        },
-        true,
-      )
-    }),
-  )
+  bindElement(layer.contentElement, (content) => {
+    const release = props.registerPresenceElement(content)
+    createEventListener(
+      content,
+      'keydown',
+      (event) => {
+        if (props.open && !event.defaultPrevented) {
+          layer.handleTypeaheadKeyDown(event)
+        }
+      },
+      true,
+    )
+    createEventListener(content, 'keydown', onContentKeyDown)
+    return release
+  })
 
   createEffect(
     on(
@@ -399,7 +398,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         }
 
         submenuLayerState = undefined
-        contentPresence.setElement(undefined)
       }),
     )
 
@@ -620,7 +618,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
               parentLayer={layer}
               present={contentPresence.present}
               registerBranch={registerLayerBranch}
-              setPresenceElement={contentPresence.setElement}
+              registerPresenceElement={contentPresence.registerElement}
               autoFocusStrategy={autoFocusStrategy()}
               onAutoFocusHandled={() => {
                 setAutoFocusStrategy('none')
@@ -758,9 +756,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         {...contentPresentation}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
-          props.setPresenceElement(element)
           callRef(props.elementAttrs?.ref, element)
-          createEventListener(element, 'keydown', onContentKeyDown)
         }}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerDown)

@@ -15,6 +15,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { bindElement } from '../../shared/element-binding'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -127,6 +128,21 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     ariaLabel() === undefined ? registration.titleIds().join(' ') || undefined : undefined
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
+  function RenderSheetOverlay(): JSX.Element {
+    const [overlay, setOverlay] = createSignal<HTMLDivElement>()
+    // Only the backdrop element animates as part of the presence; a plain wrapper does not.
+    bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
+    return (
+      <div
+        data-slot={isOverlay() ? 'sheet-overlay' : undefined}
+        {...(isOverlay() ? overlaySlot : undefined)}
+        ref={setOverlay}
+      >
+        <RenderSheetContent />
+      </div>
+    )
+  }
+
   function RenderSheetContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
     const binding = createModalContentBinding(family, {
@@ -194,24 +210,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
       }}
     >
       <ModalPortal>
-        <div
-          data-slot={isOverlay() ? 'sheet-overlay' : undefined}
-          {...(isOverlay() ? overlaySlot : undefined)}
-          ref={(element) => {
-            let unregister: (() => void) | undefined
-            createEffect(
-              on(isOverlay, (overlayActive) => {
-                unregister?.()
-                unregister = overlayActive ? family.presence.registerElement(element) : undefined
-              }),
-            )
-            onCleanup(() => {
-              unregister?.()
-            })
-          }}
-        >
-          <RenderSheetContent />
-        </div>
+        <RenderSheetOverlay />
       </ModalPortal>
     </SheetContentProvider>
   )
