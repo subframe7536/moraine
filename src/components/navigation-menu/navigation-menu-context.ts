@@ -14,6 +14,8 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createEventListenerMap } from '../../shared/event-listener'
+import type { KeyBindingOptions } from '../../shared/keyboard'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
@@ -203,11 +205,22 @@ export function createNavigationMenuState(
     onSelect: () => {},
   })
 
-  function onListKeyDown(event: KeyboardEvent, element: HTMLElement): void {
-    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
-      navigation.onNavigationKeyDown(event, element, orientation())
-    }
+  // The collection dispatcher prevents default only when the key navigates.
+  const navigate: KeyBindingOptions<HTMLElement, [HTMLElement]> = {
+    preventDefault: false,
+    handle: (event, element) => navigation.onNavigationKeyDown(event, element, orientation()),
   }
+
+  const onListKeyDown = createKeyDownHandler<HTMLElement, [HTMLElement]>({
+    keys: {
+      ArrowLeft: navigate,
+      ArrowRight: navigate,
+      ArrowUp: navigate,
+      ArrowDown: navigate,
+      Home: navigate,
+      End: navigate,
+    },
+  })
 
   function focusPanel(last = false): void {
     const content = activeContent()

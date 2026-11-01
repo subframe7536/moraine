@@ -2,11 +2,12 @@ import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
 import { createEventListenerMap } from '../../../shared/event-listener'
+import { createKeyDownHandler } from '../../../shared/keyboard'
 
 import { isNode } from './dom'
 import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack'
 import type { OverlayStackEntry } from './overlay-stack'
-import { createCompositionState, createOutsidePressHandlers, isComposingKeyEvent } from './utils'
+import { createCompositionState, createOutsidePressHandlers } from './utils'
 
 interface SuppressedPointerClick {
   pointerId: number
@@ -194,17 +195,16 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
 
           options.onFocusOutside?.(event, context)
         }
-        const onDocumentKeyDown = (event: KeyboardEvent): void => {
-          if (
-            event.key !== 'Escape' ||
-            isComposingKeyEvent(event, composition) ||
-            !context.isTop()
-          ) {
-            return
-          }
-
-          options.onEscape?.(event, context)
-        }
+        const onDocumentKeyDown = createKeyDownHandler<Document>({
+          disabled: () => !context.isTop(),
+          composing: composition.isComposing,
+          keys: {
+            Escape: {
+              preventDefault: false,
+              handle: (event) => options.onEscape?.(event, context),
+            },
+          },
+        })
         const onDocumentClick = (event: MouseEvent): void => {
           const target = event.target
           const pathIsInside = event

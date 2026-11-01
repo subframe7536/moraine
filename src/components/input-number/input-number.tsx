@@ -22,6 +22,7 @@ import {
   toNumber,
 } from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
@@ -535,6 +536,43 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }, merged.autofocusDelay ?? 0)
   })
 
+  const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({
+    disabled: () => field.disabled() || readOnly(),
+    keys: {
+      ArrowUp: () => incrementValue(),
+      ArrowDown: () => decrementValue(),
+      PageUp: () => incrementValue(largeStepValue()),
+      PageDown: () => decrementValue(largeStepValue()),
+      Home: {
+        when: () => merged.minValue !== undefined,
+        handle: () => {
+          commitValue(minValue())
+          setDraftText(undefined)
+        },
+      },
+      End: {
+        when: () => merged.maxValue !== undefined,
+        handle: () => {
+          commitValue(maxValue())
+          setDraftText(undefined)
+        },
+      },
+      Enter: {
+        preventDefault: false,
+        handle: () => {
+          const draft = draftText()
+          if (draft !== undefined) {
+            const parsed = parseLocaleNumber(draft, locale())
+            if (parsed !== undefined) {
+              commitValue(parsed)
+            }
+            setDraftText(undefined)
+          }
+        },
+      },
+    },
+  })
+
   return (
     <div
       role="group"
@@ -609,70 +647,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             setDraftText(undefined)
           }
         }}
-        onKeyDown={(event) => {
-          if (event.isComposing || event.which === 229 || event.keyCode === 229) {
-            return
-          }
-
-          if (field.disabled() || readOnly()) {
-            return
-          }
-
-          if (event.key === 'ArrowUp') {
-            event.preventDefault()
-            incrementValue()
-            return
-          }
-
-          if (event.key === 'ArrowDown') {
-            event.preventDefault()
-            decrementValue()
-            return
-          }
-
-          if (event.key === 'PageUp') {
-            event.preventDefault()
-            incrementValue(largeStepValue())
-            return
-          }
-
-          if (event.key === 'PageDown') {
-            event.preventDefault()
-            decrementValue(largeStepValue())
-            return
-          }
-
-          if (event.key === 'Home') {
-            if (merged.minValue === undefined) {
-              return
-            }
-            event.preventDefault()
-            commitValue(minValue())
-            setDraftText(undefined)
-            return
-          }
-
-          if (event.key === 'End') {
-            if (merged.maxValue === undefined) {
-              return
-            }
-            event.preventDefault()
-            commitValue(maxValue())
-            setDraftText(undefined)
-            return
-          }
-
-          if (event.key === 'Enter') {
-            const draft = draftText()
-            if (draft !== undefined) {
-              const parsed = parseLocaleNumber(draft, locale())
-              if (parsed !== undefined) {
-                commitValue(parsed)
-              }
-              setDraftText(undefined)
-            }
-          }
-        }}
+        onKeyDown={onInputKeyDown}
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}

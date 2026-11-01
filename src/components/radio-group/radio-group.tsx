@@ -15,6 +15,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
+import { createKeyDownHandler, createKeyUpHandler, normalizeKey } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
@@ -219,54 +220,35 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
   })
 
-  function onItemKeyDown(event: KeyboardEvent, item: NormalizedRadioGroupItem): void {
-    if (
-      field.disabled() ||
-      field.readOnly() ||
-      item.disabled ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey
-    ) {
-      return
-    }
+  const onItemKeyDown = createKeyDownHandler<HTMLInputElement, [NormalizedRadioGroupItem]>({
+    disabled: (_event, item) => field.disabled() || field.readOnly() || item.disabled,
+    ignoreModifiers: ['alt', 'ctrl', 'meta'],
+    ignore: ['Enter'],
+    keys: {
+      ' ': (event, item) => {
+        if (!event.repeat) {
+          pressedSpaceItemId = item.id
+        }
+      },
+    },
+    onUnhandled: (event, item) => onNavigationKeyDown(event, item.id, merged.orientation),
+  })
 
-    const key = event.key === 'Spacebar' ? ' ' : event.key
-    if (key === 'Enter') {
-      return
-    }
-
-    if (key === ' ') {
-      event.preventDefault()
-      if (!event.repeat) {
-        pressedSpaceItemId = item.id
-      }
-      return
-    }
-
-    onNavigationKeyDown(event, item.id, merged.orientation)
-  }
+  const dispatchItemKeyUp = createKeyUpHandler<HTMLInputElement, [NormalizedRadioGroupItem]>({
+    disabled: (_event, item) => field.disabled() || field.readOnly() || item.disabled,
+    ignoreModifiers: ['alt', 'ctrl', 'meta'],
+    keys: {
+      ' ': (_event, item) => onChange(item.value),
+    },
+  })
 
   function onItemKeyUp(event: KeyboardEvent, item: NormalizedRadioGroupItem): void {
-    const key = event.key === 'Spacebar' ? ' ' : event.key
-    if (key !== ' ' || pressedSpaceItemId !== item.id) {
+    if (normalizeKey(event.key) !== ' ' || pressedSpaceItemId !== item.id) {
       return
     }
 
     pressedSpaceItemId = undefined
-    if (
-      field.disabled() ||
-      field.readOnly() ||
-      item.disabled ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey
-    ) {
-      return
-    }
-
-    event.preventDefault()
-    onChange(item.value)
+    dispatchItemKeyUp(event, item)
   }
 
   onMount(() => {

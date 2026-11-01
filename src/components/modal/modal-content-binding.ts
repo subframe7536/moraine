@@ -2,7 +2,8 @@ import type { JSX } from 'solid-js'
 import { createSignal } from 'solid-js'
 
 import { bindElement, publishElement } from '../../shared/element-binding'
-import { callHandler, callRef } from '../../shared/utils'
+import { createKeyDownHandler } from '../../shared/keyboard'
+import { callRef } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/utils'
 
 import type { ModalContext } from './modal-context'
@@ -36,15 +37,14 @@ export function createModalContentBinding(
       setElement(element)
       callRef(options.ref?.(), element)
     },
-    onKeyDown: (event: KeyboardEvent & { currentTarget: HTMLDivElement; target: Element }) => {
-      callHandler(event, options.onKeyDown?.())
-      if (event.defaultPrevented) {
-        return
-      }
-      if (context.isModal()) {
-        containFocusInContainer(event, context.contentElement())
-      }
-    },
+    onKeyDown: createKeyDownHandler<HTMLDivElement>({
+      onKeyDown: () => options.onKeyDown?.(),
+      onUnhandled: (event) => {
+        if (context.isModal()) {
+          containFocusInContainer(event, context.contentElement())
+        }
+      },
+    }),
     ariaModal: () => (context.isModal() ? ('true' as const) : undefined),
     tabIndex: -1 as const,
   }

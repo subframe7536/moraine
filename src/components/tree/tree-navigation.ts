@@ -3,6 +3,7 @@ import { createMemo, createSignal, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
 
 import { getSiblingKeys } from './tree-registry'
@@ -148,6 +149,14 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     }
   }
 
+  function moveToBoundary(from: string, extend: boolean, last: boolean): void {
+    const keys = navigableKeys()
+    const target = keys[last ? keys.length - 1 : 0]
+    if (target !== undefined) {
+      moveTo(target, extend, from)
+    }
+  }
+
   function expandSiblings(key: string): void {
     if (isDisabled(key)) {
       return
@@ -194,102 +203,77 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     onMatch: (key) => focus(key),
   })
 
-  function onKeyDown(event: KeyboardEvent, key: string): void {
-    const element = event.currentTarget
-    if (
-      event.defaultPrevented ||
-      event.isComposing ||
-      event.keyCode === 229 ||
-      event.target !== element ||
-      event.altKey ||
-      !(element instanceof Element)
-    ) {
-      return
-    }
-    const node = deps.registry().nodes.get(key)
-    if (!node) {
-      return
-    }
-    const modifier = event.ctrlKey || event.metaKey
-    const rtl = (dir() ?? getComputedStyle(element).direction) === 'rtl'
-    const forwardKey = rtl ? 'ArrowLeft' : 'ArrowRight'
+  const selectAllBinding = {
+    when: (event: KeyboardEvent) =>
+      (event.ctrlKey || event.metaKey) && deps.options.selectionMode === 'multiple',
+    handle: () => deps.selectAll(),
+  }
 
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault()
-        moveRelative(key, 1, event.shiftKey)
-        return
-      case 'ArrowUp':
-        event.preventDefault()
-        moveRelative(key, -1, event.shiftKey)
-        return
-      case 'Home':
-      case 'End': {
-        event.preventDefault()
-        const keys = navigableKeys()
-        const target = event.key === 'Home' ? keys[0] : keys[keys.length - 1]
-        if (target !== undefined) {
-          moveTo(target, event.shiftKey, key)
-        }
-        return
-      }
-      case 'Enter':
-        event.preventDefault()
-        activate(key)
-        return
-      case ' ':
-        event.preventDefault()
-        toggleCurrent(key)
-        return
-      case '*':
-        event.preventDefault()
-        expandSiblings(key)
-        return
-      case 'a':
-      case 'A':
-        if (modifier && deps.options.selectionMode === 'multiple') {
-          event.preventDefault()
-          deps.selectAll()
-          return
-        }
-        break
-      default:
-        if (event.key === forwardKey) {
-          if (node.hasChildren) {
-            event.preventDefault()
-            if (!deps.isExpanded(key)) {
-              deps.expand(key)
-            } else {
-              const child = node.childrenKeys.find((childKey) => !isDisabled(childKey))
-              if (child !== undefined) {
-                focus(child)
-              }
-            }
+  const onKeyDown = createKeyDownHandler<HTMLElement, [string]>({
+    currentTargetOnly: true,
+    ignoreModifiers: ['alt'],
+    disabled: (_event, key) => !deps.registry().nodes.has(key),
+    orientation: 'vertical',
+    direction: () => dir(),
+    keys: {
+      ArrowDown: (event, key) => moveRelative(key, 1, event.shiftKey),
+      ArrowUp: (event, key) => moveRelative(key, -1, event.shiftKey),
+      Home: (event, key) => moveToBoundary(key, event.shiftKey, false),
+      End: (event, key) => moveToBoundary(key, event.shiftKey, true),
+      Enter: (_event, key) => activate(key),
+      ' ': (_event, key) => toggleCurrent(key),
+      '*': (_event, key) => expandSiblings(key),
+      a: selectAllBinding,
+      A: selectAllBinding,
+      // Expand, or move into the first enabled child.
+      forward: {
+        preventDefault: false,
+        handle: (event, key) => {
+          const node = deps.registry().nodes.get(key)
+          if (!node?.hasChildren) {
+            return
           }
-          return
-        }
-        if (event.key === (rtl ? 'ArrowRight' : 'ArrowLeft')) {
+          event.preventDefault()
+          if (!deps.isExpanded(key)) {
+            deps.expand(key)
+            return
+          }
+          const child = node.childrenKeys.find((childKey) => !isDisabled(childKey))
+          if (child !== undefined) {
+            focus(child)
+          }
+        },
+      },
+      // Collapse the expanded node, or move focus to the nearest enabled ancestor.
+      backward: {
+        preventDefault: false,
+        handle: (event, key) => {
+          const node = deps.registry().nodes.get(key)
+          if (!node) {
+            return
+          }
           if (node.hasChildren && deps.isExpanded(key) && !node.disabled) {
             event.preventDefault()
             deps.collapse(key)
-          } else {
-            let ancestorKey = node.parentKey
-            while (ancestorKey !== undefined && isDisabled(ancestorKey)) {
-              ancestorKey = deps.registry().nodes.get(ancestorKey)?.parentKey
-            }
-            if (ancestorKey !== undefined) {
-              event.preventDefault()
-              focus(ancestorKey)
-            }
+            return
           }
-          return
-        }
-    }
-
-    if (deps.options.typeahead !== false) {
-      typeahead.handleKeyDown(event)
-    }
-  }
+          let ancestorKey = node.parentKey
+          while (ancestorKey !== undefined && isDisabled(ancestorKey)) {
+            ancestorKey = deps.registry().nodes.get(ancestorKey)?.parentKey
+          }
+          if (ancestorKey !== undefined) {
+            event.preventDefault()
+            focus(ancestorKey)
+          }
+        },
+      },
+    },
+    onUnhandled: (event) => {
+      if (deps.options.typeahead !== false) {
+        typeahead.handleKeyDown(event)
+      }
+    },
+  })
 
   onCleanup(() => {
     removeRootListeners?.()

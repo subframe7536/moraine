@@ -3,6 +3,7 @@ import { Show, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -54,6 +55,13 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   const triggerId = createId(() => local.id, 'navigation-menu-trigger')
   const disabled = item.disabled
   const expanded = () => context.open() && context.activeItem() === item
+  const toggleExpandedFromKeyboard = () => {
+    if (expanded()) {
+      context.close()
+    } else {
+      context.openItem(item.value(), true)
+    }
+  }
   const attributes = mergePopperElementProps<HTMLButtonElement>(
     {
       onPointerEnter: (event) => {
@@ -67,30 +75,17 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
         }
       },
       onPointerDown: context.cancelTimers,
-      onKeyDown: (event) => {
-        if (disabled() || event.isComposing) {
-          return
-        }
-        const openKey =
-          context.orientation() === 'horizontal'
-            ? 'ArrowDown'
-            : resolveDirection(event.currentTarget, direction()) === 'rtl'
-              ? 'ArrowLeft'
-              : 'ArrowRight'
-        if (event.key === openKey) {
-          event.preventDefault()
-          context.openItem(item.value(), true)
-        } else if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
-          event.preventDefault()
-          if (expanded()) {
-            context.close()
-          } else {
-            context.openItem(item.value(), true)
-          }
-        } else {
-          context.onListKeyDown(event, event.currentTarget)
-        }
-      },
+      onKeyDown: createKeyDownHandler<HTMLButtonElement>({
+        disabled,
+        orientation: () => context.orientation(),
+        direction: (event) => resolveDirection(event.currentTarget, direction()),
+        keys: {
+          open: () => context.openItem(item.value(), true),
+          Enter: toggleExpandedFromKeyboard,
+          ' ': toggleExpandedFromKeyboard,
+        },
+        onUnhandled: (event) => context.onListKeyDown(event, event.currentTarget),
+      }),
     },
     rest,
   )

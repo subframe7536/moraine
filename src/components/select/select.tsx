@@ -3,6 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -86,16 +87,18 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             {...triggerSlot}
-            onKeyDown={(event) => {
-              if (
-                local.allowClear &&
-                hasValue() &&
-                (event.key === 'Delete' || event.key === 'Backspace')
-              ) {
-                event.preventDefault()
-                clear()
-              }
-            }}
+            onKeyDown={createKeyDownHandler({
+              keys: {
+                Delete: {
+                  when: () => Boolean(local.allowClear) && hasValue(),
+                  handle: clear,
+                },
+                Backspace: {
+                  when: () => Boolean(local.allowClear) && hasValue(),
+                  handle: clear,
+                },
+              },
+            })}
           >
             <Show when={local.leadingIcon}>
               {(icon) => <Icon name={icon()} data-slot="select-leading" {...leadingSlot} />}

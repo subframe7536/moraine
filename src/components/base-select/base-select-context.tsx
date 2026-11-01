@@ -15,6 +15,7 @@ import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { HiddenInput } from '../../shared/hidden-input'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
 import { createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
@@ -216,82 +217,88 @@ export function createSelectState<T extends BaseSelectT.Item>(
     isDisabled: (item) => itemDisabled(item),
     onMatch: (item) => (open() ? setHighlightedValue(item.value) : select(item)),
   })
-  function keyDown(event: KeyboardEvent, textInput = false) {
-    if (
-      event.defaultPrevented ||
-      field.disabled() ||
-      event.isComposing ||
-      event.which === 229 ||
-      event.keyCode === 229
-    ) {
+  function moveHighlight(offset: number): void {
+    setOpen(true)
+    const items = enabled()
+    if (items.length === 0) {
+      setHighlightedValue(undefined)
       return
     }
-    if (!textInput && typeahead.handleKeyDown(event)) {
+    const current = items.findIndex((item) => sameValue(item.value, highlightedValue()))
+    const shouldLoop = props.loop ?? true
+    if (current < 0) {
+      setHighlightedValue(items[offset < 0 && shouldLoop ? items.length - 1 : 0]?.value)
       return
     }
-    const key = event.key
-    if (key === 'Tab') {
-      setOpen(false)
-      return
-    }
-    if (key === 'Escape') {
-      if (open()) {
-        event.preventDefault()
-        setOpen(false)
-      }
-      return
-    }
-    if (
-      key === 'ArrowDown' ||
-      key === 'ArrowUp' ||
-      (open() && !textInput && (key === 'Home' || key === 'End'))
-    ) {
+    const nextIndex = current + offset
+    const index = shouldLoop
+      ? (nextIndex + items.length) % items.length
+      : Math.max(0, Math.min(items.length - 1, nextIndex))
+    setHighlightedValue(items[index]?.value)
+  }
+
+  function highlightBoundary(last = false): void {
+    setOpen(true)
+    const items = enabled()
+    setHighlightedValue(items[last ? items.length - 1 : 0]?.value)
+  }
+
+  function commitActivation(event: KeyboardEvent, closeOnUnresolved: boolean): void {
+    if (!open()) {
       event.preventDefault()
       setOpen(true)
-      const items = enabled()
-      if (items.length === 0) {
-        setHighlightedValue(undefined)
-        return
-      }
-      const current = items.findIndex((item) => sameValue(item.value, highlightedValue()))
-      const shouldLoop = props.loop ?? true
-      const nextIndex = current + (key === 'ArrowUp' ? -1 : 1)
-      const index =
-        key === 'Home'
-          ? 0
-          : key === 'End'
-            ? items.length - 1
-            : current < 0
-              ? key === 'ArrowUp'
-                ? shouldLoop
-                  ? items.length - 1
-                  : 0
-                : 0
-              : shouldLoop
-                ? (nextIndex + items.length) % items.length
-                : Math.max(0, Math.min(items.length - 1, nextIndex))
-      setHighlightedValue(items[index] ? items[index].value : undefined)
       return
     }
-    if (key === 'Enter' || (!textInput && (key === ' ' || key === 'Spacebar'))) {
-      if (!open()) {
-        event.preventDefault()
-        setOpen(true)
-        return
-      }
-      const item = items().find(
-        (candidate) => sameValue(candidate.value, highlightedValue()) && !itemDisabled(candidate),
-      )
-      if (item) {
-        event.preventDefault()
-        select(item)
-        return
-      }
-      if (key === 'Enter') {
-        setOpen(false)
-      }
+    const item = items().find(
+      (candidate) => sameValue(candidate.value, highlightedValue()) && !itemDisabled(candidate),
+    )
+    if (item) {
+      event.preventDefault()
+      select(item)
+      return
+    }
+    if (closeOnUnresolved) {
+      setOpen(false)
     }
   }
+
+  const keyDown = createKeyDownHandler<HTMLElement, [boolean?]>({
+    disabled: () => field.disabled(),
+    keys: (_event, textInput) => ({
+      Tab: { preventDefault: false, handle: () => setOpen(false) },
+      Escape: { when: () => open(), handle: () => setOpen(false) },
+      ArrowDown: () => moveHighlight(1),
+      ArrowUp: () => moveHighlight(-1),
+      Home: {
+        when: () => open() && !textInput,
+        handle: () => highlightBoundary(),
+      },
+      End: {
+        when: () => open() && !textInput,
+        handle: () => highlightBoundary(true),
+      },
+      Enter: { preventDefault: false, handle: (event) => commitActivation(event, true) },
+      ...(textInput
+        ? {}
+        : {
+            ' ': {
+              preventDefault: false,
+              // A pending typeahead search treats Space as a search character.
+              handle: (event) => {
+                if (!typeahead.handleKeyDown(event)) {
+                  commitActivation(event, false)
+                }
+              },
+            },
+          }),
+    }),
+    onUnhandled: (event, textInput) => {
+      if (!textInput) {
+        typeahead.handleKeyDown(event)
+      }
+    },
+  })
+
   createEffect(
     on(
       [value, field.value, () => props.value !== undefined],

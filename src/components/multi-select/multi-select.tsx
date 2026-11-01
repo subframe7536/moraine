@@ -4,6 +4,7 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider/index'
 import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
@@ -244,6 +245,40 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       focusControl()
     }
 
+    const dispatchEditableInputKeyDown = createKeyDownHandler<HTMLInputElement>({
+      keys: {
+        Enter: {
+          preventDefault: false,
+          handle: (event) => {
+            if (isDuplicate()) {
+              event.preventDefault()
+              return
+            }
+            if (state.open()) {
+              const highlighted = state
+                .items()
+                .find((item) => sameValue(item.value, state.highlightedValue()))
+              if (highlighted && !state.itemDisabled(highlighted)) {
+                if (state.value().some((value) => sameValue(value, highlighted.value))) {
+                  event.preventDefault()
+                  return
+                }
+                inputBinding.inputProps.onKeyDown(event)
+                return
+              }
+            }
+            if (search.value()) {
+              event.preventDefault()
+              create()
+              return
+            }
+            inputBinding.inputProps.onKeyDown(event)
+          },
+        },
+      },
+      onUnhandled: (event) => inputBinding.inputProps.onKeyDown(event),
+    })
+
     function onEditableInputKeyDown(event: KeyboardEvent): void {
       if (inputBinding.isComposing() || event.isComposing || state.locked()) {
         return
@@ -251,32 +286,30 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       if (tags.onFocusOwnerKeyDown(event, search.value())) {
         return
       }
-      if (event.key === 'Enter') {
-        if (isDuplicate()) {
-          event.preventDefault()
-          return
-        }
-        if (state.open()) {
-          const highlighted = state
-            .items()
-            .find((item) => sameValue(item.value, state.highlightedValue()))
-          if (highlighted && !state.itemDisabled(highlighted)) {
-            if (state.value().some((value) => sameValue(value, highlighted.value))) {
-              event.preventDefault()
-              return
-            }
-            inputBinding.inputProps.onKeyDown(event)
-            return
-          }
-        }
-        if (search.value()) {
-          event.preventDefault()
-          create()
-          return
-        }
-      }
-      inputBinding.inputProps.onKeyDown(event)
+      dispatchEditableInputKeyDown(event)
     }
+
+    function highlightedIsAlreadySelected(): boolean {
+      const highlighted = state
+        .items()
+        .find((item) => sameValue(item.value, state.highlightedValue()))
+      return Boolean(
+        highlighted &&
+        !state.itemDisabled(highlighted) &&
+        state.value().some((value) => sameValue(value, highlighted.value)),
+      )
+    }
+
+    const dispatchNonEditableKeyDown = createKeyDownHandler({
+      keys: {
+        // Swallow Enter on an already-selected highlighted item so the trigger's
+        // own keydown path does not re-select it.
+        Enter: {
+          when: () => state.open() && highlightedIsAlreadySelected(),
+          handle: () => {},
+        },
+      },
+    })
 
     function onNonEditableTriggerKeyDown(event: KeyboardEvent): void {
       if (state.locked() || event.isComposing) {
@@ -285,19 +318,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       if (tags.onFocusOwnerKeyDown(event, '')) {
         return
       }
-      if (event.key !== 'Enter' || !state.open()) {
-        return
-      }
-      const highlighted = state
-        .items()
-        .find((item) => sameValue(item.value, state.highlightedValue()))
-      if (
-        highlighted &&
-        !state.itemDisabled(highlighted) &&
-        state.value().some((value) => sameValue(value, highlighted.value))
-      ) {
-        event.preventDefault()
-      }
+      dispatchNonEditableKeyDown(event)
     }
 
     const controlSlot = slotWith('control', {

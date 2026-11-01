@@ -3,6 +3,7 @@ import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } 
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
 import { getFocusableElements } from '../shared/overlay/utils'
@@ -24,51 +25,55 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
     onBlur: behavior.scheduleClose,
-    onKeyDown: (event) => {
-      if (behavior.options.mode !== 'hover' || event.key !== 'Tab') {
-        return
-      }
+    onKeyDown: createKeyDownHandler<HTMLDivElement>({
+      disabled: () => behavior.options.mode !== 'hover',
+      keys: {
+        Tab: {
+          preventDefault: false,
+          handle: (event) => {
+            const content = behavior.popper.contentElement()
+            const focusable = content ? getFocusableElements(content) : []
+            const firstFocusable = focusable[0]
+            const lastFocusable = focusable.at(-1)
 
-      const content = behavior.popper.contentElement()
-      const focusable = content ? getFocusableElements(content) : []
-      const firstFocusable = focusable[0]
-      const lastFocusable = focusable.at(-1)
+            if (event.shiftKey) {
+              if (event.target !== content && event.target !== firstFocusable) {
+                return
+              }
 
-      if (event.shiftKey) {
-        if (event.target !== content && event.target !== firstFocusable) {
-          return
-        }
+              event.preventDefault()
+              behavior.popper.triggerElement()?.focus()
+              behavior.clearCloseTimer()
+              return
+            }
 
-        event.preventDefault()
-        behavior.popper.triggerElement()?.focus()
-        behavior.clearCloseTimer()
-        return
-      }
+            if (event.target !== lastFocusable) {
+              return
+            }
 
-      if (event.target !== lastFocusable) {
-        return
-      }
+            const trigger = behavior.popper.triggerElement()
+            if (!trigger) {
+              return
+            }
+            const documentOrder = getFocusableElements(trigger.ownerDocument.body)
+            const triggerIndex = documentOrder.indexOf(trigger)
+            if (triggerIndex < 0) {
+              return
+            }
+            const nextFocusable = documentOrder
+              .slice(triggerIndex + 1)
+              .find((element) => !content?.contains(element))
+            if (!nextFocusable) {
+              return
+            }
 
-      const trigger = behavior.popper.triggerElement()
-      if (!trigger) {
-        return
-      }
-      const documentOrder = getFocusableElements(trigger.ownerDocument.body)
-      const triggerIndex = documentOrder.indexOf(trigger)
-      if (triggerIndex < 0) {
-        return
-      }
-      const nextFocusable = documentOrder
-        .slice(triggerIndex + 1)
-        .find((element) => !content?.contains(element))
-      if (!nextFocusable) {
-        return
-      }
-
-      event.preventDefault()
-      nextFocusable.focus()
-      behavior.scheduleClose()
-    },
+            event.preventDefault()
+            nextFocusable.focus()
+            behavior.scheduleClose()
+          },
+        },
+      },
+    }),
     onPointerEnter: (event) => {
       if (behavior.options.mode === 'hover' && event.pointerType === 'mouse') {
         behavior.clearCloseTimer()

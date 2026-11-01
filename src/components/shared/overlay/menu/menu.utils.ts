@@ -2,6 +2,8 @@ import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import { createSelector, createSignal, onCleanup, untrack } from 'solid-js'
 
+import type { KeyBindingOptions } from '../../../../shared/keyboard'
+import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
 import { focusWithoutScrolling } from '../utils'
@@ -541,55 +543,26 @@ export function focusLayerFromStrategy(
   }
 }
 
-export function onLayerKeyDown(
-  event: KeyboardEvent,
+export function createLayerKeyDownHandler(
   layer: OverlayMenuLayerState,
   onClose: (options?: OverlayMenuCloseOptions) => void,
-  closeParentKey?: string,
+  closeParentKey: () => string | undefined,
   onTab?: (direction: 'forward' | 'backward') => void,
-): void {
-  if (event.isComposing || event.keyCode === 229) {
-    return
-  }
-
-  if (event.key === 'Tab') {
-    event.preventDefault()
-    onTab?.(event.shiftKey ? 'backward' : 'forward')
-    return
-  }
-
-  if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    layer.focusItemByOffset(1)
-    return
-  }
-
-  if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    layer.focusItemByOffset(-1)
-    return
-  }
-
-  if (event.key === 'Home') {
-    event.preventDefault()
-    layer.focusFirstItem()
-    return
-  }
-
-  if (event.key === 'End') {
-    event.preventDefault()
-    layer.focusLastItem()
-    return
-  }
-
-  if (event.key === 'Escape') {
-    event.preventDefault()
-    onClose({ restoreFocus: true })
-    return
-  }
-
-  if (closeParentKey && event.key === closeParentKey) {
-    event.preventDefault()
-    onClose()
-  }
+): (event: KeyboardEvent) => void {
+  const closeToParent = (key: string): KeyBindingOptions => ({
+    when: () => closeParentKey() === key,
+    handle: () => onClose(),
+  })
+  return createKeyDownHandler({
+    keys: {
+      Tab: (event) => onTab?.(event.shiftKey ? 'backward' : 'forward'),
+      ArrowDown: () => layer.focusItemByOffset(1),
+      ArrowUp: () => layer.focusItemByOffset(-1),
+      ArrowLeft: closeToParent('ArrowLeft'),
+      ArrowRight: closeToParent('ArrowRight'),
+      Home: () => layer.focusFirstItem(),
+      End: () => layer.focusLastItem(),
+      Escape: () => onClose({ restoreFocus: true }),
+    },
+  })
 }

@@ -18,17 +18,14 @@ import { collatorIncludes, createSearchCollator } from '../../provider/locale/co
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 import { List } from '../list'
 import type { ListT } from '../list'
-import {
-  createCompositionState,
-  isComposingKeyEvent,
-  resolveDirection,
-} from '../shared/overlay/utils'
+import { createCompositionState, resolveDirection } from '../shared/overlay/utils'
 
 import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
@@ -431,30 +428,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function handleKeyDown(event: KeyboardEvent): void {
-    if (isComposingKeyEvent(event, composition)) {
-      return
-    }
-
-    if (event.key === ' ' || event.key === 'Spacebar') {
-      return
-    }
-
-    if (event.key === 'Enter') {
-      const highlighted = visibleItems().find((item) => item.key === activeKey())
-      if (highlighted) {
-        event.preventDefault()
-        activateItem(highlighted.item)
-      }
-      return
-    }
-
-    if (event.key === 'Home' || event.key === 'End') {
-      return
-    }
-
-    onNavigationKeyDown(event, activeKey(), 'vertical')
-  }
+  const handleKeyDown = createKeyDownHandler<HTMLInputElement>({
+    onKeyDown: () => merged.inputProps?.onKeyDown,
+    composing: composition.isComposing,
+    // Space types a search term; Home/End move the text caret.
+    ignore: [' ', 'Home', 'End'],
+    keys: {
+      Enter: {
+        when: () => visibleItems().some((item) => item.key === activeKey()),
+        handle: () => {
+          const highlighted = visibleItems().find((item) => item.key === activeKey())
+          if (highlighted) {
+            activateItem(highlighted.item)
+          }
+        },
+      },
+    },
+    onUnhandled: (event) => onNavigationKeyDown(event, activeKey(), 'vertical'),
+  })
 
   function getContext() {
     return {
@@ -721,12 +712,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             callHandler(event, merged.inputProps?.onCompositionEnd)
             handleCompositionEnd(event.currentTarget.value)
           }}
-          onKeyDown={(event) => {
-            const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown)
-            if (!defaultPrevented) {
-              handleKeyDown(event)
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
 
         <Show when={merged.closable}>

@@ -3,6 +3,7 @@ import { createMemo } from 'solid-js'
 
 import { useMessages } from '../../../../provider/locale/locale-context'
 import type { ComponentMessages } from '../../../../provider/locale/messages.types'
+import { createKeyDownHandler } from '../../../../shared/keyboard'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { Icon } from '../../../icon/index'
 import type { IconT } from '../../../icon/index'
@@ -107,48 +108,62 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     options.getFocusOwner()?.focus()
   }
 
-  function onFocusOwnerKeyDown(event: KeyboardEvent, inputValue: string): boolean {
-    if (event.key === 'Backspace' && !inputValue) {
-      for (let index = tags().length - 1; index >= 0; index -= 1) {
-        if (remove(index)) {
-          event.preventDefault()
-          return true
-        }
-      }
-    }
-    if (event.key === 'ArrowLeft') {
-      const target = event.currentTarget
-      const atStart =
-        !(target instanceof HTMLInputElement) ||
-        (target.selectionStart === 0 && target.selectionEnd === 0)
-      if (atStart) {
-        for (let index = tags().length - 1; index >= 0; index -= 1) {
-          if (tags()[index]?.removable && removeButtons[index]) {
-            event.preventDefault()
-            removeButtons[index]?.focus()
-            return true
+  const dispatchFocusOwnerKeyDown = createKeyDownHandler<HTMLElement, [string]>({
+    keys: {
+      Backspace: {
+        preventDefault: false,
+        when: (_event, inputValue) => !inputValue,
+        handle: (event) => {
+          for (let index = tags().length - 1; index >= 0; index -= 1) {
+            if (remove(index)) {
+              event.preventDefault()
+              return
+            }
           }
-        }
-      }
-    }
-    return false
+        },
+      },
+      ArrowLeft: {
+        preventDefault: false,
+        handle: (event) => {
+          const target = event.currentTarget
+          const atStart =
+            !(target instanceof HTMLInputElement) ||
+            (target.selectionStart === 0 && target.selectionEnd === 0)
+          if (!atStart) {
+            return
+          }
+          for (let index = tags().length - 1; index >= 0; index -= 1) {
+            if (tags()[index]?.removable && removeButtons[index]) {
+              event.preventDefault()
+              removeButtons[index]?.focus()
+              return
+            }
+          }
+        },
+      },
+    },
+  })
+
+  function onFocusOwnerKeyDown(event: KeyboardEvent, inputValue: string): boolean {
+    dispatchFocusOwnerKeyDown(event, inputValue)
+    return event.defaultPrevented
   }
 
-  function onRemoveKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault()
-      focusNearest(index, event.key === 'ArrowLeft' ? -1 : 1)
-      return
-    }
-    if (event.key === 'Backspace' || event.key === 'Delete') {
-      event.preventDefault()
-      const direction = event.key === 'Backspace' ? -1 : 1
-      if (remove(index, false)) {
-        // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus reads the post-removal tag list.
-        queueMicrotask(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
-      }
+  function removeTag(index: number, direction: -1 | 1): void {
+    if (remove(index, false)) {
+      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus reads the post-removal tag list.
+      queueMicrotask(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
     }
   }
+
+  const onRemoveKeyDown = createKeyDownHandler<HTMLElement, [number]>({
+    keys: {
+      ArrowLeft: (_event, index) => focusNearest(index, -1),
+      ArrowRight: (_event, index) => focusNearest(index, 1),
+      Backspace: (_event, index) => removeTag(index, -1),
+      Delete: (_event, index) => removeTag(index, 1),
+    },
+  })
 
   function isolatePointer(event: PointerEvent): void {
     event.preventDefault()

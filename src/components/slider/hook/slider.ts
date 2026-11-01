@@ -11,6 +11,8 @@ import {
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
+import type { KeyBindingOptions } from '../../../shared/keyboard'
+import { createKeyDownHandler, createKeyUpHandler } from '../../../shared/keyboard'
 import type { Orientation } from '../../../theme/style-types'
 import { defaultSliderMessages } from '../slider.messages'
 import type { SliderT } from '../slider.types'
@@ -628,66 +630,16 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     finishInteraction(event, target)
   }
 
-  function onThumbKeyDown(index: number, event: KeyboardEvent): void {
-    setFocusVisibleThumbIndex(index)
-    if (isActionDisabled()) {
-      return
-    }
+  function rtlStep(increment: boolean): number {
+    return increment === (direction() === 'ltr') ? 1 : -1
+  }
 
-    const key = event.key === 'Spacebar' ? ' ' : event.key
-    const isIncrementKey =
-      key === 'ArrowRight' || key === 'ArrowUp' || key === 'Right' || key === 'Up'
-    const isDecrementKey =
-      key === 'ArrowLeft' || key === 'ArrowDown' || key === 'Left' || key === 'Down'
-    const isPageUp = key === 'PageUp'
-    const isPageDown = key === 'PageDown'
-    const isLTR = () => direction() === 'ltr'
+  function upDownStep(up: boolean): number {
+    return merged.orientation === 'vertical' ? (up === merged.inverted ? -1 : 1) : rtlStep(up)
+  }
 
-    if (
-      !isIncrementKey &&
-      !isDecrementKey &&
-      key !== 'Home' &&
-      key !== 'End' &&
-      !isPageUp &&
-      !isPageDown
-    ) {
-      return
-    }
-
-    event.preventDefault()
-
-    if (key === 'Home') {
-      applyThumbValue(index, getThumbMinValueFor(interactionValues(), index))
-      return
-    }
-
-    if (key === 'End') {
-      applyThumbValue(index, getThumbMaxValueFor(interactionValues(), index))
-      return
-    }
-
-    let movementDirection = 0
-    if (isPageUp) {
-      movementDirection = 1
-    } else if (isPageDown) {
-      movementDirection = -1
-    } else if (merged.orientation === 'vertical') {
-      if (key === 'ArrowDown' || key === 'Down') {
-        movementDirection = merged.inverted ? 1 : -1
-      } else if (key === 'ArrowUp' || key === 'Up') {
-        movementDirection = merged.inverted ? -1 : 1
-      } else if (isIncrementKey) {
-        movementDirection = isLTR() ? 1 : -1
-      } else if (isDecrementKey) {
-        movementDirection = isLTR() ? -1 : 1
-      }
-    } else if (isIncrementKey) {
-      movementDirection = isLTR() ? 1 : -1
-    } else if (isDecrementKey) {
-      movementDirection = isLTR() ? -1 : 1
-    }
-
-    const stepSize = isPageUp || isPageDown || event.shiftKey ? pageSize() : keyboardStep()
+  function moveThumbByStep(index: number, movementDirection: number, largeStep: boolean): void {
+    const stepSize = largeStep ? pageSize() : keyboardStep()
 
     const oldValue = interactionValues()[index] ?? merged.min
     const candidateValue = oldValue + movementDirection * stepSize
@@ -707,6 +659,31 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     }
   }
 
+  const dispatchThumbKeyDown = createKeyDownHandler<HTMLElement, [number]>({
+    disabled: () => isActionDisabled() === true,
+    keys: {
+      Home: (_event, index) =>
+        applyThumbValue(index, getThumbMinValueFor(interactionValues(), index)),
+      End: (_event, index) =>
+        applyThumbValue(index, getThumbMaxValueFor(interactionValues(), index)),
+      PageUp: (_event, index) => moveThumbByStep(index, 1, true),
+      PageDown: (_event, index) => moveThumbByStep(index, -1, true),
+      ArrowRight: (event, index) => moveThumbByStep(index, rtlStep(true), event.shiftKey),
+      ArrowLeft: (event, index) => moveThumbByStep(index, rtlStep(false), event.shiftKey),
+      ArrowUp: (event, index) => moveThumbByStep(index, upDownStep(true), event.shiftKey),
+      ArrowDown: (event, index) => moveThumbByStep(index, upDownStep(false), event.shiftKey),
+      Right: (event, index) => moveThumbByStep(index, rtlStep(true), event.shiftKey),
+      Left: (event, index) => moveThumbByStep(index, rtlStep(false), event.shiftKey),
+      Up: (event, index) => moveThumbByStep(index, upDownStep(true), event.shiftKey),
+      Down: (event, index) => moveThumbByStep(index, upDownStep(false), event.shiftKey),
+    },
+  })
+
+  function onThumbKeyDown(index: number, event: KeyboardEvent): void {
+    setFocusVisibleThumbIndex(index)
+    dispatchThumbKeyDown(event, index)
+  }
+
   function isThumbTarget(target: EventTarget | null): boolean {
     return thumbRefs().some((thumb) => {
       const Node = thumb?.ownerDocument.defaultView?.Node
@@ -722,32 +699,28 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     }
   }
 
-  function onThumbKeyUp(event: KeyboardEvent): void {
-    if (isActionDisabled()) {
-      return
-    }
-
-    const key = event.key === 'Spacebar' ? ' ' : event.key
-    const isNavigationKey =
-      key === 'ArrowRight' ||
-      key === 'ArrowUp' ||
-      key === 'ArrowLeft' ||
-      key === 'ArrowDown' ||
-      key === 'Right' ||
-      key === 'Up' ||
-      key === 'Left' ||
-      key === 'Down' ||
-      key === 'Home' ||
-      key === 'End' ||
-      key === 'PageUp' ||
-      key === 'PageDown'
-
-    if (!isNavigationKey) {
-      return
-    }
-
-    commitPendingValues()
+  const commitOnNavigationKey: KeyBindingOptions = {
+    preventDefault: false,
+    handle: () => commitPendingValues(),
   }
+
+  const onThumbKeyUp = createKeyUpHandler({
+    disabled: () => isActionDisabled() === true,
+    keys: {
+      ArrowRight: commitOnNavigationKey,
+      ArrowUp: commitOnNavigationKey,
+      ArrowLeft: commitOnNavigationKey,
+      ArrowDown: commitOnNavigationKey,
+      Right: commitOnNavigationKey,
+      Up: commitOnNavigationKey,
+      Left: commitOnNavigationKey,
+      Down: commitOnNavigationKey,
+      Home: commitOnNavigationKey,
+      End: commitOnNavigationKey,
+      PageUp: commitOnNavigationKey,
+      PageDown: commitOnNavigationKey,
+    },
+  })
 
   function onThumbBlur(event: FocusEvent): void {
     setFocusVisibleThumbIndex(undefined)

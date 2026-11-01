@@ -2,6 +2,9 @@ import type { Accessor } from 'solid-js'
 
 import type { Orientation } from '../theme/style-types'
 
+import type { KeyBindingOptions } from './keyboard'
+import { createKeyDownHandler } from './keyboard'
+
 type ActivationMode = 'automatic' | 'manual'
 
 /**
@@ -182,67 +185,43 @@ export function createSelectableCollectionNavigation<TItem, TValue extends NonNu
     moveToBoundary(kind)
   }
 
+  function canActivate(currentValue: TValue | undefined): boolean {
+    if (currentValue === undefined) {
+      return false
+    }
+
+    const currentItem = options.items().find((item) => options.getValue(item) === currentValue)
+    return !currentItem || !options.isDisabled?.(currentItem)
+  }
+
+  const activateCurrent: KeyBindingOptions<HTMLElement, [TValue | undefined, Orientation]> = {
+    handle: (_event, currentValue) => {
+      if (currentValue !== undefined) {
+        options.onSelect(currentValue)
+      }
+    },
+    when: (_event, currentValue) => canActivate(currentValue),
+  }
+
+  const dispatchKeyDown = createKeyDownHandler<HTMLElement, [TValue | undefined, Orientation]>({
+    direction: options.getDirection,
+    orientation: (_event, _currentValue, orientation) => orientation,
+    keys: {
+      next: (_event, currentValue) => focusByOffset(currentValue, 1),
+      previous: (_event, currentValue) => focusByOffset(currentValue, -1),
+      Home: (_event, currentValue) => moveToBoundary('first', currentValue),
+      End: (_event, currentValue) => moveToBoundary('last', currentValue),
+      Enter: activateCurrent,
+      ' ': activateCurrent,
+    },
+  })
+
   function onNavigationKeyDown(
     event: KeyboardEvent,
     currentValue: TValue | undefined,
     orientation: Orientation,
   ): void {
-    if (event.defaultPrevented) {
-      return
-    }
-
-    const normalizedKey = event.key === 'Spacebar' ? ' ' : event.key
-
-    // Detect text direction for RTL-aware horizontal navigation
-    const direction = options.getDirection?.() ?? getComputedDirection(event.target as Element)
-    const isRtl = direction === 'rtl'
-
-    // Determine next/previous keys based on orientation and direction
-    let nextKey: string
-    let previousKey: string
-
-    if (orientation === 'vertical') {
-      nextKey = 'ArrowDown'
-      previousKey = 'ArrowUp'
-    } else {
-      // Horizontal: flip arrow keys for RTL
-      nextKey = isRtl ? 'ArrowLeft' : 'ArrowRight'
-      previousKey = isRtl ? 'ArrowRight' : 'ArrowLeft'
-    }
-
-    if (normalizedKey === nextKey) {
-      event.preventDefault()
-      focusByOffset(currentValue, 1)
-      return
-    }
-
-    if (normalizedKey === previousKey) {
-      event.preventDefault()
-      focusByOffset(currentValue, -1)
-      return
-    }
-
-    if (normalizedKey === 'Home') {
-      event.preventDefault()
-      moveToBoundary('first', currentValue)
-      return
-    }
-
-    if (normalizedKey === 'End') {
-      event.preventDefault()
-      moveToBoundary('last', currentValue)
-      return
-    }
-
-    if ((normalizedKey === 'Enter' || normalizedKey === ' ') && currentValue !== undefined) {
-      const currentItem = options.items().find((item) => options.getValue(item) === currentValue)
-      if (currentItem && options.isDisabled?.(currentItem)) {
-        return
-      }
-
-      event.preventDefault()
-      options.onSelect(currentValue)
-    }
+    dispatchKeyDown(event, currentValue, orientation)
   }
 
   return {
@@ -251,19 +230,4 @@ export function createSelectableCollectionNavigation<TItem, TValue extends NonNu
     moveSelection,
     onNavigationKeyDown,
   }
-}
-
-/**
- * Detects the computed text direction of an element.
- * Falls back to 'ltr' if detection fails.
- */
-function getComputedDirection(element: Element | null): 'ltr' | 'rtl' {
-  if (!element) {
-    return 'ltr'
-  }
-
-  const computed = window.getComputedStyle(element)
-  const direction = computed.direction
-
-  return direction === 'rtl' ? 'rtl' : 'ltr'
 }

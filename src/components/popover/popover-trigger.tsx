@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
 import type { createPopper } from '../shared/overlay/popper'
@@ -34,25 +35,26 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
         },
         onFocus: context.scheduleOpen,
         onBlur: context.scheduleClose,
-        onKeyDown: (event) => {
-          if (
-            context.options.mode !== 'hover' ||
-            event.key !== 'Tab' ||
-            event.shiftKey ||
-            !popper.isOpen()
-          ) {
-            return
-          }
-
-          const content = popper.contentElement()
-          if (!content || getFocusableElements(content).length === 0) {
-            return
-          }
-
-          event.preventDefault()
-          focusContent(content)
-          context.clearCloseTimer()
-        },
+        onKeyDown: createKeyDownHandler({
+          keys: {
+            Tab: {
+              when: (event) => {
+                if (context.options.mode !== 'hover' || event.shiftKey || !popper.isOpen()) {
+                  return false
+                }
+                const content = popper.contentElement()
+                return Boolean(content && getFocusableElements(content).length > 0)
+              },
+              handle: () => {
+                const content = popper.contentElement()
+                if (content) {
+                  focusContent(content)
+                  context.clearCloseTimer()
+                }
+              },
+            },
+          },
+        }),
         onPointerEnter: (event) => {
           if (event.pointerType === 'mouse') {
             context.scheduleOpen()

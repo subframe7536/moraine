@@ -3,6 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
@@ -119,6 +120,24 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       local.onClear?.()
       focusInput()
     }
+    const dispatchInputKeyDown = createKeyDownHandler<HTMLInputElement>({
+      keys: {
+        Escape: {
+          when: () => Boolean(local.allowClear) && canClear() && !state.open(),
+          handle: clear,
+        },
+        Delete: {
+          when: () => Boolean(local.allowClear) && canClear() && !search.value(),
+          handle: clear,
+        },
+        Backspace: {
+          when: () => Boolean(local.allowClear) && canClear() && !search.value(),
+          handle: clear,
+        },
+      },
+      onUnhandled: (event) => input.inputProps.onKeyDown(event),
+    })
+
     function onInputKeyDown(event: KeyboardEvent): void {
       if (input.isComposing() || event.isComposing) {
         return
@@ -127,19 +146,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
         input.inputProps.onKeyDown(event)
         return
       }
-      if (local.allowClear && canClear()) {
-        if (event.key === 'Escape' && !state.open()) {
-          event.preventDefault()
-          clear()
-          return
-        }
-        if ((event.key === 'Delete' || event.key === 'Backspace') && !search.value()) {
-          event.preventDefault()
-          clear()
-          return
-        }
-      }
-      input.inputProps.onKeyDown(event)
+      dispatchInputKeyDown(event)
     }
 
     return (

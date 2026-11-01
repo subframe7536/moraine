@@ -16,6 +16,7 @@ import {
 import { useRecipe } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { useMessages } from '../../provider/locale/locale-context'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
@@ -616,52 +617,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
     setInteractionResizing(false)
   }
 
-  function onHandleKeyDown(handleIndex: number, event: KeyboardEvent, altKey: boolean): void {
-    if (local.disabled || !isHandleResizable(handleIndex)) {
-      return
-    }
-
-    local.onHandleKeyDown?.({
-      event,
-      handleIndex,
-      sizes: resolvePixelSizes(sizes()),
-    })
-
-    if (event.defaultPrevented) {
-      return
-    }
-
-    if (event.key === 'Enter' || event.key === ' ') {
-      const handlePart = handleParts().get(handleIndex)
-      const action = handlePart?.local.action ?? 'resize'
-      if (action === 'collapse') {
-        event.preventDefault()
-        toggleHandleCollapse(handleIndex)
-        return
-      }
-    }
-
-    const keyboardDelta = resolveKeyboardDelta(local.keyboardDelta, rootSize())
-    let deltaPercentage: number | null = null
-
-    if (
-      (orientation() === 'horizontal' && event.key === 'ArrowLeft') ||
-      (orientation() === 'vertical' && event.key === 'ArrowUp') ||
-      event.key === 'Home'
-    ) {
-      deltaPercentage = event.shiftKey || event.key === 'Home' ? -1 : -keyboardDelta
-    } else if (
-      (orientation() === 'horizontal' && event.key === 'ArrowRight') ||
-      (orientation() === 'vertical' && event.key === 'ArrowDown') ||
-      event.key === 'End'
-    ) {
-      deltaPercentage = event.shiftKey || event.key === 'End' ? 1 : keyboardDelta
-    }
-
-    if (deltaPercentage === null) {
-      return
-    }
-
+  function resizeHandleByPercentage(
+    handleIndex: number,
+    deltaPercentage: number,
+    altKey: boolean,
+    event: KeyboardEvent,
+  ): void {
     const currentSizes = sizes()
     const nextSizes = normalizeSizes(
       resizeFromHandle({
@@ -683,6 +644,47 @@ export function Resizable(props: ResizableProps): JSX.Element {
     endResize(nextSizes)
     scheduleInteractionResizeRelease()
     event.preventDefault()
+  }
+
+  const dispatchHandleKeyDown = createKeyDownHandler<HTMLElement, [number, boolean]>({
+    keys: (event, handleIndex, altKey) => {
+      const horizontal = orientation() === 'horizontal'
+      const keyboardDelta = resolveKeyboardDelta(local.keyboardDelta, rootSize())
+      const resize = (deltaPercentage: number) =>
+        resizeHandleByPercentage(handleIndex, deltaPercentage, altKey, event)
+      const collapse = {
+        when: () => (handleParts().get(handleIndex)?.local.action ?? 'resize') === 'collapse',
+        handle: () => toggleHandleCollapse(handleIndex),
+      }
+      return {
+        Enter: collapse,
+        ' ': collapse,
+        [horizontal ? 'ArrowLeft' : 'ArrowUp']: {
+          preventDefault: false,
+          handle: (event) => resize(event.shiftKey ? -1 : -keyboardDelta),
+        },
+        [horizontal ? 'ArrowRight' : 'ArrowDown']: {
+          preventDefault: false,
+          handle: (event) => resize(event.shiftKey ? 1 : keyboardDelta),
+        },
+        Home: { preventDefault: false, handle: () => resize(-1) },
+        End: { preventDefault: false, handle: () => resize(1) },
+      }
+    },
+  })
+
+  function onHandleKeyDown(handleIndex: number, event: KeyboardEvent, altKey: boolean): void {
+    if (local.disabled || !isHandleResizable(handleIndex)) {
+      return
+    }
+
+    local.onHandleKeyDown?.({
+      event,
+      handleIndex,
+      sizes: resolvePixelSizes(sizes()),
+    })
+
+    dispatchHandleKeyDown(event, handleIndex, altKey)
   }
 
   return (

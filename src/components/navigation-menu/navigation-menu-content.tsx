@@ -4,6 +4,8 @@ import { Show, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { bindElement, publishElement } from '../../shared/element-binding'
+import type { KeyBindingOptions } from '../../shared/keyboard'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -72,46 +74,58 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     onSelect: () => {},
   })
 
-  const onKeyDown = (event: KeyboardEvent): void => {
-    const content = item.content()
-    if (!content || event.isComposing) {
-      return
-    }
-    const current = content.ownerDocument.activeElement
-    if (event.key === 'Tab') {
-      const candidates = getFocusableElements(content)
-      const index = candidates.indexOf(current as HTMLElement)
-      if (event.shiftKey && index <= 0) {
-        event.preventDefault()
-        focusWithoutScrolling(item.trigger())
-      } else if (
-        !event.shiftKey &&
-        index === candidates.length - 1 &&
-        context.focusAfterTrigger()
-      ) {
-        event.preventDefault()
-      }
-      return
-    }
-    if (
-      (event.target as Element).closest(
-        'input,textarea,select,[contenteditable]:not([contenteditable="false"])',
-      )
-    ) {
-      return
-    }
-    const link = links().find((element) => element === current)
-    if (
-      link &&
-      ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
-    ) {
-      navigation.onNavigationKeyDown(
-        event,
-        link,
-        event.key === 'ArrowUp' || event.key === 'ArrowDown' ? 'vertical' : 'horizontal',
-      )
-    }
+  const currentLink = (): HTMLElement | undefined => {
+    const current = item.content()?.ownerDocument.activeElement
+    return links().find((element) => element === current)
   }
+
+  const navigateLink = (orientation: 'horizontal' | 'vertical'): KeyBindingOptions => ({
+    preventDefault: false,
+    when: (event) =>
+      !event.target.closest(
+        'input,textarea,select,[contenteditable]:not([contenteditable="false"])',
+      ) && currentLink() !== undefined,
+    handle: (event) => {
+      const link = currentLink()
+      if (link) {
+        navigation.onNavigationKeyDown(event, link, orientation)
+      }
+    },
+  })
+
+  const onKeyDown = createKeyDownHandler<HTMLDivElement>({
+    disabled: () => !item.content(),
+    keys: {
+      Tab: {
+        preventDefault: false,
+        handle: (event) => {
+          const content = item.content()
+          if (!content) {
+            return
+          }
+          const current = content.ownerDocument.activeElement
+          const candidates = getFocusableElements(content)
+          const index = candidates.indexOf(current as HTMLElement)
+          if (event.shiftKey && index <= 0) {
+            event.preventDefault()
+            focusWithoutScrolling(item.trigger())
+          } else if (
+            !event.shiftKey &&
+            index === candidates.length - 1 &&
+            context.focusAfterTrigger()
+          ) {
+            event.preventDefault()
+          }
+        },
+      },
+      ArrowUp: navigateLink('vertical'),
+      ArrowDown: navigateLink('vertical'),
+      ArrowLeft: navigateLink('horizontal'),
+      ArrowRight: navigateLink('horizontal'),
+      Home: navigateLink('horizontal'),
+      End: navigateLink('horizontal'),
+    },
+  })
 
   // Keep the lazy tree in the item's owner while the shared panel consumes it.
   const contentTree = (

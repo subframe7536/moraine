@@ -5,6 +5,8 @@ import { For, Show, createMemo, createUniqueId, splitProps, untrack } from 'soli
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
+import type { KeyBindingOptions } from '../shared/keyboard'
+import { createKeyDownHandler } from '../shared/keyboard'
 import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
@@ -242,6 +244,26 @@ function DataTableResizer<TData extends RowData>(props: {
     const id = column().id
     props.table.setColumnSizing((sizing) => ({ ...sizing, [id]: next }))
   }
+  function arrowSize(direction: 1 | -1, event: KeyboardEvent): number {
+    const step = RESIZE_KEYBOARD_STEP * (event.shiftKey ? RESIZE_KEYBOARD_SHIFT_MULTIPLIER : 1)
+    // In right-to-left resizing, the handle sits on the left edge, so arrows swap meaning.
+    const rtl = props.table.options.columnResizeDirection === 'rtl' ? -1 : 1
+    return props.header.getSize() + direction * step * rtl
+  }
+  // An unbounded max leaves End without a target; the key then keeps its default.
+  const resizerKey = (
+    target: (event: KeyboardEvent) => number | undefined,
+  ): KeyBindingOptions<HTMLDivElement> => ({
+    preventDefault: false,
+    handle: (event) => {
+      const size = target(event)
+      if (size !== undefined) {
+        event.preventDefault()
+        event.stopPropagation()
+        resizeTo(size)
+      }
+    },
+  })
   const resizerSlot = ctx.slotWith('resizer', {
     own: () => ({ style: resizerOffset(props.table, props.header) }),
     data: dataTableDataAttributes.resizer({
@@ -262,19 +284,14 @@ function DataTableResizer<TData extends RowData>(props: {
       {...resizerSlot}
       onMouseDown={(event) => props.header.getResizeHandler()(event)}
       onTouchStart={(event) => props.header.getResizeHandler()(event)}
-      onKeyDown={(event) => {
-        const target = resizeKeyTarget(event, {
-          size: props.header.getSize(),
-          min: minSize(),
-          max: boundedMax(),
-          rtl: props.table.options.columnResizeDirection === 'rtl',
-        })
-        if (target !== undefined) {
-          event.preventDefault()
-          event.stopPropagation()
-          resizeTo(target)
-        }
-      }}
+      onKeyDown={createKeyDownHandler<HTMLDivElement>({
+        keys: {
+          Home: resizerKey(minSize),
+          End: resizerKey(boundedMax),
+          ArrowLeft: resizerKey((event) => arrowSize(-1, event)),
+          ArrowRight: resizerKey((event) => arrowSize(1, event)),
+        },
+      })}
       onClick={(event) => event.stopPropagation()}
     >
       <span id={actionId} class={VISUALLY_HIDDEN_CLASS}>
@@ -282,26 +299,6 @@ function DataTableResizer<TData extends RowData>(props: {
       </span>
     </div>
   )
-}
-
-/** Target width for a resize key, or `undefined` when the key does not resize. */
-function resizeKeyTarget(
-  event: KeyboardEvent,
-  column: { size: number; min: number; max: number | undefined; rtl: boolean },
-): number | undefined {
-  if (event.key === 'Home') {
-    return column.min
-  }
-  if (event.key === 'End') {
-    return column.max
-  }
-  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-    return undefined
-  }
-  const step = RESIZE_KEYBOARD_STEP * (event.shiftKey ? RESIZE_KEYBOARD_SHIFT_MULTIPLIER : 1)
-  // In right-to-left resizing, the handle sits on the left edge, so arrows swap meaning.
-  const direction = column.rtl ? -1 : 1
-  return column.size + (event.key === 'ArrowRight' ? step : -step) * direction
 }
 
 /** `onEnd` resizing previews the drag by translating the handle until the column commits. */

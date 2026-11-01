@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler } from '../../shared/utils'
@@ -36,21 +37,23 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const userEvents = rest as Record<string, unknown>
   let keyboardActivation = false
   const events = mergeProps(rest, {
-    onKeyDown(event: KeyboardEvent) {
-      callHandler(event, userEvents.onKeyDown)
-      if (event.defaultPrevented || disabled() || event.target !== event.currentTarget) {
-        return
-      }
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-        event.preventDefault()
-        context.openWithStrategy(event.key === 'ArrowDown' ? 'first' : 'last')
-      } else if (event.key === 'Escape' && context.isOpen()) {
-        event.preventDefault()
-        context.commitOpen(false)
-      } else if (event.key === 'Enter' || event.key === ' ') {
-        keyboardActivation = true
-      }
-    },
+    onKeyDown: createKeyDownHandler({
+      onKeyDown: () =>
+        userEvents.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+      disabled,
+      currentTargetOnly: true,
+      keys: {
+        ArrowDown: () => context.openWithStrategy('first'),
+        ArrowUp: () => context.openWithStrategy('last'),
+        Escape: {
+          handle: () => context.commitOpen(false),
+          when: () => context.isOpen(),
+        },
+        // Native click activation follows; flag it so onPress opens with 'first'.
+        Enter: { handle: () => (keyboardActivation = true), preventDefault: false },
+        ' ': { handle: () => (keyboardActivation = true), preventDefault: false },
+      },
+    }),
     onKeyUp(event: KeyboardEvent) {
       callHandler(event, userEvents.onKeyUp)
       queueMicrotask(() => {

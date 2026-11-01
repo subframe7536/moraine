@@ -70,10 +70,6 @@ export function createCompositionState(): CompositionState {
   }
 }
 
-export function isComposingKeyEvent(event: KeyboardEvent, state: CompositionState): boolean {
-  return event.isComposing || event.keyCode === 229 || state.isComposing()
-}
-
 interface OutsidePressOptions {
   isInside: (target: Node) => boolean
   isEnabled: () => boolean

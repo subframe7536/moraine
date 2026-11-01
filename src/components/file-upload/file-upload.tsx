@@ -15,6 +15,7 @@ import {
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
@@ -666,14 +667,10 @@ export function FileUpload<Multiple extends boolean = false>(
     }
   }
 
-  const onDropzoneKeyDown: JSX.EventHandler<HTMLDivElement, KeyboardEvent> = (event) => {
-    callHandler(event, merged.onKeyDown)
-
-    if (!event.defaultPrevented && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault()
-      openFileDialog()
-    }
-  }
+  const onDropzoneKeyDown = createKeyDownHandler<HTMLDivElement>({
+    onKeyDown: () => merged.onKeyDown,
+    keys: { Enter: openFileDialog, ' ': openFileDialog },
+  })
 
   const onDropzoneDragOver: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
     callHandler(event, merged.onDragOver)

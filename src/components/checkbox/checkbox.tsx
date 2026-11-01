@@ -4,6 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
+import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -304,20 +305,17 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
   let enterPressed = false
 
-  function onControlKeyDown(event: KeyboardEvent): void {
-    if (event.key !== 'Enter') {
-      return
-    }
+  const onControlKeyDown = createKeyDownHandler<HTMLButtonElement>({
+    keys: {
+      Enter: () => (enterPressed = true),
+    },
+  })
 
-    enterPressed = true
-    event.preventDefault()
-  }
-
-  function onControlKeyUp(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      enterPressed = false
-    }
-  }
+  const onControlKeyUp = createKeyUpHandler<HTMLButtonElement>({
+    keys: {
+      Enter: { handle: () => (enterPressed = false), preventDefault: false },
+    },
+  })
 
   function onControlClick(event: MouseEvent): void {
     if (enterPressed) {

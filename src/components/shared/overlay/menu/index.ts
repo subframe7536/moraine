@@ -9,7 +9,7 @@ export {
   focusElement,
   useOverlayMenuLayerState,
   focusLayerFromStrategy,
-  onLayerKeyDown,
+  createLayerKeyDownHandler,
 } from './menu.utils'
 export type {
   OverlayMenuFocusStrategy,

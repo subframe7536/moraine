@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 
+import { createKeyDownHandler } from '../../../shared/keyboard'
 import { callHandler } from '../../../shared/utils'
 import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
@@ -45,6 +46,11 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
     'onClick',
     'onKeyDown',
   ])
+  // Checkboxes toggle with Space only; Enter would otherwise activate the button.
+  const onKeyDown = createKeyDownHandler<HTMLButtonElement>({
+    onKeyDown: () => local.onKeyDown,
+    keys: { Enter: () => {} },
+  })
   const checked = () => local.checked === true
   const indeterminate = () => local.checked === 'indeterminate'
   const unchecked = () => local.checked === false
@@ -68,12 +74,7 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
         }
         local.onCheckedChange(!checked())
       }}
-      onKeyDown={(event) => {
-        // Checkboxes toggle with Space only; Enter would otherwise activate the button.
-        if (!callHandler(event, local.onKeyDown).defaultPrevented && event.key === 'Enter') {
-          event.preventDefault()
-        }
-      }}
+      onKeyDown={onKeyDown}
     >
       <Show when={!unchecked()}>
         <Icon

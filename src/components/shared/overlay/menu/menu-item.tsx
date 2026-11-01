@@ -6,6 +6,7 @@ import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
 import { bindElement } from '../../../../shared/element-binding'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
+import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createId } from '../../../../shared/utils'
 import type { Cn } from '../../../../theme/cn'
@@ -85,17 +86,11 @@ export function createSelectableItemHandlers(
         layer.setHighlightedItemId(options.itemId())
       }
     },
-    onKeyDown: (event) => {
-      if (
-        !event.defaultPrevented &&
-        !event.repeat &&
-        !options.disabled() &&
-        (event.key === 'Enter' || event.key === ' ')
-      ) {
-        event.preventDefault()
-        options.activate()
-      }
-    },
+    onKeyDown: createKeyDownHandler<HTMLDivElement>({
+      disabled: options.disabled,
+      skipRepeat: true,
+      keys: { Enter: options.activate, ' ': options.activate },
+    }),
     onPointerDown: (event) => {
       if (options.disabled()) {
         event.preventDefault()

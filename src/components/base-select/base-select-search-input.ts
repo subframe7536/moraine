@@ -2,7 +2,8 @@ import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
 import { bindElement, publishElement } from '../../shared/element-binding'
-import { createCompositionState, isComposingKeyEvent } from '../shared/overlay/utils'
+import { createKeyDownHandler } from '../../shared/keyboard'
+import { createCompositionState } from '../shared/overlay/utils'
 
 import type { BaseSelectT } from './base-select.types'
 
@@ -138,12 +139,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
       discardComposition()
       target.value = commit(value)
     },
-    onKeyDown(event: KeyboardEvent) {
-      if (isComposing() || isComposingKeyEvent(event, composition)) {
-        return
-      }
-      state.keyDown(event, enabled())
-    },
+    onKeyDown: createKeyDownHandler<HTMLInputElement>({
+      composing: () => isComposing() || composition.isComposing(),
+      onUnhandled: (event) => state.keyDown(event, enabled()),
+    }),
     onFocus(event: FocusEvent) {
       state.focus(event)
     },

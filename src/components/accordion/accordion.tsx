@@ -17,6 +17,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { bindElement } from '../../shared/element-binding'
+import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
@@ -183,41 +184,26 @@ export function Accordion(props: AccordionProps): JSX.Element {
     setValue([itemValue])
   }
 
-  function focusTriggerByKey(
-    currentTrigger: HTMLButtonElement,
-    key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End',
-  ): void {
+  function focusTriggerByOffset(currentTrigger: HTMLButtonElement, offset: number): void {
     const enabledTriggers = getEnabledTriggers()
-
-    if (enabledTriggers.length === 0) {
-      return
-    }
-
-    if (key === 'Home') {
-      enabledTriggers[0]?.focus()
-      return
-    }
-
-    if (key === 'End') {
-      enabledTriggers[enabledTriggers.length - 1]?.focus()
-      return
-    }
-
     const currentIndex = enabledTriggers.indexOf(currentTrigger)
 
     if (currentIndex === -1) {
       return
     }
 
-    const direction = key === 'ArrowDown' ? 1 : -1
-
-    const nextIndex = currentIndex + direction
+    const nextIndex = currentIndex + offset
 
     if (!merged.loop && (nextIndex < 0 || nextIndex >= enabledTriggers.length)) {
       return
     }
 
     enabledTriggers[(nextIndex + enabledTriggers.length) % enabledTriggers.length]?.focus()
+  }
+
+  function focusTriggerBoundary(last = false): void {
+    const enabledTriggers = getEnabledTriggers()
+    enabledTriggers[last ? enabledTriggers.length - 1 : 0]?.focus()
   }
 
   const itemDisabledSnapshot = () => items().map((item) => item.disabled)
@@ -327,42 +313,37 @@ export function Accordion(props: AccordionProps): JSX.Element {
             }
           }
 
-          function onTriggerKeyDown(event: KeyboardEvent): void {
-            switch (event.key) {
-              case 'Enter':
-                event.preventDefault()
+          const onTriggerKeyDown = createKeyDownHandler<HTMLButtonElement>({
+            keys: {
+              Enter: (event) => {
                 if (!event.repeat && !disabled()) {
                   toggleValue(itemValue())
                 }
-                return
-              case ' ':
-                event.preventDefault()
+              },
+              ' ': (event) => {
                 if (!event.repeat) {
                   spaceKeyDown = true
                 }
-                return
-              case 'ArrowDown':
-              case 'ArrowUp':
-              case 'Home':
-              case 'End':
-                event.preventDefault()
-                focusTriggerByKey(event.currentTarget as HTMLButtonElement, event.key)
-            }
-          }
+              },
+              ArrowDown: (event) => focusTriggerByOffset(event.currentTarget, 1),
+              ArrowUp: (event) => focusTriggerByOffset(event.currentTarget, -1),
+              Home: () => focusTriggerBoundary(),
+              End: () => focusTriggerBoundary(true),
+            },
+          })
 
-          function onTriggerKeyUp(event: KeyboardEvent): void {
-            if (event.key !== ' ') {
-              return
-            }
+          const onTriggerKeyUp = createKeyUpHandler<HTMLButtonElement>({
+            keys: {
+              ' ': () => {
+                const shouldToggle = spaceKeyDown && !disabled()
+                spaceKeyDown = false
 
-            event.preventDefault()
-            const shouldToggle = spaceKeyDown && !disabled()
-            spaceKeyDown = false
-
-            if (shouldToggle) {
-              toggleValue(itemValue())
-            }
-          }
+                if (shouldToggle) {
+                  toggleValue(itemValue())
+                }
+              },
+            },
+          })
 
           return (
             <div data-slot="accordion-item" {...itemSlot}>

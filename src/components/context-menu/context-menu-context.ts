@@ -3,6 +3,7 @@ import { createEffect, createSignal, mergeProps, on, onCleanup, untrack } from '
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createEventListenerMap } from '../../shared/event-listener'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
 import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
@@ -33,10 +34,6 @@ function hasLongPressMovedBeyondTolerance(
   const y = event.clientY - startPoint.y
 
   return x * x + y * y > CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE ** 2
-}
-
-function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
-  return event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)
 }
 
 /**
@@ -113,6 +110,17 @@ export function createContextMenu(props: ContextMenuProps) {
     }
 
     openFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2, strategy)
+  }
+
+  const toggleContextMenuFromKeyboard = (event: KeyboardEvent): void => {
+    event.stopPropagation()
+
+    if (open()) {
+      commitOpen(false)
+      return
+    }
+
+    openFromTriggerCenter('first')
   }
 
   /**
@@ -485,21 +493,16 @@ export function createContextMenu(props: ContextMenuProps) {
       // Pointer-up cleanup must run even when a consumer prevents the native event.
       onPointerEnd(event)
     },
-    onKeyDown: (event: KeyboardEvent) => {
-      if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
-        return
-      }
-
-      event.preventDefault()
-      event.stopPropagation()
-
-      if (open()) {
-        commitOpen(false)
-        return
-      }
-
-      openFromTriggerCenter('first')
-    },
+    onKeyDown: createKeyDownHandler({
+      disabled: () => Boolean(merged.disabled),
+      keys: {
+        ContextMenu: toggleContextMenuFromKeyboard,
+        F10: {
+          handle: toggleContextMenuFromKeyboard,
+          when: (event) => event.shiftKey,
+        },
+      },
+    }),
   }) as OverlayTriggerBinding
 
   return {

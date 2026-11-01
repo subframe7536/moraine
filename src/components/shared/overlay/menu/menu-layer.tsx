@@ -21,6 +21,7 @@ import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { bindElement } from '../../../../shared/element-binding'
 import { createEventListener } from '../../../../shared/event-listener'
+import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { callHandler, callRef, createId } from '../../../../shared/utils'
@@ -34,11 +35,11 @@ import { focusWithoutScrolling, resolveDirection } from '../utils'
 import { bindSelectableItemHandlers, createMenuItemRenderers } from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import {
+  createLayerKeyDownHandler,
   createPointerGraceIntent,
   getOverlayMenuTextValue,
   focusLayerFromStrategy,
   hasOverlayMenuChildren,
-  onLayerKeyDown,
   resolveMenuGroups,
   useOverlayMenuLayerState,
 } from './menu.utils'
@@ -459,19 +460,16 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         layer.closeSubmenus(submenuId())
         layer.setHighlightedItemId(submenuId())
       },
-      onKeyDown: (event) => {
-        if (event.defaultPrevented || event.repeat || itemProps.item.disabled) {
-          return
-        }
-
-        const openKey =
-          resolveDirection(triggerElement(), direction()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
-
-        if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          openSubmenu('first')
-        }
-      },
+      onKeyDown: createKeyDownHandler<HTMLDivElement>({
+        disabled: () => Boolean(itemProps.item.disabled),
+        skipRepeat: true,
+        direction: () => resolveDirection(triggerElement(), direction()),
+        keys: {
+          forward: () => openSubmenu('first'),
+          Enter: () => openSubmenu('first'),
+          ' ': () => openSubmenu('first'),
+        },
+      }),
       onPointerEnter: (event) => {
         if (itemProps.item.disabled || event.pointerType !== 'mouse') {
           if (itemProps.item.disabled) {
@@ -635,6 +633,12 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   const closeParentKey = () =>
     props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined
 
+  const dispatchLayerKeyDown = createLayerKeyDownHandler(
+    layer,
+    (options) => props.close(options),
+    closeParentKey,
+    (direction) => props.closeOnTab?.(direction),
+  )
   const handledKeyDown = new WeakSet<Event>()
   const onContentKeyDown = (event: KeyboardEvent): void => {
     if (handledKeyDown.has(event)) {
@@ -643,7 +647,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     handledKeyDown.add(event)
     const { defaultPrevented } = callHandler(event, props.elementAttrs?.onKeyDown)
     if (!defaultPrevented) {
-      onLayerKeyDown(event, layer, props.close, closeParentKey(), props.closeOnTab)
+      dispatchLayerKeyDown(event)
     }
   }
 

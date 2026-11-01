@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -68,10 +69,10 @@ export function BaseSelectTrigger<
         state.focusOwner()?.focus()
       }
     },
-    onKeyDown(event: KeyboardEvent) {
-      callHandler(event, local.onKeyDown)
-      state.keyDown(event)
-    },
+    onKeyDown: createKeyDownHandler({
+      onKeyDown: () => local.onKeyDown,
+      onUnhandled: (event) => state.keyDown(event),
+    }),
     onFocus(event: FocusEvent) {
       callHandler(event, local.onFocus)
       if (!event.defaultPrevented) {

@@ -2,9 +2,9 @@ import { createRoot } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
+  createLayerKeyDownHandler,
   createPointerGraceIntent,
   isPointInPointerGraceIntent,
-  onLayerKeyDown,
   resolveMenuGroups,
   useOverlayMenuLayerState,
 } from './menu.utils'
@@ -52,7 +52,7 @@ function installWindowStub(): () => void {
   }
 }
 
-describe('onLayerKeyDown', () => {
+describe('createLayerKeyDownHandler', () => {
   test('does not close the menu for Escape emitted during IME composition', () => {
     const onClose = vi.fn()
 
@@ -64,7 +64,7 @@ describe('onLayerKeyDown', () => {
         key: 'Escape',
       })
 
-      onLayerKeyDown(event, layer, onClose)
+      createLayerKeyDownHandler(layer, onClose, () => undefined)(event)
 
       expect(event.defaultPrevented).toBe(false)
       expect(onClose).not.toHaveBeenCalled()

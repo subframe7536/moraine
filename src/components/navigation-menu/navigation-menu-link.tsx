@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
@@ -42,11 +43,10 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
             context.close()
           }
         },
-        onKeyDown: (event) => {
-          if (context.rootElement()?.contains(event.currentTarget)) {
-            context.onListKeyDown(event, event.currentTarget)
-          }
-        },
+        onKeyDown: createKeyDownHandler<HTMLAnchorElement>({
+          disabled: (event) => !context.rootElement()?.contains(event.currentTarget),
+          onUnhandled: (event) => context.onListKeyDown(event, event.currentTarget),
+        }),
       },
       rest,
     ),
