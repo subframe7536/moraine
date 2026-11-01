@@ -155,7 +155,42 @@ pattern.
 
 Do not redesign adjacent code merely because a broader architecture is imaginable.
 
-### 6. Clean defensive code
+### 6. Collapse decode-back parameters
+
+Watch for helpers that take a discriminant — a key name, enum, or flag — that the
+call site chose literally, and then branch back into the semantic it encodes:
+
+```ts
+function focusTriggerByKey(
+  trigger: HTMLElement,
+  key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End',
+)
+// callers: focusTriggerByKey(el, 'ArrowDown')
+```
+
+Every call site already knows whether it wants an offset, a direction, or a
+boundary; the key name exists only to be decoded again. Pass the semantic:
+
+```ts
+focusTriggerByOffset(trigger, 1)   // ArrowDown
+focusTriggerBoundary()             // Home
+focusTriggerBoundary(true)         // End
+```
+
+The same smell appears when several literal bindings share one handler that
+re-inspects `event.key` to recover which binding fired — give each binding its own
+resolver or argument instead.
+
+Keep a discriminant parameter only when the callee genuinely uses the original
+value — forwarding it, logging it, or branching on it as data rather than as
+collapsed semantics.
+
+In Solid components, express the extracted per-call helpers as plain `function`
+declarations or direct calls inside the binding. Curried factories such as
+`(p) => () => signal()` hide a reactive read inside an untracked-looking closure —
+they trip the `solid-reactivity` lint and obscure where tracking happens.
+
+### 7. Clean defensive code
 
 Defensive code is justified when it protects against a realistic state allowed by the
 current contract.
@@ -171,7 +206,7 @@ Remove defensive branches that exist only because:
 Do not remove validation, error handling, or safety checks for states that can actually
 occur.
 
-### 7. Clean tests
+### 8. Clean tests
 
 Tests should protect:
 
@@ -192,7 +227,7 @@ Remove or collapse tests that exist only to:
 
 Do not reduce meaningful coverage merely to shrink the diff.
 
-### 8. Clean names and prose
+### 9. Clean names and prose
 
 Describe the positive end state.
 
@@ -221,7 +256,7 @@ The same principle applies to:
 A reader should not need the implementation conversation to understand the final
 result.
 
-### 9. Remove historical residue
+### 10. Remove historical residue
 
 Search changed files and surrounding prose for signs that the implementation is
 describing its own development history.
@@ -253,7 +288,7 @@ For each one, ask:
 
 If it is path narration, remove or rewrite it.
 
-### 10. Validate the minimal result
+### 11. Validate the minimal result
 
 Run the narrowest relevant checks first, then the repository's normal validation when
 appropriate.
