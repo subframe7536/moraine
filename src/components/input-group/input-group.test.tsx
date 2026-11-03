@@ -31,16 +31,15 @@ describe('InputGroup', () => {
     })
     const parts = [screen.getByText('Prefix'), screen.getByText('Suffix')]
     for (const part of parts) {
-      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+      expect(part.className).not.toContain('accent-fg-muted-foreground')
     }
     setVariant('ghost')
     for (const part of parts) {
-      expect(part.className).toContain('group-hover/input-group:text-accent-foreground')
-      expect(part.className).toContain('group-focus-within/input-group:text-accent-foreground')
+      expect(part.className).toContain('accent-fg-muted-foreground')
     }
     setVariant('outline')
     for (const part of parts) {
-      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+      expect(part.className).not.toContain('accent-fg-muted-foreground')
     }
   })
 
@@ -112,12 +111,12 @@ describe('InputGroup', () => {
     const rootClasses = screen.getByRole('group').className.split(/\s+/)
     const controlClasses = screen.getByRole('textbox').className.split(/\s+/)
 
-    expect(rootClasses).toContain('group/input-group')
     for (const state of ['hover', 'focus-within']) {
       expect(rootClasses).toContain(`${state}:bg-accent-hover`)
-      expect(controlClasses).toContain(`group-${state}/input-group:text-accent-foreground`)
+      expect(rootClasses).toContain(`${state}:accent-scope`)
     }
-    expect(controlClasses).toContain('text-foreground')
+    expect(controlClasses).toContain('accent-fg-foreground')
+    expect(controlClasses).toContain('placeholder:accent-fg-muted-foreground')
   })
 
   test.each([Input, Textarea])(

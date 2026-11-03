@@ -1,11 +1,8 @@
-import { MORAINE_COLORS } from './tokens'
-import type { Tone } from './tokens'
-
 export const INPUT_VARIANT = {
   outline: 'border border-input bg-control shadow-input',
   subtle: 'border border-input bg-muted shadow-input',
   ghost:
-    'hover:(bg-accent-hover text-accent-foreground) focus-within:(bg-accent-hover text-accent-foreground)',
+    'hover:(bg-accent-hover text-accent-foreground accent-scope) focus-within:(bg-accent-hover text-accent-foreground accent-scope)',
   none: 'focus-within:ring-0',
 } as const
 
@@ -59,30 +56,15 @@ export const JOINED_ROW_CLASS =
 export const JOINED_COLUMN_CLASS =
   '-mt-px first-of-type:mt-0 first-of-type:rounded-t-lg last-of-type:rounded-b-lg'
 
-export function groupAccentClass(group: string, utility = 'text-accent-foreground'): string {
-  return `group-hover/${group}:${utility} group-focus-within/${group}:${utility}`
-}
-
 export const OVERLAY_CLOSE_BUTTON_CLASS = `rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) ${FOCUS_VISIBLE_RING_CLASS} disabled:(opacity-50 pointer-events-none)`
 
-function toneVars(tone: Tone) {
-  return {
-    '--mo-tone': MORAINE_COLORS[tone].DEFAULT,
-    '--mo-tone-foreground': MORAINE_COLORS[tone].foreground,
-    '--mo-tone-hover': MORAINE_COLORS[tone].hover,
-    '--mo-tone-active': MORAINE_COLORS[tone].active,
-    '--mo-tone-ink': MORAINE_COLORS[tone].ink,
-    '--mo-tone-soft': MORAINE_COLORS[tone].soft,
-    '--mo-tone-border': MORAINE_COLORS[tone].border,
-  }
-}
-
-export const TONE_VARS = {
-  primary: toneVars('primary'),
-  secondary: toneVars('secondary'),
-  neutral: toneVars('neutral'),
-  danger: toneVars('danger'),
-  info: toneVars('info'),
-  success: toneVars('success'),
-  warning: toneVars('warning'),
+// Keep each tone-<tone> class literal so CSS engines can discover every utility.
+export const TONE_CLASS = {
+  primary: { root: 'tone-primary' },
+  secondary: { root: 'tone-secondary' },
+  neutral: { root: 'tone-neutral' },
+  danger: { root: 'tone-danger' },
+  info: { root: 'tone-info' },
+  success: { root: 'tone-success' },
+  warning: { root: 'tone-warning' },
 } as const

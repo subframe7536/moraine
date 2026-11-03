@@ -13,6 +13,8 @@ const MORAINE_CN_RULES: ConfigExtension = {
       text: ['tiny'],
     },
     classGroups: {
+      'text-color': [{ 'accent-fg': [validators.isAny] }],
+      tone: [{ tone: [validators.isAny] }],
       z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
       shadow: ['shadow-surface', 'shadow-overlay', 'shadow-input'],
       'enter-opacity': [{ 'enter-opacity': [validators.isAny] }],

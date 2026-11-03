@@ -8,6 +8,8 @@ import {
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   createGatedColorDeclarations,
+  createToneDeclarations,
+  flattenMoraineColors,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
@@ -56,7 +58,23 @@ export const moraineTailwind = plugin(
           color: 'inherit',
         },
       },
+      // An accent-scope host publishes --mo-accent-fg (usually under hover:/focus-within:);
+      // descendants read it through accent-fg-<color>, which falls back to the named color.
+      '.accent-scope': { '--mo-accent-fg': MORAINE_COLORS.accent.foreground },
     })
+
+    const flatColors = flattenMoraineColors()
+
+    matchUtilities(
+      { 'accent-fg': (value) => ({ color: `var(--mo-accent-fg, ${value})` }) },
+      { values: flatColors },
+    )
+
+    // A `tone-<color>` host publishes every channel the color group defines as --mo-tone-*.
+    matchUtilities(
+      { tone: (value) => createToneDeclarations(value, (key) => flatColors[key]) ?? {} },
+      { values: Object.fromEntries(Object.keys(MORAINE_COLORS).map((name) => [name, name])) },
+    )
 
     matchUtilities(
       {

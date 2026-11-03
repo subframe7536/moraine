@@ -40,5 +40,11 @@ export const comboboxRecipe = /* @__PURE__ */ defineRecipe<
     trigger: SECONDARY_TRIGGER_CLASS,
   },
   defaultVariants: { variant: 'outline', size: 'md' },
-  variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },
+  variants: {
+    variant: {
+      ...FIELD_VARIANTS,
+      ghost: { ...FIELD_VARIANTS.ghost, trigger: 'accent-fg-muted-foreground' },
+    },
+    size: FIELD_SIZES,
+  },
 } as const)

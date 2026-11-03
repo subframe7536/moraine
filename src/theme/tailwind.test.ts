@@ -246,6 +246,7 @@ describe('colors', () => {
 
   test('resolves the internal tone channel utilities', async () => {
     const css = await compileCSS([
+      'tone-danger',
       'bg-tone',
       'bg-tone/12',
       'bg-tone-soft',
@@ -260,6 +261,20 @@ describe('colors', () => {
       'ring-tone/20',
     ])
 
+    expect(css).toContain('.tone-danger')
+    expect(css).toContain('--mo-tone: var(--danger);')
+    expect(css).toContain('--mo-tone-foreground: var(--danger-foreground, var(--background));')
+    expect(css).toContain(
+      '--mo-tone-hover: var(--danger-hover, var(--mo-danger-hover, var(--danger)));',
+    )
+    expect(css).toContain(
+      '--mo-tone-active: var(--danger-active, var(--mo-danger-active, var(--danger-hover, var(--mo-danger-hover, var(--danger)))));',
+    )
+    expect(css).toContain('--mo-tone-ink: var(--danger-ink, var(--mo-danger-ink, var(--danger)));')
+    expect(css).toContain('--mo-tone-soft: var(--danger-soft, var(--mo-danger-soft, transparent));')
+    expect(css).toContain(
+      '--mo-tone-border: var(--danger-border, var(--mo-danger-border, var(--border)));',
+    )
     expect(css).toContain('background-color: var(--mo-tone);')
     expect(css).toContain('background-color: color-mix(in oklab, var(--mo-tone) 12%, transparent);')
     expect(css).toContain('border-color: color-mix(in oklab, var(--mo-tone) 40%, transparent);')
@@ -1263,6 +1278,30 @@ describe('component attribute states', () => {
     ]) {
       expect(css).toContain(`[data-${attribute}]`)
     }
+  })
+})
+
+describe('accent channel utilities', () => {
+  test('compiles accent-scope and accent-fg consumers with state variants', async () => {
+    const candidates = [
+      'hover:accent-scope',
+      'focus-within:accent-scope',
+      'accent-fg-muted-foreground',
+      'accent-fg-foreground',
+      'accent-fg-primary',
+      'placeholder:accent-fg-muted-foreground',
+      'data-placeholder:accent-fg-muted-foreground',
+    ]
+    const designSystem = await loadDesignSystem()
+    expect(designSystem.candidatesToCss(candidates).every(Boolean)).toBe(true)
+    const css = await compileCSS(candidates)
+    expect(css).toContain('--mo-accent-fg: var(--accent-foreground)')
+    expect(css).toContain('color: var(--mo-accent-fg, var(--muted-foreground))')
+    expect(css).toContain('color: var(--mo-accent-fg, var(--foreground))')
+    expect(css).toContain('color: var(--mo-accent-fg, var(--primary))')
+    expect(css).toContain('::placeholder')
+    expect(css).toContain('[data-placeholder]')
+    expect(css).not.toContain('group/')
   })
 })
 

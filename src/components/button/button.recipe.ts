@@ -3,7 +3,7 @@ import {
   ARIA_DISABLED_CLASS,
   BUTTON_FOCUS_VISIBLE_CLASS,
   DISABLED_CLASS,
-  TONE_VARS,
+  TONE_CLASS,
 } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
@@ -75,7 +75,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
           root: 'text-tone-ink border-transparent underline-offset-4 data-expanded:bg-transparent hover:underline',
         },
       },
-      tone: TONE_VARS,
+      tone: TONE_CLASS,
       size: BUTTON_SIZE,
     },
   },

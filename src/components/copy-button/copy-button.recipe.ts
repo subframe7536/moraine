@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { TONE_VARS } from '../../theme/recipe-common.recipe'
+import { TONE_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { BUTTON_ACTION_VARIANT, BUTTON_BASE_ROOT_CLASS, BUTTON_SIZE } from '../button/button.recipe'
@@ -27,7 +27,7 @@ export const copyButtonRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     variant: BUTTON_ACTION_VARIANT,
-    tone: TONE_VARS,
+    tone: TONE_CLASS,
     size: BUTTON_SIZE,
   },
 })

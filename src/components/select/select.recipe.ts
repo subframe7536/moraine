@@ -1,5 +1,4 @@
 import { defineRecipe } from '../../theme/recipe'
-import { groupAccentClass } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
@@ -36,7 +35,7 @@ export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, Select
         ...SELECT_TRIGGER_FIELD_VARIANTS,
         ghost: {
           ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
-          value: groupAccentClass('select-control', 'data-placeholder:text-accent-foreground'),
+          value: 'data-placeholder:accent-fg-muted-foreground',
         },
       },
       size: FIELD_SIZES,

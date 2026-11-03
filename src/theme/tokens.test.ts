@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { TONE_VARS } from './recipe-common.recipe'
+import { TONE_CLASS } from './recipe-common.recipe'
 import {
   DEFAULT_MIX_PERCENT,
   MORAINE_COLORS,
@@ -210,17 +210,9 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     ])
   })
 
-  test('TONE_VARS maps every tone to its CSS variable', () => {
+  test('TONE_CLASS maps every tone to its channel class on the root slot', () => {
     for (const tone of TONES) {
-      expect(TONE_VARS[tone]).toEqual({
-        '--mo-tone': `var(--${tone})`,
-        '--mo-tone-foreground': MORAINE_COLORS[tone].foreground,
-        '--mo-tone-hover': MORAINE_COLORS[tone].hover,
-        '--mo-tone-active': MORAINE_COLORS[tone].active,
-        '--mo-tone-ink': `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))`,
-        '--mo-tone-soft': `var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`,
-        '--mo-tone-border': `var(--${tone}-border, var(--mo-${tone}-border, var(--border)))`,
-      })
+      expect(TONE_CLASS[tone]).toEqual({ root: `tone-${tone}` })
     }
   })
 

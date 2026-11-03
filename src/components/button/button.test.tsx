@@ -175,7 +175,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Delete' })
     expect(button.className).toContain('bg-tone')
     expect(button.className).toContain('text-tone-foreground')
-    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    expect(button.className).toContain('tone-danger')
     expect(button.className).toContain('h-7')
   })
 
@@ -1233,7 +1233,7 @@ describe('Button', () => {
       const iBtn = screen.getByTestId('i-btn')
       // Instance variant overrides all
       expect(iBtn.className).toContain('bg-tone')
-      expect(iBtn.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+      expect(iBtn.className).toContain('tone-danger')
       expect(iBtn.className).toContain('instance-class')
       expect(iBtn.style.color).toBe('green')
     })

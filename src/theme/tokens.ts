@@ -233,6 +233,70 @@ export const MORAINE_COLORS = {
 
 export const MORAINE_SURFACES = ['background', 'card', 'popover', 'muted', 'accent'] as const
 
+/**
+ * Resolves a Moraine color token name (`muted-foreground`, `accent-hover`, `primary`) to its
+ * CSS value, preserving the token's own fallback chain. Returns undefined for unknown names.
+ */
+export function resolveMoraineColor(
+  colors: Record<string, unknown> | undefined,
+  name: string,
+): string | undefined {
+  const direct = colors?.[name]
+  if (typeof direct === 'string') {
+    return direct
+  }
+  if (direct && typeof direct === 'object') {
+    const base = (direct as Record<string, unknown>).DEFAULT
+    return typeof base === 'string' ? base : undefined
+  }
+  for (const [group, value] of Object.entries(colors ?? {})) {
+    if (!name.startsWith(`${group}-`) || typeof value !== 'object' || value === null) {
+      continue
+    }
+    const nested = (value as Record<string, unknown>)[name.slice(group.length + 1)]
+    if (typeof nested === 'string') {
+      return nested
+    }
+  }
+  return undefined
+}
+
+/** Flattened `name → value` map of `MORAINE_COLORS`, keeping each token's own fallbacks. */
+export function flattenMoraineColors(): Record<string, string> {
+  const flat: Record<string, string> = {}
+  for (const [role, value] of Object.entries(MORAINE_COLORS)) {
+    if (typeof value === 'string') {
+      flat[role] = value
+      continue
+    }
+    for (const [key, color] of Object.entries(value)) {
+      flat[key === 'DEFAULT' ? role : `${role}-${key}`] = color
+    }
+  }
+  return flat
+}
+
+const TONE_CHANNEL_KEYS = ['', 'foreground', 'hover', 'active', 'ink', 'soft', 'border'] as const
+
+/**
+ * Builds the `--mo-tone` channel declarations for a color group name, resolving each channel
+ * (`foreground`, `hover`, `active`, `ink`, `soft`, `border`) through `resolve`. Channels the
+ * group does not define are skipped; returns undefined when the group itself is unknown.
+ */
+export function createToneDeclarations(
+  tone: string,
+  resolve: (name: string) => string | undefined,
+): Record<string, string> | undefined {
+  const declarations: Record<string, string> = {}
+  for (const channel of TONE_CHANNEL_KEYS) {
+    const value = resolve(channel ? `${tone}-${channel}` : tone)
+    if (value !== undefined) {
+      declarations[channel ? `--mo-tone-${channel}` : '--mo-tone'] = value
+    }
+  }
+  return declarations['--mo-tone'] === undefined ? undefined : declarations
+}
+
 export const MORAINE_WIDTH = {
   sidebar: 'var(--sidebar-width,clamp(14rem,25%,20rem))',
 }

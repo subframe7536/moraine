@@ -60,4 +60,26 @@ describe('createCn', () => {
     expect(cn('text-primary-foreground', 'text-tiny')).toBe('text-primary-foreground text-tiny')
     expect(cn('text-sm', 'text-tiny')).toBe('text-tiny')
   })
+
+  test('merges accent-fg channel colors over resting text colors', () => {
+    expect(cn('text-muted-foreground', 'accent-fg-muted-foreground')).toBe(
+      'accent-fg-muted-foreground',
+    )
+    expect(cn('text-foreground', 'accent-fg-foreground')).toBe('accent-fg-foreground')
+    expect(cn('placeholder:text-muted-foreground', 'placeholder:accent-fg-muted-foreground')).toBe(
+      'placeholder:accent-fg-muted-foreground',
+    )
+    expect(
+      cn('data-placeholder:text-muted-foreground', 'data-placeholder:accent-fg-muted-foreground'),
+    ).toBe('data-placeholder:accent-fg-muted-foreground')
+    expect(cn('text-danger', 'accent-fg-muted-foreground')).toBe('accent-fg-muted-foreground')
+    expect(cn('accent-fg-muted-foreground', 'text-danger')).toBe('text-danger')
+  })
+
+  test('dedupes tone channel classes by merge order without touching tone colors', () => {
+    expect(cn('tone-primary', 'tone-danger')).toBe('tone-danger')
+    expect(cn('tone-danger', 'tone-primary')).toBe('tone-primary')
+    expect(cn('bg-tone', 'tone-danger')).toBe('bg-tone tone-danger')
+    expect(cn('tone-danger', 'text-tone-ink')).toBe('tone-danger text-tone-ink')
+  })
 })

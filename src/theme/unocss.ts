@@ -4,6 +4,7 @@ import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
 import { DEFAULT_ICON_SHORTCUTS, ICON_MASK_SHORTCUT } from './icons.ts'
 import type { PresetMoraineOptions } from './theme-types.ts'
 import {
+  createToneDeclarations,
   MORAINE_COLORS,
   MORAINE_FONT,
   MORAINE_RADIUS,
@@ -11,6 +12,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
+  resolveMoraineColor,
 } from './tokens.ts'
 import { createThemeCSS, resolveThemes } from './unocss-theme.ts'
 
@@ -166,6 +168,26 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
   }
 
   const rules: Preset['rules'] = [
+    // An accent-scope host publishes --mo-accent-fg (usually under hover:/focus-within:);
+    // descendants read it through accent-fg-<color>, which falls back to the named color.
+    ['accent-scope', { '--mo-accent-fg': MORAINE_COLORS.accent.foreground }],
+    [
+      /^accent-fg-([\w-]+)$/,
+      ([, name], { theme }) => {
+        const color = resolveMoraineColor((theme as UtilityTheme).colors, name!)
+        return color ? { color: `var(--mo-accent-fg, ${color})` } : undefined
+      },
+      { autocomplete: 'accent-fg-<colors>' },
+    ],
+    // A `tone-<color>` host publishes every channel the color group defines as --mo-tone-*.
+    [
+      /^tone-([\w-]+)$/,
+      ([, name], { theme }) =>
+        createToneDeclarations(name!, (key) =>
+          resolveMoraineColor((theme as UtilityTheme).colors, key),
+        ),
+      { autocomplete: 'tone-<colors>' },
+    ],
     [
       /^(enter|exit)-opacity-(.+)$/,
       ([, type, value]) => {

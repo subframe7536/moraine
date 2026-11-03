@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { TONE_VARS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
+import { FOCUS_VISIBLE_RING_CLASS, TONE_CLASS } from '../../theme/recipe-common.recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
@@ -35,22 +35,22 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
     },
     variants: {
       type: {
-        primary: TONE_VARS.primary,
-        secondary: TONE_VARS.secondary,
+        primary: TONE_CLASS.primary,
+        secondary: TONE_CLASS.secondary,
         info: {
-          ...TONE_VARS.info,
+          ...TONE_CLASS.info,
           icon: 'text-info',
         },
         success: {
-          ...TONE_VARS.success,
+          ...TONE_CLASS.success,
           icon: 'text-success',
         },
         warning: {
-          ...TONE_VARS.warning,
+          ...TONE_CLASS.warning,
           icon: 'text-warning',
         },
         error: {
-          ...TONE_VARS.danger,
+          ...TONE_CLASS.danger,
           icon: 'text-danger',
         },
       },

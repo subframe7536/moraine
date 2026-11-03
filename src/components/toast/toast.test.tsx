@@ -121,9 +121,9 @@ describe('Toast', () => {
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
     expect(actionButton.className).toContain('bg-tone')
-    expect(actionButton.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+    expect(actionButton.className).toContain('tone-primary')
     expect(cancelButton.className).toContain('bg-tone-soft')
-    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+    expect(cancelButton.className).toContain('tone-neutral')
   })
 
   it('applies custom variant on action and cancel button configs', async () => {
@@ -147,7 +147,7 @@ describe('Toast', () => {
 
     expect(actionButton.className).toContain('border-tone-border')
     expect(cancelButton.className).toContain('bg-tone')
-    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    expect(cancelButton.className).toContain('tone-danger')
   })
 
   it('renders close button and closes on click', async () => {

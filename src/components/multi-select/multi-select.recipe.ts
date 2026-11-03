@@ -1,5 +1,4 @@
 import { defineRecipe } from '../../theme/recipe'
-import { groupAccentClass } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
@@ -61,7 +60,8 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
       ...SELECT_TRIGGER_FIELD_VARIANTS,
       ghost: {
         ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
-        tagOverflow: groupAccentClass('select-control'),
+        trigger: `${SELECT_TRIGGER_FIELD_VARIANTS.ghost.trigger} accent-fg-muted-foreground`,
+        tagOverflow: 'accent-fg-muted-foreground',
       },
     },
     size: TAG_SIZES,

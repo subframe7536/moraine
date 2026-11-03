@@ -1489,13 +1489,13 @@ describe('InputNumber', () => {
     const inputClasses = screen.getByRole('spinbutton').className.split(/\s+/)
     const rootClasses = root.className.split(/\s+/)
 
-    expect(rootClasses).toContain('group/input-number')
     for (const state of ['hover', 'focus-within']) {
       expect(rootClasses).toContain(`${state}:bg-accent-hover`)
+      expect(rootClasses).toContain(`${state}:accent-scope`)
       expect(rootClasses).toContain(`${state}:text-accent-foreground`)
-      expect(inputClasses).toContain(`group-${state}/input-number:text-accent-foreground`)
     }
-    expect(inputClasses).toContain('text-foreground')
+    expect(inputClasses).toContain('accent-fg-foreground')
+    expect(inputClasses).toContain('placeholder:accent-fg-muted-foreground')
   })
 
   test('defaults to outline and exposes only the supported variants', () => {

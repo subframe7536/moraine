@@ -68,17 +68,18 @@ describe('presetMoraine', () => {
       inputNumberRecipe.config.variants?.variant?.ghost?.root,
       inputNumberRecipe.config.variants?.variant?.ghost?.input,
       inputGroupRecipe.config.variants?.variant?.ghost?.root,
-      'group-hover/input-group:text-accent-foreground',
-      'group-focus-within/input-group:text-accent-foreground',
+      inputGroupRecipe.config.variants?.variant?.ghost?.leading,
     ].flatMap((classes) => cn(classes)?.split(' ') ?? [])
     const { css } = await generator.generate(new Set(tokens), { preflights: true })
 
     expect(css).toContain('--accent: rgb(10, 10, 10);')
     expect(css).toContain('--accent-foreground: rgb(250, 250, 250);')
     expect(css).toContain('var(--accent-hover')
+    expect(css).toContain('--mo-accent-fg:var(--accent-foreground)')
     expect(css).toContain('color:color-mix(in srgb, var(--accent-foreground)')
-    expect(css).toContain('group\\/input-number')
-    expect(css).toContain('group\\/input-group')
+    expect(css).toContain('color:var(--mo-accent-fg, var(--foreground))')
+    expect(css).toContain('color:var(--mo-accent-fg, var(--muted-foreground))')
+    expect(css).not.toContain('group/')
   })
   test.each([
     ['Wind3', presetWind3],
@@ -290,6 +291,7 @@ describe('presetMoraine', () => {
   ])('resolves the internal tone channel utilities with %s', async (_name, wind) => {
     const css = await generate(
       [
+        'tone-danger',
         'bg-tone',
         'bg-tone/12',
         'bg-tone-soft',
@@ -307,6 +309,20 @@ describe('presetMoraine', () => {
       wind,
     )
 
+    expect(css).toContain('.tone-danger{')
+    expect(css).toContain('--mo-tone:var(--danger)')
+    expect(css).toContain('--mo-tone-foreground:var(--danger-foreground, var(--background))')
+    expect(css).toContain(
+      '--mo-tone-hover:var(--danger-hover, var(--mo-danger-hover, var(--danger)))',
+    )
+    expect(css).toContain(
+      '--mo-tone-active:var(--danger-active, var(--mo-danger-active, var(--danger-hover, var(--mo-danger-hover, var(--danger)))))',
+    )
+    expect(css).toContain('--mo-tone-ink:var(--danger-ink, var(--mo-danger-ink, var(--danger)))')
+    expect(css).toContain('--mo-tone-soft:var(--danger-soft, var(--mo-danger-soft, transparent))')
+    expect(css).toContain(
+      '--mo-tone-border:var(--danger-border, var(--mo-danger-border, var(--border)))',
+    )
     expect(css).toMatch(/\.bg-tone\{background-color:[^}]*var\(--mo-tone\)/)
     expect(css).toContain('var(--mo-tone) 12%')
     expect(css).toContain('var(--mo-tone) 40%')

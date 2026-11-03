@@ -126,7 +126,7 @@ describe('ButtonGroup', () => {
     ))
     const separator = screen.getByRole('separator')
     expect(separator.className).toContain('bg-tone-border')
-    expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+    expect(screen.getByRole('group').className).toContain('tone-primary')
   })
 
   test('applies variant-specific separator styles across variants', () => {
@@ -146,10 +146,10 @@ describe('ButtonGroup', () => {
     ))
     const separators = screen.getAllByRole('separator')
     expect(separators[0]?.className).toContain('bg-tone-active')
-    expect(separators[0]?.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    expect(screen.getByTestId('solid-group').className).toContain('tone-danger')
 
     expect(separators[1]?.className).toContain('bg-tone-soft-active')
-    expect(separators[1]?.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+    expect(screen.getByTestId('soft-group').className).toContain('tone-neutral')
   })
 
   test.each(['outline', 'solid', 'soft', 'ghost', 'link'] as const)(
@@ -167,7 +167,7 @@ describe('ButtonGroup', () => {
       const separator = screen.getByRole('separator')
       expect(separator.className).toContain('bg-border')
       expect(separator.className).not.toContain('bg-tone')
-      expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
+      expect(screen.getByRole('group').className).not.toContain('tone-')
     },
   )
 
@@ -188,14 +188,14 @@ describe('ButtonGroup', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Action' })
-    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--secondary)')
+    expect(button.className).toContain('tone-secondary')
 
     const toggle = screen.getByRole('button', { name: 'Toggle' })
-    expect(toggle.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+    expect(toggle.className).toContain('tone-neutral')
 
     const separator = screen.getByRole('separator')
     expect(separator.className).toContain('bg-border')
-    expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
+    expect(screen.getByRole('group').className).not.toContain('tone-')
   })
 
   test('keeps the separator visible when only tone is set', () => {
@@ -210,7 +210,7 @@ describe('ButtonGroup', () => {
     ))
     const separator = screen.getByRole('separator')
     expect(separator.className).toContain('bg-border')
-    expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    expect(screen.getByRole('group').className).toContain('tone-danger')
   })
 
   test('reuses resolved getter-backed children without a separator', () => {
@@ -326,7 +326,7 @@ describe('ButtonGroup', () => {
     const button = screen.getByRole('button', { name: 'Remove' })
     expect(button.className).toContain('h-7')
     expect(button.className).toContain('bg-tone')
-    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    expect(button.className).toContain('tone-danger')
   })
 
   test('supports a cohesive vertical orientation', () => {

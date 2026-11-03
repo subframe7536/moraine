@@ -6,7 +6,6 @@ import {
   DISABLED_CLASS,
   FOCUS_WITHIN_CLASS,
   FOCUS_WITHIN_INVALID_CLASS,
-  groupAccentClass,
   INPUT_VARIANT,
 } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
@@ -16,7 +15,7 @@ import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-num
 
 const controlDataAttributes = /* @__PURE__ */ createDataAttributes('active', 'disabled')
 const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
-const INPUT_NUMBER_ACCENT_CLASS = `${groupAccentClass('input-number')}  ${groupAccentClass('input-number', 'placeholder:text-accent-foreground')}`
+const INPUT_NUMBER_ACCENT_CLASS = 'accent-fg-foreground placeholder:accent-fg-muted-foreground'
 
 export const inputNumberDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
@@ -76,10 +75,10 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       outline: { root: INPUT_VARIANT.outline },
       subtle: { root: INPUT_VARIANT.subtle },
       ghost: {
-        root: `${INPUT_VARIANT.ghost} group/input-number`,
+        root: INPUT_VARIANT.ghost,
         input: INPUT_NUMBER_ACCENT_CLASS,
-        increment: groupAccentClass('input-number'),
-        decrement: groupAccentClass('input-number'),
+        increment: 'accent-fg-primary',
+        decrement: 'accent-fg-primary',
       },
       none: { root: INPUT_VARIANT.none },
     },

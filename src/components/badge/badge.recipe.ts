@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { TONE_VARS } from '../../theme/recipe-common.recipe'
+import { TONE_CLASS } from '../../theme/recipe-common.recipe'
 
 import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types'
 
@@ -32,7 +32,7 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
           root: 'text-tone-ink border-tone-border bg-background',
         },
       },
-      tone: TONE_VARS,
+      tone: TONE_CLASS,
       size: {
         sm: {
           root: 'text-tiny px-1 rounded-xs gap-0.5 h-4',

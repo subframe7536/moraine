@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { TONE_VARS } from '../../theme/recipe-common.recipe'
+import { TONE_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -39,7 +39,7 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
         separator: 'bg-tone-soft-active',
       },
     },
-    tone: TONE_VARS,
+    tone: TONE_CLASS,
     orientation: {
       horizontal: {
         root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none) [&>*:not(:first-child)]:rounded-s-none',

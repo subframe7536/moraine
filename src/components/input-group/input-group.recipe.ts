@@ -1,6 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
 import {
-  groupAccentClass,
   PEER_FOCUS_CLASS,
   PEER_INVALID_CLASS,
   INPUT_VARIANT,
@@ -68,8 +67,8 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
         frame: 'border border-transparent -inset-px',
       },
       ghost: {
-        root: `${INPUT_VARIANT.ghost} group/input-group`,
-        ...addon(groupAccentClass('input-group')),
+        root: INPUT_VARIANT.ghost,
+        ...addon('accent-fg-muted-foreground'),
         frame: 'inset-0',
       },
       none: {

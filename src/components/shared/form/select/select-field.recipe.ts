@@ -6,7 +6,6 @@ import {
   DISABLED_CLASS,
   EDITABLE_FOCUS_WITHIN_CLASS,
   EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
-  groupAccentClass,
   HIGHLIGHTED_MUTED_TEXT_CLASS,
   INPUT_VARIANT,
   TEXT_SIZE_VARIANT,
@@ -62,11 +61,10 @@ export const FIELD_VARIANTS = {
   outline: { control: INPUT_VARIANT.outline },
   subtle: { control: INPUT_VARIANT.subtle },
   ghost: {
-    control: `${INPUT_VARIANT.ghost} group/select-control`,
-    leading: groupAccentClass('select-control'),
-    clear: groupAccentClass('select-control'),
-    trigger: groupAccentClass('select-control'),
-    input: groupAccentClass('select-control', 'placeholder:text-accent-foreground'),
+    control: INPUT_VARIANT.ghost,
+    leading: 'accent-fg-muted-foreground',
+    clear: 'accent-fg-muted-foreground',
+    input: 'placeholder:accent-fg-muted-foreground',
   },
   none: { control: INPUT_VARIANT.none },
 } as const
@@ -76,7 +74,7 @@ export const SELECT_TRIGGER_FIELD_VARIANTS = {
   subtle: { ...FIELD_VARIANTS.subtle, trigger: SELECT_TRIGGER_FOCUS_CLASS },
   ghost: {
     ...FIELD_VARIANTS.ghost,
-    trigger: `${SELECT_TRIGGER_FOCUS_CLASS} ${FIELD_VARIANTS.ghost.trigger}`,
+    trigger: SELECT_TRIGGER_FOCUS_CLASS,
   },
   none: FIELD_VARIANTS.none,
 } as const
