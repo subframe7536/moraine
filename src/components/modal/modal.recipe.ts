@@ -15,10 +15,15 @@ export const MODAL_OVERLAY_CLASS =
 
 /** Default transition classes for custom modal content. */
 export const MODAL_CONTENT_CLASS =
-  'outline-none rounded-xl bg-popover w-full shadow-overlay z-floating data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none'
+  'text-popover-foreground outline-none rounded-xl bg-popover w-full shadow-overlay z-floating data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none'
 
-export const MODAL_CONTENT_DEFAULT_CLASS =
-  'max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2'
+export const MODAL_CONTENT_FRAME_CLASS =
+  'border border-border flex flex-col max-w-lg w-[calc(100vw-2rem)]'
+
+export const MODAL_CONTENT_CENTERED_CLASS =
+  'left-1/2 top-1/2 fixed -translate-x-1/2 -translate-y-1/2'
+
+export const MODAL_CONTENT_DEFAULT_CLASS = `${MODAL_CONTENT_FRAME_CLASS}  ${MODAL_CONTENT_CENTERED_CLASS} max-h-[calc(100dvh-2rem)] overflow-hidden sm:max-h-[calc(100dvh-4rem)]`
 
 export const modalRecipe = /* @__PURE__ */ defineRecipe<ModalStyleSlot>('modal', {
   base: {

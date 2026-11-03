@@ -855,7 +855,7 @@ describe('Modal primitives', () => {
 
     const content = document.body.querySelector('[data-slot="modal-content"]')
     expect(content?.className).toContain('outline-none')
-    expect(content?.className).toContain('w-full')
+    expect(content?.className).toContain('w-[calc(100vw-2rem)]')
     expect(content?.className).toContain('z-floating')
     expect(content?.className).toContain('data-closed:animate-mo-exit')
     expect(content?.className).toContain('data-expanded:animate-mo-enter')

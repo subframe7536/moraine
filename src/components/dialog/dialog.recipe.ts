@@ -4,6 +4,8 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
   MODAL_CONTENT_CLASS,
+  MODAL_CONTENT_DEFAULT_CLASS,
+  MODAL_CONTENT_FRAME_CLASS,
   MODAL_OVERLAY_CLASS,
   modalDataAttributes,
 } from '../modal/modal.recipe'
@@ -21,9 +23,9 @@ export const dialogDataAttributes = {
   body: /* @__PURE__ */ createDataAttributes('footer', 'header', 'scroll'),
 } satisfies DataAttributeContract<keyof DialogStyleSlot>
 
-export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border flex flex-col max-h-[calc(100dvh-2rem)] max-w-lg w-[calc(100vw-2rem)] left-1/2 top-1/2 fixed overflow-hidden sm:max-h-[calc(100dvh-4rem)] -translate-x-1/2 -translate-y-1/2`
-export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground mx-auto my-4 border border-border flex flex-col max-w-lg w-[calc(100vw-2rem)] relative`
-export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border-0 border-border rounded-none flex flex-col size-full max-h-none max-w-none ring-0 inset-0 fixed overflow-hidden`
+export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS}  ${MODAL_CONTENT_DEFAULT_CLASS}`
+export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS}  ${MODAL_CONTENT_FRAME_CLASS} mx-auto my-4 relative`
+export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${MODAL_CONTENT_CLASS} border-0 rounded-none flex flex-col size-full max-h-none max-w-none ring-0 inset-0 fixed overflow-hidden`
 export const DIALOG_HEADER_CLASS = 'p-6 shrink-0 gap-2 grid auto-rows-min'
 export const DIALOG_TITLE_CLASS = 'text-lg text-foreground leading-none font-semibold'
 export const DIALOG_DESCRIPTION_CLASS = 'text-sm text-muted-foreground'
