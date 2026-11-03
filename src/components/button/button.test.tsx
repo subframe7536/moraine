@@ -255,6 +255,21 @@ describe('Button', () => {
     }
   })
 
+  test.each([
+    ['solid', 'data-expanded:bg-tone-active'],
+    ['soft', 'data-expanded:bg-tone-soft-active'],
+    ['outline', 'data-expanded:bg-tone-soft-hover'],
+    ['ghost', 'data-expanded:bg-tone-soft-hover'],
+    ['link', 'data-expanded:bg-transparent'],
+  ] as const)('applies an expanded pressed class to the %s variant', (variant, cls) => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Button variant={variant}>Press</Button>
+      </MoraineProvider>
+    ))
+    expect(screen.getByRole('button', { name: 'Press' }).className).toContain(cls)
+  })
+
   test('applies a custom active effect class from the rendered element', () => {
     const screen = render(() => (
       <MoraineProvider>

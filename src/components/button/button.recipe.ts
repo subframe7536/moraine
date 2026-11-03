@@ -22,16 +22,16 @@ export const BUTTON_BASE_ROOT_CLASS = `border inline-flex gap-1.5 cursor-pointer
 
 export const BUTTON_ACTION_VARIANT = {
   solid: {
-    root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover',
+    root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover data-expanded:bg-tone-active',
   },
   soft: {
-    root: 'text-tone-ink border-transparent bg-tone-soft active:bg-tone-soft-active hover:bg-tone-soft-hover',
+    root: 'text-tone-ink border-transparent bg-tone-soft active:bg-tone-soft-active hover:bg-tone-soft-hover data-expanded:bg-tone-soft-active',
   },
   outline: {
-    root: 'text-tone-ink border-tone-border bg-background active:bg-tone-soft-hover hover:bg-tone-soft',
+    root: 'text-tone-ink border-tone-border bg-background active:bg-tone-soft-hover hover:bg-tone-soft data-expanded:bg-tone-soft-hover',
   },
   ghost: {
-    root: 'text-tone-ink border-transparent active:bg-tone-soft-hover hover:bg-tone-soft',
+    root: 'text-tone-ink border-transparent active:bg-tone-soft-hover hover:bg-tone-soft data-expanded:bg-tone-soft-hover',
   },
 } as const
 
@@ -72,7 +72,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
       variant: {
         ...BUTTON_ACTION_VARIANT,
         link: {
-          root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',
+          root: 'text-tone-ink border-transparent underline-offset-4 data-expanded:bg-transparent hover:underline',
         },
       },
       tone: TONE_VARS,
