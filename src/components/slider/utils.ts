@@ -18,11 +18,8 @@ function roundValue(value: number, decimalCount: number): number {
 }
 
 export function snapValueToStep(value: number, min: number, max: number, step: number): number {
-  const remainder = (value - (Number.isNaN(min) ? 0 : min)) % step
-  let snappedValue =
-    Math.abs(remainder) * 2 >= step
-      ? value + Math.sign(remainder) * (step - Math.abs(remainder))
-      : value - remainder
+  const anchor = Number.isNaN(min) ? 0 : min
+  let snappedValue = anchor + Math.round((value - anchor) / step) * step
 
   if (!Number.isNaN(min)) {
     snappedValue = Number.isNaN(max) ? Math.max(snappedValue, min) : clamp(snappedValue, min, max)

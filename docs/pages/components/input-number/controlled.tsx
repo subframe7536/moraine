@@ -21,7 +21,7 @@ export function Controlled() {
           <InputNumber
             value={quantity()}
             onRawValueChange={(v) => {
-              if (Number.isFinite(v)) {
+              if (v !== undefined) {
                 setQuantity(v)
               }
             }}

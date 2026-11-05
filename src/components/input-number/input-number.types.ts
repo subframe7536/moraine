@@ -85,14 +85,26 @@ export namespace InputNumberT {
     locale?: string
 
     /**
-     * Callback when the formatted string value changes.
+     * `Intl.NumberFormat` options for display formatting and parsing, such as
+     * `{ style: 'currency', currency: 'USD' }`.
+     */
+    formatOptions?: Intl.NumberFormatOptions
+
+    /**
+     * Whether committed values snap to the nearest step grid anchored at `minValue`.
+     * @default true
+     */
+    stepSnapping?: boolean
+
+    /**
+     * Callback when the formatted string value changes. Emits `''` when the input is cleared.
      */
     onValueChange?: (value: string) => void
 
     /**
-     * Callback when the numeric value changes.
+     * Callback when the numeric value changes. Emits `undefined` when the input is cleared.
      */
-    onRawValueChange?: (value: number) => void
+    onRawValueChange?: (value: number | undefined) => void
 
     /**
      * Placeholder text for the input.

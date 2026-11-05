@@ -11,7 +11,7 @@ export function LongPress() {
         <InputNumber
           value={repeatValue()}
           onRawValueChange={(value) => {
-            if (Number.isFinite(value)) {
+            if (value !== undefined) {
               setRepeatValue(value)
             }
           }}
@@ -31,7 +31,7 @@ export function LongPress() {
           value={singleStepValue()}
           holdRepeat={false}
           onRawValueChange={(value) => {
-            if (Number.isFinite(value)) {
+            if (value !== undefined) {
               setSingleStepValue(value)
             }
           }}

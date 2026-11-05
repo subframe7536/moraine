@@ -289,7 +289,11 @@ export function DocsPlaygroundControlField(props: {
             id={props.controlId}
             size="sm"
             value={props.value as InputT.Value}
-            onRawValueChange={props.onChange}
+            onRawValueChange={(value) => {
+              if (value !== undefined) {
+                props.onChange(value)
+              }
+            }}
           />
         </div>
       </Match>

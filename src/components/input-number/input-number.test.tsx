@@ -223,7 +223,7 @@ describe('InputNumber', () => {
   })
 
   test.each([
-    ['tenths', 0.1, 0.2, '0.3'],
+    ['tenths', 0.1, 0.2, '0.2'],
     ['small exponent steps', 0, 1e-7, '0.0000001'],
   ])(
     'steps %s without exposing binary floating-point noise',
@@ -248,7 +248,7 @@ describe('InputNumber', () => {
     fireEvent.input(spinbutton, { target: { value: '7.5' } })
     fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
 
-    expect(onRawValueChange).toHaveBeenLastCalledWith(8.5)
+    expect(onRawValueChange).toHaveBeenLastCalledWith(8)
     expect(spinbutton.value).toBe('7.5')
   })
 
@@ -415,7 +415,7 @@ describe('InputNumber', () => {
     })
     spinbutton.dispatchEvent(wheelUpEvent)
 
-    expect(spinbutton.value).toBe('7')
+    expect(spinbutton.value).toBe('6')
     expect(wheelUpEvent.defaultPrevented).toBe(true)
 
     const wheelDownEvent = new WheelEvent('wheel', {
@@ -425,7 +425,7 @@ describe('InputNumber', () => {
     })
     spinbutton.dispatchEvent(wheelDownEvent)
 
-    expect(spinbutton.value).toBe('5')
+    expect(spinbutton.value).toBe('4')
     expect(wheelDownEvent.defaultPrevented).toBe(true)
   })
 
@@ -579,7 +579,7 @@ describe('InputNumber', () => {
     })
     spinbutton.dispatchEvent(shiftedHorizontalEvent)
 
-    expect(spinbutton.value).toBe('15')
+    expect(spinbutton.value).toBe('10')
     expect(shiftedHorizontalEvent.defaultPrevented).toBe(true)
   })
 
@@ -657,7 +657,7 @@ describe('InputNumber', () => {
     expect(spinbutton.value).toBe('13,5')
     fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
 
-    expect(calls).toEqual(['raw:14.5', 'text:14,5'])
+    expect(calls).toEqual(['raw:14', 'text:14'])
   })
 
   test('replaces dirty text when the explicit controlled value changes externally', async () => {
@@ -1794,10 +1794,10 @@ describe('InputNumber', () => {
       expect(spinbutton.value).toBe('10,5')
 
       fireEvent.click(incrementButton)
-      expect(spinbutton.value).toBe('11,5')
+      expect(spinbutton.value).toBe('11')
 
       fireEvent.click(decrementButton)
-      expect(spinbutton.value).toBe('10,5')
+      expect(spinbutton.value).toBe('10')
     })
 
     test.each([
@@ -1844,6 +1844,175 @@ describe('InputNumber', () => {
 
       expect(getInput(form)).toEqual({ quantity: 10 })
       expect(spinbutton.getAttribute('aria-valuetext')).toBe('۱۰')
+    })
+  })
+
+  describe('formatOptions', () => {
+    test('formats and parses currency values', () => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber
+          defaultValue={12.5}
+          locale="en-US"
+          formatOptions={{ style: 'currency', currency: 'USD' }}
+          onRawValueChange={onRawValueChange}
+        />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      expect(spinbutton.value).toBe('$12.50')
+
+      fireEvent.input(spinbutton, { target: { value: '$1,234.56' } })
+
+      expect(onRawValueChange).toHaveBeenLastCalledWith(1234.56)
+
+      fireEvent.blur(spinbutton)
+
+      expect(spinbutton.value).toBe('$1,234.56')
+    })
+
+    test('scales percent values by the format style', () => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber
+          defaultValue={0.25}
+          locale="en-US"
+          formatOptions={{ style: 'percent' }}
+          onRawValueChange={onRawValueChange}
+        />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      expect(spinbutton.value).toBe('25%')
+
+      fireEvent.input(spinbutton, { target: { value: '40%' } })
+
+      expect(onRawValueChange).toHaveBeenLastCalledWith(0.4)
+    })
+
+    test('parses localized currency in de-DE', () => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber
+          defaultValue={0}
+          locale="de-DE"
+          formatOptions={{ style: 'currency', currency: 'EUR' }}
+          onRawValueChange={onRawValueChange}
+        />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      fireEvent.input(spinbutton, { target: { value: '1.234,56 €' } })
+
+      expect(onRawValueChange).toHaveBeenLastCalledWith(1234.56)
+    })
+  })
+
+  describe('stepSnapping', () => {
+    test('snaps an off-grid value onto the step grid in the direction of travel', () => {
+      const screen = render(() => <InputNumber defaultValue={5} step={2} />)
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      spinbutton.focus()
+      fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+      expect(spinbutton.value).toBe('6')
+
+      fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+      expect(spinbutton.value).toBe('8')
+    })
+
+    test('anchors the step grid at minValue', () => {
+      const screen = render(() => <InputNumber defaultValue={4} minValue={1} step={2} />)
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      spinbutton.focus()
+      fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+      expect(spinbutton.value).toBe('5')
+
+      fireEvent.keyDown(spinbutton, { key: 'ArrowDown' })
+      expect(spinbutton.value).toBe('3')
+    })
+
+    test('adds the step verbatim when stepSnapping is false', () => {
+      const screen = render(() => <InputNumber defaultValue={5} step={2} stepSnapping={false} />)
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      spinbutton.focus()
+      fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+      expect(spinbutton.value).toBe('7')
+    })
+
+    test('does not snap typed or externally provided values', () => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber defaultValue={0} step={2} onRawValueChange={onRawValueChange} />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      fireEvent.input(spinbutton, { target: { value: '5' } })
+
+      expect(onRawValueChange).toHaveBeenLastCalledWith(5)
+
+      fireEvent.blur(spinbutton)
+      expect(spinbutton.value).toBe('5')
+    })
+
+    test('steps from an empty value onto the min-anchored grid', () => {
+      const screen = render(() => <InputNumber defaultValue={5} minValue={1} step={2} />)
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      fireEvent.input(spinbutton, { target: { value: '' } })
+      fireEvent.blur(spinbutton)
+      expect(spinbutton.value).toBe('')
+
+      spinbutton.focus()
+      fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+      expect(spinbutton.value).toBe('1')
+    })
+  })
+
+  describe('clearing the input', () => {
+    test('keeps an empty display and emits an empty value', () => {
+      const onRawValueChange = vi.fn()
+      const onValueChange = vi.fn()
+      const screen = render(() => (
+        <form>
+          <InputNumber
+            name="quantity"
+            defaultValue={5}
+            onRawValueChange={onRawValueChange}
+            onValueChange={onValueChange}
+          />
+        </form>
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const form = screen.container.querySelector('form') as HTMLFormElement
+
+      fireEvent.input(spinbutton, { target: { value: '' } })
+      expect(spinbutton.value).toBe('')
+
+      fireEvent.blur(spinbutton)
+
+      expect(spinbutton.value).toBe('')
+      expect(onRawValueChange).toHaveBeenLastCalledWith(undefined)
+      expect(onValueChange).toHaveBeenLastCalledWith('')
+      expect(new FormData(form).get('quantity')).toBe('')
+      expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
+    })
+
+    test('typing a new value after clearing commits normally', () => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      fireEvent.input(spinbutton, { target: { value: '' } })
+      fireEvent.blur(spinbutton)
+      fireEvent.input(spinbutton, { target: { value: '42' } })
+
+      expect(onRawValueChange).toHaveBeenLastCalledWith(42)
+      expect(spinbutton.value).toBe('42')
     })
   })
 })

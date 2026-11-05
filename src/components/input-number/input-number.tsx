@@ -30,6 +30,7 @@ import { Icon } from '../icon'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { getActiveElement } from '../shared/overlay/dom'
+import { snapValueToStep } from '../slider/utils'
 
 import type { ControlKind } from './input-number-press'
 import { createInputNumberPress } from './input-number-press'
@@ -100,6 +101,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'step',
     'largeStep',
     'locale',
+    'formatOptions',
+    'stepSnapping',
     'onValueChange',
     'onRawValueChange',
     'orientation',
@@ -171,18 +174,22 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     {
       holdRepeat: true,
       repeatPointerTypes: 'all' as const,
+      stepSnapping: true,
     },
     local,
   )
+  const formatOptions = () => merged.formatOptions
 
-  const initialDefaultValue = untrack(() => toNumber(merged.defaultValue, 0, locale()))
+  const initialDefaultValue = untrack(() =>
+    toNumber(merged.defaultValue, 0, locale(), formatOptions()),
+  )
   const initialValue = untrack(() => {
     if (merged.rawValue !== undefined) {
       return toNumber(merged.rawValue, 0)
     }
 
     if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, locale())
+      return toNumber(merged.value, 0, locale(), formatOptions())
     }
 
     return initialDefaultValue
@@ -205,13 +212,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
 
     if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, locale())
+      return toNumber(merged.value, 0, locale(), formatOptions())
     }
 
     return undefined
   })
 
-  const [resolvedValue, setResolvedValue] = createControllableValue<number>({
+  const [resolvedValue, setResolvedValue] = createControllableValue<number | undefined>({
     value: () => {
       const controlledValue = explicitControlledValue()
       if (controlledValue !== undefined) {
@@ -219,7 +226,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       }
 
       if (field.value() !== undefined) {
-        return toNumber(field.value() as string | number | undefined, 0, locale())
+        return toNumber(field.value() as string | number | undefined, 0, locale(), formatOptions())
       }
 
       return undefined
@@ -235,8 +242,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       ? merged.largeStep
       : Number(merged.largeStep) || stepValue() * 10
 
-  const currentValue = createMemo(() => clamp(resolvedValue(), minValue(), maxValue()))
-  const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), locale()))
+  const currentValue = createMemo(() => {
+    const value = resolvedValue()
+    return value === undefined ? undefined : clamp(value, minValue(), maxValue())
+  })
+  const formattedValue = createMemo(() => {
+    const value = currentValue()
+    return value === undefined ? '' : formatLocaleNumber(value, locale(), formatOptions())
+  })
   const initialResetValue = untrack(currentValue)
 
   // Draft text exists only while actively typing uncommitted or partial input.
@@ -252,7 +265,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         }
         const boundedValue = clamp(value, min, max)
         if (
-          !Object.is(toNumber(formValue as string | number | undefined, 0, localeTag), boundedValue)
+          !Object.is(
+            toNumber(formValue as string | number | undefined, 0, localeTag, formatOptions()),
+            boundedValue,
+          )
         ) {
           field.setFormValue(boundedValue)
         }
@@ -265,7 +281,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     on([currentValue, locale], ([value, localeTag]) => {
       const draft = draftText()
       if (draft !== undefined) {
-        const parsed = parseLocaleNumber(draft, localeTag)
+        const parsed = parseLocaleNumber(draft, localeTag, formatOptions())
         if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
           return
         }
@@ -305,26 +321,26 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return false
     }
 
-    const boundedValue = clamp(nextValue, minValue(), maxValue())
-    if (Object.is(boundedValue, currentValue())) {
+    const committedValue = clamp(nextValue, minValue(), maxValue())
+    if (Object.is(committedValue, currentValue())) {
       return false
     }
 
     const controlledValue = explicitControlledValue()
 
     if (controlledValue === undefined) {
-      setResolvedValue(boundedValue)
-      field.setFormValue(boundedValue)
+      setResolvedValue(committedValue)
+      field.setFormValue(committedValue)
     }
 
-    merged.onRawValueChange?.(boundedValue)
-    merged.onValueChange?.(formatLocaleNumber(boundedValue, locale()))
+    merged.onRawValueChange?.(committedValue)
+    merged.onValueChange?.(formatLocaleNumber(committedValue, locale(), formatOptions()))
 
     if (controlledValue !== undefined) {
       const latestControlledValue = explicitControlledValue()
       field.setFormValue(
         latestControlledValue === undefined
-          ? boundedValue
+          ? committedValue
           : clamp(latestControlledValue, minValue(), maxValue()),
       )
     }
@@ -334,21 +350,60 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return true
   }
 
+  function clearValue(): boolean {
+    if (field.disabled() || readOnly() || resolvedValue() === undefined) {
+      return false
+    }
+
+    if (explicitControlledValue() === undefined) {
+      setResolvedValue(undefined)
+    }
+    field.setFormValue(undefined)
+
+    merged.onRawValueChange?.(undefined)
+    merged.onValueChange?.('')
+
+    field.emit('change')
+    field.emit('input')
+    return true
+  }
+
   function getStepBase(): number {
     const draft = draftText()
     if (draft !== undefined) {
-      const parsed = parseLocaleNumber(draft, locale())
+      const parsed = parseLocaleNumber(draft, locale(), formatOptions())
       if (parsed !== undefined) {
         return parsed
       }
     }
 
-    return currentValue()
+    // Empty seeds from zero; commitValue clamps the stepped result into bounds.
+    return currentValue() ?? 0
+  }
+
+  // Snap the current value onto the operation's step grid in the direction of travel;
+  // if it already sits on the grid, step once and snap again (Kobalte `varyValue` semantics).
+  function getSteppedValue(rawValue: number, amount: number): number {
+    if (!merged.stepSnapping || amount === 0) {
+      return addDecimal(rawValue, amount)
+    }
+
+    const step = Math.abs(amount)
+    const min = merged.minValue ?? Number.NaN
+    const max = merged.maxValue ?? Number.NaN
+
+    let nextValue = snapValueToStep(rawValue, min, max, step)
+    const movedInDirection = amount > 0 ? nextValue > rawValue : nextValue < rawValue
+    if (!movedInDirection) {
+      nextValue = snapValueToStep(addDecimal(rawValue, amount), min, max, step)
+    }
+
+    return nextValue
   }
 
   function stepBy(amount: number): boolean {
     const wasDirty = draftText() !== undefined
-    const nextValue = addDecimal(getStepBase(), amount)
+    const nextValue = getSteppedValue(getStepBase(), amount)
     const boundedValue = clamp(nextValue, minValue(), maxValue())
     const changed = commitValue(nextValue)
 
@@ -374,13 +429,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   function isControlInteractive(kind: ControlKind): boolean {
     const isIncrement = kind === 'increment'
+    const value = currentValue()
     return (
       !field.disabled() &&
       !readOnly() &&
       (isIncrement ? showIncrement() : showDecrement()) &&
       !(isIncrement
-        ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
-        : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
+        ? Boolean(merged.incrementDisabled) || (value !== undefined && value >= maxValue())
+        : Boolean(merged.decrementDisabled) || (value !== undefined && value <= minValue()))
     )
   }
 
@@ -433,9 +489,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     const draft = draftText()
     if (draft !== undefined) {
-      const parsed = parseLocaleNumber(draft, locale())
-      if (parsed !== undefined) {
-        commitValue(parsed)
+      if (draft.trim() === '') {
+        clearValue()
+      } else {
+        const parsed = parseLocaleNumber(draft, locale(), formatOptions())
+        if (parsed !== undefined) {
+          commitValue(parsed)
+        }
       }
       setDraftText(undefined)
     }
@@ -495,11 +555,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     () => inputEl?.form,
     () => {
       const controlledValue = explicitControlledValue()
-      const nextValue = clamp(
-        controlledValue === undefined ? initialResetValue : controlledValue,
-        minValue(),
-        maxValue(),
-      )
+      const nextValue =
+        controlledValue === undefined
+          ? initialResetValue
+          : clamp(controlledValue, minValue(), maxValue())
 
       if (controlledValue === undefined) {
         setResolvedValue(nextValue)
@@ -507,14 +566,18 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       field.setFormValue(nextValue)
       setDraftText(undefined)
       if (inputEl) {
-        inputEl.value = formatLocaleNumber(nextValue, locale())
+        inputEl.value =
+          nextValue === undefined ? '' : formatLocaleNumber(nextValue, locale(), formatOptions())
       }
     },
   )
 
   onMount(() => {
     if (inputEl) {
-      inputEl.defaultValue = formatLocaleNumber(initialResetValue, locale())
+      inputEl.defaultValue =
+        initialResetValue === undefined
+          ? ''
+          : formatLocaleNumber(initialResetValue, locale(), formatOptions())
 
       // Solid delegates these events on the global document by default.
       if (inputEl.ownerDocument !== document) {
@@ -562,7 +625,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         handle: () => {
           const draft = draftText()
           if (draft !== undefined) {
-            const parsed = parseLocaleNumber(draft, locale())
+            const parsed = parseLocaleNumber(draft, locale(), formatOptions())
             if (parsed !== undefined) {
               commitValue(parsed)
             }
@@ -622,8 +685,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           setDraftText(rawInput)
 
           // Only commit if it's a complete valid number
-          const parsed = parseLocaleNumber(rawInput, locale())
-          if (parsed !== undefined && !isPartialNumber(rawInput, locale())) {
+          const parsed = parseLocaleNumber(rawInput, locale(), formatOptions())
+          if (parsed !== undefined && !isPartialNumber(rawInput, locale(), formatOptions())) {
             commitValue(parsed)
           }
         }}
@@ -637,10 +700,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           setDraftText(rawInput)
 
           // On change (typically blur), try to parse and commit
-          const parsed = parseLocaleNumber(rawInput, locale())
+          const parsed = parseLocaleNumber(rawInput, locale(), formatOptions())
           if (parsed !== undefined) {
             commitValue(parsed)
-          } else if (rawInput.trim() === '' || isPartialNumber(rawInput, locale())) {
+          } else if (
+            rawInput.trim() === '' ||
+            isPartialNumber(rawInput, locale(), formatOptions())
+          ) {
             // Empty or partial input - wait for blur
           } else {
             // Invalid input - revert to current value
