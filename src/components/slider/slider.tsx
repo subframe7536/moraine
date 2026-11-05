@@ -43,6 +43,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'minStepsBetweenThumbs',
     'marker',
     'allowThumbCrossing',
+    'thumbAlignment',
     'onValueChange',
     'onValueCommit',
     'orientation',

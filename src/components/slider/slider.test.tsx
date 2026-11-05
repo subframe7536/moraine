@@ -197,6 +197,47 @@ describe('Slider', () => {
     expect(thumb.hasAttribute('data-inverted')).toBe(false)
   })
 
+  test('thumbAlignment="contain" insets the thumb toward the track bounds', () => {
+    const minScreen = render(() => <Slider defaultValue={0} thumbAlignment="contain" />)
+    expect((getThumbs(minScreen.container)[0] as HTMLElement).style.left).toBe(
+      'calc(0% + var(--s-thumb-size, 0px) * 0.5)',
+    )
+
+    const midScreen = render(() => <Slider defaultValue={30} thumbAlignment="contain" />)
+    expect((getThumbs(midScreen.container)[0] as HTMLElement).style.left).toBe(
+      'calc(30% + var(--s-thumb-size, 0px) * 0.2)',
+    )
+
+    const maxScreen = render(() => <Slider defaultValue={100} thumbAlignment="contain" />)
+    expect((getThumbs(maxScreen.container)[0] as HTMLElement).style.left).toBe(
+      'calc(100% + var(--s-thumb-size, 0px) * -0.5)',
+    )
+  })
+
+  test('thumbAlignment="contain" positions vertical thumbs on the bottom edge', () => {
+    const screen = render(() => (
+      <Slider orientation="vertical" defaultValue={100} thumbAlignment="contain" />
+    ))
+
+    expect((getThumbs(screen.container)[0] as HTMLElement).style.bottom).toBe(
+      'calc(100% + var(--s-thumb-size, 0px) * -0.5)',
+    )
+  })
+
+  test('thumbAlignment="contain" keeps value updates on the step', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Slider defaultValue={30} thumbAlignment="contain" onValueChange={onValueChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    fireEvent.focus(thumb)
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+
+    expect(onValueChange).toHaveBeenLastCalledWith(31)
+    expect(thumb.style.left).toBe('calc(31% + var(--s-thumb-size, 0px) * 0.19)')
+  })
+
   test('vertical pointer values increase from bottom to top by default', async () => {
     const verticalChange = vi.fn()
     const verticalScreen = render(() => (

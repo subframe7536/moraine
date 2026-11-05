@@ -44,6 +44,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   readOnly?: boolean
   step?: number
   styles?: { marker?: JSX.CSSProperties }
+  thumbAlignment?: 'contain' | 'overflow'
   value?: TValue
   translations?: SliderT.Translations
 }
@@ -210,10 +211,20 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   const interactionValues = () => pendingValues ?? currentValues()
   const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
     const { startEdge } = getSliderEdges()
+    const contain = merged.thumbAlignment === 'contain'
 
-    return currentValues().map((value) => ({
-      [startEdge]: `${getValuePercent(value) * 100}%`,
-    }))
+    return currentValues().map((value) => {
+      const percent = getValuePercent(value)
+      const offset = Number((0.5 - percent).toFixed(6))
+
+      // `contain` shifts the center by half a thumb width toward the middle so the
+      // thumb's edges stay inside the track at both ends; value mapping is unchanged.
+      return {
+        [startEdge]: contain
+          ? `calc(${percent * 100}% + var(--s-thumb-size, 0px) * ${offset})`
+          : `${percent * 100}%`,
+      }
+    })
   })
   // A numeric `marker` sets a visual-only interval; otherwise markers follow `step`.
   const markerInterval = createMemo(() => {

@@ -96,6 +96,15 @@ export namespace SliderT {
     allowThumbCrossing?: boolean
 
     /**
+     * Visual alignment of the thumb at the track ends.
+     * `'overflow'` centers the thumb on the value so half of it extends past
+     * the track at `min` and `max`. `'contain'` clamps the thumb inside the
+     * track so its edges stay within bounds. Value mapping is unaffected.
+     * @default 'overflow'
+     */
+    thumbAlignment?: 'contain' | 'overflow'
+
+    /**
      * Optional inner input element ref.
      */
     inputRef?: Ref<HTMLInputElement>
