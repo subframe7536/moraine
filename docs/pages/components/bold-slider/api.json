@@ -44,6 +44,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The id of a `<form>` the hidden inputs belong to, instead of the closest\nancestor form."
+        },
+        {
           "name": "formatValue",
           "optional": true,
           "type": "(value: number) => string",
@@ -182,6 +188,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "thumbAlignment",
+          "optional": true,
+          "type": "'contain' | 'overflow'",
+          "description": "Visual alignment of the thumb at the track ends.\n`'overflow'` centers the thumb on the value so half of it extends past\nthe track at `min` and `max`. `'contain'` clamps the thumb inside the\ntrack so its edges stay within bounds. Value mapping is unaffected.",
+          "default": {
+            "kind": "literal",
+            "value": "overflow"
+          }
         },
         {
           "name": "translations",

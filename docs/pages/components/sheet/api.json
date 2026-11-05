@@ -75,10 +75,22 @@
           }
         },
         {
+          "name": "finalFocus",
+          "optional": true,
+          "type": "HTMLElement | (() => HTMLElement | undefined) | false",
+          "description": "Element (or accessor resolving to one) that receives focus after the shell\ncloses, or `false` to skip the close-time focus restore. Defaults to the\ntrigger, then the element focused when the shell opened."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
           "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "initialFocus",
+          "optional": true,
+          "type": "HTMLElement | (() => HTMLElement | undefined) | false",
+          "description": "Element (or accessor resolving to one) that receives focus when the shell\nopens, or `false` to skip the open-time focus move. Defaults to the first\nfocusable element inside the content, preferring an `[autofocus]` or\n`[data-autofocus]` descendant."
         },
         {
           "name": "inset",

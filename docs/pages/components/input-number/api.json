@@ -102,6 +102,12 @@
           "description": "The ID of an external form that owns the native spinbutton."
         },
         {
+          "name": "formatOptions",
+          "optional": true,
+          "type": "Intl.NumberFormatOptions",
+          "description": "`Intl.NumberFormat` options for display formatting and parsing, such as\n`{ style: 'currency', currency: 'USD' }`."
+        },
+        {
           "name": "holdRepeat",
           "optional": true,
           "type": "boolean",
@@ -210,14 +216,14 @@
         {
           "name": "onRawValueChange",
           "optional": true,
-          "type": "(value: number) => void",
-          "description": "Callback when the numeric value changes."
+          "type": "(value: number | undefined) => void",
+          "description": "Callback when the numeric value changes. Emits `undefined` when the input is cleared."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Callback when the formatted string value changes."
+          "description": "Callback when the formatted string value changes. Emits `''` when the input is cleared."
         },
         {
           "name": "orientation",
@@ -319,6 +325,16 @@
           "default": {
             "kind": "literal",
             "value": 1
+          }
+        },
+        {
+          "name": "stepSnapping",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether committed values snap to the nearest step grid anchored at `minValue`.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
