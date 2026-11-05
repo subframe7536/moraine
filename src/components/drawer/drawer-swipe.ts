@@ -13,6 +13,7 @@ import {
   closestSnapPointIndex,
   getSnapPointSwipeMovement,
   resolveSnapPointValue,
+  snapPointHeightCss,
   resolveSnapPoints,
 } from './drawer-snap-points'
 import type { DrawerT } from './drawer.types'
@@ -143,6 +144,8 @@ export interface DrawerSwipeController {
   movement: Accessor<number>
   /** Active snap point offset in px (0 without snap points). */
   snapPointOffset: Accessor<number>
+  /** The snap point offset as a CSS length for the content's `--drawer-snap-point-offset` var. */
+  snapPointOffsetCss: Accessor<string>
   /** Dismissal progress in [0, 1] used for overlay opacity. */
   progress: Accessor<number>
   /** Binds the gesture to the content element for the element's lifetime. */
@@ -202,6 +205,23 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
 
   const snapPointOffset = () =>
     resolvedSnapPoints().length > 0 ? (activeSnapPoint()?.offset ?? 0) : 0
+
+  // Declared snap points keep a pure-CSS offset (element height minus snap
+  // height) so the first style resolution is already correct — swapping in the
+  // measured value afterwards changes nothing and fires no translate transition.
+  const snapPointOffsetCss = (): string => {
+    const active = options.snapPoint()
+    const snapPoints = options.snapPoints()
+    if (
+      active === null ||
+      snapPoints === undefined ||
+      !vertical() ||
+      !snapPoints.some((point) => Object.is(point, active))
+    ) {
+      return `${snapPointOffset()}px`
+    }
+    return `max(0px, calc(100% - ${snapPointHeightCss(active)}), calc(100% - 100dvh))`
+  }
 
   const hasSnapPoints = () => resolvedSnapPoints().length > 0
 
@@ -612,6 +632,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     swiping,
     movement,
     snapPointOffset,
+    snapPointOffsetCss,
     progress,
     attach,
   }

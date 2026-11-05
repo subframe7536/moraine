@@ -64,6 +64,17 @@ export function resolveSnapPointValue(
 }
 
 /**
+ * Returns the snap point's resolved height as a CSS length (`dvh` for viewport
+ * fractions, `px` for numbers above 1, the literal for strings).
+ */
+export function snapPointHeightCss(snapPoint: DrawerT.SnapPoint): string {
+  if (typeof snapPoint === 'number') {
+    return snapPoint <= 1 ? `${snapPoint * 100}dvh` : `${snapPoint}px`
+  }
+  return snapPoint.trim()
+}
+
+/**
  * Returns the index of the value closest to `target`, or `-1` if `values` is empty.
  */
 export function closestSnapPointIndex(values: number[], target: number): number {

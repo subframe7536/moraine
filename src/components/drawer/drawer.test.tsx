@@ -333,14 +333,15 @@ describe('Drawer', () => {
         expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
       )
 
-      // popupHeight 400 - snap height 148 = offset 252.
-      expect(snapOffsetValue()).toBe('252px')
+      // popupHeight 400 - snap height 148 = offset 252, kept as a pure-CSS
+      // expression so the first style resolution already computes it.
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 148px), calc(100% - 100dvh))')
 
       // Drag up 200px: target offset 52 is closer to the full-height point (offset 0).
       dragPointer(content(), { x: 0, y: 300 }, { x: 0, y: 100 }, { steps: 4, stepMs: 100 })
 
       expect(onSnapPointChange).toHaveBeenCalledWith(1)
-      expect(snapOffsetValue()).toBe('0px')
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 100dvh), calc(100% - 100dvh))')
       expect(movementValue()).toBe('0px')
     })
 
@@ -357,9 +358,11 @@ describe('Drawer', () => {
         expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
       )
 
-      expect(snapOffsetValue()).toBe('252px')
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 148px), calc(100% - 100dvh))')
       setSnapPoint(1)
-      await waitFor(() => expect(snapOffsetValue()).toBe('0px'))
+      await waitFor(() =>
+        expect(snapOffsetValue()).toBe('max(0px, calc(100% - 100dvh), calc(100% - 100dvh))'),
+      )
     })
 
     test('drags down from the lowest snap point close the drawer', async () => {
@@ -403,7 +406,7 @@ describe('Drawer', () => {
       // velocity alone would carry it to the fully open point (offset 0).
       dragPointer(content(), { x: 0, y: 300 }, { x: 0, y: 270 }, { steps: 4, stepMs: 10 })
       expect(onSnapPointChange).toHaveBeenCalledWith('200px')
-      expect(snapOffsetValue()).toBe('200px')
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 200px), calc(100% - 100dvh))')
     })
 
     test('overlay fades alone at a snap point while content stays a sibling at full opacity', async () => {
@@ -426,6 +429,36 @@ describe('Drawer', () => {
       expect(el.style.opacity).toBe('')
     })
 
+    test('resolves the snap offset before the presence style flush', async () => {
+      const realGetComputedStyle = window.getComputedStyle
+      const flushedOffsets: string[] = []
+      vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) => {
+        const result = realGetComputedStyle(el, pseudo)
+        if (el instanceof HTMLElement && el.dataset.slot === 'drawer-content') {
+          flushedOffsets.push(el.style.getPropertyValue('--drawer-snap-point-offset'))
+        }
+        return result
+      })
+
+      render(() => (
+        <Drawer defaultOpen snapPoints={['148px', 1]}>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      await Promise.resolve()
+
+      const cssOffset = 'max(0px, calc(100% - 148px), calc(100% - 100dvh))'
+      expect(content().style.getPropertyValue('--drawer-snap-point-offset')).toBe(cssOffset)
+      expect(flushedOffsets.length).toBeGreaterThan(0)
+      // The first flush (presence registration) must already see the resolved offset.
+      expect(flushedOffsets[0]).toBe(cssOffset)
+    })
+
     test('resets the snap point to the default after the drawer finishes closing', async () => {
       const onSnapPointChange = vi.fn()
       const [open, setOpen] = createSignal(true)
@@ -444,7 +477,7 @@ describe('Drawer', () => {
       await waitFor(() =>
         expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
       )
-      expect(snapOffsetValue()).toBe('0px')
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 100dvh), calc(100% - 100dvh))')
 
       setOpen(false)
       await finishExitMotion()

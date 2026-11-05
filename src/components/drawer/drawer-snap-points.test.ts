@@ -5,6 +5,7 @@ import {
   getSnapPointSwipeMovement,
   resolveSnapPointValue,
   resolveSnapPoints,
+  snapPointHeightCss,
 } from './drawer-snap-points'
 
 describe('resolveSnapPointValue', () => {
@@ -75,4 +76,12 @@ describe('getSnapPointSwipeMovement', () => {
     expect(getSnapPointSwipeMovement(100, -109)).toBe(-103)
     expect(getSnapPointSwipeMovement(0, -64)).toBe(-8)
   })
+})
+
+test('snapPointHeightCss expresses heights as CSS lengths', () => {
+  expect(snapPointHeightCss(0.5)).toBe('50dvh')
+  expect(snapPointHeightCss(1)).toBe('100dvh')
+  expect(snapPointHeightCss(300)).toBe('300px')
+  expect(snapPointHeightCss('10rem')).toBe('10rem')
+  expect(snapPointHeightCss('148px')).toBe('148px')
 })

@@ -88,7 +88,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       content: () => ({
         style: {
           '--drawer-swipe-movement': `${swipe.movement()}px`,
-          '--drawer-snap-point-offset': `${swipe.snapPointOffset()}px`,
+          '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
           '--drawer-keyboard-inset': `${keyboardInset()}px`,
         },
       }),
