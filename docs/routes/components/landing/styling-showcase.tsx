@@ -1,10 +1,10 @@
 import { For, createSignal } from 'solid-js'
 
-import { Button, Card, Field, Input, cn } from '../../../../src'
+import { Button, Card, Field, Input, Switch, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 const toolbarButtonClass = `text-xs px-3 py-1.5 border rounded-md flex gap-2 min-h-9 transition-colors items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`
-const INITIAL_NAME = 'Alex Morgan'
+const INITIAL_NAME = 'Sam Rivera'
 
 const PRESETS = [
   {
@@ -73,7 +73,7 @@ export function StylingShowcase() {
     <section aria-labelledby="styling-title" class="py-12 sm:py-16">
       <div class="flex flex-wrap gap-3 items-end justify-between">
         <div>
-          <h2 id="styling-title" class="text-2xl tracking-tight font-semibold sm:text-3xl">
+          <h2 id="styling-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
             Make the components yours
           </h2>
           <p class="text-sm text-muted-foreground mt-2 max-w-2xl sm:text-base">
@@ -129,26 +129,16 @@ export function StylingShowcase() {
             </For>
           </div>
 
-          <button
-            type="button"
-            aria-pressed={customSlotOverrides()}
-            onClick={() => setCustomSlotOverrides((v) => !v)}
-            class={cn(
-              toolbarButtonClass,
-              customSlotOverrides()
-                ? 'text-foreground font-semibold border-primary bg-primary/10'
-                : 'text-muted-foreground border-border hover:bg-muted/50',
-            )}
-          >
-            Customize button label {customSlotOverrides() ? 'on' : 'off'}
-          </button>
+          <Switch
+            label="Customize button label"
+            checked={customSlotOverrides()}
+            onCheckedChange={setCustomSlotOverrides}
+          />
         </div>
 
         <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div class="py-6 min-w-0 lg:pe-8">
-            <div class="mb-4 pb-3 flex flex-wrap gap-2 items-center justify-between">
-              <h3 class="text-sm font-semibold">Live preview · {active().name}</h3>
-            </div>
+            <h3 class="text-sm font-semibold mb-4">Live preview · {active().name}</h3>
 
             <form
               class="max-w-lg w-full"
@@ -205,7 +195,7 @@ export function StylingShowcase() {
             </form>
           </div>
 
-          <div class="py-6 min-w-0 lg:ps-8">
+          <div class="py-6 border-t border-border min-w-0 lg:ps-8 lg:border-s lg:border-t-0">
             <div class="pb-5">
               <h3 class="text-sm font-semibold">Theme</h3>
               <p class="text-xs text-muted-foreground mt-1">
