@@ -16,6 +16,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
+import type { KeyEvent } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
 import { createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
@@ -243,6 +244,19 @@ export function createSelectState<T extends BaseSelectT.Item>(
     setHighlightedValue(items[last ? items.length - 1 : 0]?.value)
   }
 
+  /**
+   * Items-per-page for PageUp/PageDown: the enabled options that fit in the
+   * listbox's viewport, or a fixed page when layout is unavailable (jsdom, SSR).
+   */
+  function pageStep(event: KeyEvent): number {
+    const listbox = event.currentTarget.ownerDocument.getElementById(listboxId())
+    const option = listbox?.querySelector<HTMLElement>('[role="option"]')
+    if (listbox && option && listbox.clientHeight > 0 && option.offsetHeight > 0) {
+      return Math.max(1, Math.floor(listbox.clientHeight / option.offsetHeight))
+    }
+    return 10
+  }
+
   function commitActivation(event: KeyboardEvent, closeOnUnresolved: boolean): void {
     if (!open()) {
       event.preventDefault()
@@ -276,6 +290,14 @@ export function createSelectState<T extends BaseSelectT.Item>(
       End: {
         when: () => open() && !textInput,
         handle: () => highlightBoundary(true),
+      },
+      PageUp: {
+        when: () => open(),
+        handle: (event) => moveHighlight(-pageStep(event)),
+      },
+      PageDown: {
+        when: () => open(),
+        handle: (event) => moveHighlight(pageStep(event)),
       },
       Enter: { preventDefault: false, handle: (event) => commitActivation(event, true) },
       ...(textInput

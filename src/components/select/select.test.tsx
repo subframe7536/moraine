@@ -180,6 +180,25 @@ describe('Select', () => {
     expect(trigger.textContent).toContain('Carrot')
   })
 
+  test('moves the highlight by a page on PageUp and PageDown', () => {
+    const items = Array.from({ length: 25 }, (_, index) => `Item ${index + 1}`)
+    const screen = render(() => <Select defaultOpen items={items} />)
+    const trigger = screen.getByRole('combobox')
+    const activeOption = () =>
+      document.getElementById(trigger.getAttribute('aria-activedescendant') ?? '')
+
+    expect(activeOption()?.textContent).toContain('Item 1')
+
+    fireEvent.keyDown(trigger, { key: 'PageDown' })
+    expect(activeOption()?.textContent).toContain('Item 11')
+
+    fireEvent.keyDown(trigger, { key: 'PageDown' })
+    expect(activeOption()?.textContent).toContain('Item 21')
+
+    fireEvent.keyDown(trigger, { key: 'PageUp' })
+    expect(activeOption()?.textContent).toContain('Item 11')
+  })
+
   test('omits the empty state for an empty collection', () => {
     render(() => <Select defaultOpen items={[]} />)
     expect(within(document.body).getByRole('listbox')).toBeTruthy()
