@@ -389,6 +389,21 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
+  test('associates the hidden input with an external form through the form prop', () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <Switch form="external-form" name="enabled" label="Enabled" />
+      </>
+    ))
+
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const input = screen.container.querySelector<HTMLInputElement>('[data-slot="switch-input"]')!
+
+    expect(input.getAttribute('form')).toBe('external-form')
+    expect(input.form).toBe(externalForm)
+  })
+
   test('applies lg size classes on base and wrapper', () => {
     const screen = render(() => <Switch label="Classes" size="lg" />)
 

@@ -28,6 +28,12 @@ export namespace SwitchT {
   export interface Base<TTrue = boolean, TFalse = boolean>
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
     /**
+     * The id of a `<form>` the hidden input belongs to, instead of the closest
+     * ancestor form.
+     */
+    form?: string
+
+    /**
      * Pointer down handler for the switch root container.
      */
     onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>

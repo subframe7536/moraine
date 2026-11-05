@@ -50,6 +50,12 @@ export namespace SliderT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
+    /**
+     * The id of a `<form>` the hidden inputs belong to, instead of the closest
+     * ancestor form.
+     */
+    form?: string
+
     /** Localized message overrides for this slider instance. */
     translations?: Translations
     /**

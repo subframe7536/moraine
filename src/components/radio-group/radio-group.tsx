@@ -44,6 +44,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'required',
@@ -379,6 +380,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   id={item.inputId}
                   type="radio"
                   name={field.name()}
+                  form={merged.form}
                   value={item.value}
                   checked={selected()}
                   required={field.required()}

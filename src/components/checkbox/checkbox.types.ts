@@ -28,6 +28,12 @@ export namespace CheckboxT {
     /** Native input element ref. */
     inputRef?: Ref<HTMLInputElement>
 
+    /**
+     * The id of a `<form>` the hidden input belongs to, instead of the closest
+     * ancestor form.
+     */
+    form?: string
+
     /** Pointer down handler for the checkbox control. */
     onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 

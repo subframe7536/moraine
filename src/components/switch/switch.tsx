@@ -30,6 +30,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'inputRef',
     'id',
     'name',
+    'form',
     'disabled',
     'required',
     'readOnly',
@@ -327,6 +328,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         id={`${field.id()}-input`}
         type="checkbox"
         name={field.name()}
+        form={merged.form}
         value={merged.value}
         checked={checked()}
         required={field.required()}

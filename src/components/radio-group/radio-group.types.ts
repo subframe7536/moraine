@@ -58,6 +58,12 @@ export namespace RadioGroupT {
       FormDisableOption,
       FormReadOnlyOption {
     /**
+     * The id of a `<form>` the hidden inputs belong to, instead of the closest
+     * ancestor form.
+     */
+    form?: string
+
+    /**
      * Array of items to render in the group.
      */
     items?: (string | Item)[]

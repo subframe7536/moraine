@@ -32,6 +32,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'inputRef',
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'required',
@@ -300,6 +301,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 type="range"
                 id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
                 name={field.name()}
+                form={merged.form}
                 min={slider.getThumbMinValue(thumbIndex)}
                 max={slider.getThumbMaxValue(thumbIndex)}
                 step={slider.definedStep() ?? 'any'}

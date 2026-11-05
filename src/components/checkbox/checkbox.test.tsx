@@ -470,6 +470,21 @@ describe('Checkbox', () => {
     expectCheckboxChecked(checkbox, false)
   })
 
+  test('associates the hidden input with an external form through the form prop', () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <Checkbox form="external-form" name="agree" label="Agree" />
+      </>
+    ))
+
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const input = getHiddenCheckbox(screen.container)
+
+    expect(input.getAttribute('form')).toBe('external-form')
+    expect(input.form).toBe(externalForm)
+  })
+
   test('uses the initial default snapshot for reset after defaultChecked changes', async () => {
     const [defaultChecked, setDefaultChecked] = createSignal(false)
     const screen = render(() => (

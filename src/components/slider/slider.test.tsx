@@ -99,6 +99,25 @@ describe('Slider', () => {
     expect(rootEl?.getAttribute('data-slot')).toBe('slider')
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
+
+  test('associates the hidden inputs with an external form through the form prop', () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <Slider form="external-form" name="volume" />
+      </>
+    ))
+
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const inputs = getInputs(screen.container)
+
+    expect(inputs.length).toBeGreaterThan(0)
+    for (const input of inputs) {
+      expect(input.getAttribute('form')).toBe('external-form')
+      expect(input.form).toBe(externalForm)
+    }
+  })
+
   test('uses the compact track thickness scale', () => {
     const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
     const vertical = render(() => <Slider orientation="vertical" size="lg" />)

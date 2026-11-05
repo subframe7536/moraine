@@ -38,6 +38,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'fieldBind',
     'onCheckedChange',
     'indeterminate',
+    'form',
     'checkedIcon',
     'indeterminateIcon',
     'onPointerDown',
@@ -388,6 +389,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           id={`${field.id()}-input`}
           type="checkbox"
           name={field.name()}
+          form={merged.form}
           value={merged.value}
           checked={resolvedChecked()}
           required={field.required()}

@@ -84,6 +84,26 @@ describe('RadioGroup', () => {
     expect(screen.getByText('Best value')).not.toBeNull()
   })
 
+  test('associates the hidden inputs with an external form through the form prop', () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <RadioGroup form="external-form" name="plan" items={['A', 'B']} />
+      </>
+    ))
+
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="radio-group-input"]',
+    )
+
+    expect(inputs.length).toBe(2)
+    for (const input of inputs) {
+      expect(input.getAttribute('form')).toBe('external-form')
+      expect(input.form).toBe(externalForm)
+    }
+  })
+
   test('supports uncontrolled selection changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
