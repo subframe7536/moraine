@@ -44,6 +44,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The id of a `<form>` the hidden inputs belong to, instead of the closest\nancestor form."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
