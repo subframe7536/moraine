@@ -103,7 +103,7 @@ describe('RadioGroup', () => {
     expect(radioB.checked).toBe(true)
   })
 
-  test('changes selection with keyboard navigation', async () => {
+  test('changes selection with arrow keys', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
@@ -118,14 +118,44 @@ describe('RadioGroup', () => {
     fireEvent.keyDown(radioA, { key: 'ArrowDown' })
     expect(radioB.checked).toBe(true)
 
-    fireEvent.keyDown(radioB, { key: 'End' })
+    fireEvent.keyDown(radioB, { key: 'ArrowDown' })
     expect(radioC.checked).toBe(true)
 
-    fireEvent.keyDown(radioC, { key: 'Home' })
-    expect(radioA.checked).toBe(true)
+    fireEvent.keyDown(radioC, { key: 'ArrowUp' })
+    expect(radioB.checked).toBe(true)
     expect(onChange).toHaveBeenCalledWith('B')
     expect(onChange).toHaveBeenCalledWith('C')
-    expect(onChange).toHaveBeenCalledWith('A')
+  })
+
+  test('moves focus without selecting on Shift+Arrow and Home/End', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
+    ))
+
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+    const radioC = screen.getByRole<HTMLInputElement>('radio', { name: 'C' })
+
+    radioA.focus()
+
+    fireEvent.keyDown(radioA, { key: 'ArrowDown', shiftKey: true })
+    expect(document.activeElement).toBe(radioB)
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+
+    fireEvent.keyDown(radioB, { key: 'End' })
+    expect(document.activeElement).toBe(radioC)
+    expect(radioC.checked).toBe(false)
+
+    fireEvent.keyDown(radioC, { key: 'Home' })
+    expect(document.activeElement).toBe(radioA)
+    expect(radioA.checked).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(radioA, { key: 'ArrowDown' })
+    expect(radioB.checked).toBe(true)
+    expect(onChange).toHaveBeenCalledWith('B')
   })
 
   test('does not wrap selection when loop is false', () => {
@@ -250,7 +280,7 @@ describe('RadioGroup', () => {
     radioA.focus()
     fireEvent.keyDown(radioA, { key: 'ArrowDown', shiftKey: true })
     expect(document.activeElement).toBe(radioB)
-    expect(radioB.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
 
     for (const modifier of ['altKey', 'ctrlKey', 'metaKey'] as const) {
       const event = new KeyboardEvent('keydown', {
@@ -263,7 +293,7 @@ describe('RadioGroup', () => {
       expect(event.defaultPrevented).toBe(false)
       expect(document.activeElement).toBe(radioB)
     }
-    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   test('uses horizontal RTL direction and skips disabled items', async () => {

@@ -203,21 +203,32 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     setSelectedValue(nextValue)
     syncInputCheckedState()
   }
+  const navigationOptions = {
+    items: normalizedItems,
+    getValue: (item: NormalizedRadioGroupItem) => item.id,
+    isDisabled: (item: NormalizedRadioGroupItem) => item.disabled || field.disabled(),
+    loop: () => merged.loop,
+    focusValue: (id: string) => inputRefs.get(id)?.focus(),
+  }
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<
     NormalizedRadioGroupItem,
     string
   >({
-    items: normalizedItems,
-    getValue: (item) => item.id,
-    isDisabled: (item) => item.disabled || field.disabled(),
-    loop: () => merged.loop,
-    focusValue: (id) => inputRefs.get(id)?.focus(),
+    ...navigationOptions,
     onSelect: (id) => {
       const item = normalizedItems().find((candidate) => candidate.id === id)
       if (item) {
         onChange(item.value)
       }
     },
+  })
+  const { onNavigationKeyDown: onFocusOnlyKeyDown } = createSelectableCollectionNavigation<
+    NormalizedRadioGroupItem,
+    string
+  >({
+    ...navigationOptions,
+    activationMode: () => 'manual',
+    onSelect: () => undefined,
   })
 
   const onItemKeyDown = createKeyDownHandler<HTMLInputElement, [NormalizedRadioGroupItem]>({
@@ -231,7 +242,13 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         }
       },
     },
-    onUnhandled: (event, item) => onNavigationKeyDown(event, item.id, merged.orientation),
+    onUnhandled: (event, item) => {
+      const dispatch =
+        event.shiftKey || event.key === 'Home' || event.key === 'End'
+          ? onFocusOnlyKeyDown
+          : onNavigationKeyDown
+      dispatch(event, item.id, merged.orientation)
+    },
   })
 
   const dispatchItemKeyUp = createKeyUpHandler<HTMLInputElement, [NormalizedRadioGroupItem]>({
