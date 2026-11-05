@@ -71,6 +71,31 @@ describe('Field', () => {
     expect(screen.container.querySelector('[hiddenLabel]')).toBeNull()
   })
 
+  test('prevents text selection when the label is clicked rapidly', () => {
+    const screen = render(() => (
+      <Field label="Username">
+        <Input />
+      </Field>
+    ))
+    const element = screen.container.querySelector<HTMLLabelElement>('[data-slot="field-label"]')!
+
+    const doubleClick = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+      detail: 2,
+    })
+    element.dispatchEvent(doubleClick)
+    expect(doubleClick.defaultPrevented).toBe(true)
+
+    const singleClick = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+      detail: 1,
+    })
+    element.dispatchEvent(singleClick)
+    expect(singleClick.defaultPrevented).toBe(false)
+  })
+
   test('updates visible and hidden labels without replacing the control or obeying theme defaults', () => {
     const [label, setLabel] = createSignal<string>()
     const [hiddenLabel, setHiddenLabel] = createSignal('Filter')

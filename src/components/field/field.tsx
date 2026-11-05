@@ -197,6 +197,11 @@ export function Field<T extends ValidComponent = 'div'>(
                 for={selectedControlId()}
                 data-slot="field-label"
                 {...labelSlot}
+                onMouseDown={(event) => {
+                  if (event.detail > 1) {
+                    event.preventDefault()
+                  }
+                }}
               >
                 {label()}
               </label>
