@@ -79,6 +79,8 @@ export default defineConfig({
     entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
   },
   build: {
+    target: 'chrome86',
+    cssTarget: 'chrome86',
     rolldownOptions: {
       output: {
         codeSplitting: {

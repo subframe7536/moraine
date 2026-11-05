@@ -7,6 +7,8 @@ import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
 
+const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-2.5 max-sm:h-8'
+
 function InstallCommand(props: { state: CopyState; onClick: () => void; class?: string }) {
   return (
     <button
@@ -49,12 +51,12 @@ export function LandingPage() {
     <div class="mx-auto px-5 max-w-6xl sm:px-8">
       <section
         aria-labelledby="landing-title"
-        class="py-16 text-center flex flex-col items-center lg:py-28 sm:py-24"
+        class="pb-20 pt-14 text-center flex flex-col items-center lg:pb-32 lg:pt-24 sm:pb-28 sm:pt-20"
       >
         <Badge
           size="lg"
           variant="outline"
-          leading="i-lucide:sparkles"
+          leading="i-lucide:flask-conical"
           class="mb-6 px-4 border-primary/60 rounded-full bg-primary/10 gap-2 h-9"
           classes={{ leading: 'text-primary' }}
         >
@@ -62,22 +64,34 @@ export function LandingPage() {
         </Badge>
         <h1
           id="landing-title"
-          class="text-3xl leading-tight tracking-tight font-semibold max-w-5xl lg:text-6xl sm:text-5xl"
+          class="text-3xl leading-tight tracking-tight font-semibold max-w-5xl min-w-0 wrap-anywhere text-balance lg:text-6xl sm:text-5xl"
         >
           <span class="text-foreground block">Styled SolidJS components.</span>
           <span class="text-primary block">Built to fit your design system.</span>
         </h1>
-        <p class="text-base text-muted-foreground leading-relaxed mt-6 max-w-3xl sm:text-lg">
+        <p class="text-sm text-muted-foreground leading-relaxed mt-6 max-w-2xl lg:text-lg sm:text-base">
           Start with accessible components and built-in styles. Set a shared theme, choose component
           variants, or refine individual parts with UnoCSS or Tailwind CSS.
         </p>
 
-        <div class="mt-8 flex flex-wrap gap-3 items-center justify-center">
-          <Button as="a" size="xl" href="/docs/getting-started" trailing="icon-arrow-right">
-            Get started
+        <div class="mt-8 flex flex-nowrap gap-3 items-center justify-center">
+          <Button
+            as="a"
+            size="xl"
+            href="/docs/getting-started"
+            trailing="icon-arrow-right"
+            class={HERO_BUTTON_MOBILE_SIZE_CLASS}
+          >
+            Get Started
           </Button>
-          <Button as="a" size="xl" href="/components" variant="outline">
-            Browse components
+          <Button
+            as="a"
+            size="xl"
+            href="/components"
+            variant="outline"
+            class={HERO_BUTTON_MOBILE_SIZE_CLASS}
+          >
+            View Components
           </Button>
         </div>
 
@@ -88,7 +102,7 @@ export function LandingPage() {
       <ComponentRadar />
 
       <footer>
-        <div class="py-14 gap-12 grid sm:py-18 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+        <div class="py-14 border-t border-border gap-10 grid sm:py-18 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
           <div class="md:pe-8">
             <h2 class="text-2xl tracking-tight font-semibold sm:text-3xl">
               Start building with Moraine
@@ -109,7 +123,7 @@ export function LandingPage() {
             </span>
           </div>
 
-          <nav aria-label="Explore Moraine" class="md:ps-8">
+          <nav aria-label="Explore Moraine" class="divide-border divide-y md:ps-8">
             <a
               href="/components"
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}

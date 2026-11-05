@@ -24,7 +24,7 @@ const OPTIONS = [
   { label: 'Tailwind CSS', value: 'tailwind' },
 ]
 
-const docsLink = `text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
+const docsLink = `group text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 
 function SamplerItem(props: {
   title: string
@@ -34,14 +34,20 @@ function SamplerItem(props: {
   children: JSX.Element
 }) {
   return (
-    <article class={cn('p-6 border-b border-e border-border flex flex-col min-w-0', props.class)}>
+    <article
+      class={cn('p-5 border-b border-e border-border flex flex-col min-w-0 sm:p-6', props.class)}
+    >
       <div>
         <h3 class="text-base font-semibold">{props.title}</h3>
         <p class="text-sm text-muted-foreground mt-1">{props.description}</p>
       </div>
       <div class="mt-6 min-w-0">{props.children}</div>
       <a href={props.href} class={cn(docsLink, 'mt-auto pt-6')}>
-        Explore {props.title} <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+        Explore {props.title}{' '}
+        <Icon
+          name="i-lucide:arrow-up-right"
+          class="size-3.5 transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+        />
       </a>
     </article>
   )
@@ -55,9 +61,9 @@ export function ComponentRadar() {
 
   return (
     <section aria-labelledby="radar-title" class="py-12 sm:py-16">
-      <div class="mb-6 flex flex-wrap gap-4 items-end justify-between">
+      <div class="mb-8 flex flex-wrap gap-4 items-end justify-between">
         <div>
-          <h2 id="radar-title" class="text-2xl tracking-tight font-semibold sm:text-3xl">
+          <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
             Explore the components
           </h2>
           <p class="text-sm text-muted-foreground mt-2 max-w-2xl sm:text-base">
@@ -65,14 +71,8 @@ export function ComponentRadar() {
             patterns.
           </p>
         </div>
-        <Button
-          as="a"
-          href="/components/button"
-          size="sm"
-          variant="link"
-          trailing="icon-arrow-right"
-        >
-          Browse all components
+        <Button as="a" href="/components" size="sm" variant="link" trailing="icon-arrow-right">
+          View all components
         </Button>
       </div>
 

@@ -1,0 +1,11 @@
+[
+  {
+    "date": "2026-11-05",
+    "macrostructure": "Component Playground",
+    "theme": "design.md-locked (presetMoraine semantic tokens)",
+    "enrichment": "none",
+    "brief": "Moraine docs landing — hero + styling showcase + ruled component sampler + footer",
+    "scope": "app",
+    "design_system": "docs/DESIGN.md"
+  }
+]
