@@ -21,7 +21,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
 import { Icon } from '../icon'
 import { List } from '../list'
 import type { ListT } from '../list'
@@ -30,10 +30,6 @@ import { createCompositionState, resolveDirection } from '../shared/overlay/util
 import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
-
-function isAndroidUserAgent(): boolean {
-  return /android/i.test(globalThis.navigator?.userAgent ?? '')
-}
 
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string

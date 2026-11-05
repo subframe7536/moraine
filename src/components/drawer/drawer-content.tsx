@@ -2,9 +2,12 @@ import type { JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
+  createEffect,
   createMemo,
   createSignal,
   mergeProps,
+  on,
+  onCleanup,
   splitProps,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
@@ -13,9 +16,11 @@ import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { bindElement } from '../../shared/element-binding'
+import { createEventListener } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { isAndroidUserAgent } from '../../shared/utils'
 import { Icon } from '../icon'
 import { Modal } from '../modal/modal'
 import { createModalContentBinding } from '../modal/modal-content-binding'
@@ -109,17 +114,9 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
 
   function RenderDrawerOverlay(): JSX.Element {
     const [overlay, setOverlay] = createSignal<HTMLDivElement>()
-    // Only the backdrop element animates as part of the presence; a plain wrapper does not.
+    // The backdrop must be a sibling: its swipe opacity would fade the content too.
     bindElement(() => isOverlay() && overlay(), family.presence.registerElement)
-    return (
-      <div
-        data-slot={isOverlay() ? 'drawer-overlay' : undefined}
-        {...(isOverlay() ? overlaySlot : undefined)}
-        ref={setOverlay}
-      >
-        <RenderDrawerContent />
-      </div>
-    )
+    return <div data-slot="drawer-overlay" {...overlaySlot} ref={setOverlay} />
   }
 
   function RenderDrawerContent(): JSX.Element {
@@ -131,6 +128,36 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     })
     // The gesture binds in this owner and releases with the content.
     bindElement(family.contentElement, (element) => swipe.attach(element))
+
+    // Android back gesture: CloseWatcher mirrors native <dialog> dismissal. Each open
+    // drawer owns a watcher, so the browser's stack hands the gesture to the topmost one.
+    createEffect(
+      on([family.open, family.contentElement], ([isOpen, element]) => {
+        const ownerWindow = element?.ownerDocument.defaultView
+        const CloseWatcherCtor = (
+          ownerWindow as
+            | (Window & { CloseWatcher?: new () => EventTarget & { destroy: () => void } })
+            | null
+        )?.CloseWatcher
+        if (!isOpen || !element || !isAndroidUserAgent() || !CloseWatcherCtor) {
+          return
+        }
+
+        const watcher = new CloseWatcherCtor()
+        createEventListener(watcher, 'cancel', (event) => {
+          if (drawer.closeOnEscape === false && event.cancelable) {
+            // Keeps the watcher active for the next close request.
+            event.preventDefault()
+            drawer.onClosePrevent?.()
+            return
+          }
+          // A non-cancelable request closes regardless (one prevented request per
+          // user activation), like a native <dialog>.
+          family.updateOpen(false)
+        })
+        onCleanup(() => watcher.destroy())
+      }),
+    )
     const contentShorthand = createShorthandContent(local)
     const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>
@@ -196,7 +223,10 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       }}
     >
       <ModalPortal>
-        <RenderDrawerOverlay />
+        <Show when={isOverlay()}>
+          <RenderDrawerOverlay />
+        </Show>
+        <RenderDrawerContent />
       </ModalPortal>
     </DrawerContentProvider>
   )

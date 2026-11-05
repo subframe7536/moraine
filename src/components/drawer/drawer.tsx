@@ -31,6 +31,12 @@ export function Drawer(props: DrawerProps): JSX.Element {
   const context: DrawerContextValue = mergeProps(drawerProps, {
     snapPoint,
     setSnapPoint,
+    get closeOnEscape() {
+      return props.closeOnEscape
+    },
+    get onClosePrevent() {
+      return props.onClosePrevent
+    },
     get slotOverrides() {
       return pickSlotOverrides(props)
     },

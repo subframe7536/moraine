@@ -406,6 +406,26 @@ describe('Drawer', () => {
       expect(snapOffsetValue()).toBe('200px')
     })
 
+    test('overlay fades alone at a snap point while content stays a sibling at full opacity', async () => {
+      render(() => (
+        <Drawer defaultOpen snapPoints={['148px', 1]}>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+
+      const el = content()
+      const backdrop = overlay()!
+      // Resting at the 148px point: offset 252 of 400px -> progress-driven backdrop fade.
+      expect(Number.parseFloat(backdrop.style.opacity)).toBeLessThan(1)
+      expect(backdrop.contains(el)).toBe(false)
+      expect(el.style.opacity).toBe('')
+    })
+
     test('resets the snap point to the default after the drawer finishes closing', async () => {
       const onSnapPointChange = vi.fn()
       const [open, setOpen] = createSignal(true)
@@ -546,5 +566,173 @@ describe('Drawer', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(el.hasAttribute('data-swiping')).toBe(false)
+  })
+
+  describe('Android back gesture', () => {
+    interface FakeWatcher extends EventTarget {
+      destroy: ReturnType<typeof vi.fn>
+    }
+
+    const ANDROID_UA = 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36'
+    let watchers: FakeWatcher[]
+
+    function stubAndroidAndWatcher(): void {
+      vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ANDROID_UA)
+      watchers = []
+      const FakeCloseWatcher = class extends EventTarget {
+        destroy = vi.fn()
+        constructor() {
+          super()
+          watchers.push(this)
+        }
+      }
+      vi.stubGlobal('CloseWatcher', FakeCloseWatcher)
+    }
+
+    test('cancel event closes the drawer', async () => {
+      stubAndroidAndWatcher()
+      const onOpenChange = vi.fn()
+      render(() => (
+        <Drawer defaultOpen onOpenChange={onOpenChange}>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      expect(watchers).toHaveLength(1)
+
+      watchers[0]!.dispatchEvent(new Event('cancel', { cancelable: true }))
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+    })
+
+    test('closing destroys the watcher', async () => {
+      stubAndroidAndWatcher()
+      const [open, setOpen] = createSignal(true)
+      render(() => (
+        <Drawer open={open()} onOpenChange={setOpen}>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      expect(watchers).toHaveLength(1)
+
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() => expect(watchers[0]!.destroy).toHaveBeenCalled())
+    })
+
+    test('no watcher is created on a non-Android user agent', async () => {
+      watchers = []
+      const FakeCloseWatcher = class extends EventTarget {
+        destroy = vi.fn()
+        constructor() {
+          super()
+          watchers.push(this)
+        }
+      }
+      vi.stubGlobal('CloseWatcher', FakeCloseWatcher)
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      expect(watchers).toHaveLength(0)
+    })
+
+    test('closeOnEscape={false} prevents a cancelable cancel and reports it', async () => {
+      stubAndroidAndWatcher()
+      const onClosePrevent = vi.fn()
+      const onOpenChange = vi.fn()
+      render(() => (
+        <Drawer
+          defaultOpen
+          closeOnEscape={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+
+      const notPrevented = watchers[0]!.dispatchEvent(new Event('cancel', { cancelable: true }))
+      expect(notPrevented).toBe(false)
+      expect(onClosePrevent).toHaveBeenCalled()
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
+    })
+
+    test('nested drawers close only the child on the latest watcher', async () => {
+      stubAndroidAndWatcher()
+      const onParentChange = vi.fn()
+      const onChildChange = vi.fn()
+      render(() => (
+        <Drawer defaultOpen onOpenChange={onParentChange}>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen onOpenChange={onChildChange}>
+                <Drawer.Content>
+                  <Drawer.Body>Child body</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+      )
+      expect(watchers.length).toBeGreaterThanOrEqual(2)
+
+      watchers[watchers.length - 1]!.dispatchEvent(new Event('cancel', { cancelable: true }))
+      expect(onChildChange).toHaveBeenCalledWith(false)
+      expect(onParentChange).not.toHaveBeenCalled()
+    })
+  })
+
+  test('a swipe dismiss on a nested child closes only the child', async () => {
+    const onParentChange = vi.fn()
+    const onChildChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onParentChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <Drawer defaultOpen onOpenChange={onChildChange}>
+              <Drawer.Content>
+                <Drawer.Body>Child body</Drawer.Body>
+              </Drawer.Content>
+            </Drawer>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+    )
+
+    const contents = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')
+    const child = contents[1]!
+    const parent = contents[0]!
+    dragPointer(child, { x: 0, y: 100 }, { x: 0, y: 400 }, { steps: 4, stepMs: 10 })
+
+    expect(onChildChange).toHaveBeenCalledWith(false)
+    expect(onParentChange).not.toHaveBeenCalled()
+    expect(parent.style.getPropertyValue('--drawer-swipe-movement')).toBe('0px')
   })
 })

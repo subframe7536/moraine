@@ -156,6 +156,9 @@ Content declares these variables; set them with `styles.content` or measure them
 | <kbd>Tab</kbd>         | Moves focus forward; modal drawers contain focus.       |
 | <kbd>Shift + Tab</kbd> | Moves focus backward; modal drawers contain focus.      |
 
+On Android, the system back gesture closes the drawer on browsers that support `CloseWatcher`.
+It follows `closeOnEscape` and reports blocked requests through `onClosePrevent`.
+
 ## Examples
 
 ### Bottom sheet with a handle
@@ -169,6 +172,13 @@ The default `bottom` side shows the grab handle and dismisses on a downward swip
 A controlled snap point switches between a compact peek and the full-height surface.
 
 <Preview path="./snap-points" />
+
+### Nest drawers
+
+A child drawer opens above its parent. Escape, swipe, outside press, and the Android back
+gesture close only the topmost drawer.
+
+<Preview path="./nested" />
 
 ### Open from different edges
 
