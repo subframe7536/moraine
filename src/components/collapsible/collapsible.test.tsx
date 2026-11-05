@@ -446,6 +446,43 @@ describe('Collapsible', () => {
     expect(screen.getByTestId('unmount-false-content')).not.toBeNull()
   })
 
+  test('kept-mounted closed content uses hidden="until-found" and expands on beforematch', async () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen={false} unmountOnHide={false}>
+        <Collapsible.Trigger>Find Trigger</Collapsible.Trigger>
+        <Collapsible.Content>
+          <a href="/details">Findable details</a>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+    const wrapper = screen.container.querySelector<HTMLElement>(
+      '[data-slot="collapsible-content-wrapper"]',
+    )!
+    const trigger = screen.getByRole('button', { name: 'Find Trigger' })
+
+    expect(wrapper.getAttribute('hidden')).toBe('until-found')
+
+    wrapper.dispatchEvent(new Event('beforematch'))
+    await Promise.resolve()
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(wrapper.hasAttribute('hidden')).toBe(false)
+  })
+
+  test('unmounted closed content uses plain hidden', () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen={false}>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+        <Collapsible.Content>Content</Collapsible.Content>
+      </Collapsible>
+    ))
+    const wrapper = screen.container.querySelector<HTMLElement>(
+      '[data-slot="collapsible-content-wrapper"]',
+    )!
+
+    expect(wrapper.getAttribute('hidden')).toBe('')
+  })
+
   test('hides retained closed content from visual, keyboard, and accessibility trees', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} unmountOnHide={false}>

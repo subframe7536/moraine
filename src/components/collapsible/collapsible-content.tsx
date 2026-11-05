@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
-import { createSignal, Show, splitProps } from 'solid-js'
+import { createRenderEffect, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
+import { attachEventListener } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
@@ -44,7 +45,23 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   bindElement(wrapper, (element) => {
     const releaseContent = disclosure.registerContentElement(element)
     const releaseMeasure = disclosure.registerMeasureElement(element)
+    const removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
+      if (disclosure.closed()) {
+        context.toggle()
+      }
+    })
+    // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
+    // attribute so `until-found` survives jsdom and hydrated SSR markup.
+    createRenderEffect(() => {
+      const hidden = disclosure.hiddenAttr()
+      if (hidden === undefined) {
+        element.removeAttribute('hidden')
+      } else {
+        element.setAttribute('hidden', hidden)
+      }
+    })
     return () => {
+      removeBeforeMatch()
       releaseMeasure()
       releaseContent()
     }

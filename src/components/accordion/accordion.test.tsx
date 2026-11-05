@@ -621,6 +621,33 @@ describe('Accordion', () => {
     expect(content.hidden).toBe(true)
   })
 
+  test('kept-mounted closed panels use hidden="until-found" and expand on beforematch', async () => {
+    const screen = render(() => (
+      <Accordion
+        unmountOnHide={false}
+        items={[
+          { value: 'one', label: 'One', content: 'Panel one' },
+          { value: 'two', label: 'Two', content: 'Panel two', disabled: true },
+        ]}
+      />
+    ))
+    const contents = screen.container.querySelectorAll('[data-slot="accordion-content"]')
+    const triggerOne = screen.getByRole('button', { name: 'One' })
+
+    expect(contents[0]?.getAttribute('hidden')).toBe('until-found')
+
+    contents[0]?.dispatchEvent(new Event('beforematch'))
+    await Promise.resolve()
+
+    expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
+    expect(contents[0]?.hasAttribute('hidden')).toBe(false)
+
+    contents[1]?.dispatchEvent(new Event('beforematch'))
+    await Promise.resolve()
+
+    expect(screen.getByRole('button', { name: 'Two' }).getAttribute('aria-expanded')).toBe('false')
+  })
+
   test('restores focus to the trigger when a controlled update closes its panel', async () => {
     let setValue: ((value: string[]) => void) | undefined
     const iframe = document.createElement('iframe')

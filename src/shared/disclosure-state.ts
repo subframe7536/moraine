@@ -42,7 +42,9 @@ export interface DisclosureState {
 
   closed: Accessor<boolean>
   exiting: Accessor<boolean>
-  hidden: Accessor<boolean>
+  hidden: Accessor<boolean | 'until-found'>
+  /** `hidden` attribute value for the content shell (`''`, `'until-found'`, or absent). */
+  hiddenAttr: Accessor<'' | 'until-found' | undefined>
   inert: Accessor<true | undefined>
   ariaHidden: Accessor<true | undefined>
 
@@ -104,7 +106,17 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     },
   }
   const exiting = createMemo(() => closed() && transition() && presence.present())
-  const hidden = createMemo(() => closed() && !exiting())
+  const hidden = createMemo((): boolean | 'until-found' => {
+    if (!closed() || exiting()) {
+      return false
+    }
+    // Kept-mounted closed content stays findable by in-page search, which reveals it via `beforematch`.
+    return shouldMount() ? 'until-found' : true
+  })
+  const hiddenAttr = createMemo((): '' | 'until-found' | undefined => {
+    const value = hidden()
+    return value === 'until-found' ? 'until-found' : value ? '' : undefined
+  })
   const inert = () => (closed() ? (true as const) : undefined)
   const ariaHidden = () => (closed() ? (true as const) : undefined)
 
@@ -281,6 +293,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     closed,
     exiting,
     hidden,
+    hiddenAttr,
     inert,
     ariaHidden,
     shouldMount,
