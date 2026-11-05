@@ -414,6 +414,62 @@ describe('Checkbox', () => {
     })
   })
 
+  test('implicitly submits the form on Enter through the default submitter', () => {
+    const onSubmit = vi.fn()
+    const screen = render(() => (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          onSubmit()
+        }}
+      >
+        <Checkbox name="agree" label="Agree" />
+        <button type="submit">Send</button>
+      </form>
+    ))
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
+    const submitter = screen.getByRole('button', { name: 'Send' })
+    const onSubmitterClick = vi.fn()
+    submitter.addEventListener('click', onSubmitterClick)
+
+    expectCheckboxChecked(checkbox, false)
+    fireEvent.keyDown(checkbox, { key: 'Enter' })
+
+    expect(onSubmitterClick).toHaveBeenCalledTimes(1)
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expectCheckboxChecked(checkbox, false)
+  })
+
+  test('implicitly submits the form on Enter without a submit button', () => {
+    const onSubmit = vi.fn()
+    const screen = render(() => (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          onSubmit()
+        }}
+      >
+        <Checkbox name="agree" label="Agree" />
+      </form>
+    ))
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
+    fireEvent.keyDown(checkbox, { key: 'Enter' })
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expectCheckboxChecked(checkbox, false)
+  })
+
+  test('does not toggle or submit on Enter outside a form', () => {
+    const screen = render(() => <Checkbox name="agree" label="Agree" />)
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
+    fireEvent.keyDown(checkbox, { key: 'Enter' })
+
+    expectCheckboxChecked(checkbox, false)
+  })
+
   test('uses the initial default snapshot for reset after defaultChecked changes', async () => {
     const [defaultChecked, setDefaultChecked] = createSignal(false)
     const screen = render(() => (

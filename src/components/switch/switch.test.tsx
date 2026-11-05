@@ -342,6 +342,53 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
+  test('implicitly submits the form on Enter through the default submitter', () => {
+    const onSubmit = vi.fn()
+    const screen = render(() => (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          onSubmit()
+        }}
+      >
+        <Switch name="enabled" label="Enabled" />
+        <button type="submit">Send</button>
+      </form>
+    ))
+
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+    const submitter = screen.getByRole('button', { name: 'Send' })
+    const onSubmitterClick = vi.fn()
+    submitter.addEventListener('click', onSubmitterClick)
+
+    expectSwitchChecked(switchInput, false)
+    fireEvent.keyDown(switchInput, { key: 'Enter' })
+
+    expect(onSubmitterClick).toHaveBeenCalledTimes(1)
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expectSwitchChecked(switchInput, false)
+  })
+
+  test('implicitly submits the form on Enter without a submit button', () => {
+    const onSubmit = vi.fn()
+    const screen = render(() => (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          onSubmit()
+        }}
+      >
+        <Switch name="enabled" label="Enabled" />
+      </form>
+    ))
+
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+    fireEvent.keyDown(switchInput, { key: 'Enter' })
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expectSwitchChecked(switchInput, false)
+  })
+
   test('applies lg size classes on base and wrapper', () => {
     const screen = render(() => <Switch label="Classes" size="lg" />)
 

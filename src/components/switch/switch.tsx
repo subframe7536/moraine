@@ -5,11 +5,13 @@ import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasContent } from '../../shared/jsx-content'
+import { createKeyDownHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
+import { submitFormDefault } from '../shared/form/submit-form-default'
 import { useFormReset } from '../shared/form/use-form-reset'
 
 import { switchDataAttributes, switchRecipe } from './switch.recipe'
@@ -281,6 +283,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     field.emit('blur', event)
   }
 
+  // Switches toggle with Space only; Enter implicitly submits the form instead of
+  // activating the button, matching a native checkbox.
+  const onTrackKeyDown = createKeyDownHandler<HTMLButtonElement>({
+    keys: {
+      Enter: (event) => submitFormDefault(event.currentTarget, inputEl),
+    },
+  })
+
   const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
       return merged.loadingIcon
@@ -350,6 +360,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         disabled={field.disabled()}
         aria-checked={checked()}
         onPointerDown={onPointerDown}
+        onKeyDown={onTrackKeyDown}
         onFocus={onTrackFocus}
         onBlur={onTrackBlur}
       >

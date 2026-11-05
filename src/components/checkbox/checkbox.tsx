@@ -10,6 +10,7 @@ import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.rec
 import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
 import { isInteractiveTarget } from '../shared/form/is-interactive-target'
+import { submitFormDefault } from '../shared/form/submit-form-default'
 import { useFormReset } from '../shared/form/use-form-reset'
 
 import { CHECKBOX_ICON_CLASS, checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
@@ -307,7 +308,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
   const onControlKeyDown = createKeyDownHandler<HTMLButtonElement>({
     keys: {
-      Enter: () => (enterPressed = true),
+      Enter: (event) => {
+        enterPressed = true
+        submitFormDefault(event.currentTarget, inputEl)
+      },
     },
   })
 

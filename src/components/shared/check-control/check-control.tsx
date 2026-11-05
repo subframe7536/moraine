@@ -6,6 +6,7 @@ import { callHandler } from '../../../shared/utils'
 import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
 import type { IconT } from '../../icon'
+import { submitFormDefault } from '../form/submit-form-default'
 
 import { checkControlDataAttributes } from './check-control.recipe'
 
@@ -46,10 +47,11 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
     'onClick',
     'onKeyDown',
   ])
-  // Checkboxes toggle with Space only; Enter would otherwise activate the button.
+  // Checkboxes toggle with Space only; Enter implicitly submits the form instead of
+  // activating the button, matching a native checkbox.
   const onKeyDown = createKeyDownHandler<HTMLButtonElement>({
     onKeyDown: () => local.onKeyDown,
-    keys: { Enter: () => {} },
+    keys: { Enter: (event) => submitFormDefault(event.currentTarget) },
   })
   const checked = () => local.checked === true
   const indeterminate = () => local.checked === 'indeterminate'
