@@ -763,6 +763,134 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('focuses the initialFocus target when a modal opens', async () => {
+    let input!: HTMLInputElement
+    const screen = render(() => (
+      <Modal defaultOpen initialFocus={() => input}>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button">First</button>
+            <input aria-label="Search" data-testid="search" ref={(element) => (input = element)} />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    await waitFor(() => expect(document.activeElement).toBe(input))
+    screen.unmount()
+  })
+
+  test('skips the open-time focus move when initialFocus is false', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen initialFocus={false}>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button">First</button>
+            <input aria-label="Search" data-testid="search" />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+    )
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(document.body)
+    screen.unmount()
+  })
+
+  test('prefers a data-autofocus element over the first focusable', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button">First</button>
+            <input aria-label="Search" data-autofocus data-testid="search" />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        document.body.querySelector<HTMLInputElement>('[data-testid="search"]'),
+      ),
+    )
+    screen.unmount()
+  })
+
+  test('focuses the finalFocus target instead of the trigger after close', async () => {
+    const target = document.createElement('button')
+    document.body.append(target)
+    const screen = render(() => (
+      <Modal finalFocus={() => target}>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="close" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Open' })
+    fireEvent.click(trigger)
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+    )
+
+    fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
+    await Promise.resolve()
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
+
+    await waitFor(() => expect(document.activeElement).toBe(target))
+    screen.unmount()
+    target.remove()
+  })
+
+  test('skips the close-time focus restore when finalFocus is false', async () => {
+    const screen = render(() => (
+      <Modal finalFocus={false}>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="close" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Open' })
+    fireEvent.click(trigger)
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+    )
+
+    fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
+    await Promise.resolve()
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(document.activeElement).not.toBe(trigger)
+    screen.unmount()
+  })
+
   test('lets content override role', async () => {
     const screen = render(() => (
       <Modal defaultOpen>

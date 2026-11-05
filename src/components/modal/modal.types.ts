@@ -72,6 +72,21 @@ export namespace ModalT {
     /** Default destination for Modal.Portal; defaults to the trigger document body. */
     portalMount?: Node
 
+    /**
+     * Element (or accessor resolving to one) that receives focus when the shell
+     * opens, or `false` to skip the open-time focus move. Defaults to the first
+     * focusable element inside the content, preferring an `[autofocus]` or
+     * `[data-autofocus]` descendant.
+     */
+    initialFocus?: HTMLElement | (() => HTMLElement | undefined) | false
+
+    /**
+     * Element (or accessor resolving to one) that receives focus after the shell
+     * closes, or `false` to skip the close-time focus restore. Defaults to the
+     * trigger, then the element focused when the shell opened.
+     */
+    finalFocus?: HTMLElement | (() => HTMLElement | undefined) | false
+
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }

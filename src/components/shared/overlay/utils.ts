@@ -601,6 +601,14 @@ export function focusContent(container: HTMLElement | undefined): void {
     return
   }
 
+  const autofocusTarget = container.querySelector<HTMLElement>('[data-autofocus],[autofocus]')
+  if (autofocusTarget) {
+    focusWithoutScrolling(autofocusTarget)
+    if (getActiveElement(container.ownerDocument) === autofocusTarget) {
+      return
+    }
+  }
+
   const focusableElements = getFocusableElements(container)
   for (const focusable of focusableElements) {
     focusWithoutScrolling(focusable)

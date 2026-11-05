@@ -67,6 +67,37 @@ export function Modal(props: ModalProps): JSX.Element {
         : undefined)
   }
 
+  const resolveFocusTarget = (
+    target: ModalProps['initialFocus'] | ModalProps['finalFocus'],
+  ): HTMLElement | undefined => {
+    if (typeof target === 'function') {
+      return target()
+    }
+    return target === false ? undefined : target
+  }
+
+  const focusInto = (content: HTMLElement | undefined, openedByTouch = false): void => {
+    if (!content) {
+      return
+    }
+    if (props.initialFocus === false) {
+      return
+    }
+
+    const target = resolveFocusTarget(props.initialFocus)
+    if (target) {
+      focusWithoutScrolling(target)
+      return
+    }
+
+    if (openedByTouch) {
+      focusWithoutScrolling(content)
+      return
+    }
+
+    focusContent(content)
+  }
+
   const requestDismiss = (event: Event, preventDefault: boolean, allowed: boolean): void => {
     if (event.defaultPrevented) {
       return
@@ -138,11 +169,7 @@ export function Modal(props: ModalProps): JSX.Element {
       queueMicrotask(() => {
         if (active && currentContent.isConnected) {
           release = acquireAriaHideOutside(currentContent)
-          if (openByTouch) {
-            focusWithoutScrolling(currentContent)
-          } else {
-            focusContent(currentContent)
-          }
+          focusInto(currentContent, openByTouch)
         }
       })
 
@@ -209,7 +236,7 @@ export function Modal(props: ModalProps): JSX.Element {
             if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
               focusWithoutScrolling(lastFocusedElement)
             } else {
-              focusContent(currentContent)
+              focusInto(currentContent)
             }
           })
         })
@@ -232,7 +259,7 @@ export function Modal(props: ModalProps): JSX.Element {
         if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
           focusWithoutScrolling(lastFocusedElement)
         } else {
-          focusContent(currentContent)
+          focusInto(currentContent)
         }
       })
     },
@@ -243,10 +270,22 @@ export function Modal(props: ModalProps): JSX.Element {
       }
       const trigger = capturedTrigger
       const restoreTarget = capturedRestoreTarget
+      const finalFocus = props.finalFocus
 
       queueMicrotask(() => {
         untrack(() => {
-          if (isPresent() || focusTrigger(trigger)) {
+          if (isPresent()) {
+            return
+          }
+
+          if (finalFocus !== undefined) {
+            if (finalFocus !== false) {
+              focusTrigger(resolveFocusTarget(finalFocus))
+            }
+            return
+          }
+
+          if (focusTrigger(trigger)) {
             return
           }
 

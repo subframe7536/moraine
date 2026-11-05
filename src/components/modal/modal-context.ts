@@ -35,5 +35,7 @@ export const MODAL_ROOT_KEYS = [
   'preventScroll',
   'modal',
   'portalMount',
+  'initialFocus',
+  'finalFocus',
   'children',
 ] as const
