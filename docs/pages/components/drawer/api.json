@@ -1,0 +1,672 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "drawer",
+  "name": "Drawer",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "drawer",
+      "name": "Drawer",
+      "access": {
+        "kind": "export",
+        "name": "Drawer"
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Composed trigger and content primitives."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "closable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show a close button.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "closeIcon",
+          "optional": true,
+          "type": "IconT.Name | JSX.Element",
+          "description": "Icon name or custom content for the close button.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
+          }
+        },
+        {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOverlayClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial open state when uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "defaultSnapPoint",
+          "optional": true,
+          "type": "SnapPoint | null",
+          "description": "Active snap point on mount.",
+          "default": {
+            "kind": "expression",
+            "text": "snapPoints[0] ?? null"
+          }
+        },
+        {
+          "name": "finalFocus",
+          "optional": true,
+          "type": "HTMLElement | (() => HTMLElement | undefined) | false",
+          "description": "Element (or accessor resolving to one) that receives focus after the shell\ncloses, or `false` to skip the close-time focus restore. Defaults to the\ntrigger, then the element focused when the shell opened."
+        },
+        {
+          "name": "handle",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the decorative grab handle. Only rendered for `top` and `bottom` sides.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "initialFocus",
+          "optional": true,
+          "type": "HTMLElement | (() => HTMLElement | undefined) | false",
+          "description": "Element (or accessor resolving to one) that receives focus when the shell\nopens, or `false` to skip the open-time focus move. Defaults to the first\nfocusable element inside the content, preferring an `[autofocus]` or\n`[data-autofocus]` descendant."
+        },
+        {
+          "name": "modal",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer dismissal is controlled by `closeOnOverlayClick`.\nEscape dismissal is controlled by `closeOnEscape`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "onClosePrevent",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called when a dismissal attempt is blocked."
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called after the modal has fully finished its exit motion."
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Called whenever the open state changes."
+        },
+        {
+          "name": "onSnapPointChange",
+          "optional": true,
+          "type": "(snapPoint: SnapPoint | null) => void",
+          "description": "Called when the active snap point changes."
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled open state."
+        },
+        {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the overlay element.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "portalMount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether body scroll should be locked while the shell is present.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "side",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Viewport edge used by the component Recipe.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
+          "name": "snapPoint",
+          "optional": true,
+          "type": "SnapPoint | null",
+          "description": "Controlled active snap point. `null` selects the fully open position."
+        },
+        {
+          "name": "snapPoints",
+          "optional": true,
+          "type": "SnapPoint[]",
+          "description": "Snap points the drawer can rest at. Only honored for `top` and `bottom` sides."
+        },
+        {
+          "name": "snapToSequentialPoints",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether a flick settles on the next adjacent snap point instead of the closest one.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this drawer instance."
+        }
+      ]
+    },
+    {
+      "id": "drawer-trigger",
+      "name": "Drawer.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Trigger"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-content",
+      "name": "Drawer.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Content"
+      },
+      "description": "Props for Drawer.Content.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element | Component<ContentRenderProps>",
+          "description": "Composable drawer parts or render function receiving close action.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Secondary description displayed below the title."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Primary title displayed in the drawer header."
+        }
+      ]
+    },
+    {
+      "id": "drawer-header",
+      "name": "Drawer.Header",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Header"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-title",
+      "name": "Drawer.Title",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Title"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'h2'"
+        }
+      ],
+      "defaultElement": "h2",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "h2"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-description",
+      "name": "Drawer.Description",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Description"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'p'"
+        }
+      ],
+      "defaultElement": "p",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "p"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-body",
+      "name": "Drawer.Body",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Body"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-footer",
+      "name": "Drawer.Footer",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Footer"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "drawer-close",
+      "name": "Drawer.Close",
+      "access": {
+        "kind": "attached",
+        "root": "Drawer",
+        "member": "Close"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "trigger",
+    "content",
+    "overlay",
+    "handle",
+    "header",
+    "title",
+    "description",
+    "contentClose",
+    "body",
+    "footer"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "overlay",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-swiping"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-swiping"
+      ]
+    },
+    {
+      "target": "body",
+      "attributes": [
+        "data-header"
+      ]
+    }
+  ]
+}

@@ -18,6 +18,7 @@ import type { CommandPaletteStyleConfig } from '../components/command-palette/co
 import type { ContextMenuStyleConfig } from '../components/context-menu/context-menu.style-types'
 import type { CopyButtonStyleConfig } from '../components/copy-button/copy-button.style-types'
 import type { DialogStyleConfig } from '../components/dialog/dialog.style-types'
+import type { DrawerStyleConfig } from '../components/drawer/drawer.style-types'
 import type { DropdownMenuStyleConfig } from '../components/dropdown-menu/dropdown-menu.style-types'
 import type { EmptyStyleConfig } from '../components/empty/empty.style-types'
 import type { FieldStyleConfig } from '../components/field/field.style-types'
@@ -119,6 +120,7 @@ export interface MoraineStyleSchema {
   modal: ModalStyleConfig
   popover: PopoverStyleConfig
   sheet: SheetStyleConfig
+  drawer: DrawerStyleConfig
   toast: ToastStyleConfig
   tooltip: TooltipStyleConfig
   tree: TreeStyleConfig

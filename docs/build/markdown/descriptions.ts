@@ -58,6 +58,7 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-state': 'Stores the component state used by styling hooks (e.g. open, closed, active).',
   'data-status': 'Stores async loading, loaded, or error status.',
   'data-submitting': 'Present while the form is being submitted.',
+  'data-swiping': 'Present while a swipe gesture is dragging the element.',
   'data-tags': 'Present when the control is displaying selected values as tags.',
   'data-text': 'Present when the input group part contains text.',
   'data-transition': 'Present while a target participates in a visibility transition.',

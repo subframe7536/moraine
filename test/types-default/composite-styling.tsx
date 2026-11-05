@@ -3,6 +3,7 @@ import {
   Collapsible,
   ContextMenu,
   Dialog,
+  Drawer,
   DropdownMenu,
   Modal,
   Popover,
@@ -10,6 +11,7 @@ import {
   Table,
   Tooltip,
 } from 'moraine'
+import type { DrawerT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
 
 ;<Dialog classes={{ trigger: 'trigger', body: 'body' }} styles={{ content: { width: '20rem' } }} />
@@ -101,6 +103,53 @@ import { defineTheme } from 'moraine/theme'
 // @ts-expect-error Sheet.Close is behavior-only.
 ;<Sheet.Close styles={{ contentClose: { color: 'red' } }} />
 
+;<Drawer classes={{ trigger: 'trigger', handle: 'handle' }} />
+;<Drawer
+  side="top"
+  overlay={false}
+  modal={false}
+  closable
+  handle={false}
+  portalMount={document.body}
+  closeIcon="icon-close"
+  snapPoints={[0.5, '148px', '12rem']}
+  snapPoint={0.5}
+  defaultSnapPoint={null}
+  onSnapPointChange={(point: DrawerT.SnapPoint | null) => void point}
+  snapToSequentialPoints
+/>
+// @ts-expect-error A headless root has no primary DOM element.
+;<Drawer style={{ color: 'red' }} />
+;<Drawer.Trigger class="trigger" />
+// @ts-expect-error A one-slot Trigger has no slot map.
+;<Drawer.Trigger classes={{ trigger: 'trigger' }} />
+// @ts-expect-error Drawer.Content is a compose-only part and does not accept classes.
+;<Drawer.Content classes={{ overlay: 'overlay', handle: 'handle' }} />
+;<Drawer.Content class="content" />
+;<Drawer.Content title="Title" description="Description" />
+// @ts-expect-error Drawer title shorthand belongs to Content.
+;<Drawer title="Title" />
+// @ts-expect-error Drawer layout belongs to the root.
+;<Drawer.Content side="left" />
+// @ts-expect-error Drawer behavior belongs to the root.
+;<Drawer.Content modal={false} closable handle snapPoints={[1]} />
+;<Drawer.Header class="header" />
+// @ts-expect-error Shorthand mode is internal to Drawer.Content.
+;<Drawer.Header shorthand />
+;<Drawer.Title as="h3" id="title" />
+;<Drawer.Description />
+;<Drawer.Body as="section" />
+;<Drawer.Footer />
+// @ts-expect-error A part has a direct class, not a slot map.
+;<Drawer.Header classes={{ header: 'header' }} />
+// @ts-expect-error Drawer.Content cannot style independently owned parts.
+;<Drawer.Content classes={{ body: 'body' }} />
+// @ts-expect-error Drawer.Content cannot configure Drawer.Trigger.
+;<Drawer.Content classes={{ trigger: 'trigger' }} />
+;<Drawer.Close class="close" />
+// @ts-expect-error Drawer.Close is behavior-only.
+;<Drawer.Close styles={{ contentClose: { color: 'red' } }} />
+
 ;<Modal classes={{ overlay: 'overlay', content: 'content' }} />
 // @ts-expect-error A headless root has no primary DOM element.
 ;<Modal class="root" />
@@ -170,6 +219,7 @@ import { defineTheme } from 'moraine/theme'
 
 defineTheme({ dialog: { base: { contentClose: 'close' } } })
 defineTheme({ sheet: { base: { contentClose: 'close' } } })
+defineTheme({ drawer: { base: { handle: 'handle' } } })
 defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: true } } })
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })

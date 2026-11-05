@@ -18,6 +18,7 @@ import type {
   ContextMenuT,
   CopyButtonT,
   DialogT,
+  DrawerT,
   DropdownMenuT,
   FieldT,
   FileUploadT,
@@ -251,6 +252,7 @@ export type ComponentNamespaceHeaders = {
     SeparatorT.Styles
   >
   Sheet: Header<SheetT.Kind, SheetT.Slot, SheetT.Variants, SheetT.Classes, SheetT.Styles>
+  Drawer: Header<DrawerT.Kind, DrawerT.Slot, DrawerT.Variants, DrawerT.Classes, DrawerT.Styles>
   Sidebar: Header<
     SidebarT.Kind,
     SidebarT.Slot,
@@ -431,6 +433,12 @@ export type CompositePartContracts = [
   SheetT.ContentProps,
   SheetT.CloseBase,
   SheetT.CloseProps,
+  DrawerT.TriggerBase,
+  DrawerT.TriggerProps,
+  DrawerT.ContentBase,
+  DrawerT.ContentProps,
+  DrawerT.CloseBase,
+  DrawerT.CloseProps,
   PopoverT.TriggerBase,
   PopoverT.TriggerProps,
   PopoverT.ContentBase,

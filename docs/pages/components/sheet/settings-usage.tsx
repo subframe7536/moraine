@@ -1,10 +1,10 @@
 import { Button, Sheet } from '@src'
 
-export function DrawerUsage() {
+export function SettingsUsage() {
   return (
     <Sheet>
-      <Sheet.Trigger as={Button}>Open Settings Drawer</Sheet.Trigger>
-      <Sheet.Content title="Settings drawer" description="A drawer with body and footer regions.">
+      <Sheet.Trigger as={Button}>Open Settings</Sheet.Trigger>
+      <Sheet.Content title="Settings" description="Fields in the body, actions in the footer.">
         <Sheet.Body>
           <div class="text-xs text-muted-foreground py-4">
             Place settings fields in this region and actions in the footer.
