@@ -93,40 +93,43 @@ export function StylingShowcase() {
       </div>
 
       <div class="mt-8">
-        <div class="py-4 flex flex-wrap gap-3 items-center justify-between">
+        <div class="py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div
             role="group"
             aria-labelledby="theme-preset-label"
-            class="flex flex-wrap gap-2 items-center"
+            class="flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:gap-2 lg:items-center"
           >
-            <span id="theme-preset-label" class="text-xs text-muted-foreground font-medium me-1">
+            <span id="theme-preset-label" class="text-xs text-muted-foreground font-medium lg:me-1">
               Presets
             </span>
-            <For each={PRESETS}>
-              {(p, idx) => (
-                <button
-                  type="button"
-                  aria-pressed={presetIndex() === idx()}
-                  onClick={() => setPresetIndex(idx())}
-                  class={cn(
-                    toolbarButtonClass,
-                    presetIndex() === idx()
-                      ? 'text-foreground bg-accent'
-                      : 'text-muted-foreground border-border hover:bg-muted/50',
-                  )}
-                  style={{
-                    'border-color': presetIndex() === idx() ? p.primary : undefined,
-                  }}
-                >
-                  <span
-                    class="rounded-full shrink-0 size-2.5"
-                    style={{ 'background-color': p.primary }}
-                    aria-hidden="true"
-                  />
-                  {p.name}
-                </button>
-              )}
-            </For>
+            <div class="gap-2 grid grid-cols-2 lg:contents">
+              <For each={PRESETS}>
+                {(p, idx) => (
+                  <button
+                    type="button"
+                    aria-pressed={presetIndex() === idx()}
+                    onClick={() => setPresetIndex(idx())}
+                    class={cn(
+                      toolbarButtonClass,
+                      'justify-center lg:justify-start',
+                      presetIndex() === idx()
+                        ? 'text-foreground bg-accent'
+                        : 'text-muted-foreground border-border hover:bg-muted/50',
+                    )}
+                    style={{
+                      'border-color': presetIndex() === idx() ? p.primary : undefined,
+                    }}
+                  >
+                    <span
+                      class="rounded-full shrink-0 size-2.5"
+                      style={{ 'background-color': p.primary }}
+                      aria-hidden="true"
+                    />
+                    {p.name}
+                  </button>
+                )}
+              </For>
+            </div>
           </div>
 
           <Switch
@@ -137,7 +140,7 @@ export function StylingShowcase() {
         </div>
 
         <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-          <div class="py-6 min-w-0 lg:pe-8">
+          <div class="pb-6 pt-4 min-w-0 lg:py-6 lg:pe-8">
             <h3 class="text-sm font-semibold mb-4">Live preview · {active().name}</h3>
 
             <form
