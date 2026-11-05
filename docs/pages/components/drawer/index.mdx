@@ -71,6 +71,8 @@ resting at snap points. Use [Sheet](/components/sheet) for an edge panel without
 backdrop and content yourself.
 
 Drawer shares modal dismissal and focus behavior with Dialog. The default side is `bottom`.
+For a persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`
+and `preventScroll={false}` — Escape and swipe dismissal still apply.
 
 ```tsx
 import { Button, Drawer } from 'moraine'
@@ -100,6 +102,14 @@ button (off by default), and `closeIcon` replaces its icon.
 
 For `top` and `bottom` sides, Content renders a decorative `handle` grab bar as its first child
 (`order-last` on top). Set `handle={false}` to hide it.
+
+### Sizing and scrolling
+
+A `top` or `bottom` drawer sizes to its content, capped at `max-h-[calc(100dvh-4rem)]`; `left` and
+`right` panels span `w-3/4` up to `sm:max-w-sm`. Override either with Content `class` — for example
+`class="h-[50dvh]"` for a fixed height, or `class="w-1/2 sm:max-w-2xl"` for a wider side panel.
+Body is the scrollable region: once Content's height is bounded, it scrolls between the header and
+footer.
 
 ### Swipe to dismiss
 
@@ -185,3 +195,17 @@ gesture close only the topmost drawer.
 Top and bottom support handles and snap points; left and right are swipe-only panels.
 
 <Preview path="./sides" />
+
+### Keep the page interactive
+
+`modal={false}`, `overlay={false}`, and `preventScroll={false}` leave the page's pointer, focus,
+and scroll access intact — both the page and panel buttons update the same count.
+
+<Preview path="./non-modal" />
+
+### Swap Dialog and Drawer responsively
+
+`createMediaQuery` renders the same task in a [Dialog](/components/dialog) on wide screens and a
+Drawer on narrow ones. Resize the window to see the trigger swap.
+
+<Preview path="./responsive" />
