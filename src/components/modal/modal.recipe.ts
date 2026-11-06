@@ -20,7 +20,7 @@ export const MODAL_CONTENT_CLASS =
 export const MODAL_CONTENT_FRAME_CLASS =
   'border border-border flex flex-col max-w-lg w-[calc(100vw-2rem)]'
 
-export const MODAL_CONTENT_CENTERED_CLASS = 'm-auto inset-0 h-fit fixed'
+export const MODAL_CONTENT_CENTERED_CLASS = 'm-auto h-fit inset-0 fixed'
 
 export const MODAL_CONTENT_DEFAULT_CLASS = `${MODAL_CONTENT_FRAME_CLASS}  ${MODAL_CONTENT_CENTERED_CLASS} max-h-[calc(100dvh-2rem)] overflow-hidden sm:max-h-[calc(100dvh-4rem)]`
 
