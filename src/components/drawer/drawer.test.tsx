@@ -64,6 +64,7 @@ function dragPointer(
     fireEvent.pointerMove(document, {
       pointerId: 1,
       pointerType: 'mouse',
+      buttons: 1,
       clientX: from.x + ((to.x - from.x) * index) / steps,
       clientY: from.y + ((to.y - from.y) * index) / steps,
     })
@@ -175,7 +176,8 @@ describe('Drawer', () => {
 
     expect(el.hasAttribute('data-swiping')).toBe(true)
     expect(overlay()?.hasAttribute('data-swiping')).toBe(true)
-    expect(movementValue()).toBe('60px')
+    // The first move is absorbed as the new drag origin: 160 - 115 = 45px.
+    expect(movementValue()).toBe('45px')
     const opacity = Number.parseFloat(overlay()!.style.opacity)
     expect(opacity).toBeGreaterThan(0)
     expect(opacity).toBeLessThan(1)
@@ -185,6 +187,7 @@ describe('Drawer', () => {
     fireEvent.pointerMove(document, {
       pointerId: 1,
       pointerType: 'mouse',
+      buttons: 1,
       clientX: 0,
       clientY: 120,
     })
@@ -192,6 +195,7 @@ describe('Drawer', () => {
     fireEvent.pointerMove(document, {
       pointerId: 1,
       pointerType: 'mouse',
+      buttons: 1,
       clientX: 0,
       clientY: 360,
     })
@@ -257,12 +261,12 @@ describe('Drawer', () => {
       expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
     )
 
-    dragPointer(content(), { x: 0, y: 200 }, { x: 0, y: 100 }, { release: false })
+    dragPointer(content(), { x: 0, y: 200 }, { x: 0, y: 75 }, { steps: 5, release: false })
 
     // sqrt damping: -100px of opposite drag becomes -10px of movement.
     expect(movementValue()).toBe('-10px')
 
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 100 })
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(movementValue()).toBe('0px')
   })
@@ -559,10 +563,13 @@ describe('Drawer', () => {
       touches: [{ identifier: 1, clientX: 0, clientY: 100 }],
     })
     fireEvent.touchMove(el, {
-      touches: [{ identifier: 1, clientX: 0, clientY: 400 }],
+      touches: [{ identifier: 1, clientX: 0, clientY: 300 }],
+    })
+    fireEvent.touchMove(el, {
+      touches: [{ identifier: 1, clientX: 0, clientY: 520 }],
     })
     fireEvent.touchEnd(el, {
-      changedTouches: [{ identifier: 1, clientX: 0, clientY: 400 }],
+      changedTouches: [{ identifier: 1, clientX: 0, clientY: 520 }],
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
@@ -591,14 +598,506 @@ describe('Drawer', () => {
       touches: [{ identifier: 2, clientX: 0, clientY: 200 }],
     })
     fireEvent.touchMove(body, {
-      touches: [{ identifier: 2, clientX: 0, clientY: 260 }],
+      touches: [{ identifier: 2, clientX: 0, clientY: 240 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 2, clientX: 0, clientY: 280 }],
     })
     fireEvent.touchEnd(body, {
-      changedTouches: [{ identifier: 2, clientX: 0, clientY: 260 }],
+      changedTouches: [{ identifier: 2, clientX: 0, clientY: 280 }],
     })
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(el.hasAttribute('data-swiping')).toBe(false)
+  })
+
+  test('a second pointer press cannot take over or reset the active drag', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.pointerDown(el, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      clientX: 0,
+      clientY: 100,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 150,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 170,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+
+    // The competing pointer is ignored: it registers no drag of its own.
+    fireEvent.pointerDown(el, {
+      pointerId: 2,
+      pointerType: 'mouse',
+      button: 0,
+      clientX: 0,
+      clientY: 300,
+    })
+
+    // Releasing the first pointer settles below the threshold and stays open.
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 170 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(movementValue()).toBe('0px')
+
+    // The ignored pointer keeps no document listeners that could drive a stale gesture.
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 2,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 380,
+    })
+    fireEvent.pointerUp(document, { pointerId: 2, pointerType: 'mouse', clientX: 0, clientY: 380 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(movementValue()).toBe('0px')
+  })
+
+  test('RTL scroller claims drags toward content start and yields at the edge', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen side="left" onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Scrollable body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const body = document.body.querySelector<HTMLElement>('[data-slot="drawer-body"]')!
+    body.style.direction = 'rtl'
+    body.style.overflowX = 'auto'
+    Object.defineProperty(body, 'scrollWidth', { value: 800, configurable: true })
+    Object.defineProperty(body, 'clientWidth', { value: 200, configurable: true })
+
+    // Finger left scrolls toward content start in RTL; scrollLeft < 0 means it can.
+    Object.defineProperty(body, 'scrollLeft', { value: -50, configurable: true })
+    fireEvent.touchStart(body, {
+      touches: [{ identifier: 3, clientX: 200, clientY: 0 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 3, clientX: 160, clientY: 0 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 3, clientX: 120, clientY: 0 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    fireEvent.touchEnd(body, {
+      changedTouches: [{ identifier: 3, clientX: 120, clientY: 0 }],
+    })
+
+    // At the start edge (scrollLeft 0) the same leftward drag swipes the drawer.
+    Object.defineProperty(body, 'scrollLeft', { value: 0, configurable: true })
+    fireEvent.touchStart(body, {
+      touches: [{ identifier: 4, clientX: 200, clientY: 0 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 4, clientX: 160, clientY: 0 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 4, clientX: 120, clientY: 0 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    fireEvent.touchEnd(body, {
+      changedTouches: [{ identifier: 4, clientX: 120, clientY: 0 }],
+    })
+  })
+
+  test('a scrolled body hands the gesture back once it reaches its edge', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Scrollable body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const body = document.body.querySelector<HTMLElement>('[data-slot="drawer-body"]')!
+    body.style.overflowY = 'auto'
+    Object.defineProperty(body, 'scrollTop', { value: 60, configurable: true })
+    Object.defineProperty(body, 'scrollHeight', { value: 800, configurable: true })
+    Object.defineProperty(body, 'clientHeight', { value: 200, configurable: true })
+
+    fireEvent.touchStart(body, {
+      touches: [{ identifier: 5, clientX: 0, clientY: 200 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 5, clientX: 0, clientY: 240 }],
+    })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 5, clientX: 0, clientY: 280 }],
+    })
+    // The scroller can still move in the drag direction, so it owns the gesture.
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // Reaching the top edge hands the rest of the gesture to the drawer.
+    Object.defineProperty(body, 'scrollTop', { value: 0, configurable: true })
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 5, clientX: 0, clientY: 320 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    // The full displacement from the press is preserved across the handoff.
+    expect(movementValue()).toBe('80px')
+
+    fireEvent.touchMove(body, {
+      touches: [{ identifier: 5, clientX: 0, clientY: 460 }],
+    })
+    fireEvent.touchEnd(body, {
+      changedTouches: [{ identifier: 5, clientX: 0, clientY: 460 }],
+    })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('the first move absorbs the press offset so the content does not jump', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.touchStart(el, {
+      touches: [{ identifier: 8, clientX: 0, clientY: 100 }],
+    })
+    // An already-offset first move (as iOS touch delivers) becomes the new origin.
+    fireEvent.touchMove(el, {
+      touches: [{ identifier: 8, clientX: 0, clientY: 150 }],
+    })
+    expect(movementValue()).toBe('0px')
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    fireEvent.touchMove(el, {
+      touches: [{ identifier: 8, clientX: 0, clientY: 170 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    expect(movementValue()).toBe('20px')
+
+    fireEvent.touchEnd(el, {
+      changedTouches: [{ identifier: 8, clientX: 0, clientY: 170 }],
+    })
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('reversing the drag cancels the dismiss even past the threshold', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.pointerDown(el, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      clientX: 0,
+      clientY: 100,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 160,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 300,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 400,
+    })
+    expect(movementValue()).toBe('240px')
+
+    // Pulling back up marks the gesture as a change of mind.
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 390,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 380,
+    })
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 380 })
+
+    // The release still lands past the 200px threshold, but the reversal cancels it.
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(movementValue()).toBe('0px')
+  })
+
+  test('a pointermove with released buttons commits the drag like a release', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.pointerDown(el, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      clientX: 0,
+      clientY: 100,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 160,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 300,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+
+    // A trailing move with buttons: 0 is the release even when no pointerup arrives.
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 0,
+      clientX: 0,
+      clientY: 400,
+    })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+
+    // The drag is over: further moves are ignored.
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 0,
+      clientX: 0,
+      clientY: 200,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+  })
+
+  test('a non-primary button cancels an active pointer drag', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.pointerDown(el, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      clientX: 0,
+      clientY: 100,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 160,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 300,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+
+    // A right-click taking over the interaction cancels the swipe.
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 2,
+      clientX: 0,
+      clientY: 320,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(movementValue()).toBe('0px')
+
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 320 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('a second finger pauses the swipe instead of driving it', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireEvent.touchStart(el, {
+      touches: [{ identifier: 6, clientX: 0, clientY: 100 }],
+    })
+    fireEvent.touchMove(el, {
+      touches: [{ identifier: 6, clientX: 0, clientY: 160 }],
+    })
+    fireEvent.touchMove(el, {
+      touches: [{ identifier: 6, clientX: 0, clientY: 220 }],
+    })
+    expect(movementValue()).toBe('60px')
+
+    // The pinch is left to the browser; the drawer stays where it is.
+    fireEvent.touchMove(el, {
+      touches: [
+        { identifier: 6, clientX: 0, clientY: 280 },
+        { identifier: 7, clientX: 0, clientY: 10 },
+      ],
+    })
+    expect(movementValue()).toBe('60px')
+
+    fireEvent.touchEnd(el, {
+      changedTouches: [{ identifier: 6, clientX: 0, clientY: 220 }],
+    })
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('does not swipe from a label or a role="button" element', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Header>
+            <label>Label region</label>
+            <div role="button">Role button</div>
+          </Drawer.Header>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const label = document.body.querySelector<HTMLElement>('label')!
+    const roleButton = document.body.querySelector<HTMLElement>('[role="button"]')!
+    for (const target of [label, roleButton]) {
+      dragPointer(target, { x: 0, y: 100 }, { x: 0, y: 400 }, { steps: 4, stepMs: 100 })
+    }
+
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(content().hasAttribute('data-swiping')).toBe(false)
+  })
+
+  test('an open nested drawer disables the parent swipe', async () => {
+    const onParentChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onParentChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <Drawer defaultOpen>
+              <Drawer.Content>
+                <Drawer.Body>Child body</Drawer.Body>
+              </Drawer.Content>
+            </Drawer>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+    )
+
+    const parent = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')[0]!
+    dragPointer(parent, { x: 0, y: 100 }, { x: 0, y: 400 }, { steps: 4, stepMs: 10 })
+
+    expect(onParentChange).not.toHaveBeenCalled()
+    expect(parent.hasAttribute('data-swiping')).toBe(false)
+    expect(parent.style.getPropertyValue('--drawer-swipe-movement')).toBe('0px')
   })
 
   describe('Android back gesture', () => {

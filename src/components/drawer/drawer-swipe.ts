@@ -6,6 +6,7 @@ import {
   createEventListener,
   createEventListenerMap,
 } from '../../shared/event-listener'
+import { containsOverlayContentAbove } from '../shared/overlay/overlay-stack'
 
 import type { ResolvedDrawerSnapPoint } from './drawer-snap-points'
 import {
@@ -22,14 +23,18 @@ export type DrawerSwipeDirection = 'up' | 'down' | 'left' | 'right'
 
 const AXIS_LOCK_SLOP = 6
 const MIN_SWIPE_THRESHOLD = 10
+const REVERSE_CANCEL_THRESHOLD = 10
 const FAST_SWIPE_VELOCITY = 0.5
 const SNAP_VELOCITY_THRESHOLD = 0.5
 const SNAP_VELOCITY_MULTIPLIER = 300
 const MAX_SNAP_VELOCITY = 4
-const VELOCITY_SAMPLE_WINDOW_MS = 100
+const MIN_VELOCITY_DURATION_MS = 50
+const MIN_VELOCITY_SAMPLE_DISTANCE = 1
+const MIN_RELEASE_VELOCITY_DURATION_MS = 4
+const MAX_RELEASE_VELOCITY_AGE_MS = 80
 
 const SWIPE_IGNORE_SELECTOR =
-  'button, a, input, textarea, select, [contenteditable], [role="slider"], [data-swipe-ignore]'
+  'button, a, input, textarea, select, label, [contenteditable], [role="button"], [role="slider"], [data-swipe-ignore]'
 const SWIPE_BODY_SELECTOR = '[data-slot="drawer-body"]'
 
 export function swipeDirectionForSide(
@@ -91,10 +96,12 @@ function canScrollInGestureDirection(
     }
     return scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1
   }
-  if (screenDelta > 0) {
-    return scroller.scrollLeft > 0
-  }
-  return scroller.scrollLeft < scroller.scrollWidth - scroller.clientWidth - 1
+  // `scrollLeft` is <= 0 in RTL; normalize to an offset that grows toward content end.
+  const rtl = scroller.ownerDocument.defaultView?.getComputedStyle(scroller).direction === 'rtl'
+  const scrollOffset = rtl ? -scroller.scrollLeft : scroller.scrollLeft
+  const maxOffset = scroller.scrollWidth - scroller.clientWidth
+  const towardEnd = rtl ? screenDelta > 0 : screenDelta < 0
+  return towardEnd ? scrollOffset < maxOffset - 1 : scrollOffset > 0
 }
 
 function swipeIgnoreMatch(target: EventTarget | null, vertical: boolean, touch: boolean): boolean {
@@ -120,10 +127,31 @@ interface DragState {
   touchId?: number
   /** Pointer drags capture on swipe start so clicks aren't retargeted beforehand. */
   captureTarget?: HTMLElement
+  /** A touch scrollable ancestor that may win the gesture until it reaches its edge. */
   scrollTarget: HTMLElement | null
   swiping: boolean
   abandoned: boolean
-  samples: Array<{ time: number; value: number }>
+  /**
+   * Reversed past `REVERSE_CANCEL_THRESHOLD` after locking the dismiss axis: the
+   * release snaps back instead of settling or dismissing.
+   */
+  cancelled: boolean
+  /** Whether the press origin has been absorbed into the first move position. */
+  moved: boolean
+  /** Set when a pointermove still reports the primary button down. */
+  sawPrimaryButtons: boolean
+  lastX: number
+  lastY: number
+  /** Previous move's raw axis delta, for per-move direction and cancel baselines. */
+  lastMain: number
+  /** Displacement of the deepest point of the current retreat, for reverse-cancel. */
+  cancelBaseD: number
+  /** Displacement when the gesture claimed the axis. */
+  lockD: number
+  lastSample?: { time: number; value: number }
+  /** Instantaneous velocity between the last two moving samples, dismiss-signed. */
+  lastVelocity: number
+  stationarySeen: boolean
   docCleanup?: VoidFunction
 }
 
@@ -253,49 +281,64 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     setSwiping(false)
   }
 
-  function velocity(state: DragState): number {
-    const now = performance.now()
-    const from = now - VELOCITY_SAMPLE_WINDOW_MS
-    let first = state.samples[0]
-    for (const sample of state.samples) {
-      if (sample.time >= from) {
-        first = sample
-        break
+  function recordSample(state: DragState, main: number): void {
+    const time = performance.now()
+    const last = state.lastSample
+    if (last && time > last.time) {
+      // Some Android devices emit one effectively stationary move immediately before release.
+      // Keep the last moving sample and its velocity; repeated stationary moves still clear it.
+      const stationary = Math.abs(main - last.value) < MIN_VELOCITY_SAMPLE_DISTANCE
+      const skip = stationary && !state.stationarySeen
+      state.stationarySeen = stationary
+      if (!skip) {
+        state.lastVelocity =
+          ((main - last.value) / Math.max(time - last.time, MIN_RELEASE_VELOCITY_DURATION_MS)) *
+          screenSign(options.direction())
+        state.lastSample = { time, value: main }
       }
+      return
     }
-    const last = state.samples[state.samples.length - 1]
-    if (!first || !last || last === first || last.time <= first.time) {
-      return 0
-    }
-    return ((last.value - first.value) / (last.time - first.time)) * screenSign(options.direction())
+    state.lastSample = { time, value: main }
   }
 
-  function gestureVelocity(state: DragState, d: number): number {
-    const elapsed = performance.now() - state.startTime
-    return elapsed > 0 ? (d / elapsed) * screenSign(options.direction()) : 0
-  }
-
-  function recordSample(state: DragState, x: number, y: number): number {
-    const { main } = axisDelta(state, x, y)
-    const d = main * screenSign(options.direction())
-    state.samples.push({ time: performance.now(), value: main })
-    return d
-  }
-
-  function settleDrag(state: DragState, released: boolean): void {
-    if (!released) {
+  function settleDrag(state: DragState, released: boolean, endX: number, endY: number): void {
+    if (!released || state.cancelled) {
       resetDrag()
       return
     }
 
-    const last = state.samples[state.samples.length - 1]
-    const d = last ? last.value * screenSign(options.direction()) : 0
-    const recent = velocity(state)
-    const overall = gestureVelocity(state, last?.value ?? 0)
+    const sign = screenSign(options.direction())
+    const endMain = vertical() ? endY - state.startY : endX - state.startX
+    const d = endMain * sign
     const size = popupSize()
+    const now = performance.now()
+
+    // Release velocity: the terminal flick from the last moving sample. A release
+    // long after the final move expires it so hold-then-release stays slow.
+    let releaseVelocity = state.lastVelocity
+    const last = state.lastSample
+    if (last && now >= last.time) {
+      const age = now - last.time
+      if (age <= MAX_RELEASE_VELOCITY_AGE_MS) {
+        const delta = endMain - last.value
+        if (Math.abs(delta) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
+          releaseVelocity = (delta / Math.max(age, MIN_RELEASE_VELOCITY_DURATION_MS)) * sign
+        }
+      } else {
+        releaseVelocity = 0
+      }
+    }
+
+    const duration = now - state.startTime
+    const durationMs = duration > 0 ? Math.max(duration, MIN_VELOCITY_DURATION_MS) : 0
+    const overall = durationMs > 0 ? (endMain / durationMs) * sign : 0
+    let directionalVelocity = Math.abs(releaseVelocity) > 0 ? releaseVelocity : overall
 
     if (!hasSnapPoints()) {
-      const shouldClose = d > 0 && (recent >= FAST_SWIPE_VELOCITY || d > Math.max(size * 0.5, 10))
+      const shouldClose =
+        d > 0 &&
+        (directionalVelocity >= FAST_SWIPE_VELOCITY ||
+          d > Math.max(size * 0.5, MIN_SWIPE_THRESHOLD))
       if (shouldClose) {
         closeSwipe()
       } else {
@@ -312,7 +355,6 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
 
     const dragDelta = d
     const dragDirection = Math.sign(dragDelta)
-    let directionalVelocity = recent
     if (
       dragDirection !== 0 &&
       Math.abs(dragDelta) >= MIN_SWIPE_THRESHOLD &&
@@ -418,8 +460,20 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     })
   }
 
-  function endDrag(state: DragState, released: boolean): void {
+  function endDrag(
+    state: DragState,
+    released: boolean,
+    endX = state.lastX,
+    endY = state.lastY,
+  ): void {
     state.docCleanup?.()
+    if (state.pointerId !== undefined && state.captureTarget) {
+      try {
+        state.captureTarget.releasePointerCapture?.(state.pointerId)
+      } catch {
+        // Pointer capture is best-effort, matching the set path.
+      }
+    }
     if (drag === state) {
       drag = null
     }
@@ -428,28 +482,63 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       return
     }
     setSwiping(false)
-    settleDrag(state, released)
+    settleDrag(state, released, endX, endY)
   }
+
+  /** Whether another overlay opened above this drawer (e.g. a nested drawer). */
+  let blocked: () => boolean = () => false
 
   function updateDrag(state: DragState, x: number, y: number): boolean {
     // Returns true once the gesture owns the drag (caller may preventDefault).
     if (state.abandoned) {
       return false
     }
+    if (!state.moved) {
+      // The first move replaces the press position as the drag origin: iOS touch
+      // delivers the first touchmove already offset from touchstart, which would
+      // otherwise jump the content. The absorbed move still seeds tracking.
+      state.moved = true
+      state.startX = x
+      state.startY = y
+      state.startTime = performance.now()
+      state.lastX = x
+      state.lastY = y
+      state.lastMain = 0
+      return false
+    }
+
     const { main, cross } = axisDelta(state, x, y)
+    const sign = screenSign(options.direction())
+    const d = main * sign
+    const moveD = (main - state.lastMain) * sign
+    const moveMain = vertical() ? y - state.lastY : x - state.lastX
+    state.lastX = x
+    state.lastY = y
+    state.lastMain = main
+
     if (!state.swiping) {
       if (Math.abs(main) < AXIS_LOCK_SLOP && Math.abs(cross) < AXIS_LOCK_SLOP) {
         return false
       }
       if (Math.abs(cross) > Math.abs(main)) {
+        // The cross axis won the gesture; this decision is permanent.
         state.abandoned = true
         return false
       }
-      if (state.scrollTarget && canScrollInGestureDirection(state.scrollTarget, vertical(), main)) {
-        state.abandoned = true
+      if (blocked()) {
+        return false
+      }
+      if (
+        state.scrollTarget &&
+        canScrollInGestureDirection(state.scrollTarget, vertical(), moveMain)
+      ) {
+        // The scroller still has room in the move direction: yield this move and
+        // re-arbitrate on the next one, so reaching the scroll edge hands the
+        // rest of the gesture back to the drawer.
         return false
       }
       state.swiping = true
+      state.lockD = d
       setSwiping(true)
       if (state.pointerId !== undefined && state.captureTarget) {
         try {
@@ -459,8 +548,26 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         }
       }
     }
-    recordSample(state, x, y)
-    applyMovement(main * screenSign(options.direction()))
+
+    // Reverse-cancel: track the deepest point of the current retreat. Receding
+    // `REVERSE_CANCEL_THRESHOLD` below it cancels; recovering a full dismiss
+    // threshold from the retreat re-arms the swipe. Skipped for snap points:
+    // there the reverse direction expands toward a larger point, so a retreat
+    // is a valid gesture, not a change of mind.
+    if (!hasSnapPoints()) {
+      if ((moveD < 0 && d > state.cancelBaseD) || (moveD > 0 && d < state.cancelBaseD)) {
+        state.cancelBaseD = d
+      }
+      const cancelD = d - state.cancelBaseD
+      if (cancelD > Math.max(popupSize() * 0.5, MIN_SWIPE_THRESHOLD)) {
+        state.cancelled = false
+      } else if (state.lockD - cancelD >= REVERSE_CANCEL_THRESHOLD) {
+        state.cancelled = true
+      }
+    }
+
+    recordSample(state, main)
+    applyMovement(d)
     return true
   }
 
@@ -489,6 +596,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
 
     const ownerWindow = content.ownerDocument.defaultView
     const ownerDocument = content.ownerDocument
+    blocked = () => containsOverlayContentAbove(content, ownerDocument.documentElement)
 
     function measure(): void {
       setPopupHeight(content.offsetHeight)
@@ -504,13 +612,15 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     measure()
 
     function onPointerDown(event: PointerEvent): void {
-      if (event.pointerType === 'touch' || !options.open()) {
+      // A live gesture owns the drag; a second pointer must not replace it, or the
+      // first pointer's release would settle against the new gesture's state.
+      if (drag || event.pointerType === 'touch' || !options.open()) {
         return
       }
       if (event.button !== 0) {
         return
       }
-      if (swipeIgnoreMatch(event.target, vertical(), false)) {
+      if (blocked() || swipeIgnoreMatch(event.target, vertical(), false)) {
         return
       }
       if (event.target instanceof Element && event.target.closest(SWIPE_BODY_SELECTOR)) {
@@ -527,7 +637,16 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         scrollTarget: null,
         swiping: false,
         abandoned: false,
-        samples: [],
+        cancelled: false,
+        moved: false,
+        sawPrimaryButtons: false,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        lastMain: 0,
+        cancelBaseD: 0,
+        lockD: 0,
+        lastVelocity: 0,
+        stationarySeen: false,
       }
 
       const state = drag
@@ -536,14 +655,31 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
           if (moveEvent.pointerId !== state.pointerId) {
             return
           }
+          const hasPrimaryButton = (moveEvent.buttons & 1) === 1
+          if (hasPrimaryButton) {
+            state.sawPrimaryButtons = true
+          }
+          // A non-primary button taking over the interaction (e.g. a right-click
+          // mid-drag) cancels the swipe.
+          if (moveEvent.buttons !== 0 && !hasPrimaryButton) {
+            endDrag(state, false)
+            return
+          }
+          // A `buttons: 0` move means the primary button was already released and
+          // no pointerup reached us (fast trackpad flicks): treat this trailing
+          // move as the release — it may itself carry the decisive displacement.
+          if (moveEvent.buttons === 0 && state.sawPrimaryButtons) {
+            updateDrag(state, moveEvent.clientX, moveEvent.clientY)
+            endDrag(state, true, moveEvent.clientX, moveEvent.clientY)
+            return
+          }
           updateDrag(state, moveEvent.clientX, moveEvent.clientY)
         },
         pointerup: (upEvent) => {
           if (upEvent.pointerId !== state.pointerId) {
             return
           }
-          recordSample(state, upEvent.clientX, upEvent.clientY)
-          endDrag(state, true)
+          endDrag(state, true, upEvent.clientX, upEvent.clientY)
         },
         pointercancel: () => {
           endDrag(state, false)
@@ -552,10 +688,10 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     }
 
     function onTouchStart(event: TouchEvent): void {
-      if (!options.open() || event.touches.length !== 1) {
+      if (drag || !options.open() || event.touches.length !== 1) {
         return
       }
-      if (swipeIgnoreMatch(event.target, vertical(), true)) {
+      if (blocked() || swipeIgnoreMatch(event.target, vertical(), true)) {
         return
       }
       const touch = event.touches[0]!
@@ -567,13 +703,26 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         scrollTarget: findScrollableAncestor(event.target, content, vertical()),
         swiping: false,
         abandoned: false,
-        samples: [],
+        cancelled: false,
+        moved: false,
+        sawPrimaryButtons: false,
+        lastX: touch.clientX,
+        lastY: touch.clientY,
+        lastMain: 0,
+        cancelBaseD: 0,
+        lockD: 0,
+        lastVelocity: 0,
+        stationarySeen: false,
       }
     }
 
     function onTouchMove(event: TouchEvent): void {
       const state = drag
       if (!state || state.touchId === undefined || state.abandoned) {
+        return
+      }
+      // Leave pinch zoom and two-finger selection adjustments to the browser.
+      if (event.touches.length !== 1) {
         return
       }
       const touch = Array.from(event.touches).find((item) => item.identifier === state.touchId)
@@ -593,10 +742,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       const touch = Array.from(event.changedTouches).find(
         (item) => item.identifier === state.touchId,
       )
-      if (touch) {
-        recordSample(state, touch.clientX, touch.clientY)
-      }
-      endDrag(state, !state.abandoned)
+      endDrag(state, !state.abandoned, touch?.clientX ?? state.lastX, touch?.clientY ?? state.lastY)
     }
 
     function onTouchCancel(): void {
