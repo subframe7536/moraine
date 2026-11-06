@@ -36,7 +36,7 @@ import {
 } from './drawer-context'
 import { DrawerDescription } from './drawer-description'
 import { DrawerShorthandHeader } from './drawer-header'
-import { createDrawerSwipe, swipeDirectionForSide } from './drawer-swipe'
+import { createDrawerSwipe } from './drawer-swipe'
 import { DrawerTitle } from './drawer-title'
 import { defaultDrawerMessages } from './drawer.messages'
 import { DRAWER_MOTION, drawerDataAttributes, drawerRecipe } from './drawer.recipe'
@@ -81,7 +81,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         swiping: () => swipe.swiping(),
         nestedOpen: () => drawer.nested.openCount() > 0,
         nestedSwiping: drawer.nested.swiping,
-        handle: () => merged.handle !== false && vertical(),
+        handle: () => hasHandle(),
       }),
       overlay: drawerDataAttributes.overlay({
         closed: () => !family.open(),
@@ -113,16 +113,8 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     },
   })
   const vertical = (): boolean => variants.side === 'bottom' || variants.side === 'top'
-  const swipe = createDrawerSwipe({
-    open: family.open,
-    direction: () => swipeDirectionForSide(variants.side),
-    close: () => family.updateOpen(false),
-    snapPoints: () => merged.snapPoints,
-    snapPoint: drawer.snapPoint,
-    setSnapPoint: drawer.setSnapPoint,
-    snapToSequentialPoints: () => merged.snapToSequentialPoints === true,
-    sizeFrozen: () => drawer.nested.openCount() > 0,
-  })
+  const hasHandle = () => merged.handle !== false && vertical()
+  const swipe = createDrawerSwipe(drawer, family, () => variants.side)
   const registration = createDrawerContentRegistration()
 
   const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
@@ -152,37 +144,33 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     // mounted count keeps ancestors marked stacked for the whole exit; the
     // open reports drop as soon as this drawer starts closing so ancestors
     // settle toward the next frontmost popup concurrently with the exit.
-    const parentChannel = drawer.nested.parent
-    createEffect(
-      on(
-        [
-          drawer.nested.openCount,
-          drawer.nested.activeCount,
-          drawer.nested.frontmostHeight,
-          family.open,
-          swipe.swiping,
-          swipe.progress,
-          swipe.popupHeight,
-        ],
-        ([openCount, activeCount, frontmostHeight, isOpen, swiping, progress, height]) => {
-          drawer.nested.setPopupHeight(height)
-          parentChannel?.report({
-            open: openCount + 1,
-            active: isOpen ? activeCount + 1 : 0,
-            frontmostHeight: isOpen ? frontmostHeight : 0,
-          })
-          parentChannel?.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
-        },
-      ),
-    )
-    onCleanup(() => {
-      // The root-level channel signals outlive this content; drop the measured
-      // size so a remount reports 0 first and ancestors transition like on the
-      // first open instead of snapping to a stale height.
-      drawer.nested.setPopupHeight(0)
-      parentChannel?.report({ open: 0, active: 0, frontmostHeight: 0 })
-      parentChannel?.reportSwipe(false, 0)
-    })
+    const parent = drawer.nested.parent
+    if (parent) {
+      createEffect(
+        on(
+          [
+            drawer.nested.openCount,
+            drawer.nested.activeCount,
+            drawer.nested.frontmostHeight,
+            family.open,
+            swipe.swiping,
+            swipe.progress,
+          ],
+          ([openCount, activeCount, frontmostHeight, isOpen, swiping, progress]) => {
+            parent.report({
+              open: openCount + 1,
+              active: isOpen ? activeCount + 1 : 0,
+              frontmostHeight: isOpen ? frontmostHeight : 0,
+            })
+            parent.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
+          },
+        ),
+      )
+      onCleanup(() => {
+        parent.report({ open: 0, active: 0, frontmostHeight: 0 })
+        parent.reportSwipe(false, 0)
+      })
+    }
 
     // Android back gesture: CloseWatcher mirrors native <dialog> dismissal. Each open
     // drawer owns a watcher, so the browser's stack hands the gesture to the topmost one.
@@ -222,7 +210,6 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
     const tag = (): ValidComponent => local.as ?? 'div'
-    const hasHandle = () => merged.handle !== false && vertical()
 
     return (
       <Dynamic

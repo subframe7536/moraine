@@ -53,7 +53,7 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
       '--drawer-nested-offset':
         'calc(max(0px, var(--drawer-nested-depth) * (1.5rem - 1px)) + (1 - var(--drawer-nested-scale)) * var(--drawer-frontmost-height))',
       ...DRAWER_MOTION,
-      content: `text-sm text-popover-foreground outline-none border-border bg-popover flex flex-col min-h-0 min-w-0 shadow-overlay transition-[transform,height,width] fixed z-floating bg-clip-padding data-closed:(pointer-events-none animate-mo-exit) data-nested-swiping:(select-none transition-none) data-swiping:(select-none transition-none) motion-reduce:(transition-none animate-none) data-expanded:animate-mo-enter`,
+      content: `text-sm text-popover-foreground outline-none border-border bg-popover flex flex-col min-h-0 min-w-0 shadow-overlay transition-[transform,height,width] duration-(--mo-anim-duration) ease-(--mo-anim-ease) fixed z-floating bg-clip-padding data-closed:(pointer-events-none animate-mo-exit) data-nested-swiping:(select-none transition-none) data-swiping:(select-none transition-none) motion-reduce:(transition-none animate-none) data-expanded:animate-mo-enter`,
       overlay: `${MODAL_OVERLAY_CLASS} transition-opacity data-swiping:transition-none`,
       handle: 'mx-auto rounded-full bg-input shrink-0 h-1 w-12 inset-x-0 absolute',
       header: 'p-6 shrink-0 gap-2 grid auto-rows-min min-w-0 data-body:pb-3 max-sm:pb-4',

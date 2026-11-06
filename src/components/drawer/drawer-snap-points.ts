@@ -6,7 +6,7 @@ export interface ResolvedDrawerSnapPoint {
   offset: number
 }
 
-export function clampSnapValue(value: number, min: number, max: number): number {
+export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
@@ -29,7 +29,7 @@ export function resolveSnapPointValue(
     }
 
     if (snapPoint <= 1) {
-      return clampSnapValue(snapPoint, 0, 1) * viewportHeight
+      return clamp(snapPoint, 0, 1) * viewportHeight
     }
 
     return snapPoint
@@ -62,14 +62,17 @@ export function snapPointHeightCss(snapPoint: DrawerT.SnapPoint): string {
 }
 
 /**
- * Returns the index of the value closest to `target`, or `-1` if `values` is empty.
+ * Returns the index of the point whose offset is closest to `offset`, or `-1` if `points` is empty.
  */
-export function closestSnapPointIndex(values: number[], target: number): number {
+export function closestSnapPointIndex(
+  points: readonly ResolvedDrawerSnapPoint[],
+  offset: number,
+): number {
   let closestIndex = -1
   let closestDistance = Infinity
 
-  for (let index = 0; index < values.length; index += 1) {
-    const distance = Math.abs(values[index]! - target)
+  for (let index = 0; index < points.length; index += 1) {
+    const distance = Math.abs(points[index]!.offset - offset)
     if (distance < closestDistance) {
       closestDistance = distance
       closestIndex = index
@@ -95,40 +98,24 @@ export function resolveSnapPoints(
 
   const maxHeight = Math.min(popupHeight, viewportHeight)
 
-  const resolved = snapPoints
-    .map((value): ResolvedDrawerSnapPoint | null => {
-      const resolvedHeight = resolveSnapPointValue(value, viewportHeight, rootFontSize)
-      if (resolvedHeight === null) {
-        return null
-      }
-
-      const clampedHeight = clampSnapValue(resolvedHeight, 0, maxHeight)
-      return {
-        value,
-        height: clampedHeight,
-        offset: Math.max(0, popupHeight - clampedHeight),
-      }
-    })
-    .filter((point): point is ResolvedDrawerSnapPoint => point !== null)
-
-  if (resolved.length <= 1) {
-    return resolved
-  }
-
-  const deduped: ResolvedDrawerSnapPoint[] = []
-  const seenHeights: number[] = []
-
-  for (let index = resolved.length - 1; index >= 0; index -= 1) {
-    const point = resolved[index]!
-    const isDuplicate = seenHeights.some((height) => Math.abs(height - point.height) <= 1)
-    if (isDuplicate) {
-      continue
+  const resolved = snapPoints.flatMap((value): ResolvedDrawerSnapPoint[] => {
+    const resolvedHeight = resolveSnapPointValue(value, viewportHeight, rootFontSize)
+    if (resolvedHeight === null) {
+      return []
     }
 
-    seenHeights.push(point.height)
-    deduped.push(point)
+    const clampedHeight = clamp(resolvedHeight, 0, maxHeight)
+    return [{ value, height: clampedHeight, offset: Math.max(0, popupHeight - clampedHeight) }]
+  })
+
+  const deduped: ResolvedDrawerSnapPoint[] = []
+  for (let index = resolved.length - 1; index >= 0; index -= 1) {
+    const point = resolved[index]!
+    const isDuplicate = deduped.some((kept) => Math.abs(kept.height - point.height) <= 1)
+    if (!isDuplicate) {
+      deduped.unshift(point)
+    }
   }
 
-  deduped.reverse()
   return deduped
 }

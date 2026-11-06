@@ -6,19 +6,18 @@ import {
   createEventListener,
   createEventListenerMap,
 } from '../../shared/event-listener'
+import type { ModalContext } from '../modal/modal-context'
 import { containsOverlayContentAbove } from '../shared/overlay/overlay-stack'
 
+import type { DrawerContextValue } from './drawer-context'
 import type { ResolvedDrawerSnapPoint } from './drawer-snap-points'
 import {
-  clampSnapValue,
+  clamp,
   closestSnapPointIndex,
-  resolveSnapPointValue,
-  snapPointHeightCss,
   resolveSnapPoints,
+  snapPointHeightCss,
 } from './drawer-snap-points'
 import type { DrawerT } from './drawer.types'
-
-export type DrawerSwipeDirection = 'up' | 'down' | 'left' | 'right'
 
 const AXIS_LOCK_SLOP = 6
 const MIN_SWIPE_THRESHOLD = 10
@@ -35,21 +34,6 @@ const MAX_RELEASE_VELOCITY_AGE_MS = 80
 const SWIPE_IGNORE_SELECTOR =
   'button, a, input, textarea, select, label, [contenteditable], [role="button"], [role="slider"], [data-swipe-ignore]'
 const SWIPE_BODY_SELECTOR = '[data-slot="drawer-body"]'
-
-export function swipeDirectionForSide(
-  side: 'top' | 'right' | 'bottom' | 'left',
-): DrawerSwipeDirection {
-  return side === 'bottom' ? 'down' : side === 'top' ? 'up' : side
-}
-
-function isVertical(direction: DrawerSwipeDirection): boolean {
-  return direction === 'down' || direction === 'up'
-}
-
-/** Sign that maps dismiss-direction displacement onto screen coordinates (+down/+right). */
-function screenSign(direction: DrawerSwipeDirection): 1 | -1 {
-  return direction === 'down' || direction === 'right' ? 1 : -1
-}
 
 /** Past the open edge the popup rubber-bands: extra distance falls off with `sqrt`. */
 function dampen(delta: number): number {
@@ -132,7 +116,6 @@ interface DragState {
   startX: number
   startY: number
   startTime: number
-  pointerId?: number
   touchId?: number
   /** A touch scrollable ancestor that may win the gesture until it reaches its edge. */
   scrollTarget: HTMLElement | null
@@ -148,12 +131,8 @@ interface DragState {
   cancelled: boolean
   /** Whether the press origin has been absorbed into the first move position. */
   moved: boolean
-  /** Set when a pointermove still reports the primary button down. */
-  sawPrimaryButtons: boolean
   lastX: number
   lastY: number
-  /** Previous move's raw axis delta, for per-move direction and cancel baselines. */
-  lastMain: number
   /** Displacement of the deepest point of the current retreat, for reverse-cancel. */
   cancelBaseD: number
   /** Displacement when the gesture claimed the axis. */
@@ -170,8 +149,8 @@ interface DragState {
 function createDrag(
   x: number,
   y: number,
-  scrollTarget: HTMLElement | null,
-  crossScrollable: boolean,
+  scrollTarget: HTMLElement | null = null,
+  crossScrollable = false,
 ): DragState {
   return {
     startX: x,
@@ -183,32 +162,14 @@ function createDrag(
     abandoned: false,
     cancelled: false,
     moved: false,
-    sawPrimaryButtons: false,
     lastX: x,
     lastY: y,
-    lastMain: 0,
     cancelBaseD: 0,
     lockD: 0,
     sampleValue: 0,
     lastVelocity: 0,
     stationarySeen: false,
   }
-}
-
-export interface DrawerSwipeOptions {
-  open: Accessor<boolean>
-  direction: Accessor<DrawerSwipeDirection>
-  close: () => void
-  snapPoints: Accessor<readonly DrawerT.SnapPoint[] | undefined>
-  snapPoint: Accessor<DrawerT.SnapPoint | null>
-  setSnapPoint: (point: DrawerT.SnapPoint | null) => void
-  snapToSequentialPoints: Accessor<boolean>
-  /**
-   * While true the popup's measured size is forced (a nested stack pins it to
-   * the frontmost height), so measurements are skipped and the last unforced
-   * size is kept as its own.
-   */
-  sizeFrozen: Accessor<boolean>
 }
 
 export interface DrawerSwipeController {
@@ -220,8 +181,6 @@ export interface DrawerSwipeController {
   snapPointOffsetCss: Accessor<string>
   /** Dismissal progress in [0, 1] used for overlay opacity. */
   progress: Accessor<number>
-  /** Measured popup height in px, kept current by a ResizeObserver. */
-  popupHeight: Accessor<number>
   /** Binds the gesture to the content element for the element's lifetime. */
   attach: (element: HTMLElement) => void
 }
@@ -230,75 +189,55 @@ export interface DrawerSwipeController {
  * Swipe-to-dismiss and snap-point gesture controller for Drawer.Content.
  * Bind it to the content element in the render owner that mounts it.
  */
-export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeController {
+export function createDrawerSwipe(
+  drawer: DrawerContextValue,
+  modal: ModalContext,
+  side: Accessor<NonNullable<DrawerT.Variants['side']>>,
+): DrawerSwipeController {
   const [swiping, setSwiping] = createSignal(false)
   const [displacement, setDisplacement] = createSignal(0)
-  const [popupHeight, setPopupHeight] = createSignal(0)
   const [popupWidth, setPopupWidth] = createSignal(0)
   const [viewportHeight, setViewportHeight] = createSignal(0)
   const [rootFontSize, setRootFontSize] = createSignal(16)
 
   let drag: DragState | null = null
 
-  const vertical = () => isVertical(options.direction())
+  const vertical = () => side() === 'top' || side() === 'bottom'
+  /** Sign that maps dismiss-direction displacement onto screen coordinates (+down/+right). */
+  const screenSign = () => (side() === 'bottom' || side() === 'right' ? 1 : -1)
 
+  const popupHeight = drawer.nested.popupHeight
   const popupSize = () => (vertical() ? popupHeight() : popupWidth())
 
-  const resolvedSnapPoints = createMemo(() => {
-    if (!vertical()) {
-      return []
+  const resolvedSnapPoints = createMemo(() =>
+    vertical()
+      ? resolveSnapPoints(drawer.snapPoints, popupHeight(), viewportHeight(), rootFontSize())
+      : [],
+  )
+
+  const snapPointOffset = createMemo(() => {
+    const active = drawer.snapPoint()
+    const points = resolvedSnapPoints()
+    if (active === null || points.length === 0) {
+      return 0
     }
-    return resolveSnapPoints(options.snapPoints(), popupSize(), viewportHeight(), rootFontSize())
+    const [target] = resolveSnapPoints([active], popupHeight(), viewportHeight(), rootFontSize())
+    return target ? points[closestSnapPointIndex(points, target.offset)]!.offset : 0
   })
-
-  const activeSnapPoint = createMemo((): ResolvedDrawerSnapPoint | undefined => {
-    const active = options.snapPoint()
-    const resolved = resolvedSnapPoints()
-    if (active === null || resolved.length === 0) {
-      return undefined
-    }
-
-    const exactMatch = resolved.find((point) => Object.is(point.value, active))
-    if (exactMatch) {
-      return exactMatch
-    }
-
-    const maxHeight = Math.min(popupSize(), viewportHeight())
-    const resolvedHeight = resolveSnapPointValue(active, viewportHeight(), rootFontSize())
-    if (resolvedHeight === null) {
-      return undefined
-    }
-
-    const clampedHeight = clampSnapValue(resolvedHeight, 0, maxHeight)
-    return resolved[
-      closestSnapPointIndex(
-        resolved.map((point) => point.height),
-        clampedHeight,
-      )
-    ]
-  })
-
-  const snapPointOffset = () =>
-    resolvedSnapPoints().length > 0 ? (activeSnapPoint()?.offset ?? 0) : 0
 
   // Declared snap points keep a pure-CSS offset (element height minus snap
   // height) so the first style resolution is already correct — swapping in the
   // measured value afterwards changes nothing and fires no translate transition.
   const snapPointOffsetCss = (): string => {
-    const active = options.snapPoint()
-    const snapPoints = options.snapPoints()
-    if (
-      active === null ||
-      snapPoints === undefined ||
-      !vertical() ||
-      !snapPoints.some((point) => Object.is(point, active))
-    ) {
-      return `${snapPointOffset()}px`
-    }
-    return `max(0px, calc(100% - ${snapPointHeightCss(active)}), calc(100% - 100dvh))`
+    const active = drawer.snapPoint()
+    return active !== null &&
+      vertical() &&
+      drawer.snapPoints?.some((point) => Object.is(point, active))
+      ? `max(0px, calc(100% - ${snapPointHeightCss(active)}), calc(100% - 100dvh))`
+      : `${snapPointOffset()}px`
   }
 
-  const hasSnapPoints = () => resolvedSnapPoints().length > 0
+  const dismissThreshold = () => Math.max(popupSize() * 0.5, MIN_SWIPE_THRESHOLD)
 
   // Within the open-edge bound the drag translates the popup; past it the
   // displacement is rubber-banded so the popup barely gives.
@@ -306,7 +245,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     const raw = displacement()
     const limit = -snapPointOffset()
     const translate = raw >= limit ? raw : limit + dampen(raw - limit)
-    return translate * screenSign(options.direction())
+    return translate * screenSign()
   })
 
   const progress = createMemo(() => {
@@ -314,7 +253,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     if (size <= 0) {
       return 0
     }
-    return clampSnapValue((snapPointOffset() + displacement()) / size, 0, 1)
+    return clamp((snapPointOffset() + displacement()) / size, 0, 1)
   })
 
   function resetDrag(): void {
@@ -339,172 +278,107 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       state.lastVelocity =
         ((main - state.sampleValue) /
           Math.max(time - sampleTime, MIN_RELEASE_VELOCITY_DURATION_MS)) *
-        screenSign(options.direction())
+        screenSign()
       state.sampleTime = time
       state.sampleValue = main
     }
   }
 
-  function settleDrag(state: DragState, released: boolean, endX: number, endY: number): void {
-    if (!released || state.cancelled) {
-      resetDrag()
-      return
-    }
-
-    const sign = screenSign(options.direction())
+  function settleDrag(state: DragState, endX: number, endY: number): void {
+    const sign = screenSign()
     const endMain = vertical() ? endY - state.startY : endX - state.startX
     const d = endMain * sign
-    const size = popupSize()
     const now = performance.now()
 
     // Release velocity: the terminal flick from the last moving sample. A release
     // long after the final move expires it so hold-then-release stays slow.
-    let releaseVelocity = state.lastVelocity
-    const sampleTime = state.sampleTime
-    if (sampleTime !== undefined && now >= sampleTime) {
-      const age = now - sampleTime
-      if (age <= MAX_RELEASE_VELOCITY_AGE_MS) {
-        const delta = endMain - state.sampleValue
-        if (Math.abs(delta) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
-          releaseVelocity = (delta / Math.max(age, MIN_RELEASE_VELOCITY_DURATION_MS)) * sign
-        }
-      } else {
-        releaseVelocity = 0
+    let velocity = state.lastVelocity
+    if (state.sampleTime !== undefined) {
+      const age = now - state.sampleTime
+      const delta = endMain - state.sampleValue
+      if (age > MAX_RELEASE_VELOCITY_AGE_MS) {
+        velocity = 0
+      } else if (Math.abs(delta) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
+        velocity = (delta / Math.max(age, MIN_RELEASE_VELOCITY_DURATION_MS)) * sign
       }
     }
 
     const duration = now - state.startTime
-    const durationMs = duration > 0 ? Math.max(duration, MIN_VELOCITY_DURATION_MS) : 0
-    const overall = durationMs > 0 ? (endMain / durationMs) * sign : 0
-    let directionalVelocity = Math.abs(releaseVelocity) > 0 ? releaseVelocity : overall
+    const overall =
+      duration > 0 ? (endMain / Math.max(duration, MIN_VELOCITY_DURATION_MS)) * sign : 0
+    velocity ||= overall
 
-    if (!hasSnapPoints()) {
-      const shouldClose =
-        d > 0 &&
-        (directionalVelocity >= FAST_SWIPE_VELOCITY ||
-          d > Math.max(size * 0.5, MIN_SWIPE_THRESHOLD))
-      if (shouldClose) {
+    const points = resolvedSnapPoints()
+    if (points.length === 0) {
+      if (d > 0 && (velocity >= FAST_SWIPE_VELOCITY || d > dismissThreshold())) {
         closeSwipe()
       } else {
-        resetDrag()
+        setDisplacement(0)
       }
       return
+    }
+
+    if (Math.abs(d) >= MIN_SWIPE_THRESHOLD && velocity * d < 0) {
+      // A reversed flick should not flip the snap decision.
+      velocity = overall
+    }
+
+    const size = popupSize()
+    const direction = Math.sign(d)
+    const currentOffset = snapPointOffset()
+    let targetOffset = clamp(currentOffset + d, 0, size)
+    let target: ResolvedDrawerSnapPoint
+    if (drawer.snapToSequentialPoints) {
+      const ordered = [...points].sort((a, b) => a.offset - b.offset)
+      target = ordered[closestSnapPointIndex(ordered, targetOffset)]!
+      if (velocity * direction >= SNAP_VELOCITY_THRESHOLD) {
+        const adjacent = ordered[closestSnapPointIndex(ordered, currentOffset) + direction]
+        if (!adjacent) {
+          if (direction > 0) {
+            closeSwipe()
+            return
+          }
+        } else if ((adjacent.offset - targetOffset) * direction > 0) {
+          target = adjacent
+          targetOffset = adjacent.offset
+        }
+      }
+    } else {
+      if (Math.abs(velocity) >= SNAP_VELOCITY_THRESHOLD) {
+        targetOffset = clamp(
+          targetOffset +
+            clamp(velocity, -MAX_SNAP_VELOCITY, MAX_SNAP_VELOCITY) * SNAP_VELOCITY_MULTIPLIER,
+          0,
+          size,
+        )
+      }
+      target = points[closestSnapPointIndex(points, targetOffset)]!
+      // A fast dismiss flick closes only from the lowest snap point; elsewhere the
+      // velocity-projected target below picks the resting point.
+      if (
+        velocity >= FAST_SWIPE_VELOCITY &&
+        d > 0 &&
+        currentOffset >= Math.max(...points.map((point) => point.offset))
+      ) {
+        closeSwipe()
+        return
+      }
     }
 
     // Snap point release: choose between the closest snap point and closing.
-    if (size <= 0 || resolvedSnapPoints().length === 0) {
-      resetDrag()
-      return
-    }
-
-    const dragDelta = d
-    const dragDirection = Math.sign(dragDelta)
-    if (
-      dragDirection !== 0 &&
-      Math.abs(dragDelta) >= MIN_SWIPE_THRESHOLD &&
-      Math.sign(directionalVelocity) !== 0 &&
-      Math.sign(directionalVelocity) !== dragDirection
-    ) {
-      // A reversed flick should not flip the snap decision.
-      directionalVelocity = overall
-    }
-
-    const currentOffset = snapPointOffset()
-    const dragTargetOffset = clampSnapValue(currentOffset + dragDelta, 0, size)
-    const velocityOffset =
-      Math.abs(directionalVelocity) >= SNAP_VELOCITY_THRESHOLD
-        ? clampSnapValue(directionalVelocity, -MAX_SNAP_VELOCITY, MAX_SNAP_VELOCITY) *
-          SNAP_VELOCITY_MULTIPLIER
-        : 0
-    const sequential = options.snapToSequentialPoints()
-    const targetOffset = sequential
-      ? dragTargetOffset
-      : clampSnapValue(dragTargetOffset + velocityOffset, 0, size)
-
-    const settleOnSnapPoint = (point: ResolvedDrawerSnapPoint): void => {
-      options.setSnapPoint(point.value)
-      resetDrag()
-    }
-
-    const closeFromSnapPoints = (fallback: ResolvedDrawerSnapPoint): void => {
-      if (dragDirection === 0) {
-        settleOnSnapPoint(fallback)
-        return
-      }
+    if (direction !== 0 && Math.abs(targetOffset - size) < Math.abs(targetOffset - target.offset)) {
       closeSwipe()
-    }
-
-    if (sequential) {
-      const ordered = [...resolvedSnapPoints()].sort((a, b) => a.offset - b.offset)
-      const orderedOffsets = ordered.map((point) => point.offset)
-      const currentIndex = closestSnapPointIndex(orderedOffsets, currentOffset)
-      let target = ordered[closestSnapPointIndex(orderedOffsets, targetOffset)]!
-      let effectiveTargetOffset = targetOffset
-
-      const shouldAdvance =
-        dragDirection !== 0 &&
-        Math.sign(directionalVelocity) === dragDirection &&
-        Math.abs(directionalVelocity) >= SNAP_VELOCITY_THRESHOLD
-      if (shouldAdvance) {
-        const adjacentIndex = clampSnapValue(currentIndex + dragDirection, 0, ordered.length - 1)
-        if (adjacentIndex !== currentIndex) {
-          const adjacent = ordered[adjacentIndex]!
-          const shouldForceAdjacent =
-            dragDirection > 0 ? targetOffset < adjacent.offset : targetOffset > adjacent.offset
-          if (shouldForceAdjacent) {
-            target = adjacent
-            effectiveTargetOffset = adjacent.offset
-          }
-        } else if (dragDirection > 0) {
-          closeFromSnapPoints(target)
-          return
-        }
-      }
-
-      const closeDistance = Math.abs(effectiveTargetOffset - size)
-      const snapDistance = Math.abs(effectiveTargetOffset - target.offset)
-      if (closeDistance < snapDistance) {
-        closeFromSnapPoints(target)
-      } else {
-        settleOnSnapPoint(target)
-      }
-      return
-    }
-
-    const closest =
-      resolvedSnapPoints()[
-        closestSnapPointIndex(
-          resolvedSnapPoints().map((point) => point.offset),
-          targetOffset,
-        )
-      ]!
-
-    // A fast dismiss flick closes only from the lowest snap point; elsewhere the
-    // velocity-projected target below picks the resting point.
-    const lowestOffset = resolvedSnapPoints().reduce((max, point) => Math.max(max, point.offset), 0)
-    if (
-      directionalVelocity >= FAST_SWIPE_VELOCITY &&
-      dragDelta > 0 &&
-      currentOffset >= lowestOffset
-    ) {
-      closeFromSnapPoints(closest)
-      return
-    }
-
-    const closeDistance = Math.abs(targetOffset - size)
-    if (closeDistance < Math.abs(targetOffset - closest.offset)) {
-      closeFromSnapPoints(closest)
     } else {
-      settleOnSnapPoint(closest)
+      drawer.setSnapPoint(target.value)
+      setDisplacement(0)
     }
   }
 
   function closeSwipe(): void {
     // Keep the last movement so the exit animation starts from the drag position.
-    setSwiping(false)
-    options.close()
+    modal.updateOpen(false)
     queueMicrotask(() => {
-      if (options.open()) {
+      if (modal.open()) {
         // A controlled parent refused the close: animate back to rest.
         resetDrag()
       }
@@ -521,12 +395,13 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     if (drag === state) {
       drag = null
     }
-    if (state.abandoned || !swiping()) {
-      resetDrag()
-      return
-    }
+    const settle = released && swiping() && !state.abandoned && !state.cancelled
     setSwiping(false)
-    settleDrag(state, released, endX, endY)
+    if (settle) {
+      settleDrag(state, endX, endY)
+    } else {
+      setDisplacement(0)
+    }
   }
 
   /** Whether another overlay opened above this drawer (e.g. a nested drawer). */
@@ -547,7 +422,6 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       state.startTime = performance.now()
       state.lastX = x
       state.lastY = y
-      state.lastMain = 0
       return false
     }
 
@@ -556,13 +430,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     const vert = vertical()
     const main = vert ? dy : dx
     const cross = vert ? dx : dy
-    const sign = screenSign(options.direction())
+    const sign = screenSign()
     const d = main * sign
-    const moveD = (main - state.lastMain) * sign
     const moveMain = vert ? y - state.lastY : x - state.lastX
+    const moveD = moveMain * sign
     state.lastX = x
     state.lastY = y
-    state.lastMain = main
 
     if (!swiping()) {
       if (Math.abs(main) < AXIS_LOCK_SLOP && Math.abs(cross) < AXIS_LOCK_SLOP) {
@@ -594,12 +467,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     // threshold from the retreat re-arms the swipe. Skipped for snap points:
     // there the reverse direction expands toward a larger point, so a retreat
     // is a valid gesture, not a change of mind.
-    if (!hasSnapPoints()) {
+    if (resolvedSnapPoints().length === 0) {
       if ((moveD < 0 && d > state.cancelBaseD) || (moveD > 0 && d < state.cancelBaseD)) {
         state.cancelBaseD = d
       }
       const cancelD = d - state.cancelBaseD
-      if (cancelD > Math.max(popupSize() * 0.5, MIN_SWIPE_THRESHOLD)) {
+      if (cancelD > dismissThreshold()) {
         state.cancelled = false
       } else if (state.lockD - cancelD >= REVERSE_CANCEL_THRESHOLD) {
         state.cancelled = true
@@ -638,9 +511,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     const ownerDocument = content.ownerDocument
     blocked = () => containsOverlayContentAbove(content, ownerDocument.documentElement)
 
+    // While a nested stack is mounted the popup's measured size is forced (the
+    // stack pins it to the frontmost height), so measurements are skipped and
+    // the last unforced size is kept as its own.
     function measureSize(): void {
-      if (!options.sizeFrozen()) {
-        setPopupHeight(content.offsetHeight)
+      if (drawer.nested.openCount() === 0) {
+        drawer.nested.setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }
     }
@@ -661,7 +537,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     function onPointerDown(event: PointerEvent): void {
       // A live gesture owns the drag; a second pointer must not replace it, or the
       // first pointer's release would settle against the new gesture's state.
-      if (drag || event.pointerType === 'touch' || !options.open()) {
+      if (drag || event.pointerType === 'touch' || !modal.open()) {
         return
       }
       if (event.button !== 0) {
@@ -675,12 +551,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       }
 
       clearContentSelection(content)
-      drag = createDrag(event.clientX, event.clientY, null, false)
-      drag.pointerId = event.pointerId
+      drag = createDrag(event.clientX, event.clientY)
 
       const state = drag
       // Pointer drags capture on swipe start so clicks aren't retargeted beforehand.
       let captured = false
+      let sawPrimaryButton = false
       function finish(released: boolean, x?: number, y?: number): void {
         if (captured) {
           captured = false
@@ -694,12 +570,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       }
       state.docCleanup = attachEventListenerMap(ownerDocument, {
         pointermove: (moveEvent) => {
-          if (moveEvent.pointerId !== state.pointerId) {
+          if (moveEvent.pointerId !== event.pointerId) {
             return
           }
           const hasPrimaryButton = (moveEvent.buttons & 1) === 1
           if (hasPrimaryButton) {
-            state.sawPrimaryButtons = true
+            sawPrimaryButton = true
           }
           // A non-primary button taking over the interaction (e.g. a right-click
           // mid-drag) cancels the swipe.
@@ -710,7 +586,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
           // A `buttons: 0` move means the primary button was already released and
           // no pointerup reached us (fast trackpad flicks): treat this trailing
           // move as the release — it may itself carry the decisive displacement.
-          if (moveEvent.buttons === 0 && state.sawPrimaryButtons) {
+          if (moveEvent.buttons === 0 && sawPrimaryButton) {
             updateDrag(state, moveEvent.clientX, moveEvent.clientY)
             finish(true, moveEvent.clientX, moveEvent.clientY)
             return
@@ -725,7 +601,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
           }
         },
         pointerup: (upEvent) => {
-          if (upEvent.pointerId !== state.pointerId) {
+          if (upEvent.pointerId !== event.pointerId) {
             return
           }
           finish(true, upEvent.clientX, upEvent.clientY)
@@ -737,7 +613,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     }
 
     function onTouchStart(event: TouchEvent): void {
-      if (drag || !options.open() || event.touches.length !== 1) {
+      if (drag || !modal.open() || event.touches.length !== 1) {
         return
       }
       if (blocked() || swipeIgnoreMatch(event.target, vertical(), true)) {
@@ -819,6 +695,10 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     onCleanup(() => {
       drag?.docCleanup?.()
       drag = null
+      // The root-level channel signals outlive this content; drop the measured
+      // size so a remount reports 0 first and ancestors transition like on the
+      // first open instead of snapping to a stale height.
+      drawer.nested.setPopupHeight(0)
     })
   }
 
@@ -827,7 +707,6 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     movement,
     snapPointOffsetCss,
     progress,
-    popupHeight,
     attach,
   }
 }

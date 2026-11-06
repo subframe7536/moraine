@@ -34,6 +34,8 @@ export interface DrawerNestedChannel {
   readonly progress: Accessor<number>
   /** The ambient parent drawer channel this drawer reports to, when nested. */
   readonly parent?: DrawerNestedChannel
+  /** This drawer's own measured popup height in px; 0 until measured. */
+  readonly popupHeight: Accessor<number>
   /** Called by this drawer's own content to report its popup height. */
   readonly setPopupHeight: (height: number) => void
   /** Called by a nested content to report its stack state; zeros on unmount. */
@@ -59,6 +61,7 @@ export function createDrawerNestedChannel(parent?: DrawerNestedChannel): DrawerN
     swiping,
     progress,
     parent,
+    popupHeight,
     setPopupHeight,
     report: (report) => {
       setOpenCount(report.open)

@@ -57,9 +57,11 @@ describe('resolveSnapPoints', () => {
 })
 
 describe('closestSnapPointIndex', () => {
-  test('returns the index of the nearest value', () => {
-    expect(closestSnapPointIndex([0, 100, 300], 220)).toBe(2)
-    expect(closestSnapPointIndex([0, 100, 300], 40)).toBe(0)
+  const points = [0, 100, 300].map((offset) => ({ value: 1, height: 0, offset }))
+
+  test('returns the index of the nearest offset', () => {
+    expect(closestSnapPointIndex(points, 220)).toBe(2)
+    expect(closestSnapPointIndex(points, 40)).toBe(0)
     expect(closestSnapPointIndex([], 100)).toBe(-1)
   })
 })
