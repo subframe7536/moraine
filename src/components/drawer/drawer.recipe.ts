@@ -51,11 +51,8 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
     variants: {
       side: {
         bottom: {
-          // translate and scale must share one transform declaration: the
-          // Chrome-86 postprocess rewrites standalone translate/scale
-          // properties into transform, where separate classes would collide.
           content:
-            'will-change-transform border-t border-border rounded-t-2xl max-h-[calc(100dvh-4rem)] origin-bottom [transform:translateY(calc(var(--drawer-snap-point-offset)_+_var(--drawer-swipe-movement)_-_var(--drawer-nested-offset)))_scale(var(--drawer-nested-scale))] inset-x-0 bottom-0 enter-translate-y-full exit-translate-y-full data-nested-open:h-(--drawer-frontmost-height) data-nested-open:overflow-hidden',
+            'will-change-transform border-t border-border rounded-t-2xl max-h-[calc(100dvh-4rem)] origin-bottom translate-y-[calc(var(--drawer-snap-point-offset)_+_var(--drawer-swipe-movement)_-_var(--drawer-nested-offset))] scale-(--drawer-nested-scale) inset-x-0 bottom-0 enter-translate-y-full exit-translate-y-full data-nested-open:h-(--drawer-frontmost-height) data-nested-open:overflow-hidden',
         },
         top: {
           content:
