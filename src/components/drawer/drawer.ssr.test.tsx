@@ -3,10 +3,9 @@ import { describe, expect, test } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
-import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import { Drawer } from './drawer'
-import { DrawerContentProvider } from './drawer-context'
+import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -24,7 +23,7 @@ describe('Drawer SSR Hydration', () => {
       '/src/components/drawer/drawer.ssr.fixture.tsx',
       'renderPartsFixture',
       () => {
-        const registration = createContentAnatomy()
+        const registration = createDrawerContentRegistration()
         return (
           <Drawer>
             <DrawerContentProvider

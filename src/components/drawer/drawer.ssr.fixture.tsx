@@ -1,9 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
-import { createContentAnatomy } from '../shared/overlay/content-anatomy'
-
 import { Drawer } from './drawer'
-import { DrawerContentProvider } from './drawer-context'
+import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
 
 export function renderDrawerFixture(): string {
   return renderToString(() => (
@@ -52,7 +50,7 @@ export function renderDrawerFixture(): string {
 
 export function renderPartsFixture(): string {
   return renderToString(() => {
-    const registration = createContentAnatomy()
+    const registration = createDrawerContentRegistration()
     return (
       <Drawer>
         <DrawerContentProvider

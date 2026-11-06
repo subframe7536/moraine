@@ -3,71 +3,63 @@ import { Button, Drawer } from '@src'
 export function Nested() {
   return (
     <Drawer>
-      <Drawer.Trigger as={Button}>Open drawer stack</Drawer.Trigger>
-      <Drawer.Content
-        class="h-[60dvh]"
-        title="Account"
-        description="Nested drawers stack on top of each other. Only the frontmost one is interactive."
-      >
-        <Drawer.Body>
-          <div class="text-xs text-muted-foreground py-2 space-y-3">
-            <p>
-              The drawer behind adjusts its height and slides up, so every level shares one real
-              overlay.
-            </p>
-            <Drawer overlay={false}>
-              <Drawer.Trigger as={Button} variant="outline" size="sm">
-                Security settings
-              </Drawer.Trigger>
-              <Drawer.Content
-                class="h-[60dvh]"
-                title="Security"
-                description="Review sign-in activity and security preferences."
-              >
-                <Drawer.Body>
-                  <ul class="text-xs text-muted-foreground py-2 ps-5 list-disc space-y-1">
-                    <li>Passkeys enabled</li>
-                    <li>2FA via authenticator app</li>
-                    <li>3 signed-in devices</li>
-                  </ul>
-                  <Drawer overlay={false}>
-                    <Drawer.Trigger as={Button} variant="outline" size="sm">
-                      Advanced options
-                    </Drawer.Trigger>
-                    <Drawer.Content
-                      class="h-[60dvh]"
-                      title="Advanced"
-                      description="The third drawer stacks on top of the other two."
-                    >
-                      <Drawer.Body>
-                        <div class="text-xs text-muted-foreground py-2">
-                          Swipe, Escape, or the back gesture dismisses only the topmost drawer.
-                        </div>
-                      </Drawer.Body>
-                      <Drawer.Footer>
-                        <div class="flex gap-2 w-full justify-end">
-                          <Drawer.Close as={Button} size="sm">
-                            Done
-                          </Drawer.Close>
-                        </div>
-                      </Drawer.Footer>
-                    </Drawer.Content>
-                  </Drawer>
-                </Drawer.Body>
-                <Drawer.Footer>
-                  <div class="flex gap-2 w-full justify-end">
-                    <Drawer.Close as={Button} variant="ghost" size="sm">
-                      Cancel
-                    </Drawer.Close>
-                    <Drawer.Close as={Button} size="sm">
-                      Save
-                    </Drawer.Close>
-                  </div>
-                </Drawer.Footer>
-              </Drawer.Content>
-            </Drawer>
-          </div>
-        </Drawer.Body>
+      <Drawer.Trigger as={Button} variant="outline">
+        Nested drawers
+      </Drawer.Trigger>
+      <Drawer.Content>
+        <Drawer.Header class="text-center">
+          <Drawer.Title>First step</Drawer.Title>
+          <Drawer.Description>
+            This is the first step. Tap the button below to continue to the next screen.
+          </Drawer.Description>
+        </Drawer.Header>
+        <Drawer.Footer class="justify-center sm:justify-center">
+          <Drawer.Close as={Button} variant="ghost">
+            Cancel
+          </Drawer.Close>
+          <Drawer overlay={false}>
+            <Drawer.Trigger as={Button} variant="outline">
+              Continue
+            </Drawer.Trigger>
+            <Drawer.Content>
+              <Drawer.Header class="text-center">
+                <Drawer.Title>Second step</Drawer.Title>
+                <Drawer.Description>
+                  You&apos;ve reached the second step. Tap the button below to continue to the next
+                  screen.
+                </Drawer.Description>
+              </Drawer.Header>
+              <Drawer.Body>
+                <div class="flex justify-center">
+                  <div class="border border-border rounded-xl bg-muted shrink-0 size-48" />
+                </div>
+              </Drawer.Body>
+              <Drawer.Footer class="justify-center sm:justify-center">
+                <Drawer.Close as={Button} variant="ghost">
+                  Back
+                </Drawer.Close>
+                <Drawer overlay={false}>
+                  <Drawer.Trigger as={Button} variant="outline">
+                    Continue
+                  </Drawer.Trigger>
+                  <Drawer.Content>
+                    <Drawer.Header class="text-center">
+                      <Drawer.Title>Third step</Drawer.Title>
+                      <Drawer.Description>
+                        You&apos;ve reached the final step. You can close this drawer or go back.
+                      </Drawer.Description>
+                    </Drawer.Header>
+                    <Drawer.Body>
+                      <div class="flex justify-center">
+                        <div class="border border-border rounded-full bg-muted shrink-0 size-32" />
+                      </div>
+                    </Drawer.Body>
+                  </Drawer.Content>
+                </Drawer>
+              </Drawer.Footer>
+            </Drawer.Content>
+          </Drawer>
+        </Drawer.Footer>
       </Drawer.Content>
     </Drawer>
   )

@@ -659,13 +659,29 @@
       "attributes": [
         "data-closed",
         "data-expanded",
+        "data-handle",
+        "data-nested-open",
+        "data-nested-swiping",
         "data-swiping"
       ]
     },
     {
       "target": "body",
       "attributes": [
+        "data-footer",
         "data-header"
+      ]
+    },
+    {
+      "target": "header",
+      "attributes": [
+        "data-body"
+      ]
+    },
+    {
+      "target": "footer",
+      "attributes": [
+        "data-body"
       ]
     }
   ]

@@ -6,7 +6,7 @@ import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
 import { useDrawerContent, useDrawerContext } from './drawer-context'
-import { drawerRecipe } from './drawer.recipe'
+import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
 function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
@@ -22,6 +22,7 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
       slots: { header: headerSlot },
     } = useRecipe(drawerRecipe, local, {
       slot: 'header',
+      data: { header: drawerDataAttributes.header({ body: content.hasBody }) },
       context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
     })
     return (

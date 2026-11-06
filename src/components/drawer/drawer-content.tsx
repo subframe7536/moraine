@@ -26,11 +26,14 @@ import { Modal } from '../modal/modal'
 import { createModalContentBinding } from '../modal/modal-content-binding'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
-import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 import { createKeyboardInset } from '../shared/overlay/keyboard-inset'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
-import { DrawerContentProvider, useDrawerContext } from './drawer-context'
+import {
+  createDrawerContentRegistration,
+  DrawerContentProvider,
+  useDrawerContext,
+} from './drawer-context'
 import { DrawerDescription } from './drawer-description'
 import { DrawerShorthandHeader } from './drawer-header'
 import { createDrawerSwipe, swipeDirectionForSide } from './drawer-swipe'
@@ -78,6 +81,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         swiping: () => swipe.swiping(),
         nestedOpen: () => drawer.nested.openCount() > 0,
         nestedSwiping: drawer.nested.swiping,
+        handle: () => merged.handle !== false && vertical(),
       }),
       overlay: drawerDataAttributes.overlay({
         closed: () => !family.open(),
@@ -117,7 +121,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     setSnapPoint: drawer.setSnapPoint,
     snapToSequentialPoints: () => merged.snapToSequentialPoints === true,
   })
-  const registration = createContentAnatomy()
+  const registration = createDrawerContentRegistration()
 
   const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
   const ariaLabelledBy = () =>

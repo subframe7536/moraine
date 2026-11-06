@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js'
-import { createContext, useContext } from 'solid-js'
+import { createContext, createSignal, useContext } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { createContentAnatomy } from '../shared/overlay/content-anatomy'
+import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import type { DrawerT } from './drawer.types'
 
@@ -68,7 +68,26 @@ export function useOptionalDrawerContext(): DrawerContextValue | undefined {
   return useContext(DrawerCtx)
 }
 
-export interface DrawerContentContext extends ReturnType<typeof createContentAnatomy> {
+export function createDrawerContentRegistration() {
+  const registration = createContentAnatomy()
+  const [bodyCount, setBodyCount] = createSignal(0)
+  const [footerCount, setFooterCount] = createSignal(0)
+  return {
+    ...registration,
+    registerBody: () => {
+      setBodyCount((count) => count + 1)
+      return () => setBodyCount((count) => count - 1)
+    },
+    registerFooter: () => {
+      setFooterCount((count) => count + 1)
+      return () => setFooterCount((count) => count - 1)
+    },
+    hasBody: () => bodyCount() > 0,
+    hasFooter: () => footerCount() > 0,
+  }
+}
+
+export interface DrawerContentContext extends ReturnType<typeof createDrawerContentRegistration> {
   readonly variants: Required<DrawerT.Variants>
 }
 
