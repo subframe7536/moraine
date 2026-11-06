@@ -91,22 +91,16 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: { side: drawer.side }, ...drawer.slotOverrides }),
     own: {
-      content: () => {
-        // Over-edge and handle drags resize the popup on its open edge instead
-        // of translating it; the anchored edge stays put.
-        const extended = swipe.extend() !== 0 ? `${swipe.baseSize() + swipe.extend()}px` : undefined
-        return {
-          style: {
-            '--drawer-swipe-movement': `${swipe.movement()}px`,
-            '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
-            '--drawer-keyboard-inset': `${keyboardInset()}px`,
-            '--nested-drawers': `${drawer.nested.openCount()}`,
-            '--drawer-nested-progress': `${drawer.nested.progress()}`,
-            '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
-            ...(vertical() ? { height: extended } : { width: extended }),
-          },
-        }
-      },
+      content: () => ({
+        style: {
+          '--drawer-swipe-movement': `${swipe.movement()}px`,
+          '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
+          '--drawer-keyboard-inset': `${keyboardInset()}px`,
+          '--nested-drawers': `${drawer.nested.activeCount()}`,
+          '--drawer-nested-progress': `${drawer.nested.progress()}`,
+          '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
+        },
+      }),
       overlay: () =>
         swipe.progress() > 0 ? { style: { opacity: 1 - swipe.progress() } } : undefined,
     },
@@ -120,6 +114,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     snapPoint: drawer.snapPoint,
     setSnapPoint: drawer.setSnapPoint,
     snapToSequentialPoints: () => merged.snapToSequentialPoints === true,
+    sizeFrozen: () => drawer.nested.openCount() > 0,
   })
   const registration = createDrawerContentRegistration()
 
@@ -146,7 +141,10 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     bindElement(family.contentElement, (element) => swipe.attach(element))
 
     // While mounted (open or exiting) this drawer reports its state to the
-    // ambient parent drawer so ancestors recede into the stack visual.
+    // ambient parent drawer so ancestors recede into the stack visual. The
+    // mounted count keeps ancestors marked stacked for the whole exit; the
+    // open reports drop as soon as this drawer starts closing so ancestors
+    // settle toward the next frontmost popup concurrently with the exit.
     const parentChannel = drawer.nested.parent
     createEffect(
       on(drawer.nested.openCount, (count) => {
@@ -154,18 +152,23 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       }),
     )
     createEffect(
-      on(drawer.nested.frontmostHeight, (height) => {
-        parentChannel?.reportFrontmostHeight(height)
+      on([drawer.nested.activeCount, family.open], ([count, isOpen]) => {
+        parentChannel?.reportActive(isOpen ? count + 1 : 0)
       }),
     )
     createEffect(
-      on(swipe.swiping, (swiping) => {
-        parentChannel?.reportSwiping(swiping)
+      on([drawer.nested.frontmostHeight, family.open], ([height, isOpen]) => {
+        parentChannel?.reportFrontmostHeight(isOpen ? height : 0)
       }),
     )
     createEffect(
-      on(swipe.progress, (progress) => {
-        parentChannel?.reportProgress(progress)
+      on([swipe.swiping, family.open], ([swiping, isOpen]) => {
+        parentChannel?.reportSwiping(isOpen && swiping)
+      }),
+    )
+    createEffect(
+      on([swipe.progress, family.open], ([progress, isOpen]) => {
+        parentChannel?.reportProgress(isOpen ? progress : 0)
       }),
     )
     createEffect(
@@ -175,6 +178,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     )
     onCleanup(() => {
       parentChannel?.reportOpen(0)
+      parentChannel?.reportActive(0)
       parentChannel?.reportFrontmostHeight(0)
       parentChannel?.reportSwiping(false)
       parentChannel?.reportProgress(0)

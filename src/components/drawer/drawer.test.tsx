@@ -248,7 +248,7 @@ describe('Drawer', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('opposite-direction drag grows the popup instead of translating it', async () => {
+  test('opposite-direction drag rubber-bands the popup', async () => {
     const onOpenChange = vi.fn()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
@@ -263,9 +263,10 @@ describe('Drawer', () => {
 
     dragPointer(content(), { x: 0, y: 200 }, { x: 0, y: 75 }, { steps: 5, release: false })
 
-    // The popup stays anchored and its open edge follows the drag upward.
-    expect(movementValue()).toBe('0px')
-    expect(content().style.height).toBe('500px')
+    // The first move is absorbed as the new drag origin, so the 100px pull past
+    // the open edge collapses to a sqrt-damped translate; the size is untouched.
+    expect(movementValue()).toBe('-10px')
+    expect(content().style.height).toBe('')
 
     fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -273,7 +274,7 @@ describe('Drawer', () => {
     expect(content().style.height).toBe('')
   })
 
-  test('dragging the handle up grows the popup instead of translating it', async () => {
+  test('dragging the handle up rubber-bands the popup like a content drag', async () => {
     render(() => (
       <Drawer defaultOpen>
         <Drawer.Content>
@@ -288,14 +289,15 @@ describe('Drawer', () => {
 
     dragPointer(handle, { x: 0, y: 200 }, { x: 0, y: 75 }, { steps: 5, release: false })
 
-    expect(movementValue()).toBe('0px')
-    expect(content().style.height).toBe('500px')
+    expect(movementValue()).toBe('-10px')
+    expect(content().style.height).toBe('')
 
     fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
+    expect(movementValue()).toBe('0px')
     expect(content().style.height).toBe('')
   })
 
-  test('dragging the handle down shrinks the popup and restores on release', async () => {
+  test('dragging the handle down translates the popup and restores on release', async () => {
     const onOpenChange = vi.fn()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
@@ -316,11 +318,13 @@ describe('Drawer', () => {
       { steps: 5, stepMs: 80, release: false },
     )
 
-    expect(movementValue()).toBe('0px')
-    expect(content().style.height).toBe('300px')
+    // 100px into the 400px popup: too far to be the origin slop, too short to dismiss.
+    expect(movementValue()).toBe('100px')
+    expect(content().style.height).toBe('')
 
     fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 225 })
     expect(onOpenChange).not.toHaveBeenCalled()
+    expect(movementValue()).toBe('0px')
     expect(content().style.height).toBe('')
   })
 
@@ -338,7 +342,7 @@ describe('Drawer', () => {
     )
     const handle = content().querySelector<HTMLElement>('[data-slot="drawer-handle"]')!
 
-    // d = 300px shrunk of the 400px popup, below the fast-swipe velocity.
+    // d = 300px pull of the 400px popup, below the fast-swipe velocity.
     dragPointer(handle, { x: 0, y: 50 }, { x: 0, y: 400 }, { steps: 7, stepMs: 150 })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
@@ -459,7 +463,7 @@ describe('Drawer', () => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
     })
 
-    test('handle drags at a recessed snap point translate instead of resizing', async () => {
+    test('handle drags at a recessed snap point translate like content drags', async () => {
       const onSnapPointChange = vi.fn()
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]} onSnapPointChange={onSnapPointChange}>
@@ -1346,6 +1350,14 @@ describe('Drawer', () => {
 
       fireEvent.keyDown(document, { key: 'Escape' })
       expect(onChildChange).toHaveBeenCalledWith(false)
+
+      // The exiting child stops counting immediately so the ancestor settles
+      // toward its own height concurrently with the exit animation; the mounted
+      // marker keeps the forced-height class until the child unmounts.
+      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('0')
+      expect(parent.style.getPropertyValue('--drawer-frontmost-height')).toBe('400px')
+      expect(parent.hasAttribute('data-nested-open')).toBe(true)
+
       await finishExitMotion()
       await waitFor(() => expect(document.body.contains(child)).toBe(false))
       expect(parent.hasAttribute('data-nested-open')).toBe(false)

@@ -12,8 +12,10 @@ import type { DrawerT } from './drawer.types'
  * each ancestor can recede into the stack visual.
  */
 export interface DrawerNestedChannel {
-  /** Number of open drawers nested inside this drawer, at any depth. */
+  /** Number of mounted contents nested inside this drawer, at any depth. */
   readonly openCount: Accessor<number>
+  /** Number of open drawers nested inside this drawer; exiting drawers do not count. */
+  readonly activeCount: Accessor<number>
   /** Height of the frontmost open drawer in this subtree, in px. */
   readonly frontmostHeight: Accessor<number>
   /** Whether a nested drawer is currently being swiped. */
@@ -24,8 +26,10 @@ export interface DrawerNestedChannel {
   readonly parent?: DrawerNestedChannel
   /** Called by this drawer's own content to report its popup height. */
   readonly setPopupHeight: (height: number) => void
-  /** Called by a nested content to report its open drawer count; 0 on unmount. */
+  /** Called by a nested content to report its mounted drawer count; 0 on unmount. */
   readonly reportOpen: (count: number) => void
+  /** Called by a nested content to report its open drawer count; 0 when it starts closing. */
+  readonly reportActive: (count: number) => void
   /** Called by a nested content to report its subtree frontmost height; 0 on unmount. */
   readonly reportFrontmostHeight: (height: number) => void
   /** Called by a nested content on swipe changes; forwarded up the chain. */

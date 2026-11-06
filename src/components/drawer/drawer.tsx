@@ -31,20 +31,23 @@ export function Drawer(props: DrawerProps): JSX.Element {
   const parent = useOptionalDrawerContext()?.nested
   const [popupHeight, setPopupHeight] = createSignal(0)
   const [openCount, setOpenCount] = createSignal(0)
+  const [activeCount, setActiveCount] = createSignal(0)
   const [nestedFrontmostHeight, setNestedFrontmostHeight] = createSignal(0)
   const [nestedSwiping, setNestedSwiping] = createSignal(false)
   const [nestedProgress, setNestedProgress] = createSignal(0)
   const nested: DrawerNestedChannel = {
     openCount,
+    activeCount,
     // A descendant reports its measured height asynchronously; until then the
     // own popup height is the best estimate (exact for same-height stacks).
     frontmostHeight: () =>
-      openCount() > 0 && nestedFrontmostHeight() > 0 ? nestedFrontmostHeight() : popupHeight(),
+      activeCount() > 0 && nestedFrontmostHeight() > 0 ? nestedFrontmostHeight() : popupHeight(),
     swiping: nestedSwiping,
     progress: nestedProgress,
     parent,
     setPopupHeight,
     reportOpen: setOpenCount,
+    reportActive: setActiveCount,
     reportFrontmostHeight: setNestedFrontmostHeight,
     reportSwiping: (swiping) => {
       setNestedSwiping(swiping)

@@ -34,6 +34,10 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
       '--drawer-swipe-movement': '0px',
       '--drawer-snap-point-offset': '0px',
       '--drawer-keyboard-inset': '0px',
+      // Enter and exit share the stack-settle timing so an exiting nested
+      // drawer stays mounted until ancestors reach their resting size.
+      '--mo-anim-duration': '450ms',
+      '--mo-anim-ease': 'cubic-bezier(0.32,0.72,0,1)',
       '--drawer-nested-scale':
         'calc(max(0, 1 - var(--nested-drawers) * 0.05) + var(--drawer-nested-progress) * 0.05)',
       '--drawer-nested-offset':
