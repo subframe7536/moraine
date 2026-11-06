@@ -2,9 +2,6 @@ import { subfLint, unocss } from '@subf/config/oxlint'
 
 export default subfLint({
   solid: true,
-  // Consumer type fixtures resolve `moraine` through package exports into dist/,
-  // which only exists after `pnpm run build`; test:lib checks them with `tsc -p`.
-  ignorePatterns: ['test/types-default/**', 'test/types-simple/**'],
   overrides: [
     {
       files: ['**/*.{ts,tsx}'],

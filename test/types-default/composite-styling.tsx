@@ -11,7 +11,6 @@ import {
   Table,
   Tooltip,
 } from 'moraine'
-import type { DrawerT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
 
 ;<Dialog classes={{ trigger: 'trigger', body: 'body' }} styles={{ content: { width: '20rem' } }} />
@@ -115,7 +114,7 @@ import { defineTheme } from 'moraine/theme'
   snapPoints={[0.5, '148px', '12rem']}
   snapPoint={0.5}
   defaultSnapPoint={null}
-  onSnapPointChange={(point: DrawerT.SnapPoint | null) => void point}
+  onSnapPointChange={(point) => void point}
   snapToSequentialPoints
 />
 // @ts-expect-error A headless root has no primary DOM element.
