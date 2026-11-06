@@ -44,7 +44,7 @@ export default function PopoverPlayground() {
             Adjust dimensions
           </Popover.Trigger>
           <Popover.Content>
-            <div class="p-4 w-72 space-y-3">
+            <div class="p-4 space-y-3">
               <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
               <div class="space-y-2">
                 <Field label="Width" orientation="horizontal">
