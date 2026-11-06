@@ -20,7 +20,7 @@ export const FOCUS_CLASS = 'focus:(border-ring ring-3 ring-ring/50)'
 export const FOCUS_VISIBLE_CLASS = 'focus-visible:(outline-none border-ring ring-3 ring-ring/50)'
 export const FOCUS_VISIBLE_RING_CLASS = 'focus-visible:(outline-none ring-3 ring-ring/50)'
 export const BUTTON_FOCUS_VISIBLE_CLASS =
-  'focus-visible:(outline-none ring-3 ring-tone/50 dark:ring-tone/40)'
+  'focus-visible:(outline-none ring-3 ring-tone/30 dark:ring-tone/30)'
 export const FOCUS_WITHIN_CLASS = 'focus-within:(outline-none border-ring ring-3 ring-ring/50)'
 export const PEER_FOCUS_CLASS = 'peer-focus:(border-ring ring-3 ring-ring/50)'
 export const PEER_FOCUS_VISIBLE_CLASS =

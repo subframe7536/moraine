@@ -30,7 +30,7 @@ describe('Button', () => {
 
     expect(button.getAttribute('type')).toBe('button')
     expect(button.getAttribute('data-slot')).toBe('button')
-    expect(button.className).toContain('focus-visible:ring-tone/50')
+    expect(button.className).toContain('focus-visible:ring-tone/30')
   })
 
   test('calls pointer handlers without replacing internal interaction behavior', async () => {
