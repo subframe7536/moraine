@@ -7,104 +7,6 @@ import { presetMoraine } from '../src/theme/unocss.ts'
 import { getDocsShikiCss } from './build/core/shiki.ts'
 import { DOCS_MOBILE_QUERY } from './shared/docs-layout.ts'
 
-const IMPORTANT_RE = /\s*!important$/
-
-function splitCssTokens(value: string): string[] {
-  const tokens: string[] = []
-  let depth = 0
-  let current = ''
-  for (const char of value) {
-    if (char === '(') {
-      depth += 1
-    } else if (char === ')' && depth > 0) {
-      depth -= 1
-    }
-    if (depth === 0 && /\s/.test(char)) {
-      if (current) {
-        tokens.push(current)
-        current = ''
-      }
-      continue
-    }
-    current += char
-  }
-  if (current) {
-    tokens.push(current)
-  }
-  return tokens
-}
-
-const DYNAMIC_VH_RE = /\d+(?:\.\d+)?(?:dvh|svh|lvh|dvw|svw|lvw)/g
-
-// presetWind4 emits declarations Chrome 86 cannot parse: standalone transform
-// properties (104+), `inset`/`inset-inline` (87+), `overflow: clip` (90+), and
-// d*/s*/l* viewport units (108+). Rewrite each entry into the equivalent
-// legacy form or prepend a parseable fallback declaration.
-function chrome86Postprocess(utility: {
-  entries: [string, string | number | undefined, ...unknown[]][]
-}): void {
-  const entries: [string, string | number | undefined, ...unknown[]][] = []
-  for (const entry of utility.entries) {
-    const [property, rawValue] = entry
-    if (typeof rawValue !== 'string') {
-      entries.push(entry)
-      continue
-    }
-    const important = IMPORTANT_RE.test(rawValue) ? ' !important' : ''
-    const value = important ? rawValue.replace(IMPORTANT_RE, '') : rawValue
-    if (property === 'translate' || property === 'rotate' || property === 'scale') {
-      const tokens = splitCssTokens(value)
-      const fn = property === 'translate' && tokens.length === 3 ? 'translate3d' : property
-      entries.push(['transform', `${fn}(${tokens.join(', ')})${important}`])
-      continue
-    }
-    if (property === 'inset') {
-      const [t = '0', r = t, b = t, l = r] = splitCssTokens(value)
-      entries.push(
-        ['top', `${t}${important}`],
-        ['right', `${r}${important}`],
-        ['bottom', `${b}${important}`],
-        ['left', `${l}${important}`],
-      )
-      continue
-    }
-    if (property === 'inset-inline') {
-      entries.push(['left', `${value}${important}`], ['right', `${value}${important}`])
-      continue
-    }
-    if (property === 'inset-block') {
-      entries.push(['top', `${value}${important}`], ['bottom', `${value}${important}`])
-      continue
-    }
-    if (property.startsWith('inset-')) {
-      const physical = {
-        'inset-block-start': 'top',
-        'inset-block-end': 'bottom',
-        'inset-inline-start': 'left',
-        'inset-inline-end': 'right',
-      }[property]
-      if (physical) {
-        entries.push([physical, `${value}${important}`])
-      } else {
-        entries.push(entry)
-      }
-      continue
-    }
-    if (property.startsWith('overflow') && value === 'clip') {
-      entries.push([property, `hidden${important}`])
-    }
-    const fallback = value.replace(
-      DYNAMIC_VH_RE,
-      (match) => `${match.slice(0, -3)}v${match.slice(-1)}`,
-    )
-    if (fallback !== value) {
-      entries.push([property, `${fallback}${important}`])
-    }
-    entries.push(entry)
-  }
-  utility.entries = entries
-}
-
 const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':
@@ -155,7 +57,6 @@ export default defineConfig<PresetWind4Theme>({
     }),
   ],
   transformers: [transformerVariantGroup({ separators: [':'] })],
-  postprocess: [chrome86Postprocess],
   theme: {
     font: {
       sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
@@ -199,12 +100,6 @@ export default defineConfig<PresetWind4Theme>({
     },
     {
       getCSS: () => `
-html,
-body {
-  overflow-x: hidden;
-  overflow-x: clip;
-}
-
 /* The server renders the desktop rail before Sidebar resolves the viewport. */
 @media ${DOCS_MOBILE_QUERY} {
   [data-docs-sidebar]:not([data-mobile]) {
