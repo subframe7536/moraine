@@ -183,6 +183,10 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       }),
     )
     onCleanup(() => {
+      // The root-level channel signals outlive this content; drop the measured
+      // size so a remount reports 0 first and ancestors transition like on the
+      // first open instead of snapping to a stale height.
+      drawer.nested.setPopupHeight(0)
       parentChannel?.reportOpen(0)
       parentChannel?.reportActive(0)
       parentChannel?.reportFrontmostHeight(0)
