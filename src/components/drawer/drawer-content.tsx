@@ -88,9 +88,9 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     context: () => ({ variants: { side: drawer.side }, ...drawer.slotOverrides }),
     own: {
       content: () => {
-        // Over-edge drags resize the popup on its open edge instead of
-        // translating it; the anchored edge stays put.
-        const extended = swipe.extend() > 0 ? `${swipe.baseSize() + swipe.extend()}px` : undefined
+        // Over-edge and handle drags resize the popup on its open edge instead
+        // of translating it; the anchored edge stays put.
+        const extended = swipe.extend() !== 0 ? `${swipe.baseSize() + swipe.extend()}px` : undefined
         return {
           style: {
             '--drawer-swipe-movement': `${swipe.movement()}px`,

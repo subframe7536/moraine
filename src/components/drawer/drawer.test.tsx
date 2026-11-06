@@ -273,6 +273,76 @@ describe('Drawer', () => {
     expect(content().style.height).toBe('')
   })
 
+  test('dragging the handle up grows the popup instead of translating it', async () => {
+    render(() => (
+      <Drawer defaultOpen>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+    const handle = content().querySelector<HTMLElement>('[data-slot="drawer-handle"]')!
+
+    dragPointer(handle, { x: 0, y: 200 }, { x: 0, y: 75 }, { steps: 5, release: false })
+
+    expect(movementValue()).toBe('0px')
+    expect(content().style.height).toBe('500px')
+
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
+    expect(content().style.height).toBe('')
+  })
+
+  test('dragging the handle down shrinks the popup and restores on release', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+    const handle = content().querySelector<HTMLElement>('[data-slot="drawer-handle"]')!
+
+    dragPointer(
+      handle,
+      { x: 0, y: 100 },
+      { x: 0, y: 225 },
+      { steps: 5, stepMs: 80, release: false },
+    )
+
+    expect(movementValue()).toBe('0px')
+    expect(content().style.height).toBe('300px')
+
+    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 225 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(content().style.height).toBe('')
+  })
+
+  test('dragging the handle down past halfway dismisses the drawer', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+    const handle = content().querySelector<HTMLElement>('[data-slot="drawer-handle"]')!
+
+    // d = 300px shrunk of the 400px popup, below the fast-swipe velocity.
+    dragPointer(handle, { x: 0, y: 50 }, { x: 0, y: 400 }, { steps: 7, stepMs: 150 })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
   test('does not swipe from a button, a swipe-ignore element, or the body for mouse drags', async () => {
     const onOpenChange = vi.fn()
     render(() => (
@@ -387,6 +457,28 @@ describe('Drawer', () => {
       // From offset 252, +100px down targets offset 352, closer to closed (400) than to 252.
       dragPointer(content(), { x: 0, y: 100 }, { x: 0, y: 200 }, { steps: 4, stepMs: 100 })
       expect(onOpenChange).toHaveBeenCalledWith(false)
+    })
+
+    test('handle drags at a recessed snap point translate instead of resizing', async () => {
+      const onSnapPointChange = vi.fn()
+      render(() => (
+        <Drawer defaultOpen snapPoints={['148px', 1]} onSnapPointChange={onSnapPointChange}>
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      const handle = content().querySelector<HTMLElement>('[data-slot="drawer-handle"]')!
+
+      // Dragging up 200px from offset 252 targets offset 52, closer to the
+      // fully-open point. The popup moves; its height is untouched.
+      dragPointer(handle, { x: 0, y: 300 }, { x: 0, y: 100 }, { steps: 4, stepMs: 100 })
+
+      expect(onSnapPointChange).toHaveBeenCalledWith(1)
+      expect(content().style.height).toBe('')
     })
 
     test('snapToSequentialPoints advances at most one point per flick', async () => {
