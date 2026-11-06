@@ -248,7 +248,7 @@ describe('Drawer', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('opposite-direction drag is damped and never closes', async () => {
+  test('opposite-direction drag grows the popup instead of translating it', async () => {
     const onOpenChange = vi.fn()
     render(() => (
       <Drawer defaultOpen onOpenChange={onOpenChange}>
@@ -263,12 +263,14 @@ describe('Drawer', () => {
 
     dragPointer(content(), { x: 0, y: 200 }, { x: 0, y: 75 }, { steps: 5, release: false })
 
-    // sqrt damping: -100px of opposite drag becomes -10px of movement.
-    expect(movementValue()).toBe('-10px')
+    // The popup stays anchored and its open edge follows the drag upward.
+    expect(movementValue()).toBe('0px')
+    expect(content().style.height).toBe('500px')
 
     fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(movementValue()).toBe('0px')
+    expect(content().style.height).toBe('')
   })
 
   test('does not swipe from a button, a swipe-ignore element, or the body for mouse drags', async () => {

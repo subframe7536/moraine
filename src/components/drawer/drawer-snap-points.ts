@@ -11,19 +11,6 @@ export function clampSnapValue(value: number, min: number, max: number): number 
 }
 
 /**
- * Resolves the swipe movement along the dismiss axis, applying square-root damping once the drag
- * overshoots the fully-open edge (`nextOffset < 0`) so the popup resists travelling past it.
- */
-export function getSnapPointSwipeMovement(baseOffset: number, movementValue: number): number {
-  const nextOffset = baseOffset + movementValue
-  if (nextOffset >= 0) {
-    return movementValue
-  }
-
-  return -Math.sqrt(-nextOffset) - baseOffset
-}
-
-/**
  * Resolves a snap point to a pixel height. Numbers `<= 1` are a fraction of the
  * viewport height, numbers `> 1` are pixels; `px`/`rem` strings resolve directly.
  */

@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest'
 
 import {
   closestSnapPointIndex,
-  getSnapPointSwipeMovement,
   resolveSnapPointValue,
   resolveSnapPoints,
   snapPointHeightCss,
@@ -62,19 +61,6 @@ describe('closestSnapPointIndex', () => {
     expect(closestSnapPointIndex([0, 100, 300], 220)).toBe(2)
     expect(closestSnapPointIndex([0, 100, 300], 40)).toBe(0)
     expect(closestSnapPointIndex([], 100)).toBe(-1)
-  })
-})
-
-describe('getSnapPointSwipeMovement', () => {
-  test('passes movement through while the offset stays open', () => {
-    expect(getSnapPointSwipeMovement(100, 50)).toBe(50)
-    expect(getSnapPointSwipeMovement(100, -50)).toBe(-50)
-  })
-
-  test('damps movement past the fully-open edge', () => {
-    // Overshoot of 9px past the edge shrinks to sqrt(9) = 3px of resistance.
-    expect(getSnapPointSwipeMovement(100, -109)).toBe(-103)
-    expect(getSnapPointSwipeMovement(0, -64)).toBe(-8)
   })
 })
 

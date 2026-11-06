@@ -12,7 +12,6 @@ import type { ResolvedDrawerSnapPoint } from './drawer-snap-points'
 import {
   clampSnapValue,
   closestSnapPointIndex,
-  getSnapPointSwipeMovement,
   resolveSnapPointValue,
   snapPointHeightCss,
   resolveSnapPoints,
@@ -152,6 +151,8 @@ interface DragState {
   /** Instantaneous velocity between the last two moving samples, dismiss-signed. */
   lastVelocity: number
   stationarySeen: boolean
+  /** Cached popup-size cap for over-edge growth; -1 until first needed. */
+  extendLimit: number
   docCleanup?: VoidFunction
 }
 
@@ -176,6 +177,10 @@ export interface DrawerSwipeController {
   snapPointOffsetCss: Accessor<string>
   /** Dismissal progress in [0, 1] used for overlay opacity. */
   progress: Accessor<number>
+  /** Over-edge growth in px applied on the popup's open edge. */
+  extend: Accessor<number>
+  /** Popup size along the swipe axis measured while not extended. */
+  baseSize: Accessor<number>
   /** Measured popup height in px, kept current by a ResizeObserver. */
   popupHeight: Accessor<number>
   /** Binds the gesture to the content element for the element's lifetime. */
@@ -193,9 +198,13 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
   const [popupHeight, setPopupHeight] = createSignal(0)
   const [popupWidth, setPopupWidth] = createSignal(0)
   const [viewportHeight, setViewportHeight] = createSignal(0)
+  const [viewportWidth, setViewportWidth] = createSignal(0)
   const [rootFontSize, setRootFontSize] = createSignal(16)
+  const [extend, setExtend] = createSignal(0)
+  const [baseSize, setBaseSize] = createSignal(0)
 
   let drag: DragState | null = null
+  let element: HTMLElement | null = null
 
   const vertical = () => isVertical(options.direction())
 
@@ -271,16 +280,43 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     return vertical() ? { main: dy, cross: dx } : { main: dx, cross: dy }
   }
 
-  function applyMovement(rawD: number): void {
-    const damped = getSnapPointSwipeMovement(snapPointOffset(), rawD)
+  function applyMovement(state: DragState, rawD: number): void {
     setDisplacement(rawD)
-    setMovement(damped * screenSign(options.direction()))
+    // Within the open-edge bound the drag translates the popup; past it the
+    // popup grows on its open edge instead of lifting off the anchored edge.
+    const translate = Math.max(rawD, -snapPointOffset())
+    setMovement(translate * screenSign(options.direction()))
+    setExtend(clampExtend(state, translate - rawD))
   }
 
   function resetDrag(): void {
     setDisplacement(0)
     setMovement(0)
+    setExtend(0)
     setSwiping(false)
+  }
+
+  function clampExtend(state: DragState, over: number): number {
+    if (over <= 0) {
+      return 0
+    }
+    if (state.extendLimit < 0) {
+      state.extendLimit = computeExtendLimit()
+    }
+    return Math.min(over, state.extendLimit)
+  }
+
+  function computeExtendLimit(): number {
+    const viewportLimit = Math.max(
+      0,
+      (vertical() ? viewportHeight() : viewportWidth()) - baseSize(),
+    )
+    if (!element) {
+      return viewportLimit
+    }
+    const style = element.ownerDocument.defaultView?.getComputedStyle(element)
+    const max = Number.parseFloat((vertical() ? style?.maxHeight : style?.maxWidth) ?? '')
+    return Number.isFinite(max) && max > 0 ? Math.max(0, max - baseSize()) : viewportLimit
   }
 
   function recordSample(state: DragState, main: number): void {
@@ -569,7 +605,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     }
 
     recordSample(state, main)
-    applyMovement(d)
+    applyMovement(state, d)
     return true
   }
 
@@ -594,6 +630,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
   function attach(content: HTMLElement): void {
     // The content mounts fresh on each open; drop any state left by a swipe close.
     drag = null
+    element = content
     resetDrag()
 
     const ownerWindow = content.ownerDocument.defaultView
@@ -604,6 +641,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       setPopupHeight(content.offsetHeight)
       setPopupWidth(content.offsetWidth)
       setViewportHeight(ownerWindow?.innerHeight ?? 0)
+      setViewportWidth(ownerWindow?.innerWidth ?? 0)
+      // Freeze the unextended size while grown so the inline height doesn't
+      // feed back through this observer.
+      if (extend() === 0) {
+        setBaseSize(vertical() ? content.offsetHeight : content.offsetWidth)
+      }
       const fontSize = Number.parseFloat(
         ownerWindow?.getComputedStyle(ownerDocument.documentElement).fontSize ?? '',
       )
@@ -649,6 +692,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         lockD: 0,
         lastVelocity: 0,
         stationarySeen: false,
+        extendLimit: -1,
       }
 
       const state = drag
@@ -715,6 +759,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         lockD: 0,
         lastVelocity: 0,
         stationarySeen: false,
+        extendLimit: -1,
       }
     }
 
@@ -782,6 +827,8 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     snapPointOffset,
     snapPointOffsetCss,
     progress,
+    extend,
+    baseSize,
     popupHeight,
     attach,
   }

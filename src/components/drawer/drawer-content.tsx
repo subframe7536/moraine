@@ -87,20 +87,27 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: { side: drawer.side }, ...drawer.slotOverrides }),
     own: {
-      content: () => ({
-        style: {
-          '--drawer-swipe-movement': `${swipe.movement()}px`,
-          '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
-          '--drawer-keyboard-inset': `${keyboardInset()}px`,
-          '--nested-drawers': `${drawer.nested.openCount()}`,
-          '--drawer-nested-progress': `${drawer.nested.progress()}`,
-          '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
-        },
-      }),
+      content: () => {
+        // Over-edge drags resize the popup on its open edge instead of
+        // translating it; the anchored edge stays put.
+        const extended = swipe.extend() > 0 ? `${swipe.baseSize() + swipe.extend()}px` : undefined
+        return {
+          style: {
+            '--drawer-swipe-movement': `${swipe.movement()}px`,
+            '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
+            '--drawer-keyboard-inset': `${keyboardInset()}px`,
+            '--nested-drawers': `${drawer.nested.openCount()}`,
+            '--drawer-nested-progress': `${drawer.nested.progress()}`,
+            '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
+            ...(vertical() ? { height: extended } : { width: extended }),
+          },
+        }
+      },
       overlay: () =>
         swipe.progress() > 0 ? { style: { opacity: 1 - swipe.progress() } } : undefined,
     },
   })
+  const vertical = (): boolean => variants.side === 'bottom' || variants.side === 'top'
   const swipe = createDrawerSwipe({
     open: family.open,
     direction: () => swipeDirectionForSide(variants.side),
@@ -207,8 +214,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
     const tag = (): ValidComponent => local.as ?? 'div'
-    const hasHandle = () =>
-      merged.handle !== false && (variants.side === 'bottom' || variants.side === 'top')
+    const hasHandle = () => merged.handle !== false && vertical()
 
     return (
       <Dynamic
