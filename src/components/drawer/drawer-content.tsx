@@ -101,14 +101,17 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
         },
       }),
-      overlay: () => ({
-        style: {
-          // Match the content's enter/exit timing so the fade tracks the slide.
-          '--mo-anim-duration': '450ms',
-          '--mo-anim-ease': 'cubic-bezier(0.32,0.72,0,1)',
-          ...(swipe.progress() > 0 ? { opacity: 1 - swipe.progress() } : {}),
-        },
-      }),
+      overlay: () => {
+        const progress = swipe.progress()
+        return {
+          style: {
+            // Match the content's enter/exit timing so the fade tracks the slide.
+            '--mo-anim-duration': '450ms',
+            '--mo-anim-ease': 'cubic-bezier(0.32,0.72,0,1)',
+            opacity: progress > 0 ? 1 - progress : undefined,
+          },
+        }
+      },
     },
   })
   const vertical = (): boolean => variants.side === 'bottom' || variants.side === 'top'
@@ -153,34 +156,25 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     // settle toward the next frontmost popup concurrently with the exit.
     const parentChannel = drawer.nested.parent
     createEffect(
-      on(drawer.nested.openCount, (count) => {
-        parentChannel?.reportOpen(count + 1)
-      }),
-    )
-    createEffect(
-      on([drawer.nested.activeCount, family.open], ([count, isOpen]) => {
-        parentChannel?.reportActive(isOpen ? count + 1 : 0)
-      }),
-    )
-    createEffect(
-      on([drawer.nested.frontmostHeight, family.open], ([height, isOpen]) => {
-        parentChannel?.reportFrontmostHeight(isOpen ? height : 0)
-      }),
-    )
-    createEffect(
-      on([swipe.swiping, family.open], ([swiping, isOpen]) => {
-        parentChannel?.reportSwiping(isOpen && swiping)
-      }),
-    )
-    createEffect(
-      on([swipe.progress, family.open], ([progress, isOpen]) => {
-        parentChannel?.reportProgress(isOpen ? progress : 0)
-      }),
-    )
-    createEffect(
-      on(swipe.popupHeight, (height) => {
-        drawer.nested.setPopupHeight(height)
-      }),
+      on(
+        [
+          drawer.nested.openCount,
+          drawer.nested.activeCount,
+          drawer.nested.frontmostHeight,
+          family.open,
+          swipe.swiping,
+          swipe.progress,
+          swipe.popupHeight,
+        ],
+        ([openCount, activeCount, frontmostHeight, isOpen, swiping, progress, height]) => {
+          drawer.nested.setPopupHeight(height)
+          parentChannel?.reportOpen(openCount + 1)
+          parentChannel?.reportActive(isOpen ? activeCount + 1 : 0)
+          parentChannel?.reportFrontmostHeight(isOpen ? frontmostHeight : 0)
+          parentChannel?.reportSwiping(isOpen && swiping)
+          parentChannel?.reportProgress(isOpen ? progress : 0)
+        },
+      ),
     )
     onCleanup(() => {
       // The root-level channel signals outlive this content; drop the measured

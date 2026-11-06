@@ -100,16 +100,16 @@ Use Content `title` and `description` for simple cases, or compose `Drawer.Heade
 header. `Drawer.Close` is an explicit close control; root `closable` adds the automatic corner close
 button (off by default), and `closeIcon` replaces its icon.
 
-For `top` and `bottom` sides, Content renders a decorative `handle` grab bar as its first child
-(`order-last` on top). Set `handle={false}` to hide it.
+For `top` and `bottom` sides, Content renders a decorative `handle` grab bar along the edge
+facing the viewport. Set `handle={false}` to hide it.
 
 ### Sizing and scrolling
 
-A `top` or `bottom` drawer sizes to its content, capped at `max-h-[calc(100dvh-4rem)]`; `left` and
-`right` panels span `w-3/4` up to `sm:max-w-sm`. Override either with Content `class` — for example
-`class="h-[50dvh]"` for a fixed height, or `class="w-1/2 sm:max-w-2xl"` for a wider side panel.
-Body is the scrollable region: once Content's height is bounded, it scrolls between the header and
-footer.
+A `top` or `bottom` drawer sizes to its content, capped `0.5rem` (or the top safe-area inset)
+below the viewport height; `left` and `right` panels span `w-3/4` up to `sm:max-w-sm`. Override
+either with Content `class` — for example `class="h-[50dvh]"` for a fixed height, or
+`class="w-1/2 sm:max-w-2xl"` for a wider side panel. Body is the scrollable region: once Content's
+height is bounded, it scrolls between the header and footer.
 
 ### Swipe to dismiss
 
@@ -135,8 +135,8 @@ reaches its edge in the drag direction.
 `snapPoints` limits where a `top` or `bottom` drawer rests: numbers `<= 1` are a fraction of the
 viewport height, larger numbers are pixels, and `'px'`/`'rem'` strings resolve directly. Snap points
 are ignored for `left` and `right`. Snap heights are clamped to the content's rendered height, so
-give Content an explicit height (for example `class="h-[calc(100dvh-4rem)]"`) when using fractional
-or full snap points.
+give Content an explicit height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using
+fractional or full snap points.
 
 `snapPoint` / `defaultSnapPoint` / `onSnapPointChange` control the resting point (the default is the
 first snap point). Release settles on the closest point or closes; `snapToSequentialPoints` advances

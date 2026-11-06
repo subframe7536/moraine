@@ -39,16 +39,7 @@ const SWIPE_BODY_SELECTOR = '[data-slot="drawer-body"]'
 export function swipeDirectionForSide(
   side: 'top' | 'right' | 'bottom' | 'left',
 ): DrawerSwipeDirection {
-  switch (side) {
-    case 'top':
-      return 'up'
-    case 'left':
-      return 'left'
-    case 'right':
-      return 'right'
-    default:
-      return 'down'
-  }
+  return side === 'bottom' ? 'down' : side === 'top' ? 'up' : side
 }
 
 function isVertical(direction: DrawerSwipeDirection): boolean {
@@ -93,6 +84,7 @@ function canScrollInGestureDirection(
   scroller: HTMLElement,
   vertical: boolean,
   screenDelta: number,
+  rtl: boolean,
 ): boolean {
   if (vertical) {
     if (screenDelta > 0) {
@@ -101,11 +93,20 @@ function canScrollInGestureDirection(
     return scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1
   }
   // `scrollLeft` is <= 0 in RTL; normalize to an offset that grows toward content end.
-  const rtl = scroller.ownerDocument.defaultView?.getComputedStyle(scroller).direction === 'rtl'
   const scrollOffset = rtl ? -scroller.scrollLeft : scroller.scrollLeft
   const maxOffset = scroller.scrollWidth - scroller.clientWidth
   const towardEnd = rtl ? screenDelta > 0 : screenDelta < 0
   return towardEnd ? scrollOffset < maxOffset - 1 : scrollOffset > 0
+}
+
+function touchById(touches: TouchList, id: number): Touch | undefined {
+  for (let index = 0; index < touches.length; index += 1) {
+    const touch = touches[index]
+    if (touch?.identifier === id) {
+      return touch
+    }
+  }
+  return undefined
 }
 
 function swipeIgnoreMatch(target: EventTarget | null, vertical: boolean, touch: boolean): boolean {
@@ -123,6 +124,10 @@ function swipeIgnoreMatch(target: EventTarget | null, vertical: boolean, touch: 
   return axis !== 'x' && axis !== 'y' ? true : axis === (vertical ? 'y' : 'x')
 }
 
+function isRtl(element: HTMLElement): boolean {
+  return element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl'
+}
+
 interface DragState {
   startX: number
   startY: number
@@ -133,6 +138,8 @@ interface DragState {
   captureTarget?: HTMLElement
   /** A touch scrollable ancestor that may win the gesture until it reaches its edge. */
   scrollTarget: HTMLElement | null
+  /** `direction: rtl` of `scrollTarget`, resolved once at gesture start. */
+  scrollRtl: boolean
   swiping: boolean
   abandoned: boolean
   /**
@@ -152,11 +159,36 @@ interface DragState {
   cancelBaseD: number
   /** Displacement when the gesture claimed the axis. */
   lockD: number
-  lastSample?: { time: number; value: number }
+  /** Timestamp and axis displacement of the last recorded moving sample. */
+  sampleTime?: number
+  sampleValue: number
   /** Instantaneous velocity between the last two moving samples, dismiss-signed. */
   lastVelocity: number
   stationarySeen: boolean
   docCleanup?: VoidFunction
+}
+
+function createDrag(x: number, y: number, scrollTarget: HTMLElement | null): DragState {
+  return {
+    startX: x,
+    startY: y,
+    startTime: performance.now(),
+    scrollTarget,
+    scrollRtl: scrollTarget !== null && isRtl(scrollTarget),
+    swiping: false,
+    abandoned: false,
+    cancelled: false,
+    moved: false,
+    sawPrimaryButtons: false,
+    lastX: x,
+    lastY: y,
+    lastMain: 0,
+    cancelBaseD: 0,
+    lockD: 0,
+    sampleValue: 0,
+    lastVelocity: 0,
+    stationarySeen: false,
+  }
 }
 
 export interface DrawerSwipeOptions {
@@ -180,8 +212,6 @@ export interface DrawerSwipeController {
   swiping: Accessor<boolean>
   /** Current swipe offset in screen coordinates (+down/+right), damped past the open edge. */
   movement: Accessor<number>
-  /** Active snap point offset in px (0 without snap points). */
-  snapPointOffset: Accessor<number>
   /** The snap point offset as a CSS length for the content's `--drawer-snap-point-offset` var. */
   snapPointOffsetCss: Accessor<string>
   /** Dismissal progress in [0, 1] used for overlay opacity. */
@@ -198,7 +228,6 @@ export interface DrawerSwipeController {
  */
 export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeController {
   const [swiping, setSwiping] = createSignal(false)
-  const [movement, setMovement] = createSignal(0)
   const [displacement, setDisplacement] = createSignal(0)
   const [popupHeight, setPopupHeight] = createSignal(0)
   const [popupWidth, setPopupWidth] = createSignal(0)
@@ -267,6 +296,15 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
 
   const hasSnapPoints = () => resolvedSnapPoints().length > 0
 
+  // Within the open-edge bound the drag translates the popup; past it the
+  // displacement is rubber-banded so the popup barely gives.
+  const movement = createMemo(() => {
+    const raw = displacement()
+    const limit = -snapPointOffset()
+    const translate = raw >= limit ? raw : limit + dampen(raw - limit)
+    return translate * screenSign(options.direction())
+  })
+
   const progress = createMemo(() => {
     const size = popupSize()
     if (size <= 0) {
@@ -275,45 +313,32 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     return clampSnapValue((snapPointOffset() + displacement()) / size, 0, 1)
   })
 
-  function axisDelta(state: DragState, x: number, y: number): { main: number; cross: number } {
-    const dx = x - state.startX
-    const dy = y - state.startY
-    return vertical() ? { main: dy, cross: dx } : { main: dx, cross: dy }
-  }
-
-  function applyMovement(rawD: number): void {
-    setDisplacement(rawD)
-    // Within the open-edge bound the drag translates the popup; past it the
-    // displacement is rubber-banded so the popup barely gives.
-    const limit = -snapPointOffset()
-    const translate = rawD >= limit ? rawD : limit + dampen(rawD - limit)
-    setMovement(translate * screenSign(options.direction()))
-  }
-
   function resetDrag(): void {
     setDisplacement(0)
-    setMovement(0)
     setSwiping(false)
   }
 
   function recordSample(state: DragState, main: number): void {
     const time = performance.now()
-    const last = state.lastSample
-    if (last && time > last.time) {
-      // Some Android devices emit one effectively stationary move immediately before release.
-      // Keep the last moving sample and its velocity; repeated stationary moves still clear it.
-      const stationary = Math.abs(main - last.value) < MIN_VELOCITY_SAMPLE_DISTANCE
-      const skip = stationary && !state.stationarySeen
-      state.stationarySeen = stationary
-      if (!skip) {
-        state.lastVelocity =
-          ((main - last.value) / Math.max(time - last.time, MIN_RELEASE_VELOCITY_DURATION_MS)) *
-          screenSign(options.direction())
-        state.lastSample = { time, value: main }
-      }
+    const sampleTime = state.sampleTime
+    if (sampleTime === undefined || time <= sampleTime) {
+      state.sampleTime = time
+      state.sampleValue = main
       return
     }
-    state.lastSample = { time, value: main }
+    // Some Android devices emit one effectively stationary move immediately before release.
+    // Keep the last moving sample and its velocity; repeated stationary moves still clear it.
+    const stationary = Math.abs(main - state.sampleValue) < MIN_VELOCITY_SAMPLE_DISTANCE
+    const skip = stationary && !state.stationarySeen
+    state.stationarySeen = stationary
+    if (!skip) {
+      state.lastVelocity =
+        ((main - state.sampleValue) /
+          Math.max(time - sampleTime, MIN_RELEASE_VELOCITY_DURATION_MS)) *
+        screenSign(options.direction())
+      state.sampleTime = time
+      state.sampleValue = main
+    }
   }
 
   function settleDrag(state: DragState, released: boolean, endX: number, endY: number): void {
@@ -331,11 +356,11 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     // Release velocity: the terminal flick from the last moving sample. A release
     // long after the final move expires it so hold-then-release stays slow.
     let releaseVelocity = state.lastVelocity
-    const last = state.lastSample
-    if (last && now >= last.time) {
-      const age = now - last.time
+    const sampleTime = state.sampleTime
+    if (sampleTime !== undefined && now >= sampleTime) {
+      const age = now - sampleTime
       if (age <= MAX_RELEASE_VELOCITY_AGE_MS) {
-        const delta = endMain - last.value
+        const delta = endMain - state.sampleValue
         if (Math.abs(delta) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
           releaseVelocity = (delta / Math.max(age, MIN_RELEASE_VELOCITY_DURATION_MS)) * sign
         }
@@ -522,11 +547,15 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       return false
     }
 
-    const { main, cross } = axisDelta(state, x, y)
+    const dx = x - state.startX
+    const dy = y - state.startY
+    const vert = vertical()
+    const main = vert ? dy : dx
+    const cross = vert ? dx : dy
     const sign = screenSign(options.direction())
     const d = main * sign
     const moveD = (main - state.lastMain) * sign
-    const moveMain = vertical() ? y - state.lastY : x - state.lastX
+    const moveMain = vert ? y - state.lastY : x - state.lastX
     state.lastX = x
     state.lastY = y
     state.lastMain = main
@@ -545,7 +574,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       }
       if (
         state.scrollTarget &&
-        canScrollInGestureDirection(state.scrollTarget, vertical(), moveMain)
+        canScrollInGestureDirection(state.scrollTarget, vert, moveMain, state.scrollRtl)
       ) {
         // The scroller still has room in the move direction: yield this move and
         // re-arbitrate on the next one, so reaching the scroll edge hands the
@@ -582,7 +611,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     }
 
     recordSample(state, main)
-    applyMovement(d)
+    setDisplacement(d)
     return true
   }
 
@@ -613,11 +642,15 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     const ownerDocument = content.ownerDocument
     blocked = () => containsOverlayContentAbove(content, ownerDocument.documentElement)
 
-    function measure(): void {
+    function measureSize(): void {
       if (!options.sizeFrozen()) {
         setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }
+    }
+    // Kept off the ResizeObserver path: `getComputedStyle` forces style
+    // resolution, and the observer fires per frame during size transitions.
+    function measureViewport(): void {
       setViewportHeight(ownerWindow?.innerHeight ?? 0)
       const fontSize = Number.parseFloat(
         ownerWindow?.getComputedStyle(ownerDocument.documentElement).fontSize ?? '',
@@ -626,7 +659,8 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         setRootFontSize(fontSize)
       }
     }
-    measure()
+    measureSize()
+    measureViewport()
 
     function onPointerDown(event: PointerEvent): void {
       // A live gesture owns the drag; a second pointer must not replace it, or the
@@ -645,26 +679,9 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       }
 
       clearContentSelection(content)
-      drag = {
-        startX: event.clientX,
-        startY: event.clientY,
-        startTime: performance.now(),
-        pointerId: event.pointerId,
-        captureTarget: content,
-        scrollTarget: null,
-        swiping: false,
-        abandoned: false,
-        cancelled: false,
-        moved: false,
-        sawPrimaryButtons: false,
-        lastX: event.clientX,
-        lastY: event.clientY,
-        lastMain: 0,
-        cancelBaseD: 0,
-        lockD: 0,
-        lastVelocity: 0,
-        stationarySeen: false,
-      }
+      drag = createDrag(event.clientX, event.clientY, null)
+      drag.pointerId = event.pointerId
+      drag.captureTarget = content
 
       const state = drag
       state.docCleanup = attachEventListenerMap(ownerDocument, {
@@ -712,25 +729,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         return
       }
       const touch = event.touches[0]!
-      drag = {
-        startX: touch.clientX,
-        startY: touch.clientY,
-        startTime: performance.now(),
-        touchId: touch.identifier,
-        scrollTarget: findScrollableAncestor(event.target, content, vertical()),
-        swiping: false,
-        abandoned: false,
-        cancelled: false,
-        moved: false,
-        sawPrimaryButtons: false,
-        lastX: touch.clientX,
-        lastY: touch.clientY,
-        lastMain: 0,
-        cancelBaseD: 0,
-        lockD: 0,
-        lastVelocity: 0,
-        stationarySeen: false,
-      }
+      drag = createDrag(
+        touch.clientX,
+        touch.clientY,
+        findScrollableAncestor(event.target, content, vertical()),
+      )
+      drag.touchId = touch.identifier
     }
 
     function onTouchMove(event: TouchEvent): void {
@@ -742,7 +746,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       if (event.touches.length !== 1) {
         return
       }
-      const touch = Array.from(event.touches).find((item) => item.identifier === state.touchId)
+      const touch = touchById(event.touches, state.touchId)
       if (!touch) {
         return
       }
@@ -756,9 +760,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       if (!state || state.touchId === undefined) {
         return
       }
-      const touch = Array.from(event.changedTouches).find(
-        (item) => item.identifier === state.touchId,
-      )
+      const touch = touchById(event.changedTouches, state.touchId)
       endDrag(state, !state.abandoned, touch?.clientX ?? state.lastX, touch?.clientY ?? state.lastY)
     }
 
@@ -770,7 +772,10 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       endDrag(state, false)
     }
 
-    createEventListener(ownerWindow, 'resize', measure)
+    createEventListener(ownerWindow, 'resize', () => {
+      measureSize()
+      measureViewport()
+    })
     createEventListener(content, 'pointerdown', onPointerDown)
     createEventListener(content, 'touchstart', onTouchStart)
     createEventListener(content, 'touchmove', onTouchMove, { passive: false })
@@ -780,7 +785,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     })
 
     if (typeof ResizeObserver === 'function') {
-      const observer = new ResizeObserver(measure)
+      const observer = new ResizeObserver(measureSize)
       observer.observe(content)
       onCleanup(() => observer.disconnect())
     }
@@ -794,7 +799,6 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
   return {
     swiping,
     movement,
-    snapPointOffset,
     snapPointOffsetCss,
     progress,
     popupHeight,
