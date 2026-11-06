@@ -1100,6 +1100,165 @@ describe('Drawer', () => {
     expect(parent.style.getPropertyValue('--drawer-swipe-movement')).toBe('0px')
   })
 
+  describe('nested stack', () => {
+    test('ancestors are marked nested-open with the open descendant count', async () => {
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen>
+                <Drawer.Content>
+                  <Drawer.Body>
+                    <Drawer defaultOpen>
+                      <Drawer.Content>
+                        <Drawer.Body>Grandchild</Drawer.Body>
+                      </Drawer.Content>
+                    </Drawer>
+                  </Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(3),
+      )
+
+      const contents = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')
+      const parent = contents[0]!
+      const child = contents[1]!
+      const grandchild = contents[2]!
+      expect(parent.hasAttribute('data-nested-open')).toBe(true)
+      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('2')
+      expect(child.hasAttribute('data-nested-open')).toBe(true)
+      expect(child.style.getPropertyValue('--nested-drawers')).toBe('1')
+      expect(grandchild.hasAttribute('data-nested-open')).toBe(false)
+      expect(grandchild.style.getPropertyValue('--nested-drawers')).toBe('0')
+    })
+
+    test('ancestors track the frontmost drawer height', async () => {
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen>
+                <Drawer.Content>
+                  <Drawer.Body>Child</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+      )
+
+      const contents = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')
+      const parent = contents[0]!
+      const child = contents[1]!
+      Object.defineProperty(child, 'offsetHeight', { value: 480, configurable: true })
+      fireEvent(window, new Event('resize'))
+
+      expect(parent.style.getPropertyValue('--drawer-frontmost-height')).toBe('480px')
+      expect(child.style.getPropertyValue('--drawer-frontmost-height')).toBe('480px')
+    })
+
+    test('a nested swipe marks ancestors and forwards its progress', async () => {
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen>
+                <Drawer.Content>
+                  <Drawer.Body>Child</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+      )
+
+      const contents = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')
+      const parent = contents[0]!
+      const child = contents[1]!
+      Object.defineProperty(child, 'offsetHeight', { value: 400, configurable: true })
+      fireEvent(window, new Event('resize'))
+
+      fireEvent.pointerDown(child, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+        clientX: 0,
+        clientY: 100,
+      })
+      now += 20
+      fireEvent.pointerMove(document, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        buttons: 1,
+        clientX: 0,
+        clientY: 160,
+      })
+      now += 20
+      fireEvent.pointerMove(document, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        buttons: 1,
+        clientX: 0,
+        clientY: 260,
+      })
+
+      expect(child.hasAttribute('data-swiping')).toBe(true)
+      expect(parent.hasAttribute('data-nested-swiping')).toBe(true)
+      expect(parent.style.getPropertyValue('--drawer-nested-progress')).toBe('0.25')
+
+      fireEvent.pointerUp(document, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        clientX: 0,
+        clientY: 260,
+      })
+      expect(parent.hasAttribute('data-nested-swiping')).toBe(false)
+    })
+
+    test('closing the nested drawer restores the ancestor', async () => {
+      const onChildChange = vi.fn()
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen onOpenChange={onChildChange}>
+                <Drawer.Content>
+                  <Drawer.Body>Child</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+      )
+
+      const contents = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')
+      const parent = contents[0]!
+      const child = contents[1]!
+      expect(parent.hasAttribute('data-nested-open')).toBe(true)
+
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(onChildChange).toHaveBeenCalledWith(false)
+      await finishExitMotion()
+      await waitFor(() => expect(document.body.contains(child)).toBe(false))
+      expect(parent.hasAttribute('data-nested-open')).toBe(false)
+      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('0')
+    })
+  })
+
   describe('Android back gesture', () => {
     interface FakeWatcher extends EventTarget {
       destroy: ReturnType<typeof vi.fn>

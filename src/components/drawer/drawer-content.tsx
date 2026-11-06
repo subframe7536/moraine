@@ -76,6 +76,8 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         closed: () => !family.open(),
         expanded: family.open,
         swiping: () => swipe.swiping(),
+        nestedOpen: () => drawer.nested.openCount() > 0,
+        nestedSwiping: drawer.nested.swiping,
       }),
       overlay: drawerDataAttributes.overlay({
         closed: () => !family.open(),
@@ -90,6 +92,9 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           '--drawer-swipe-movement': `${swipe.movement()}px`,
           '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
           '--drawer-keyboard-inset': `${keyboardInset()}px`,
+          '--nested-drawers': `${drawer.nested.openCount()}`,
+          '--drawer-nested-progress': `${drawer.nested.progress()}`,
+          '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
         },
       }),
       overlay: () =>
@@ -128,6 +133,41 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     })
     // The gesture binds in this owner and releases with the content.
     bindElement(family.contentElement, (element) => swipe.attach(element))
+
+    // While mounted (open or exiting) this drawer reports its state to the
+    // ambient parent drawer so ancestors recede into the stack visual.
+    const parentChannel = drawer.nested.parent
+    createEffect(
+      on(drawer.nested.openCount, (count) => {
+        parentChannel?.reportOpen(count + 1)
+      }),
+    )
+    createEffect(
+      on(drawer.nested.frontmostHeight, (height) => {
+        parentChannel?.reportFrontmostHeight(height)
+      }),
+    )
+    createEffect(
+      on(swipe.swiping, (swiping) => {
+        parentChannel?.reportSwiping(swiping)
+      }),
+    )
+    createEffect(
+      on(swipe.progress, (progress) => {
+        parentChannel?.reportProgress(progress)
+      }),
+    )
+    createEffect(
+      on(swipe.popupHeight, (height) => {
+        drawer.nested.setPopupHeight(height)
+      }),
+    )
+    onCleanup(() => {
+      parentChannel?.reportOpen(0)
+      parentChannel?.reportFrontmostHeight(0)
+      parentChannel?.reportSwiping(false)
+      parentChannel?.reportProgress(0)
+    })
 
     // Android back gesture: CloseWatcher mirrors native <dialog> dismissal. Each open
     // drawer owns a watcher, so the browser's stack hands the gesture to the topmost one.

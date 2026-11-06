@@ -176,6 +176,8 @@ export interface DrawerSwipeController {
   snapPointOffsetCss: Accessor<string>
   /** Dismissal progress in [0, 1] used for overlay opacity. */
   progress: Accessor<number>
+  /** Measured popup height in px, kept current by a ResizeObserver. */
+  popupHeight: Accessor<number>
   /** Binds the gesture to the content element for the element's lifetime. */
   attach: (element: HTMLElement) => void
 }
@@ -780,6 +782,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     snapPointOffset,
     snapPointOffsetCss,
     progress,
+    popupHeight,
     attach,
   }
 }

@@ -159,6 +159,8 @@ export const moraineTailwind = plugin(
           'loading',
           'mobile',
           'multiple',
+          'nested-open',
+          'nested-swiping',
           'open',
           'overlay-scroll',
           'pinned',
