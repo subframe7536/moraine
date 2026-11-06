@@ -71,8 +71,8 @@ resting at snap points. Use [Sheet](/components/sheet) for an edge panel without
 backdrop and content yourself.
 
 Drawer shares modal dismissal and focus behavior with Dialog. The default side is `bottom`.
-For a persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`
-and `preventScroll={false}` — Escape and swipe dismissal still apply.
+For a persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`,
+`preventScroll={false}`, and `closeOnOverlayClick={false}` — Escape and swipe dismissal still apply.
 
 ```tsx
 import { Button, Drawer } from 'moraine'
@@ -199,7 +199,8 @@ Top and bottom support handles and snap points; left and right are swipe-only pa
 ### Keep the page interactive
 
 `modal={false}`, `overlay={false}`, and `preventScroll={false}` leave the page's pointer, focus,
-and scroll access intact — both the page and panel buttons update the same count.
+and scroll access intact; `closeOnOverlayClick={false}` keeps outside presses from dismissing the
+panel — both buttons update the same count.
 
 <Preview path="./non-modal" />
 

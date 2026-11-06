@@ -14,13 +14,19 @@ export function NonModal() {
         <Button variant="outline" size="sm" onClick={() => setCount((value) => value + 1)}>
           Page action
         </Button>
-        <Drawer modal={false} overlay={false} preventScroll={false}>
+        <Drawer
+          modal={false}
+          overlay={false}
+          preventScroll={false}
+          closeOnOverlayClick={false}
+          closable
+        >
           <Drawer.Trigger as={Button} size="sm">
             Open Panel
           </Drawer.Trigger>
           <Drawer.Content
             title="Quick actions"
-            description="Escape or a downward swipe still dismisses."
+            description="Escape, a downward swipe, or the close button dismisses."
           >
             <Drawer.Body>
               <div class="py-2 flex gap-2">
