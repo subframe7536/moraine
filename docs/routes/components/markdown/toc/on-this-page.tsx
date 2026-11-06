@@ -83,6 +83,22 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     }),
   )
 
+  // The nav is its own scroll container; keep the active entry inside it.
+  createEffect(
+    on(primaryActiveId, (id) => {
+      const element = list()
+      if (!id || !element) {
+        return
+      }
+      for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
+        if (anchor.dataset.tocId === id) {
+          anchor.scrollIntoView({ block: 'nearest' })
+          return
+        }
+      }
+    }),
+  )
+
   return (
     <nav ref={setNav} aria-label="On This Page" class={props.class}>
       <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold px-3 uppercase">
