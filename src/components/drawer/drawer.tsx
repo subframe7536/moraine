@@ -36,7 +36,10 @@ export function Drawer(props: DrawerProps): JSX.Element {
   const [nestedProgress, setNestedProgress] = createSignal(0)
   const nested: DrawerNestedChannel = {
     openCount,
-    frontmostHeight: () => (openCount() > 0 ? nestedFrontmostHeight() : popupHeight()),
+    // A descendant reports its measured height asynchronously; until then the
+    // own popup height is the best estimate (exact for same-height stacks).
+    frontmostHeight: () =>
+      openCount() > 0 && nestedFrontmostHeight() > 0 ? nestedFrontmostHeight() : popupHeight(),
     swiping: nestedSwiping,
     progress: nestedProgress,
     parent,
