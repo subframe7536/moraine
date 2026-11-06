@@ -101,8 +101,14 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
         },
       }),
-      overlay: () =>
-        swipe.progress() > 0 ? { style: { opacity: 1 - swipe.progress() } } : undefined,
+      overlay: () => ({
+        style: {
+          // Match the content's enter/exit timing so the fade tracks the slide.
+          '--mo-anim-duration': '450ms',
+          '--mo-anim-ease': 'cubic-bezier(0.32,0.72,0,1)',
+          ...(swipe.progress() > 0 ? { opacity: 1 - swipe.progress() } : {}),
+        },
+      }),
     },
   })
   const vertical = (): boolean => variants.side === 'bottom' || variants.side === 'top'

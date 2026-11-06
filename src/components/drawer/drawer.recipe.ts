@@ -42,8 +42,8 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
         'calc(max(0, 1 - var(--nested-drawers) * 0.05) + var(--drawer-nested-progress) * 0.05)',
       '--drawer-nested-offset':
         'calc(max(0px, (var(--nested-drawers) - var(--drawer-nested-progress)) * (1.5rem - 1px)) + (1 - var(--drawer-nested-scale)) * var(--drawer-frontmost-height))',
-      content: `text-sm text-popover-foreground outline-none bg-popover flex flex-col min-h-0 min-w-0 shadow-overlay transition-[transform,height,width] duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] fixed z-floating bg-clip-padding after:(rounded-[inherit] bg-black/0 pointer-events-none content-[''] transition-colors duration-450 inset-0 absolute) data-nested-swiping:(select-none transition-none after:duration-0) data-swiping:(select-none transition-none) motion-reduce:(transition-none animate-none) data-closed:animate-mo-exit data-expanded:animate-mo-enter data-nested-open:after:bg-[rgb(0_0_0/calc((var(--nested-drawers)-var(--drawer-nested-progress))*2%))] dark:data-nested-open:after:bg-[rgb(0_0_0/calc((var(--nested-drawers)-var(--drawer-nested-progress))*6%))]`,
-      overlay: `${MODAL_OVERLAY_CLASS} transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:transition-none`,
+      content: `text-sm text-popover-foreground outline-none bg-popover flex flex-col min-h-0 min-w-0 shadow-overlay transition-[transform,height,width] duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] fixed z-floating bg-clip-padding after:(rounded-[inherit] bg-black/0 pointer-events-none content-[''] transition-colors duration-450 inset-0 absolute) data-closed:(pointer-events-none animate-mo-exit) data-nested-swiping:(select-none transition-none after:duration-0) data-swiping:(select-none transition-none) motion-reduce:(transition-none animate-none) data-expanded:animate-mo-enter data-nested-open:after:bg-[rgb(0_0_0/calc((var(--nested-drawers)-var(--drawer-nested-progress))*2%))] dark:data-nested-open:after:bg-[rgb(0_0_0/calc((var(--nested-drawers)-var(--drawer-nested-progress))*6%))]`,
+      overlay: `${MODAL_OVERLAY_CLASS} transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-closed:pointer-events-none data-swiping:transition-none`,
       handle: 'mx-auto rounded-full bg-input shrink-0 h-1 w-12 inset-x-0 absolute',
       header: 'p-6 shrink-0 gap-2 grid auto-rows-min min-w-0 data-body:pb-3 max-sm:pb-4',
       title: 'text-foreground font-medium',
@@ -60,21 +60,21 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
       side: {
         bottom: {
           content:
-            'pb-[max(env(safe-area-inset-bottom,0px),var(--drawer-keyboard-inset,0px))] will-change-transform border-t border-border rounded-t-[calc(var(--radius)*1.6)] max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top,0px)))] origin-bottom translate-y-[calc(var(--drawer-snap-point-offset)_+_var(--drawer-swipe-movement)_-_var(--drawer-nested-offset))] scale-(--drawer-nested-scale) inset-x-0 bottom-0 enter-translate-y-full exit-translate-y-full data-handle:pt-2 data-nested-open:h-(--drawer-frontmost-height) data-nested-open:overflow-hidden',
+            "pb-[max(env(safe-area-inset-bottom,0px),var(--drawer-keyboard-inset,0px))] will-change-transform border-t border-border rounded-t-[calc(var(--radius)*1.6)] max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top,0px)))] origin-bottom translate-y-[calc(var(--drawer-snap-point-offset)_+_var(--drawer-swipe-movement)_-_var(--drawer-nested-offset))] scale-(--drawer-nested-scale) inset-x-0 bottom-0 enter-translate-y-full exit-translate-y-full data-handle:pt-2 before:(bg-inherit h-[100dvh] pointer-events-none content-[''] inset-x-0 top-full absolute) data-nested-open:h-(--drawer-frontmost-height) data-nested-open:overflow-hidden",
           handle: 'top-3',
         },
         top: {
           content:
-            'border-b rounded-b-[calc(var(--radius)*1.6)] max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top,0px)))] translate-y-[calc(var(--drawer-swipe-movement)_-_var(--drawer-snap-point-offset))] inset-x-0 top-0 data-handle:pb-2 -enter-translate-y-full -exit-translate-y-full',
+            "border-b rounded-b-[calc(var(--radius)*1.6)] max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top,0px)))] translate-y-[calc(var(--drawer-swipe-movement)_-_var(--drawer-snap-point-offset))] inset-x-0 top-0 data-handle:pb-2 before:(bg-inherit h-[100dvh] pointer-events-none content-[''] inset-x-0 bottom-full absolute) -enter-translate-y-full -exit-translate-y-full",
           handle: 'bottom-3',
         },
         left: {
           content:
-            'border-r border-border h-full w-3/4 translate-x-(--drawer-swipe-movement) inset-y-0 left-0 sm:max-w-sm -enter-translate-x-full -exit-translate-x-full',
+            "border-r border-border h-full w-3/4 translate-x-(--drawer-swipe-movement) inset-y-0 left-0 before:(bg-inherit w-[100dvw] pointer-events-none content-[''] inset-y-0 right-full absolute) sm:max-w-sm -enter-translate-x-full -exit-translate-x-full",
         },
         right: {
           content:
-            'border-l border-border h-full w-3/4 translate-x-(--drawer-swipe-movement) inset-y-0 right-0 enter-translate-x-full exit-translate-x-full sm:max-w-sm',
+            "border-l border-border h-full w-3/4 translate-x-(--drawer-swipe-movement) inset-y-0 right-0 enter-translate-x-full exit-translate-x-full before:(bg-inherit w-[100dvw] pointer-events-none content-[''] inset-y-0 left-full absolute) sm:max-w-sm",
         },
       },
     },
