@@ -6,6 +6,16 @@ import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import type { DrawerT } from './drawer.types'
 
+/** Stack state a mounted content reports to its ambient parent drawer channel. */
+export interface DrawerNestedReport {
+  /** Mounted contents in the reporting subtree, itself included. */
+  open: number
+  /** Open drawers in the subtree; 0 once the reporting drawer starts closing. */
+  active: number
+  /** Height of the subtree's frontmost open popup in px; 0 while closed. */
+  frontmostHeight: number
+}
+
 /**
  * Per-drawer channel shared with drawers nested inside its content. A nested
  * content reports its presence, frontmost height, and swipe state upward so
@@ -26,16 +36,41 @@ export interface DrawerNestedChannel {
   readonly parent?: DrawerNestedChannel
   /** Called by this drawer's own content to report its popup height. */
   readonly setPopupHeight: (height: number) => void
-  /** Called by a nested content to report its mounted drawer count; 0 on unmount. */
-  readonly reportOpen: (count: number) => void
-  /** Called by a nested content to report its open drawer count; 0 when it starts closing. */
-  readonly reportActive: (count: number) => void
-  /** Called by a nested content to report its subtree frontmost height; 0 on unmount. */
-  readonly reportFrontmostHeight: (height: number) => void
+  /** Called by a nested content to report its stack state; zeros on unmount. */
+  readonly report: (report: DrawerNestedReport) => void
   /** Called by a nested content on swipe changes; forwarded up the chain. */
-  readonly reportSwiping: (swiping: boolean) => void
-  /** Called by a nested content on swipe progress; forwarded up the chain. */
-  readonly reportProgress: (progress: number) => void
+  readonly reportSwipe: (swiping: boolean, progress: number) => void
+}
+
+export function createDrawerNestedChannel(parent?: DrawerNestedChannel): DrawerNestedChannel {
+  const [popupHeight, setPopupHeight] = createSignal(0)
+  const [openCount, setOpenCount] = createSignal(0)
+  const [activeCount, setActiveCount] = createSignal(0)
+  const [descendantHeight, setDescendantHeight] = createSignal(0)
+  const [swiping, setSwiping] = createSignal(false)
+  const [progress, setProgress] = createSignal(0)
+  return {
+    openCount,
+    activeCount,
+    // A descendant reports its measured height asynchronously; until then the
+    // own popup height is the best estimate (exact for same-height stacks).
+    frontmostHeight: () =>
+      activeCount() > 0 && descendantHeight() > 0 ? descendantHeight() : popupHeight(),
+    swiping,
+    progress,
+    parent,
+    setPopupHeight,
+    report: (report) => {
+      setOpenCount(report.open)
+      setActiveCount(report.active)
+      setDescendantHeight(report.frontmostHeight)
+    },
+    reportSwipe: (nextSwiping, nextProgress) => {
+      setSwiping(nextSwiping)
+      setProgress(nextProgress)
+      parent?.reportSwipe(nextSwiping, nextProgress)
+    },
+  }
 }
 
 export interface DrawerContextValue {

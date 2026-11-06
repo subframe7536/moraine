@@ -134,13 +134,10 @@ interface DragState {
   startTime: number
   pointerId?: number
   touchId?: number
-  /** Pointer drags capture on swipe start so clicks aren't retargeted beforehand. */
-  captureTarget?: HTMLElement
   /** A touch scrollable ancestor that may win the gesture until it reaches its edge. */
   scrollTarget: HTMLElement | null
   /** `direction: rtl` of `scrollTarget`, resolved once at gesture start. */
   scrollRtl: boolean
-  swiping: boolean
   abandoned: boolean
   /**
    * Reversed past `REVERSE_CANCEL_THRESHOLD` after locking the dismiss axis: the
@@ -175,7 +172,6 @@ function createDrag(x: number, y: number, scrollTarget: HTMLElement | null): Dra
     startTime: performance.now(),
     scrollTarget,
     scrollRtl: scrollTarget !== null && isRtl(scrollTarget),
-    swiping: false,
     abandoned: false,
     cancelled: false,
     moved: false,
@@ -507,17 +503,10 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     endY = state.lastY,
   ): void {
     state.docCleanup?.()
-    if (state.pointerId !== undefined && state.captureTarget) {
-      try {
-        state.captureTarget.releasePointerCapture?.(state.pointerId)
-      } catch {
-        // Pointer capture is best-effort, matching the set path.
-      }
-    }
     if (drag === state) {
       drag = null
     }
-    if (state.abandoned || !state.swiping) {
+    if (state.abandoned || !swiping()) {
       resetDrag()
       return
     }
@@ -560,7 +549,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     state.lastY = y
     state.lastMain = main
 
-    if (!state.swiping) {
+    if (!swiping()) {
       if (Math.abs(main) < AXIS_LOCK_SLOP && Math.abs(cross) < AXIS_LOCK_SLOP) {
         return false
       }
@@ -581,16 +570,8 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         // rest of the gesture back to the drawer.
         return false
       }
-      state.swiping = true
       state.lockD = d
       setSwiping(true)
-      if (state.pointerId !== undefined && state.captureTarget) {
-        try {
-          state.captureTarget.setPointerCapture?.(state.pointerId)
-        } catch {
-          // Environments without pointer capture (jsdom) still receive document events.
-        }
-      }
     }
 
     // Reverse-cancel: track the deepest point of the current retreat. Receding
@@ -681,9 +662,21 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       clearContentSelection(content)
       drag = createDrag(event.clientX, event.clientY, null)
       drag.pointerId = event.pointerId
-      drag.captureTarget = content
 
       const state = drag
+      // Pointer drags capture on swipe start so clicks aren't retargeted beforehand.
+      let captured = false
+      function finish(released: boolean, x?: number, y?: number): void {
+        if (captured) {
+          captured = false
+          try {
+            content.releasePointerCapture?.(event.pointerId)
+          } catch {
+            // Pointer capture is best-effort, matching the set path.
+          }
+        }
+        endDrag(state, released, x, y)
+      }
       state.docCleanup = attachEventListenerMap(ownerDocument, {
         pointermove: (moveEvent) => {
           if (moveEvent.pointerId !== state.pointerId) {
@@ -696,7 +689,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
           // A non-primary button taking over the interaction (e.g. a right-click
           // mid-drag) cancels the swipe.
           if (moveEvent.buttons !== 0 && !hasPrimaryButton) {
-            endDrag(state, false)
+            finish(false)
             return
           }
           // A `buttons: 0` move means the primary button was already released and
@@ -704,19 +697,26 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
           // move as the release — it may itself carry the decisive displacement.
           if (moveEvent.buttons === 0 && state.sawPrimaryButtons) {
             updateDrag(state, moveEvent.clientX, moveEvent.clientY)
-            endDrag(state, true, moveEvent.clientX, moveEvent.clientY)
+            finish(true, moveEvent.clientX, moveEvent.clientY)
             return
           }
-          updateDrag(state, moveEvent.clientX, moveEvent.clientY)
+          if (updateDrag(state, moveEvent.clientX, moveEvent.clientY) && !captured) {
+            captured = true
+            try {
+              content.setPointerCapture?.(moveEvent.pointerId)
+            } catch {
+              // Environments without pointer capture (jsdom) still receive document events.
+            }
+          }
         },
         pointerup: (upEvent) => {
           if (upEvent.pointerId !== state.pointerId) {
             return
           }
-          endDrag(state, true, upEvent.clientX, upEvent.clientY)
+          finish(true, upEvent.clientX, upEvent.clientY)
         },
         pointercancel: () => {
-          endDrag(state, false)
+          finish(false)
         },
       })
     }

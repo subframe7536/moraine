@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createSignal, mergeProps, splitProps } from 'solid-js'
+import { mergeProps, splitProps } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -9,8 +9,12 @@ import { MODAL_ROOT_KEYS } from '../modal/modal-context'
 import { DrawerBody } from './drawer-body'
 import { DrawerClose } from './drawer-close'
 import { DrawerContent } from './drawer-content'
-import type { DrawerContextValue, DrawerNestedChannel } from './drawer-context'
-import { DrawerProvider, useOptionalDrawerContext } from './drawer-context'
+import type { DrawerContextValue } from './drawer-context'
+import {
+  createDrawerNestedChannel,
+  DrawerProvider,
+  useOptionalDrawerContext,
+} from './drawer-context'
 import { DrawerDescription } from './drawer-description'
 import { DrawerFooter } from './drawer-footer'
 import { DrawerHeader } from './drawer-header'
@@ -28,36 +32,7 @@ export function Drawer(props: DrawerProps): JSX.Element {
     defaultValue: defaultSnapPoint,
     onChange: (next) => drawerProps.onSnapPointChange?.(next),
   })
-  const parent = useOptionalDrawerContext()?.nested
-  const [popupHeight, setPopupHeight] = createSignal(0)
-  const [openCount, setOpenCount] = createSignal(0)
-  const [activeCount, setActiveCount] = createSignal(0)
-  const [nestedFrontmostHeight, setNestedFrontmostHeight] = createSignal(0)
-  const [nestedSwiping, setNestedSwiping] = createSignal(false)
-  const [nestedProgress, setNestedProgress] = createSignal(0)
-  const nested: DrawerNestedChannel = {
-    openCount,
-    activeCount,
-    // A descendant reports its measured height asynchronously; until then the
-    // own popup height is the best estimate (exact for same-height stacks).
-    frontmostHeight: () =>
-      activeCount() > 0 && nestedFrontmostHeight() > 0 ? nestedFrontmostHeight() : popupHeight(),
-    swiping: nestedSwiping,
-    progress: nestedProgress,
-    parent,
-    setPopupHeight,
-    reportOpen: setOpenCount,
-    reportActive: setActiveCount,
-    reportFrontmostHeight: setNestedFrontmostHeight,
-    reportSwiping: (swiping) => {
-      setNestedSwiping(swiping)
-      parent?.reportSwiping(swiping)
-    },
-    reportProgress: (progress) => {
-      setNestedProgress(progress)
-      parent?.reportProgress(progress)
-    },
-  }
+  const nested = createDrawerNestedChannel(useOptionalDrawerContext()?.nested)
   const context: DrawerContextValue = mergeProps(drawerProps, {
     snapPoint,
     setSnapPoint,

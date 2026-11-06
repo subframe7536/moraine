@@ -168,11 +168,12 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         ],
         ([openCount, activeCount, frontmostHeight, isOpen, swiping, progress, height]) => {
           drawer.nested.setPopupHeight(height)
-          parentChannel?.reportOpen(openCount + 1)
-          parentChannel?.reportActive(isOpen ? activeCount + 1 : 0)
-          parentChannel?.reportFrontmostHeight(isOpen ? frontmostHeight : 0)
-          parentChannel?.reportSwiping(isOpen && swiping)
-          parentChannel?.reportProgress(isOpen ? progress : 0)
+          parentChannel?.report({
+            open: openCount + 1,
+            active: isOpen ? activeCount + 1 : 0,
+            frontmostHeight: isOpen ? frontmostHeight : 0,
+          })
+          parentChannel?.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
         },
       ),
     )
@@ -181,11 +182,8 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       // size so a remount reports 0 first and ancestors transition like on the
       // first open instead of snapping to a stale height.
       drawer.nested.setPopupHeight(0)
-      parentChannel?.reportOpen(0)
-      parentChannel?.reportActive(0)
-      parentChannel?.reportFrontmostHeight(0)
-      parentChannel?.reportSwiping(false)
-      parentChannel?.reportProgress(0)
+      parentChannel?.report({ open: 0, active: 0, frontmostHeight: 0 })
+      parentChannel?.reportSwipe(false, 0)
     })
 
     // Android back gesture: CloseWatcher mirrors native <dialog> dismissal. Each open
