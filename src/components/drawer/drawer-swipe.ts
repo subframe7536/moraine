@@ -138,6 +138,8 @@ interface DragState {
   scrollTarget: HTMLElement | null
   /** `direction: rtl` of `scrollTarget`, resolved once at gesture start. */
   scrollRtl: boolean
+  /** A scrollable ancestor on the cross axis that may own the gesture natively. */
+  crossScrollable: boolean
   abandoned: boolean
   /**
    * Reversed past `REVERSE_CANCEL_THRESHOLD` after locking the dismiss axis: the
@@ -165,13 +167,19 @@ interface DragState {
   docCleanup?: VoidFunction
 }
 
-function createDrag(x: number, y: number, scrollTarget: HTMLElement | null): DragState {
+function createDrag(
+  x: number,
+  y: number,
+  scrollTarget: HTMLElement | null,
+  crossScrollable: boolean,
+): DragState {
   return {
     startX: x,
     startY: y,
     startTime: performance.now(),
     scrollTarget,
     scrollRtl: scrollTarget !== null && isRtl(scrollTarget),
+    crossScrollable,
     abandoned: false,
     cancelled: false,
     moved: false,
@@ -471,7 +479,14 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         )
       ]!
 
-    if (directionalVelocity >= FAST_SWIPE_VELOCITY && dragDelta > 0) {
+    // A fast dismiss flick closes only from the lowest snap point; elsewhere the
+    // velocity-projected target below picks the resting point.
+    const lowestOffset = resolvedSnapPoints().reduce((max, point) => Math.max(max, point.offset), 0)
+    if (
+      directionalVelocity >= FAST_SWIPE_VELOCITY &&
+      dragDelta > 0 &&
+      currentOffset >= lowestOffset
+    ) {
       closeFromSnapPoints(closest)
       return
     }
@@ -660,7 +675,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       }
 
       clearContentSelection(content)
-      drag = createDrag(event.clientX, event.clientY, null)
+      drag = createDrag(event.clientX, event.clientY, null, false)
       drag.pointerId = event.pointerId
 
       const state = drag
@@ -733,6 +748,7 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
         touch.clientX,
         touch.clientY,
         findScrollableAncestor(event.target, content, vertical()),
+        findScrollableAncestor(event.target, content, !vertical()) !== null,
       )
       drag.touchId = touch.identifier
     }
@@ -740,6 +756,12 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
     function onTouchMove(event: TouchEvent): void {
       const state = drag
       if (!state || state.touchId === undefined || state.abandoned) {
+        return
+      }
+      if (!event.cancelable) {
+        // The browser already committed this touch to native scrolling or
+        // pinch; it cannot be interrupted, so stop tracking the gesture.
+        state.abandoned = true
         return
       }
       // Leave pinch zoom and two-finger selection adjustments to the browser.
@@ -750,7 +772,11 @@ export function createDrawerSwipe(options: DrawerSwipeOptions): DrawerSwipeContr
       if (!touch) {
         return
       }
-      if (updateDrag(state, touch.clientX, touch.clientY)) {
+      const claimed = updateDrag(state, touch.clientX, touch.clientY)
+      // Claim gestures with no scrollable ancestor immediately: once the
+      // browser commits a touch to native scrolling, every later move is
+      // non-cancelable and the drag can no longer take it back.
+      if (claimed || (!state.scrollTarget && !state.crossScrollable)) {
         event.preventDefault()
       }
     }

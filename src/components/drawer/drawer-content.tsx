@@ -39,7 +39,7 @@ import { DrawerShorthandHeader } from './drawer-header'
 import { createDrawerSwipe, swipeDirectionForSide } from './drawer-swipe'
 import { DrawerTitle } from './drawer-title'
 import { defaultDrawerMessages } from './drawer.messages'
-import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
+import { DRAWER_MOTION, drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
 export function DrawerContent<T extends ValidComponent = 'div'>(
@@ -105,9 +105,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         const progress = swipe.progress()
         return {
           style: {
-            // Match the content's enter/exit timing so the fade tracks the slide.
-            '--mo-anim-duration': '450ms',
-            '--mo-anim-ease': 'cubic-bezier(0.32,0.72,0,1)',
+            ...DRAWER_MOTION,
             opacity: progress > 0 ? 1 - progress : undefined,
           },
         }

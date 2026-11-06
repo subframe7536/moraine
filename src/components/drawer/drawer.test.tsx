@@ -511,6 +511,33 @@ describe('Drawer', () => {
       expect(snapOffsetValue()).toBe('max(0px, calc(100% - 200px), calc(100% - 100dvh))')
     })
 
+    test('a fast flick down away from the lowest snap point settles lower instead of closing', async () => {
+      const onSnapPointChange = vi.fn()
+      const onOpenChange = vi.fn()
+      render(() => (
+        <Drawer
+          defaultOpen
+          snapPoints={['148px', 1]}
+          defaultSnapPoint={1}
+          onSnapPointChange={onSnapPointChange}
+          onOpenChange={onOpenChange}
+        >
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+
+      // A 30px flick at ~0.75px/ms clears the fast-swipe velocity gate, but the
+      // drawer is not at the lowest point, so it settles at 148px (offset 252).
+      dragPointer(content(), { x: 0, y: 300 }, { x: 0, y: 330 }, { steps: 4, stepMs: 10 })
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(onSnapPointChange).toHaveBeenCalledWith('148px')
+    })
+
     test('overlay fades alone at a snap point while content stays a sibling at full opacity', async () => {
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]}>

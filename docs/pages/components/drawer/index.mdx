@@ -152,11 +152,15 @@ const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('148px'
 
 Content declares these variables; set them with `styles.content` or measure them from the binding.
 
-| Variable                     | Default | Description                                       |
-| ---------------------------- | ------- | ------------------------------------------------- |
-| `--drawer-swipe-movement`    | `0px`   | Current swipe offset along the surface axis.      |
-| `--drawer-snap-point-offset` | `0px`   | Offset of the active snap point from fully open.  |
-| `--drawer-keyboard-inset`    | `0px`   | Bottom inset reserved for the on-screen keyboard. |
+| Variable                     | Default                                                     | Description                                                                |
+| ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `--drawer-swipe-movement`    | `0px`                                                       | Current swipe offset along the surface axis.                               |
+| `--drawer-snap-point-offset` | `0px`                                                       | Offset of the active snap point from fully open.                           |
+| `--drawer-keyboard-inset`    | `0px`                                                       | Bottom inset reserved for the on-screen keyboard.                          |
+| `--drawer-translate`         | per side                                                    | Translate applied to the surface; derives from the swipe and snap offsets. |
+| `--drawer-max-height`        | `calc(100dvh - max(0.5rem, env(safe-area-inset-top, 0px)))` | Height cap for `top` and `bottom` sides.                                   |
+| `--drawer-safe-area-bottom`  | `env(safe-area-inset-bottom, 0px)`                          | Resolved bottom safe-area inset.                                           |
+| `--drawer-bottom-inset`      | max of safe area and `--drawer-keyboard-inset`              | Bottom padding of a `bottom` drawer.                                       |
 
 ### Keyboard interaction
 
