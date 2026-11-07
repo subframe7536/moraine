@@ -42,8 +42,8 @@ describe('PinInput', () => {
     expect(inputs[0]?.placeholder).toBe('○')
   })
 
-  test('keeps text selected when clicking on an already focused input with freeFocus', () => {
-    const screen = render(() => <PinInput defaultValue="1234" length={4} freeFocus />)
+  test('keeps text selected when clicking on an already focused input', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
 
     inputs[0]?.focus()
@@ -51,49 +51,60 @@ describe('PinInput', () => {
     expect(inputs[0]?.selectionEnd).toBe(1)
 
     // Simulate clicking on the already focused input
-    fireEvent.click(inputs[0]!)
+    fireEvent.mouseDown(inputs[0]!)
     expect(inputs[0]?.selectionStart).toBe(0)
     expect(inputs[0]?.selectionEnd).toBe(1)
 
-    // Simulate mouseup
-    fireEvent.mouseUp(inputs[0]!)
+    fireEvent.click(inputs[0]!)
     expect(inputs[0]?.selectionStart).toBe(0)
     expect(inputs[0]?.selectionEnd).toBe(1)
   })
 
-  test('focuses the first empty input on click by default', () => {
+  test('allows selecting any entered input and the first empty input, redirecting later empty inputs', () => {
     const screen = render(() => <PinInput defaultValue="12" length={4} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
 
-    // Click on input 3 when inputs 0 and 1 are filled -> should focus input 2 (first empty)
-    fireEvent.click(inputs[3]!)
+    // Click on input 0 (already entered) -> focuses input 0 with text selected
+    fireEvent.click(inputs[0]!)
+    expect(document.activeElement).toBe(inputs[0])
+    expect(inputs[0]?.selectionStart).toBe(0)
+    expect(inputs[0]?.selectionEnd).toBe(1)
+
+    // Click on input 1 (already entered) -> focuses input 1 with text selected
+    fireEvent.click(inputs[1]!)
+    expect(document.activeElement).toBe(inputs[1])
+    expect(inputs[1]?.selectionStart).toBe(0)
+    expect(inputs[1]?.selectionEnd).toBe(1)
+
+    // Click on input 2 (first empty input) -> focuses input 2
+    fireEvent.click(inputs[2]!)
     expect(document.activeElement).toBe(inputs[2])
 
-    // Click on input 0 -> should focus input 2
-    fireEvent.click(inputs[0]!)
+    // Click on input 3 (empty after first empty) -> redirects to input 2
+    fireEvent.click(inputs[3]!)
+    expect(document.activeElement).toBe(inputs[2])
+  })
+
+  test('redirects focus to the first empty slot when a later empty slot is focused directly', () => {
+    const screen = render(() => <PinInput defaultValue="12" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[3]?.focus()
     expect(document.activeElement).toBe(inputs[2])
   })
 
   test('focuses the last input on click when all inputs are filled by default', () => {
-    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
+    const screen = render(() => <PinInput defaultValue="1234" length={4} separator />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const separator = screen.container.querySelector<HTMLElement>(
+      '[data-slot="pin-input-separator"]',
+    )
 
-    // Click on input 0 -> should focus input 3 (last input)
-    fireEvent.click(inputs[0]!)
+    // Click on separator when all filled -> focuses last input with text selected
+    fireEvent.click(separator!)
     expect(document.activeElement).toBe(inputs[3])
     expect(inputs[3]?.selectionStart).toBe(0)
     expect(inputs[3]?.selectionEnd).toBe(1)
-  })
-
-  test('allows clicking any input when freeFocus is true', () => {
-    const screen = render(() => <PinInput defaultValue="12" length={4} freeFocus />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
-
-    fireEvent.click(inputs[0]!)
-    expect(document.activeElement).toBe(inputs[0])
-
-    fireEvent.click(inputs[3]!)
-    expect(document.activeElement).toBe(inputs[3])
   })
 
   test('renders default value from string or array', () => {
@@ -234,7 +245,7 @@ describe('PinInput', () => {
   })
 
   test('Arrow keys and Home/End navigate between inputs', () => {
-    const screen = render(() => <PinInput length={4} />)
+    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
 
     inputs[0]?.focus()
@@ -251,6 +262,28 @@ describe('PinInput', () => {
 
     fireEvent.keyDown(inputs[2]!, { key: 'Home' })
     expect(document.activeElement).toBe(inputs[0])
+  })
+
+  test('Arrow keys clamp navigation to the first empty slot when inputs are partially filled', () => {
+    const screen = render(() => <PinInput defaultValue="12" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[0]?.focus()
+    expect(document.activeElement).toBe(inputs[0])
+
+    fireEvent.keyDown(inputs[0]!, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(inputs[1])
+
+    fireEvent.keyDown(inputs[1]!, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(inputs[2])
+
+    // ArrowRight on first empty slot (index 2) does not navigate into empty slot 3
+    fireEvent.keyDown(inputs[2]!, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(inputs[2])
+
+    // End on index 0 navigates to the first empty slot (index 2), not index 3
+    fireEvent.keyDown(inputs[0]!, { key: 'End' })
+    expect(document.activeElement).toBe(inputs[2])
   })
 
   test('paste distributes characters across inputs and strips dashes', () => {

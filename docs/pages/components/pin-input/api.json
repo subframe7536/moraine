@@ -76,16 +76,6 @@
           "description": "Form ID to associate with the hidden input."
         },
         {
-          "name": "freeFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether users can freely click and focus any input slot directly.\nWhen `false` (default), clicking the pin input always focuses the first empty input,\nor the last input if all inputs are filled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "highlight",
           "optional": true,
           "type": "boolean",
