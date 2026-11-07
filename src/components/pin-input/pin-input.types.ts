@@ -124,6 +124,14 @@ export namespace PinInputT {
     autofocus?: boolean
 
     /**
+     * Whether users can freely click and focus any input slot directly.
+     * When `false` (default), clicking the pin input always focuses the first empty input,
+     * or the last input if all inputs are filled.
+     * @default false
+     */
+    freeFocus?: boolean
+
+    /**
      * Delay in milliseconds before automatically focusing.
      * @default 0
      */

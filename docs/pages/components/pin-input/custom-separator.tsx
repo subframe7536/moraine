@@ -10,7 +10,6 @@ export function CustomSeparator() {
         length={6}
         separator={3}
         separatorRender={() => <span class="text-muted-foreground font-semibold px-1">-</span>}
-        placeholder="○"
         onComplete={(val) => setValue(val)}
       />
       <Show when={value()}>

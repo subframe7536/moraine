@@ -93,6 +93,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'onBlur',
     'autofocus',
     'autofocusDelay',
+    'freeFocus',
     'disabled',
     'required',
     'readOnly',
@@ -199,6 +200,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   }
 
+  function getTargetIndex(): number {
+    const currentChars = chars()
+    const firstEmpty = currentChars.findIndex((c) => !c)
+    return firstEmpty !== -1 ? firstEmpty : length() - 1
+  }
+
   function shouldInsertSeparator(index: number): boolean {
     if (local.separator === undefined || local.separator === false) {
       return false
@@ -223,7 +230,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (local.autofocus) {
       autofocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
-          focusInput(0)
+          focusInput(local.freeFocus ? 0 : getTargetIndex())
         }
       }, local.autofocusDelay ?? 0)
     }
@@ -269,6 +276,15 @@ export function PinInput(props: PinInputProps): JSX.Element {
         }
         callHandler(event, local.onBlur)
         field.emit('blur')
+      }}
+      onClick={(event) => {
+        if (
+          !local.freeFocus &&
+          (event.target === event.currentTarget ||
+            (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]'))
+        ) {
+          focusInput(getTargetIndex())
+        }
       }}
     >
       <Show when={field.name()}>
@@ -328,10 +344,43 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     setFocusedIndex(null)
                   }
                 }}
+                onPointerDown={(event) => {
+                  if (!local.freeFocus) {
+                    const targetIdx = getTargetIndex()
+                    if (targetIdx !== idx) {
+                      event.preventDefault()
+                      focusInput(targetIdx)
+                    }
+                  }
+                }}
+                onMouseDown={(event) => {
+                  if (!local.freeFocus) {
+                    const targetIdx = getTargetIndex()
+                    if (targetIdx !== idx) {
+                      event.preventDefault()
+                      focusInput(targetIdx)
+                    }
+                  }
+                }}
                 onClick={(event) => {
+                  if (!local.freeFocus) {
+                    const targetIdx = getTargetIndex()
+                    if (targetIdx !== idx) {
+                      event.preventDefault()
+                      focusInput(targetIdx)
+                      return
+                    }
+                  }
+                  event.currentTarget.focus()
                   event.currentTarget.select()
                 }}
                 onMouseUp={(event) => {
+                  if (!local.freeFocus) {
+                    const targetIdx = getTargetIndex()
+                    if (targetIdx !== idx) {
+                      return
+                    }
+                  }
                   event.currentTarget.select()
                 }}
                 onKeyDown={(event) => {

@@ -42,8 +42,8 @@ describe('PinInput', () => {
     expect(inputs[0]?.placeholder).toBe('○')
   })
 
-  test('keeps text selected when clicking on an already focused input', () => {
-    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
+  test('keeps text selected when clicking on an already focused input with freeFocus', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={4} freeFocus />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
 
     inputs[0]?.focus()
@@ -59,6 +59,41 @@ describe('PinInput', () => {
     fireEvent.mouseUp(inputs[0]!)
     expect(inputs[0]?.selectionStart).toBe(0)
     expect(inputs[0]?.selectionEnd).toBe(1)
+  })
+
+  test('focuses the first empty input on click by default', () => {
+    const screen = render(() => <PinInput defaultValue="12" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    // Click on input 3 when inputs 0 and 1 are filled -> should focus input 2 (first empty)
+    fireEvent.click(inputs[3]!)
+    expect(document.activeElement).toBe(inputs[2])
+
+    // Click on input 0 -> should focus input 2
+    fireEvent.click(inputs[0]!)
+    expect(document.activeElement).toBe(inputs[2])
+  })
+
+  test('focuses the last input on click when all inputs are filled by default', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    // Click on input 0 -> should focus input 3 (last input)
+    fireEvent.click(inputs[0]!)
+    expect(document.activeElement).toBe(inputs[3])
+    expect(inputs[3]?.selectionStart).toBe(0)
+    expect(inputs[3]?.selectionEnd).toBe(1)
+  })
+
+  test('allows clicking any input when freeFocus is true', () => {
+    const screen = render(() => <PinInput defaultValue="12" length={4} freeFocus />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    fireEvent.click(inputs[0]!)
+    expect(document.activeElement).toBe(inputs[0])
+
+    fireEvent.click(inputs[3]!)
+    expect(document.activeElement).toBe(inputs[3])
   })
 
   test('renders default value from string or array', () => {
