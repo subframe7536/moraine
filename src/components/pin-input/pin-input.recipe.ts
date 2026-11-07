@@ -18,7 +18,7 @@ export const pinInputDataAttributes = {
   input: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
 } satisfies DataAttributeContract<keyof PinInputStyleSlot>
 
-const PIN_INPUT_BASE_CLASS = `text-foreground font-medium text-center outline-none transition-[color,background-color,border-color,box-shadow] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${DISABLED_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
+const PIN_INPUT_BASE_CLASS = `text-foreground font-medium text-center outline-none transition-[color,background-color,border-color,box-shadow] [appearance:textfield] placeholder:text-muted-foreground [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus:placeholder:text-transparent ${DISABLED_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
 
 export const pinInputRecipe = /* @__PURE__ */ defineRecipe<
   PinInputStyleSlot,

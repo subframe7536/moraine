@@ -27,6 +27,21 @@ describe('PinInput', () => {
     expect(inputs[3]?.getAttribute('aria-label')).toBe('Pin input 4 of 4')
   })
 
+  test('clears placeholder when an input is focused and restores it on blur', () => {
+    const screen = render(() => <PinInput length={3} placeholder="○" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    expect(inputs[0]?.placeholder).toBe('○')
+    expect(inputs[1]?.placeholder).toBe('○')
+
+    fireEvent.focus(inputs[0]!)
+    expect(inputs[0]?.placeholder).toBe('')
+    expect(inputs[1]?.placeholder).toBe('○')
+
+    fireEvent.blur(inputs[0]!)
+    expect(inputs[0]?.placeholder).toBe('○')
+  })
+
   test('renders default value from string or array', () => {
     const arrayScreen = render(() => <PinInput defaultValue={['1', '2', '3']} length={5} />)
     const arrayInputs =

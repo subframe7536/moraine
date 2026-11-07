@@ -1,5 +1,15 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, For, on, onCleanup, onMount, Show, splitProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  onCleanup,
+  onMount,
+  Show,
+  splitProps,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -246,6 +256,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     },
   )
 
+  const [focusedIndex, setFocusedIndex] = createSignal<number | null>(null)
   const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
 
   return (
@@ -315,7 +326,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck={false}
-                placeholder={local.placeholder ?? ''}
+                placeholder={focusedIndex() === idx ? '' : (local.placeholder ?? '')}
                 disabled={field.disabled()}
                 readOnly={field.readOnly()}
                 required={field.required()}
@@ -323,7 +334,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 aria-label={messages().input({ index: idx + 1, length: length() })}
                 aria-invalid={field.ariaAttrs()['aria-invalid']}
                 onFocus={(event) => {
+                  setFocusedIndex(idx)
                   event.currentTarget.select()
+                }}
+                onBlur={() => {
+                  if (focusedIndex() === idx) {
+                    setFocusedIndex(null)
+                  }
                 }}
                 onKeyDown={(event) => {
                   if (event.defaultPrevented || field.disabled()) {
