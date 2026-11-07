@@ -543,21 +543,6 @@ describe('PinInput', () => {
     expect(document.activeElement).toBe(inputs[3])
   })
 
-  test('applies responsive text sizing when fixed is false and keeps fixed text size when fixed is true', () => {
-    const defaultScreen = render(() => <PinInput size="sm" length={2} />)
-    const defaultInputs = defaultScreen.container.querySelectorAll<HTMLInputElement>(
-      '[data-slot="pin-input-input"]',
-    )
-    expect(defaultInputs[0]?.className).toContain('md:text-xs')
-
-    const fixedScreen = render(() => <PinInput size="sm" fixed length={2} />)
-    const fixedInputs = fixedScreen.container.querySelectorAll<HTMLInputElement>(
-      '[data-slot="pin-input-input"]',
-    )
-    expect(fixedInputs[0]?.className).not.toContain('md:text-xs')
-    expect(fixedInputs[0]?.className).toContain('text-sm')
-  })
-
   test('applies border-only invalid styles to slots and focus-ring only on focus', () => {
     const screen = render(() => <PinInput length={3} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(

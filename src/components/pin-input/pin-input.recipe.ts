@@ -44,16 +44,15 @@ export const pinInputRecipe = /* @__PURE__ */ defineRecipe<
   defaultVariants: {
     size: 'md',
     variant: 'outline',
-    fixed: false,
   },
   variants: {
     size: {
       sm: {
-        input: 'text-sm rounded-sm size-7',
+        input: 'text-xs rounded-sm size-7',
         separator: 'text-xs',
       },
       md: {
-        input: 'text-base rounded-md size-8',
+        input: 'text-sm rounded-md size-8',
         separator: 'text-sm',
       },
       lg: {
@@ -75,22 +74,5 @@ export const pinInputRecipe = /* @__PURE__ */ defineRecipe<
         input: 'border-0 bg-transparent shadow-none focus:ring-0',
       },
     },
-    fixed: {
-      false: {},
-    },
   },
-  compoundVariants: [
-    {
-      variants: { fixed: false, size: 'sm' },
-      input: 'md:text-xs',
-    },
-    {
-      variants: { fixed: false, size: 'md' },
-      input: 'md:text-sm',
-    },
-    {
-      variants: { fixed: false, size: 'lg' },
-      input: 'md:text-sm',
-    },
-  ],
 })

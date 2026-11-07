@@ -36,6 +36,16 @@
           }
         },
         {
+          "name": "autoSubmit",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to submit the owning form when the pin input becomes complete.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -64,16 +74,6 @@
           }
         },
         {
-          "name": "fixed",
-          "optional": true,
-          "type": "boolean",
-          "description": "Keep the fixed text size on all breakpoints.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "form",
           "optional": true,
           "type": "string",
@@ -84,6 +84,12 @@
           "optional": true,
           "type": "string",
           "description": "The ID of the input element."
+        },
+        {
+          "name": "inputMode",
+          "optional": true,
+          "type": "JSX.HTMLAttributes<HTMLInputElement>['inputMode']",
+          "description": "The virtual keyboard hint applied to the inputs and hidden input.\nOverrides the `inputMode` derived from `validationType`."
         },
         {
           "name": "inputsRef",
@@ -118,6 +124,12 @@
           "description": "The name of the input element, used for form submission."
         },
         {
+          "name": "normalizeValue",
+          "optional": true,
+          "type": "(value: string) => string",
+          "description": "Normalizes a proposed value after `validationType` filtering; the result is\nfiltered again and clamped to `length`. Applied to string `value`/`defaultValue`\nand to typed, pasted, or autofilled text.\nShould be idempotent, since it may run on the same value more than once."
+        },
+        {
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
@@ -133,7 +145,7 @@
           "name": "onComplete",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Callback when all input fields are completely filled."
+          "description": "Callback when all input fields are completely filled.\nFor controlled values it fires once the value is actually applied."
         },
         {
           "name": "onFocus",
@@ -146,6 +158,12 @@
           "optional": true,
           "type": "(value: string[]) => void",
           "description": "Callback when the pin input value changes."
+        },
+        {
+          "name": "onValueInvalid",
+          "optional": true,
+          "type": "(value: string) => void",
+          "description": "Callback when entered text contains characters rejected by `validationType`\nor `normalizeValue`. Receives the raw entered text before filtering."
         },
         {
           "name": "otp",
@@ -267,7 +285,10 @@
     {
       "target": "root",
       "attributes": [
+        "data-complete",
         "data-disabled",
+        "data-filled",
+        "data-focused",
         "data-invalid",
         "data-readonly",
         "data-required"
@@ -276,7 +297,10 @@
     {
       "target": "input",
       "attributes": [
+        "data-complete",
         "data-disabled",
+        "data-filled",
+        "data-focused",
         "data-invalid",
         "data-readonly",
         "data-required"

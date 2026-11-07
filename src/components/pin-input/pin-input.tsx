@@ -222,7 +222,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'translations',
     'size',
     'variant',
-    'fixed',
     'ref',
     'inputsRef',
     'classes',

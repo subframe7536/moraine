@@ -30,11 +30,6 @@ export interface PinInputStyleVariants {
    * @default 'outline'
    */
   variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-
-  /**
-   * Keep the fixed text size on all breakpoints.
-   */
-  fixed?: boolean
 }
 
 export type PinInputStyleConfig = ComponentStyleConfig<PinInputStyleSlot, PinInputStyleVariants>
