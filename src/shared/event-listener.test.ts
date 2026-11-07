@@ -242,7 +242,7 @@ describe('createEventListener', () => {
   })
 })
 
-describe('createEventListeners', () => {
+describe('createEventListenerMap', () => {
   test('registers multiple listeners and removes them on cleanup', () => {
     const target = createTarget()
 
@@ -258,5 +258,64 @@ describe('createEventListeners', () => {
     })
 
     expect(target.removeEventListener).toHaveBeenCalledTimes(2)
+  })
+
+  test('supports per-event options tuple and removes with matching options', () => {
+    const target = createTarget()
+    const touchListener = () => {}
+    const clickListener = () => {}
+
+    createRoot((dispose) => {
+      createEventListenerMap(target, {
+        click: clickListener,
+        touchmove: [touchListener, { passive: false }],
+      })
+
+      expect(target.addEventListener).toHaveBeenCalledWith('click', clickListener, undefined)
+      expect(target.addEventListener).toHaveBeenCalledWith('touchmove', touchListener, {
+        passive: false,
+      })
+
+      dispose()
+    })
+
+    expect(target.removeEventListener).toHaveBeenCalledWith('click', clickListener, undefined)
+    expect(target.removeEventListener).toHaveBeenCalledWith('touchmove', touchListener, {
+      passive: false,
+    })
+  })
+
+  test('per-event options override map-level options', () => {
+    const target = createTarget()
+    const listenerA = () => {}
+    const listenerB = () => {}
+
+    createRoot((dispose) => {
+      createEventListenerMap(
+        target,
+        {
+          click: listenerA,
+          scroll: [listenerB, { passive: true }],
+        },
+        { capture: true },
+      )
+
+      expect(target.addEventListener).toHaveBeenCalledWith('click', listenerA, { capture: true })
+      expect(target.addEventListener).toHaveBeenCalledWith('scroll', listenerB, { passive: true })
+
+      dispose()
+    })
+
+    expect(target.removeEventListener).toHaveBeenCalledWith('click', listenerA, { capture: true })
+    expect(target.removeEventListener).toHaveBeenCalledWith('scroll', listenerB, { passive: true })
+  })
+
+  test('handles null or undefined target gracefully', () => {
+    expect(() => {
+      createRoot((dispose) => {
+        createEventListenerMap(undefined, { click: () => {} })
+        dispose()
+      })
+    }).not.toThrow()
   })
 })

@@ -248,6 +248,51 @@ describe('Drawer', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
+  test('holding motionless before release does not dismiss even after a fast pull', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    // Pull down 100px quickly, then pause motionless for 120ms (> MAX_RELEASE_VELOCITY_AGE_MS 80ms).
+    fireEvent.pointerDown(content(), {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 0,
+      clientY: 100,
+    })
+    now += 20
+    fireEvent.pointerMove(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 200,
+    })
+    now += 120
+    fireEvent.pointerUp(document, {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 200,
+    })
+
+    // 100px is below the 200px dismiss threshold; expired flick velocity must not close the drawer.
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(content().hasAttribute('data-swiping')).toBe(false)
+    expect(movementValue()).toBe('0px')
+    expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
+  })
+
   test('opposite-direction drag rubber-bands the popup', async () => {
     const onOpenChange = vi.fn()
     render(() => (
@@ -1395,6 +1440,7 @@ describe('Drawer', () => {
   describe('Android back gesture', () => {
     interface FakeWatcher extends EventTarget {
       destroy: ReturnType<typeof vi.fn>
+      requestClose: () => void
     }
 
     const ANDROID_UA = 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36'
@@ -1405,6 +1451,12 @@ describe('Drawer', () => {
       watchers = []
       const FakeCloseWatcher = class extends EventTarget {
         destroy = vi.fn()
+        requestClose() {
+          const cancelEvent = new Event('cancel', { cancelable: true })
+          if (this.dispatchEvent(cancelEvent)) {
+            this.dispatchEvent(new Event('close'))
+          }
+        }
         constructor() {
           super()
           watchers.push(this)
@@ -1413,7 +1465,7 @@ describe('Drawer', () => {
       vi.stubGlobal('CloseWatcher', FakeCloseWatcher)
     }
 
-    test('cancel event closes the drawer', async () => {
+    test('close event closes the drawer', async () => {
       stubAndroidAndWatcher()
       const onOpenChange = vi.fn()
       render(() => (
@@ -1428,7 +1480,7 @@ describe('Drawer', () => {
       )
       expect(watchers).toHaveLength(1)
 
-      watchers[0]!.dispatchEvent(new Event('cancel', { cancelable: true }))
+      watchers[0]!.requestClose()
       expect(onOpenChange).toHaveBeenCalledWith(false)
     })
 
@@ -1456,6 +1508,7 @@ describe('Drawer', () => {
       watchers = []
       const FakeCloseWatcher = class extends EventTarget {
         destroy = vi.fn()
+        requestClose = vi.fn()
         constructor() {
           super()
           watchers.push(this)
@@ -1495,8 +1548,7 @@ describe('Drawer', () => {
         expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
       )
 
-      const notPrevented = watchers[0]!.dispatchEvent(new Event('cancel', { cancelable: true }))
-      expect(notPrevented).toBe(false)
+      watchers[0]!.requestClose()
       expect(onClosePrevent).toHaveBeenCalled()
       expect(onOpenChange).not.toHaveBeenCalled()
       expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
@@ -1524,7 +1576,7 @@ describe('Drawer', () => {
       )
       expect(watchers.length).toBeGreaterThanOrEqual(2)
 
-      watchers[watchers.length - 1]!.dispatchEvent(new Event('cancel', { cancelable: true }))
+      watchers[watchers.length - 1]!.requestClose()
       expect(onChildChange).toHaveBeenCalledWith(false)
       expect(onParentChange).not.toHaveBeenCalled()
     })

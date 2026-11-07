@@ -290,6 +290,10 @@ export function createDrawerSwipe(
     const d = endMain * sign
     const now = performance.now()
 
+    const duration = now - state.startTime
+    const overall =
+      duration > 0 ? (endMain / Math.max(duration, MIN_VELOCITY_DURATION_MS)) * sign : 0
+
     // Release velocity: the terminal flick from the last moving sample. A release
     // long after the final move expires it so hold-then-release stays slow.
     let velocity = state.lastVelocity
@@ -301,12 +305,9 @@ export function createDrawerSwipe(
       } else if (Math.abs(delta) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
         velocity = (delta / Math.max(age, MIN_RELEASE_VELOCITY_DURATION_MS)) * sign
       }
+    } else {
+      velocity = overall
     }
-
-    const duration = now - state.startTime
-    const overall =
-      duration > 0 ? (endMain / Math.max(duration, MIN_VELOCITY_DURATION_MS)) * sign : 0
-    velocity ||= overall
 
     const points = resolvedSnapPoints()
     if (points.length === 0) {
@@ -678,10 +679,10 @@ export function createDrawerSwipe(
       measureSize()
       measureViewport()
     })
-    createEventListener(content, 'pointerdown', onPointerDown)
-    createEventListener(content, 'touchstart', onTouchStart)
-    createEventListener(content, 'touchmove', onTouchMove, { passive: false })
     createEventListenerMap(content, {
+      pointerdown: onPointerDown,
+      touchstart: onTouchStart,
+      touchmove: [onTouchMove, { passive: false }],
       touchend: onTouchEnd,
       touchcancel: onTouchCancel,
     })

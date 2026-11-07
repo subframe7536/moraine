@@ -16,7 +16,7 @@ import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { bindElement } from '../../shared/element-binding'
-import { createEventListener } from '../../shared/event-listener'
+import { createEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -187,16 +187,17 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         }
 
         const watcher = new CloseWatcherCtor()
-        createEventListener(watcher, 'cancel', (event) => {
-          if (drawer.closeOnEscape === false && event.cancelable) {
-            // Keeps the watcher active for the next close request.
-            event.preventDefault()
-            drawer.onClosePrevent?.()
-            return
-          }
-          // A non-cancelable request closes regardless (one prevented request per
-          // user activation), like a native <dialog>.
-          family.updateOpen(false)
+        createEventListenerMap(watcher, {
+          cancel: (event) => {
+            if (drawer.closeOnEscape === false && event.cancelable) {
+              // Keeps the watcher active for the next close request.
+              event.preventDefault()
+              drawer.onClosePrevent?.()
+            }
+          },
+          close: () => {
+            family.updateOpen(false)
+          },
         })
         onCleanup(() => watcher.destroy())
       }),

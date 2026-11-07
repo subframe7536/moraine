@@ -19,8 +19,12 @@ type EventTypeForTarget<TTarget extends EventTarget> = Extract<
   string
 >
 
-type EventListenerMap<TTarget extends EventTarget> = Partial<{
-  [TType in EventTypeForTarget<TTarget>]: (event: EventMapForTarget<TTarget>[TType]) => void
+export type EventListenerEntry<TEvent = Event> =
+  | ((event: TEvent) => void)
+  | readonly [listener: (event: TEvent) => void, options?: boolean | AddEventListenerOptions]
+
+export type EventListenerMap<TTarget extends EventTarget> = Partial<{
+  [TType in EventTypeForTarget<TTarget>]: EventListenerEntry<EventMapForTarget<TTarget>[TType]>
 }>
 
 export function attachEventListener<
@@ -56,15 +60,28 @@ export function attachEventListenerMap<TTarget extends EventTarget>(
 ): VoidFunction
 export function attachEventListenerMap(
   target: EventTarget | null | undefined,
-  listeners: Record<string, ((event: Event) => void) | undefined>,
+  listeners: Record<string, EventListenerEntry | undefined>,
   options?: boolean | AddEventListenerOptions,
 ): VoidFunction {
+  if (!target) {
+    return () => {}
+  }
+
   const cleanups: Array<VoidFunction> = []
 
-  for (const [type, listener] of Object.entries(listeners)) {
-    if (listener) {
-      cleanups.push(attachEventListener(target, type, listener, options))
+  for (const [type, entry] of Object.entries(listeners)) {
+    if (!entry) {
+      continue
     }
+    const [listener, itemOptions] = Array.isArray(entry) ? entry : [entry, undefined]
+    cleanups.push(
+      attachEventListener(
+        target,
+        type,
+        listener as (event: Event) => void,
+        itemOptions !== undefined ? itemOptions : options,
+      ),
+    )
   }
 
   return () => {
