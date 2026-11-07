@@ -37,10 +37,6 @@ export const pinInputRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     size: {
-      xs: {
-        input: 'text-xs rounded-sm size-6',
-        separator: 'text-xs',
-      },
       sm: {
         input: 'text-xs rounded-sm size-7',
         separator: 'text-xs',
@@ -51,10 +47,6 @@ export const pinInputRecipe = /* @__PURE__ */ defineRecipe<
       },
       lg: {
         input: 'text-base rounded-md size-9',
-        separator: 'text-base',
-      },
-      xl: {
-        input: 'text-base rounded-lg size-10',
         separator: 'text-base',
       },
     },

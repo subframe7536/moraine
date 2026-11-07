@@ -113,24 +113,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const length = () => Math.max(1, local.length ?? 5)
   const inputType = () => local.type ?? 'text'
   const generatedId = createId(() => local.id, 'pin-input')
-  const fieldProps = {
-    get id() {
-      return local.id
-    },
-    get name() {
-      return local.name
-    },
-    get disabled() {
-      return local.disabled
-    },
-    get required() {
-      return local.required
-    },
-    get readOnly() {
-      return local.readOnly
-    },
-  }
-  const field = useFormField(fieldProps, {
+  const field = useFormField(local, {
     get defaultId() {
       return generatedId()
     },
@@ -344,6 +327,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   if (focusedIndex() === idx) {
                     setFocusedIndex(null)
                   }
+                }}
+                onClick={(event) => {
+                  event.currentTarget.select()
+                }}
+                onMouseUp={(event) => {
+                  event.currentTarget.select()
                 }}
                 onKeyDown={(event) => {
                   if (event.defaultPrevented || field.disabled()) {

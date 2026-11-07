@@ -35,11 +35,9 @@ export default function PinInputPlayground() {
           label: 'Size',
           defaultValue: 'md',
           options: [
-            { label: 'Extra Small', value: 'xs' },
             { label: 'Small', value: 'sm' },
             { label: 'Medium', value: 'md' },
             { label: 'Large', value: 'lg' },
-            { label: 'Extra Large', value: 'xl' },
           ],
         },
         { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
