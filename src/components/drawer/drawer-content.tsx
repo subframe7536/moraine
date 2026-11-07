@@ -78,6 +78,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
       content: drawerDataAttributes.content({
         closed: () => !family.open(),
         expanded: family.open,
+        entering: () => family.open() && !swipe.swiped(),
         swiping: () => swipe.swiping(),
         nestedOpen: () => drawer.nested.openCount() > 0,
         nestedSwiping: drawer.nested.swiping,
