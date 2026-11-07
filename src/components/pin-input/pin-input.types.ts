@@ -99,13 +99,40 @@ export namespace PinInputT {
 
     /**
      * Callback when all input fields are completely filled.
+     * For controlled values it fires once the value is actually applied.
      */
     onComplete?: (value: string) => void
+
+    /**
+     * Callback when entered text contains characters rejected by `validationType`
+     * or `normalizeValue`. Receives the raw entered text before filtering.
+     */
+    onValueInvalid?: (value: string) => void
 
     /**
      * Native change event, after value synchronization and Field notification.
      */
     onChange?: (value: string) => void
+
+    /**
+     * Whether to submit the owning form when the pin input becomes complete.
+     * @default false
+     */
+    autoSubmit?: boolean
+
+    /**
+     * The virtual keyboard hint applied to the inputs and hidden input.
+     * Overrides the `inputMode` derived from `validationType`.
+     */
+    inputMode?: JSX.HTMLAttributes<HTMLInputElement>['inputMode']
+
+    /**
+     * Normalizes a proposed value after `validationType` filtering; the result is
+     * filtered again and clamped to `length`. Applied to string `value`/`defaultValue`
+     * and to typed, pasted, or autofilled text.
+     * Should be idempotent, since it may run on the same value more than once.
+     */
+    normalizeValue?: (value: string) => string
 
     /**
      * Native focus event when focus enters the pin input group.
