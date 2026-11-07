@@ -32,11 +32,11 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { getActiveElement } from '../shared/overlay/dom'
 import { snapValueToStep } from '../slider/utils'
 
-import type { ControlKind } from './input-number-press'
-import { createInputNumberPress } from './input-number-press'
-import { defaultInputNumberMessages } from './input-number.messages'
-import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
-import type { InputNumberProps } from './input-number.types'
+import type { ControlKind } from './number-input-press'
+import { createNumberInputPress } from './number-input-press'
+import { defaultNumberInputMessages } from './number-input.messages'
+import { numberInputDataAttributes, numberInputRecipe } from './number-input.recipe'
+import type { NumberInputProps } from './number-input.types'
 
 /** iPhone/iPad, including iPadOS that reports as MacIntel. */
 function isIOSUserAgent(): boolean {
@@ -49,7 +49,7 @@ function isIOSUserAgent(): boolean {
   )
 }
 
-type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
+type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
 }
 
@@ -86,7 +86,7 @@ function addDecimal(value: number, amount: number): number {
 }
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
-export function InputNumber(props: InputNumberProps): JSX.Element {
+export function NumberInput(props: NumberInputProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
@@ -144,25 +144,25 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'translations',
   ])
   const themeField = useFieldContext()
-  const messages = useMessages('inputNumber', defaultInputNumberMessages, () => local.translations)
+  const messages = useMessages('numberInput', defaultNumberInputMessages, () => local.translations)
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
   const {
     slots,
     slots: { root: rootSlot, input: inputSlot, controls: controlsSlot },
     variants,
-  } = useRecipe(inputNumberRecipe, local, {
+  } = useRecipe(numberInputRecipe, local, {
     data: {
-      root: inputNumberDataAttributes.root(() => fieldDataState),
-      input: inputNumberDataAttributes.input(() => ({
+      root: numberInputDataAttributes.root(() => fieldDataState),
+      input: numberInputDataAttributes.input(() => ({
         ...fieldDataState,
         autoAlign: (): boolean => variants.align === undefined && !isVertical() && !showDecrement(),
       })),
-      increment: inputNumberDataAttributes.increment(() => ({
+      increment: numberInputDataAttributes.increment(() => ({
         active: () => press.isActive('increment'),
         disabled: () => !isControlInteractive('increment'),
       })),
-      decrement: inputNumberDataAttributes.decrement(() => ({
+      decrement: numberInputDataAttributes.decrement(() => ({
         active: () => press.isActive('decrement'),
         disabled: () => !isControlInteractive('decrement'),
       })),
@@ -195,7 +195,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return initialDefaultValue
   })
 
-  const generatedId = createId(() => merged.id, 'input-number')
+  const generatedId = createId(() => merged.id, 'number-input')
   const field = useFormField(merged, {
     get defaultId() {
       return generatedId()
@@ -440,7 +440,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     )
   }
 
-  const press = createInputNumberPress({
+  const press = createNumberInputPress({
     isInteractive: isControlInteractive,
     onStep: (kind) => {
       if (kind === 'increment') {
@@ -460,11 +460,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     repeatPointerTypes: () => merged.repeatPointerTypes,
   })
 
-  function resolveControlProps(kind: ControlKind): InputNumberControlProps {
+  function resolveControlProps(kind: ControlKind): NumberInputControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
     const controlProps = mergeProps(slots[kind], {
-      'data-slot': `input-number-${kind}`,
+      'data-slot': `number-input-${kind}`,
       type: 'button',
       tabIndex: -1,
       get 'aria-label'() {
@@ -478,7 +478,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       },
       ...press.handlers(kind),
     })
-    return controlProps as InputNumberControlProps
+    return controlProps as NumberInputControlProps
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
@@ -639,7 +639,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   return (
     <div
       role="group"
-      data-slot="input-number"
+      data-slot="number-input"
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
@@ -652,7 +652,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       </Show>
 
       <input
-        data-slot="input-number-input"
+        data-slot="number-input-input"
         type="text"
         // iOS decimal/numeric keyboards omit the minus key.
         inputMode={isIOSUserAgent() && minValue() < 0 ? 'text' : 'decimal'}
@@ -721,7 +721,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="input-number-controls" {...controlsSlot}>
+        <div data-slot="number-input-controls" {...controlsSlot}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} />

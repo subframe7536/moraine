@@ -3,8 +3,8 @@ import { renderToString } from 'solid-js/web'
 import { CheckboxGroup } from '../../checkbox-group/checkbox-group'
 import { Checkbox } from '../../checkbox/checkbox'
 import { FileUpload } from '../../file-upload/file-upload'
-import { InputNumber } from '../../input-number/input-number'
 import { Input } from '../../input/input'
+import { NumberInput } from '../../number-input/number-input'
 import { RadioGroup } from '../../radio-group/radio-group'
 import { Slider } from '../../slider/slider'
 import { Switch } from '../../switch/switch'
@@ -14,7 +14,7 @@ export function NativeReadonlyFixture(props: { readOnly: boolean }) {
   return (
     <section>
       <Input readOnly={props.readOnly} defaultValue="Text" />
-      <InputNumber readOnly={props.readOnly} defaultValue={12} />
+      <NumberInput readOnly={props.readOnly} defaultValue={12} />
       <Textarea readOnly={props.readOnly} defaultValue="Notes" />
       <Checkbox readOnly={props.readOnly} label="Checkbox" />
       <CheckboxGroup readOnly={props.readOnly} items={[{ value: 'check', label: 'Group item' }]} />

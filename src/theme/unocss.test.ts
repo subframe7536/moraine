@@ -10,8 +10,8 @@ import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/col
 import { commandPaletteRecipe } from '../components/command-palette/command-palette.recipe'
 import { iconRecipe } from '../components/icon/icon.recipe'
 import { inputGroupRecipe } from '../components/input-group/input-group.recipe'
-import { inputNumberRecipe } from '../components/input-number/input-number.recipe'
 import { inputRecipe } from '../components/input/input.recipe'
+import { numberInputRecipe } from '../components/number-input/number-input.recipe'
 import { SELECT_FAMILY_SLOTS } from '../components/shared/form/select/select-field.recipe'
 import { overlayMenuRecipeOptions } from '../components/shared/overlay/menu/menu.recipe'
 
@@ -65,8 +65,8 @@ describe('presetMoraine', () => {
     const tokens = [
       inputRecipe.config.compoundVariants?.find((variant) => variant.variants.variant === 'ghost')
         ?.root,
-      inputNumberRecipe.config.variants?.variant?.ghost?.root,
-      inputNumberRecipe.config.variants?.variant?.ghost?.input,
+      numberInputRecipe.config.variants?.variant?.ghost?.root,
+      numberInputRecipe.config.variants?.variant?.ghost?.input,
       inputGroupRecipe.config.variants?.variant?.ghost?.root,
       inputGroupRecipe.config.variants?.variant?.ghost?.leading,
     ].flatMap((classes) => cn(classes)?.split(' ') ?? [])

@@ -1,18 +1,18 @@
 {
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
-  "key": "input-number",
-  "name": "InputNumber",
-  "description": "Props for the InputNumber component.",
+  "key": "number-input",
+  "name": "NumberInput",
+  "description": "Props for the NumberInput component.",
   "kind": "single",
   "parts": [
     {
-      "id": "input-number",
-      "name": "InputNumber",
+      "id": "number-input",
+      "name": "NumberInput",
       "access": {
         "kind": "export",
-        "name": "InputNumber"
+        "name": "NumberInput"
       },
-      "description": "Props for the InputNumber component.",
+      "description": "Props for the NumberInput component.",
       "defaultElement": "div",
       "props": [
         {
@@ -353,7 +353,7 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this input number instance."
+          "description": "Localized message overrides for this number input instance."
         },
         {
           "name": "value",

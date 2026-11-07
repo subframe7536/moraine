@@ -11,29 +11,29 @@ import type {
   FormRequiredOption,
 } from '../shared/form/form-options.types'
 
-import type { defaultInputNumberMessages } from './input-number.messages'
-import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-number.style-types'
+import type { defaultNumberInputMessages } from './number-input.messages'
+import type { NumberInputStyleSlot, NumberInputStyleVariants } from './number-input.style-types'
 
-export namespace InputNumberT {
+export namespace NumberInputT {
   export type Kind = 'single'
-  export type Slot<T = unknown> = InputNumberStyleSlot<T>
+  export type Slot<T = unknown> = NumberInputStyleSlot<T>
 
-  export type Variants = InputNumberStyleVariants
+  export type Variants = NumberInputStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Messages = ComponentMessages<typeof defaultInputNumberMessages>
+  export type Messages = ComponentMessages<typeof defaultNumberInputMessages>
   export type Translations = Partial<Messages>
 
   export type PointerType = 'mouse' | 'touch' | 'pen'
 
   /**
-   * Base props for the InputNumber component.
+   * Base props for the NumberInput component.
    */
   export interface Base
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
     /**
-     * Localized message overrides for this input number instance.
+     * Localized message overrides for this number input instance.
      */
     translations?: Translations
     /**
@@ -220,12 +220,12 @@ export namespace InputNumberT {
   }
 
   /**
-   * Props for the InputNumber component.
+   * Props for the NumberInput component.
    */
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**
- * Props for the InputNumber component.
+ * Props for the NumberInput component.
  */
-export type InputNumberProps = InputNumberT.Props
+export type NumberInputProps = NumberInputT.Props

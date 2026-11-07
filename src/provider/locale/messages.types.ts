@@ -7,9 +7,9 @@ import type { defaultDialogMessages } from '../../components/dialog/dialog.messa
 import type { defaultDrawerMessages } from '../../components/drawer/drawer.messages'
 import type { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import type { defaultFormMessages } from '../../components/form/form.messages'
-import type { defaultInputNumberMessages } from '../../components/input-number/input-number.messages'
 import type { defaultKbdMessages } from '../../components/kbd/kbd.messages'
 import type { defaultMultiSelectMessages } from '../../components/multi-select/multi-select.messages'
+import type { defaultNumberInputMessages } from '../../components/number-input/number-input.messages'
 import type { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
 import type { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import type { defaultProgressMessages } from '../../components/progress/progress.messages'
@@ -42,7 +42,7 @@ export interface MoraineMessages {
   slider: ComponentMessages<typeof defaultSliderMessages>
   pagination: ComponentMessages<typeof defaultPaginationMessages>
   pinInput: ComponentMessages<typeof defaultPinInputMessages>
-  inputNumber: ComponentMessages<typeof defaultInputNumberMessages>
+  numberInput: ComponentMessages<typeof defaultNumberInputMessages>
   fileUpload: ComponentMessages<typeof defaultFileUploadMessages>
   tagsField: ComponentMessages<typeof defaultTagsFieldMessages>
   resizable: ComponentMessages<typeof defaultResizableMessages>

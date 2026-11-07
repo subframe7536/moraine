@@ -1,6 +1,6 @@
 import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-export interface InputNumberStyleSlot<T = unknown> {
+export interface NumberInputStyleSlot<T = unknown> {
   /**
    * Number input wrapper that owns the input and step controls.
    */
@@ -19,7 +19,7 @@ export interface InputNumberStyleSlot<T = unknown> {
   controls?: T
 }
 
-export interface InputNumberStyleVariants {
+export interface NumberInputStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -37,7 +37,7 @@ export interface InputNumberStyleVariants {
   orientation?: Orientation
 }
 
-export type InputNumberStyleConfig = ComponentStyleConfig<
-  InputNumberStyleSlot,
-  InputNumberStyleVariants
+export type NumberInputStyleConfig = ComponentStyleConfig<
+  NumberInputStyleSlot,
+  NumberInputStyleVariants
 >

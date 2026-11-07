@@ -8,7 +8,7 @@ import {
   Combobox,
   Dialog,
   Icon,
-  InputNumber,
+  NumberInput,
   Popover,
   Slider,
   Switch,
@@ -215,9 +215,9 @@ export function ComponentRadar() {
         <SamplerItem
           title="Input number"
           description="Step within a defined range."
-          href="/components/input-number"
+          href="/components/number-input"
         >
-          <InputNumber aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
+          <NumberInput aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
         </SamplerItem>
 
         <SamplerItem

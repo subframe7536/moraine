@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Match, Switch } from 'solid-js'
 
-import { Input, InputNumber, Select, Switch as SwitchComp } from '../../../../../src'
+import { Input, NumberInput, Select, Switch as SwitchComp } from '../../../../../src'
 import type { InputT } from '../../../../../src'
 
 export type DocsPlaygroundControlValue = string | number | boolean
@@ -285,7 +285,7 @@ export function DocsPlaygroundControlField(props: {
           <label for={props.controlId} class="text-xs text-muted-foreground font-medium">
             {props.control.label}
           </label>
-          <InputNumber
+          <NumberInput
             id={props.controlId}
             size="sm"
             value={props.value as InputT.Value}
