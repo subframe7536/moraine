@@ -23,7 +23,7 @@ import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps, PinInputT } from './pin-input.types'
 
 function isValidChar(char: string, type: PinInputT.ValidationType): boolean {
-  if (type === 'number' || type === 'numeric') {
+  if (type === 'number') {
     return /^\d$/.test(char)
   }
   if (type === 'alpha') {
@@ -91,6 +91,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'onChange',
     'onFocus',
     'onBlur',
+    'onFocusIn',
+    'onFocusOut',
     'autofocus',
     'autofocusDelay',
     'disabled',
@@ -112,17 +114,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const validationType = () => local.validationType ?? 'text'
   const generatedId = createId(() => local.id, 'pin-input')
   const field = useFormField(local, {
+    bind: false,
+    focus: true,
     get defaultId() {
       return generatedId()
     },
     get initialValue() {
+      if (local.value !== undefined) {
+        return typeof local.value === 'string' ? local.value : local.value.join('')
+      }
       if (local.defaultValue !== undefined) {
         return typeof local.defaultValue === 'string'
           ? local.defaultValue
           : local.defaultValue.join('')
-      }
-      if (local.value !== undefined) {
-        return typeof local.value === 'string' ? local.value : local.value.join('')
       }
       return ''
     },
@@ -136,7 +140,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       return field.disabled()
     },
     get invalid() {
-      return !field.disabled() && (field.invalid?.() ?? false)
+      return !field.disabled() && field.invalid()
     },
     get readonly() {
       return field.readOnly()
@@ -147,8 +151,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   }
 
   const {
-    slots: { root: rootSlot },
-    slotWith,
+    slots: { root: rootSlot, input: itemSlot, separator: separatorSlot },
   } = useRecipe(pinInputRecipe, local, {
     data: {
       root: pinInputDataAttributes.root(() => fieldDataState),
@@ -181,6 +184,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
     return uncontrolledChars()
   })
 
+  /** Mirrors the value into the Field store, keeping the store's current array/string shape. */
+  function toFormValue(val: string[] | string): unknown {
+    if (Array.isArray(field.value())) {
+      return Array.isArray(val) ? val : Array.from(val)
+    }
+    return typeof val === 'string' ? val : val.join('')
+  }
+
   function setChars(update: string[] | ((prev: string[]) => string[])): void {
     const current = chars()
     const next = typeof update === 'function' ? update(current) : update
@@ -193,17 +204,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
     if (local.value === undefined) {
       setUncontrolledChars(() => next)
-      if (Array.isArray(field.value())) {
-        field.setFormValue(next)
-      } else {
-        field.setFormValue(nextJoined)
-      }
+      field.setFormValue(toFormValue(next))
     } else {
-      if (Array.isArray(field.value())) {
-        field.setFormValue(local.value)
-      } else {
-        field.setFormValue(typeof local.value === 'string' ? local.value : nextJoined)
-      }
+      field.setFormValue(toFormValue(local.value))
     }
 
     local.onValueChange?.(next)
@@ -218,8 +221,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
   }
 
   function resetChars(): void {
-    const resetValue = normalizeChars(local.defaultValue, length(), validationType())
-    setChars(resetValue)
+    if (local.value === undefined) {
+      const resetValue = normalizeChars(local.defaultValue, length(), validationType())
+      setUncontrolledChars(() => resetValue)
+      field.setFormValue(toFormValue(resetValue))
+    } else {
+      field.setFormValue(toFormValue(local.value))
+    }
+    const current = chars()
+    for (const [index, element] of inputEls.slice(0, length()).entries()) {
+      if (element) {
+        element.value = current[index] ?? ''
+      }
+    }
   }
 
   createEffect(
@@ -227,15 +241,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
       () => local.value,
       (val) => {
         if (val !== undefined) {
-          const formVal = field.value()
-          const nextFormVal = Array.isArray(formVal)
-            ? Array.isArray(val)
-              ? val
-              : Array.from(val)
-            : typeof val === 'string'
-              ? val
-              : val.join('')
-          if (formVal !== nextFormVal) {
+          const nextFormVal = toFormValue(val)
+          if (field.value() !== nextFormVal) {
             field.setFormValue(nextFormVal)
           }
         }
@@ -253,7 +260,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     on(
       () => chars(),
       (currentChars) => {
-        const filtered = inputEls.filter(Boolean) as HTMLInputElement[]
+        const filtered = inputEls.slice(0, length()).filter(Boolean) as HTMLInputElement[]
         if (filtered.length > 0) {
           callRef(local.inputsRef, filtered)
         }
@@ -305,8 +312,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (Array.isArray(local.separator)) {
       return local.separator.includes(position)
     }
-    const sep = typeof local.separator === 'number' ? local.separator : Number(local.separator)
-    return Number.isInteger(sep) && sep > 0 && position % sep === 0
+    return (
+      typeof local.separator === 'number' &&
+      Number.isInteger(local.separator) &&
+      local.separator > 0 &&
+      position % local.separator === 0
+    )
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
@@ -336,6 +347,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   const [focusedIndex, setFocusedIndex] = createSignal<number | null>(null)
   const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
+  const isRtl = () => providerLocale.dir() === 'rtl'
 
   return (
     <div
@@ -344,28 +356,38 @@ export function PinInput(props: PinInputProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
+      {...field.ariaAttrs()}
       ref={(element) => {
         rootEl = element
         callRef(local.ref, element)
       }}
       onFocusIn={(event) => {
-        if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node)) {
+        if (
+          callHandler(event, local.onFocusIn).defaultPrevented ||
+          (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node))
+        ) {
           return
         }
-        callHandler(event, local.onFocus)
-        field.emit('focus')
+        if (!callHandler(event, local.onFocus).defaultPrevented) {
+          field.emit('focus', event)
+        }
       }}
       onFocusOut={(event) => {
-        if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node)) {
+        if (
+          callHandler(event, local.onFocusOut).defaultPrevented ||
+          (event.relatedTarget && event.currentTarget.contains(event.relatedTarget as Node))
+        ) {
           return
         }
-        callHandler(event, local.onBlur)
-        field.emit('blur')
+        if (!callHandler(event, local.onBlur).defaultPrevented) {
+          field.emit('blur', event)
+        }
       }}
       onMouseDown={(event) => {
         if (
-          event.target === event.currentTarget ||
-          (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]')
+          event.button === 0 &&
+          (event.target === event.currentTarget ||
+            (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]'))
         ) {
           event.preventDefault()
           focusInput(getTargetIndex())
@@ -395,13 +417,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
       <For each={indices()}>
         {(idx) => {
-          const itemSlot = slotWith('input', {
-            data: pinInputDataAttributes.input(() => fieldDataState),
-          })
-          const separatorSlot = slotWith('separator')
-
-          const isRtl = () => providerLocale.dir() === 'rtl'
-
           return (
             <>
               <input
@@ -415,16 +430,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   }
                 }}
                 type={local.mask ? 'password' : 'text'}
-                inputMode={
-                  validationType() === 'number' || validationType() === 'numeric'
-                    ? 'numeric'
-                    : 'text'
-                }
-                pattern={
-                  validationType() === 'number' || validationType() === 'numeric'
-                    ? '[0-9]*'
-                    : undefined
-                }
+                inputMode={validationType() === 'number' ? 'numeric' : 'text'}
+                pattern={validationType() === 'number' ? '[0-9]*' : undefined}
                 autocomplete={idx === 0 && local.otp ? 'one-time-code' : 'off'}
                 autocorrect="off"
                 autocapitalize="off"
@@ -436,6 +443,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 value={chars()[idx] ?? ''}
                 aria-label={messages().input({ index: idx + 1, length: length() })}
                 aria-invalid={field.ariaAttrs()['aria-invalid']}
+                aria-describedby={field.ariaAttrs()['aria-describedby']}
                 onFocus={(event) => {
                   if (event.defaultPrevented || field.disabled()) {
                     return
@@ -454,7 +462,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   }
                 }}
                 onMouseDown={(event) => {
-                  if (event.defaultPrevented || field.disabled()) {
+                  if (event.button !== 0 || event.defaultPrevented || field.disabled()) {
                     return
                   }
                   event.preventDefault()
@@ -566,6 +574,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                       const next = [...chars()]
                       next[idx] = ''
                       setChars(next)
+                      event.currentTarget.value = chars()[idx] ?? ''
                     } else {
                       event.currentTarget.value = currentSlotChar
                     }
@@ -583,6 +592,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                       }
                     }
                     setChars(next)
+                    event.currentTarget.value = chars()[idx] ?? ''
                     focusInput(Math.min(length() - 1, insertIdx))
                     return
                   }
@@ -594,7 +604,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   const next = [...chars()]
                   next[idx] = charToUse
                   setChars(next)
-                  event.currentTarget.value = charToUse
+                  event.currentTarget.value = chars()[idx] ?? ''
 
                   if (idx < length() - 1) {
                     focusInput(idx + 1)

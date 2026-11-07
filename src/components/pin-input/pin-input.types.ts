@@ -22,8 +22,7 @@ export namespace PinInputT {
   export type Messages = ComponentMessages<typeof defaultPinInputMessages>
   export type Translations = Partial<Messages>
 
-  export type ValidationType = 'text' | 'number' | 'numeric' | 'alphanumeric' | 'alpha'
-  export type Type = ValidationType
+  export type ValidationType = 'text' | 'number' | 'alphanumeric' | 'alpha'
 
   export interface SeparatorRenderProps {
     index: number
