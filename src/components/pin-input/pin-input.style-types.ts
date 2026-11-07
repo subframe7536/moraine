@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style-types'
 import type { Tone } from '../../theme/tokens'
 import type { ComponentStyleConfig } from '../../theme/types'
 
@@ -23,7 +24,7 @@ export interface PinInputStyleVariants {
    * Visual size of the component.
    * @default 'md'
    */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  size?: ComponentSize
 
   /**
    * Visual treatment of the component.

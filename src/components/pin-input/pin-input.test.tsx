@@ -42,6 +42,25 @@ describe('PinInput', () => {
     expect(inputs[0]?.placeholder).toBe('○')
   })
 
+  test('keeps text selected when clicking on an already focused input', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[0]?.focus()
+    expect(inputs[0]?.selectionStart).toBe(0)
+    expect(inputs[0]?.selectionEnd).toBe(1)
+
+    // Simulate clicking on the already focused input
+    fireEvent.click(inputs[0]!)
+    expect(inputs[0]?.selectionStart).toBe(0)
+    expect(inputs[0]?.selectionEnd).toBe(1)
+
+    // Simulate mouseup
+    fireEvent.mouseUp(inputs[0]!)
+    expect(inputs[0]?.selectionStart).toBe(0)
+    expect(inputs[0]?.selectionEnd).toBe(1)
+  })
+
   test('renders default value from string or array', () => {
     const arrayScreen = render(() => <PinInput defaultValue={['1', '2', '3']} length={5} />)
     const arrayInputs =

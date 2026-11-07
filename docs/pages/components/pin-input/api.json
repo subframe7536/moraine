@@ -206,7 +206,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+          "type": "ComponentSize",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
