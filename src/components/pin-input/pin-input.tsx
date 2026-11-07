@@ -31,7 +31,7 @@ interface ValidationConfig {
   inputMode: 'numeric' | 'text'
 }
 
-const VALIDATION_CONFIG: Partial<Record<PinInputT.ValidationType, ValidationConfig>> = {
+const VALIDATION_CONFIG: Record<PinInputT.ValidationType, ValidationConfig> = {
   number: {
     charPattern: /^\d$/,
     slotPattern: '\\d{1}',
@@ -50,18 +50,39 @@ const VALIDATION_CONFIG: Partial<Record<PinInputT.ValidationType, ValidationConf
     getRootPattern: (length) => `[a-zA-Z0-9]{${length}}`,
     inputMode: 'text',
   },
+  text: {
+    charPattern: /^\S$/,
+    slotPattern: '\\S{1}',
+    getRootPattern: (length) => `\\S{${length}}`,
+    inputMode: 'text',
+  },
 }
 
 function isValidChar(char: string, type: PinInputT.ValidationType): boolean {
-  const config = VALIDATION_CONFIG[type]
-  if (config) {
-    return config.charPattern.test(char)
+  return VALIDATION_CONFIG[type]?.charPattern.test(char) ?? (char.length === 1 && !/\s/.test(char))
+}
+
+function areCharArraysEqual(a: readonly string[], b: readonly string[]): boolean {
+  if (a === b) {
+    return true
   }
-  return char.length === 1 && !/\s/.test(char)
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false
+    }
+  }
+  return true
+}
+
+function createEmptyChars(length: number): string[] {
+  return new Array(length).fill('')
 }
 
 /**
- * Normalizes a string of slot characters through `normalizeValue`, then re-filters it.
+ * Normalizes a list of slot characters through `normalizeValue`, then re-filters it.
  */
 function applyNormalizeValue(
   chars: string[],
@@ -71,7 +92,14 @@ function applyNormalizeValue(
   if (!normalizeValue) {
     return chars
   }
-  return Array.from(normalizeValue(chars.join(''))).filter((char) => isValidChar(char, type))
+  const normalized = normalizeValue(chars.join(''))
+  const result: string[] = []
+  for (const char of normalized) {
+    if (isValidChar(char, type)) {
+      result.push(char)
+    }
+  }
+  return result
 }
 
 /**
@@ -84,12 +112,15 @@ function filterInputText(
   normalizeValue?: (value: string) => string,
 ): [chars: string[], didReject: boolean] {
   const stripped = text.replace(/[\s-]+/g, '')
-  const valid = applyNormalizeValue(
-    Array.from(stripped).filter((char) => isValidChar(char, type)),
-    type,
-    normalizeValue,
-  )
-  return [valid, Array.from(stripped).length > valid.length]
+  const valid: string[] = []
+  for (const char of stripped) {
+    if (isValidChar(char, type)) {
+      valid.push(char)
+    }
+  }
+  const normalized = applyNormalizeValue(valid, type, normalizeValue)
+  const strippedCount = Array.from(stripped).length
+  return [normalized, strippedCount > normalized.length]
 }
 
 /**
@@ -101,33 +132,54 @@ function filterTypedChars(
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
 ): [chars: string[], didReject: boolean] {
-  const typedChars = Array.from(typed)
-  const valid = applyNormalizeValue(
-    typedChars.filter((char) => isValidChar(char, type)),
-    type,
-    normalizeValue,
-  )
-  return [valid, typedChars.filter((char) => !/\s/.test(char)).length > valid.length]
+  let nonWhitespaceCount = 0
+  const valid: string[] = []
+  for (const char of typed) {
+    if (!/\s/.test(char)) {
+      nonWhitespaceCount++
+      if (isValidChar(char, type)) {
+        valid.push(char)
+      }
+    }
+  }
+  const normalized = applyNormalizeValue(valid, type, normalizeValue)
+  return [normalized, nonWhitespaceCount > normalized.length]
+}
+
+function extractValidChars(val: string[] | string, type: PinInputT.ValidationType): string[] {
+  const result: string[] = []
+  if (typeof val === 'string') {
+    for (const char of val) {
+      if (isValidChar(char, type)) {
+        result.push(char)
+      }
+    }
+  } else {
+    for (const s of val) {
+      for (const char of s) {
+        if (isValidChar(char, type)) {
+          result.push(char)
+        }
+      }
+    }
+  }
+  return result
 }
 
 function normalizeChars(
-  val: string[] | string | undefined,
+  val: string[] | string | undefined | null,
   length: number,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
 ): string[] {
-  const result: string[] = Array.from({ length }, () => '')
+  const result = createEmptyChars(length)
   if (val === undefined || val === null) {
     return result
   }
-  const chars = Array.isArray(val) ? val.flatMap((s) => Array.from(s)) : Array.from(val)
-  const valid = applyNormalizeValue(
-    chars.filter((char) => isValidChar(char, type)),
-    type,
-    normalizeValue,
-  )
-  for (const [index, char] of valid.slice(0, length).entries()) {
-    result[index] = char
+  const valid = applyNormalizeValue(extractValidChars(val, type), type, normalizeValue)
+  const limit = Math.min(valid.length, length)
+  for (let i = 0; i < limit; i++) {
+    result[i] = valid[i]!
   }
   return result
 }
@@ -209,21 +261,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
     required: field.required,
   }
 
-  const {
-    slots: { root: rootSlot, separator: separatorSlot },
-    slotWith,
-  } = useRecipe(pinInputRecipe, local, {
-    data: {
-      root: pinInputDataAttributes.root({
-        ...fieldDataState,
-        complete,
-        filled,
-        focused,
-      }),
-    },
-    context: () => ({ variants: { size: themeField?.size } }),
-  })
-
   const normalize = () => local.normalizeValue
 
   const initialChars = untrack(() => {
@@ -239,15 +276,43 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   const [uncontrolledChars, setUncontrolledChars] = createSignal<string[]>(initialChars)
 
-  const chars = createMemo<string[]>(() => {
-    if (local.value !== undefined) {
-      return normalizeChars(local.value, length(), validationType(), normalize())
-    }
-    const formVal = field.value()
-    if (formVal !== undefined) {
-      return normalizeChars(formVal as string | string[], length(), validationType(), normalize())
-    }
-    return uncontrolledChars()
+  const chars = createMemo<string[]>(
+    () => {
+      if (local.value !== undefined) {
+        return normalizeChars(local.value, length(), validationType(), normalize())
+      }
+      const formVal = field.value()
+      if (formVal !== undefined) {
+        return normalizeChars(formVal as string | string[], length(), validationType(), normalize())
+      }
+      return uncontrolledChars()
+    },
+    initialChars,
+    { equals: areCharArraysEqual },
+  )
+
+  const joinedValue = createMemo(() => chars().join(''))
+  const filled = () => joinedValue().length > 0
+  const complete = () => !chars().includes('')
+  const [focusedIndex, setFocusedIndex] = createSignal<number | null>(null)
+  const focused = () => {
+    const index = focusedIndex()
+    return index !== null && index < length() && !field.disabled()
+  }
+
+  const {
+    slots: { root: rootSlot, separator: separatorSlot },
+    slotWith,
+  } = useRecipe(pinInputRecipe, local, {
+    data: {
+      root: pinInputDataAttributes.root({
+        ...fieldDataState,
+        complete,
+        filled,
+        focused,
+      }),
+    },
+    context: () => ({ variants: { size: themeField?.size } }),
   })
 
   /** Mirrors the value into the Field store, keeping the store's current array/string shape. */
@@ -258,6 +323,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
     return typeof val === 'string' ? val : val.join('')
   }
 
+  const getOwningForm = () =>
+    hiddenInputEl?.form ?? inputEls[0]?.form ?? rootEl?.closest('form') ?? null
+
+  function completeValue(joined: string): void {
+    local.onComplete?.(joined)
+    if (local.autoSubmit) {
+      const formElement = getOwningForm()
+      if (formElement && typeof formElement.requestSubmit === 'function') {
+        formElement.requestSubmit()
+      }
+    }
+  }
+
   function setChars(
     update: string[] | ((prev: string[]) => string[]),
     completeOnUnchanged = false,
@@ -265,10 +343,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const current = chars()
     const next = typeof update === 'function' ? update(current) : update
     const nextJoined = next.join('')
-    const nextComplete = next.every((c) => c !== '')
+    const nextComplete = !next.includes('')
 
-    if (current.length === next.length && current.every((v, i) => v === next[i])) {
-      // A complete paste that reconfirms the current value still completes.
+    if (areCharArraysEqual(current, next)) {
       if (nextComplete && completeOnUnchanged) {
         completeValue(nextJoined)
       }
@@ -300,22 +377,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
     field.emit('input')
   }
 
-  function completeValue(joined: string): void {
-    local.onComplete?.(joined)
-    if (local.autoSubmit) {
-      const formElement = hiddenInputEl?.form ?? inputEls[0]?.form ?? rootEl?.closest('form')
-      if (formElement && typeof formElement.requestSubmit === 'function') {
-        formElement.requestSubmit()
-      }
-    }
-  }
-
   let pendingFocus: { index: number; joined: string } | undefined
   let pendingComplete: string | undefined
 
   /** Focuses a slot once `joined` is the applied value, or immediately when it already is. */
   function queueFocusInput(index: number, joined: string): void {
-    if (chars().join('') === joined) {
+    if (joinedValue() === joined) {
       focusInput(index)
     } else {
       pendingFocus = { index, joined }
@@ -324,9 +391,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   createComputed(
     on(
-      () => chars(),
-      (currentChars) => {
-        const joined = currentChars.join('')
+      joinedValue,
+      (joined) => {
         const focus = pendingFocus
         pendingFocus = undefined
         if (focus && joined === focus.joined) {
@@ -351,9 +417,11 @@ export function PinInput(props: PinInputProps): JSX.Element {
       field.setFormValue(toFormValue(local.value))
     }
     const current = chars()
-    for (const [index, element] of inputEls.slice(0, length()).entries()) {
-      if (element) {
-        element.value = current[index] ?? ''
+    const len = length()
+    for (let i = 0; i < len; i++) {
+      const el = inputEls[i]
+      if (el) {
+        el.value = current[i] ?? ''
       }
     }
   }
@@ -372,33 +440,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
     ),
   )
 
-  const joinedValue = createMemo(() => chars().join(''))
-
   const inputEls: (HTMLInputElement | null)[] = []
   let rootEl: HTMLDivElement | undefined
   let hiddenInputEl: HTMLInputElement | undefined
-
-  createEffect(
-    on(
-      () => chars(),
-      (currentChars) => {
-        const filtered = inputEls.slice(0, length()).filter(Boolean) as HTMLInputElement[]
-        if (filtered.length > 0) {
-          callRef(local.inputsRef, filtered)
-        }
-        const focused = focusedIndex()
-        if (focused !== null) {
-          const firstEmpty = currentChars.findIndex((c) => !c)
-          const isSelectable =
-            focused < currentChars.length &&
-            (currentChars[focused] !== '' || focused === firstEmpty)
-          if (!isSelectable) {
-            focusInput(firstEmpty !== -1 ? firstEmpty : length() - 1)
-          }
-        }
-      },
-    ),
-  )
 
   function focusInput(index: number): void {
     const clamped = Math.max(0, Math.min(length() - 1, index))
@@ -411,9 +455,71 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   function getTargetIndex(): number {
     const currentChars = chars()
-    const firstEmpty = currentChars.findIndex((c) => !c)
+    const firstEmpty = currentChars.indexOf('')
     return firstEmpty !== -1 ? firstEmpty : length() - 1
   }
+
+  function getValidTargetIndex(idx: number): number {
+    return chars()[idx] !== '' ? idx : getTargetIndex()
+  }
+
+  function updateInputsRef(): void {
+    if (!local.inputsRef) {
+      return
+    }
+    const len = length()
+    const filtered: HTMLInputElement[] = []
+    for (let i = 0; i < len; i++) {
+      const el = inputEls[i]
+      if (el) {
+        filtered.push(el)
+      }
+    }
+    if (filtered.length > 0) {
+      callRef(local.inputsRef, filtered)
+    }
+  }
+
+  onMount(() => {
+    updateInputsRef()
+  })
+
+  createEffect(
+    on(
+      length,
+      (len) => {
+        inputEls.length = len
+        updateInputsRef()
+      },
+      { defer: true },
+    ),
+  )
+
+  onCleanup(() => {
+    if (local.inputsRef) {
+      callRef(local.inputsRef, [])
+    }
+    inputEls.length = 0
+  })
+
+  createEffect(
+    on(
+      chars,
+      (currentChars) => {
+        const focused = focusedIndex()
+        if (focused !== null) {
+          const firstEmpty = currentChars.indexOf('')
+          const isSelectable =
+            focused < currentChars.length &&
+            (currentChars[focused] !== '' || focused === firstEmpty)
+          if (!isSelectable) {
+            focusInput(getTargetIndex())
+          }
+        }
+      },
+      { defer: true },
+    ),
+  )
 
   /**
    * Commits raw input text (`onInput` and IME `compositionend`) into the slot at `idx`,
@@ -483,47 +589,32 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   }
 
-  /** Whether any slot input currently has focus (and the field is not disabled). */
-  function focused(): boolean {
-    const index = focusedIndex()
-    return index !== null && index < length() && !field.disabled()
-  }
-
-  function filled(): boolean {
-    return chars().some((c) => c !== '')
-  }
-
-  function complete(): boolean {
-    return chars().every((c) => c !== '')
-  }
-
-  function getValidTargetIndex(idx: number): number {
-    const currentChars = chars()
-    const firstEmpty = currentChars.findIndex((c) => !c)
-    const isSelectable = currentChars[idx] !== '' || idx === firstEmpty
-    return isSelectable ? idx : firstEmpty !== -1 ? firstEmpty : length() - 1
-  }
-
-  function shouldInsertSeparator(index: number): boolean {
-    if (local.separator === undefined || local.separator === false) {
-      return false
+  const separatorPositions = createMemo<ReadonlySet<number> | null>(() => {
+    const sep = local.separator
+    if (!sep) {
+      return null
     }
-    const position = index + 1
-    if (position >= length()) {
-      return false
+    const len = length()
+    if (sep === true) {
+      const pos = Math.ceil(len / 2)
+      return pos < len ? new Set([pos]) : null
     }
-    if (local.separator === true) {
-      return position === Math.ceil(length() / 2)
+    if (Array.isArray(sep)) {
+      const valid = sep.filter((pos) => pos > 0 && pos < len)
+      return valid.length > 0 ? new Set(valid) : null
     }
-    if (Array.isArray(local.separator)) {
-      return local.separator.includes(position)
+    if (typeof sep === 'number' && Number.isInteger(sep) && sep > 0) {
+      const set = new Set<number>()
+      for (let pos = sep; pos < len; pos += sep) {
+        set.add(pos)
+      }
+      return set.size > 0 ? set : null
     }
-    return (
-      typeof local.separator === 'number' &&
-      Number.isInteger(local.separator) &&
-      local.separator > 0 &&
-      position % local.separator === 0
-    )
+    return null
+  })
+
+  function hasSeparator(index: number): boolean {
+    return separatorPositions()?.has(index + 1) ?? false
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
@@ -544,14 +635,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   })
 
-  useFormReset(
-    () => hiddenInputEl?.form ?? rootEl?.closest('form'),
-    () => {
-      resetChars()
-    },
-  )
+  useFormReset(getOwningForm, resetChars)
 
-  const [focusedIndex, setFocusedIndex] = createSignal<number | null>(null)
   const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
   const isRtl = () => providerLocale.dir() === 'rtl'
   const validationConfig = () => VALIDATION_CONFIG[validationType()]
@@ -660,12 +745,17 @@ export function PinInput(props: PinInputProps): JSX.Element {
               local.onValueInvalid?.(raw)
             }
 
-            const next = Array.from({ length: length() }, (_, index) => validChars[index] ?? '')
+            const len = length()
+            const next = createEmptyChars(len)
+            const limit = Math.min(validChars.length, len)
+            for (let i = 0; i < limit; i++) {
+              next[i] = validChars[i]!
+            }
             const nextJoined = next.join('')
             setChars(next)
             event.currentTarget.value = joinedValue()
             if (nextJoined !== '') {
-              queueFocusInput(Math.min(validChars.length, length()) - 1, nextJoined)
+              queueFocusInput(Math.min(validChars.length, len) - 1, nextJoined)
             }
           }}
         />
@@ -677,7 +767,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
             data: pinInputDataAttributes.input({
               ...fieldDataState,
               complete,
-              focused,
+              focused: () => focusedIndex() === idx && !field.disabled(),
               filled: () => chars()[idx] !== '',
             }),
           })
@@ -738,54 +828,46 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     return
                   }
                   event.preventDefault()
-                  const targetIdx = getValidTargetIndex(idx)
-                  focusInput(targetIdx)
+                  focusInput(getValidTargetIndex(idx))
                 }}
                 onClick={(event) => {
                   if (event.defaultPrevented || field.disabled()) {
                     return
                   }
-                  const targetIdx = getValidTargetIndex(idx)
-                  focusInput(targetIdx)
+                  focusInput(getValidTargetIndex(idx))
                 }}
                 onKeyDown={(event) => {
                   if (event.defaultPrevented || field.disabled() || composing()) {
                     return
                   }
 
-                  const previousKey = isRtl() ? 'ArrowRight' : 'ArrowLeft'
-                  const nextKey = isRtl() ? 'ArrowLeft' : 'ArrowRight'
-                  const endTargetIndex = getTargetIndex()
-                  const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey
+                  const { key, ctrlKey, metaKey, altKey } = event
+                  const hasBoundaryModifier = (ctrlKey || metaKey) && !altKey
 
-                  const stopEvent = () => {
+                  if (key === 'ArrowLeft' || key === 'ArrowRight') {
                     event.preventDefault()
                     event.stopPropagation()
-                  }
-
-                  if (event.key === previousKey) {
-                    stopEvent()
-                    focusInput(hasBoundaryModifier ? 0 : Math.max(0, idx - 1))
+                    const isPrev = isRtl() ? key === 'ArrowRight' : key === 'ArrowLeft'
+                    if (isPrev) {
+                      focusInput(hasBoundaryModifier ? 0 : Math.max(0, idx - 1))
+                    } else {
+                      const end = getTargetIndex()
+                      focusInput(hasBoundaryModifier ? end : Math.min(end, idx + 1))
+                    }
                     return
                   }
 
-                  if (event.key === nextKey) {
-                    stopEvent()
-                    focusInput(
-                      hasBoundaryModifier ? endTargetIndex : Math.min(endTargetIndex, idx + 1),
-                    )
-                    return
-                  }
-
-                  if (event.key === 'Home' || event.key === 'ArrowUp') {
-                    stopEvent()
+                  if (key === 'Home' || key === 'ArrowUp') {
+                    event.preventDefault()
+                    event.stopPropagation()
                     focusInput(0)
                     return
                   }
 
-                  if (event.key === 'End' || event.key === 'ArrowDown') {
-                    stopEvent()
-                    focusInput(endTargetIndex)
+                  if (key === 'End' || key === 'ArrowDown') {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    focusInput(getTargetIndex())
                     return
                   }
 
@@ -793,13 +875,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     return
                   }
 
-                  if (event.key === 'Backspace') {
-                    stopEvent()
+                  if (key === 'Backspace') {
+                    event.preventDefault()
+                    event.stopPropagation()
                     if (hasBoundaryModifier) {
-                      const next = Array.from({ length: length() }, () => '')
-                      const nextJoined = next.join('')
+                      const next = createEmptyChars(length())
                       setChars(next)
-                      queueFocusInput(0, nextJoined)
+                      queueFocusInput(0, '')
                       return
                     }
 
@@ -818,8 +900,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     return
                   }
 
-                  if (event.key === 'Delete') {
-                    stopEvent()
+                  if (key === 'Delete') {
+                    event.preventDefault()
+                    event.stopPropagation()
                     const next = [...chars()]
                     next[idx] = ''
                     setChars(next)
@@ -836,8 +919,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   handleSlotInput(event.currentTarget, idx)
                 }}
                 onCompositionStart={() => {
-                  // Some Android keyboards report all text as always-composing, so they
-                  // keep committing through `input` events instead of `compositionend`.
                   if (!isAndroidUserAgent()) {
                     setComposing(true)
                   }
@@ -878,15 +959,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   next.splice(idx, validChars.length, ...validChars)
                   next.length = length()
                   const nextJoined = next.join('')
-                  setChars(
-                    next,
-                    next.every((c) => c !== ''),
-                  )
+                  setChars(next, !next.includes(''))
                   queueFocusInput(Math.min(idx + validChars.length, length() - 1), nextJoined)
                 }}
               />
 
-              <Show when={shouldInsertSeparator(idx)}>
+              <Show when={hasSeparator(idx)}>
                 <span
                   data-slot="pin-input-separator"
                   role="presentation"

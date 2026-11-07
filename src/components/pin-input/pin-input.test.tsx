@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field/field'
 import { createForm } from '../form'
 
@@ -447,31 +448,33 @@ describe('PinInput', () => {
   })
 
   test('integrates with form.Field and createForm', async () => {
-    const form = createForm({
-      schema: v.object({
-        code: v.pipe(
-          v.string('Verification code is required'),
-          v.length(4, 'Verification code must be 4 digits'),
-          v.regex(/^\d+$/, 'Verification code must contain digits only'),
-        ),
-      }),
-      initialInput: { code: '' },
-      validate: 'submit',
-    })
-
     let submitted = ''
-    const screen = render(() => (
-      <form.Form
-        onSubmit={(output) => {
-          submitted = output.code
-        }}
-      >
-        <form.Field name="code" label="Verification code" required>
-          <PinInput length={4} validationType="number" />
-        </form.Field>
-        <button type="submit">Verify</button>
-      </form.Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            code: v.pipe(
+              v.string('Verification code is required'),
+              v.length(4, 'Verification code must be 4 digits'),
+              v.regex(/^\d+$/, 'Verification code must contain digits only'),
+            ),
+          }),
+          initialInput: { code: '' },
+          validate: 'submit',
+        }),
+      (form) => (
+        <form.Form
+          onSubmit={(output) => {
+            submitted = output.code
+          }}
+        >
+          <form.Field name="code" label="Verification code" required>
+            <PinInput length={4} validationType="number" />
+          </form.Field>
+          <button type="submit">Verify</button>
+        </form.Form>
+      ),
+    )
 
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
@@ -629,25 +632,27 @@ describe('PinInput', () => {
   })
 
   test('controlled array value keeps a string form store in sync with the prop', async () => {
-    const form = createForm({
-      schema: v.object({ code: v.string() }),
-      initialInput: { code: '' },
-      validate: 'submit',
-    })
-
     let submitted = ''
-    const screen = render(() => (
-      <form.Form
-        onSubmit={(output) => {
-          submitted = output.code
-        }}
-      >
-        <form.Field name="code" label="Code">
-          <PinInput length={4} value={['1', '2', '3', '4']} />
-        </form.Field>
-        <button type="submit">Submit</button>
-      </form.Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.string() }),
+          initialInput: { code: '' },
+          validate: 'submit',
+        }),
+      (form) => (
+        <form.Form
+          onSubmit={(output) => {
+            submitted = output.code
+          }}
+        >
+          <form.Field name="code" label="Code">
+            <PinInput length={4} value={['1', '2', '3', '4']} />
+          </form.Field>
+          <button type="submit">Submit</button>
+        </form.Form>
+      ),
+    )
 
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
