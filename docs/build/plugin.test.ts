@@ -274,8 +274,8 @@ export type ButtonProps = ButtonT.Props
       const previewSourceModule = await server.transformRequest(
         '/pages/components/button/basic-example.tsx?preview-source',
       )
-      expect(previewSourceModule?.code).toContain('"html":')
-      expect(previewSourceModule?.code).toContain('"code":')
+      expect(previewSourceModule?.code).toMatch(/["']?html["']?:/)
+      expect(previewSourceModule?.code).toMatch(/["']?code["']?:/)
 
       await new Promise((resolve) => setTimeout(resolve, 50))
 

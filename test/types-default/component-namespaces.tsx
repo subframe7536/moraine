@@ -25,7 +25,7 @@ import type {
   FormT,
   IconT,
   InputGroupT,
-  InputNumberT,
+  NumberInputT,
   InputT,
   KbdGroupT,
   KbdT,
@@ -33,6 +33,7 @@ import type {
   ModalT,
   MultiSelectT,
   PaginationT,
+  PinInputT,
   PopoverT,
   ProgressT,
   RadioGroupT,
@@ -183,12 +184,12 @@ export type ComponentNamespaceHeaders = {
     InputGroupT.Classes,
     InputGroupT.Styles
   >
-  InputNumber: Header<
-    InputNumberT.Kind,
-    InputNumberT.Slot,
-    InputNumberT.Variants,
-    InputNumberT.Classes,
-    InputNumberT.Styles
+  NumberInput: Header<
+    NumberInputT.Kind,
+    NumberInputT.Slot,
+    NumberInputT.Variants,
+    NumberInputT.Classes,
+    NumberInputT.Styles
   >
   Input: Header<InputT.Kind, InputT.Slot, InputT.Variants, InputT.Classes, InputT.Styles>
   KbdGroup: Header<
@@ -214,6 +215,13 @@ export type ComponentNamespaceHeaders = {
     PaginationT.Variants,
     PaginationT.Classes,
     PaginationT.Styles
+  >
+  PinInput: Header<
+    PinInputT.Kind,
+    PinInputT.Slot,
+    PinInputT.Variants,
+    PinInputT.Classes,
+    PinInputT.Styles
   >
   Popover: Header<
     PopoverT.Kind,
@@ -373,7 +381,7 @@ export type RetainedNamespaceMembers = [
   TreeT.Instance<{ id: string; name: string }>,
   TreeT.ItemInstance<{ id: string; name: string }>,
   TreeT.ItemRenderProps<{ id: string; name: string }>,
-  InputNumberT.PointerType,
+  NumberInputT.PointerType,
   StepperT.Value,
   SelectT.Entry,
   ComboboxT.Row,

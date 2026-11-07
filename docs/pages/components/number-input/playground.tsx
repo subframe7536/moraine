@@ -1,8 +1,8 @@
-import { InputNumber } from '@src'
+import { NumberInput } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
-export default function InputNumberPlayground() {
+export default function NumberInputPlayground() {
   return (
     <DocsPlayground
       controls={[
@@ -45,7 +45,7 @@ export default function InputNumberPlayground() {
     >
       {(props) => (
         <div class="max-w-full w-64">
-          <InputNumber
+          <NumberInput
             variant={props.variant}
             size={props.size}
             orientation={props.orientation}

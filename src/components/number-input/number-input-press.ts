@@ -5,7 +5,7 @@ import { callHandler } from '../../shared/utils'
 
 export type ControlKind = 'increment' | 'decrement'
 
-export interface CreateInputNumberPressOptions {
+export interface CreateNumberInputPressOptions {
   isInteractive: (kind: ControlKind) => boolean
   onStep: (kind: ControlKind) => void
   getUserOnClick: (
@@ -52,7 +52,7 @@ function createPressState(): PressState {
   }
 }
 
-export function createInputNumberPress(options: CreateInputNumberPressOptions) {
+export function createNumberInputPress(options: CreateNumberInputPressOptions) {
   const [pressedControls, setPressedControls] = createSignal<Record<ControlKind, boolean>>({
     increment: false,
     decrement: false,

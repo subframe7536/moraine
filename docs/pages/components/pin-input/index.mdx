@@ -1,0 +1,137 @@
+---
+title: PinInput
+description: Enter pins and verification codes with automatic focus advance and clipboard support.
+group: Form
+api:
+  path: src/components/pin-input/pin-input
+search:
+  tags: [pin, otp, one-time password, code, verification, 2fa]
+---
+
+import Playground from './playground'
+
+<Playground />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [{ slot: 'input' }, { slot: 'separator' }],
+  }}
+/>
+
+## Usage
+
+Use `PinInput` for verification codes, OTPs, or numerical PINs.
+
+```tsx
+import { PinInput } from 'moraine'
+
+export function Example() {
+  return <PinInput length={6} onComplete={(code) => console.log(code)} />
+}
+```
+
+### Validation Type and Mask
+
+Use the `validationType` prop to restrict inputs to `'number'`, `'text'`, `'alphanumeric'`, or `'alpha'`. Use `mask` to conceal digits like a password input.
+
+```tsx
+<PinInput validationType="number" mask length={4} />
+```
+
+### OTP Auto-fill
+
+Use `otp` to enable one-time code autocomplete (`autocomplete="one-time-code"`), letting mobile devices auto-fill codes from SMS messages.
+
+```tsx
+<PinInput otp length={6} />
+```
+
+The named hidden input also accepts pasted or autofilled full codes and distributes them across the slots.
+
+### Normalization and invalid input
+
+Use `normalizeValue` to transform proposed values after `validationType` filtering, and `onValueInvalid` to observe characters that were rejected.
+
+```tsx
+<PinInput
+  length={6}
+  validationType="alphanumeric"
+  normalizeValue={(value) => value.toUpperCase()}
+  onValueInvalid={(value) => console.warn('Rejected characters in', value)}
+/>
+```
+
+### Auto-submit
+
+Use `autoSubmit` to submit the owning form once the pin input is complete.
+
+```tsx
+<form>
+  <PinInput name="code" length={6} autoSubmit />
+</form>
+```
+
+### Placeholder
+
+Use `placeholder` to display a character hint in empty slots:
+
+```tsx
+<PinInput length={6} placeholder="○" />
+```
+
+### Separators
+
+Use the `separator` prop to insert separators between input groups. Pass `true` to split inputs evenly in half, or pass a number or array of positions:
+
+```tsx
+<PinInput length={6} separator />
+<PinInput length={6} separator={3} />
+```
+
+### Keyboard interaction
+
+| Key                                        | Description                                                |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| <kbd>ArrowLeft</kbd>                       | Moves focus to the previous input (in RTL, next).          |
+| <kbd>ArrowRight</kbd>                      | Moves focus to the next input (in RTL, previous).          |
+| <kbd>Ctrl/Cmd</kbd> + arrow                | Moves focus to the first input / first empty input.        |
+| <kbd>Home</kbd> / <kbd>ArrowUp</kbd>       | Moves focus to the first input.                            |
+| <kbd>End</kbd> / <kbd>ArrowDown</kbd>      | Moves focus to the first empty input (last when filled).   |
+| <kbd>Backspace</kbd>                       | Deletes character in slot or previous slot and moves back. |
+| <kbd>Ctrl/Cmd</kbd> + <kbd>Backspace</kbd> | Clears all inputs and moves to the first.                  |
+| <kbd>Delete</kbd>                          | Clears character in the focused slot.                      |
+
+## Examples
+
+### One-Time Password verification
+
+Use `otp` and `separator` for standard 6-digit SMS verification code entry.
+
+<Preview path="./otp-example" />
+
+### Form integration and validation
+
+Wrap `PinInput` inside `form.Field` with a validation schema to ensure all slots are completed before submission.
+
+<Preview path="./form-integration" />
+
+### Masked PIN for security
+
+Use `mask` to obscure numeric input characters for sensitive passcodes and PINs.
+
+<Preview path="./masked" />
+
+### Alphanumeric recovery key
+
+Use `validationType="alphanumeric"` to support alphanumeric backup keys and recovery codes.
+
+<Preview path="./alphanumeric" />
+
+### Custom separator
+
+Use `separatorRender` to customize the visual divider between slot groups.
+
+<Preview path="./custom-separator" />

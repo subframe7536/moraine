@@ -1,4 +1,4 @@
-import { Button, createForm, InputNumber } from '@src'
+import { Button, createForm, NumberInput } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -25,7 +25,7 @@ export function FormIntegration() {
           description="Specify between 1 and 10 units."
           required
         >
-          <InputNumber minValue={1} maxValue={10} />
+          <NumberInput minValue={1} maxValue={10} />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="soft" tone="neutral" size="sm">

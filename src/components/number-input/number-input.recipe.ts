@@ -11,13 +11,13 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-number.style-types'
+import type { NumberInputStyleSlot, NumberInputStyleVariants } from './number-input.style-types'
 
 const controlDataAttributes = /* @__PURE__ */ createDataAttributes('active', 'disabled')
 const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
-const INPUT_NUMBER_ACCENT_CLASS = 'accent-fg-foreground placeholder:accent-fg-muted-foreground'
+const NUMBER_INPUT_ACCENT_CLASS = 'accent-fg-foreground placeholder:accent-fg-muted-foreground'
 
-export const inputNumberDataAttributes = {
+export const numberInputDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
   input: /* @__PURE__ */ createDataAttributes(
     'auto-align',
@@ -28,12 +28,12 @@ export const inputNumberDataAttributes = {
   ),
   increment: controlDataAttributes,
   decrement: controlDataAttributes,
-} satisfies DataAttributeContract<keyof InputNumberStyleSlot>
+} satisfies DataAttributeContract<keyof NumberInputStyleSlot>
 
-export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
-  InputNumberStyleSlot,
-  InputNumberStyleVariants
->('inputNumber', {
+export const numberInputRecipe = /* @__PURE__ */ defineRecipe<
+  NumberInputStyleSlot,
+  NumberInputStyleVariants
+>('numberInput', {
   base: {
     root: `inline-flex w-full cursor-text transition-[color,background-color,border-color,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${FOCUS_WITHIN_INVALID_CLASS}`,
     input:
@@ -76,7 +76,7 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       subtle: { root: INPUT_VARIANT.subtle },
       ghost: {
         root: INPUT_VARIANT.ghost,
-        input: INPUT_NUMBER_ACCENT_CLASS,
+        input: NUMBER_INPUT_ACCENT_CLASS,
         increment: 'accent-fg-primary',
         decrement: 'accent-fg-primary',
       },

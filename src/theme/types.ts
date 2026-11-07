@@ -26,7 +26,6 @@ import type { FileUploadStyleConfig } from '../components/file-upload/file-uploa
 import type { FormStyleConfig } from '../components/form/form.style-types'
 import type { IconStyleConfig } from '../components/icon/icon.style-types'
 import type { InputGroupStyleConfig } from '../components/input-group/input-group.style-types'
-import type { InputNumberStyleConfig } from '../components/input-number/input-number.style-types'
 import type { InputStyleConfig } from '../components/input/input.style-types'
 import type { KbdGroupStyleConfig } from '../components/kbd-group/kbd-group.style-types'
 import type { KbdStyleConfig } from '../components/kbd/kbd.style-types'
@@ -34,7 +33,9 @@ import type { ListStyleConfig } from '../components/list/list.style-types'
 import type { ModalStyleConfig } from '../components/modal/modal.style-types'
 import type { MultiSelectStyleConfig } from '../components/multi-select/multi-select.style-types'
 import type { NavigationMenuStyleConfig } from '../components/navigation-menu/navigation-menu.style-types'
+import type { NumberInputStyleConfig } from '../components/number-input/number-input.style-types'
 import type { PaginationStyleConfig } from '../components/pagination/pagination.style-types'
+import type { PinInputStyleConfig } from '../components/pin-input/pin-input.style-types'
 import type { PopoverStyleConfig } from '../components/popover/popover.style-types'
 import type { ProgressStyleConfig } from '../components/progress/progress.style-types'
 import type { RadioGroupStyleConfig } from '../components/radio-group/radio-group.style-types'
@@ -96,7 +97,7 @@ export interface MoraineStyleSchema {
   form: FormStyleConfig
   input: InputStyleConfig
   inputGroup: InputGroupStyleConfig
-  inputNumber: InputNumberStyleConfig
+  numberInput: NumberInputStyleConfig
   multiSelect: MultiSelectStyleConfig
   radioGroup: RadioGroupStyleConfig
   select: SelectStyleConfig
@@ -107,6 +108,7 @@ export interface MoraineStyleSchema {
   breadcrumb: BreadcrumbStyleConfig
   commandPalette: CommandPaletteStyleConfig
   pagination: PaginationStyleConfig
+  pinInput: PinInputStyleConfig
   sidebar: SidebarStyleConfig
   stepper: StepperStyleConfig
   table: TableStyleConfig

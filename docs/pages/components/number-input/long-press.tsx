@@ -1,4 +1,4 @@
-import { InputNumber } from '@src'
+import { NumberInput } from '@src'
 import { createSignal } from 'solid-js'
 
 export function LongPress() {
@@ -8,7 +8,7 @@ export function LongPress() {
   return (
     <div class="max-w-xs space-y-4">
       <div class="space-y-2">
-        <InputNumber
+        <NumberInput
           value={repeatValue()}
           onRawValueChange={(value) => {
             if (value !== undefined) {
@@ -27,7 +27,7 @@ export function LongPress() {
       </div>
 
       <div class="space-y-2">
-        <InputNumber
+        <NumberInput
           value={singleStepValue()}
           holdRepeat={false}
           onRawValueChange={(value) => {

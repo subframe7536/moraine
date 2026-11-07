@@ -12,9 +12,9 @@ import { Dialog } from '../../components/dialog/dialog'
 import { Field } from '../../components/field/field'
 import { FileUpload } from '../../components/file-upload/file-upload'
 import { createForm } from '../../components/form'
-import { InputNumber } from '../../components/input-number/input-number'
 import { Kbd } from '../../components/kbd/kbd'
 import { MultiSelect } from '../../components/multi-select/multi-select'
+import { NumberInput } from '../../components/number-input/number-input'
 import { Pagination } from '../../components/pagination/pagination'
 import { Progress } from '../../components/progress/progress'
 import { Resizable } from '../../components/resizable/resizable'
@@ -154,8 +154,8 @@ describe('localized component text', () => {
 
   test('uses input number control messages', () => {
     const screen = render(() => (
-      <MoraineProvider messages={{ inputNumber: { increment: 'Plus', decrement: 'Moins' } }}>
-        <InputNumber aria-label="Quantity" />
+      <MoraineProvider messages={{ numberInput: { increment: 'Plus', decrement: 'Moins' } }}>
+        <NumberInput aria-label="Quantity" />
       </MoraineProvider>
     ))
 
@@ -412,7 +412,7 @@ describe('component translations prop', () => {
     const screen = render(() => (
       <>
         <FileUpload translations={{ label: 'Upload document' }} />
-        <InputNumber aria-label="Qty" translations={{ increment: 'Up', decrement: 'Down' }} />
+        <NumberInput aria-label="Qty" translations={{ increment: 'Up', decrement: 'Down' }} />
         <Slider defaultValue={[40]} translations={{ thumb: ({ index }) => `Knob ${index + 1}` }} />
       </>
     ))

@@ -12,12 +12,13 @@ import { defaultDialogMessages } from '../../components/dialog/dialog.messages'
 import { defaultDrawerMessages } from '../../components/drawer/drawer.messages'
 import { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import { defaultFormMessages } from '../../components/form/form.messages'
-import { InputNumber } from '../../components/input-number/input-number'
-import { defaultInputNumberMessages } from '../../components/input-number/input-number.messages'
 import { defaultKbdMessages } from '../../components/kbd/kbd.messages'
 import { defaultMultiSelectMessages } from '../../components/multi-select/multi-select.messages'
+import { NumberInput } from '../../components/number-input/number-input'
+import { defaultNumberInputMessages } from '../../components/number-input/number-input.messages'
 import { Pagination } from '../../components/pagination/pagination'
 import { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
+import { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import { defaultProgressMessages } from '../../components/progress/progress.messages'
 import { defaultResizableMessages } from '../../components/resizable/resizable.messages'
 import { defaultSelectMessages } from '../../components/select/select.messages'
@@ -47,7 +48,8 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   multiSelect: defaultMultiSelectMessages,
   slider: defaultSliderMessages,
   pagination: defaultPaginationMessages,
-  inputNumber: defaultInputNumberMessages,
+  pinInput: defaultPinInputMessages,
+  numberInput: defaultNumberInputMessages,
   fileUpload: defaultFileUploadMessages,
   tagsField: defaultTagsFieldMessages,
   resizable: defaultResizableMessages,
@@ -86,7 +88,7 @@ describe('Moraine locale', () => {
         <>
           <LocaleProbe />
           <Pagination total={10} />
-          <InputNumber aria-label="Quantity" defaultValue={12.5} />
+          <NumberInput aria-label="Quantity" defaultValue={12.5} />
         </>
       ))
 
@@ -245,14 +247,14 @@ describe('Moraine locale', () => {
     })
   })
 
-  test('formats InputNumber from the provider locale unless the prop sets one', () => {
+  test('formats NumberInput from the provider locale unless the prop sets one', () => {
     const screen = render(() => (
       <MoraineProvider locale="de-DE">
-        <InputNumber aria-label="Inherited" defaultValue={12.5} />
+        <NumberInput aria-label="Inherited" defaultValue={12.5} />
         <MoraineProvider locale="en-US">
-          <InputNumber aria-label="Replaced" defaultValue={12.5} />
+          <NumberInput aria-label="Replaced" defaultValue={12.5} />
         </MoraineProvider>
-        <InputNumber aria-label="Explicit" defaultValue={12.5} locale="en-US" />
+        <NumberInput aria-label="Explicit" defaultValue={12.5} locale="en-US" />
       </MoraineProvider>
     ))
 

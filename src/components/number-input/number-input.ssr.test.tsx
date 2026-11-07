@@ -4,16 +4,16 @@ import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { InputNumber } from './input-number'
+import { NumberInput } from './number-input'
 
-describe('InputNumber SSR Hydration', () => {
+describe('NumberInput SSR Hydration', () => {
   test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
     const [value, setValue] = createSignal(12.5)
 
     const { container } = hydrateFixture(
-      '/src/components/input-number/input-number.ssr.fixture.tsx',
-      'renderInputNumberFixture',
-      () => <InputNumber id="horizontal-number" value={value()} locale="de-DE" />,
+      '/src/components/number-input/number-input.ssr.fixture.tsx',
+      'renderNumberInputFixture',
+      () => <NumberInput id="horizontal-number" value={value()} locale="de-DE" />,
     )
 
     const horizontalRoot = container.querySelector('#horizontal-number-root')!
@@ -24,7 +24,7 @@ describe('InputNumber SSR Hydration', () => {
     expect(horizontalInput.value).toBe('12,5')
     expect(
       Array.from(horizontalRoot.children).map((child) => child.getAttribute('data-slot')),
-    ).toEqual(['input-number-decrement', 'input-number-input', 'input-number-increment'])
+    ).toEqual(['number-input-decrement', 'number-input-input', 'number-input-increment'])
 
     setValue(13.5)
     await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
@@ -32,10 +32,10 @@ describe('InputNumber SSR Hydration', () => {
 
   test('hydrates vertical control order without replacing server nodes', () => {
     const { container } = hydrateFixture(
-      '/src/components/input-number/input-number.ssr.fixture.tsx',
-      'renderVerticalInputNumberFixture',
+      '/src/components/number-input/number-input.ssr.fixture.tsx',
+      'renderVerticalNumberInputFixture',
       () => (
-        <InputNumber
+        <NumberInput
           id="vertical-number"
           defaultValue={-2.5}
           locale="en-US"
@@ -49,20 +49,20 @@ describe('InputNumber SSR Hydration', () => {
 
     expect(root).not.toBeNull()
     expect(input).not.toBeNull()
-    expect(root.querySelector('[data-slot="input-number-controls"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="number-input-controls"]')).not.toBeNull()
     expect(input.value).toBe('-2.5')
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input-number-input',
-      'input-number-controls',
+      'number-input-input',
+      'number-input-controls',
     ])
   })
 
   test('hydrates with both conditional controls hidden', () => {
     const { container } = hydrateFixture(
-      '/src/components/input-number/input-number.ssr.fixture.tsx',
-      'renderHiddenInputNumberFixture',
+      '/src/components/number-input/number-input.ssr.fixture.tsx',
+      'renderHiddenNumberInputFixture',
       () => (
-        <InputNumber
+        <NumberInput
           id="hidden-controls-number"
           defaultValue={3.25}
           locale="en-US"
@@ -79,7 +79,7 @@ describe('InputNumber SSR Hydration', () => {
     expect(input).not.toBeNull()
     expect(input.value).toBe('3.25')
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input-number-input',
+      'number-input-input',
     ])
   })
 })
