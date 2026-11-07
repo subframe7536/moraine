@@ -98,7 +98,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── icon/               # Icon rendering helpers and component.
 │   ├── input/              # Text input control.
 │   ├── input-group/        # Compound input layout with addons and triggers.
-│   ├── input-number/       # Numeric input control.
+│   ├── number-input/       # Numeric input control.
 │   ├── kbd/                # Keyboard shortcut display.
 │   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
 │   ├── list/               # List and list-item primitives.

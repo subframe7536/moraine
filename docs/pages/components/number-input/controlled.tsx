@@ -1,4 +1,4 @@
-import { Badge, InputNumber } from '@src'
+import { Badge, NumberInput } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Controlled() {
@@ -18,7 +18,7 @@ export function Controlled() {
       <div class="pt-2 border-t border-border flex items-center justify-between">
         <div class="space-y-1">
           <label class="text-xs text-muted-foreground font-medium">Quantity (Max 10)</label>
-          <InputNumber
+          <NumberInput
             value={quantity()}
             onRawValueChange={(v) => {
               if (v !== undefined) {

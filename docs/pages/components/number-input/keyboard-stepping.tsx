@@ -1,4 +1,4 @@
-import { InputNumber } from '@src'
+import { NumberInput } from '@src'
 import { createSignal } from 'solid-js'
 
 export function KeyboardStepping() {
@@ -6,7 +6,7 @@ export function KeyboardStepping() {
 
   return (
     <div class="max-w-sm space-y-3">
-      <InputNumber
+      <NumberInput
         aria-label="Retry delay in seconds"
         rawValue={value()}
         minValue={0}

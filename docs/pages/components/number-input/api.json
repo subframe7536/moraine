@@ -1,18 +1,18 @@
 {
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
-  "key": "input-number",
-  "name": "InputNumber",
-  "description": "Props for the InputNumber component.",
+  "key": "number-input",
+  "name": "NumberInput",
+  "description": "Props for the NumberInput component.",
   "kind": "single",
   "parts": [
     {
-      "id": "input-number",
-      "name": "InputNumber",
+      "id": "number-input",
+      "name": "NumberInput",
       "access": {
         "kind": "export",
-        "name": "InputNumber"
+        "name": "NumberInput"
       },
-      "description": "Props for the InputNumber component.",
+      "description": "Props for the NumberInput component.",
       "defaultElement": "div",
       "props": [
         {
