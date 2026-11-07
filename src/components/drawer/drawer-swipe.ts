@@ -14,6 +14,7 @@ import type { ResolvedDrawerSnapPoint } from './drawer-snap-points'
 import {
   clamp,
   closestSnapPointIndex,
+  resolveSnapPointValue,
   resolveSnapPoints,
   snapPointHeightCss,
 } from './drawer-snap-points'
@@ -40,27 +41,52 @@ function dampen(delta: number): number {
   return -Math.sqrt(-delta)
 }
 
-function findScrollableAncestor(
+interface ScrollableTargets {
+  scrollTarget: HTMLElement | null
+  crossScrollable: boolean
+  scrollRtl: boolean
+}
+
+function findScrollableTargets(
   target: EventTarget | null,
   boundary: HTMLElement,
   vertical: boolean,
-): HTMLElement | null {
+): ScrollableTargets {
   let node = target instanceof Element ? target : null
+  let scrollTarget: HTMLElement | null = null
+  let crossScrollable = false
+  let scrollRtl = false
+
   while (node && node !== boundary) {
     if (node instanceof HTMLElement) {
       const style = node.ownerDocument.defaultView?.getComputedStyle(node)
-      const overflow = vertical ? style?.overflowY : style?.overflowX
-      const canOverflow = overflow === 'auto' || overflow === 'scroll'
-      const hasOverflow = vertical
-        ? node.scrollHeight > node.clientHeight
-        : node.scrollWidth > node.clientWidth
-      if (canOverflow && hasOverflow) {
-        return node
+      if (style) {
+        const mainOverflow = vertical ? style.overflowY : style.overflowX
+        const crossOverflow = vertical ? style.overflowX : style.overflowY
+        if (
+          !scrollTarget &&
+          (mainOverflow === 'auto' || mainOverflow === 'scroll') &&
+          (vertical ? node.scrollHeight > node.clientHeight : node.scrollWidth > node.clientWidth)
+        ) {
+          scrollTarget = node
+          scrollRtl = style.direction === 'rtl'
+        }
+        if (
+          !crossScrollable &&
+          (crossOverflow === 'auto' || crossOverflow === 'scroll') &&
+          (vertical ? node.scrollWidth > node.clientWidth : node.scrollHeight > node.clientHeight)
+        ) {
+          crossScrollable = true
+        }
+        if (scrollTarget && crossScrollable) {
+          break
+        }
       }
     }
     node = node.parentElement
   }
-  return null
+
+  return { scrollTarget, crossScrollable, scrollRtl }
 }
 
 /** Whether `scroller` can still scroll in the direction the finger/pointer moves on screen. */
@@ -108,10 +134,6 @@ function swipeIgnoreMatch(target: EventTarget | null, vertical: boolean, touch: 
   return axis !== 'x' && axis !== 'y' ? true : axis === (vertical ? 'y' : 'x')
 }
 
-function isRtl(element: HTMLElement): boolean {
-  return element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl'
-}
-
 interface DragState {
   startX: number
   startY: number
@@ -151,13 +173,14 @@ function createDrag(
   y: number,
   scrollTarget: HTMLElement | null = null,
   crossScrollable = false,
+  scrollRtl = false,
 ): DragState {
   return {
     startX: x,
     startY: y,
     startTime: performance.now(),
     scrollTarget,
-    scrollRtl: scrollTarget !== null && isRtl(scrollTarget),
+    scrollRtl,
     crossScrollable,
     abandoned: false,
     cancelled: false,
@@ -221,8 +244,17 @@ export function createDrawerSwipe(
     if (active === null || points.length === 0) {
       return 0
     }
-    const [target] = resolveSnapPoints([active], popupHeight(), viewportHeight(), rootFontSize())
-    return target ? points[closestSnapPointIndex(points, target.offset)]!.offset : 0
+    const match = points.find((point) => Object.is(point.value, active))
+    if (match) {
+      return match.offset
+    }
+    const resolvedHeight = resolveSnapPointValue(active, viewportHeight(), rootFontSize())
+    if (resolvedHeight === null) {
+      return 0
+    }
+    const clampedHeight = clamp(resolvedHeight, 0, Math.min(popupHeight(), viewportHeight()))
+    const targetOffset = Math.max(0, popupHeight() - clampedHeight)
+    return points[closestSnapPointIndex(points, targetOffset)]!.offset
   })
 
   // Declared snap points keep a pure-CSS offset (element height minus snap
@@ -241,12 +273,12 @@ export function createDrawerSwipe(
 
   // Within the open-edge bound the drag translates the popup; past it the
   // displacement is rubber-banded so the popup barely gives.
-  const movement = createMemo(() => {
+  const movement = (): number => {
     const raw = displacement()
     const limit = -snapPointOffset()
     const translate = raw >= limit ? raw : limit + dampen(raw - limit)
     return translate * screenSign()
-  })
+  }
 
   const progress = createMemo(() => {
     const size = popupSize()
@@ -356,11 +388,13 @@ export function createDrawerSwipe(
       target = points[closestSnapPointIndex(points, targetOffset)]!
       // A fast dismiss flick closes only from the lowest snap point; elsewhere the
       // velocity-projected target below picks the resting point.
-      if (
-        velocity >= FAST_SWIPE_VELOCITY &&
-        d > 0 &&
-        currentOffset >= Math.max(...points.map((point) => point.offset))
-      ) {
+      let maxOffset = 0
+      for (let index = 0; index < points.length; index += 1) {
+        if (points[index]!.offset > maxOffset) {
+          maxOffset = points[index]!.offset
+        }
+      }
+      if (velocity >= FAST_SWIPE_VELOCITY && d > 0 && currentOffset >= maxOffset) {
         closeSwipe()
         return
       }
@@ -621,11 +655,13 @@ export function createDrawerSwipe(
         return
       }
       const touch = event.touches[0]!
+      const targets = findScrollableTargets(event.target, content, vertical())
       drag = createDrag(
         touch.clientX,
         touch.clientY,
-        findScrollableAncestor(event.target, content, vertical()),
-        findScrollableAncestor(event.target, content, !vertical()) !== null,
+        targets.scrollTarget,
+        targets.crossScrollable,
+        targets.scrollRtl,
       )
       drag.touchId = touch.identifier
     }

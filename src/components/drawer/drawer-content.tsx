@@ -153,18 +153,20 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
             drawer.nested.activeCount,
             drawer.nested.frontmostHeight,
             family.open,
-            swipe.swiping,
-            swipe.progress,
           ],
-          ([openCount, activeCount, frontmostHeight, isOpen, swiping, progress]) => {
+          ([openCount, activeCount, frontmostHeight, isOpen]) => {
             parent.report({
               open: openCount + 1,
               active: isOpen ? activeCount + 1 : 0,
               frontmostHeight: isOpen ? frontmostHeight : 0,
             })
-            parent.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
           },
         ),
+      )
+      createEffect(
+        on([family.open, swipe.swiping, swipe.progress], ([isOpen, swiping, progress]) => {
+          parent.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
+        }),
       )
       onCleanup(() => {
         parent.report({ open: 0, active: 0, frontmostHeight: 0 })

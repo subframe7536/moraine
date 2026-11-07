@@ -97,25 +97,27 @@ export function resolveSnapPoints(
   }
 
   const maxHeight = Math.min(popupHeight, viewportHeight)
+  const deduped: ResolvedDrawerSnapPoint[] = []
 
-  const resolved = snapPoints.flatMap((value): ResolvedDrawerSnapPoint[] => {
+  // Iterate backwards so later entries take precedence when heights match within 1px
+  for (let index = snapPoints.length - 1; index >= 0; index -= 1) {
+    const value = snapPoints[index]!
     const resolvedHeight = resolveSnapPointValue(value, viewportHeight, rootFontSize)
     if (resolvedHeight === null) {
-      return []
+      continue
     }
 
     const clampedHeight = clamp(resolvedHeight, 0, maxHeight)
-    return [{ value, height: clampedHeight, offset: Math.max(0, popupHeight - clampedHeight) }]
-  })
-
-  const deduped: ResolvedDrawerSnapPoint[] = []
-  for (let index = resolved.length - 1; index >= 0; index -= 1) {
-    const point = resolved[index]!
-    const isDuplicate = deduped.some((kept) => Math.abs(kept.height - point.height) <= 1)
-    if (!isDuplicate) {
-      deduped.unshift(point)
+    if (deduped.some((kept) => Math.abs(kept.height - clampedHeight) <= 1)) {
+      continue
     }
+
+    deduped.push({
+      value,
+      height: clampedHeight,
+      offset: Math.max(0, popupHeight - clampedHeight),
+    })
   }
 
-  return deduped
+  return deduped.reverse()
 }
