@@ -18,6 +18,7 @@ import { defaultKbdMessages } from '../../components/kbd/kbd.messages'
 import { defaultMultiSelectMessages } from '../../components/multi-select/multi-select.messages'
 import { Pagination } from '../../components/pagination/pagination'
 import { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
+import { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import { defaultProgressMessages } from '../../components/progress/progress.messages'
 import { defaultResizableMessages } from '../../components/resizable/resizable.messages'
 import { defaultSelectMessages } from '../../components/select/select.messages'
@@ -47,6 +48,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   multiSelect: defaultMultiSelectMessages,
   slider: defaultSliderMessages,
   pagination: defaultPaginationMessages,
+  pinInput: defaultPinInputMessages,
   inputNumber: defaultInputNumberMessages,
   fileUpload: defaultFileUploadMessages,
   tagsField: defaultTagsFieldMessages,

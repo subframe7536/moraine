@@ -191,6 +191,11 @@
       "category": "navigation"
     },
     {
+      "key": "pin-input",
+      "name": "PinInput",
+      "category": "form"
+    },
+    {
       "key": "popover",
       "name": "Popover",
       "category": "overlay"
