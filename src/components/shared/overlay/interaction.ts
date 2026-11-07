@@ -158,6 +158,17 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
 
         options.onActivate?.(context)
 
+        let pointerDownInside = false
+        let pointerDownInsideTimeoutId: ReturnType<typeof setTimeout> | undefined
+
+        const clearPointerDownInside = (): void => {
+          if (pointerDownInsideTimeoutId !== undefined) {
+            clearTimeout(pointerDownInsideTimeoutId)
+            pointerDownInsideTimeoutId = undefined
+          }
+          pointerDownInside = false
+        }
+
         const onDocumentPointerDown = (event: PointerEvent): void => {
           beginPointerInteraction(ownerDocument, event)
           const target = event.target
@@ -165,19 +176,32 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
             .composedPath()
             .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
           if (isNode(target) && (isInside(target) || pathIsInside)) {
+            pointerDownInside = true
+            if (pointerDownInsideTimeoutId !== undefined) {
+              clearTimeout(pointerDownInsideTimeoutId)
+              pointerDownInsideTimeoutId = undefined
+            }
             options.onPointerDownInside?.(event, context)
             return
           }
 
+          pointerDownInside = false
           outsidePress.pointerdown(event)
         }
         const onDocumentPointerUp = (event: PointerEvent): void => {
           outsidePress.pointerup(event)
           completePointerInteraction(ownerDocument, event)
+          if (pointerDownInside) {
+            if (pointerDownInsideTimeoutId !== undefined) {
+              clearTimeout(pointerDownInsideTimeoutId)
+            }
+            pointerDownInsideTimeoutId = setTimeout(clearPointerDownInside, 0)
+          }
         }
         const onDocumentPointerCancel = (event: PointerEvent): void => {
           outsidePress.pointercancel(event)
           cancelPointerInteraction(ownerDocument, event)
+          clearPointerDownInside()
         }
         const onDocumentFocusIn = (event: FocusEvent): void => {
           const target = event.target
@@ -206,6 +230,10 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
           },
         })
         const onDocumentClick = (event: MouseEvent): void => {
+          if (pointerDownInside) {
+            clearPointerDownInside()
+            return
+          }
           const target = event.target
           const pathIsInside = event
             .composedPath()
@@ -237,6 +265,7 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         })
 
         onCleanup(() => {
+          clearPointerDownInside()
           outsidePress.dispose()
           composition.dispose()
           options.onDeactivate?.(context)

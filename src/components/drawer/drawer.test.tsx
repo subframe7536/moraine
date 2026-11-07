@@ -1611,4 +1611,36 @@ describe('Drawer', () => {
     expect(onParentChange).not.toHaveBeenCalled()
     expect(parent.style.getPropertyValue('--drawer-swipe-movement')).toBe('0px')
   })
+
+  test('releasing a selection started inside Drawer.Body onto the overlay does not close', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Selectable body text</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const drawerBody = document.body.querySelector('[data-slot="drawer-body"]')!
+    const drawerOverlay = document.body.querySelector('[data-slot="drawer-overlay"]')!
+
+    // Pointer down inside Drawer.Body (user starts selecting text)
+    fireEvent.pointerDown(drawerBody, { pointerType: 'mouse', button: 0 })
+    // Pointer up on overlay (user dragged selection onto overlay and released)
+    fireEvent.pointerUp(drawerOverlay, { pointerType: 'mouse', button: 0 })
+    // Browser fires click on the overlay / common ancestor
+    fireEvent.click(drawerOverlay)
+
+    // The drawer should remain open!
+    expect(onOpenChange).not.toHaveBeenCalledWith(false)
+    expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
+
+    // Clicking directly on the overlay still closes the drawer
+    fireEvent.pointerDown(drawerOverlay, { pointerType: 'mouse', button: 0 })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })
