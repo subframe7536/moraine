@@ -10,13 +10,7 @@ export function Alphanumeric() {
         label="Backup Recovery Key"
         description="Enter your 8-character alphanumeric recovery key."
       >
-        <PinInput
-          type="alphanumeric"
-          length={8}
-          separator={4}
-          placeholder="·"
-          onComplete={(val) => setCode(val)}
-        />
+        <PinInput type="alphanumeric" length={8} separator={4} onComplete={(val) => setCode(val)} />
       </Field>
       <Show when={code()}>
         <p class="text-xs text-muted-foreground font-mono">Recovery key: {code()}</p>

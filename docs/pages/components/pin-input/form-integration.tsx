@@ -25,7 +25,7 @@ export function FormIntegration() {
           description="Enter the 6-digit code sent to your device."
           required
         >
-          <PinInput length={6} separator type="number" otp placeholder="○" />
+          <PinInput length={6} separator type="number" otp />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="soft" tone="neutral" size="sm">

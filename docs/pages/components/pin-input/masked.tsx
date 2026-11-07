@@ -10,7 +10,7 @@ export function Masked() {
         label="Transaction PIN"
         description="Enter your 4-digit security PIN for confirmation."
       >
-        <PinInput type="number" length={4} mask placeholder="•" onComplete={(val) => setPin(val)} />
+        <PinInput type="number" length={4} mask onComplete={(val) => setPin(val)} />
       </Field>
       <Show when={pin()}>
         <p class="text-xs text-muted-foreground">PIN entered ({pin().length} digits)</p>
