@@ -35,6 +35,7 @@ import type { MultiSelectStyleConfig } from '../components/multi-select/multi-se
 import type { NavigationMenuStyleConfig } from '../components/navigation-menu/navigation-menu.style-types'
 import type { NumberInputStyleConfig } from '../components/number-input/number-input.style-types'
 import type { PaginationStyleConfig } from '../components/pagination/pagination.style-types'
+import type { PinInputStyleConfig } from '../components/pin-input/pin-input.style-types'
 import type { PopoverStyleConfig } from '../components/popover/popover.style-types'
 import type { ProgressStyleConfig } from '../components/progress/progress.style-types'
 import type { RadioGroupStyleConfig } from '../components/radio-group/radio-group.style-types'
@@ -107,6 +108,7 @@ export interface MoraineStyleSchema {
   breadcrumb: BreadcrumbStyleConfig
   commandPalette: CommandPaletteStyleConfig
   pagination: PaginationStyleConfig
+  pinInput: PinInputStyleConfig
   sidebar: SidebarStyleConfig
   stepper: StepperStyleConfig
   table: TableStyleConfig

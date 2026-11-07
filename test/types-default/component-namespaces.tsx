@@ -33,6 +33,7 @@ import type {
   ModalT,
   MultiSelectT,
   PaginationT,
+  PinInputT,
   PopoverT,
   ProgressT,
   RadioGroupT,
@@ -214,6 +215,13 @@ export type ComponentNamespaceHeaders = {
     PaginationT.Variants,
     PaginationT.Classes,
     PaginationT.Styles
+  >
+  PinInput: Header<
+    PinInputT.Kind,
+    PinInputT.Slot,
+    PinInputT.Variants,
+    PinInputT.Classes,
+    PinInputT.Styles
   >
   Popover: Header<
     PopoverT.Kind,

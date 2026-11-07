@@ -18,6 +18,7 @@ import { NumberInput } from '../../components/number-input/number-input'
 import { defaultNumberInputMessages } from '../../components/number-input/number-input.messages'
 import { Pagination } from '../../components/pagination/pagination'
 import { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
+import { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import { defaultProgressMessages } from '../../components/progress/progress.messages'
 import { defaultResizableMessages } from '../../components/resizable/resizable.messages'
 import { defaultSelectMessages } from '../../components/select/select.messages'
@@ -47,6 +48,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   multiSelect: defaultMultiSelectMessages,
   slider: defaultSliderMessages,
   pagination: defaultPaginationMessages,
+  pinInput: defaultPinInputMessages,
   numberInput: defaultNumberInputMessages,
   fileUpload: defaultFileUploadMessages,
   tagsField: defaultTagsFieldMessages,

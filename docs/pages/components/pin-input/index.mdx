@@ -1,0 +1,77 @@
+---
+title: PinInput
+description: Enter pins and verification codes with automatic focus advance and clipboard support.
+group: Form
+api:
+  path: src/components/pin-input/pin-input
+search:
+  tags: [pin, otp, one-time password, code, verification, 2fa]
+---
+
+import Playground from './playground'
+
+<Playground />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [{ slot: 'input' }, { slot: 'separator' }],
+  }}
+/>
+
+## Usage
+
+Use `PinInput` for verification codes, OTPs, or numerical PINs.
+
+```tsx
+import { PinInput } from 'moraine'
+
+export function Example() {
+  return <PinInput length={6} placeholder="○" onComplete={(code) => console.log(code)} />
+}
+```
+
+### Type and Mask
+
+Use the `type` prop to restrict inputs to `'number'`, `'text'`, or `'alphanumeric'`. Use `mask` to conceal digits like a password input.
+
+```tsx
+<PinInput type="number" mask length={4} />
+```
+
+### OTP Auto-fill
+
+Use `otp` to enable one-time code autocomplete (`autocomplete="one-time-code"`), letting mobile devices auto-fill codes from SMS messages.
+
+```tsx
+<PinInput otp length={6} />
+```
+
+### Separators
+
+Use the `separator` prop to insert separators between input groups:
+
+```tsx
+<PinInput length={6} separator={3} />
+```
+
+### Keyboard interaction
+
+| Key                   | Description                                                |
+| --------------------- | ---------------------------------------------------------- |
+| <kbd>ArrowLeft</kbd>  | Moves focus to the previous input (in RTL, next).          |
+| <kbd>ArrowRight</kbd> | Moves focus to the next input (in RTL, previous).          |
+| <kbd>Home</kbd>       | Moves focus to the first input.                            |
+| <kbd>End</kbd>        | Moves focus to the last input.                             |
+| <kbd>Backspace</kbd>  | Deletes character in slot or previous slot and moves back. |
+| <kbd>Delete</kbd>     | Clears character in the focused slot.                      |
+
+## Examples
+
+### One-Time Password verification
+
+Use `otp` and `separator` for multi-group SMS code verification.
+
+<Preview path="./otp-example" />

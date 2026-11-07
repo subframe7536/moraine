@@ -151,11 +151,6 @@
       "category": "form"
     },
     {
-      "key": "number-input",
-      "name": "NumberInput",
-      "category": "form"
-    },
-    {
       "key": "kbd",
       "name": "Kbd",
       "category": "display"
@@ -186,9 +181,19 @@
       "category": "navigation"
     },
     {
+      "key": "number-input",
+      "name": "NumberInput",
+      "category": "form"
+    },
+    {
       "key": "pagination",
       "name": "Pagination",
       "category": "navigation"
+    },
+    {
+      "key": "pin-input",
+      "name": "PinInput",
+      "category": "form"
     },
     {
       "key": "popover",

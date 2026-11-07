@@ -106,6 +106,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── multi-select/       # Collection-backed multiple selection.
 │   ├── navigation-menu/    # Navigation menu with triggers and content panels.
 │   ├── pagination/         # Pagination controls.
+│   ├── pin-input/          # Pin and OTP input control.
 │   ├── popover/            # Popover overlay.
 │   ├── progress/           # Progress indicators.
 │   ├── radio-group/        # Radio group control.
