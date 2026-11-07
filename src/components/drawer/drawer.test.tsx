@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { createSignal, untrack } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
@@ -18,7 +19,51 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  // Tests may stub `window.visualViewport`; jsdom does not define one.
+  Reflect.deleteProperty(window, 'visualViewport')
+  Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
 })
+
+/**
+ * Dispatches a PointerEvent whose `timeStamp` is the mocked clock: jsdom stamps
+ * events from the real `perf_hooks` clock, so `fireEvent.pointer*` timing is
+ * untestable.
+ */
+function firePointer(target: EventTarget, type: string, init: PointerEventInit): void {
+  const event = new PointerEvent(type, { bubbles: true, cancelable: true, ...init })
+  Object.defineProperty(event, 'timeStamp', { value: now })
+  target.dispatchEvent(event)
+}
+
+interface TouchPoint {
+  identifier: number
+  clientX: number
+  clientY: number
+}
+
+/**
+ * Dispatches a TouchEvent with `timeStamp` from the mocked clock.
+ * `target` receives the event through bubbling like a real touch.
+ */
+function fireTouch(
+  target: EventTarget,
+  type: string,
+  {
+    touches = [],
+    changedTouches = touches,
+    cancelable = true,
+  }: { touches?: TouchPoint[]; changedTouches?: TouchPoint[]; cancelable?: boolean },
+): void {
+  const event = new TouchEvent(type, {
+    bubbles: true,
+    cancelable,
+    // jsdom converts plain touch descriptors; no `Touch` global exists there.
+    touches: touches as Touch[],
+    changedTouches: changedTouches as Touch[],
+  })
+  Object.defineProperty(event, 'timeStamp', { value: now })
+  target.dispatchEvent(event)
+}
 
 function content(): HTMLElement {
   const element = document.body.querySelector<HTMLElement>('[data-slot="drawer-content"]')
@@ -51,7 +96,7 @@ function dragPointer(
     release = true,
   }: { steps?: number; stepMs?: number; release?: boolean } = {},
 ): void {
-  fireEvent.pointerDown(target, {
+  firePointer(target, 'pointerdown', {
     pointerId: 1,
     pointerType: 'mouse',
     button: 0,
@@ -61,7 +106,7 @@ function dragPointer(
   })
   for (let index = 1; index <= steps; index += 1) {
     now += stepMs
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -70,7 +115,7 @@ function dragPointer(
     })
   }
   if (release) {
-    fireEvent.pointerUp(document, {
+    firePointer(document, 'pointerup', {
       pointerId: 1,
       pointerType: 'mouse',
       clientX: to.x,
@@ -184,7 +229,7 @@ describe('Drawer', () => {
 
     // Continue past the half-height threshold (200px of 400px) slowly.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -192,14 +237,19 @@ describe('Drawer', () => {
       clientY: 120,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
       clientX: 0,
       clientY: 360,
     })
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 360 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 360,
+    })
 
     expect(onOpenChange).toHaveBeenCalledWith(false)
     await finishExitMotion()
@@ -262,7 +312,7 @@ describe('Drawer', () => {
     )
 
     // Pull down 100px quickly, then pause motionless for 120ms (> MAX_RELEASE_VELOCITY_AGE_MS 80ms).
-    fireEvent.pointerDown(content(), {
+    firePointer(content(), 'pointerdown', {
       pointerId: 1,
       pointerType: 'mouse',
       button: 0,
@@ -271,7 +321,7 @@ describe('Drawer', () => {
       clientY: 100,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -279,7 +329,7 @@ describe('Drawer', () => {
       clientY: 200,
     })
     now += 120
-    fireEvent.pointerUp(document, {
+    firePointer(document, 'pointerup', {
       pointerId: 1,
       pointerType: 'mouse',
       clientX: 0,
@@ -313,7 +363,12 @@ describe('Drawer', () => {
     expect(movementValue()).toBe('-10px')
     expect(content().style.height).toBe('')
 
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 75,
+    })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(movementValue()).toBe('0px')
     expect(content().style.height).toBe('')
@@ -337,7 +392,12 @@ describe('Drawer', () => {
     expect(movementValue()).toBe('-10px')
     expect(content().style.height).toBe('')
 
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 75 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 75,
+    })
     expect(movementValue()).toBe('0px')
     expect(content().style.height).toBe('')
   })
@@ -367,7 +427,12 @@ describe('Drawer', () => {
     expect(movementValue()).toBe('100px')
     expect(content().style.height).toBe('')
 
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 225 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 225,
+    })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(movementValue()).toBe('0px')
     expect(content().style.height).toBe('')
@@ -795,7 +860,7 @@ describe('Drawer', () => {
     )
 
     const el = content()
-    fireEvent.pointerDown(el, {
+    firePointer(el, 'pointerdown', {
       pointerId: 1,
       pointerType: 'mouse',
       button: 0,
@@ -803,7 +868,7 @@ describe('Drawer', () => {
       clientY: 100,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -811,7 +876,7 @@ describe('Drawer', () => {
       clientY: 150,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -821,7 +886,7 @@ describe('Drawer', () => {
     expect(el.hasAttribute('data-swiping')).toBe(true)
 
     // The competing pointer is ignored: it registers no drag of its own.
-    fireEvent.pointerDown(el, {
+    firePointer(el, 'pointerdown', {
       pointerId: 2,
       pointerType: 'mouse',
       button: 0,
@@ -830,20 +895,30 @@ describe('Drawer', () => {
     })
 
     // Releasing the first pointer settles below the threshold and stays open.
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 170 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 170,
+    })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(movementValue()).toBe('0px')
 
     // The ignored pointer keeps no document listeners that could drive a stale gesture.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 2,
       pointerType: 'mouse',
       buttons: 1,
       clientX: 0,
       clientY: 380,
     })
-    fireEvent.pointerUp(document, { pointerId: 2, pointerType: 'mouse', clientX: 0, clientY: 380 })
+    firePointer(document, 'pointerup', {
+      pointerId: 2,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 380,
+    })
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(el.hasAttribute('data-swiping')).toBe(false)
     expect(movementValue()).toBe('0px')
@@ -1002,7 +1077,7 @@ describe('Drawer', () => {
     )
 
     const el = content()
-    fireEvent.pointerDown(el, {
+    firePointer(el, 'pointerdown', {
       pointerId: 1,
       pointerType: 'mouse',
       button: 0,
@@ -1010,7 +1085,7 @@ describe('Drawer', () => {
       clientY: 100,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1018,7 +1093,7 @@ describe('Drawer', () => {
       clientY: 160,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1026,7 +1101,7 @@ describe('Drawer', () => {
       clientY: 300,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1037,7 +1112,7 @@ describe('Drawer', () => {
 
     // Pulling back up marks the gesture as a change of mind.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1045,14 +1120,19 @@ describe('Drawer', () => {
       clientY: 390,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
       clientX: 0,
       clientY: 380,
     })
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 380 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 380,
+    })
 
     // The release still lands past the 200px threshold, but the reversal cancels it.
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -1073,7 +1153,7 @@ describe('Drawer', () => {
     )
 
     const el = content()
-    fireEvent.pointerDown(el, {
+    firePointer(el, 'pointerdown', {
       pointerId: 1,
       pointerType: 'mouse',
       button: 0,
@@ -1081,7 +1161,7 @@ describe('Drawer', () => {
       clientY: 100,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1089,7 +1169,7 @@ describe('Drawer', () => {
       clientY: 160,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1100,7 +1180,7 @@ describe('Drawer', () => {
 
     // A trailing move with buttons: 0 is the release even when no pointerup arrives.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 0,
@@ -1111,7 +1191,7 @@ describe('Drawer', () => {
 
     // The drag is over: further moves are ignored.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 0,
@@ -1135,7 +1215,7 @@ describe('Drawer', () => {
     )
 
     const el = content()
-    fireEvent.pointerDown(el, {
+    firePointer(el, 'pointerdown', {
       pointerId: 1,
       pointerType: 'mouse',
       button: 0,
@@ -1143,7 +1223,7 @@ describe('Drawer', () => {
       clientY: 100,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1151,7 +1231,7 @@ describe('Drawer', () => {
       clientY: 160,
     })
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 1,
@@ -1162,7 +1242,7 @@ describe('Drawer', () => {
 
     // A right-click taking over the interaction cancels the swipe.
     now += 20
-    fireEvent.pointerMove(document, {
+    firePointer(document, 'pointermove', {
       pointerId: 1,
       pointerType: 'mouse',
       buttons: 2,
@@ -1172,7 +1252,12 @@ describe('Drawer', () => {
     expect(el.hasAttribute('data-swiping')).toBe(false)
     expect(movementValue()).toBe('0px')
 
-    fireEvent.pointerUp(document, { pointerId: 1, pointerType: 'mouse', clientX: 0, clientY: 320 })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 320,
+    })
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
@@ -1241,6 +1326,560 @@ describe('Drawer', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(content().hasAttribute('data-swiping')).toBe(false)
+  })
+
+  test('a touch drag starting on a button inside the content swipes the drawer', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <button type="button">Action</button>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const button = document.body.querySelector<HTMLElement>('button')!
+    fireTouch(button, 'touchstart', { touches: [{ identifier: 11, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 11, clientX: 0, clientY: 210 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 11, clientX: 0, clientY: 260 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    expect(movementValue()).toBe('50px')
+
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 11, clientX: 0, clientY: 460 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 11, clientX: 0, clientY: 460 }],
+    })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('a claimed touch drag keeps tracking through a non-cancelable touchmove', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 12, clientX: 0, clientY: 100 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 12, clientX: 0, clientY: 110 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 12, clientX: 0, clientY: 130 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+
+    // The browser may emit non-cancelable moves once a drag is in flight; a
+    // claimed gesture still follows the finger.
+    fireTouch(el, 'touchmove', {
+      touches: [{ identifier: 12, clientX: 0, clientY: 200 }],
+      cancelable: false,
+    })
+    expect(movementValue()).toBe('90px')
+    fireTouch(el, 'touchmove', {
+      touches: [{ identifier: 12, clientX: 0, clientY: 360 }],
+      cancelable: false,
+    })
+    fireTouch(el, 'touchend', {
+      changedTouches: [{ identifier: 12, clientX: 0, clientY: 360 }],
+    })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('cross-axis jitter without a cross-axis consumer does not kill the gesture', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 13, clientX: 100, clientY: 200 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 13, clientX: 100, clientY: 202 }] })
+    // A diagonal wobble leads on the cross axis, but nothing consumes it there.
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 13, clientX: 110, clientY: 202 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // Once the drag straightens onto the dismiss axis the drawer claims it.
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 13, clientX: 115, clientY: 240 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    fireTouch(el, 'touchend', {
+      changedTouches: [{ identifier: 13, clientX: 115, clientY: 240 }],
+    })
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('a cross-axis marked element permanently owns cross-dominant gestures', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <div data-swipe-ignore="x">
+              <span>Horizontal control</span>
+            </div>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const target = document.body.querySelector<HTMLElement>('[data-swipe-ignore="x"] span')!
+    fireTouch(target, 'touchstart', { touches: [{ identifier: 14, clientX: 100, clientY: 200 }] })
+    fireTouch(target, 'touchmove', { touches: [{ identifier: 14, clientX: 100, clientY: 202 }] })
+    fireTouch(target, 'touchmove', { touches: [{ identifier: 14, clientX: 130, clientY: 202 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // The element already owns the gesture, so a vertical turn keeps it.
+    fireTouch(target, 'touchmove', { touches: [{ identifier: 14, clientX: 135, clientY: 260 }] })
+    fireTouch(target, 'touchend', {
+      changedTouches: [{ identifier: 14, clientX: 135, clientY: 260 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('an outer all-direction data-swipe-ignore wins over a nested axis value', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <div data-swipe-ignore>
+              <div data-swipe-ignore="x">
+                <button type="button">Ignored</button>
+              </div>
+            </div>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const button = document.body.querySelector<HTMLElement>('button')!
+    fireTouch(button, 'touchstart', { touches: [{ identifier: 15, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 15, clientX: 0, clientY: 260 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 15, clientX: 0, clientY: 460 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 15, clientX: 0, clientY: 460 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('a scrollable body at its edge keeps opposite-direction drags', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Scrollable body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const body = document.body.querySelector<HTMLElement>('[data-slot="drawer-body"]')!
+    body.style.overflowY = 'auto'
+    // Scrolled to the bottom edge: the scroller cannot move up or down.
+    Object.defineProperty(body, 'scrollTop', { value: 600, configurable: true })
+    Object.defineProperty(body, 'scrollHeight', { value: 800, configurable: true })
+    Object.defineProperty(body, 'clientHeight', { value: 200, configurable: true })
+
+    // Dragging away from the dismiss direction stays with native overscroll
+    // instead of rubber-banding the drawer.
+    fireTouch(body, 'touchstart', { touches: [{ identifier: 16, clientX: 0, clientY: 200 }] })
+    fireTouch(body, 'touchmove', { touches: [{ identifier: 16, clientX: 0, clientY: 190 }] })
+    fireTouch(body, 'touchmove', { touches: [{ identifier: 16, clientX: 0, clientY: 150 }] })
+    fireTouch(body, 'touchmove', { touches: [{ identifier: 16, clientX: 0, clientY: 100 }] })
+    fireTouch(body, 'touchend', {
+      changedTouches: [{ identifier: 16, clientX: 0, clientY: 100 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(movementValue()).toBe('0px')
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('a touch drag does not start while text is selected inside the drawer', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <p>Selectable text</p>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const paragraph = document.body.querySelector<HTMLElement>('p')!
+    const range = document.createRange()
+    range.selectNodeContents(paragraph)
+    const selection = document.getSelection()!
+    selection.removeAllRanges()
+    selection.addRange(range)
+
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 17, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 17, clientX: 0, clientY: 300 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 17, clientX: 0, clientY: 300 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    // Once the selection collapses the same gesture swipes again.
+    selection.removeAllRanges()
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 18, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 18, clientX: 0, clientY: 210 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 18, clientX: 0, clientY: 260 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 18, clientX: 0, clientY: 260 }],
+    })
+  })
+
+  test('a touch drag does not start while an input inside the drawer has a selection', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <input value="selected text" />
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const input = document.body.querySelector<HTMLInputElement>('input')!
+    input.focus()
+    input.setSelectionRange(0, 8)
+    expect(document.activeElement).toBe(input)
+
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 19, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 19, clientX: 0, clientY: 300 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 19, clientX: 0, clientY: 300 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    input.setSelectionRange(0, 0)
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 20, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 20, clientX: 0, clientY: 210 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 20, clientX: 0, clientY: 260 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 20, clientX: 0, clientY: 260 }],
+    })
+  })
+
+  test('default-prevented presses and pending moves do not start a swipe', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <div data-testid="claim">Self-managed control</div>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const claim = document.body.querySelector<HTMLElement>('[data-testid="claim"]')!
+    const prevent = (event: Event) => event.preventDefault()
+
+    // A press a descendant already claimed is not a swipe.
+    claim.addEventListener('pointerdown', prevent)
+    dragPointer(claim, { x: 0, y: 200 }, { x: 0, y: 400 }, { steps: 4, stepMs: 20 })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // Same for touch.
+    claim.addEventListener('touchstart', prevent)
+    fireTouch(claim, 'touchstart', { touches: [{ identifier: 21, clientX: 0, clientY: 200 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 21, clientX: 0, clientY: 300 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 21, clientX: 0, clientY: 300 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // A descendant claiming the gesture while the swipe is still pending wins
+    // for the rest of the drag — same for touch.
+    claim.removeEventListener('touchstart', prevent)
+    el.addEventListener('touchmove', prevent)
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 22, clientX: 0, clientY: 200 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 22, clientX: 0, clientY: 210 }] })
+    el.removeEventListener('touchmove', prevent)
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 22, clientX: 0, clientY: 300 }] })
+    fireTouch(document, 'touchmove', { touches: [{ identifier: 22, clientX: 0, clientY: 400 }] })
+    fireTouch(document, 'touchend', {
+      changedTouches: [{ identifier: 22, clientX: 0, clientY: 400 }],
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+
+    // And for pointer.
+    claim.removeEventListener('pointerdown', prevent)
+    document.addEventListener('pointermove', prevent)
+    firePointer(el, 'pointerdown', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 0,
+      clientY: 200,
+    })
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 210,
+    })
+    document.removeEventListener('pointermove', prevent)
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 300,
+    })
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 400,
+    })
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 400,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('a mouse drag inside a scrollable child does not swipe the drawer', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <div data-testid="scroller">Scrollable card</div>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const scroller = document.body.querySelector<HTMLElement>('[data-testid="scroller"]')!
+    scroller.style.overflowY = 'auto'
+    Object.defineProperty(scroller, 'scrollHeight', { value: 800, configurable: true })
+    Object.defineProperty(scroller, 'clientHeight', { value: 200, configurable: true })
+    Object.defineProperty(scroller, 'scrollTop', { value: 0, configurable: true })
+
+    dragPointer(scroller, { x: 0, y: 100 }, { x: 0, y: 400 }, { steps: 4, stepMs: 20 })
+    expect(el.hasAttribute('data-swiping')).toBe(false)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('grabbing the drawer mid enter animation continues from the visual translate', async () => {
+    render(() => (
+      <Drawer defaultOpen>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    const original = window.getComputedStyle
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((target, pseudo) => {
+      const style = original.call(window, target, pseudo)
+      if (target !== el) {
+        return style
+      }
+      // The enter animation is still 120px from its resting transform.
+      return new Proxy(style, {
+        get(object, property) {
+          return property === 'transform'
+            ? 'matrix(1, 0, 0, 1, 0, 120)'
+            : Reflect.get(object, property)
+        },
+      })
+    })
+
+    firePointer(el, 'pointerdown', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 0,
+      clientY: 300,
+    })
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 290,
+    })
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 280,
+    })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    // The drag subtracts from the captured 120px translate instead of restarting at 0.
+    expect(movementValue()).toBe('110px')
+
+    vi.restoreAllMocks()
+    firePointer(document, 'pointermove', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      buttons: 1,
+      clientX: 0,
+      clientY: 100,
+    })
+    // Past the open edge the captured baseline rubber-bands too.
+    expect(movementValue()).toContain('-8.36')
+    firePointer(document, 'pointerup', {
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 100,
+    })
+    expect(movementValue()).toBe('0px')
+  })
+
+  test('visual viewport resize updates resolved snap point offsets', async () => {
+    const stub = new EventTarget() as VisualViewport
+    Object.defineProperty(stub, 'height', { value: 400, writable: true, configurable: true })
+    Object.defineProperty(stub, 'offsetTop', { value: 0, writable: true, configurable: true })
+    Object.defineProperty(window, 'visualViewport', { value: stub, configurable: true })
+    // The keyboard-inset effect calls it on the focused content; unimplemented in jsdom.
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      value: () => {},
+      configurable: true,
+      writable: true,
+    })
+
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen snapPoints={[0.5]} snapPoint={0.5} onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const el = content()
+    fireTouch(el, 'touchstart', { touches: [{ identifier: 22, clientX: 0, clientY: 400 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 22, clientX: 0, clientY: 390 }] })
+    fireTouch(el, 'touchmove', { touches: [{ identifier: 22, clientX: 0, clientY: 100 }] })
+    expect(el.hasAttribute('data-swiping')).toBe(true)
+    // Snap offset = 400 - 0.5 * 400 = 200: the open-edge limit rubber-bands at -200.
+    expect(movementValue()).toContain('-209.48')
+
+    // The visible viewport shrank (e.g. on-screen keyboard): the limit follows.
+    Object.defineProperty(stub, 'height', { value: 300, configurable: true })
+    stub.dispatchEvent(new Event('resize'))
+    expect(movementValue()).toContain('-256.32')
+
+    fireTouch(el, 'touchend', {
+      changedTouches: [{ identifier: 22, clientX: 0, clientY: 100 }],
+    })
+  })
+
+  test('closing the last nested drawer re-measures the parent size', async () => {
+    const onOpenChange = vi.fn()
+    function Nested(): JSX.Element {
+      const [open, setOpen] = createSignal(true)
+      return (
+        <Drawer open={open()} onOpenChange={setOpen}>
+          <Drawer.Content>
+            <Drawer.Body>Child</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      )
+    }
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>
+            <Nested />
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(2),
+    )
+
+    const parent = document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')[0]!
+    // While the stack pins the parent measurement its real height changes.
+    Object.defineProperty(parent, 'offsetHeight', { value: 500, configurable: true })
+
+    // Close the child; the parent's measured size is picked up again.
+    dragPointer(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="drawer-content"]')[1]!,
+      { x: 0, y: 100 },
+      { x: 0, y: 400 },
+      { steps: 4, stepMs: 20 },
+    )
+    await finishExitMotion()
+    await waitFor(() =>
+      expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(1),
+    )
+
+    // The dismiss threshold tracks the new height: 220px is below 500 * 0.5.
+    dragPointer(parent, { x: 0, y: 100 }, { x: 0, y: 320 }, { steps: 4, stepMs: 120 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(parent.style.getPropertyValue('--drawer-swipe-movement')).toBe('0px')
   })
 
   test('an open nested drawer disables the parent swipe', async () => {
@@ -1359,7 +1998,7 @@ describe('Drawer', () => {
       Object.defineProperty(child, 'offsetHeight', { value: 400, configurable: true })
       fireEvent(window, new Event('resize'))
 
-      fireEvent.pointerDown(child, {
+      firePointer(child, 'pointerdown', {
         pointerId: 1,
         pointerType: 'mouse',
         button: 0,
@@ -1367,7 +2006,7 @@ describe('Drawer', () => {
         clientY: 100,
       })
       now += 20
-      fireEvent.pointerMove(document, {
+      firePointer(document, 'pointermove', {
         pointerId: 1,
         pointerType: 'mouse',
         buttons: 1,
@@ -1375,7 +2014,7 @@ describe('Drawer', () => {
         clientY: 160,
       })
       now += 20
-      fireEvent.pointerMove(document, {
+      firePointer(document, 'pointermove', {
         pointerId: 1,
         pointerType: 'mouse',
         buttons: 1,
@@ -1387,7 +2026,7 @@ describe('Drawer', () => {
       expect(parent.hasAttribute('data-nested-swiping')).toBe(true)
       expect(parent.style.getPropertyValue('--drawer-nested-progress')).toBe('0.25')
 
-      fireEvent.pointerUp(document, {
+      firePointer(document, 'pointerup', {
         pointerId: 1,
         pointerType: 'mouse',
         clientX: 0,
@@ -1629,9 +2268,9 @@ describe('Drawer', () => {
     const drawerOverlay = document.body.querySelector('[data-slot="drawer-overlay"]')!
 
     // Pointer down inside Drawer.Body (user starts selecting text)
-    fireEvent.pointerDown(drawerBody, { pointerType: 'mouse', button: 0 })
+    firePointer(drawerBody, 'pointerdown', { pointerType: 'mouse', button: 0 })
     // Pointer up on overlay (user dragged selection onto overlay and released)
-    fireEvent.pointerUp(drawerOverlay, { pointerType: 'mouse', button: 0 })
+    firePointer(drawerOverlay, 'pointerup', { pointerType: 'mouse', button: 0 })
     // Browser fires click on the overlay / common ancestor
     fireEvent.click(drawerOverlay)
 
@@ -1640,7 +2279,7 @@ describe('Drawer', () => {
     expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
 
     // Clicking directly on the overlay still closes the drawer
-    fireEvent.pointerDown(drawerOverlay, { pointerType: 'mouse', button: 0 })
+    firePointer(drawerOverlay, 'pointerdown', { pointerType: 'mouse', button: 0 })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 })
