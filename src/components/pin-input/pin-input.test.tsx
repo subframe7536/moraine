@@ -473,4 +473,26 @@ describe('PinInput', () => {
     expect(inputs[3]?.value).toBe('4')
     expect(document.activeElement).toBe(inputs[3])
   })
+
+  test('applies responsive text sizing when fixed is false and keeps fixed text size when fixed is true', () => {
+    const defaultScreen = render(() => <PinInput size="sm" length={2} />)
+    const defaultInputs =
+      defaultScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    expect(defaultInputs[0]?.className).toContain('md:text-xs')
+
+    const fixedScreen = render(() => <PinInput size="sm" fixed length={2} />)
+    const fixedInputs =
+      fixedScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    expect(fixedInputs[0]?.className).not.toContain('md:text-xs')
+    expect(fixedInputs[0]?.className).toContain('text-sm')
+  })
+
+  test('applies border-only invalid styles to slots and focus-ring only on focus', () => {
+    const screen = render(() => <PinInput length={3} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const classes = inputs[0]?.className.split(/\s+/) ?? []
+    expect(classes).toContain('data-invalid:border-danger')
+    expect(classes).not.toContain('data-invalid:ring-3')
+    expect(classes).toContain('focus:data-invalid:ring-danger/20')
+  })
 })

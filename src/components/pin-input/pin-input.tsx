@@ -99,8 +99,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'translations',
     'size',
     'variant',
-    'tone',
-    'highlight',
     'fixed',
     'ref',
     'inputsRef',
