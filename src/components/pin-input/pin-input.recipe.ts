@@ -11,8 +11,24 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { PinInputStyleSlot, PinInputStyleVariants } from './pin-input.style-types'
 
 export const pinInputDataAttributes = {
-  root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
-  input: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  root: /* @__PURE__ */ createDataAttributes(
+    'disabled',
+    'invalid',
+    'readonly',
+    'required',
+    'complete',
+    'filled',
+    'focused',
+  ),
+  input: /* @__PURE__ */ createDataAttributes(
+    'disabled',
+    'invalid',
+    'readonly',
+    'required',
+    'complete',
+    'filled',
+    'focused',
+  ),
 } satisfies DataAttributeContract<keyof PinInputStyleSlot>
 
 export const pinInputRecipe = /* @__PURE__ */ defineRecipe<

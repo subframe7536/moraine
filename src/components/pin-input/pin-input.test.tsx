@@ -33,7 +33,9 @@ describe('PinInput', () => {
 
   test('clears placeholder when an input is focused and restores it on blur', () => {
     const screen = render(() => <PinInput length={3} placeholder="○" />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     expect(inputs[0]?.placeholder).toBe('○')
     expect(inputs[1]?.placeholder).toBe('○')
@@ -48,7 +50,9 @@ describe('PinInput', () => {
 
   test('keeps text selected when clicking on an already focused input', () => {
     const screen = render(() => <PinInput defaultValue="1234" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     expect(inputs[0]?.selectionStart).toBe(0)
@@ -66,7 +70,9 @@ describe('PinInput', () => {
 
   test('allows selecting any entered input and the first empty input, redirecting later empty inputs', () => {
     const screen = render(() => <PinInput defaultValue="12" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     // Click on input 0 (already entered) -> focuses input 0 with text selected
     fireEvent.click(inputs[0]!)
@@ -91,7 +97,9 @@ describe('PinInput', () => {
 
   test('redirects focus to the first empty slot when a later empty slot is focused directly', () => {
     const screen = render(() => <PinInput defaultValue="12" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[3]?.focus()
     expect(document.activeElement).toBe(inputs[2])
@@ -99,7 +107,9 @@ describe('PinInput', () => {
 
   test('focuses the last input on click when all inputs are filled by default', () => {
     const screen = render(() => <PinInput defaultValue="1234" length={4} separator />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     const separator = screen.container.querySelector<HTMLElement>(
       '[data-slot="pin-input-separator"]',
     )
@@ -113,16 +123,18 @@ describe('PinInput', () => {
 
   test('renders default value from string or array', () => {
     const arrayScreen = render(() => <PinInput defaultValue={['1', '2', '3']} length={5} />)
-    const arrayInputs =
-      arrayScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const arrayInputs = arrayScreen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(arrayInputs[0]?.value).toBe('1')
     expect(arrayInputs[1]?.value).toBe('2')
     expect(arrayInputs[2]?.value).toBe('3')
     expect(arrayInputs[3]?.value).toBe('')
 
     const stringScreen = render(() => <PinInput defaultValue="987" length={4} />)
-    const stringInputs =
-      stringScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const stringInputs = stringScreen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(stringInputs[0]?.value).toBe('9')
     expect(stringInputs[1]?.value).toBe('8')
     expect(stringInputs[2]?.value).toBe('7')
@@ -132,7 +144,9 @@ describe('PinInput', () => {
   test('supports controlled value updates', () => {
     const [value, setValue] = createSignal(['a', 'b'])
     const screen = render(() => <PinInput value={value()} length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     expect(inputs[0]?.value).toBe('a')
     expect(inputs[1]?.value).toBe('b')
@@ -146,7 +160,9 @@ describe('PinInput', () => {
 
   test('typing a character advances focus to the next input', () => {
     const screen = render(() => <PinInput length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     fireEvent.input(inputs[0]!, { target: { value: '1' } })
@@ -165,7 +181,9 @@ describe('PinInput', () => {
     const screen = render(() => (
       <PinInput length={3} onComplete={onComplete} onValueChange={onValueChange} />
     ))
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     fireEvent.input(inputs[0]!, { target: { value: 'A' } })
     expect(onComplete).not.toHaveBeenCalled()
@@ -184,7 +202,7 @@ describe('PinInput', () => {
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input')
 
     expect(inputs[0]?.inputMode).toBe('numeric')
-    expect(inputs[0]?.pattern).toBe('[0-9]*')
+    expect(inputs[0]?.pattern).toBe('\\d{1}')
 
     fireEvent.input(inputs[0]!, { target: { value: 'a' } })
     expect(inputs[0]?.value).toBe('')
@@ -208,7 +226,9 @@ describe('PinInput', () => {
 
   test('handles backspace on non-empty and empty inputs', () => {
     const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[2]?.focus()
     // Backspace on non-empty slot clears that slot, keeps focus
@@ -224,7 +244,9 @@ describe('PinInput', () => {
 
   test('Cmd/Ctrl+Backspace clears all slots and focuses first input', () => {
     const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[2]?.focus()
     fireEvent.keyDown(inputs[2]!, { key: 'Backspace', metaKey: true })
@@ -237,7 +259,9 @@ describe('PinInput', () => {
 
   test('Delete key clears current slot without moving focus', () => {
     const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[1]?.focus()
     fireEvent.keyDown(inputs[1]!, { key: 'Delete' })
@@ -250,7 +274,9 @@ describe('PinInput', () => {
 
   test('Arrow keys and Home/End navigate between inputs', () => {
     const screen = render(() => <PinInput defaultValue="1234" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     expect(document.activeElement).toBe(inputs[0])
@@ -270,7 +296,9 @@ describe('PinInput', () => {
 
   test('Arrow keys clamp navigation to the first empty slot when inputs are partially filled', () => {
     const screen = render(() => <PinInput defaultValue="12" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     expect(document.activeElement).toBe(inputs[0])
@@ -293,7 +321,9 @@ describe('PinInput', () => {
   test('paste distributes characters across inputs and strips dashes', () => {
     const onComplete = vi.fn()
     const screen = render(() => <PinInput length={6} onComplete={onComplete} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     fireEvent.paste(inputs[0]!, {
@@ -349,7 +379,9 @@ describe('PinInput', () => {
     const onBlur = vi.fn()
     const screen = render(() => <PinInput length={3} onFocus={onFocus} onBlur={onBlur} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="pin-input"]')!
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     // Focus enters from outside
     fireEvent.focusIn(root, { relatedTarget: null })
@@ -371,8 +403,12 @@ describe('PinInput', () => {
     const screen = render(() => (
       <PinInput name="verification_code" defaultValue={['1', '2', '3']} length={4} />
     ))
-    const hidden = screen.container.querySelector<HTMLInputElement>('input[type="hidden"]')
+    const hidden = screen.container.querySelector<HTMLInputElement>(
+      'input[name="verification_code"]',
+    )
     expect(hidden).not.toBeNull()
+    expect(hidden?.type).toBe('text')
+    expect(hidden?.getAttribute('aria-hidden')).toBe('true')
     expect(hidden?.name).toBe('verification_code')
     expect(hidden?.value).toBe('123')
   })
@@ -382,7 +418,9 @@ describe('PinInput', () => {
     const root = screen.container.querySelector('[data-slot="pin-input"]')
     expect(root?.getAttribute('data-disabled')).toBe('')
 
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(inputs[0]?.disabled).toBe(true)
     expect(inputs[1]?.disabled).toBe(true)
     expect(inputs[2]?.disabled).toBe(true)
@@ -435,7 +473,9 @@ describe('PinInput', () => {
       </form.Form>
     ))
 
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(inputs).toHaveLength(4)
 
     // Type digits one by one
@@ -463,7 +503,9 @@ describe('PinInput', () => {
 
   test('distributes multi-character typed/autofilled value across slots in onInput', () => {
     const screen = render(() => <PinInput length={4} validationType="number" />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]?.focus()
     fireEvent.input(inputs[0]!, { target: { value: '1234' } })
@@ -477,20 +519,24 @@ describe('PinInput', () => {
 
   test('applies responsive text sizing when fixed is false and keeps fixed text size when fixed is true', () => {
     const defaultScreen = render(() => <PinInput size="sm" length={2} />)
-    const defaultInputs =
-      defaultScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const defaultInputs = defaultScreen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(defaultInputs[0]?.className).toContain('md:text-xs')
 
     const fixedScreen = render(() => <PinInput size="sm" fixed length={2} />)
-    const fixedInputs =
-      fixedScreen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const fixedInputs = fixedScreen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(fixedInputs[0]?.className).not.toContain('md:text-xs')
     expect(fixedInputs[0]?.className).toContain('text-sm')
   })
 
   test('applies border-only invalid styles to slots and focus-ring only on focus', () => {
     const screen = render(() => <PinInput length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     const classes = inputs[0]?.className.split(/\s+/) ?? []
     expect(classes).toContain('data-invalid:border-danger')
     expect(classes).not.toContain('data-invalid:ring-3')
@@ -531,7 +577,9 @@ describe('PinInput', () => {
         />
       </form>
     ))
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     const form = screen.container.querySelector('form')!
 
     inputs[0]!.focus()
@@ -555,7 +603,9 @@ describe('PinInput', () => {
         <PinInput name="code" value="1234" length={4} onValueChange={onValueChange} />
       </form>
     ))
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     const form = screen.container.querySelector('form')!
 
     form.reset()
@@ -566,7 +616,9 @@ describe('PinInput', () => {
 
   test('restores the input value when a controlled update is not accepted', () => {
     const screen = render(() => <PinInput value="1234" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]!.focus()
     fireEvent.input(inputs[0]!, { target: { value: '9' } })
@@ -597,7 +649,9 @@ describe('PinInput', () => {
       </form.Form>
     ))
 
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     inputs[0]!.focus()
     fireEvent.input(inputs[0]!, { target: { value: '9' } })
     expect(inputs[0]?.value).toBe('1')
@@ -608,10 +662,447 @@ describe('PinInput', () => {
 
   test('ignores non-primary mouse buttons on inputs', () => {
     const screen = render(() => <PinInput defaultValue="12" length={4} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     inputs[0]!.focus()
     fireEvent.mouseDown(inputs[3]!, { button: 2 })
     expect(document.activeElement).toBe(inputs[0])
+  })
+
+  test('buffers IME composition and commits once on compositionend', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <PinInput length={4} validationType="alphanumeric" onValueChange={onValueChange} />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    fireEvent.compositionStart(inputs[0]!)
+
+    // Intermediate composition text stays in the DOM but is not committed.
+    fireEvent.input(inputs[0]!, { target: { value: 'd' } })
+    fireEvent.input(inputs[0]!, { target: { value: 'dd' } })
+    fireEvent.input(inputs[0]!, { target: { value: 'ddd' } })
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(inputs[0]?.value).toBe('ddd')
+
+    fireEvent.compositionEnd(inputs[0]!, { target: { value: 'ddd' } })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith(['d', 'd', 'd', ''])
+    expect([...inputs].map((input) => input.value)).toEqual(['d', 'd', 'd', ''])
+    expect(document.activeElement).toBe(inputs[3])
+  })
+
+  test('ignores keyboard commands while a composition is buffered', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <PinInput
+        defaultValue="12"
+        length={4}
+        validationType="alphanumeric"
+        onValueChange={onValueChange}
+      />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[2]!.focus()
+    fireEvent.compositionStart(inputs[2]!)
+    fireEvent.input(inputs[2]!, { target: { value: 'a' } })
+
+    fireEvent.keyDown(inputs[2]!, { key: 'Backspace' })
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(inputs[2])
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', 'a', ''])
+
+    fireEvent.compositionEnd(inputs[2]!, { target: { value: '' } })
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '', ''])
+  })
+
+  test('commits each input during IME composition on Android', () => {
+    const userAgentSpy = vi
+      .spyOn(window.navigator, 'userAgent', 'get')
+      .mockReturnValue('Mozilla/5.0 (Linux; Android 10)')
+
+    try {
+      const onValueChange = vi.fn()
+      const screen = render(() => (
+        <PinInput length={3} validationType="alphanumeric" onValueChange={onValueChange} />
+      ))
+      const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+        '[data-slot="pin-input-input"]',
+      )
+
+      inputs[0]!.focus()
+      fireEvent.compositionStart(inputs[0]!)
+      fireEvent.input(inputs[0]!, { target: { value: 'a' } })
+
+      expect(onValueChange).toHaveBeenCalledTimes(1)
+      expect(document.activeElement).toBe(inputs[1])
+
+      fireEvent.compositionEnd(inputs[0]!)
+      expect(onValueChange).toHaveBeenCalledTimes(1)
+      expect([...inputs].map((input) => input.value)).toEqual(['a', '', ''])
+    } finally {
+      userAgentSpy.mockRestore()
+    }
+  })
+
+  test('distributes autofilled text entered through the hidden input', () => {
+    const onValueChange = vi.fn()
+    const onValueInvalid = vi.fn()
+    const onComplete = vi.fn()
+    const screen = render(() => (
+      <PinInput
+        name="code"
+        length={6}
+        validationType="number"
+        onValueChange={onValueChange}
+        onValueInvalid={onValueInvalid}
+        onComplete={onComplete}
+      />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    fireEvent.input(hidden, { target: { value: '12a34b56' } })
+
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6'])
+    expect(hidden.value).toBe('123456')
+    expect(document.activeElement).toBe(inputs[5])
+    expect(onValueChange).toHaveBeenCalledWith(['1', '2', '3', '4', '5', '6'])
+    expect(onValueInvalid).toHaveBeenCalledWith('12a34b56')
+    expect(onComplete).toHaveBeenCalledWith('123456')
+  })
+
+  test('clears slots and moves focus to the first slot when hidden input autofill is cleared', async () => {
+    const screen = render(() => <PinInput name="code" length={4} validationType="number" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    fireEvent.input(hidden, { target: { value: '1234' } })
+    expect(document.activeElement).toBe(inputs[3])
+
+    fireEvent.input(hidden, { target: { value: '' } })
+    expect([...inputs].map((input) => input.value)).toEqual(['', '', '', ''])
+    await waitFor(() => expect(document.activeElement).toBe(inputs[0]))
+  })
+
+  test('redirects hidden input focus to the first editable slot', () => {
+    const screen = render(() => <PinInput name="code" length={4} defaultValue="12" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    hidden.focus()
+    expect(document.activeElement).toBe(inputs[2])
+  })
+
+  test('carries native validation attributes on the hidden input', () => {
+    const screen = render(() => (
+      <PinInput name="code" length={4} validationType="number" required otp />
+    ))
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    expect(hidden.minLength).toBe(4)
+    expect(hidden.maxLength).toBe(4)
+    expect(hidden.pattern).toBe('\\d{4}')
+    expect(hidden.required).toBe(true)
+    expect(hidden.inputMode).toBe('numeric')
+    expect(hidden.autocomplete).toBe('one-time-code')
+    expect(hidden.tabIndex).toBe(-1)
+  })
+
+  test.each([
+    ['disabled', { disabled: true }],
+    ['readOnly', { readOnly: true }],
+  ])('ignores hidden input autofill when %s', (_name, props) => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <PinInput
+        name="code"
+        length={4}
+        validationType="number"
+        onValueChange={onValueChange}
+        {...props}
+      />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    fireEvent.input(hidden, { target: { value: '1234' } })
+
+    expect([...inputs].map((input) => input.value)).toEqual(['', '', '', ''])
+    expect(onValueChange).not.toHaveBeenCalled()
+  })
+
+  test('autoSubmit submits the owning form when the value completes', () => {
+    const handleSubmit = vi.fn((event: SubmitEvent) => {
+      event.preventDefault()
+    })
+    const screen = render(() => (
+      <form onSubmit={handleSubmit}>
+        <PinInput name="code" length={4} validationType="number" autoSubmit />
+      </form>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.input(inputs[0]!, { target: { value: '1234' } })
+    expect(handleSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  test('autoSubmit does not submit while the value is incomplete', () => {
+    const handleSubmit = vi.fn((event: SubmitEvent) => {
+      event.preventDefault()
+    })
+    const screen = render(() => (
+      <form onSubmit={handleSubmit}>
+        <PinInput name="code" length={4} validationType="number" autoSubmit />
+      </form>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.input(inputs[0]!, { target: { value: '123' } })
+    expect(handleSubmit).not.toHaveBeenCalled()
+  })
+
+  test('does not fire onComplete while a controlled completion is not applied', () => {
+    const onComplete = vi.fn()
+    const screen = render(() => (
+      <PinInput value="12" length={4} validationType="number" onComplete={onComplete} />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[2]!.focus()
+    fireEvent.input(inputs[2]!, { target: { value: '34' } })
+
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '', ''])
+    expect(onComplete).not.toHaveBeenCalled()
+  })
+
+  test('fires onComplete once a controlled completion is applied', () => {
+    const [value, setValue] = createSignal<string>('12')
+    const onComplete = vi.fn()
+    const screen = render(() => (
+      <PinInput
+        value={value()}
+        onValueChange={(next) => setValue(next.join(''))}
+        length={4}
+        validationType="number"
+        onComplete={onComplete}
+      />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[2]!.focus()
+    fireEvent.input(inputs[2]!, { target: { value: '34' } })
+
+    expect(onComplete).toHaveBeenCalledWith('1234')
+  })
+
+  test('does not fire onComplete for externally applied controlled values', () => {
+    const [value, setValue] = createSignal<string>('12')
+    const onComplete = vi.fn()
+    render(() => (
+      <PinInput value={value()} length={4} validationType="number" onComplete={onComplete} />
+    ))
+
+    setValue('1234')
+    expect(onComplete).not.toHaveBeenCalled()
+  })
+
+  test('keeps focus in place when a controlled update is not applied', () => {
+    const screen = render(() => <PinInput value="12" length={4} validationType="number" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[2]!.focus()
+    fireEvent.input(inputs[2]!, { target: { value: '3' } })
+
+    expect(inputs[2]?.value).toBe('')
+    expect(document.activeElement).toBe(inputs[2])
+  })
+
+  test('fires onComplete again when a complete paste reconfirms the value', () => {
+    const onComplete = vi.fn()
+    const screen = render(() => <PinInput defaultValue="1234" length={4} onComplete={onComplete} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    fireEvent.paste(inputs[0]!, { clipboardData: { getData: () => '1234' } })
+
+    expect(onComplete).toHaveBeenCalledWith('1234')
+  })
+
+  test('reports rejected characters via onValueInvalid', () => {
+    const onValueInvalid = vi.fn()
+    const screen = render(() => (
+      <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: 'a' } })
+    expect(onValueInvalid).toHaveBeenCalledWith('a')
+    expect(inputs[0]?.value).toBe('')
+
+    fireEvent.paste(inputs[0]!, { clipboardData: { getData: () => '1a23' } })
+    expect(onValueInvalid).toHaveBeenCalledWith('1a23')
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', ''])
+  })
+
+  test('normalizeValue transforms entered and external values before filtering', () => {
+    const screen = render(() => (
+      <PinInput
+        length={4}
+        validationType="alphanumeric"
+        normalizeValue={(value) => value.toUpperCase()}
+      />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.input(inputs[0]!, { target: { value: 'ab' } })
+    expect(inputs[0]?.value).toBe('A')
+    expect(inputs[1]?.value).toBe('B')
+
+    const initial = render(() => (
+      <PinInput
+        length={4}
+        validationType="alphanumeric"
+        defaultValue="abcd"
+        normalizeValue={(value) => value.toUpperCase()}
+      />
+    ))
+    const initialInputs = initial.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    expect([...initialInputs].map((input) => input.value)).toEqual(['A', 'B', 'C', 'D'])
+  })
+
+  test('inputMode overrides the validation-derived inputMode', () => {
+    const screen = render(() => <PinInput length={3} validationType="number" inputMode="tel" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    expect(inputs[0]?.inputMode).toBe('tel')
+  })
+
+  test('exposes a single tab stop on the focused or first editable slot', () => {
+    const screen = render(() => <PinInput length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    expect([...inputs].map((input) => input.tabIndex)).toEqual([0, -1, -1, -1])
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '1' } })
+
+    expect([...inputs].map((input) => input.tabIndex)).toEqual([-1, 0, -1, -1])
+  })
+
+  test('marks root and slots with filled, focused, and complete data attributes', () => {
+    const screen = render(() => <PinInput length={3} defaultValue="12" />)
+    const root = screen.container.querySelector('[data-slot="pin-input"]')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    expect(root.hasAttribute('data-filled')).toBe(true)
+    expect(root.hasAttribute('data-complete')).toBe(false)
+    expect(inputs[0]?.hasAttribute('data-filled')).toBe(true)
+    expect(inputs[2]?.hasAttribute('data-filled')).toBe(false)
+
+    inputs[0]!.focus()
+    expect(root.hasAttribute('data-focused')).toBe(true)
+
+    fireEvent.input(inputs[2]!, { target: { value: '3' } })
+    expect(root.hasAttribute('data-complete')).toBe(true)
+    expect(inputs[2]?.hasAttribute('data-complete')).toBe(true)
+    expect(inputs[2]?.hasAttribute('data-filled')).toBe(true)
+
+    inputs[0]!.blur()
+    expect(root.hasAttribute('data-focused')).toBe(false)
+  })
+
+  test('ArrowUp and ArrowDown move focus to the field boundaries', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={6} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[1]!.focus()
+    fireEvent.keyDown(inputs[1]!, { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(inputs[0])
+
+    fireEvent.keyDown(inputs[0]!, { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(inputs[4])
+  })
+
+  test('rejects whitespace characters', () => {
+    const screen = render(() => <PinInput length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: ' ' } })
+    expect(inputs[0]?.value).toBe('')
+  })
+
+  test('Ctrl+Alt+ArrowLeft navigates one slot instead of the boundary', () => {
+    const screen = render(() => <PinInput defaultValue="1234" length={6} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[3]!.focus()
+    fireEvent.keyDown(inputs[3]!, { key: 'ArrowLeft', ctrlKey: true, altKey: true })
+    expect(document.activeElement).toBe(inputs[2])
+  })
+
+  test('associates slot inputs with an external form via the form prop', () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <PinInput name="code" form="external-form" length={3} />
+      </>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+
+    expect(inputs[0]?.getAttribute('form')).toBe('external-form')
+    expect(hidden.getAttribute('form')).toBe('external-form')
   })
 })
