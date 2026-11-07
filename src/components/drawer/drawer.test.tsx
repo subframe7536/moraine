@@ -1300,11 +1300,11 @@ describe('Drawer', () => {
       const child = contents[1]!
       const grandchild = contents[2]!
       expect(parent.hasAttribute('data-nested-open')).toBe(true)
-      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('2')
+      expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('2')
       expect(child.hasAttribute('data-nested-open')).toBe(true)
-      expect(child.style.getPropertyValue('--nested-drawers')).toBe('1')
+      expect(child.style.getPropertyValue('--drawer-nested-num')).toBe('1')
       expect(grandchild.hasAttribute('data-nested-open')).toBe(false)
-      expect(grandchild.style.getPropertyValue('--nested-drawers')).toBe('0')
+      expect(grandchild.style.getPropertyValue('--drawer-nested-num')).toBe('0')
     })
 
     test('ancestors track the frontmost drawer height', async () => {
@@ -1426,14 +1426,14 @@ describe('Drawer', () => {
       // The exiting child stops counting immediately so the ancestor settles
       // toward its own height concurrently with the exit animation; the mounted
       // marker keeps the forced-height class until the child unmounts.
-      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('0')
+      expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('0')
       expect(parent.style.getPropertyValue('--drawer-frontmost-height')).toBe('400px')
       expect(parent.hasAttribute('data-nested-open')).toBe(true)
 
       await finishExitMotion()
       await waitFor(() => expect(document.body.contains(child)).toBe(false))
       expect(parent.hasAttribute('data-nested-open')).toBe(false)
-      expect(parent.style.getPropertyValue('--nested-drawers')).toBe('0')
+      expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('0')
     })
   })
 

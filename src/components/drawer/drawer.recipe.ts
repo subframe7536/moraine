@@ -47,9 +47,9 @@ export const drawerRecipe = /* @__PURE__ */ defineRecipe<DrawerStyleSlot, Drawer
       '--drawer-safe-area-bottom': 'env(safe-area-inset-bottom, 0px)',
       '--drawer-bottom-inset':
         'max(var(--drawer-safe-area-bottom), var(--drawer-keyboard-inset, 0px))',
-      '--drawer-nested-depth': 'calc(var(--nested-drawers) - var(--drawer-nested-progress))',
+      '--drawer-nested-depth': 'calc(var(--drawer-nested-num) - var(--drawer-nested-progress))',
       '--drawer-nested-scale':
-        'calc(max(0, 1 - var(--nested-drawers) * 0.05) + var(--drawer-nested-progress) * 0.05)',
+        'calc(max(0, 1 - var(--drawer-nested-num) * 0.05) + var(--drawer-nested-progress) * 0.05)',
       '--drawer-nested-offset':
         'calc(max(0px, var(--drawer-nested-depth) * (1.5rem - 1px)) + (1 - var(--drawer-nested-scale)) * var(--drawer-frontmost-height))',
       ...DRAWER_MOTION,

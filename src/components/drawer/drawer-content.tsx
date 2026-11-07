@@ -96,7 +96,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           '--drawer-swipe-movement': `${swipe.movement()}px`,
           '--drawer-snap-point-offset': swipe.snapPointOffsetCss(),
           '--drawer-keyboard-inset': `${keyboardInset()}px`,
-          '--nested-drawers': `${drawer.nested.activeCount()}`,
+          '--drawer-nested-num': `${drawer.nested.activeCount()}`,
           '--drawer-nested-progress': `${drawer.nested.progress()}`,
           '--drawer-frontmost-height': `${drawer.nested.frontmostHeight()}px`,
         },
