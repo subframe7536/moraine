@@ -42,6 +42,8 @@ export default function PinInputPlayground() {
             { label: 'Extra Large', value: 'xl' },
           ],
         },
+        { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
+        { kind: 'switch', prop: 'otp', label: 'OTP', defaultValue: true },
         { kind: 'switch', prop: 'mask', label: 'Mask', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
       ]}
@@ -51,9 +53,11 @@ export default function PinInputPlayground() {
           type={props.type}
           variant={props.variant}
           size={props.size}
+          separator={props.separator}
+          otp={props.otp}
           mask={props.mask}
           disabled={props.disabled}
-          length={5}
+          length={6}
           placeholder="○"
         />
       )}

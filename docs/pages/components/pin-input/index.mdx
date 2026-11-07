@@ -51,9 +51,10 @@ Use `otp` to enable one-time code autocomplete (`autocomplete="one-time-code"`),
 
 ### Separators
 
-Use the `separator` prop to insert separators between input groups:
+Use the `separator` prop to insert separators between input groups. Pass `true` to split inputs evenly in half, or pass a number or array of positions:
 
 ```tsx
+<PinInput length={6} separator />
 <PinInput length={6} separator={3} />
 ```
 
@@ -72,6 +73,30 @@ Use the `separator` prop to insert separators between input groups:
 
 ### One-Time Password verification
 
-Use `otp` and `separator` for multi-group SMS code verification.
+Use `otp` and `separator` for standard 6-digit SMS verification code entry.
 
 <Preview path="./otp-example" />
+
+### Form integration and validation
+
+Wrap `PinInput` inside `form.Field` with a validation schema to ensure all slots are completed before submission.
+
+<Preview path="./form-integration" />
+
+### Masked PIN for security
+
+Use `mask` to obscure numeric input characters for sensitive passcodes and PINs.
+
+<Preview path="./masked" />
+
+### Alphanumeric recovery key
+
+Use `type="alphanumeric"` to support alphanumeric backup keys and recovery codes.
+
+<Preview path="./alphanumeric" />
+
+### Custom separator
+
+Use `separatorRender` to customize the visual divider between slot groups.
+
+<Preview path="./custom-separator" />

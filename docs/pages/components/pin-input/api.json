@@ -194,8 +194,8 @@
         {
           "name": "separator",
           "optional": true,
-          "type": "number | readonly number[]",
-          "description": "Group inputs by inserting a separator between them.\nPass a number to insert one after every Nth input, or an array of positions to insert after specific inputs."
+          "type": "boolean | number | readonly number[]",
+          "description": "Group inputs by inserting a separator between them.\nPass `true` to split inputs in half, a number to insert one after every Nth input,\nor an array of positions to insert after specific inputs."
         },
         {
           "name": "separatorRender",

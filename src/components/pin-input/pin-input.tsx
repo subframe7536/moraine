@@ -217,12 +217,15 @@ export function PinInput(props: PinInputProps): JSX.Element {
   }
 
   function shouldInsertSeparator(index: number): boolean {
-    if (local.separator === undefined) {
+    if (local.separator === undefined || local.separator === false) {
       return false
     }
     const position = index + 1
     if (position >= length()) {
       return false
+    }
+    if (local.separator === true) {
+      return position === Math.ceil(length() / 2)
     }
     if (Array.isArray(local.separator)) {
       return local.separator.includes(position)

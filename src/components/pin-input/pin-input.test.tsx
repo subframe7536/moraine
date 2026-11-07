@@ -227,6 +227,13 @@ describe('PinInput', () => {
     expect(separators[0]?.textContent).toBe('•')
   })
 
+  test('renders separators with separator={true} to split inputs evenly in half', () => {
+    const screen = render(() => <PinInput length={6} separator />)
+    const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
+    expect(separators).toHaveLength(1)
+    expect(separators[0]?.textContent).toBe('•')
+  })
+
   test('renders separators at specified positions with array', () => {
     const screen = render(() => <PinInput length={7} separator={[3, 4]} />)
     const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
