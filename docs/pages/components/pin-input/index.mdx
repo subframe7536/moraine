@@ -35,7 +35,7 @@ export function Example() {
 
 ### Validation Type and Mask
 
-Use the `validationType` prop to restrict inputs to `'number'`, `'text'`, or `'alphanumeric'`. Use `mask` to conceal digits like a password input.
+Use the `validationType` prop to restrict inputs to `'number'`, `'text'`, `'alphanumeric'`, or `'alpha'`. Use `mask` to conceal digits like a password input.
 
 ```tsx
 <PinInput validationType="number" mask length={4} />
@@ -73,7 +73,7 @@ Use the `separator` prop to insert separators between input groups. Pass `true` 
 | <kbd>ArrowLeft</kbd>  | Moves focus to the previous input (in RTL, next).          |
 | <kbd>ArrowRight</kbd> | Moves focus to the next input (in RTL, previous).          |
 | <kbd>Home</kbd>       | Moves focus to the first input.                            |
-| <kbd>End</kbd>        | Moves focus to the last input.                             |
+| <kbd>End</kbd>        | Moves focus to the first empty input (last when filled).   |
 | <kbd>Backspace</kbd>  | Deletes character in slot or previous slot and moves back. |
 | <kbd>Delete</kbd>     | Clears character in the focused slot.                      |
 

@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Field } from '../field/field'
 import { createForm } from '../form'
 
 import { PinInput } from './pin-input'
@@ -494,5 +495,123 @@ describe('PinInput', () => {
     expect(classes).toContain('data-invalid:border-danger')
     expect(classes).not.toContain('data-invalid:ring-3')
     expect(classes).toContain('focus:data-invalid:ring-danger/20')
+  })
+
+  test('associates Field label and description with the group and inputs', () => {
+    const screen = render(() => (
+      <Field label="Verification code" description="Enter the 4-digit code.">
+        <PinInput length={4} />
+      </Field>
+    ))
+
+    const label = screen.container.querySelector('label')!
+    const description = screen.container.querySelector('[data-slot="field-description"]')!
+    const root = screen.container.querySelector('[data-slot="pin-input"]')!
+    const inputs = screen.container.querySelectorAll('[data-slot="pin-input-input"]')
+
+    // The group is labelled through aria-labelledby; no single input owns the field id.
+    expect(label.getAttribute('for')).toBeNull()
+    expect(root.getAttribute('aria-labelledby')).toBe(label.id)
+    expect(root.getAttribute('aria-describedby')).toBe(description.id)
+    expect(inputs[0]?.getAttribute('aria-describedby')).toBe(description.id)
+    expect(inputs[3]?.getAttribute('aria-describedby')).toBe(description.id)
+  })
+
+  test('form reset restores the default value without firing value callbacks', async () => {
+    const onValueChange = vi.fn()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <PinInput
+          name="code"
+          defaultValue="12"
+          length={4}
+          onValueChange={onValueChange}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const form = screen.container.querySelector('form')!
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '9' } })
+    expect(inputs[0]?.value).toBe('9')
+    onValueChange.mockClear()
+    onChange.mockClear()
+
+    form.reset()
+    await waitFor(() => expect(inputs[0]?.value).toBe('1'))
+    expect(inputs[1]?.value).toBe('2')
+    expect(inputs[2]?.value).toBe('')
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('form reset keeps the controlled value without firing value callbacks', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <PinInput name="code" value="1234" length={4} onValueChange={onValueChange} />
+      </form>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    const form = screen.container.querySelector('form')!
+
+    form.reset()
+    await waitFor(() => expect(inputs[0]?.value).toBe('1'))
+    expect(inputs[3]?.value).toBe('4')
+    expect(onValueChange).not.toHaveBeenCalled()
+  })
+
+  test('restores the input value when a controlled update is not accepted', () => {
+    const screen = render(() => <PinInput value="1234" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '9' } })
+    expect(inputs[0]?.value).toBe('1')
+
+    fireEvent.input(inputs[0]!, { target: { value: '99' } })
+    expect(inputs[0]?.value).toBe('1')
+  })
+
+  test('controlled array value keeps a string form store in sync with the prop', async () => {
+    const form = createForm({
+      schema: v.object({ code: v.string() }),
+      initialInput: { code: '' },
+      validate: 'submit',
+    })
+
+    let submitted = ''
+    const screen = render(() => (
+      <form.Form
+        onSubmit={(output) => {
+          submitted = output.code
+        }}
+      >
+        <form.Field name="code" label="Code">
+          <PinInput length={4} value={['1', '2', '3', '4']} />
+        </form.Field>
+        <button type="submit">Submit</button>
+      </form.Form>
+    ))
+
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '9' } })
+    expect(inputs[0]?.value).toBe('1')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    await waitFor(() => expect(submitted).toBe('1234'))
+  })
+
+  test('ignores non-primary mouse buttons on inputs', () => {
+    const screen = render(() => <PinInput defaultValue="12" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[0]!.focus()
+    fireEvent.mouseDown(inputs[3]!, { button: 2 })
+    expect(document.activeElement).toBe(inputs[0])
   })
 })
