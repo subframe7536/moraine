@@ -22,7 +22,8 @@ export namespace PinInputT {
   export type Messages = ComponentMessages<typeof defaultPinInputMessages>
   export type Translations = Partial<Messages>
 
-  export type Type = 'text' | 'number' | 'alphanumeric' | 'alpha'
+  export type ValidationType = 'text' | 'number' | 'numeric' | 'alphanumeric' | 'alpha'
+  export type Type = ValidationType
 
   export interface SeparatorRenderProps {
     index: number
@@ -48,7 +49,7 @@ export namespace PinInputT {
      * Type of characters allowed in the inputs.
      * @default 'text'
      */
-    type?: Type
+    validationType?: ValidationType
 
     /**
      * Whether to treat the inputs like passwords by masking the value.

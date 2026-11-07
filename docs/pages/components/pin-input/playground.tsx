@@ -8,8 +8,8 @@ export default function PinInputPlayground() {
       controls={[
         {
           kind: 'select',
-          prop: 'type',
-          label: 'Type',
+          prop: 'validationType',
+          label: 'Validation Type',
           defaultValue: 'text',
           options: [
             { label: 'Text', value: 'text' },
@@ -48,7 +48,7 @@ export default function PinInputPlayground() {
     >
       {(props) => (
         <PinInput
-          type={props.type}
+          validationType={props.validationType}
           variant={props.variant}
           size={props.size}
           separator={props.separator}

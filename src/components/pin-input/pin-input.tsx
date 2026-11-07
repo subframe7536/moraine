@@ -9,6 +9,7 @@ import {
   onMount,
   Show,
   splitProps,
+  untrack,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -16,14 +17,13 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
-import { useFormValue } from '../shared/form/use-form-value'
 
 import { defaultPinInputMessages } from './pin-input.messages'
 import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps, PinInputT } from './pin-input.types'
 
-function isValidChar(char: string, type: PinInputT.Type): boolean {
-  if (type === 'number') {
+function isValidChar(char: string, type: PinInputT.ValidationType): boolean {
+  if (type === 'number' || type === 'numeric') {
     return /^\d$/.test(char)
   }
   if (type === 'alpha') {
@@ -35,7 +35,7 @@ function isValidChar(char: string, type: PinInputT.Type): boolean {
   return char.length === 1 && !/[\r\n]/.test(char)
 }
 
-function cleanPastedText(text: string, type: PinInputT.Type): string[] {
+function cleanPastedText(text: string, type: PinInputT.ValidationType): string[] {
   const stripped = text.replace(/[\s-]+/g, '')
   const result: string[] = []
   for (const char of Array.from(stripped)) {
@@ -49,7 +49,7 @@ function cleanPastedText(text: string, type: PinInputT.Type): string[] {
 function normalizeChars(
   val: string[] | string | undefined,
   length: number,
-  type: PinInputT.Type,
+  type: PinInputT.ValidationType,
 ): string[] {
   const result: string[] = Array.from({ length }, () => '')
   if (val === undefined || val === null) {
@@ -78,7 +78,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'name',
     'form',
     'length',
-    'type',
+    'validationType',
     'mask',
     'otp',
     'placeholder',
@@ -111,14 +111,22 @@ export function PinInput(props: PinInputProps): JSX.Element {
   ])
 
   const length = () => Math.max(1, local.length ?? 5)
-  const inputType = () => local.type ?? 'text'
+  const validationType = () => local.validationType ?? 'text'
   const generatedId = createId(() => local.id, 'pin-input')
   const field = useFormField(local, {
     get defaultId() {
       return generatedId()
     },
     get initialValue() {
-      return normalizeChars(local.defaultValue ?? local.value, length(), inputType())
+      if (local.defaultValue !== undefined) {
+        return typeof local.defaultValue === 'string'
+          ? local.defaultValue
+          : local.defaultValue.join('')
+      }
+      if (local.value !== undefined) {
+        return typeof local.value === 'string' ? local.value : local.value.join('')
+      }
+      return ''
     },
   })
   const themeField = useFieldContext()
@@ -151,26 +159,91 @@ export function PinInput(props: PinInputProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const [chars, setChars, resetChars] = useFormValue<string[]>({
-    value: () => {
-      const controlled = local.value !== undefined ? local.value : field.value()
-      return controlled !== undefined
-        ? normalizeChars(controlled as string[] | string, length(), inputType())
-        : undefined
-    },
-    defaultValue: () => normalizeChars(local.defaultValue, length(), inputType()),
-    onValueChange: (val) => {
-      local.onValueChange?.(val)
-      const joined = val.join('')
-      local.onChange?.(joined)
-      if (val.length === length() && val.every((c) => c !== '')) {
-        local.onComplete?.(joined)
-      }
-    },
-    field,
-    fallback: normalizeChars(local.defaultValue, length(), inputType()),
-    isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
+  const initialChars = untrack(() => {
+    if (local.value !== undefined) {
+      return normalizeChars(local.value, length(), validationType())
+    }
+    const formVal = field.value()
+    if (formVal !== undefined) {
+      return normalizeChars(formVal as string | string[], length(), validationType())
+    }
+    return normalizeChars(local.defaultValue, length(), validationType())
   })
+
+  const [uncontrolledChars, setUncontrolledChars] = createSignal<string[]>(initialChars)
+
+  const chars = createMemo<string[]>(() => {
+    if (local.value !== undefined) {
+      return normalizeChars(local.value, length(), validationType())
+    }
+    const formVal = field.value()
+    if (formVal !== undefined) {
+      return normalizeChars(formVal as string | string[], length(), validationType())
+    }
+    return uncontrolledChars()
+  })
+
+  function setChars(update: string[] | ((prev: string[]) => string[])): void {
+    const current = chars()
+    const next = typeof update === 'function' ? update(current) : update
+
+    if (current.length === next.length && current.every((v, i) => v === next[i])) {
+      return
+    }
+
+    const nextJoined = next.join('')
+
+    if (local.value === undefined) {
+      setUncontrolledChars(() => next)
+      if (Array.isArray(field.value())) {
+        field.setFormValue(next)
+      } else {
+        field.setFormValue(nextJoined)
+      }
+    } else {
+      if (Array.isArray(field.value())) {
+        field.setFormValue(local.value)
+      } else {
+        field.setFormValue(typeof local.value === 'string' ? local.value : nextJoined)
+      }
+    }
+
+    local.onValueChange?.(next)
+    local.onChange?.(nextJoined)
+
+    if (next.length === length() && next.every((c) => c !== '')) {
+      local.onComplete?.(nextJoined)
+    }
+
+    field.emit('change')
+    field.emit('input')
+  }
+
+  function resetChars(): void {
+    const resetValue = normalizeChars(local.defaultValue, length(), validationType())
+    setChars(resetValue)
+  }
+
+  createEffect(
+    on(
+      () => local.value,
+      (val) => {
+        if (val !== undefined) {
+          const formVal = field.value()
+          const nextFormVal = Array.isArray(formVal)
+            ? Array.isArray(val)
+              ? val
+              : Array.from(val)
+            : typeof val === 'string'
+              ? val
+              : val.join('')
+          if (formVal !== nextFormVal) {
+            field.setFormValue(nextFormVal)
+          }
+        }
+      },
+    ),
+  )
 
   const joinedValue = createMemo(() => chars().join(''))
 
@@ -344,8 +417,16 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   }
                 }}
                 type={local.mask ? 'password' : 'text'}
-                inputMode={inputType() === 'number' ? 'numeric' : 'text'}
-                pattern={inputType() === 'number' ? '[0-9]*' : undefined}
+                inputMode={
+                  validationType() === 'number' || validationType() === 'numeric'
+                    ? 'numeric'
+                    : 'text'
+                }
+                pattern={
+                  validationType() === 'number' || validationType() === 'numeric'
+                    ? '[0-9]*'
+                    : undefined
+                }
                 autocomplete={idx === 0 && local.otp ? 'one-time-code' : 'off'}
                 autocorrect="off"
                 autocapitalize="off"
@@ -478,7 +559,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     }
                   }
 
-                  const validChars = Array.from(typed).filter((c) => isValidChar(c, inputType()))
+                  const validChars = Array.from(typed).filter((c) =>
+                    isValidChar(c, validationType()),
+                  )
 
                   if (validChars.length === 0) {
                     if (raw === '') {
@@ -488,6 +571,21 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     } else {
                       event.currentTarget.value = currentSlotChar
                     }
+                    return
+                  }
+
+                  // If multiple valid characters are typed or autofilled in a single input event
+                  if (validChars.length > 1) {
+                    const next = [...chars()]
+                    let insertIdx = idx
+                    for (const c of validChars) {
+                      if (insertIdx < length()) {
+                        next[insertIdx] = c
+                        insertIdx++
+                      }
+                    }
+                    setChars(next)
+                    focusInput(Math.min(length() - 1, insertIdx))
                     return
                   }
 
@@ -513,7 +611,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
                   event.preventDefault()
                   const pastedText = event.clipboardData?.getData('text/plain') ?? ''
-                  const validChars = cleanPastedText(pastedText, inputType())
+                  const validChars = cleanPastedText(pastedText, validationType())
 
                   if (validChars.length === 0) {
                     return
