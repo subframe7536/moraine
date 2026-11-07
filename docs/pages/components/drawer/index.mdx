@@ -143,9 +143,9 @@ first snap point). Release settles on the closest point or closes; `snapToSequen
 at most one point per flick and closes only from the last point.
 
 ```tsx
-const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('148px')
+const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px')
 
-<Drawer snapPoints={['148px', 1]} snapPoint={snapPoint()} onSnapPointChange={setSnapPoint}>
+<Drawer snapPoints={['200px', 1]} snapPoint={snapPoint()} onSnapPointChange={setSnapPoint}>
 ```
 
 ### CSS variables
@@ -161,6 +161,11 @@ Content declares these variables; set them with `styles.content` or measure them
 | `--drawer-max-height`        | `calc(100dvh - max(0.5rem, env(safe-area-inset-top, 0px)))` | Height cap for `top` and `bottom` sides.                                   |
 | `--drawer-safe-area-bottom`  | `env(safe-area-inset-bottom, 0px)`                          | Resolved bottom safe-area inset.                                           |
 | `--drawer-bottom-inset`      | max of safe area and `--drawer-keyboard-inset`              | Bottom padding of a `bottom` drawer.                                       |
+| `--nested-drawers`           | `0`                                                         | Number of open drawers nested inside this drawer.                          |
+| `--drawer-nested-progress`   | `0`                                                         | Swipe progress of the frontmost nested drawer in `[0, 1]`.                 |
+| `--drawer-frontmost-height`  | `0px`                                                       | Measured popup height of the frontmost nested drawer.                      |
+| `--drawer-nested-scale`      | `1`                                                         | Scale applied to recede ancestor drawers in a nested stack.                |
+| `--drawer-nested-offset`     | `0px`                                                       | Offset applied to push ancestor drawers upward in a nested stack.          |
 
 ### Keyboard interaction
 
