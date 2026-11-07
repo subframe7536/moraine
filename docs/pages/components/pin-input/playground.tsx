@@ -43,7 +43,6 @@ export default function PinInputPlayground() {
         { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
         { kind: 'switch', prop: 'otp', label: 'OTP', defaultValue: true },
         { kind: 'switch', prop: 'mask', label: 'Mask', defaultValue: false },
-        { kind: 'switch', prop: 'freeFocus', label: 'Free Focus', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
       ]}
     >
@@ -55,7 +54,6 @@ export default function PinInputPlayground() {
           separator={props.separator}
           otp={props.otp}
           mask={props.mask}
-          freeFocus={props.freeFocus}
           disabled={props.disabled}
           length={6}
         />

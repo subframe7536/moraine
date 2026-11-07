@@ -93,7 +93,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'onBlur',
     'autofocus',
     'autofocusDelay',
-    'freeFocus',
     'disabled',
     'required',
     'readOnly',
@@ -182,10 +181,18 @@ export function PinInput(props: PinInputProps): JSX.Element {
   createEffect(
     on(
       () => chars(),
-      () => {
+      (currentChars) => {
         const filtered = inputEls.filter(Boolean) as HTMLInputElement[]
         if (filtered.length > 0) {
           callRef(local.inputsRef, filtered)
+        }
+        const focused = focusedIndex()
+        if (focused !== null) {
+          const firstEmpty = currentChars.findIndex((c) => !c)
+          const isSelectable = currentChars[focused] !== '' || focused === firstEmpty
+          if (!isSelectable) {
+            focusInput(firstEmpty !== -1 ? firstEmpty : length() - 1)
+          }
         }
       },
     ),
@@ -204,6 +211,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const currentChars = chars()
     const firstEmpty = currentChars.findIndex((c) => !c)
     return firstEmpty !== -1 ? firstEmpty : length() - 1
+  }
+
+  function getValidTargetIndex(idx: number): number {
+    const currentChars = chars()
+    const firstEmpty = currentChars.findIndex((c) => !c)
+    const isSelectable = currentChars[idx] !== '' || idx === firstEmpty
+    return isSelectable ? idx : firstEmpty !== -1 ? firstEmpty : length() - 1
   }
 
   function shouldInsertSeparator(index: number): boolean {
@@ -230,7 +244,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (local.autofocus) {
       autofocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
-          focusInput(local.freeFocus ? 0 : getTargetIndex())
+          focusInput(getTargetIndex())
         }
       }, local.autofocusDelay ?? 0)
     }
@@ -277,11 +291,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
         callHandler(event, local.onBlur)
         field.emit('blur')
       }}
+      onMouseDown={(event) => {
+        if (
+          event.target === event.currentTarget ||
+          (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]')
+        ) {
+          event.preventDefault()
+          focusInput(getTargetIndex())
+        }
+      }}
       onClick={(event) => {
         if (
-          !local.freeFocus &&
-          (event.target === event.currentTarget ||
-            (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]'))
+          event.target === event.currentTarget ||
+          (event.target as HTMLElement)?.closest('[data-slot="pin-input-separator"]')
         ) {
           focusInput(getTargetIndex())
         }
@@ -336,6 +358,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 aria-label={messages().input({ index: idx + 1, length: length() })}
                 aria-invalid={field.ariaAttrs()['aria-invalid']}
                 onFocus={(event) => {
+                  if (event.defaultPrevented || field.disabled()) {
+                    return
+                  }
+                  const targetIdx = getValidTargetIndex(idx)
+                  if (targetIdx !== idx) {
+                    focusInput(targetIdx)
+                    return
+                  }
                   setFocusedIndex(idx)
                   event.currentTarget.select()
                 }}
@@ -344,44 +374,20 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     setFocusedIndex(null)
                   }
                 }}
-                onPointerDown={(event) => {
-                  if (!local.freeFocus) {
-                    const targetIdx = getTargetIndex()
-                    if (targetIdx !== idx) {
-                      event.preventDefault()
-                      focusInput(targetIdx)
-                    }
-                  }
-                }}
                 onMouseDown={(event) => {
-                  if (!local.freeFocus) {
-                    const targetIdx = getTargetIndex()
-                    if (targetIdx !== idx) {
-                      event.preventDefault()
-                      focusInput(targetIdx)
-                    }
+                  if (event.defaultPrevented || field.disabled()) {
+                    return
                   }
+                  event.preventDefault()
+                  const targetIdx = getValidTargetIndex(idx)
+                  focusInput(targetIdx)
                 }}
                 onClick={(event) => {
-                  if (!local.freeFocus) {
-                    const targetIdx = getTargetIndex()
-                    if (targetIdx !== idx) {
-                      event.preventDefault()
-                      focusInput(targetIdx)
-                      return
-                    }
+                  if (event.defaultPrevented || field.disabled()) {
+                    return
                   }
-                  event.currentTarget.focus()
-                  event.currentTarget.select()
-                }}
-                onMouseUp={(event) => {
-                  if (!local.freeFocus) {
-                    const targetIdx = getTargetIndex()
-                    if (targetIdx !== idx) {
-                      return
-                    }
-                  }
-                  event.currentTarget.select()
+                  const targetIdx = getValidTargetIndex(idx)
+                  focusInput(targetIdx)
                 }}
                 onKeyDown={(event) => {
                   if (event.defaultPrevented || field.disabled()) {
@@ -390,16 +396,21 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
                   const previousKey = isRtl() ? 'ArrowRight' : 'ArrowLeft'
                   const nextKey = isRtl() ? 'ArrowLeft' : 'ArrowRight'
+                  const endTargetIndex = getTargetIndex()
 
                   if (event.key === previousKey) {
                     event.preventDefault()
-                    focusInput(event.ctrlKey || event.metaKey ? 0 : idx - 1)
+                    focusInput(event.ctrlKey || event.metaKey ? 0 : Math.max(0, idx - 1))
                     return
                   }
 
                   if (event.key === nextKey) {
                     event.preventDefault()
-                    focusInput(event.ctrlKey || event.metaKey ? length() - 1 : idx + 1)
+                    focusInput(
+                      event.ctrlKey || event.metaKey
+                        ? endTargetIndex
+                        : Math.min(endTargetIndex, idx + 1),
+                    )
                     return
                   }
 
@@ -411,7 +422,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
                   if (event.key === 'End' || event.key === 'ArrowDown') {
                     event.preventDefault()
-                    focusInput(length() - 1)
+                    focusInput(endTargetIndex)
                     return
                   }
 
@@ -491,6 +502,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
                   if (idx < length() - 1) {
                     focusInput(idx + 1)
+                  } else {
+                    event.currentTarget.select()
                   }
                 }}
                 onPaste={(event) => {
