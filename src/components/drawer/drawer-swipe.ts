@@ -283,12 +283,6 @@ function createDrag(
 export interface DrawerSwipeController {
   /** Whether a swipe gesture is currently dragging the content. */
   swiping: Accessor<boolean>
-  /**
-   * Whether a swipe has claimed the gesture since the content mounted. Unlike
-   * `swiping` this stays true after release, so the enter animation never
-   * re-arms on the same mount.
-   */
-  swiped: Accessor<boolean>
   /** Current swipe offset in screen coordinates (+down/+right), damped past the open edge. */
   movement: Accessor<number>
   /** The snap point offset as a CSS length for the content's `--drawer-snap-point-offset` var. */
@@ -309,7 +303,6 @@ export function createDrawerSwipe(
   side: Accessor<NonNullable<DrawerT.Variants['side']>>,
 ): DrawerSwipeController {
   const [swiping, setSwiping] = createSignal(false)
-  const [swiped, setSwiped] = createSignal(false)
   const [displacement, setDisplacement] = createSignal(0)
   // The rendered translate captured when the gesture claimed the drag, so a
   // swipe mid enter/snap transition continues from the visual position.
@@ -620,7 +613,6 @@ export function createDrawerSwipe(
         }
       }
       setSwiping(true)
-      setSwiped(true)
     }
 
     // Reverse-cancel: track the deepest point of the current retreat. Receding
@@ -667,9 +659,6 @@ export function createDrawerSwipe(
     // The content mounts fresh on each open; drop any state left by a swipe close.
     drag = null
     resetDrag()
-    // `swiped` resets only here, not in `resetDrag`: a refused swipe close
-    // belongs to this mount and must not re-arm the enter animation.
-    setSwiped(false)
     swipeElement = content
 
     const ownerWindow = content.ownerDocument.defaultView
@@ -956,7 +945,6 @@ export function createDrawerSwipe(
 
   return {
     swiping,
-    swiped,
     movement,
     snapPointOffsetCss,
     progress,

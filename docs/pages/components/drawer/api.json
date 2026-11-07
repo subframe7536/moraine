@@ -658,7 +658,6 @@
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-entering",
         "data-expanded",
         "data-handle",
         "data-nested-open",
