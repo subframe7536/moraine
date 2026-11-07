@@ -1,5 +1,4 @@
 import type { ComponentSize } from '../../theme/style-types'
-import type { Tone } from '../../theme/tokens'
 import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface PinInputStyleSlot<T = unknown> {
@@ -31,17 +30,6 @@ export interface PinInputStyleVariants {
    * @default 'outline'
    */
   variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-
-  /**
-   * Color tone of the component.
-   * @default 'primary'
-   */
-  tone?: Tone
-
-  /**
-   * Force focus ring highlight state.
-   */
-  highlight?: boolean
 
   /**
    * Keep the fixed text size on all breakpoints.

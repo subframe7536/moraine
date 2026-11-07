@@ -67,19 +67,17 @@
           "name": "fixed",
           "optional": true,
           "type": "boolean",
-          "description": "Keep the fixed text size on all breakpoints."
+          "description": "Keep the fixed text size on all breakpoints.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "form",
           "optional": true,
           "type": "string",
           "description": "Form ID to associate with the hidden input."
-        },
-        {
-          "name": "highlight",
-          "optional": true,
-          "type": "boolean",
-          "description": "Force focus ring highlight state."
         },
         {
           "name": "id",
@@ -224,16 +222,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "tone",
-          "optional": true,
-          "type": "Tone",
-          "description": "Color tone of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "primary"
-          }
         },
         {
           "name": "translations",
