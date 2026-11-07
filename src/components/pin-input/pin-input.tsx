@@ -16,6 +16,8 @@ import {
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
+import { createKeyDownHandler } from '../../shared/keyboard'
+import type { KeyEvent } from '../../shared/keyboard'
 import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -638,7 +640,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
   useFormReset(getOwningForm, resetChars)
 
   const indices = createMemo(() => Array.from({ length: length() }, (_, i) => i))
-  const isRtl = () => providerLocale.dir() === 'rtl'
   const validationConfig = () => VALIDATION_CONFIG[validationType()]
   const inputMode = () => local.inputMode ?? validationConfig()?.inputMode ?? 'text'
 
@@ -651,6 +652,75 @@ export function PinInput(props: PinInputProps): JSX.Element {
   // While an IME composition is active, intermediate text is exposed through `input`
   // as an accumulating string; committing per event would fill too many slots.
   const [composing, setComposing] = createSignal(false)
+
+  const hasBoundaryModifier = (event: KeyEvent<HTMLInputElement>) =>
+    (event.ctrlKey || event.metaKey) && !event.altKey
+
+  const moveToStart = (event: KeyEvent<HTMLInputElement>) => {
+    event.stopPropagation()
+    focusInput(0)
+  }
+
+  const moveToEnd = (event: KeyEvent<HTMLInputElement>) => {
+    event.stopPropagation()
+    focusInput(getTargetIndex())
+  }
+
+  const onSlotKeyDown = createKeyDownHandler<HTMLInputElement, [number]>({
+    disabled: () => field.disabled(),
+    composing: () => composing(),
+    direction: () => providerLocale.dir(),
+    orientation: 'horizontal',
+    keys: {
+      previous: (event, idx) => {
+        event.stopPropagation()
+        focusInput(hasBoundaryModifier(event) ? 0 : Math.max(0, idx - 1))
+      },
+      next: (event, idx) => {
+        event.stopPropagation()
+        const end = getTargetIndex()
+        focusInput(hasBoundaryModifier(event) ? end : Math.min(end, idx + 1))
+      },
+      Home: moveToStart,
+      ArrowUp: moveToStart,
+      End: moveToEnd,
+      ArrowDown: moveToEnd,
+      Backspace: {
+        when: () => !field.readOnly(),
+        handle: (event, idx) => {
+          event.stopPropagation()
+          if (hasBoundaryModifier(event)) {
+            const next = createEmptyChars(length())
+            setChars(next)
+            queueFocusInput(0, '')
+            return
+          }
+
+          if (chars()[idx] !== '') {
+            const next = [...chars()]
+            next[idx] = ''
+            setChars(next)
+          } else {
+            const prevIdx = Math.max(0, idx - 1)
+            const next = [...chars()]
+            next[prevIdx] = ''
+            const nextJoined = next.join('')
+            setChars(next)
+            queueFocusInput(prevIdx, nextJoined)
+          }
+        },
+      },
+      Delete: {
+        when: () => !field.readOnly(),
+        handle: (event, idx) => {
+          event.stopPropagation()
+          const next = [...chars()]
+          next[idx] = ''
+          setChars(next)
+        },
+      },
+    },
+  })
 
   return (
     <div
@@ -836,78 +906,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   }
                   focusInput(getValidTargetIndex(idx))
                 }}
-                onKeyDown={(event) => {
-                  if (event.defaultPrevented || field.disabled() || composing()) {
-                    return
-                  }
-
-                  const { key, ctrlKey, metaKey, altKey } = event
-                  const hasBoundaryModifier = (ctrlKey || metaKey) && !altKey
-
-                  if (key === 'ArrowLeft' || key === 'ArrowRight') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    const isPrev = isRtl() ? key === 'ArrowRight' : key === 'ArrowLeft'
-                    if (isPrev) {
-                      focusInput(hasBoundaryModifier ? 0 : Math.max(0, idx - 1))
-                    } else {
-                      const end = getTargetIndex()
-                      focusInput(hasBoundaryModifier ? end : Math.min(end, idx + 1))
-                    }
-                    return
-                  }
-
-                  if (key === 'Home' || key === 'ArrowUp') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    focusInput(0)
-                    return
-                  }
-
-                  if (key === 'End' || key === 'ArrowDown') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    focusInput(getTargetIndex())
-                    return
-                  }
-
-                  if (field.readOnly()) {
-                    return
-                  }
-
-                  if (key === 'Backspace') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    if (hasBoundaryModifier) {
-                      const next = createEmptyChars(length())
-                      setChars(next)
-                      queueFocusInput(0, '')
-                      return
-                    }
-
-                    if (chars()[idx] !== '') {
-                      const next = [...chars()]
-                      next[idx] = ''
-                      setChars(next)
-                    } else {
-                      const prevIdx = Math.max(0, idx - 1)
-                      const next = [...chars()]
-                      next[prevIdx] = ''
-                      const nextJoined = next.join('')
-                      setChars(next)
-                      queueFocusInput(prevIdx, nextJoined)
-                    }
-                    return
-                  }
-
-                  if (key === 'Delete') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    const next = [...chars()]
-                    next[idx] = ''
-                    setChars(next)
-                  }
-                }}
+                onKeyDown={(event) => onSlotKeyDown(event, idx)}
                 onInput={(event) => {
                   if (composing()) {
                     return

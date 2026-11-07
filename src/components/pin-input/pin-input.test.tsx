@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field/field'
 import { createForm } from '../form'
@@ -292,6 +293,28 @@ describe('PinInput', () => {
     expect(document.activeElement).toBe(inputs[2])
 
     fireEvent.keyDown(inputs[2]!, { key: 'Home' })
+    expect(document.activeElement).toBe(inputs[0])
+  })
+
+  test('flips horizontal arrow navigation in RTL direction', () => {
+    const screen = render(() => (
+      <MoraineProvider dir="rtl">
+        <PinInput defaultValue="1234" length={4} />
+      </MoraineProvider>
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]?.focus()
+    expect(document.activeElement).toBe(inputs[0])
+
+    // In RTL, ArrowLeft moves forward (next slot: index 1)
+    fireEvent.keyDown(inputs[0]!, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(inputs[1])
+
+    // In RTL, ArrowRight moves backward (previous slot: index 0)
+    fireEvent.keyDown(inputs[1]!, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(inputs[0])
   })
 
