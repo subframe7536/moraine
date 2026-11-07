@@ -4,6 +4,7 @@ import type { defaultComboboxMessages } from '../../components/combobox/combobox
 import type { defaultCommandPaletteMessages } from '../../components/command-palette/command-palette.messages'
 import type { defaultCopyButtonMessages } from '../../components/copy-button/copy-button.messages'
 import type { defaultDialogMessages } from '../../components/dialog/dialog.messages'
+import type { defaultDrawerMessages } from '../../components/drawer/drawer.messages'
 import type { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import type { defaultFormMessages } from '../../components/form/form.messages'
 import type { defaultInputNumberMessages } from '../../components/input-number/input-number.messages'
@@ -28,6 +29,7 @@ export interface MoraineMessages {
   alert: ComponentMessages<typeof defaultAlertMessages>
   dialog: ComponentMessages<typeof defaultDialogMessages>
   sheet: ComponentMessages<typeof defaultSheetMessages>
+  drawer: ComponentMessages<typeof defaultDrawerMessages>
   toast: ComponentMessages<typeof defaultToastMessages>
   breadcrumb: ComponentMessages<typeof defaultBreadcrumbMessages>
   commandPalette: ComponentMessages<typeof defaultCommandPaletteMessages>

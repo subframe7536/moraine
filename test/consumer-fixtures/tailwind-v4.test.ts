@@ -135,7 +135,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('--tw-shadow: var(--shadow-surface)')
     expect(css).toContain('--tw-shadow: var(--shadow-overlay)')
     expect(css).toContain('--tw-shadow: var(--shadow-input)')
-    expect(css).toContain('background-color: var(--backdrop, rgb(0 0 0 / 0.1))')
+    expect(css).toContain('background-color: var(--backdrop, rgb(0 0 0 / 0.32))')
     expect(css).toContain('font-family: var(--font-sans)')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
     expect(css).toContain('width: var(--sidebar-width,clamp(14rem,25%,20rem))')

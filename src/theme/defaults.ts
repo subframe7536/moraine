@@ -18,7 +18,7 @@ export const DEFAULT_THEME_COLORS = {
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
-    backdrop: 'rgba(0, 0, 0, 0.1)',
+    backdrop: 'rgba(0, 0, 0, 0.32)',
     ring: 'rgb(161, 161, 161)',
   },
   dark: {
@@ -38,7 +38,7 @@ export const DEFAULT_THEME_COLORS = {
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
-    backdrop: 'rgba(0, 0, 0, 0.1)',
+    backdrop: 'rgba(0, 0, 0, 0.32)',
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>

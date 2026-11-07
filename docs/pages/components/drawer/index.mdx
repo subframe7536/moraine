@@ -1,0 +1,222 @@
+---
+title: Drawer
+description: Present a swipeable surface from a viewport edge with snap points.
+group: Overlay
+api:
+  path: src/components/drawer/drawer
+  parts: [Trigger, Content, Header, Title, Description, Body, Footer, Close]
+search:
+  tags: [drawer, swipe, snap points, gesture, sheet, overlay, mobile]
+---
+
+import Playground from './playground'
+
+<Playground />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Drawer.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Drawer.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Drawer.Content',
+        slot: 'content',
+        children: [
+          { slot: 'handle' },
+          {
+            part: 'Drawer.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Drawer.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Drawer.Description',
+                slot: 'description',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Drawer.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Drawer.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default.
+
+## Usage
+
+Use Drawer for a mobile-style surface the user dismisses with a swipe along its edge, optionally
+resting at snap points. Use [Sheet](/components/sheet) for an edge panel without gestures. Use
+[Dialog](/components/dialog) for a centered labeled task, and [Modal](/components/modal) to compose
+backdrop and content yourself.
+
+Drawer shares modal dismissal and focus behavior with Dialog. The default side is `bottom`.
+For a persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`,
+`preventScroll={false}`, and `closeOnOverlayClick={false}` — Escape and swipe dismissal still apply.
+
+```tsx
+import { Button, Drawer } from 'moraine'
+
+export function Example() {
+  return (
+    <Drawer>
+      <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+      <Drawer.Content title="Details">
+        <Drawer.Body>Drawer content</Drawer.Body>
+        <Drawer.Footer>
+          <Drawer.Close as={Button}>Done</Drawer.Close>
+        </Drawer.Footer>
+      </Drawer.Content>
+    </Drawer>
+  )
+}
+```
+
+### Content composition
+
+Use Content `title` and `description` for simple cases, or compose `Drawer.Header`, `Drawer.Title`,
+`Drawer.Description`, `Drawer.Body`, and `Drawer.Footer` for a custom layout — the same contract as
+[Sheet](/components/sheet#content-composition). An explicit `Drawer.Header` replaces the generated
+header. `Drawer.Close` is an explicit close control; root `closable` adds the automatic corner close
+button (off by default), and `closeIcon` replaces its icon.
+
+For `top` and `bottom` sides, Content renders a decorative `handle` grab bar along the edge
+facing the viewport. Set `handle={false}` to hide it.
+
+### Sizing and scrolling
+
+A `top` or `bottom` drawer sizes to its content, capped `0.5rem` (or the top safe-area inset)
+below the viewport height; `left` and `right` panels span `w-3/4` up to `sm:max-w-sm`. Override
+either with Content `class` — for example `class="h-[50dvh]"` for a fixed height, or
+`class="w-1/2 sm:max-w-2xl"` for a wider side panel. Body is the scrollable region: once Content's
+height is bounded, it scrolls between the header and footer.
+
+### Swipe to dismiss
+
+The surface tracks a drag along its dismiss axis — down for `bottom`, up for `top`, and outward for
+`left`/`right` — and closes past half its size or on a fast flick. A drag against the dismiss
+direction is damped and springs back. The `data-swiping` attribute on the content and overlay marks
+the active gesture so transitions pause.
+
+A drag never starts on interactive elements (`button`, `a`, form controls, `[contenteditable]`,
+`[role="slider"]`), on `[data-swipe-ignore]` subtrees, or on a mouse press inside `Drawer.Body`, which
+stays available for text selection. On touch, `data-swipe-ignore="x"` or `"y"` blocks only that axis.
+Touch drags that begin inside a scrollable region defer to native scrolling until the scroller
+reaches its edge in the drag direction.
+
+```tsx
+<Drawer.Body>
+  <div data-swipe-ignore>Drag-free region</div>
+</Drawer.Body>
+```
+
+### Snap points
+
+`snapPoints` limits where a `top` or `bottom` drawer rests: numbers `<= 1` are a fraction of the
+viewport height, larger numbers are pixels, and `'px'`/`'rem'` strings resolve directly. Snap points
+are ignored for `left` and `right`. Snap heights are clamped to the content's rendered height, so
+give Content an explicit height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using
+fractional or full snap points.
+
+`snapPoint` / `defaultSnapPoint` / `onSnapPointChange` control the resting point (the default is the
+first snap point). Release settles on the closest point or closes; `snapToSequentialPoints` advances
+at most one point per flick and closes only from the last point.
+
+```tsx
+const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px')
+
+<Drawer snapPoints={['200px', 1]} snapPoint={snapPoint()} onSnapPointChange={setSnapPoint}>
+```
+
+### CSS variables
+
+Content declares these variables; set them with `styles.content` or measure them from the binding.
+
+| Variable                     | Default                                                     | Description                                                                |
+| ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `--drawer-swipe-movement`    | `0px`                                                       | Current swipe offset along the surface axis.                               |
+| `--drawer-snap-point-offset` | `0px`                                                       | Offset of the active snap point from fully open.                           |
+| `--drawer-keyboard-inset`    | `0px`                                                       | Bottom inset reserved for the on-screen keyboard.                          |
+| `--drawer-translate`         | per side                                                    | Translate applied to the surface; derives from the swipe and snap offsets. |
+| `--drawer-max-height`        | `calc(100dvh - max(0.5rem, env(safe-area-inset-top, 0px)))` | Height cap for `top` and `bottom` sides.                                   |
+| `--drawer-safe-area-bottom`  | `env(safe-area-inset-bottom, 0px)`                          | Resolved bottom safe-area inset.                                           |
+| `--drawer-bottom-inset`      | max of safe area and `--drawer-keyboard-inset`              | Bottom padding of a `bottom` drawer.                                       |
+| `--drawer-nested-num`        | `0`                                                         | Number of open drawers nested inside this drawer.                          |
+| `--drawer-nested-progress`   | `0`                                                         | Swipe progress of the frontmost nested drawer in `[0, 1]`.                 |
+| `--drawer-frontmost-height`  | `0px`                                                       | Measured popup height of the frontmost nested drawer.                      |
+| `--drawer-nested-scale`      | `1`                                                         | Scale applied to recede ancestor drawers in a nested stack.                |
+| `--drawer-nested-offset`     | `0px`                                                       | Offset applied to push ancestor drawers upward in a nested stack.          |
+
+### Keyboard interaction
+
+| Key                    | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `closeOnEscape` is not `false`. |
+| <kbd>Tab</kbd>         | Moves focus forward; modal drawers contain focus.       |
+| <kbd>Shift + Tab</kbd> | Moves focus backward; modal drawers contain focus.      |
+
+On Android, the system back gesture closes the drawer on browsers that support `CloseWatcher`.
+It follows `closeOnEscape` and reports blocked requests through `onClosePrevent`.
+
+## Examples
+
+### Bottom sheet with a handle
+
+The default `bottom` side shows the grab handle and dismisses on a downward swipe.
+
+<Preview path="./bottom-usage" />
+
+### Rest at snap points
+
+A controlled snap point switches between a compact peek and the full-height surface.
+
+<Preview path="./snap-points" />
+
+### Nest drawers
+
+A child drawer opens above its parent: ancestors shrink, slide up, and dim behind it. Setting
+`overlay={false}` on the nested drawers keeps a single overlay for the whole stack.
+Escape, swipe, outside press, and the Android back gesture close only the topmost drawer.
+
+<Preview path="./nested" />
+
+### Open from different edges
+
+Top and bottom support handles and snap points; left and right are swipe-only panels.
+
+<Preview path="./sides" />
+
+### Keep the page interactive
+
+`modal={false}`, `overlay={false}`, and `preventScroll={false}` leave the page's pointer, focus,
+and scroll access intact; `closeOnOverlayClick={false}` keeps outside presses from dismissing the
+panel — both buttons update the same count.
+
+<Preview path="./non-modal" />
+
+### Swap Dialog and Drawer responsively
+
+`createMediaQuery` renders the same task in a [Dialog](/components/dialog) on wide screens and a
+Drawer on narrow ones. Resize the window to see the trigger swap.
+
+<Preview path="./responsive" />

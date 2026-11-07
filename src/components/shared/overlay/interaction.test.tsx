@@ -51,4 +51,38 @@ describe('useOverlayInteraction', () => {
     foreignDocument.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     expect(onEscape).toHaveBeenCalledTimes(2)
   })
+
+  test('does not trigger onPointerOutside when pointerdown starts inside and releases outside', () => {
+    const onPointerOutside = vi.fn()
+    const content = document.createElement('div')
+    const outside = document.createElement('div')
+    document.body.appendChild(content)
+    document.body.appendChild(outside)
+
+    const screen = render(() => {
+      useOverlayInteraction({
+        contentElement: () => content,
+        enabled: () => true,
+        onPointerOutside,
+      })
+      return <></>
+    })
+
+    // Pointer down inside content (e.g. text selection start)
+    fireEvent.pointerDown(content)
+    // Pointer up outside (e.g. user dragged selection out onto overlay or body)
+    fireEvent.pointerUp(outside)
+    // Subsequent click event fired on common ancestor / outside target
+    fireEvent.click(outside)
+
+    expect(onPointerOutside).not.toHaveBeenCalled()
+
+    // But clicking directly on outside still triggers onPointerOutside
+    fireEvent.pointerDown(outside)
+    expect(onPointerOutside).toHaveBeenCalledTimes(1)
+
+    screen.unmount()
+    content.remove()
+    outside.remove()
+  })
 })

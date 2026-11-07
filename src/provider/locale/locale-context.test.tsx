@@ -9,6 +9,7 @@ import { defaultCommandPaletteMessages } from '../../components/command-palette/
 import { defaultCopyButtonMessages } from '../../components/copy-button/copy-button.messages'
 import { Dialog } from '../../components/dialog/dialog'
 import { defaultDialogMessages } from '../../components/dialog/dialog.messages'
+import { defaultDrawerMessages } from '../../components/drawer/drawer.messages'
 import { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import { defaultFormMessages } from '../../components/form/form.messages'
 import { InputNumber } from '../../components/input-number/input-number'
@@ -35,6 +36,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   alert: defaultAlertMessages,
   dialog: defaultDialogMessages,
   sheet: defaultSheetMessages,
+  drawer: defaultDrawerMessages,
   toast: defaultToastMessages,
   breadcrumb: defaultBreadcrumbMessages,
   commandPalette: defaultCommandPaletteMessages,

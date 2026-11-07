@@ -89,6 +89,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── context-menu/       # Context menu overlay.
 │   ├── copy-button/        # Clipboard copy button with status feedback.
 │   ├── dialog/             # Dialog primitives.
+│   ├── drawer/             # Edge sheet with swipe-to-dismiss gestures and snap points.
 │   ├── dropdown-menu/      # Dropdown menu overlay.
 │   ├── empty/              # Empty-state presentation.
 │   ├── field/              # Field layout, labels, descriptions, and validation messages.

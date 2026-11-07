@@ -227,7 +227,7 @@ export const MORAINE_COLORS = {
   border: 'var(--border)',
   input: 'var(--input)',
   control: 'var(--control)',
-  backdrop: 'var(--backdrop, rgb(0 0 0 / 0.1))',
+  backdrop: 'var(--backdrop, rgb(0 0 0 / 0.32))',
   ring: 'var(--ring)',
 } as const
 

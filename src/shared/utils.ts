@@ -69,6 +69,11 @@ export function callHandler<E extends Event = Event, R = unknown>(
   }
 }
 
+/** Whether the current user agent belongs to an Android browser. */
+export function isAndroidUserAgent(): boolean {
+  return /android/i.test(globalThis.navigator?.userAgent ?? '')
+}
+
 /** Assigns a composed DOM ref without introducing React-style ref objects. */
 export function callRef<T>(ref: unknown, element: T): void {
   if (typeof ref === 'function') {

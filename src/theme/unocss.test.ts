@@ -248,7 +248,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('--un-shadow:var(--shadow-surface)')
     expect(css).toContain('--un-shadow:var(--shadow-overlay)')
     expect(css).toContain('--un-shadow:var(--shadow-input)')
-    expect(css).toContain('var(--backdrop, rgb(0 0 0 / 0.1))')
+    expect(css).toContain('var(--backdrop, rgb(0 0 0 / 0.32))')
     expect(css).toContain('font-family:var(--font-sans)')
     expect(css).toContain('.w-sidebar')
     expect(css).toContain(

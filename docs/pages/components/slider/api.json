@@ -251,7 +251,8 @@
         "data-inverted",
         "data-multiple",
         "data-readonly",
-        "data-required"
+        "data-required",
+        "data-swipe-ignore"
       ]
     },
     {

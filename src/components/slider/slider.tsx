@@ -75,6 +75,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         required: field.required,
         inverted: () => merged.inverted,
         multiple: isMultiple,
+        // The slider owns drags on its own axis, so a swipe-to-dismiss drawer
+        // arbitrates touches that start on it like a native scroller.
+        swipeIgnore: () => (merged.orientation === 'vertical' ? 'y' : 'x'),
       })),
       range: sliderDataAttributes.range(() => ({
         multiple: isMultiple,
