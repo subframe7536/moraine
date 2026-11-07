@@ -242,9 +242,9 @@
           "description": "Localized message overrides for this pin input instance."
         },
         {
-          "name": "type",
+          "name": "validationType",
           "optional": true,
-          "type": "Type",
+          "type": "ValidationType",
           "description": "Type of characters allowed in the inputs.",
           "default": {
             "kind": "literal",

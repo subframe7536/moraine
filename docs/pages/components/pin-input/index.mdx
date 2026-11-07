@@ -33,12 +33,12 @@ export function Example() {
 }
 ```
 
-### Type and Mask
+### Validation Type and Mask
 
-Use the `type` prop to restrict inputs to `'number'`, `'text'`, or `'alphanumeric'`. Use `mask` to conceal digits like a password input.
+Use the `validationType` prop to restrict inputs to `'number'`, `'text'`, or `'alphanumeric'`. Use `mask` to conceal digits like a password input.
 
 ```tsx
-<PinInput type="number" mask length={4} />
+<PinInput validationType="number" mask length={4} />
 ```
 
 ### OTP Auto-fill
@@ -99,7 +99,7 @@ Use `mask` to obscure numeric input characters for sensitive passcodes and PINs.
 
 ### Alphanumeric recovery key
 
-Use `type="alphanumeric"` to support alphanumeric backup keys and recovery codes.
+Use `validationType="alphanumeric"` to support alphanumeric backup keys and recovery codes.
 
 <Preview path="./alphanumeric" />
 

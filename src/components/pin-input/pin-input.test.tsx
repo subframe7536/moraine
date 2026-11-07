@@ -1,6 +1,9 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { createForm } from '../form'
 
 import { PinInput } from './pin-input'
 
@@ -175,8 +178,8 @@ describe('PinInput', () => {
     expect(onValueChange).toHaveBeenCalledWith(['A', 'B', 'C'])
   })
 
-  test('type="number" only accepts digits', () => {
-    const screen = render(() => <PinInput type="number" length={3} />)
+  test('validationType="number" only accepts digits', () => {
+    const screen = render(() => <PinInput validationType="number" length={3} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>('input')
 
     expect(inputs[0]?.inputMode).toBe('numeric')
@@ -402,5 +405,72 @@ describe('PinInput', () => {
 
     const separator = screen.container.querySelector('[data-slot="pin-input-separator"]')!
     expect(separator.className).toContain('custom-separator')
+  })
+
+  test('integrates with form.Field and createForm', async () => {
+    const form = createForm({
+      schema: v.object({
+        code: v.pipe(
+          v.string('Verification code is required'),
+          v.length(4, 'Verification code must be 4 digits'),
+          v.regex(/^\d+$/, 'Verification code must contain digits only'),
+        ),
+      }),
+      initialInput: { code: '' },
+      validate: 'submit',
+    })
+
+    let submitted = ''
+    const screen = render(() => (
+      <form.Form
+        onSubmit={(output) => {
+          submitted = output.code
+        }}
+      >
+        <form.Field name="code" label="Verification code" required>
+          <PinInput length={4} validationType="number" />
+        </form.Field>
+        <button type="submit">Verify</button>
+      </form.Form>
+    ))
+
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+    expect(inputs).toHaveLength(4)
+
+    // Type digits one by one
+    inputs[0]?.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '1' } })
+    expect(inputs[0]?.value).toBe('1')
+    expect(document.activeElement).toBe(inputs[1])
+
+    fireEvent.input(inputs[1]!, { target: { value: '2' } })
+    expect(inputs[1]?.value).toBe('2')
+    expect(document.activeElement).toBe(inputs[2])
+
+    fireEvent.input(inputs[2]!, { target: { value: '3' } })
+    expect(inputs[2]?.value).toBe('3')
+    expect(document.activeElement).toBe(inputs[3])
+
+    fireEvent.input(inputs[3]!, { target: { value: '4' } })
+    expect(inputs[3]?.value).toBe('4')
+
+    // Submit form
+    const submitBtn = screen.getByRole('button', { name: 'Verify' })
+    fireEvent.click(submitBtn)
+    await waitFor(() => expect(submitted).toBe('1234'))
+  })
+
+  test('distributes multi-character typed/autofilled value across slots in onInput', () => {
+    const screen = render(() => <PinInput length={4} validationType="number" />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="text"]')
+
+    inputs[0]?.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '1234' } })
+
+    expect(inputs[0]?.value).toBe('1')
+    expect(inputs[1]?.value).toBe('2')
+    expect(inputs[2]?.value).toBe('3')
+    expect(inputs[3]?.value).toBe('4')
+    expect(document.activeElement).toBe(inputs[3])
   })
 })
