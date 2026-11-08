@@ -43,6 +43,11 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     transition: () => Boolean(local.transition),
     unmountOnHide: () => local.unmountOnHide,
     forceMount: () => Boolean(local.forceMount),
+    onBeforeMatch: () => {
+      if (!open()) {
+        toggleContent()
+      }
+    },
   })
   const {
     slots: { root: rootSlot },

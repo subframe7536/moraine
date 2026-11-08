@@ -646,6 +646,26 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(screen.getByRole('button', { name: 'Two' }).getAttribute('aria-expanded')).toBe('false')
+    expect(contents[1]?.getAttribute('hidden')).toBe('until-found')
+  })
+
+  test('keeps hidden="until-found" when a controlled panel refuses to open', async () => {
+    const screen = render(() => (
+      <Accordion
+        unmountOnHide={false}
+        value={[]}
+        items={[{ value: 'one', label: 'One', content: 'Panel one' }]}
+      />
+    ))
+    const content = screen.container.querySelector('[data-slot="accordion-content"]')!
+
+    expect(content.getAttribute('hidden')).toBe('until-found')
+
+    content.dispatchEvent(new Event('beforematch'))
+    await Promise.resolve()
+
+    expect(screen.getByRole('button', { name: 'One' }).getAttribute('aria-expanded')).toBe('false')
+    expect(content.getAttribute('hidden')).toBe('until-found')
   })
 
   test('restores focus to the trigger when a controlled update closes its panel', async () => {

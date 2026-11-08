@@ -1,7 +1,16 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  createRoot,
+  createSignal,
+  on,
+  onCleanup,
+  untrack,
+} from 'solid-js'
 
-import { attachEventListenerMap } from './event-listener'
+import { attachEventListener, attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
 
@@ -18,6 +27,13 @@ export interface CreateDisclosureStateOptions {
   forceMount?: Accessor<boolean | undefined> | boolean
   /** Callback when exit transition completes */
   onExitComplete?: () => void
+  /**
+   * Called on `beforematch` on the registered content element. Providing it opts the
+   * kept-mounted closed content into `hidden="until-found"`: in-page search reveals the
+   * shell and fires the callback so the consumer can open. When the callback leaves the
+   * disclosure closed (disabled item, refused controlled change) the attribute is restored.
+   */
+  onBeforeMatch?: () => void
 }
 
 export interface ShouldMountOptions {
@@ -110,8 +126,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     if (!closed() || exiting()) {
       return false
     }
-    // Kept-mounted closed content stays findable by in-page search, which reveals it via `beforematch`.
-    return shouldMount() ? 'until-found' : true
+    // Only opted-in shells stay findable by in-page search, which reveals them via `beforematch`.
+    return options.onBeforeMatch && shouldMount() ? 'until-found' : true
   })
   const hiddenAttr = createMemo((): '' | 'until-found' | undefined => {
     const value = hidden()
@@ -247,7 +263,37 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
 
     const releasePresence = presence.registerElement(element)
 
+    let removeBeforeMatch: (() => void) | undefined
+    let stopHiddenSync: (() => void) | undefined
+    if (options.onBeforeMatch) {
+      const reveal = options.onBeforeMatch
+      // oxlint-disable-next-line subf/solid-reactivity -- The listener reads hiddenAttr lazily on each beforematch.
+      removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
+        reveal()
+        // The reveal strips `hidden`; restore it when the open was refused.
+        const value = hiddenAttr()
+        if (value !== undefined) {
+          element.setAttribute('hidden', value)
+        }
+      })
+      // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
+      // attribute so `until-found` survives jsdom and hydrated SSR markup.
+      stopHiddenSync = createRoot((dispose) => {
+        createRenderEffect(() => {
+          const value = hiddenAttr()
+          if (value === undefined) {
+            element.removeAttribute('hidden')
+          } else {
+            element.setAttribute('hidden', value)
+          }
+        })
+        return dispose
+      })
+    }
+
     return () => {
+      stopHiddenSync?.()
+      removeBeforeMatch?.()
       releasePresence()
       removeListeners()
       if (removeContentFocusListeners === removeListeners) {

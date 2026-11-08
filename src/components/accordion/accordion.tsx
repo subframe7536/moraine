@@ -4,7 +4,6 @@ import {
   Show,
   createEffect,
   createMemo,
-  createRenderEffect,
   createSignal,
   mergeProps,
   on,
@@ -18,7 +17,6 @@ import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { bindElement } from '../../shared/element-binding'
-import { attachEventListener } from '../../shared/event-listener'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -32,7 +30,6 @@ function AccordionItemPanel(props: {
   contentId: string
   triggerId: string
   slotOverrides: SlotOverrides<Extract<keyof AccordionStyleSlot, string>>
-  onBeforeMatch: () => void
   children: JSX.Element
 }): JSX.Element {
   const {
@@ -68,24 +65,7 @@ function AccordionItemPanel(props: {
   )
 
   const [element, setElement] = createSignal<HTMLDivElement>()
-  bindElement(element, (node) => {
-    const releaseContent = props.disclosure.registerContentElement(node)
-    const removeBeforeMatch = attachEventListener(node, 'beforematch', props.onBeforeMatch)
-    // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
-    // attribute so `until-found` survives jsdom and hydrated SSR markup.
-    createRenderEffect(() => {
-      const hidden = props.disclosure.hiddenAttr()
-      if (hidden === undefined) {
-        node.removeAttribute('hidden')
-      } else {
-        node.setAttribute('hidden', hidden)
-      }
-    })
-    return () => {
-      removeBeforeMatch()
-      releaseContent()
-    }
-  })
+  bindElement(element, (node) => props.disclosure.registerContentElement(node))
 
   return (
     <div
@@ -285,6 +265,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
             open: expanded,
             disabled,
             unmountOnHide: () => merged.unmountOnHide,
+            onBeforeMatch: () => {
+              if (!disabled() && !expanded()) {
+                toggleValue(itemValue())
+              }
+            },
           })
           const itemState = {
             closed: disclosure.closed,
@@ -416,11 +401,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 contentId={contentId()}
                 triggerId={triggerId()}
                 slotOverrides={pickSlotOverrides(local)}
-                onBeforeMatch={() => {
-                  if (!disabled() && !expanded()) {
-                    toggleValue(itemValue())
-                  }
-                }}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />
