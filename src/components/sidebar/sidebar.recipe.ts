@@ -24,7 +24,7 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
     base: {
       root: 'flex h-full min-h-0 w-full overflow-hidden',
       panel:
-        'bg-card flex shrink-0 flex-col h-full min-h-0 w-(--mo-sidebar-width) transition-[margin] duration-200 ease-out overflow-hidden data-mobile:(m-0 bg-transparent w-full) motion-reduce:transition-none',
+        'bg-card flex shrink-0 flex-col h-full min-h-0 w-(--mo-sidebar-width) transition-[margin] duration-200 ease-out overflow-hidden data-mobile:(m-0 bg-transparent flex-1 w-full) motion-reduce:transition-none',
       header: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',
       content: 'flex flex-1 flex-col min-h-0 min-w-0 overflow-y-auto',
       footer: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',

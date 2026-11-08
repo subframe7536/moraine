@@ -61,9 +61,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         closable={false}
       >
         <Drawer.Content aria-label={mobileAriaLabel()}>
-          <Drawer.Body>
-            <PanelContent mobile />
-          </Drawer.Body>
+          <PanelContent mobile />
         </Drawer.Content>
       </Drawer>
     </Show>

@@ -233,7 +233,7 @@ describe('localized component text', () => {
     ))
 
     await waitFor(() => {
-      const labels = Array.from(document.body.querySelectorAll('[data-slot="sheet-content"]')).map(
+      const labels = Array.from(document.body.querySelectorAll('[data-slot="drawer-content"]')).map(
         (element) => element.getAttribute('aria-label'),
       )
       expect(labels).toEqual(['Navigation laterale', 'Primary'])

@@ -142,10 +142,10 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     'horizontal',
   )
 
-  // Sidebar inherits built-in side: 'left', so mobile Sheet opens on the left (left-0, not right-0)
+  // Sidebar inherits built-in side: 'left', so mobile Drawer opens on the left (left-0, not right-0)
   fireEvent.click(screen.getByText('Toggle Sidebar'))
   await waitFor(() => {
-    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    const content = document.body.querySelector('[data-slot="drawer-content"]')!
     expect(content).not.toBeNull()
     expect(content.classList.contains('left-0')).toBe(true)
     expect(content.classList.contains('right-0')).toBe(false)
@@ -174,7 +174,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     screen.getByRole('slider', { name: 'Thumb', hidden: true }).getAttribute('aria-orientation'),
   ).toBe('vertical')
   await waitFor(() => {
-    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    const content = document.body.querySelector('[data-slot="drawer-content"]')!
     expect(content.classList.contains('right-0')).toBe(true)
     expect(content.classList.contains('left-0')).toBe(false)
   })
