@@ -26,14 +26,16 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
 >('commandPalette', {
   base: {
     root: 'text-popover-foreground border border-border rounded-lg bg-popover flex flex-col min-h-0 shadow-overlay overflow-hidden',
-    inputWrapper: 'px-2.5 border-b border-border/60 flex gap-2 h-11 items-center',
-    input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-sm h-10 w-full`,
+    inputWrapper: 'px-3 border-b border-border/70 flex gap-2.5 h-12 items-center',
+    input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-base h-full w-full sm:text-sm`,
     listbox:
-      'p-1 outline-none max-h-72 [scrollbar-width:none] overflow-x-hidden overflow-y-auto scroll-py-1 [&::-webkit-scrollbar]:hidden',
-    footer: 'text-sm text-muted-foreground p-3',
+      'p-1.5 outline-none max-h-72 [scrollbar-width:none] overflow-x-hidden overflow-y-auto scroll-py-1 sm:max-h-84 [&::-webkit-scrollbar]:hidden',
+    footer:
+      'text-xs text-muted-foreground px-3.5 py-2.5 border-t border-border/70 bg-muted/20 flex items-center',
     group: 'text-foreground mt-1 overflow-hidden first:mt-0',
-    groupLabel: 'text-xs text-muted-foreground leading-4 font-medium px-2 py-1 block',
-    item: 'group text-sm text-foreground px-2 py-1 outline-none rounded-sm flex gap-2 min-h-8 w-full cursor-default select-none items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover data-disabled:(opacity-50 pointer-events-none)',
+    groupLabel:
+      'text-tiny text-muted-foreground tracking-wider font-semibold px-2.5 py-1.5 block select-none uppercase',
+    item: 'group text-sm text-foreground px-2.5 py-1.5 outline-none rounded-md flex gap-2.5 min-h-8 w-full cursor-default select-none items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover data-disabled:(opacity-50 pointer-events-none)',
     itemLeading: `${HIGHLIGHTED_MUTED_TEXT_CLASS} shrink-0`,
     itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
     itemLabel: 'min-w-0 truncate items-baseline',
@@ -41,7 +43,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     itemTrailing: `text-xs ${HIGHLIGHTED_MUTED_TEXT_CLASS} tracking-widest ml-auto flex shrink-0 gap-2 items-center [&_[data-slot=kbd-group]]:text-inherit`,
     inputLeading:
       'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
-    close: `text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) ${FOCUS_VISIBLE_RING_CLASS}`,
+    close: `text-muted-foreground p-1 border border-transparent rounded-md inline-flex shrink-0 size-7 cursor-pointer select-none items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) ${FOCUS_VISIBLE_RING_CLASS}`,
     empty: 'text-sm text-muted-foreground py-6 text-center',
   },
   defaultVariants: {
