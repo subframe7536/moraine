@@ -61,22 +61,29 @@ export function ComponentRadar() {
 
   return (
     <section aria-labelledby="radar-title" class="py-12 sm:py-16">
-      <div class="mb-8 flex flex-wrap gap-4 items-end justify-between">
-        <div>
+      <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="max-w-2xl">
           <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
             Explore the components
           </h2>
-          <p class="text-sm text-muted-foreground mt-2 max-w-2xl sm:text-base">
+          <p class="text-sm text-muted-foreground mt-2 sm:text-base">
             Accessible building blocks for forms, navigation, overlays, and everyday interface
             patterns.
           </p>
         </div>
-        <Button as="a" href="/components" size="sm" variant="link" trailing="icon-arrow-right">
+        <Button
+          as="a"
+          href="/components"
+          size="sm"
+          variant="link"
+          trailing="icon-arrow-right"
+          class="shrink-0 self-start sm:self-end"
+        >
           View all components
         </Button>
       </div>
 
-      <div class="border-s border-t border-border grid lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
+      <div class="border-s border-t border-border rounded-xl grid overflow-hidden lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
         <SamplerItem
           title="Tabs"
           description="Switch between related views."
@@ -197,12 +204,12 @@ export function ComponentRadar() {
           description="Show content beside an action."
           href="/components/popover"
         >
-          <Popover>
+          <Popover placement="bottom" align="start">
             <Popover.Trigger as={Button} variant="outline" size="sm">
               Open popover
             </Popover.Trigger>
-            <Popover.Content aria-label="Popover example">
-              <div class="p-4 max-w-52 space-y-1">
+            <Popover.Content aria-label="Popover example" class="max-w-56 w-[calc(100vw-3rem)]">
+              <div class="p-4 space-y-1">
                 <p class="text-sm font-medium">Contextual content</p>
                 <p class="text-xs text-muted-foreground">
                   This panel stays close to the action that opened it.
@@ -251,7 +258,7 @@ export function ComponentRadar() {
           title="Accordion"
           description="Reveal details without leaving the page."
           href="/components/accordion"
-          class="lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
+          class="lg:col-span-2 lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
         >
           <Accordion
             defaultValue={['keyboard']}

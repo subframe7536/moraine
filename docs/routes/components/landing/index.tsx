@@ -7,7 +7,7 @@ import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
 
-const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-2.5 max-sm:h-8'
+const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-4 max-sm:h-10'
 
 function InstallCommand(props: { state: CopyState; onClick: () => void; class?: string }) {
   return (
@@ -15,7 +15,7 @@ function InstallCommand(props: { state: CopyState; onClick: () => void; class?: 
       type="button"
       onClick={() => props.onClick()}
       class={cn(
-        'group text-lg px-4 py-2 text-left border border-border rounded-lg bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center hover:bg-muted/40',
+        'group text-sm px-3.5 py-2 text-left border border-border rounded-lg bg-card inline-flex gap-2.5 cursor-pointer select-none transition-colors items-center hover:bg-muted/40',
         DOCS_FOCUS_RING_OFFSET_CLASS,
         props.class,
       )}
@@ -28,7 +28,7 @@ function InstallCommand(props: { state: CopyState; onClick: () => void; class?: 
             : 'Click to copy'
       }
     >
-      <span class="text-primary font-medium font-mono select-none">$</span>
+      <span class="text-sm text-primary font-medium font-mono select-none">$</span>
       <code class="text-sm text-foreground font-mono">npm i moraine</code>
       <span class="text-muted-foreground inline-flex transition-colors items-center group-hover:text-foreground">
         <Icon
@@ -48,10 +48,10 @@ export function LandingPage() {
   const handleCopy = () => clipboard.copy('npm i moraine')
 
   return (
-    <div class="mx-auto px-5 max-w-6xl sm:px-8">
+    <div class="mx-auto px-4 max-w-6xl lg:px-8 sm:px-6">
       <section
         aria-labelledby="landing-title"
-        class="pb-20 pt-14 text-center flex flex-col items-center lg:pb-32 lg:pt-24 sm:pb-28 sm:pt-20"
+        class="pb-16 pt-12 text-center flex flex-col items-center lg:pb-32 lg:pt-20 sm:pb-24 sm:pt-16"
       >
         <Badge
           size="lg"
@@ -69,12 +69,12 @@ export function LandingPage() {
           <span class="text-foreground block">Styled SolidJS components.</span>
           <span class="text-primary block">Built to fit your design system.</span>
         </h1>
-        <p class="text-sm text-muted-foreground leading-relaxed mt-6 max-w-2xl lg:text-lg sm:text-base">
+        <p class="text-sm text-muted-foreground leading-relaxed mt-5 max-w-2xl lg:text-lg sm:text-base sm:mt-6">
           Start with accessible components and built-in styles. Set a shared theme, choose component
           variants, or refine individual parts with UnoCSS or Tailwind CSS.
         </p>
 
-        <div class="mt-8 flex flex-nowrap gap-3 items-center justify-center">
+        <div class="mt-8 flex flex-wrap gap-3 items-center justify-center">
           <Button
             as="a"
             size="xl"
@@ -102,7 +102,7 @@ export function LandingPage() {
       <ComponentRadar />
 
       <footer>
-        <div class="py-14 border-t border-border gap-10 grid sm:py-18 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+        <div class="py-12 border-t border-border gap-10 grid sm:py-16 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
           <div class="md:pe-8">
             <h2 class="text-2xl tracking-tight font-semibold sm:text-3xl">
               Start building with Moraine
@@ -123,7 +123,10 @@ export function LandingPage() {
             </span>
           </div>
 
-          <nav aria-label="Explore Moraine" class="divide-border divide-y md:ps-8">
+          <nav
+            aria-label="Explore Moraine"
+            class="divide-border divide-y md:ps-8 md:border-s md:border-border"
+          >
             <a
               href="/components"
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
@@ -187,7 +190,7 @@ export function LandingPage() {
           </nav>
         </div>
 
-        <div class="text-xs py-5 flex flex-wrap gap-x-6 gap-y-3 items-center">
+        <div class="text-xs py-5 border-t border-border flex flex-wrap gap-x-6 gap-y-3 items-center">
           <a
             href="/"
             class={`font-semibold flex gap-2 items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`}

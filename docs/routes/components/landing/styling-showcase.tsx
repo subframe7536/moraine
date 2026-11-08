@@ -71,12 +71,12 @@ export function StylingShowcase() {
 
   return (
     <section aria-labelledby="styling-title" class="py-12 sm:py-16">
-      <div class="flex flex-wrap gap-3 items-end justify-between">
-        <div>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="max-w-2xl">
           <h2 id="styling-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
             Make the components yours
           </h2>
-          <p class="text-sm text-muted-foreground mt-2 max-w-2xl sm:text-base">
+          <p class="text-sm text-muted-foreground mt-2 sm:text-base">
             Change tokens globally, tune component recipes, or override a single slot when you need
             to. The same model works with UnoCSS and Tailwind CSS.
           </p>
@@ -87,22 +87,23 @@ export function StylingShowcase() {
           size="sm"
           variant="link"
           trailing="icon-arrow-right"
+          class="shrink-0 self-start sm:self-end"
         >
           Explore customization
         </Button>
       </div>
 
       <div class="mt-8">
-        <div class="py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div
             role="group"
             aria-labelledby="theme-preset-label"
-            class="flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:gap-2 lg:items-center"
+            class="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-2 sm:items-center"
           >
-            <span id="theme-preset-label" class="text-xs text-muted-foreground font-medium lg:me-1">
+            <span id="theme-preset-label" class="text-xs text-muted-foreground font-medium sm:me-1">
               Presets
             </span>
-            <div class="gap-2 grid grid-cols-2 lg:contents">
+            <div class="gap-2 grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center">
               <For each={PRESETS}>
                 {(p, idx) => (
                   <button
@@ -111,7 +112,7 @@ export function StylingShowcase() {
                     onClick={() => setPresetIndex(idx())}
                     class={cn(
                       toolbarButtonClass,
-                      'justify-center lg:justify-start',
+                      'justify-center sm:justify-start',
                       presetIndex() === idx()
                         ? 'text-foreground bg-accent'
                         : 'text-muted-foreground border-border hover:bg-muted/50',
@@ -136,6 +137,7 @@ export function StylingShowcase() {
             label="Customize button label"
             checked={customSlotOverrides()}
             onCheckedChange={setCustomSlotOverrides}
+            class="flex shrink-0 min-h-9 items-center"
           />
         </div>
 
@@ -144,7 +146,7 @@ export function StylingShowcase() {
             <h3 class="text-sm font-semibold mb-4">Live preview · {active().name}</h3>
 
             <form
-              class="max-w-lg w-full"
+              class="max-w-xl w-full"
               onSubmit={(event) => {
                 event.preventDefault()
                 setSavedDisplayName(displayName())
@@ -199,26 +201,26 @@ export function StylingShowcase() {
           </div>
 
           <div class="py-6 border-t border-border min-w-0 lg:ps-8 lg:border-s lg:border-t-0">
-            <div class="pb-5">
+            <div class="pb-4">
               <h3 class="text-sm font-semibold">Theme</h3>
               <p class="text-xs text-muted-foreground mt-1">
                 Set shared colors, spacing, and radius.
               </p>
-              <pre class="text-xs text-foreground leading-5 mt-2 p-3 border border-border/60 rounded-lg bg-card overflow-x-auto">
+              <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>{cssTokens()}</code>
               </pre>
             </div>
-            <div class="py-5">
+            <div class="py-4">
               <h3 class="text-sm font-semibold">Recipe</h3>
               <p class="text-xs text-muted-foreground mt-1">Choose a component variant.</p>
-              <pre class="text-xs text-foreground leading-5 mt-2 p-3 border border-border/60 rounded-lg bg-card overflow-x-auto">
+              <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>{`<Input variant="${active().inputVariant}" />`}</code>
               </pre>
             </div>
-            <div class="pt-5">
+            <div class="pt-4">
               <h3 class="text-sm font-semibold">Component</h3>
               <p class="text-xs text-muted-foreground mt-1">Change one slot for one instance.</p>
-              <pre class="text-xs text-foreground leading-5 mt-2 p-3 border border-border/60 rounded-lg bg-card overflow-x-auto">
+              <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>
                   {customSlotOverrides()
                     ? `<Button classes={{ label: 'tracking-widest uppercase font-mono' }} />`
