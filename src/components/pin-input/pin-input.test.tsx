@@ -274,6 +274,50 @@ describe('PinInput', () => {
     expect(inputs[2]?.value).toBe('3')
   })
 
+  test('keeps a hole in a middle slot for a controlled array value', () => {
+    const [value, setValue] = createSignal<string[]>(['1', '2', '3'])
+    const screen = render(() => (
+      <PinInput length={3} value={value()} onValueChange={(next) => setValue([...next])} />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[1]?.focus()
+    fireEvent.keyDown(inputs[1]!, { key: 'Delete' })
+
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '', '3'])
+  })
+
+  test('keeps a hole in a middle slot inside form.Field', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.string() }),
+          initialInput: { code: '123' },
+          validate: 'submit',
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code">
+            <PinInput length={3} validationType="number" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3'])
+
+    inputs[1]?.focus()
+    fireEvent.keyDown(inputs[1]!, { key: 'Delete' })
+    await Promise.resolve()
+
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '', '3'])
+  })
+
   test('Arrow keys and Home/End navigate between inputs', () => {
     const screen = render(() => <PinInput defaultValue="1234" length={4} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(

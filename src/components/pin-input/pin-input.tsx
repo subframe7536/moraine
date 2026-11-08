@@ -178,6 +178,20 @@ function normalizeChars(
   if (val === undefined || val === null) {
     return result
   }
+  if (Array.isArray(val)) {
+    // Array elements map to slots positionally: an empty element keeps a hole
+    // in the middle instead of packing the following characters left.
+    const limit = Math.min(val.length, length)
+    for (let i = 0; i < limit; i++) {
+      const element = val[i]
+      if (!element) {
+        continue
+      }
+      const valid = applyNormalizeValue(extractValidChars(element, type), type, normalizeValue)
+      result[i] = valid[0] ?? ''
+    }
+    return result
+  }
   const valid = applyNormalizeValue(extractValidChars(val, type), type, normalizeValue)
   const limit = Math.min(valid.length, length)
   for (let i = 0; i < limit; i++) {
@@ -240,15 +254,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       return generatedId()
     },
     get initialValue() {
-      if (local.value !== undefined) {
-        return typeof local.value === 'string' ? local.value : local.value.join('')
-      }
-      if (local.defaultValue !== undefined) {
-        return typeof local.defaultValue === 'string'
-          ? local.defaultValue
-          : local.defaultValue.join('')
-      }
-      return ''
+      return local.value ?? local.defaultValue ?? ''
     },
   })
   const themeField = useFieldContext()
@@ -282,14 +288,30 @@ export function PinInput(props: PinInputProps): JSX.Element {
       if (local.value !== undefined) {
         return normalizeChars(local.value, length(), validationType(), normalize())
       }
-      const formVal = field.value()
-      if (formVal !== undefined) {
-        return normalizeChars(formVal as string | string[], length(), validationType(), normalize())
-      }
       return uncontrolledChars()
     },
     initialChars,
     { equals: areCharArraysEqual },
+  )
+
+  // The Field store mirrors the joined string; external writes (reset, setValue)
+  // flow back into the slots. Own writes share the same joined value and are
+  // skipped, so a hole in a middle slot survives the round trip.
+  createEffect(
+    on(field.value, (formVal) => {
+      if (formVal === undefined) {
+        return
+      }
+      const next = normalizeChars(
+        formVal as string | string[],
+        length(),
+        validationType(),
+        normalize(),
+      )
+      if (next.join('') !== untrack(uncontrolledChars).join('')) {
+        setUncontrolledChars(() => next)
+      }
+    }),
   )
 
   const joinedValue = createMemo(() => chars().join(''))
