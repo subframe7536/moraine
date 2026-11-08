@@ -38,8 +38,13 @@ export interface DrawerNestedChannel {
   readonly popupHeight: Accessor<number>
   /** Called by this drawer's own content to report its popup height. */
   readonly setPopupHeight: (height: number) => void
-  /** Called by a nested content to report its stack state; zeros on unmount. */
-  readonly report: (report: DrawerNestedReport) => void
+  /**
+   * Called by a nested content to report its stack state, keyed by the reporting
+   * channel so sibling drawers aggregate instead of overwriting each other.
+   */
+  readonly report: (report: DrawerNestedReport, reporter: DrawerNestedChannel) => void
+  /** Drops a reporter's entry when its content unmounts. */
+  readonly release: (reporter: DrawerNestedChannel) => void
   /** Called by a nested content on swipe changes; forwarded up the chain. */
   readonly reportSwipe: (swiping: boolean, progress: number) => void
 }
@@ -51,6 +56,24 @@ export function createDrawerNestedChannel(parent?: DrawerNestedChannel): DrawerN
   const [descendantHeight, setDescendantHeight] = createSignal(0)
   const [swiping, setSwiping] = createSignal(false)
   const [progress, setProgress] = createSignal(0)
+  const reports = new Map<DrawerNestedChannel, DrawerNestedReport>()
+
+  function aggregate(): void {
+    let open = 0
+    let active = 0
+    let frontmostHeight = 0
+    for (const report of reports.values()) {
+      open += report.open
+      active += report.active
+      if (report.frontmostHeight > 0) {
+        frontmostHeight = report.frontmostHeight
+      }
+    }
+    setOpenCount(open)
+    setActiveCount(active)
+    setDescendantHeight(frontmostHeight)
+  }
+
   return {
     openCount,
     activeCount,
@@ -63,10 +86,13 @@ export function createDrawerNestedChannel(parent?: DrawerNestedChannel): DrawerN
     parent,
     popupHeight,
     setPopupHeight,
-    report: (report) => {
-      setOpenCount(report.open)
-      setActiveCount(report.active)
-      setDescendantHeight(report.frontmostHeight)
+    report: (report, reporter) => {
+      reports.set(reporter, report)
+      aggregate()
+    },
+    release: (reporter) => {
+      reports.delete(reporter)
+      aggregate()
     },
     reportSwipe: (nextSwiping, nextProgress) => {
       setSwiping(nextSwiping)

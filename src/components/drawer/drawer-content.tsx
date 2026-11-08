@@ -155,11 +155,14 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
             family.open,
           ],
           ([openCount, activeCount, frontmostHeight, isOpen]) => {
-            parent.report({
-              open: openCount + 1,
-              active: isOpen ? activeCount + 1 : 0,
-              frontmostHeight: isOpen ? frontmostHeight : 0,
-            })
+            parent.report(
+              {
+                open: openCount + 1,
+                active: isOpen ? activeCount + 1 : 0,
+                frontmostHeight: isOpen ? frontmostHeight : 0,
+              },
+              drawer.nested,
+            )
           },
         ),
       )
@@ -169,7 +172,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         }),
       )
       onCleanup(() => {
-        parent.report({ open: 0, active: 0, frontmostHeight: 0 })
+        parent.release(drawer.nested)
         parent.reportSwipe(false, 0)
       })
     }
