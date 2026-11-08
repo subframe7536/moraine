@@ -20,10 +20,12 @@ export interface DocsCommandPaletteProps {
 
 interface DocsCommandItem extends CommandPaletteT.Item {
   href: string
+  icon?: string
 }
 
 export function buildDocsCommandItems(
   pages: SidebarPage[],
+  includeSections = true,
 ): CommandPaletteT.Group<DocsCommandItem>[] {
   const pageItems: DocsCommandItem[] = []
   const sectionItems: DocsCommandItem[] = []
@@ -31,30 +33,41 @@ export function buildDocsCommandItems(
 
   for (const page of pages) {
     if (!destinations.has(page.path)) {
+      const surfaceIcon =
+        page.surface === 'components'
+          ? 'i-lucide:layout-grid'
+          : page.surface === 'hooks'
+            ? 'i-lucide:anchor'
+            : 'i-lucide:book-open'
+
       pageItems.push({
         href: page.path,
         value: page.path,
         label: page.label,
         description: `${page.surface === 'docs' ? 'Docs' : page.surface === 'hooks' ? 'Hooks' : 'Components'} · ${page.section[0]?.toUpperCase()}${page.section.slice(1)}`,
         keywords: [...page.tags, page.path, page.description],
+        icon: surfaceIcon,
       })
       destinations.add(page.path)
     }
 
-    for (const section of page.sections) {
-      const href = `${page.path}#${encodeURIComponent(section.id)}`
-      if (destinations.has(href)) {
-        continue
-      }
+    if (includeSections) {
+      for (const section of page.sections) {
+        const href = `${page.path}#${encodeURIComponent(section.id)}`
+        if (destinations.has(href)) {
+          continue
+        }
 
-      sectionItems.push({
-        href,
-        value: href,
-        label: section.label,
-        description: page.label,
-        keywords: [page.label, page.description, ...page.tags, page.path, section.id],
-      })
-      destinations.add(href)
+        sectionItems.push({
+          href,
+          value: href,
+          label: section.label,
+          description: page.label,
+          keywords: [page.label, page.description, ...page.tags, page.path, section.id],
+          icon: 'i-lucide:hash',
+        })
+        destinations.add(href)
+      }
     }
   }
 
@@ -89,7 +102,7 @@ function createDocsCommandItem(
       href={context.item.href}
       tabIndex={-1}
       aria-label={`${context.item.description}: ${context.item.label}`}
-      class="flex flex-1 flex-col min-w-0"
+      class="flex flex-1 gap-2.5 min-w-0 items-center"
       onClick={(event) => {
         event.stopPropagation()
         if (isModifiedActivation(event)) {
@@ -101,8 +114,22 @@ function createDocsCommandItem(
         close()
       }}
     >
-      <span class="truncate">{context.item.label}</span>
-      <span class="text-xs text-muted-foreground truncate">{context.item.description}</span>
+      <Show when={context.item.icon}>
+        {(icon) => (
+          <span class="text-muted-foreground rounded bg-muted/60 flex shrink-0 size-6 items-center justify-center group-data-[highlighted]:(text-accent-foreground bg-accent)">
+            <Icon name={icon()} class="text-xs" />
+          </span>
+        )}
+      </Show>
+      <span class="flex flex-1 flex-col min-w-0">
+        <span class="text-sm leading-snug font-medium truncate">{context.item.label}</span>
+        <span class="text-xs text-muted-foreground leading-tight truncate group-data-[highlighted]:text-accent-foreground/80">
+          {context.item.description}
+        </span>
+      </span>
+      <span class="text-xs text-muted-foreground pe-1 opacity-0 flex shrink-0 transition-opacity items-center group-data-[highlighted]:opacity-100">
+        <Icon name="i-lucide:corner-down-left" class="size-3.5" />
+      </span>
     </a>
   )
 }
@@ -152,7 +179,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
     props.setOpen(false)
   }
 
-  const items = createMemo(() => buildDocsCommandItems(props.pages))
+  const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchTerm().trim())))
 
   onMount(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -188,9 +215,10 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       closable={false}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
-      <Dialog.Content>
+      <Dialog.Content class="p-0 overflow-hidden sm:max-w-xl">
         <Dialog.Body class="mb-0 p-0">
           <CommandPalette<DocsCommandItem>
+            class="border-0 rounded-none bg-transparent shadow-none"
             groups={items()}
             placeholder="Search components, hooks, and pages..."
             searchTerm={searchTerm()}
@@ -209,16 +237,16 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
             closable
             onClose={onClose}
             emptyRender={(ctx) => (
-              <div class="flex flex-col gap-2 items-center">
-                <Icon name="i-lucide-search-x" class="text-base" />
-                <span>
+              <div class="py-6 flex flex-col gap-2 items-center">
+                <Icon name="i-lucide:search-x" class="text-2xl text-muted-foreground/60" />
+                <span class="text-sm text-muted-foreground">
                   No pages found for{' '}
-                  <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.
+                  <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>
                 </span>
               </div>
             )}
             footerRender={(ctx) => (
-              <div class="flex gap-4 items-center justify-between">
+              <div class="flex w-full items-center justify-between">
                 <span>
                   {ctx.visibleGroups.reduce(
                     (count, group) => count + (group.items?.length ?? 0),
@@ -226,7 +254,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                   )}{' '}
                   matches
                 </span>
-                <div class="flex gap-3 items-center" aria-label="Keyboard shortcuts">
+                <div class="gap-3 hidden items-center sm:flex" aria-label="Keyboard shortcuts">
                   <span class="flex gap-1.5 items-center">
                     <KbdGroup
                       items={['arrowup', 'arrowdown']}
