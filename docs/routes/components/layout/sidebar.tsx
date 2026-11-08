@@ -2,7 +2,7 @@ import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
-import { Badge, Sidebar, cn } from '../../../../src'
+import { Badge, Icon, Sidebar, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 
@@ -136,7 +136,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
         nav = element
       }}
       aria-label="Documentation"
-      class="px-2 pb-8 pt-1 bg-background flex flex-col gap-8"
+      class="px-2 py-3 flex flex-col gap-6"
     >
       <For each={surfaces()}>{renderSurface}</For>
     </nav>
@@ -144,42 +144,40 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
 }
 
 export const DocsSidebarHeader = () => {
+  const frame = Sidebar.useContext()
   const location = useLocation()
   return (
     <nav
       aria-label="Documentation sections"
-      class="font-sans px-4 py-4 border-b border-border w-full"
+      class="font-sans p-3 border-b border-border shrink-0 w-full"
     >
-      <Sidebar.Menu class="gap-1">
+      <div class="p-1 rounded-lg bg-muted/60 gap-1 grid grid-cols-3">
         <For each={SURFACES}>
           {(surface) => {
             const selected = () => getCurrentSurface(location.pathname) === surface.value
             return (
-              <Sidebar.MenuItem>
-                <Sidebar.MenuButton
-                  href={surface.href}
-                  isActive={selected()}
-                  leading={surface.icon}
-                  class={cn(
-                    `font-medium px-3 border rounded-lg gap-3 h-12 transition-colors relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
-                    selected()
-                      ? 'text-foreground border-border bg-muted'
-                      : 'border-transparent hover:(text-foreground bg-muted/60)',
-                  )}
-                >
-                  <Show when={selected()}>
-                    <span
-                      aria-hidden="true"
-                      class="rounded-full bg-foreground h-5 w-0.5 start-0 top-1/2 absolute -translate-y-1/2"
-                    />
-                  </Show>
-                  {surface.label}
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
+              <a
+                href={surface.href}
+                onClick={() => {
+                  if (frame.isMobile()) {
+                    frame.setOpen(false)
+                  }
+                }}
+                class={cn(
+                  `text-xs font-medium px-2 py-1.5 rounded-md flex gap-1.5 select-none transition-colors items-center justify-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+                  selected()
+                    ? 'text-foreground bg-background shadow-xs'
+                    : 'text-muted-foreground hover:(text-foreground bg-background/50)',
+                )}
+                aria-current={selected() ? 'page' : undefined}
+              >
+                <Icon name={surface.icon} class="shrink-0 size-3.5" />
+                <span class="truncate">{surface.label}</span>
+              </a>
             )
           }}
         </For>
-      </Sidebar.Menu>
+      </div>
     </nav>
   )
 }

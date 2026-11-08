@@ -115,7 +115,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                 <DocsSidebar pages={pages} activePage={committedPage} />
               </Sidebar.Content>
               <Show when={frame.isMobile()}>
-                <Sidebar.Footer class="px-5 pb-5 pt-3">
+                <Sidebar.Footer class="p-3 border-t border-border">
                   <Button
                     as="a"
                     href="https://github.com/subframe7536/moraine"
@@ -124,7 +124,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                     variant="ghost"
                     size="sm"
                     leading="i-lucide:github"
-                    class="min-h-11 w-full justify-start"
+                    class="text-xs font-medium h-10 w-full justify-start"
                   >
                     GitHub repository
                   </Button>
