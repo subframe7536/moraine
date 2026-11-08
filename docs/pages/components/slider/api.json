@@ -258,6 +258,7 @@
     {
       "target": "range",
       "attributes": [
+        "data-empty",
         "data-inverted",
         "data-multiple"
       ]
