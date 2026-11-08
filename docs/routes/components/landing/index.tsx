@@ -56,22 +56,23 @@ export function LandingPage() {
         <Badge
           size="lg"
           variant="outline"
-          leading="i-lucide:flask-conical"
+          leading="i-lucide:sparkles"
           class="mb-6 px-4 border-primary/60 rounded-full bg-primary/10 gap-2 h-9"
           classes={{ leading: 'text-primary' }}
         >
-          Now in early preview
+          Styled & Composable for SolidJS · Pre-Alpha
         </Badge>
         <h1
           id="landing-title"
           class="text-3xl leading-tight tracking-tight font-semibold max-w-5xl min-w-0 wrap-anywhere text-balance lg:text-6xl sm:text-5xl"
         >
-          <span class="text-foreground block">Styled SolidJS components.</span>
-          <span class="text-primary block">Built to fit your design system.</span>
+          <span class="text-foreground block">Styled out of the box.</span>
+          <span class="text-primary block">Composable at every level.</span>
         </h1>
         <p class="text-sm text-muted-foreground leading-relaxed mt-5 max-w-2xl lg:text-lg sm:text-base sm:mt-6">
-          Start with accessible components and built-in styles. Set a shared theme, choose component
-          variants, or refine individual parts with UnoCSS or Tailwind CSS.
+          Inspired by Nuxt UI and Chakra UI, built natively for SolidJS. Moraine ships with
+          production-ready styling by default, pairing ready-to-use composite controls for rapid
+          velocity with granular building blocks for complete structural freedom.
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3 items-center justify-center">
@@ -82,7 +83,7 @@ export function LandingPage() {
             trailing="icon-arrow-right"
             class={HERO_BUTTON_MOBILE_SIZE_CLASS}
           >
-            Get Started
+            Start Building
           </Button>
           <Button
             as="a"
@@ -91,7 +92,7 @@ export function LandingPage() {
             variant="outline"
             class={HERO_BUTTON_MOBILE_SIZE_CLASS}
           >
-            View Components
+            Explore Components
           </Button>
         </div>
 
@@ -105,11 +106,12 @@ export function LandingPage() {
         <div class="py-12 border-t border-border gap-10 grid sm:py-16 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
           <div class="md:pe-8">
             <h2 class="text-2xl tracking-tight font-semibold sm:text-3xl">
-              Start building with Moraine
+              Ready to build with speed and composition?
             </h2>
             <p class="text-sm text-muted-foreground leading-relaxed mt-3 max-w-md sm:text-base">
-              Install the library, choose UnoCSS or Tailwind CSS, and shape the components to fit
-              your interface.
+              Drop in styled composite controls or assemble custom flows from granular parts.
+              Install Moraine, plug in our UnoCSS preset or Tailwind plugin, and build with complete
+              freedom.
             </p>
 
             <InstallCommand class="mt-6" state={clipboard.state()} onClick={handleCopy} />
@@ -134,7 +136,7 @@ export function LandingPage() {
               <span>
                 <span class="text-sm font-medium block">Components</span>
                 <span class="text-xs text-muted-foreground mt-1 block">
-                  Form, navigation, overlay, and more.
+                  Full catalogue of styled composite controls and composable subparts.
                 </span>
               </span>
               <Icon
@@ -149,7 +151,7 @@ export function LandingPage() {
               <span>
                 <span class="text-sm font-medium block">Customization</span>
                 <span class="text-xs text-muted-foreground mt-1 block">
-                  Theme, composition, and component slots.
+                  Theme tokens, compiled recipes, and fine-grained slot overrides.
                 </span>
               </span>
               <Icon
@@ -164,7 +166,7 @@ export function LandingPage() {
               <span>
                 <span class="text-sm font-medium block">UnoCSS</span>
                 <span class="text-xs text-muted-foreground mt-1 block">
-                  Configure the Moraine preset.
+                  Zero-runtime utility preset with variant grouping.
                 </span>
               </span>
               <Icon
@@ -179,7 +181,7 @@ export function LandingPage() {
               <span>
                 <span class="text-sm font-medium block">Tailwind CSS</span>
                 <span class="text-xs text-muted-foreground mt-1 block">
-                  Add the plugin and scan component styles.
+                  First-class plugin with automatic class scanning.
                 </span>
               </span>
               <Icon

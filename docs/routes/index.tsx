@@ -2,9 +2,9 @@ import { createRoute } from 'solid-file-router'
 
 import { LandingPage } from './components/landing'
 
-const title = 'Moraine — customizable components for SolidJS'
+const title = 'Moraine — Styled & Composable Component Library for SolidJS'
 const description =
-  'Accessible SolidJS components with composable recipes and flexible styling through UnoCSS and Tailwind CSS.'
+  'A styled, batteries-included SolidJS component library inspired by Nuxt UI and Chakra UI. Ready-to-use composite controls and granular composable primitives powered by UnoCSS and Tailwind CSS.'
 const canonical = 'https://moraine.subf.dev/'
 
 export default createRoute({

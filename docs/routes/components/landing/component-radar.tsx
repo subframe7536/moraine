@@ -64,11 +64,11 @@ export function ComponentRadar() {
       <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div class="max-w-2xl">
           <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
-            Explore the components
+            Composite controls & modular primitives.
           </h2>
           <p class="text-sm text-muted-foreground mt-2 sm:text-base">
-            Accessible building blocks for forms, navigation, overlays, and everyday interface
-            patterns.
+            Move fast with drop-in composite controls or craft bespoke experiences by assembling
+            decomposed parts. Everything arrives fully styled, accessible, and reactive.
           </p>
         </div>
         <Button
@@ -79,14 +79,14 @@ export function ComponentRadar() {
           trailing="icon-arrow-right"
           class="shrink-0 self-start sm:self-end"
         >
-          View all components
+          Browse all components
         </Button>
       </div>
 
       <div class="border-s border-t border-border rounded-xl grid overflow-hidden lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
         <SamplerItem
           title="Tabs"
-          description="Switch between related views."
+          description="Composable compound navigation with roving keyboard focus and animated panels."
           href="/components/tabs"
           class="md:col-span-2"
         >
@@ -146,7 +146,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Slider"
-          description="Choose a value from a range."
+          description="Continuous numeric controls — raw slider track and composite BoldSlider."
           href="/components/slider"
         >
           <div class="max-w-sm space-y-5">
@@ -177,7 +177,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Switch"
-          description="Choose where deployment alerts appear."
+          description="Ready composite toggles with integrated label and description layout."
           href="/components/switch"
         >
           <div class="space-y-4">
@@ -201,7 +201,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Popover"
-          description="Show content beside an action."
+          description="Granular floating primitives with collision-aware positioning and anchored trigger."
           href="/components/popover"
         >
           <Popover placement="bottom" align="start">
@@ -220,8 +220,8 @@ export function ComponentRadar() {
         </SamplerItem>
 
         <SamplerItem
-          title="Input number"
-          description="Step within a defined range."
+          title="NumberInput"
+          description="Drop-in composite stepper with strict boundaries and increment controls."
           href="/components/number-input"
         >
           <NumberInput aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
@@ -229,7 +229,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Combobox"
-          description="Search and select from a collection."
+          description="Full-featured composite select with typeahead search and clearable input."
           href="/components/combobox"
         >
           <Combobox items={OPTIONS} placeholder="Search technologies..." allowClear />
@@ -237,7 +237,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Dialog"
-          description="Focus attention on a task."
+          description="Decomposed modal parts (Trigger, Content, Body) for flexible composition."
           href="/components/dialog"
         >
           <Dialog>
@@ -256,7 +256,7 @@ export function ComponentRadar() {
 
         <SamplerItem
           title="Accordion"
-          description="Reveal details without leaving the page."
+          description="Collapsible disclosure system with smooth transitions and keyboard roving."
           href="/components/accordion"
           class="lg:col-span-2 lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
         >

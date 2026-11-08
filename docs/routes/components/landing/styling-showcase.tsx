@@ -74,11 +74,12 @@ export function StylingShowcase() {
       <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div class="max-w-2xl">
           <h2 id="styling-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
-            Make the components yours
+            Styled by default. Customized in three tiers.
           </h2>
           <p class="text-sm text-muted-foreground mt-2 sm:text-base">
-            Change tokens globally, tune component recipes, or override a single slot when you need
-            to. The same model works with UnoCSS and Tailwind CSS.
+            Every component ships with cohesive, accessible styling out of the box. When your brand
+            demands customization, shape tokens globally, switch recipe variants, or surgically
+            override individual slots without fighting CSS specificity.
           </p>
         </div>
         <Button
@@ -89,7 +90,7 @@ export function StylingShowcase() {
           trailing="icon-arrow-right"
           class="shrink-0 self-start sm:self-end"
         >
-          Explore customization
+          Explore the styling model
         </Button>
       </div>
 
@@ -134,7 +135,7 @@ export function StylingShowcase() {
           </div>
 
           <Switch
-            label="Customize button label"
+            label="Inject slot override (classes.label)"
             checked={customSlotOverrides()}
             onCheckedChange={setCustomSlotOverrides}
             class="flex shrink-0 min-h-9 items-center"
@@ -156,7 +157,9 @@ export function StylingShowcase() {
               <Card class="w-full" style={cardTheme()}>
                 <Card.Header>
                   <Card.Title>Profile settings</Card.Title>
-                  <Card.Description>One form, four visual starting points.</Card.Description>
+                  <Card.Description>
+                    A styled composite form adapting instantly across tokens and recipe variants.
+                  </Card.Description>
                 </Card.Header>
                 <Card.Body>
                   <Field label="Display name">
@@ -202,24 +205,28 @@ export function StylingShowcase() {
 
           <div class="py-6 border-t border-border min-w-0 lg:ps-8 lg:border-s lg:border-t-0">
             <div class="pb-4">
-              <h3 class="text-sm font-semibold">Theme</h3>
+              <h3 class="text-sm font-semibold">1. Design Tokens</h3>
               <p class="text-xs text-muted-foreground mt-1">
-                Set shared colors, spacing, and radius.
+                Global CSS custom properties driving default typography, radii, and theme colors.
               </p>
               <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>{cssTokens()}</code>
               </pre>
             </div>
             <div class="py-4">
-              <h3 class="text-sm font-semibold">Recipe</h3>
-              <p class="text-xs text-muted-foreground mt-1">Choose a component variant.</p>
+              <h3 class="text-sm font-semibold">2. Component Recipe</h3>
+              <p class="text-xs text-muted-foreground mt-1">
+                Pre-compiled variants matching deterministically into fine-grained reactive memos.
+              </p>
               <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>{`<Input variant="${active().inputVariant}" />`}</code>
               </pre>
             </div>
             <div class="pt-4">
-              <h3 class="text-sm font-semibold">Component</h3>
-              <p class="text-xs text-muted-foreground mt-1">Change one slot for one instance.</p>
+              <h3 class="text-sm font-semibold">3. Slot Overrides</h3>
+              <p class="text-xs text-muted-foreground mt-1">
+                Surgically target internal component slots with bespoke classes or inline styles.
+              </p>
               <pre class="text-xs text-foreground leading-5 mt-2 p-2.5 border border-border/60 rounded-lg bg-card overflow-x-auto">
                 <code>
                   {customSlotOverrides()
