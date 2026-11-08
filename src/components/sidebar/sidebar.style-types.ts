@@ -4,7 +4,7 @@ export interface SidebarStyleSlot<T = unknown> {
   /** Frame that contains the panel and inset regions. */
   root?: T
 
-  /** Sidebar panel, rendered in a Sheet on mobile. */
+  /** Sidebar panel, rendered in a Drawer on mobile. */
   panel?: T
 
   /** Header region inside the panel. */

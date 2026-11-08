@@ -27,7 +27,7 @@ import type { SidebarProps, SidebarT } from './sidebar.types'
 
 const SIDEBAR_DEFAULT_BREAKPOINT = 768
 
-/** Responsive sidebar layout with a mobile Sheet fallback. */
+/** Responsive sidebar layout with a mobile Drawer fallback. */
 export function Sidebar(props: SidebarProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'breakpoint',

@@ -177,25 +177,25 @@ describe('Sidebar', () => {
     expect(input).toBe(initialInput)
   })
 
-  test('opens the mobile Sheet through the public context', async () => {
+  test('opens the mobile Drawer through the public context', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <FrameContent />
       </Sidebar>
     ))
 
-    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull()
     fireEvent.click(screen.getByText('Toggle'))
 
     await waitFor(() => {
       expect(
-        document.body.querySelector('[data-slot="sheet-content"]')?.getAttribute('aria-label'),
+        document.body.querySelector('[data-slot="drawer-content"]')?.getAttribute('aria-label'),
       ).toBe('Sidebar navigation')
       expect(document.body.textContent).toContain('Navigation')
     })
   })
 
-  test('uses the custom Sidebar accessible name for the mobile Sheet', async () => {
+  test('uses the custom Sidebar accessible name for the mobile Drawer', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel aria-label="Project navigation">Navigation</Sidebar.Panel>
@@ -220,21 +220,26 @@ describe('Sidebar', () => {
       'Workspace navigation',
     ],
     ['native title', { title: 'Billing navigation' }, 'Billing navigation'],
-  ] as const)('prefers the Sidebar %s when naming the mobile Sheet', async (_case, props, name) => {
-    const screen = render(() => (
-      <Sidebar isMobile>
-        <Sidebar.Panel {...props}>Navigation</Sidebar.Panel>
-        <Sidebar.Inset>
-          <Sidebar.Trigger>Toggle</Sidebar.Trigger>
-        </Sidebar.Inset>
-      </Sidebar>
-    ))
+  ] as const)(
+    'prefers the Sidebar %s when naming the mobile Drawer',
+    async (_case, props, name) => {
+      const screen = render(() => (
+        <Sidebar isMobile>
+          <Sidebar.Panel {...props}>Navigation</Sidebar.Panel>
+          <Sidebar.Inset>
+            <Sidebar.Trigger>Toggle</Sidebar.Trigger>
+          </Sidebar.Inset>
+        </Sidebar>
+      ))
 
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
-    await waitFor(() =>
-      expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(name),
-    )
-  })
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+      await waitFor(() =>
+        expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+          name,
+        ),
+      )
+    },
+  )
 
   test('derives mobile mode from matchMedia when it is uncontrolled', async () => {
     window.matchMedia = createMatchMediaMock(true)
@@ -281,7 +286,7 @@ describe('Sidebar', () => {
     expect(screen.getByText('Navigation')).toBeTruthy()
   })
 
-  test('keeps the named Sheet behavior when mobile mode changes dynamically', async () => {
+  test('keeps the named Drawer behavior when mobile mode changes dynamically', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar isMobile={mobile()}>
@@ -459,7 +464,7 @@ describe('Sidebar.Trigger', () => {
     expect(sidebar.hasAttribute('data-closed')).toBe(false)
   })
 
-  test('opens mobile sheet on trigger click', async () => {
+  test('opens mobile drawer on trigger click', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
@@ -470,11 +475,11 @@ describe('Sidebar.Trigger', () => {
     ))
 
     const trigger = screen.getByRole('button', { name: 'Toggle' })
-    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull()
 
     fireEvent.click(trigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
       expect(trigger.getAttribute('aria-expanded')).toBe('true')
     })
   })
@@ -1159,7 +1164,7 @@ describe('Sidebar open state', () => {
 })
 
 describe('Sidebar closeOnSelect', () => {
-  test('closes the mobile sheet after activating an item with href', async () => {
+  test('closes the mobile drawer after activating an item with href', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>
@@ -1179,7 +1184,7 @@ describe('Sidebar closeOnSelect', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
 
-  test('does not close the mobile sheet for items without href', async () => {
+  test('does not close the mobile drawer for items without href', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>
@@ -1200,7 +1205,7 @@ describe('Sidebar closeOnSelect', () => {
     expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
   })
 
-  test('keeps the mobile sheet open when closeOnSelect is false', async () => {
+  test('keeps the mobile drawer open when closeOnSelect is false', async () => {
     const screen = render(() => (
       <Sidebar isMobile>
         <Sidebar.Panel>

@@ -73,7 +73,7 @@ export namespace SidebarT {
     children?: JSX.Element
     as?: T
     /**
-     * Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;
+     * Accessible name for the mobile navigation Drawer. Native aria-label takes precedence;
      * title is used when neither native aria-label nor this prop is provided.
      * Localized via MoraineProvider messages when omitted. English default is `Sidebar navigation`.
      */
@@ -216,8 +216,8 @@ export namespace SidebarT {
     leading?: IconT.Name
     trailing?: IconT.Name
     /**
-     * Whether activating this button on mobile closes the sheet.
-     * When omitted, buttons with `href` close the sheet.
+     * Whether activating this button on mobile closes the drawer.
+     * When omitted, buttons with `href` close the drawer.
      */
     closeOnSelect?: boolean
   }

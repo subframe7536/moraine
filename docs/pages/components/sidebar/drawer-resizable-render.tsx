@@ -163,7 +163,7 @@ function ResizableLayout() {
   )
 }
 
-export function SheetResizableRender() {
+export function DrawerResizableRender() {
   return (
     <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
       <Sidebar>

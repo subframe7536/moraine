@@ -4,14 +4,14 @@ import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
-import { Sheet } from '../sheet'
+import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
 
-/** Sidebar panel that renders inline on desktop and inside a Sheet on mobile. */
+/** Sidebar panel that renders inline on desktop and inside a Drawer on mobile. */
 export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
@@ -24,7 +24,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   const mobileAriaLabel = () =>
     local['aria-label'] ?? (rest as { title?: string }).title ?? messages().label
 
-  // The mobile Sheet owns presence, so only the inline desktop panel reflects the closed state.
+  // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
     const closed = () => !contentProps.mobile && !context.isOpen()
     const panelSlot = slotWith('panel', {
@@ -54,18 +54,18 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
 
   return (
     <Show when={context.isMobile()} fallback={<PanelContent mobile={false} />}>
-      <Sheet
+      <Drawer
         open={context.isOpen()}
         onOpenChange={context.setOpen}
         side={context.side}
         closable={false}
       >
-        <Sheet.Content aria-label={mobileAriaLabel()}>
-          <Sheet.Body>
+        <Drawer.Content aria-label={mobileAriaLabel()}>
+          <Drawer.Body>
             <PanelContent mobile />
-          </Sheet.Body>
-        </Sheet.Content>
-      </Sheet>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
     </Show>
   )
 }

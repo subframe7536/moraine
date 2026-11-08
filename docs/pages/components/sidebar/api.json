@@ -139,7 +139,7 @@
           "name": "aria-label",
           "optional": true,
           "type": "string",
-          "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.\nLocalized via MoraineProvider messages when omitted. English default is `Sidebar navigation`."
+          "description": "Accessible name for the mobile navigation Drawer. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.\nLocalized via MoraineProvider messages when omitted. English default is `Sidebar navigation`."
         },
         {
           "name": "as",
@@ -632,7 +632,7 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether activating this button on mobile closes the sheet.\nWhen omitted, buttons with `href` close the sheet."
+          "description": "Whether activating this button on mobile closes the drawer.\nWhen omitted, buttons with `href` close the drawer."
         },
         {
           "name": "disabled",

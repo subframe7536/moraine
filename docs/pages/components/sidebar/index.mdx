@@ -109,17 +109,17 @@ import Playground from './playground'
   }}
 />
 
-Trigger can appear anywhere inside the root. On mobile, `Sidebar.Panel` renders its regions inside an internal Sheet. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it rather than adding another `<main>`.
+Trigger can appear anywhere inside the root. On mobile, `Sidebar.Panel` renders its regions inside an internal Drawer. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it rather than adding another `<main>`.
 
 ## Usage
 
 Use Sidebar for application-shell navigation that stays inline on desktop and moves into a
-mobile drawer. Use [Sheet](/components/sheet) for a standalone drawer that is not a persistent
+mobile drawer. Use [Drawer](/components/drawer) for a standalone gesture-enabled drawer that is not a persistent
 layout region. Use [NavigationMenu](/components/navigation-menu) for a website header of links and
 panels.
 
 `Sidebar` is both the state provider and desktop layout root. `Sidebar.Panel` renders
-inline on desktop and moves the same content into a mobile Sheet on smaller viewports.
+inline on desktop and moves the same content into a mobile Drawer on smaller viewports.
 
 ```tsx
 import { Sidebar } from 'moraine'
@@ -164,14 +164,14 @@ than maintaining a second open state.
 ```
 
 Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` /
-`onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop.
-Menu buttons with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on a
+`onOpenChange` for desktop. Mobile drawer state stays internal and resets when returning to desktop.
+Menu buttons with `href` close the mobile drawer on activate; set `closeOnSelect={false}` on a
 button to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
 `(max-width: ${breakpoint}px)` via `matchMedia`. Pass `isMobile` to force either layout.
 
 Root `classes` and `styles` set defaults for the panel, region, group, menu, menu item, and sub-menu slots.
-On mobile, the sidebar renders inside a Sheet. Style the Sidebar regions through their own
-slots; Sidebar overrides do not style the internal Sheet. See [Theming](/docs/theming) for
+On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
+slots; Sidebar overrides do not style the internal Drawer. See [Theming](/docs/theming) for
 nested Provider behavior.
 
 `Sidebar` declares `--mo-sidebar-width` on its root. Pass `width` for one instance, or set the
@@ -276,9 +276,9 @@ height.
 ### Resize the explorer on desktop
 
 Branch on `Sidebar.useContext().isMobile()`. Compose `Resizable` on desktop; the same sidebar content
-moves into the mobile Sheet.
+moves into the mobile Drawer.
 
-<Preview path="./sheet-resizable-render" />
+<Preview path="./drawer-resizable-render" />
 
 ### Force the mobile drawer
 
