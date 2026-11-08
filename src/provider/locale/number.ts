@@ -7,6 +7,10 @@ interface LocaleNumberSymbols {
   plus: string
   digits: Map<string, string>
   ignore: Set<string>
+  /** `exponentSeparator` part emitted for scientific/engineering notation. */
+  exponentSeparator?: string
+  /** `compact` marker → power of ten, e.g. `'M' → 6`, `'万' → 4`. */
+  compactScales: Map<string, number>
 }
 
 const symbolCache = new Map<string, LocaleNumberSymbols>()
@@ -72,17 +76,37 @@ function getLocaleNumberSymbols(
   if (group) {
     ignore.add(group)
   }
+  // Exponent and compact parts are parsed structurally, not ignored: exponent
+  // digits stay digits and compact markers carry a scale factor.
+  const exponentSeparator = [...parts, ...plusParts].find(
+    (part) => part.type === 'exponentSeparator',
+  )?.value
   for (const part of [...parts, ...plusParts]) {
     if (
       part.type !== 'integer' &&
       part.type !== 'decimal' &&
       part.type !== 'fraction' &&
       part.type !== 'minusSign' &&
-      part.type !== 'plusSign'
+      part.type !== 'plusSign' &&
+      part.type !== 'exponentSeparator' &&
+      part.type !== 'exponentMinusSign' &&
+      part.type !== 'exponentInteger' &&
+      part.type !== 'compact'
     ) {
       for (const char of part.value) {
         ignore.add(char)
       }
+    }
+  }
+
+  // Probe powers of ten for the compact marker this locale/notation emits at each scale.
+  const compactScales = new Map<string, number>()
+  for (let exponent = 3; exponent <= 21; exponent += 1) {
+    const compact = createNumberFormat(locale, options)
+      .formatToParts(10 ** exponent)
+      .find((part) => part.type === 'compact')
+    if (compact && !compactScales.has(compact.value)) {
+      compactScales.set(compact.value, exponent)
     }
   }
   ignore.add(' ')
@@ -98,7 +122,7 @@ function getLocaleNumberSymbols(
   ignore.add('\u2030')
   ignore.add('\u0609')
 
-  const symbols = { decimal, group, minus, plus, digits, ignore }
+  const symbols = { decimal, group, minus, plus, digits, ignore, exponentSeparator, compactScales }
   symbolCache.set(key, symbols)
   return symbols
 }
@@ -177,8 +201,58 @@ export function parseLocaleNumber(
   let fraction = ''
   let seenDecimal = false
   let seenDigit = false
+  let scaleExponent = 0
 
-  for (const char of value.trim().normalize('NFKC')) {
+  let normalized = value.trim().normalize('NFKC')
+
+  // Strip a scientific/engineering exponent (`1.2E6` → `6`); anything but an
+  // optional sign and digits after the separator is not an exponent.
+  const separator = symbols.exponentSeparator
+  if (separator !== undefined) {
+    let index = normalized.indexOf(separator)
+    let separatorLength = separator.length
+    const lower = separator.toLowerCase()
+    if (index < 0 && lower !== separator) {
+      index = normalized.indexOf(lower)
+      separatorLength = lower.length
+    }
+    if (index >= 0) {
+      let exponentSign = ''
+      let exponentText = ''
+      for (const char of normalized.slice(index + separatorLength)) {
+        const digit = symbols.digits.get(char)
+        if (digit !== undefined) {
+          exponentText += digit
+          continue
+        }
+        if (exponentText === '' && exponentSign === '' && isSign(char, symbols)) {
+          exponentSign = char === symbols.plus || char === '+' || char === '＋' ? '' : '-'
+          continue
+        }
+        return undefined
+      }
+      if (exponentText === '') {
+        return undefined
+      }
+      scaleExponent = Number(`${exponentSign}${exponentText}`)
+      normalized = normalized.slice(0, index)
+    }
+  }
+
+  // Strip a compact marker once (longest first, so `万亿` wins over `万`); its
+  // scale applies to the parsed mantissa. Unknown markers stay and fail the parse.
+  if (symbols.compactScales.size > 0) {
+    const markers = [...symbols.compactScales.keys()].sort((a, b) => b.length - a.length)
+    for (const marker of markers) {
+      if (normalized.includes(marker)) {
+        scaleExponent += symbols.compactScales.get(marker)!
+        normalized = normalized.replace(marker, '')
+        break
+      }
+    }
+  }
+
+  for (const char of normalized) {
     if (symbols.ignore.has(char)) {
       continue
     }
@@ -219,6 +293,10 @@ export function parseLocaleNumber(
     return undefined
   }
 
+  if (scaleExponent !== 0) {
+    parsed = shiftDecimal(parsed, scaleExponent)
+  }
+
   // `style: 'percent'` always scales; `unit: 'percent'` keeps the raw value;
   // a bare percent or permille sign scales the parsed digits.
   const isUnitPercent = options?.style === 'unit' && options?.unit === 'percent'
@@ -228,7 +306,7 @@ export function parseLocaleNumber(
     parsed = shiftDecimal(parsed, -2)
   }
 
-  return parsed
+  return Number.isFinite(parsed) ? parsed : undefined
 }
 
 const plainFormatCache = new Map<string, Intl.NumberFormat>()

@@ -34,6 +34,49 @@ describe('locale number', () => {
     expect(isPartialNumber('\u2212.', 'en-US')).toBe(true)
   })
 
+  test('round-trips scientific and engineering notation', () => {
+    const scientific = { notation: 'scientific' } as const
+    const engineering = { notation: 'engineering' } as const
+    for (const options of [scientific, engineering]) {
+      expect(
+        parseLocaleNumber(formatLocaleNumber(1200000, 'en-US', options), 'en-US', options),
+      ).toBe(1200000)
+      expect(parseLocaleNumber(formatLocaleNumber(6, 'en-US', options), 'en-US', options)).toBe(6)
+      expect(
+        parseLocaleNumber(formatLocaleNumber(-0.005, 'en-US', options), 'en-US', options),
+      ).toBe(-0.005)
+    }
+    expect(parseLocaleNumber('1.2E6', 'en-US', scientific)).toBe(1200000)
+    expect(parseLocaleNumber('1.2e6', 'en-US', scientific)).toBe(1200000)
+    expect(parseLocaleNumber('1.2E-2', 'en-US', scientific)).toBe(0.012)
+    expect(parseLocaleNumber('1.2E', 'en-US', scientific)).toBeUndefined()
+    expect(parseLocaleNumber('1.2Ex', 'en-US', scientific)).toBeUndefined()
+  })
+
+  test('round-trips compact notation', () => {
+    const compact = { notation: 'compact' } as const
+    expect(parseLocaleNumber(formatLocaleNumber(1200000, 'en-US', compact), 'en-US', compact)).toBe(
+      1200000,
+    )
+    expect(parseLocaleNumber(formatLocaleNumber(34000, 'en-US', compact), 'en-US', compact)).toBe(
+      34000,
+    )
+    expect(parseLocaleNumber('1.2M', 'en-US', compact)).toBe(1200000)
+    expect(parseLocaleNumber('1.2X', 'en-US', compact)).toBeUndefined()
+    expect(parseLocaleNumber(formatLocaleNumber(12000, 'zh-CN', compact), 'zh-CN', compact)).toBe(
+      12000,
+    )
+  })
+
+  test('parses percent and permille signs as scale factors', () => {
+    expect(parseLocaleNumber('50%', 'en-US')).toBe(0.5)
+    expect(parseLocaleNumber('50‰', 'en-US')).toBe(0.05)
+    const percent = { style: 'percent' } as const
+    expect(parseLocaleNumber(formatLocaleNumber(0.25, 'en-US', percent), 'en-US', percent)).toBe(
+      0.25,
+    )
+  })
+
   test('falls back for empty and invalid strings', () => {
     expect(parseLocaleNumber('', 'en-US')).toBeUndefined()
     expect(parseLocaleNumber('abc', 'en-US')).toBeUndefined()
