@@ -80,6 +80,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         swipeIgnore: () => (merged.orientation === 'vertical' ? 'y' : 'x'),
       })),
       range: sliderDataAttributes.range(() => ({
+        empty: () => {
+          const values = slider.currentValues()
+          if (values.length !== 1) {
+            return false
+          }
+          const val = values[0]!
+          return val === 0 || slider.getValuePercent(val) === 0
+        },
         multiple: isMultiple,
         inverted: () => merged.inverted,
       })),

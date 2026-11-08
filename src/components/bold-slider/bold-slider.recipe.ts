@@ -31,7 +31,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
     '--bs-inset': 'calc(var(--bs-indicator-gap) * 2 + var(--bs-indicator-width))',
     root: '',
     track: 'peer rounded-[inherit] bg-muted cursor-pointer overflow-visible',
-    range: 'rounded-[inherit]',
+    range: 'rounded-[inherit] data-empty:hidden',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'peer opacity-0 size-px pointer-events-none',
     content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-data-[focus-visible]:(ring-3 ring-ring/50)`,

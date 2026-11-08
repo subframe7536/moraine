@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, Show, splitProps } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, Show, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useFieldContext } from '../field/field-context'
@@ -38,6 +38,25 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     'aria-label',
   ])
   const themeField = useFieldContext()
+
+  const [internalValue, setInternalValue] = createSignal(
+    untrack(() => props.value ?? props.defaultValue ?? props.min ?? 0),
+  )
+
+  createEffect(
+    on(
+      () => props.value,
+      (val) => {
+        if (val !== undefined) {
+          setInternalValue(val)
+        }
+      },
+    ),
+  )
+
+  const isZeroValue = () =>
+    internalValue() === 0 || (props.min !== undefined && internalValue() <= props.min)
+
   // The track gets a transparent border as wide as the minimum fill on the fill's start side.
   // Slider positions the range and markers in the track's padding box and maps the pointer onto
   // it, so values spread over the rest of the track while the range reaches back over the border.
@@ -54,7 +73,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         style: { [`border-inline-${insetSide()}`]: 'var(--bs-inset) solid transparent' },
       }),
       range: () => ({
-        style: { [`margin-inline-${insetSide()}`]: 'calc(var(--bs-inset) * -1)' },
+        style: isZeroValue()
+          ? { display: 'none' }
+          : { [`margin-inline-${insetSide()}`]: 'calc(var(--bs-inset) * -1)' },
       }),
     },
   })
@@ -71,10 +92,26 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // Rendered as Slider root children after the track and thumb, so each part can read their
   // state through `peer-*` selectors.
   function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
+    const isZero = () =>
+      (state.percentages[0] ?? 0) === 0 || (state.values[0] ?? props.min ?? 0) === 0
+
+    createEffect(
+      on(
+        () => state.values[0],
+        (val) => {
+          if (val !== undefined && val !== internalValue()) {
+            setInternalValue(val)
+          }
+        },
+      ),
+    )
+
     // Fill edge on the root: the minimum fill plus the value's share of the remaining width,
-    // matching the range inside the inset track.
+    // matching the range inside the inset track. When value is 0, fill collapses to 0.
     const fillEdge = () =>
-      `calc(var(--bs-inset) + (100% - var(--bs-inset)) * ${state.percentages[0] ?? 0})`
+      isZero()
+        ? '0%'
+        : `calc(var(--bs-inset) + (100% - var(--bs-inset)) * ${state.percentages[0] ?? 0})`
     const fromLeft = () => state.startEdge !== 'right'
     // Clip a track-wide layer to [start edge, fill edge]; `inset()` takes physical sides.
     const clipToFill = (top = '0', bottom = '0', from = '0', to = fillEdge()): string => {
@@ -86,13 +123,16 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     // The indicator is a track-wide layer clipped to the capsule just inside the fill edge. Its
     // gradient switches from the fill color to the track color at the fill edge.
     const indicatorStyle = (): { style: JSX.CSSProperties } => {
-      const start = `calc(${fillEdge()} - var(--bs-indicator-gap) - var(--bs-indicator-width))`
-      const end = `calc(${fillEdge()} - var(--bs-indicator-gap))`
       const block = 'calc(50% - var(--bs-indicator-height) / 2)'
+      // At value=0 the fill is hidden, but dock the indicator at the minimum-fill position
+      // so the user has a visual anchor for the leftmost draggable position.
+      const edge = isZero() ? 'var(--bs-inset)' : fillEdge()
+      const start = `calc(${edge} - var(--bs-indicator-gap) - var(--bs-indicator-width))`
+      const end = `calc(${edge} - var(--bs-indicator-gap))`
       return {
         style: {
           'clip-path': `${clipToFill(block, block, start, end)} round var(--bs-indicator-width))`,
-          'background-image': `linear-gradient(to ${fromLeft() ? 'right' : 'left'}, var(--bs-indicator-fill) ${fillEdge()}, var(--bs-indicator-track) ${fillEdge()})`,
+          'background-image': `linear-gradient(to ${fromLeft() ? 'right' : 'left'}, var(--bs-indicator-fill) ${edge}, var(--bs-indicator-track) ${edge})`,
         },
       }
     }
@@ -144,6 +184,10 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   return (
     <Slider
       {...rest}
+      onValueChange={(val) => {
+        setInternalValue(val)
+        props.onValueChange?.(val)
+      }}
       orientation="horizontal"
       size={variants.size}
       aria-label={local['aria-label'] ?? local.label}

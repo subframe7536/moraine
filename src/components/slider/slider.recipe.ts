@@ -16,7 +16,7 @@ export const sliderDataAttributes = {
     'required',
     'swipe-ignore',
   ),
-  range: /* @__PURE__ */ createDataAttributes('inverted', 'multiple'),
+  range: /* @__PURE__ */ createDataAttributes('empty', 'inverted', 'multiple'),
   marker: /* @__PURE__ */ createDataAttributes('active'),
   thumb: /* @__PURE__ */ createDataAttributes(
     'disabled',

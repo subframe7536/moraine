@@ -84,8 +84,18 @@ describe('BoldSlider', () => {
     )
 
     setValue(0)
-    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0)}) 0 0)`)
-    expect(indicators[0]!.style.getPropertyValue('clip-path')).not.toContain('max(')
+    expect(fill.style.getPropertyValue('clip-path')).toBe('inset(0 calc(100% - 0%) 0 0)')
+    // Indicator stays visible at value=0, docked to the minimum-fill position.
+    expect(indicators[0]!.style.display).not.toBe('none')
+    expect(indicators[0]!.style.getPropertyValue('clip-path')).toContain('var(--bs-inset)')
+    expect(range.style.display).toBe('none')
+    expect(range.hasAttribute('data-empty')).toBe(true)
+
+    setValue(50)
+    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0.5)}) 0 0)`)
+    expect(indicators[0]!.style.display).not.toBe('none')
+    expect(range.style.display).not.toBe('none')
+    expect(range.hasAttribute('data-empty')).toBe(false)
   })
 
   test('uses only peer selectors for interaction state', () => {
