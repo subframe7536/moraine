@@ -285,7 +285,7 @@ Expanded branches are flattened into one list. Every row keeps `aria-level`, `ar
 
 ### Drag to move items
 
-`createTreeSortable` from `moraine/dnd` (needs `@dnd-kit/solid`) moves items by dragging. Wrap
+`createTreeSortable` from `moraine/dnd` (needs `@dnd-kit/dom`) moves items by dragging. Wrap
 `tree.Tree` in `sortable.Provider`, call `sortable.useNode(item)` in `itemRender`, and spread its
 `props` onto `tree.Item`. `onMove` reports the new `parentKey` and sibling `index`;
 `moveTreeNode` applies it to `children`-shaped data.

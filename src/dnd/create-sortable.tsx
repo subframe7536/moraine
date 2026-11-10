@@ -1,8 +1,18 @@
-import { DragDropProvider } from '@dnd-kit/solid'
-import type { DragDropProviderProps } from '@dnd-kit/solid'
-import { isSortable, useSortable } from '@dnd-kit/solid/sortable'
+import { DragDropManager, Feedback, resolveCustomizable } from '@dnd-kit/dom'
+import type { DragDropManagerInput, DragEndEvent } from '@dnd-kit/dom'
+import { isSortable, Sortable as DndSortable } from '@dnd-kit/dom/sortable'
 import type { FlowComponent } from 'solid-js'
-import { createRenderEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
+import {
+  createContext,
+  createEffect,
+  createRenderEffect,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+  untrack,
+  useContext,
+} from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 import { createDataAttributes } from '../theme/style-contract'
@@ -24,14 +34,14 @@ export interface SortableOptions {
    * Input sensors. Pass an array to replace the defaults (pointer and keyboard) or a function
    * to extend them.
    */
-  sensors?: DragDropProviderProps['sensors']
+  sensors?: DragDropManagerInput['sensors']
   /**
    * Drag and drop plugins. Pass an array to replace the defaults (accessibility announcements,
    * auto-scroll, cursor, drag feedback, and text selection prevention) or a function to extend them.
    */
-  plugins?: DragDropProviderProps['plugins']
+  plugins?: DragDropManagerInput['plugins']
   /** Modifiers applied to every drag, such as axis or container restrictions. */
-  modifiers?: DragDropProviderProps['modifiers']
+  modifiers?: DragDropManagerInput['modifiers']
   /**
    * Axis the items are laid out along. `before` and `after` come from the pointer's position along
    * it: top and bottom halves when vertical, inline start and end halves when horizontal.
@@ -54,8 +64,7 @@ export interface SortableOptions {
   dropAnimation?: false | { duration?: number; easing?: string }
 }
 
-type DragDropManager = Parameters<NonNullable<DragDropProviderProps['onDragMove']>>[1]
-type DragOperation = Parameters<NonNullable<DragDropProviderProps['onDragEnd']>>[0]['operation']
+type DragOperation = DragEndEvent['operation']
 type Point = { x: number; y: number }
 
 export type SortableOrientation = 'vertical' | 'horizontal'
@@ -69,7 +78,7 @@ function prefersReducedMotion(): boolean {
 }
 
 type PluginList = Exclude<
-  NonNullable<DragDropProviderProps['plugins']>,
+  NonNullable<DragDropManagerInput['plugins']>,
   (...args: never[]) => unknown
 >
 
@@ -78,18 +87,10 @@ type PluginList = Exclude<
  * item element follows the pointer, marked `data-dnd-dragging`; the copy is
  * `data-dnd-placeholder`. Its drop animation is off: it aims at the copy, which is gone or in the
  * wrong place once the host renders the move, so the sortable animates the moved element instead.
- * `Feedback` is the only default plugin with an `overlay` accessor; `@dnd-kit/solid` does not
- * export the class to compare against.
  */
 function configureFeedback(plugins: PluginList): PluginList {
   return plugins.map((plugin) =>
-    typeof plugin === 'function' && 'overlay' in plugin.prototype
-      ? (
-          plugin as unknown as {
-            configure: (options: Record<string, unknown>) => PluginList[number]
-          }
-        ).configure({ feedback: 'clone', dropAnimation: null })
-      : plugin,
+    plugin === Feedback ? Feedback.configure({ feedback: 'clone', dropAnimation: null }) : plugin,
   )
 }
 
@@ -180,7 +181,52 @@ function sameState(prev: SortableDragState | undefined, next: SortableDragState 
 }
 
 /**
- * Creates drag and drop state for one collection over `@dnd-kit/solid`. Wrap the component that
+ * Remembers where a sortable source element sits in the DOM so `dragend` can put it back when a
+ * plugin moved it. Solid-owned elements that moved behind its back break the next render.
+ */
+function createSaveElementPosition() {
+  let saved: {
+    prevElement: Element | null
+    nextElement: Element | null
+    parentElement: Element | null
+  } | null = null
+  const savePosition = (source: { element?: Element | null }) => {
+    const element = source.element
+    if (!element) {
+      return
+    }
+    const prevElement = element.previousElementSibling
+    const nextElement = element.nextElementSibling
+    saved = {
+      prevElement: prevElement === element ? null : prevElement,
+      nextElement: nextElement === element ? null : nextElement,
+      parentElement: element.parentElement,
+    }
+  }
+  const restorePosition = (element: Element | null | undefined) => {
+    if (!saved || !element) {
+      return
+    }
+    const { prevElement, nextElement, parentElement } = saved
+    if (prevElement?.isConnected && element.previousElementSibling !== prevElement) {
+      prevElement.insertAdjacentElement('afterend', element)
+    } else if (nextElement?.isConnected && element.nextElementSibling !== nextElement) {
+      nextElement.insertAdjacentElement('beforebegin', element)
+    } else if (parentElement?.isConnected) {
+      parentElement.appendChild(element)
+    }
+  }
+  return {
+    savePosition,
+    restorePosition,
+    clearPosition: () => {
+      saved = null
+    },
+  }
+}
+
+/**
+ * Creates drag and drop state for one collection over `@dnd-kit/dom`. Wrap the component that
  * renders the items in `Provider` and register each item element with `useItem`.
  *
  * Items keep their place while dragging: the target item gets `data-drop-position`, and `onDrop`
@@ -208,6 +254,8 @@ export function createSortable(options: SortableOptions = {}): Sortable {
   // Current element of each registered item, for the drop animation.
   const elements = new Map<SortableId, HTMLElement>()
   const animation = options.dropAnimation === false ? undefined : (options.dropAnimation ?? {})
+
+  const SortableContext = createContext<DragDropManager>()
 
   /** Slides the element of `id` from `from` (viewport position) to where it has settled. */
   const animateInto = (manager: DragDropManager, id: SortableId, from: Rect): void => {
@@ -246,58 +294,65 @@ export function createSortable(options: SortableOptions = {}): Sortable {
   }
 
   const ClientProvider: FlowComponent = (props) => {
+    const current = new DragDropManager({
+      plugins: (defaults) => configureFeedback(resolveCustomizable(options.plugins, defaults)),
+      sensors: options.sensors,
+      modifiers: options.modifiers,
+    })
+
+    const { savePosition, restorePosition, clearPosition } = createSaveElementPosition()
     let active = false
-    const update = (manager: DragDropManager, point?: Point): void => {
+    const update = (point?: Point): void => {
       if (active) {
-        report(readDragState(manager.dragOperation, orientation, point))
+        report(readDragState(current.dragOperation, orientation, point))
       }
     }
 
-    return (
-      <DragDropProvider
-        sensors={options.sensors}
-        plugins={(defaults) =>
-          configureFeedback(
-            typeof options.plugins === 'function'
-              ? options.plugins(defaults)
-              : (options.plugins ?? defaults),
-          )
+    const disposers = [
+      current.monitor.addEventListener('beforedragstart', (event) => {
+        if (isSortable(event.operation.source)) {
+          savePosition(event.operation.source)
         }
-        modifiers={options.modifiers}
-        onDragStart={(_event, manager) => {
-          active = true
-          update(manager)
-        }}
-        onDragMove={(event, manager) => {
-          // `dragmove` is dispatched before the operation applies the new position.
-          const { x, y } = manager.dragOperation.position.current
-          update(manager, event.to ?? { x: x + (event.by?.x ?? 0), y: y + (event.by?.y ?? 0) })
-        }}
-        onDragOver={(event, manager) => {
-          // Stops the optimistic sorting plugin from moving item elements.
-          event.preventDefault()
-          update(manager)
-        }}
-        onDragEnd={(event, manager) => {
-          active = false
-          setState(undefined)
-          const source = event.operation.source
-          // The lifted element is still where the user released it.
-          const released =
-            (source ? elements.get(source.id)?.getBoundingClientRect() : undefined) ??
-            event.operation.shape?.current.boundingRectangle
-          const final = event.canceled ? undefined : readDragState(event.operation, orientation)
-          const settledId = allowed(final)
-            ? (options.onDrop?.(final) ?? final.sourceId)
-            : source?.id
-          if (released && settledId !== undefined) {
-            animateInto(manager, settledId, released)
-          }
-        }}
-      >
-        {props.children}
-      </DragDropProvider>
-    )
+      }),
+      current.monitor.addEventListener('dragstart', () => {
+        active = true
+        update()
+      }),
+      current.monitor.addEventListener('dragmove', (event) => {
+        // `dragmove` is dispatched before the operation applies the new position.
+        const { x, y } = current.dragOperation.position.current
+        update(event.to ?? { x: x + (event.by?.x ?? 0), y: y + (event.by?.y ?? 0) })
+      }),
+      current.monitor.addEventListener('dragover', (event) => {
+        // Stops the optimistic sorting plugin from moving item elements.
+        event.preventDefault()
+        update()
+      }),
+      current.monitor.addEventListener('dragend', (event) => {
+        if (isSortable(event.operation.source)) {
+          restorePosition(event.operation.source.element)
+        }
+        clearPosition()
+        active = false
+        setState(undefined)
+        const source = event.operation.source
+        // The lifted element is still where the user released it.
+        const released =
+          (source ? elements.get(source.id)?.getBoundingClientRect() : undefined) ??
+          event.operation.shape?.current.boundingRectangle
+        const final = event.canceled ? undefined : readDragState(event.operation, orientation)
+        const settledId = allowed(final) ? (options.onDrop?.(final) ?? final.sourceId) : source?.id
+        if (released && settledId !== undefined) {
+          animateInto(current, settledId, released)
+        }
+      }),
+    ]
+    onCleanup(() => {
+      disposers.forEach((dispose) => dispose())
+      current.destroy()
+    })
+
+    return <SortableContext.Provider value={current}>{props.children}</SortableContext.Provider>
   }
 
   // Handles rendered apart from their item attach by id, in either mount order.
@@ -328,29 +383,74 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       const noop = (): void => {}
       return { ref: noop, handleRef: noop, targetRef: noop, dragging, dropPosition, attributes }
     }
+    const manager = useContext(SortableContext)
+    if (!manager) {
+      throw new Error('useItem must be called under the sortable Provider')
+    }
 
     const data: ItemData = {
       get positions() {
         return input.positions?.() ?? DEFAULT_POSITIONS
       },
     }
-    const sortable = useSortable<ItemData>({
-      get id() {
-        return input.id()
+    const sortable = new DndSortable<ItemData>(
+      {
+        id: input.id(),
+        index: input.index(),
+        disabled: input.disabled?.() ?? false,
+        data,
+        // Index changes come from the host's re-render after a drop, which the drop animation
+        // already covers; dnd kit's own index transition would animate from the stale index.
+        transition: null,
+        register: false,
       },
-      get index() {
-        return input.index()
-      },
-      get disabled() {
-        return input.disabled?.() ?? false
-      },
-      data,
-      // Index changes come from the host's re-render after a drop, which the drop animation
-      // already covers; dnd kit's own index transition would animate from the stale index.
-      transition: null,
+      manager,
+    )
+    // Element and prop writes trigger plugin effects that measure shapes, which must wait until
+    // the current render and the drag operation settle; refs therefore feed signals synced here.
+    const [itemElement, setItemElement] = createSignal<HTMLElement>()
+    const [itemHandle, setItemHandle] = createSignal<HTMLElement>()
+    const [itemTarget, setItemTarget] = createSignal<HTMLElement>()
+    onMount(() => {
+      const unregister = sortable.register()
+      onCleanup(unregister)
     })
+    onCleanup(() => {
+      sortable.destroy()
+    })
+    createEffect(
+      on([itemElement, itemHandle, itemTarget], ([element, handle, target]) => {
+        if (element) {
+          sortable.element = element
+        }
+        if (handle) {
+          sortable.handle = handle
+        }
+        if (target) {
+          sortable.target = target
+        }
+      }),
+    )
+    createEffect(
+      on(
+        [input.id, input.index, () => input.disabled?.() ?? false],
+        ([id, index, disabled], prev) => {
+          sortable.id = id
+          sortable.disabled = disabled
+          sortable.index = index
+          if (
+            prev?.[1] !== undefined &&
+            index !== prev[1] &&
+            manager.dragOperation.status.idle &&
+            sortable.transition?.idle
+          ) {
+            sortable.refreshShape()
+          }
+        },
+      ),
+    )
     const handleRef = (element: HTMLElement): void => {
-      sortable.handleRef(element)
+      setItemHandle(element)
     }
     createRenderEffect(
       on(input.id, (id) => {
@@ -384,10 +484,10 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       ref: (next) => {
         element = next
         elements.set(untrack(input.id), next)
-        sortable.ref(next)
+        setItemElement(next)
       },
       handleRef,
-      targetRef: (element) => sortable.targetRef(element),
+      targetRef: setItemTarget,
       dragging,
       dropPosition,
       attributes,

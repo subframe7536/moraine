@@ -95,7 +95,7 @@
     "cn": "catalog:"
   },
   "devDependencies": {
-    "@dnd-kit/solid": "^0.5.1",
+    "@dnd-kit/dom": "^0.5.1",
     "@iconify-json/lucide": "catalog:",
     "@iconify/tailwind": "1.2.0",
     "@solidjs/testing-library": "^0.8.10",
@@ -120,7 +120,7 @@
     "vitest": "^5.0.5"
   },
   "peerDependencies": {
-    "@dnd-kit/solid": "^0.5.1",
+    "@dnd-kit/dom": "^0.5.1",
     "@iconify/tailwind": "1.2.0",
     "@subf/unocss": "catalog:peers",
     "@tanstack/solid-table": "^9.1.2",
@@ -129,7 +129,7 @@
     "tailwindcss": "catalog:peers"
   },
   "peerDependenciesMeta": {
-    "@dnd-kit/solid": {
+    "@dnd-kit/dom": {
       "optional": true
     },
     "@iconify/tailwind": {

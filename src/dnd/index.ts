@@ -1,4 +1,4 @@
-// `moraine/dnd` entry. It keeps the optional `@dnd-kit/solid` peer out of the main entry.
+// `moraine/dnd` entry. It keeps the optional `@dnd-kit/dom` peer out of the main entry.
 export { createSortable } from './create-sortable'
 export type { SortableOptions, SortableOrientation } from './create-sortable'
 export { createListSortable, moveItem } from './create-list-sortable'

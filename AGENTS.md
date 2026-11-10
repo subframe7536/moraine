@@ -16,7 +16,7 @@ Run workspace commands from the repository root.
 Features that need an optional peer dependency ship from their own entry and live in their own
 top-level directory, whose `index.ts` is that entry: `src/data-table/` is `moraine/data-table`
 (`@tanstack/solid-table`), `src/virtualizer/` is `moraine/virtualizer` (`@tanstack/virtual-core`),
-and `src/dnd/` is `moraine/dnd` (`@dnd-kit/solid`).
+and `src/dnd/` is `moraine/dnd` (`@dnd-kit/dom`).
 The main `moraine` entry must never import any of these peers; `test/entry-boundaries.test.ts` checks the
 built runtime and declaration output.
 The main entry may import only the peer-free files `src/virtualizer/virtualizer.types.ts`

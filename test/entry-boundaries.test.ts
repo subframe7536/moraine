@@ -7,7 +7,7 @@ const DIST = resolve(__dirname, '../dist')
 const IMPORT_PATTERN = /(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?['"]([^'"]+)['"]/g
 
 // Optional peers must only be reachable from their dedicated subpath entries.
-const OPTIONAL_PEERS = ['@dnd-kit/solid', '@tanstack/solid-table', '@tanstack/virtual-core']
+const OPTIONAL_PEERS = ['@dnd-kit/dom', '@tanstack/solid-table', '@tanstack/virtual-core']
 
 function collectBareImports(entry: string): Set<string> {
   const bare = new Set<string>()
@@ -49,18 +49,18 @@ describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries'
   })
 
   test.each(['dnd.mjs', 'dnd.jsx'])('%s imports dnd kit', (entry) => {
-    expect(collectBareImports(entry)).toContain('@dnd-kit/solid')
+    expect(collectBareImports(entry)).toContain('@dnd-kit/dom')
   })
 
   // Consumers type-check against declarations, so they must keep the same boundaries.
   test.each([
     ['index.d.mts', OPTIONAL_PEERS],
-    ['data-table.mjs', ['@dnd-kit/solid', '@tanstack/virtual-core']],
-    ['data-table.jsx', ['@dnd-kit/solid', '@tanstack/virtual-core']],
-    ['data-table.d.mts', ['@dnd-kit/solid', '@tanstack/virtual-core']],
-    ['virtualizer.mjs', ['@dnd-kit/solid', '@tanstack/solid-table']],
-    ['virtualizer.jsx', ['@dnd-kit/solid', '@tanstack/solid-table']],
-    ['virtualizer.d.mts', ['@dnd-kit/solid', '@tanstack/solid-table']],
+    ['data-table.mjs', ['@dnd-kit/dom', '@tanstack/virtual-core']],
+    ['data-table.jsx', ['@dnd-kit/dom', '@tanstack/virtual-core']],
+    ['data-table.d.mts', ['@dnd-kit/dom', '@tanstack/virtual-core']],
+    ['virtualizer.mjs', ['@dnd-kit/dom', '@tanstack/solid-table']],
+    ['virtualizer.jsx', ['@dnd-kit/dom', '@tanstack/solid-table']],
+    ['virtualizer.d.mts', ['@dnd-kit/dom', '@tanstack/solid-table']],
     ['dnd.mjs', ['@tanstack/solid-table', '@tanstack/virtual-core']],
     ['dnd.jsx', ['@tanstack/solid-table', '@tanstack/virtual-core']],
     ['dnd.d.mts', ['@tanstack/solid-table', '@tanstack/virtual-core']],

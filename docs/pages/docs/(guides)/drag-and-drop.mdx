@@ -30,9 +30,9 @@ nothing to components that are not reordered.
 
 ## Installation
 
-<CodeTabs package="@dnd-kit/solid" />
+<CodeTabs package="@dnd-kit/dom" />
 
-Only `moraine/dnd` imports `@dnd-kit/solid`. The main `moraine` entry does not, so apps that do not
+Only `moraine/dnd` imports `@dnd-kit/dom`. The main `moraine` entry does not, so apps that do not
 reorder anything do not need the package.
 
 ## List
@@ -173,7 +173,7 @@ Pass `getItemKey` with a stable id so measured row sizes follow their items afte
 | `modifiers` | Movement modifiers, such as restricting the drag to one axis.                                  |
 
 ```tsx
-import { PointerSensor } from '@dnd-kit/solid'
+import { PointerSensor } from '@dnd-kit/dom'
 
 // Pointer dragging only, without keyboard dragging.
 const sortable = createListSortable({ items, onReorder, sensors: [PointerSensor] })

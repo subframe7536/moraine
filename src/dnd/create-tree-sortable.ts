@@ -1,4 +1,4 @@
-import { KeyboardSensor, PointerSensor } from '@dnd-kit/solid'
+import { KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
 import { createEffect, createMemo, mergeProps, on, onCleanup } from 'solid-js'
 
 import type { TreeT } from '../components/tree/tree.types'

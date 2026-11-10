@@ -1,3 +1,4 @@
+import { Droppable } from '@dnd-kit/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
@@ -220,6 +221,18 @@ describe('createListSortable', () => {
     fireEvent.pointerUp(document, { ...POINTER, clientX: 10, clientY: 160 })
     await wait(50)
     expect(onReorder).not.toHaveBeenCalled()
+  })
+
+  test('destroys sortable entity when item unmounts', async () => {
+    const destroySpy = vi.spyOn(Droppable.prototype, 'destroy')
+    const [items, setItems] = createSignal(['a', 'b', 'c'])
+    const onReorder = vi.fn()
+    renderList({ items, onReorder })
+
+    expect(destroySpy).not.toHaveBeenCalled()
+    setItems(['a', 'c'])
+    await waitFor(() => expect(destroySpy).toHaveBeenCalledTimes(1))
+    destroySpy.mockRestore()
   })
 })
 

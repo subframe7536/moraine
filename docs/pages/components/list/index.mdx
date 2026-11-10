@@ -80,7 +80,7 @@ keyboard navigation.
 
 ### Drag to reorder
 
-`createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/solid`. List has
+`createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/dom`. List has
 no drag props; the sortable composes through `itemRender`. Wrap the list in `sortable.Provider`,
 call `sortable.useRow(context)` in `itemRender`, and spread `row.props` onto the row element.
 Update the items from `onReorder`.
