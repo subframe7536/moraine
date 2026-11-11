@@ -265,8 +265,10 @@ export function Tabs(props: TabsProps): JSX.Element {
 
       queueMicrotask(() => {
         if (!disposed && generation === focusRecoveryGeneration) {
-          if (document.activeElement === document.body && recoveryKey !== undefined) {
-            triggerRefs.get(recoveryKey)?.focus()
+          const trigger = recoveryKey === undefined ? undefined : triggerRefs.get(recoveryKey)
+          const ownerDocument = trigger?.ownerDocument ?? listRef?.ownerDocument
+          if (ownerDocument !== undefined && ownerDocument.activeElement === ownerDocument.body) {
+            trigger?.focus()
           }
           setFocusRecoveryRequested(false)
         }
@@ -331,7 +333,7 @@ export function Tabs(props: TabsProps): JSX.Element {
 
             onCleanup(() => {
               const wasFocused =
-                typeof document !== 'undefined' && document.activeElement === trigger
+                trigger !== undefined && trigger.ownerDocument.activeElement === trigger
 
               if (triggerRefs.get(item.instanceKey) === trigger) {
                 triggerRefs.delete(item.instanceKey)

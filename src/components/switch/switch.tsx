@@ -271,7 +271,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    if (document.activeElement === inputEl) {
+    if (inputEl !== undefined && inputEl.ownerDocument.activeElement === inputEl) {
       event.preventDefault()
     }
   }

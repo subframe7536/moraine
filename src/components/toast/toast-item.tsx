@@ -492,7 +492,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     if (!pointerStart) {
       return
     }
-    if (window.getSelection()?.toString().length) {
+    if (itemRef?.ownerDocument.getSelection()?.toString().length) {
       return
     }
     const xDelta = event.clientX - pointerStart.x

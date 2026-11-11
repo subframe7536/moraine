@@ -220,8 +220,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return
         }
 
-        const activeElement = document.activeElement
-        if (activeElement !== document.body && activeElement !== lastFocusedTrigger) {
+        const ownerDocument = lastFocusedTrigger.ownerDocument
+        const activeElement = ownerDocument.activeElement
+        if (activeElement !== ownerDocument.body && activeElement !== lastFocusedTrigger) {
           return
         }
 
