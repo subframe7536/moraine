@@ -1,5 +1,4 @@
-import { FlexRender } from '@tanstack/solid-table'
-import type { RowData } from '@tanstack/solid-table'
+import type { RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import { For, Show } from 'solid-js'
 
@@ -7,6 +6,7 @@ import { useDataTableContext } from './data-table-context'
 import { DATA_TABLE_PIN_SIDES, createHeaderPin, pinnedHeaderGroups } from './data-table-layout'
 import { dataTableDataAttributes } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
+import { FlexRender } from './flex-render'
 
 /**
  * Footer rows, rendered only when at least one column defines a footer. Like the header, each

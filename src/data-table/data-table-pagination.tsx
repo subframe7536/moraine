@@ -1,4 +1,4 @@
-import type { RowData } from '@tanstack/solid-table'
+import type { RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 

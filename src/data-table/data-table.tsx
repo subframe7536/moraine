@@ -1,4 +1,4 @@
-import type { Column, RowData } from '@tanstack/solid-table'
+import type { Column, RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import {
   DEV,

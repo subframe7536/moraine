@@ -61,7 +61,7 @@ export default defineConfig([
       neverBundle: [
         '@dnd-kit/dom',
         '@subf/unocss',
-        '@tanstack/solid-table',
+        '@tanstack/table-core',
         '@tanstack/virtual-core',
         'tailwindcss',
       ],
@@ -109,7 +109,7 @@ export default defineConfig([
       }),
     ],
     deps: {
-      neverBundle: ['@dnd-kit/dom', '@tanstack/solid-table', '@tanstack/virtual-core'],
+      neverBundle: ['@dnd-kit/dom', '@tanstack/table-core', '@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,

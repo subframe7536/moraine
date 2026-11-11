@@ -1,5 +1,5 @@
-import { createTable, functionalUpdate, stateSlicesEqual } from '@tanstack/solid-table'
-import type { Row, RowData, TableOptions, Updater } from '@tanstack/solid-table'
+import { functionalUpdate, stateSlicesEqual } from '@tanstack/table-core'
+import type { Row, RowData, TableOptions, Updater } from '@tanstack/table-core'
 import { DEV, createMemo, mergeProps, untrack } from 'solid-js'
 
 import {
@@ -11,6 +11,7 @@ import {
 import { getDataTableFeatures } from './data-table-features'
 import type { DataTableFeatures } from './data-table-features'
 import type { DataTableT } from './data-table.types'
+import { createTable } from './solid-table'
 
 export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
 

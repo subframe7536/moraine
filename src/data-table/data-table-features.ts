@@ -24,7 +24,7 @@ import {
   sortFn_datetime,
   sortFn_text,
   tableFeatures,
-} from '@tanstack/solid-table'
+} from '@tanstack/table-core'
 
 import type { DataTableT } from './data-table.types'
 

@@ -101,7 +101,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.5.0",
     "@subf/unocss": "catalog:",
-    "@tanstack/solid-table": "^9.3.1",
+    "@tanstack/table-core": "^9.3.1",
     "@tanstack/virtual-core": "^3.19.6",
     "@types/node": "^24.19.0",
     "bumpp": "^11.1.0",
@@ -123,7 +123,7 @@
     "@dnd-kit/dom": "^0.5.1",
     "@iconify/tailwind": "1.2.0",
     "@subf/unocss": "catalog:peers",
-    "@tanstack/solid-table": "^9.1.2",
+    "@tanstack/table-core": "^9.3.1",
     "@tanstack/virtual-core": "^3.17.4",
     "solid-js": "catalog:",
     "tailwindcss": "catalog:peers"
@@ -138,7 +138,7 @@
     "@subf/unocss": {
       "optional": true
     },
-    "@tanstack/solid-table": {
+    "@tanstack/table-core": {
       "optional": true
     },
     "@tanstack/virtual-core": {

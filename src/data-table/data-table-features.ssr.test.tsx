@@ -1,5 +1,5 @@
 import { waitFor } from '@solidjs/testing-library'
-import type { SortingState } from '@tanstack/solid-table'
+import type { SortingState } from '@tanstack/table-core'
 import { createSignal } from 'solid-js'
 import { afterEach, expect, test, vi } from 'vitest'
 

@@ -1,4 +1,4 @@
-import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/solid-table'
+import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 

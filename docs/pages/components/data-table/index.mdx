@@ -106,19 +106,19 @@ DataTable ships from `moraine/data-table`, so the main `moraine` entry never imp
 Install the optional peer dependency first:
 
 ```shell title="pnpm" group-id="install"
-pnpm add @tanstack/solid-table
+pnpm add @tanstack/table-core
 ```
 
 ```shell title="bun" group-id="install"
-bun add @tanstack/solid-table
+bun add @tanstack/table-core
 ```
 
 ```shell title="npm" group-id="install"
-npm install @tanstack/solid-table
+npm install @tanstack/table-core
 ```
 
 ```shell title="yarn" group-id="install"
-yarn add @tanstack/solid-table
+yarn add @tanstack/table-core
 ```
 
 Create the instance with `createDataTable` inside a component, then pass it to `DataTable`.
@@ -512,7 +512,7 @@ call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with t
 
 ### Drag to reorder rows
 
-`createListSortable` from `moraine/dnd` (needs `@dnd-kit/solid`) reorders rows through `rowProps`.
+`createListSortable` from `moraine/dnd` (needs `@dnd-kit/dom`) reorders rows through `rowProps`.
 Pass the rendered rows as `items`, wrap the table in `sortable.Provider`, and return
 `sortable.useRow(context).props` from `rowProps`. With `getId: (row) => row.id`, a cell can render
 the drag handle through `sortable.handleRefFor(row.id)`.

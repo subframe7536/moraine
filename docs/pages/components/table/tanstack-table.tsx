@@ -1,12 +1,12 @@
 import { Badge, Button, Checkbox, DropdownMenu, Input, Table, Pagination } from '@src'
 import type { BadgeT, DropdownMenuT } from '@src'
+import { createTable, FlexRender } from '@src/data-table'
 import {
   columnFilteringFeature,
   columnVisibilityFeature,
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
-  createTable,
   filterFn_includesString,
   rowPaginationFeature,
   rowSelectionFeature,
@@ -14,7 +14,7 @@ import {
   sortFn_alphanumeric,
   sortFn_text,
   tableFeatures,
-} from '@tanstack/solid-table'
+} from '@tanstack/table-core'
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -22,7 +22,7 @@ import type {
   PaginationState,
   RowSelectionState,
   SortingState,
-} from '@tanstack/solid-table'
+} from '@tanstack/table-core'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 export interface Payment {
@@ -344,7 +344,7 @@ export function TanStackTable() {
                           colSpan={header.colSpan}
                           class={header.column.id === 'select' && 'w-5'}
                         >
-                          <table.FlexRender header={header} />
+                          <FlexRender header={header} />
                         </Table.Head>
                       )}
                     </For>
@@ -372,7 +372,7 @@ export function TanStackTable() {
                       <For each={row.getVisibleCells()}>
                         {(cell) => (
                           <Table.Cell class={cell.column.id === 'select' && 'w-5'}>
-                            <table.FlexRender cell={cell} />
+                            <FlexRender cell={cell} />
                           </Table.Cell>
                         )}
                       </For>

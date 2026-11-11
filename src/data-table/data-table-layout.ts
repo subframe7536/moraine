@@ -1,4 +1,4 @@
-import type { Column, Header, HeaderGroup, RowData } from '@tanstack/solid-table'
+import type { Column, Header, HeaderGroup, RowData } from '@tanstack/table-core'
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 

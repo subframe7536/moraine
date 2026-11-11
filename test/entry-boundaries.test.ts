@@ -7,7 +7,7 @@ const DIST = resolve(__dirname, '../dist')
 const IMPORT_PATTERN = /(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?['"]([^'"]+)['"]/g
 
 // Optional peers must only be reachable from their dedicated subpath entries.
-const OPTIONAL_PEERS = ['@dnd-kit/dom', '@tanstack/solid-table', '@tanstack/virtual-core']
+const OPTIONAL_PEERS = ['@dnd-kit/dom', '@tanstack/table-core', '@tanstack/virtual-core']
 
 function collectBareImports(entry: string): Set<string> {
   const bare = new Set<string>()
@@ -41,7 +41,7 @@ describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries'
   })
 
   test.each(['data-table.mjs', 'data-table.jsx'])('%s imports TanStack Table', (entry) => {
-    expect(collectBareImports(entry)).toContain('@tanstack/solid-table')
+    expect(collectBareImports(entry)).toContain('@tanstack/table-core')
   })
 
   test.each(['virtualizer.mjs', 'virtualizer.jsx'])('%s imports TanStack Virtual', (entry) => {
@@ -58,12 +58,12 @@ describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries'
     ['data-table.mjs', ['@dnd-kit/dom', '@tanstack/virtual-core']],
     ['data-table.jsx', ['@dnd-kit/dom', '@tanstack/virtual-core']],
     ['data-table.d.mts', ['@dnd-kit/dom', '@tanstack/virtual-core']],
-    ['virtualizer.mjs', ['@dnd-kit/dom', '@tanstack/solid-table']],
-    ['virtualizer.jsx', ['@dnd-kit/dom', '@tanstack/solid-table']],
-    ['virtualizer.d.mts', ['@dnd-kit/dom', '@tanstack/solid-table']],
-    ['dnd.mjs', ['@tanstack/solid-table', '@tanstack/virtual-core']],
-    ['dnd.jsx', ['@tanstack/solid-table', '@tanstack/virtual-core']],
-    ['dnd.d.mts', ['@tanstack/solid-table', '@tanstack/virtual-core']],
+    ['virtualizer.mjs', ['@dnd-kit/dom', '@tanstack/table-core']],
+    ['virtualizer.jsx', ['@dnd-kit/dom', '@tanstack/table-core']],
+    ['virtualizer.d.mts', ['@dnd-kit/dom', '@tanstack/table-core']],
+    ['dnd.mjs', ['@tanstack/table-core', '@tanstack/virtual-core']],
+    ['dnd.jsx', ['@tanstack/table-core', '@tanstack/virtual-core']],
+    ['dnd.d.mts', ['@tanstack/table-core', '@tanstack/virtual-core']],
   ])('%s does not reach %j', (entry, peers) => {
     const imports = collectBareImports(entry)
     for (const peer of peers) {

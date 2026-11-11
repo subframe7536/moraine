@@ -1,4 +1,4 @@
-import type { Column, RowData } from '@tanstack/solid-table'
+import type { Column, RowData } from '@tanstack/table-core'
 import type { Accessor } from 'solid-js'
 
 import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'

@@ -12,11 +12,11 @@ import type {
   Row as TanStackRow,
   RowData,
   RowSelectionState,
-  SolidTable,
   SortingState,
+  Table,
   TableFeatures,
   TableOptions,
-} from '@tanstack/solid-table'
+} from '@tanstack/table-core'
 import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../provider/locale/messages.types'
@@ -28,7 +28,7 @@ import type { DataTableFeatures } from './data-table-features'
 import type { defaultDataTableMessages } from './data-table.messages'
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
 
-declare module '@tanstack/solid-table' {
+declare module '@tanstack/table-core' {
   interface ColumnMeta<
     in out TFeatures extends TableFeatures,
     in out TData extends RowData,
@@ -76,7 +76,7 @@ export namespace DataTableT {
 
   export type Header<TData extends RowData = RowData> = TanStackHeader<Features, TData>
 
-  export type Instance<TData extends RowData = RowData> = SolidTable<Features, TData>
+  export type Instance<TData extends RowData = RowData> = Table<Features, TData>
 
   export interface ColumnMeta {
     align?: 'left' | 'center' | 'right'

@@ -1,5 +1,4 @@
-import { FlexRender } from '@tanstack/solid-table'
-import type { Cell, RowData } from '@tanstack/solid-table'
+import type { Cell, RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps, untrack } from 'solid-js'
 
@@ -16,6 +15,7 @@ import {
   dataTableDataAttributes,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
+import { FlexRender } from './flex-render'
 
 export type DataTableRowProps<TData extends RowData> = Pick<
   DataTableT.Base<TData>,

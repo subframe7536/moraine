@@ -1,7 +1,7 @@
 import { Input } from '@src'
 import { DataTable, createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-import type { CellContext } from '@tanstack/solid-table'
+import type { CellContext } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 

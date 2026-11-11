@@ -1,7 +1,7 @@
 import { Input } from '@src'
 import { DataTable, createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-import type { PaginationState, SortingState } from '@tanstack/solid-table'
+import type { PaginationState, SortingState } from '@tanstack/table-core'
 import { createMemo, createResource, createSignal, onCleanup } from 'solid-js'
 
 interface Order {

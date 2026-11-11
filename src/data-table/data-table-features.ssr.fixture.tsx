@@ -1,4 +1,4 @@
-import type { SortingState } from '@tanstack/solid-table'
+import type { SortingState } from '@tanstack/table-core'
 import { renderToString } from 'solid-js/web'
 
 import { createTableVirtualizer } from '../virtualizer'

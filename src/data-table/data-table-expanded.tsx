@@ -1,4 +1,4 @@
-import type { RowData } from '@tanstack/solid-table'
+import type { RowData } from '@tanstack/table-core'
 import type { Component, JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
