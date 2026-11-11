@@ -1,128 +1,106 @@
-import type { Component, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
-import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { ResizableOrientation, ResizableSize } from './hook'
-import type { defaultResizableMessages } from './resizable.messages'
+import type { ResizableOrientation } from './hook'
 import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
 
 export namespace ResizableT {
   export type Kind = 'composite'
-
   export type Slot<T = unknown> = ResizableStyleSlot<T>
-
   export type Variants = ResizableStyleVariants
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Messages = ComponentMessages<typeof defaultResizableMessages>
-  export type Translations = Partial<Messages>
 
+  /**
+   * Panel layout record: panel id -> size as a percentage of the group (0-100).
+   */
+  export type Layout = Record<string, number>
+
+  /**
+   * State provided to `Resizable.Handle` render-function children.
+   */
   export interface HandleRenderProps {
     orientation: ResizableOrientation
     disabled: boolean
-    action: 'resize' | 'collapse'
     active: boolean
     dragging: boolean
     canCollapse: boolean
     collapsed: boolean
   }
 
-  /** Base props for the Resizable component. */
-  export interface Base {
-    /** Localized message overrides for this resizable instance. */
-    translations?: Translations
-
-    /** Unique identifier for the resizable root. */
-    id?: string
-
-    /** Ordered `Resizable.Panel` and `Resizable.Handle` children. */
-    children?: JSX.Element
-
-    /** Controlled panel sizes. Numbers are pixels; percentage strings are relative to the root. */
-    value?: readonly ResizableSize[]
-
-    /** Initial panel sizes for uncontrolled usage. */
-    defaultValue?: readonly ResizableSize[]
-
-    /** Callback when panel sizes change. Values are in pixels. */
-    onValueChange?: (sizes: number[]) => void
-
-    /** Callback when a resize operation starts. Values are in pixels. */
-    onResizeStart?: (sizes: number[]) => void
-
-    /** Callback when a resize operation ends. Values are in pixels. */
-    onResizeEnd?: (sizes: number[]) => void
-
-    /** Callback when a key is pressed on a handle. */
-    onHandleKeyDown?: (context: {
-      event: KeyboardEvent
-      handleIndex: number
-      sizes: number[]
-    }) => void
-
-    /**
-     * Whether the resizable component is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * The amount to resize when using keyboard shortcuts.
-     * @default '10%'
-     */
-    keyboardDelta?: ResizableSize
+  /**
+   * Imperative panel API returned by `Resizable.usePanel()` inside panel content.
+   */
+  export interface PanelContext {
+    id: string
+    /** Current size of the panel as a percentage of the group (0-100). */
+    size: Accessor<number>
+    collapsed: Accessor<boolean>
+    /** Collapses the panel to `collapsedSize`. */
+    collapse: () => void
+    /** Expands the panel to its last expanded size, or `min`. */
+    expand: () => void
+    /** Resizes the panel to a percentage of the group (0-100). */
+    resize: (size: number) => void
   }
 
-  /** Props for the Resizable component. */
+  export interface Base {
+    id?: string
+    children?: JSX.Element
+    /**
+     * Controlled layout keyed by panel id (percent 0-100).
+     * When provided the component is fully controlled.
+     */
+    value?: Layout
+    /**
+     * Initial layout keyed by panel id (percent 0-100) for uncontrolled usage.
+     * Panels without an entry share the remaining space.
+     */
+    defaultValue?: Layout
+    /**
+     * Called with the full layout record for the current panel ids on every
+     * layout change.
+     */
+    onValueChange?: (layout: Layout) => void
+    /**
+     * Called once per completed interaction with the final layout record:
+     * at drag end (only when the layout changed), on each keyboard step that
+     * changed the layout, on collapse toggles, and on each
+     * `Resizable.usePanel()` collapse/expand/resize call.
+     */
+    onValueCommit?: (layout: Layout) => void
+    /**
+     * Keyboard resize step in percent of the group.
+     * @default 10
+     */
+    keyboardDelta?: number
+    disabled?: boolean
+  }
+
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface PanelBase {
     /**
-     * Minimum size of the panel.
-     * - Use string as percent, like `20%`
-     * - Use number as px, like `328`
-     * @default 0
+     * Panel id. Used as the key in layout records and as the DOM id.
+     * Generated when omitted.
      */
-    min?: ResizableSize
-
-    /**
-     * Maximum size of the panel.
-     * - Use string as percent, like `20%`
-     * - Use number as px, like `328`
-     * @default 1
-     */
-    max?: ResizableSize
-
-    /**
-     * Whether the panel is resizable.
-     * @default true
-     */
+    id?: string
+    /** Minimum size as a percentage of the group (0-100). @default 0 */
+    min?: number
+    /** Maximum size as a percentage of the group (0-100). @default 100 */
+    max?: number
+    /** Whether the panel can be resized by handle interactions. @default true */
     resizable?: boolean
-
-    /**
-     * Whether the panel is collapsible.
-     * @default false
-     */
+    /** Whether the panel can collapse to `collapsedSize`. */
     collapsible?: boolean
-
-    /**
-     * Size of the panel when collapsed. Only applies when `collapsible` is true.
-     * - Use string as percent, like `20%`
-     * - Use number as px, like `328`
-     * @default 0
-     */
-    collapsibleMin?: ResizableSize
-
-    /** Callback when the panel is collapsed. Size is in pixels. */
-    onCollapse?: (size: number) => void
-
-    /** Callback when the panel is expanded. Size is in pixels. */
-    onExpand?: (size: number) => void
-
-    /** Content rendered inside the panel. */
+    /** Size in percent applied when the panel is collapsed. @default 0 */
+    collapsedSize?: number
+    /** Called when the panel transitions to collapsed. */
+    onCollapse?: () => void
+    /** Called when the panel transitions out of collapsed. */
+    onExpand?: () => void
     children?: JSX.Element
   }
 
@@ -130,21 +108,13 @@ export namespace ResizableT {
 
   export interface HandleBase {
     /**
-     * Handle interaction behavior.
-     * @default 'resize'
-     */
-    action?: 'resize' | 'collapse'
-
-    /**
-     * Whether this handle participates in intersection resizing.
-     * @default false
+     * Extends the hit target to the crossing handles of nested resizable
+     * groups so the junction drags on both axes at once.
      */
     intersection?: boolean
-
     /**
-     * Content or render function receiving the live handle state.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
+     * Handle content. `false` hides the decorative grip; a function receives
+     * {@link HandleRenderProps} and mounts as a component.
      */
     children?: JSX.Element | Component<HandleRenderProps>
   }
@@ -152,5 +122,4 @@ export namespace ResizableT {
   export type HandleProps = BaseProps<'div', HandleBase, never, never, never>
 }
 
-/** Props for the Resizable component. */
 export type ResizableProps = ResizableT.Props

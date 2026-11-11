@@ -1,90 +1,16 @@
-import type { JSX } from 'solid-js'
-
 export type ResizableOrientation = 'vertical' | 'horizontal'
-
-export type ResizableSize = number | `${number}%`
-export interface ResizablePanelItem {
-  /**
-   * Unique identifier for the panel.
-   */
-  panelId?: string
-
-  /**
-   * Minimum size of the panel.
-   * - Use string as percent, like `20%`
-   * - Use number as px, like `328`
-   * @default 0
-   */
-  min?: ResizableSize
-
-  /**
-   * Maximum size of the panel.
-   * - Use string as percent, like `20%`
-   * - Use number as px, like `328`
-   * @default 1
-   */
-  max?: ResizableSize
-
-  /**
-   * Whether the panel is resizable.
-   * @default true
-   */
-  resizable?: boolean
-
-  /**
-   * Whether the panel is collapsible.
-   * @default false
-   */
-  collapsible?: boolean
-
-  /**
-   * Size of the panel when collapsed.
-   * Only works when `collapsible` is true.
-   * - Use string as percent, like `20%`
-   * - Use number as px, like `328`
-   * @default 0
-   */
-  collapsibleMin?: ResizableSize
-
-  /**
-   * Callback when the panel is collapsed. Size is in pixels.
-   */
-  onCollapse?: (size: number) => void
-
-  /**
-   * Callback when the panel is expanded. Size is in pixels.
-   */
-  onExpand?: (size: number) => void
-
-  /**
-   * Additional CSS classes for the panel.
-   */
-  class?: string
-
-  /**
-   * Additional CSS styles for the panel.
-   */
-  style?: JSX.CSSProperties
-}
 
 export const PRECISION = 6
 export const EPSILON = 10 ** -PRECISION
 
-export interface ResizableResolvedPanel extends Omit<
-  ResizablePanelItem,
-  'min' | 'max' | 'resizable' | 'collapsible' | 'collapsibleMin'
-> {
+/**
+ * Panel constraints resolved to fractions of the layout (0..1).
+ */
+export interface ResizableResolvedPanel {
   panelId: string
   min: number
   max: number
   resizable: boolean
   collapsible: boolean
-  collapsibleMin: number
-}
-
-export interface ResizableHandleAria {
-  controls?: string
-  valueNow: number
-  valueMin: number
-  valueMax: number
+  collapsedSize: number
 }

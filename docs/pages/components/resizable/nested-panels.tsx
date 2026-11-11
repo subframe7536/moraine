@@ -11,9 +11,14 @@ const FILES = [
 export function NestedPanels() {
   return (
     <div class="border border-border rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
-      <Resizable defaultValue={['28%', '72%']}>
+      <Resizable defaultValue={{ sidebar: 28, workspace: 72 }}>
         {/* Sidebar explorer */}
-        <Resizable.Panel min="20%" max="40%" class="bg-muted/25 flex flex-col justify-between">
+        <Resizable.Panel
+          id="sidebar"
+          min={20}
+          max={40}
+          class="bg-muted/25 flex flex-col justify-between"
+        >
           <div>
             <div class="text-[11px] text-muted-foreground tracking-wider font-semibold px-3 border-b border-border/50 flex h-8 uppercase items-center justify-between">
               <span>Explorer</span>
@@ -46,10 +51,10 @@ export function NestedPanels() {
         <Resizable.Handle intersection />
 
         {/* Nested vertical workspace */}
-        <Resizable.Panel min="40%">
-          <Resizable orientation="vertical" defaultValue={['62%', '38%']}>
+        <Resizable.Panel id="workspace" min={40}>
+          <Resizable orientation="vertical" defaultValue={{ editor: 62, terminal: 38 }}>
             {/* Editor buffer */}
-            <Resizable.Panel min="30%" class="bg-background flex flex-col">
+            <Resizable.Panel id="editor" min={30} class="bg-background flex flex-col">
               <div class="text-xs px-3 border-b border-border/50 bg-muted/30 flex gap-2 h-8 items-center">
                 <Icon name="i-lucide:file-code" class="text-blue-500 size-3.5" />
                 <span class="text-foreground font-medium">app.tsx</span>
@@ -67,7 +72,7 @@ export function NestedPanels() {
                 <div class="text-emerald-600 pl-8 dark:text-emerald-400">
                   {'<Resizable orientation="horizontal">'}
                 </div>
-                <div class="text-muted-foreground pl-12">{'<Resizable.Panel min="20%" />'}</div>
+                <div class="text-muted-foreground pl-12">{'<Resizable.Panel min={20} />'}</div>
                 <div class="text-muted-foreground pl-12">{'<Resizable.Handle intersection />'}</div>
                 <div class="text-emerald-600 pl-8 dark:text-emerald-400">{'</Resizable>'}</div>
                 <div class="pl-4">)</div>
@@ -81,7 +86,11 @@ export function NestedPanels() {
             </Resizable.Handle>
 
             {/* Terminal console */}
-            <Resizable.Panel min="20%" class="bg-muted/20 flex flex-col justify-between">
+            <Resizable.Panel
+              id="terminal"
+              min={20}
+              class="bg-muted/20 flex flex-col justify-between"
+            >
               <div class="text-[11px] text-muted-foreground px-3 border-b border-border/40 flex gap-3 h-7 items-center">
                 <span class="text-foreground font-medium pt-0.5 border-primary border-b-2">
                   Terminal

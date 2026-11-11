@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-import type { ResizableHandleRegistration } from './manager'
-import type { ResizableOrientation } from './types'
+import type {
+  SplitterHandleRegistration,
+  SplitterIntersectionTarget,
+  SplitterOrientation,
+} from './manager'
 
 interface RectInput {
   top: number
@@ -16,14 +19,14 @@ interface DragCall {
 }
 
 interface TestHandle {
-  registration: ResizableHandleRegistration
+  registration: SplitterHandleRegistration
   element: HTMLButtonElement
   rectSpy: ReturnType<typeof vi.fn>
   draggingEvents: boolean[]
   dragCalls: DragCall[]
   getDragEndCount: () => number
-  getStartIntersection: () => ResizableHandleRegistration | null
-  getEndIntersection: () => ResizableHandleRegistration | null
+  getStartIntersection: () => SplitterHandleRegistration | null
+  getEndIntersection: () => SplitterHandleRegistration | null
 }
 
 function createRect(input: RectInput): DOMRect {
@@ -43,10 +46,9 @@ function createRect(input: RectInput): DOMRect {
 }
 
 function createTestHandle(input: {
-  orientation: ResizableOrientation
+  orientation: SplitterOrientation
   rootElement: HTMLDivElement
   rect: RectInput
-  altKeyMode?: boolean | 'only'
 }): TestHandle {
   const element = input.rootElement.ownerDocument.createElement('button')
   input.rootElement.appendChild(element)
@@ -57,18 +59,17 @@ function createTestHandle(input: {
     configurable: true,
   })
 
-  let startIntersection: ResizableHandleRegistration | null = null
-  let endIntersection: ResizableHandleRegistration | null = null
+  let startIntersection: SplitterHandleRegistration | null = null
+  let endIntersection: SplitterHandleRegistration | null = null
   const draggingEvents: boolean[] = []
   const dragCalls: DragCall[] = []
   let dragEndCount = 0
 
-  const registration: ResizableHandleRegistration = {
-    id: Symbol('resizable-handle-test'),
+  const registration: SplitterHandleRegistration = {
+    id: Symbol('splitter-handle-test'),
     getElement: () => element,
     getRootElement: () => input.rootElement,
     getOrientation: () => input.orientation,
-    getAltKeyMode: () => input.altKeyMode ?? true,
     getStartIntersectionEnabled: () => true,
     getEndIntersectionEnabled: () => true,
     getStartIntersection: () => startIntersection,
@@ -111,20 +112,19 @@ function createPointerEvent(type: string, init: MouseEventInit): PointerEvent {
 function createRootElement(ownerDocument = document): HTMLDivElement {
   const element = ownerDocument.createElement('div')
   element.setAttribute('data-slot', 'root')
-  element.setAttribute('data-resizable-root', '')
+  element.setAttribute('data-splitter-root', '')
   return element
 }
 
-describe('handle-manager', () => {
+describe('splitter-manager', () => {
   beforeEach(() => {
     vi.resetModules()
     document.body.innerHTML = ''
     document.head.innerHTML = ''
   })
 
-  test('does not assign intersections across different resizable roots', async () => {
-    const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./manager')
+  test('does not assign intersections across different splitter roots', async () => {
+    const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
 
     const rootA = createRootElement()
     const rootB = createRootElement()
@@ -141,10 +141,10 @@ describe('handle-manager', () => {
       rect: { top: 0, right: 61, bottom: 120, left: 60 },
     })
 
-    const unregisterHorizontal = registerResizableHandle(horizontal.registration)
-    const unregisterVertical = registerResizableHandle(vertical.registration)
+    const unregisterHorizontal = registerSplitterHandle(horizontal.registration)
+    const unregisterVertical = registerSplitterHandle(vertical.registration)
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
     expect(horizontal.getStartIntersection()).toBeNull()
     expect(horizontal.getEndIntersection()).toBeNull()
@@ -156,7 +156,7 @@ describe('handle-manager', () => {
   })
 
   test('dedupes scheduled refresh calls within the same tick', async () => {
-    const { registerResizableHandle, scheduleResizableHandleIntersectionsRefresh } =
+    const { registerSplitterHandle, scheduleSplitterIntersectionsRefresh } =
       await import('./manager')
 
     const root = createRootElement()
@@ -173,16 +173,16 @@ describe('handle-manager', () => {
       rect: { top: 0, right: 61, bottom: 120, left: 60 },
     })
 
-    const unregisterHorizontal = registerResizableHandle(horizontal.registration)
-    const unregisterVertical = registerResizableHandle(vertical.registration)
+    const unregisterHorizontal = registerSplitterHandle(horizontal.registration)
+    const unregisterVertical = registerSplitterHandle(vertical.registration)
 
     await Promise.resolve()
     horizontal.rectSpy.mockClear()
     vertical.rectSpy.mockClear()
 
-    scheduleResizableHandleIntersectionsRefresh()
-    scheduleResizableHandleIntersectionsRefresh()
-    scheduleResizableHandleIntersectionsRefresh()
+    scheduleSplitterIntersectionsRefresh()
+    scheduleSplitterIntersectionsRefresh()
+    scheduleSplitterIntersectionsRefresh()
 
     await Promise.resolve()
 
@@ -194,8 +194,7 @@ describe('handle-manager', () => {
   })
 
   test('keeps intersection results stable with many handles in one root', async () => {
-    const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./manager')
+    const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
 
     const root = createRootElement()
     const isolatedRoot = createRootElement()
@@ -224,8 +223,8 @@ describe('handle-manager', () => {
 
       horizontals.push(horizontal)
       verticals.push(vertical)
-      unregisterList.push(registerResizableHandle(horizontal.registration))
-      unregisterList.push(registerResizableHandle(vertical.registration))
+      unregisterList.push(registerSplitterHandle(horizontal.registration))
+      unregisterList.push(registerSplitterHandle(vertical.registration))
     }
 
     const isolated = createTestHandle({
@@ -233,9 +232,9 @@ describe('handle-manager', () => {
       rootElement: isolatedRoot,
       rect: { top: 60, right: 141, bottom: 100, left: 140 },
     })
-    unregisterList.push(registerResizableHandle(isolated.registration))
+    unregisterList.push(registerSplitterHandle(isolated.registration))
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
     for (let index = 0; index < pairCount; index += 1) {
       const horizontal = horizontals[index]
@@ -256,8 +255,7 @@ describe('handle-manager', () => {
   })
 
   test('allows intersections across parent-child roots while keeping unrelated roots isolated', async () => {
-    const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./manager')
+    const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -281,11 +279,11 @@ describe('handle-manager', () => {
       rect: { top: 80, right: 220, bottom: 81, left: 101 },
     })
 
-    const unregisterOuter = registerResizableHandle(outerHorizontal.registration)
-    const unregisterInner = registerResizableHandle(innerVertical.registration)
-    const unregisterIsolated = registerResizableHandle(isolatedVertical.registration)
+    const unregisterOuter = registerSplitterHandle(outerHorizontal.registration)
+    const unregisterInner = registerSplitterHandle(innerVertical.registration)
+    const unregisterIsolated = registerSplitterHandle(isolatedVertical.registration)
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
     expect(innerVertical.getStartIntersection()).toBe(outerHorizontal.registration)
     expect(innerVertical.getEndIntersection()).toBeNull()
@@ -297,13 +295,9 @@ describe('handle-manager', () => {
     unregisterIsolated()
   })
 
-  test('drags both crossed handles with independent altKey rules without forcing global cross cursor', async () => {
-    const {
-      RESIZABLE_HANDLE_TARGET_START,
-      refreshResizableHandleIntersections,
-      registerResizableHandle,
-      startResizableHandleDrag,
-    } = await import('./manager')
+  test('drags both crossed handles and passes the event altKey to each', async () => {
+    const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
+      await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -314,26 +308,24 @@ describe('handle-manager', () => {
       orientation: 'horizontal',
       rootElement: parentRoot,
       rect: { top: 0, right: 101, bottom: 200, left: 100 },
-      altKeyMode: 'only',
     })
     const innerVertical = createTestHandle({
       orientation: 'vertical',
       rootElement: childRoot,
       rect: { top: 80, right: 220, bottom: 81, left: 101 },
-      altKeyMode: false,
     })
 
-    const unregisterOuter = registerResizableHandle(outerHorizontal.registration)
-    const unregisterInner = registerResizableHandle(innerVertical.registration)
+    const unregisterOuter = registerSplitterHandle(outerHorizontal.registration)
+    const unregisterInner = registerSplitterHandle(innerVertical.registration)
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
     expect(innerVertical.getStartIntersection()).toBe(outerHorizontal.registration)
 
-    startResizableHandleDrag(
+    startSplitterDrag(
       innerVertical.registration,
       createPointerEvent('pointerdown', { clientX: 10, clientY: 20 }),
-      RESIZABLE_HANDLE_TARGET_START,
+      'start',
     )
 
     window.dispatchEvent(
@@ -341,9 +333,16 @@ describe('handle-manager', () => {
     )
 
     expect(innerVertical.dragCalls.at(-1)).toEqual({ deltaPx: 50, altKey: false })
-    expect(outerHorizontal.dragCalls.at(-1)).toEqual({ deltaPx: 30, altKey: true })
+    expect(outerHorizontal.dragCalls.at(-1)).toEqual({ deltaPx: 30, altKey: false })
 
-    window.dispatchEvent(createPointerEvent('pointerup', { clientX: 40, clientY: 70 }))
+    window.dispatchEvent(
+      createPointerEvent('pointermove', { clientX: 60, clientY: 90, altKey: true }),
+    )
+
+    expect(innerVertical.dragCalls.at(-1)).toEqual({ deltaPx: 20, altKey: true })
+    expect(outerHorizontal.dragCalls.at(-1)).toEqual({ deltaPx: 20, altKey: true })
+
+    window.dispatchEvent(createPointerEvent('pointerup', { clientX: 60, clientY: 90 }))
 
     expect(innerVertical.draggingEvents.slice(0, 2)).toEqual([true, false])
     expect(outerHorizontal.draggingEvents.slice(0, 2)).toEqual([true, false])
@@ -355,12 +354,8 @@ describe('handle-manager', () => {
   })
 
   test('falls back to dual-axis when pressing handle body near crossed edge', async () => {
-    const {
-      RESIZABLE_HANDLE_TARGET_HANDLE,
-      refreshResizableHandleIntersections,
-      registerResizableHandle,
-      startResizableHandleDrag,
-    } = await import('./manager')
+    const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
+      await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -378,15 +373,15 @@ describe('handle-manager', () => {
       rect: { top: 80, right: 220, bottom: 81, left: 101 },
     })
 
-    const unregisterOuter = registerResizableHandle(outerHorizontal.registration)
-    const unregisterInner = registerResizableHandle(innerVertical.registration)
+    const unregisterOuter = registerSplitterHandle(outerHorizontal.registration)
+    const unregisterInner = registerSplitterHandle(innerVertical.registration)
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
-    startResizableHandleDrag(
+    startSplitterDrag(
       innerVertical.registration,
       createPointerEvent('pointerdown', { clientX: 102, clientY: 80 }),
-      RESIZABLE_HANDLE_TARGET_HANDLE,
+      'handle',
     )
 
     window.dispatchEvent(createPointerEvent('pointermove', { clientX: 132, clientY: 110 }))
@@ -401,14 +396,8 @@ describe('handle-manager', () => {
   })
 
   test('keeps drag target resolution consistent for handle/start/end intersections', async () => {
-    const {
-      RESIZABLE_HANDLE_TARGET_END,
-      RESIZABLE_HANDLE_TARGET_HANDLE,
-      RESIZABLE_HANDLE_TARGET_START,
-      refreshResizableHandleIntersections,
-      registerResizableHandle,
-      startResizableHandleDrag,
-    } = await import('./manager')
+    const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
+      await import('./manager')
 
     const root = createRootElement()
     document.body.append(root)
@@ -429,21 +418,21 @@ describe('handle-manager', () => {
       rect: { top: 160, right: 160, bottom: 161, left: 120 },
     })
 
-    const unregisterBase = registerResizableHandle(baseVertical.registration)
-    const unregisterStart = registerResizableHandle(startHorizontal.registration)
-    const unregisterEnd = registerResizableHandle(endHorizontal.registration)
+    const unregisterBase = registerSplitterHandle(baseVertical.registration)
+    const unregisterStart = registerSplitterHandle(startHorizontal.registration)
+    const unregisterEnd = registerSplitterHandle(endHorizontal.registration)
 
-    refreshResizableHandleIntersections()
+    refreshSplitterIntersections()
 
     expect(baseVertical.getStartIntersection()).toBe(startHorizontal.registration)
     expect(baseVertical.getEndIntersection()).toBe(endHorizontal.registration)
 
-    const runDrag = (target: 0 | 1 | 2, pointerDownX: number) => {
+    const runDrag = (target: SplitterIntersectionTarget, pointerDownX: number) => {
       baseVertical.dragCalls.length = 0
       startHorizontal.dragCalls.length = 0
       endHorizontal.dragCalls.length = 0
 
-      startResizableHandleDrag(
+      startSplitterDrag(
         baseVertical.registration,
         createPointerEvent('pointerdown', { clientX: pointerDownX, clientY: 90 }),
         target,
@@ -463,10 +452,10 @@ describe('handle-manager', () => {
       }
     }
 
-    const explicitStart = runDrag(RESIZABLE_HANDLE_TARGET_START, 110)
-    const inferredStart = runDrag(RESIZABLE_HANDLE_TARGET_HANDLE, 101)
-    const explicitEnd = runDrag(RESIZABLE_HANDLE_TARGET_END, 110)
-    const inferredEnd = runDrag(RESIZABLE_HANDLE_TARGET_HANDLE, 119)
+    const explicitStart = runDrag('start', 110)
+    const inferredStart = runDrag('handle', 101)
+    const explicitEnd = runDrag('end', 110)
+    const inferredEnd = runDrag('handle', 119)
 
     expect(explicitStart).toEqual({
       base: { deltaPx: 40, altKey: false },
@@ -487,8 +476,7 @@ describe('handle-manager', () => {
   })
 
   test('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
-    const { RESIZABLE_HANDLE_TARGET_HANDLE, registerResizableHandle, startResizableHandleDrag } =
-      await import('./manager')
+    const { registerSplitterHandle, startSplitterDrag } = await import('./manager')
     const iframe = document.createElement('iframe')
     const hostRoot = createRootElement()
     document.body.append(hostRoot, iframe)
@@ -511,8 +499,8 @@ describe('handle-manager', () => {
       rootElement: iframeRoot,
       rect: { top: 0, right: 100, bottom: 1, left: 0 },
     })
-    const unregisterHost = registerResizableHandle(hostHandle.registration)
-    let unregisterIframe: (() => void) | undefined = registerResizableHandle(
+    const unregisterHost = registerSplitterHandle(hostHandle.registration)
+    let unregisterIframe: (() => void) | undefined = registerSplitterHandle(
       iframeHandle.registration,
     )
     const iframeGlobal = iframeWindow as Window & typeof globalThis
@@ -524,10 +512,10 @@ describe('handle-manager', () => {
       document.body.style.userSelect = 'text'
       iframeDocument.body.style.userSelect = 'all'
 
-      startResizableHandleDrag(
+      startSplitterDrag(
         iframeHandle.registration,
         createIframePointerEvent('pointerdown', { clientX: 0, clientY: 0 }),
-        RESIZABLE_HANDLE_TARGET_HANDLE,
+        'handle',
       )
 
       expect(iframeDocument.body.style.userSelect).toBe('none')
@@ -542,10 +530,10 @@ describe('handle-manager', () => {
       expect(iframeHandle.dragCalls).toEqual([{ deltaPx: 30, altKey: false }])
       expect(hostHandle.dragCalls).toEqual([])
 
-      startResizableHandleDrag(
+      startSplitterDrag(
         hostHandle.registration,
         createPointerEvent('pointerdown', { clientX: 0, clientY: 0 }),
-        RESIZABLE_HANDLE_TARGET_HANDLE,
+        'handle',
       )
 
       expect(document.body.style.userSelect).toBe('none')

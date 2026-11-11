@@ -24,26 +24,34 @@ export default function ResizablePlayground() {
           <Resizable
             orientation={props.orientation}
             disabled={props.disabled}
-            defaultValue={['35%', '65%']}
+            defaultValue={{ rail: 35, workspace: 65 }}
           >
-            <Resizable.Panel min="20%" class="p-4 bg-muted/25 flex flex-col justify-between">
+            <Resizable.Panel
+              id="rail"
+              min={20}
+              class="p-4 bg-muted/25 flex flex-col justify-between"
+            >
               <div class="space-y-1">
                 <div class="text-xs text-foreground font-medium">Navigation Rail</div>
                 <div class="text-[11px] text-muted-foreground leading-relaxed">
                   Draggable boundary with min constraint.
                 </div>
               </div>
-              <span class="text-[10px] text-muted-foreground/80 font-mono">min="20%"</span>
+              <span class="text-[10px] text-muted-foreground/80 font-mono">min: 20%</span>
             </Resizable.Panel>
             <Resizable.Handle />
-            <Resizable.Panel min="30%" class="p-4 bg-background/50 flex flex-col justify-between">
+            <Resizable.Panel
+              id="workspace"
+              min={30}
+              class="p-4 bg-background/50 flex flex-col justify-between"
+            >
               <div class="space-y-1">
                 <div class="text-xs text-foreground font-medium">Workspace Viewport</div>
                 <div class="text-[11px] text-muted-foreground leading-relaxed">
                   Expands or shrinks dynamically as adjacent handles move.
                 </div>
               </div>
-              <span class="text-[10px] text-muted-foreground/80 font-mono">min="30%"</span>
+              <span class="text-[10px] text-muted-foreground/80 font-mono">min: 30%</span>
             </Resizable.Panel>
           </Resizable>
         </div>

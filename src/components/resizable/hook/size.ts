@@ -1,4 +1,3 @@
-import type { ResizableSize } from './types'
 import { EPSILON, PRECISION } from './types'
 
 export function clamp(
@@ -19,6 +18,10 @@ export function nearlyEqual(a: number, b: number): boolean {
 
 export function fixToPrecision(value: number): number {
   return Number.parseFloat(value.toFixed(PRECISION))
+}
+
+function resolveInputSize(size: number | undefined): number {
+  return isFiniteNumber(size) ? Math.max(0, size) : 0
 }
 
 function correctRemainder(sizes: number[], total: number): void {
@@ -68,37 +71,6 @@ export function normalizeSizeVector(sizes: number[]): number[] {
   correctRemainder(normalized, normalizedTotal)
 
   return normalized
-}
-
-export function resolveSize(size: ResizableSize | undefined | null, rootSize: number): number {
-  const safeRootSize = rootSize > EPSILON ? rootSize : 1
-
-  if (!size) {
-    return 0
-  }
-
-  if (isFiniteNumber(size)) {
-    return fixToPrecision(size / safeRootSize)
-  }
-
-  if (typeof size === 'string' && size.endsWith('%')) {
-    const percentage = Number.parseFloat(size)
-    if (!Number.isFinite(percentage)) {
-      return 0
-    }
-
-    return fixToPrecision(percentage / 100)
-  }
-
-  return 0
-}
-
-export function resolveKeyboardDelta(delta: ResizableSize | undefined, rootSize: number): number {
-  if (delta === undefined) {
-    return resolveSize('10%', rootSize)
-  }
-
-  return resolveSize(delta, rootSize)
 }
 
 type SizePriority = 0 | 1 | 2
@@ -223,15 +195,21 @@ function redistributeByPriority(input: {
   return nextSizes
 }
 
+/**
+ * Resolves an ordered list of panel sizes (fractions summing to 1).
+ *
+ * `controlledSizes` entries (priority 2) win over `panelInitialSizes` fallbacks
+ * (priority 1); panels with neither share the remainder, or `1 / panelCount`
+ * when there is no remainder left.
+ */
 export function normalizePanelSizes(input: {
   panelCount: number
-  rootSize: number
-  panelInitialSizes: Array<ResizableSize | undefined>
+  panelInitialSizes: Array<number | undefined>
   panelMinSizes?: number[]
   panelMaxSizes?: number[]
-  controlledSizes?: Array<ResizableSize | undefined>
+  controlledSizes?: Array<number | undefined>
 }): number[] {
-  const { panelCount, rootSize, panelInitialSizes, controlledSizes } = input
+  const { panelCount, panelInitialSizes, controlledSizes } = input
 
   if (panelCount === 0) {
     return []
@@ -255,8 +233,7 @@ export function normalizePanelSizes(input: {
         const defaultSize = panelInitialSizes[index]
 
         if (defaultSize !== undefined) {
-          const resolvedDefaultSize = resolveSize(defaultSize, rootSize)
-          aligned[index] = Math.max(0, resolvedDefaultSize)
+          aligned[index] = resolveInputSize(defaultSize)
           priorities[index] = 1
           preferredSum += aligned[index] ?? 0
           continue
@@ -268,8 +245,7 @@ export function normalizePanelSizes(input: {
         continue
       }
 
-      const resolvedControlledSize = resolveSize(controlledSize, rootSize)
-      const clampedControlledSize = Math.max(0, resolvedControlledSize)
+      const clampedControlledSize = resolveInputSize(controlledSize)
       aligned[index] = clampedControlledSize
       priorities[index] = 2
       preferredSum += clampedControlledSize
@@ -307,7 +283,7 @@ export function normalizePanelSizes(input: {
       continue
     }
 
-    const size = resolveSize(panelSize, rootSize)
+    const size = resolveInputSize(panelSize)
     resolved[index] = size
     priorities[index] = 1
     definedSum += size

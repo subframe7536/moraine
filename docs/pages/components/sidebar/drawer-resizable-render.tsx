@@ -142,14 +142,14 @@ function ResizableLayout() {
     <Show
       when={frame.isMobile()}
       fallback={
-        <Resizable class="flex-1 h-full" defaultValue={['32%', '68%']}>
-          <Resizable.Panel min={180} max={360} collapsible collapsibleMin={56}>
+        <Resizable class="flex-1 h-full" defaultValue={{ files: 32, editor: 68 }}>
+          <Resizable.Panel id="files" min={18} max={40} collapsible collapsedSize={6}>
             <Sidebar.Panel class="border-0 bg-card/30 w-full">
               <FileExplorerContent />
             </Sidebar.Panel>
           </Resizable.Panel>
-          <Resizable.Handle action="collapse" />
-          <Resizable.Panel>
+          <Resizable.Handle />
+          <Resizable.Panel id="editor">
             <EditorContent />
           </Resizable.Panel>
         </Resizable>

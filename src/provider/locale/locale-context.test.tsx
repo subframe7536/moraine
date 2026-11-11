@@ -20,7 +20,6 @@ import { Pagination } from '../../components/pagination/pagination'
 import { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
 import { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import { defaultProgressMessages } from '../../components/progress/progress.messages'
-import { defaultResizableMessages } from '../../components/resizable/resizable.messages'
 import { defaultSelectMessages } from '../../components/select/select.messages'
 import { defaultTagsFieldMessages } from '../../components/shared/form/select/tags-field.messages'
 import { defaultSheetMessages } from '../../components/sheet/sheet.messages'
@@ -52,7 +51,6 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   numberInput: defaultNumberInputMessages,
   fileUpload: defaultFileUploadMessages,
   tagsField: defaultTagsFieldMessages,
-  resizable: defaultResizableMessages,
   sidebar: defaultSidebarMessages,
   form: defaultFormMessages,
   kbd: defaultKbdMessages,

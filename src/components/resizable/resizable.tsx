@@ -1,132 +1,71 @@
 import type { JSX } from 'solid-js'
-import {
-  Index,
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  splitProps,
-  onCleanup,
-  onMount,
-} from 'solid-js'
+import { createEffect, createSignal, on, onMount, splitProps } from 'solid-js'
 
-import { useRecipe } from '../../provider'
-import { useCn } from '../../provider/cn-context'
-import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import type { KeyBinding } from '../../shared/keyboard'
+import { callRef } from '../../shared/utils'
+import { pickSlotOverrides, useRecipe } from '../../theme/use-recipe'
 
 import {
   EPSILON,
-  fixToPrecision,
-  RESIZABLE_HANDLE_TARGET_END,
-  RESIZABLE_HANDLE_TARGET_START,
   RESIZE_FLAG_FOLLOWING,
-  RESIZE_FLAG_PRECEDING,
-  getHandleAria,
+  clamp,
+  collapsePanel as collapsePanelSizes,
+  expandPanel as expandPanelSizes,
+  fixToPrecision,
   isPanelCollapsed,
   normalizePanelSizes,
-  resolveKeyboardDelta,
-  resolvePanels,
-  resolveSize,
   resizeFromHandle,
   resizePanelToSize,
   toggleHandleNearestPanel,
-  useResizableHandle,
 } from './hook'
-import type { ResizablePanelItem, ResizableSize } from './hook'
-import { ResizableHandle, RESIZABLE_HANDLE_PART } from './resizable-handle'
-import { ResizablePanel, RESIZABLE_PANEL_PART } from './resizable-panel'
-import { defaultResizableMessages } from './resizable.messages'
+import type { ResizableOrientation, ResizableResolvedPanel } from './hook'
+import { ResizableProvider } from './resizable-context'
+import type {
+  ResizableContext,
+  ResizableItem,
+  ResizablePanelRegistration,
+} from './resizable-context'
+import { ResizableHandle } from './resizable-handle'
+import { ResizablePanel, useResizablePanel } from './resizable-panel'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
+const DEFAULT_KEYBOARD_DELTA = 10
+
 interface DragState {
-  deltaPx: number
-  initialSizes: number[]
-  handleIndex: number
+  panelIndex: number
   altKey: boolean
+  /** True once the session produced a layout change; survives re-basing. */
   started: boolean
+  /** Layout before the session's first change; survives re-basing. */
+  commitBaseline: number[]
+  deltaPx: number
+  panelSpacePx: number
+  initialSizes: number[]
   lastSizes: number[]
 }
 
-type PanelLocalProps = Pick<
-  ResizableT.PanelProps,
-  | 'id'
-  | 'min'
-  | 'max'
-  | 'resizable'
-  | 'collapsible'
-  | 'collapsibleMin'
-  | 'onCollapse'
-  | 'onExpand'
-  | 'class'
-  | 'style'
-  | 'ref'
-  | 'onTransitionEnd'
-  | 'onTransitionCancel'
->
-
-interface PanelPart {
-  kind: typeof RESIZABLE_PANEL_PART
-  local: PanelLocalProps
-  rest: Omit<ResizableT.PanelProps, keyof PanelLocalProps | 'children'>
-  content: () => JSX.Element
-}
-
-type HandleLocalProps = Pick<
-  ResizableT.HandleProps,
-  | 'action'
-  | 'intersection'
-  | 'class'
-  | 'style'
-  | 'ref'
-  | 'onMouseEnter'
-  | 'onMouseLeave'
-  | 'onFocus'
-  | 'onBlur'
-  | 'onKeyDown'
-  | 'onPointerDown'
-  | 'onClick'
-  | 'aria-label'
->
-
-interface HandlePart {
-  kind: typeof RESIZABLE_HANDLE_PART
-  local: HandleLocalProps
-  rest: Omit<ResizableT.HandleProps, keyof HandleLocalProps | 'children'>
-  content: () => ResizableT.HandleBase['children']
-}
-
-// Resizable is intentionally a centralized descriptor-rendering composite: its parts describe
-// layout entries and the root owns the coordinated DOM. Direct part class/style values are still
-// applied as the final instance overrides when that DOM is rendered.
-type ResizablePart = PanelPart | HandlePart
-
-function isResizablePart(value: unknown): value is ResizablePart {
-  if (typeof value !== 'object' || value === null || !('kind' in value)) {
-    return false
+function hasSizeChange(previous: number[], next: number[]): boolean {
+  if (previous.length !== next.length) {
+    return true
   }
 
-  return value.kind === RESIZABLE_PANEL_PART || value.kind === RESIZABLE_HANDLE_PART
+  return next.some((size, index) => Math.abs(size - (previous[index] ?? 0)) > EPSILON)
 }
 
-/** Resizable panel layout with draggable dividers and keyboard support. */
+function collapsedSizeFraction(panel: ResizablePanelRegistration): number {
+  return panel.collapsedSize() / 100
+}
+
 export function Resizable(props: ResizableProps): JSX.Element {
-  const cn = useCn()
-  const [localProps, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props, [
     'id',
     'children',
     'value',
     'defaultValue',
     'onValueChange',
-    'onResizeStart',
-    'onResizeEnd',
-    'onHandleKeyDown',
+    'onValueCommit',
     'disabled',
     'keyboardDelta',
     'orientation',
@@ -135,537 +74,397 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'class',
     'style',
     'ref',
-    'translations',
   ])
-  const messages = useMessages('resizable', defaultResizableMessages, () => localProps.translations)
+
   const {
     slots: { root: rootSlot },
     variants,
-    slotWith,
-  } = useRecipe(resizableRecipe, localProps, {
-    data: { root: resizableDataAttributes.root({ resizableRoot: true }) },
+  } = useRecipe(resizableRecipe, local, {
+    data: { root: resizableDataAttributes.root({ splitterRoot: true }) },
   })
-  const local = mergeProps({ keyboardDelta: '10%' as const }, localProps)
 
-  const panelIdPrefix = createId(() => local.id, 'resizable')
-  const orientation = () => variants.orientation ?? 'horizontal'
-  const content = resolveChildren(() => local.children)
+  const orientation = (): ResizableOrientation => variants.orientation ?? 'horizontal'
+  const disabled = () => local.disabled === true
+  const keyboardDelta = () => local.keyboardDelta ?? DEFAULT_KEYBOARD_DELTA
 
-  const parts = createMemo(() => {
-    const values: unknown[] = content
-      .toArray()
-      .filter((value) => value !== null && value !== undefined && value !== false && value !== true)
+  const [settled, setSettled] = createSignal(false)
+  const [resizing, setResizing] = createSignal(false)
+  const [transitioningIds, setTransitioningIds] = createSignal<string[]>([])
+  const [items, setItems] = createSignal<ResizableItem[]>([])
+  const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
+    local.defaultValue ? { ...local.defaultValue } : undefined,
+  )
 
-    if (!values.every(isResizablePart)) {
-      throw new Error('Resizable only accepts Resizable.Panel and Resizable.Handle children')
+  let seq = 0
+  let drag: DragState | null = null
+  const lastExpandedSizes = new Map<string, number>()
+  const previousCollapsed = new Map<string, boolean>()
+
+  onMount(() => setSettled(true))
+
+  // Accessors (not memos): the server evaluates createMemo eagerly at
+  // creation — before children register — so these must read live state.
+  const orderedItems = (): ResizableItem[] => {
+    const list = items()
+    if (!settled() || list.length < 2) {
+      return list
     }
 
-    values.forEach((part, index) => {
-      if (
-        part.kind === RESIZABLE_HANDLE_PART &&
-        (values[index - 1]?.kind !== RESIZABLE_PANEL_PART ||
-          values[index + 1]?.kind !== RESIZABLE_PANEL_PART)
-      ) {
-        throw new Error('Resizable.Handle must be placed between two Resizable.Panel children')
+    return [...list].sort((a, b) => {
+      const elementA = a.kind === 'panel' ? a.panel.element() : a.handle.element()
+      const elementB = b.kind === 'panel' ? b.panel.element() : b.handle.element()
+      if (elementA && elementB && elementA !== elementB) {
+        return elementA.compareDocumentPosition(elementB) & Node.DOCUMENT_POSITION_FOLLOWING
+          ? -1
+          : 1
       }
+      return a.seq - b.seq
     })
+  }
 
-    return values
-  })
-  const panelParts = createMemo(() =>
-    parts().filter((part): part is PanelPart => part.kind === RESIZABLE_PANEL_PART),
-  )
-  const handleParts = createMemo(() => {
-    const handles = new Map<number, HandlePart>()
-    let panelIndex = -1
+  const orderedPanels = (): ResizablePanelRegistration[] =>
+    orderedItems().flatMap((item) => (item.kind === 'panel' ? [item.panel] : []))
 
-    for (const part of parts()) {
-      if (part.kind === RESIZABLE_PANEL_PART) {
-        panelIndex += 1
+  const sourceLayout = () => local.value ?? uncontrolledLayout()
+
+  /** Minimum bound used for normalization: collapsed panels floor at collapsedSize. */
+  function normalizedMinFraction(
+    panel: ResizablePanelRegistration,
+    layout: ResizableT.Layout | undefined,
+  ): number {
+    const collapsedSize = collapsedSizeFraction(panel)
+    const entry = layout?.[panel.id()]
+    if (panel.collapsible() && entry !== undefined && entry / 100 <= collapsedSize + EPSILON) {
+      return collapsedSize
+    }
+    return panel.min() / 100
+  }
+
+  function resolveLayoutFractions(
+    panels: ResizablePanelRegistration[],
+    layout: ResizableT.Layout | undefined,
+  ): number[] {
+    const panelCount = panels.length
+    if (panelCount === 0) {
+      return []
+    }
+
+    const controlled: Array<number | undefined> = []
+    let knownSum = 0
+    let missingCount = 0
+
+    for (const panel of panels) {
+      const entry = layout?.[panel.id()]
+      if (entry === undefined) {
+        controlled.push(undefined)
+        missingCount += 1
       } else {
-        handles.set(panelIndex, part)
+        const fraction = entry / 100
+        controlled.push(fraction)
+        knownSum += fraction
       }
     }
 
-    return handles
-  })
+    const remainder = 1 - knownSum
+    const missingShare =
+      missingCount === 0 ? 0 : remainder > EPSILON ? remainder / missingCount : 1 / panelCount
 
-  let rootRef: HTMLDivElement | undefined = undefined
-  const [rootSize, setRootSize] = createSignal(0)
-  const [uncontrolledSizes, setUncontrolledSizes] = createSignal<Array<ResizableSize | undefined>>(
-    [],
-  )
-  const [interactionResizing, setInteractionResizing] = createSignal(false)
-  const [transitioningPanelIndexes, setTransitioningPanelIndexes] = createSignal<number[]>([])
-  let initializedWithMeasuredRootSize = false
-  const panelItems = createMemo<ResizablePanelItem[]>(() =>
-    panelParts().map((part) => ({
-      panelId: part.local.id,
-      min: part.local.min,
-      max: part.local.max,
-      resizable: part.local.resizable,
-      collapsible: part.local.collapsible,
-      collapsibleMin: part.local.collapsibleMin,
-      onCollapse: part.local.onCollapse,
-      onExpand: part.local.onExpand,
-      class: cn(part.local.class),
-      style: part.local.style,
-    })),
-  )
-
-  const resolvedPanels = createMemo(() => resolvePanels(panelItems(), rootSize(), panelIdPrefix()))
-  const panelCount = createMemo(() => resolvedPanels().length)
-  const panelDefaultSizes = createMemo(() => Array.from(local.defaultValue ?? []))
-  const panelControlledSizes = createMemo(() =>
-    local.value === undefined ? undefined : Array.from(local.value),
-  )
-  const panelMinSizes = createMemo(() => {
-    const panels = resolvedPanels()
-    const controlledSizes = panelControlledSizes()
-    const activeSizes = controlledSizes ?? uncontrolledSizes()
-    const currentRootSize = rootSize()
-
-    return panels.map((panel, index) => {
-      const controlledSize = activeSizes[index]
-      if (controlledSize === undefined) {
-        return panel.min
-      }
-
-      const resolvedControlledSize = resolveSize(controlledSize, currentRootSize)
-      const shouldUseCollapsibleMin =
-        resolvedControlledSize <= panel.collapsibleMin + EPSILON ||
-        (panel.collapsible && resolvedControlledSize <= panel.min + EPSILON)
-
-      return shouldUseCollapsibleMin ? panel.collapsibleMin : panel.min
-    })
-  })
-  const panelMaxSizes = createMemo(() => resolvedPanels().map((p) => p.max))
-
-  function normalizeWithCurrentState(controlledSizes?: Array<ResizableSize | undefined>) {
     return normalizePanelSizes({
-      panelCount: panelCount(),
-      rootSize: rootSize(),
-      panelInitialSizes: panelDefaultSizes(),
-      panelMinSizes: panelMinSizes(),
-      panelMaxSizes: panelMaxSizes(),
-      controlledSizes,
+      panelCount,
+      panelInitialSizes: controlled.map((entry) =>
+        entry === undefined ? missingShare : undefined,
+      ),
+      panelMinSizes: panels.map((panel) => normalizedMinFraction(panel, layout)),
+      panelMaxSizes: panels.map((panel) => Math.max(panel.min(), panel.max()) / 100),
+      controlledSizes: controlled,
     })
   }
 
-  const normalizedControlledSizes = createMemo(() => {
-    const next = panelControlledSizes()
-    return next === undefined ? undefined : normalizeWithCurrentState(next)
-  })
+  /** Resolved panel sizes as fractions (0..1), aligned with `orderedPanels()`. */
+  const resolved = (): number[] => resolveLayoutFractions(orderedPanels(), sourceLayout())
 
-  const sizes = createMemo(() => {
-    const controlled = normalizedControlledSizes()
-    if (controlled !== undefined) {
-      return controlled
-    }
-
-    const uncontrolled = uncontrolledSizes()
-    return uncontrolled.length === panelCount()
-      ? normalizeWithCurrentState(uncontrolled)
-      : normalizeWithCurrentState()
-  })
-
-  createEffect(
-    on(
-      [normalizedControlledSizes, panelCount, rootSize, panelDefaultSizes],
-      ([controlledSizes, nextCount, measuredRootSize, defaultSizes]) => {
-        if (controlledSizes !== undefined) {
-          return
-        }
-        const hasMeasuredRootSize = measuredRootSize > EPSILON
-        const shouldResetToDefaultSizes = hasMeasuredRootSize && !initializedWithMeasuredRootSize
-
-        if (shouldResetToDefaultSizes) {
-          initializedWithMeasuredRootSize = true
-        }
-
-        setUncontrolledSizes((prev) =>
-          prev.length === 0 || prev.length !== nextCount || shouldResetToDefaultSizes
-            ? [...defaultSizes]
-            : prev,
-        )
-      },
-    ),
-  )
-
-  const updateSize = () => {
-    const rect = rootRef!.getBoundingClientRect()
-    const nextSize = orientation() === 'horizontal' ? rect.width : rect.height
-    setRootSize(nextSize > EPSILON ? nextSize : 0)
-  }
-
-  function markPanelsTransitioning(panelIndexes: number[]): void {
-    const uniqueIndexes = [...new Set(panelIndexes.filter((panelIndex) => panelIndex >= 0))]
-    if (uniqueIndexes.length === 0) {
-      return
-    }
-
-    setTransitioningPanelIndexes((prev) => {
-      const next = new Set(prev)
-      for (const panelIndex of uniqueIndexes) {
-        next.add(panelIndex)
+  /** Panel constraints for the resize algorithms; `collapsedFloor` lowers every collapsible min to collapsedSize. */
+  function panelSpecs(collapsedFloor = false): ResizableResolvedPanel[] {
+    return orderedPanels().map((panel) => {
+      const min = panel.min() / 100
+      const collapsedSize = collapsedSizeFraction(panel)
+      return {
+        panelId: panel.id(),
+        min: collapsedFloor && panel.collapsible() ? collapsedSize : min,
+        max: Math.max(min, panel.max() / 100),
+        resizable: panel.resizable(),
+        collapsible: panel.collapsible(),
+        collapsedSize,
       }
-      return [...next]
     })
   }
 
-  function clearPanelTransition(panelIndex: number): void {
-    setTransitioningPanelIndexes((prev) => {
-      if (!prev.includes(panelIndex)) {
-        return prev
-      }
-      return prev.filter((index) => index !== panelIndex)
+  function toLayoutRecord(fractions: number[]): ResizableT.Layout {
+    const record: ResizableT.Layout = {}
+    orderedPanels().forEach((panel, index) => {
+      record[panel.id()] = fixToPrecision((fractions[index] ?? 0) * 100)
     })
+    return record
   }
 
-  function onPanelTransitionFinish(panelIndex: number, event: TransitionEvent): void {
-    if (event.target !== event.currentTarget || event.propertyName !== 'flex-grow') {
-      return
-    }
-
-    clearPanelTransition(panelIndex)
-  }
-
-  onMount(() => {
-    updateSize()
-
-    if (typeof ResizeObserver !== 'undefined') {
-      const observer = new ResizeObserver(updateSize)
-      observer.observe(rootRef!)
-      onCleanup(() => observer.disconnect())
-    }
-  })
-
-  createEffect(
-    on(panelCount, (count) => {
-      const maxPanelIndex = count - 1
-      setTransitioningPanelIndexes((prev) => {
-        const next = prev.filter((index) => index >= 0 && index <= maxPanelIndex)
-        return next.length === prev.length ? prev : next
-      })
-    }),
-  )
-
-  let prevSizes: number[] = []
-  let prevCollapsed: boolean[] = []
-  const lastExpandedSizes: Array<number | undefined> = []
-
-  createEffect(
-    on([resolvedPanels, sizes], ([panels, currentSizes]) => {
-      const nextCollapsed: boolean[] = []
-
-      panels.forEach((panel, index) => {
-        const size = currentSizes[index] ?? 0
-        const collapsed = isPanelCollapsed(size, panel)
-        nextCollapsed[index] = collapsed
-
-        const previousSize = prevSizes[index]
-        if (
-          previousSize !== undefined &&
-          Math.abs(previousSize - size) > EPSILON &&
-          prevCollapsed[index] !== undefined &&
-          prevCollapsed[index] !== collapsed
-        ) {
-          const handler = collapsed ? panel.onCollapse : panel.onExpand
-          handler?.(size * rootSize())
-        }
-
-        if (!collapsed && size > panel.collapsibleMin + EPSILON) {
-          lastExpandedSizes[index] = size
-        }
-      })
-
-      prevSizes = [...currentSizes]
-      prevCollapsed = nextCollapsed
-    }),
-  )
-
-  function hasSizeChange(previousSizes: number[], nextSizes: number[]): boolean {
-    if (previousSizes.length !== nextSizes.length) {
-      return true
-    }
-
-    for (let index = 0; index < previousSizes.length; index += 1) {
-      if (Math.abs(previousSizes[index]! - nextSizes[index]!) > EPSILON) {
-        return true
-      }
-    }
-
-    return false
-  }
-
-  function resolvePixelSizes(nextSizes: number[]): number[] {
-    const currentRootSize = Math.max(rootSize(), 1)
-    return nextSizes.map((size) => size * currentRootSize)
-  }
-
-  function scheduleInteractionResizeRelease(): void {
-    queueMicrotask(() => setInteractionResizing(false))
-  }
-
-  function normalizeSizes(nextSizes: number[]): number[] {
-    const nextCount = panelCount()
-    if (nextSizes.length !== nextCount) {
-      return normalizeWithCurrentState(nextSizes)
-    }
-
-    let total = 0
-    for (const size of nextSizes) {
-      if (!Number.isFinite(size) || size < 0) {
-        return normalizeWithCurrentState(nextSizes)
-      }
-      total += size
-    }
-
-    return Math.abs(total - 1) > EPSILON * Math.max(1, nextCount)
-      ? normalizeWithCurrentState(nextSizes)
-      : nextSizes
-  }
-
-  function snapDragEndSizes(nextSizes: number[]): number[] {
-    const panels = resolvedPanels()
-    let snappedSizes = normalizeSizes(nextSizes)
-
-    for (let panelIndex = 0; panelIndex < panels.length; panelIndex += 1) {
-      const panel = panels[panelIndex]
-      const panelSize = snappedSizes[panelIndex] ?? 0
-
-      if (
-        !panel?.collapsible ||
-        panelSize <= panel.collapsibleMin + EPSILON ||
-        panelSize + EPSILON >= panel.min
-      ) {
-        continue
-      }
-
-      const strategy =
-        panelIndex === panels.length - 1 ? RESIZE_FLAG_PRECEDING : RESIZE_FLAG_FOLLOWING
-      snappedSizes = normalizeSizes(
-        resizePanelToSize({
-          panelIndex,
-          size: panel.min,
-          strategy,
-          initialSizes: snappedSizes,
-          panels,
-          rootSize: 1,
-        }),
-      )
-    }
-
-    return snappedSizes
-  }
-
-  function isHandleResizable(handleIndex: number): boolean {
-    const panels = resolvedPanels()
-    const precedingPanel = panels[handleIndex]
-    const followingPanel = panels[handleIndex + 1]
-    if (!precedingPanel || !followingPanel) {
+  /** Emits `onValueChange` and updates uncontrolled state when the layout changed. */
+  function applyLayout(next: number[]): boolean {
+    if (!hasSizeChange(resolved(), next)) {
       return false
     }
 
-    return precedingPanel.resizable !== false && followingPanel.resizable !== false
+    const record = toLayoutRecord(next)
+    if (local.value === undefined) {
+      setUncontrolledLayout(record)
+    }
+    local.onValueChange?.(record)
+    return true
   }
 
-  function resolveNearestCollapsiblePanelIndex(handleIndex: number): number | null {
-    const panels = resolvedPanels()
-
-    if (panels[handleIndex]?.collapsible) {
-      return handleIndex
-    }
-
-    if (panels[handleIndex + 1]?.collapsible) {
-      return handleIndex + 1
-    }
-
-    return null
+  function commitLayout(next: number[]): void {
+    local.onValueCommit?.(toLayoutRecord(next))
   }
 
-  function toggleHandleCollapse(handleIndex: number): void {
-    const transitionPanelIndex = resolveNearestCollapsiblePanelIndex(handleIndex)
-    const currentSizes = sizes()
-    const nextSizes = normalizeSizes(
-      toggleHandleNearestPanel({
-        handleIndex,
-        initialSizes: currentSizes,
-        panels: resolvedPanels(),
-        expandedSizes: resolvedPanels().map(
-          (_, index) => lastExpandedSizes[index] ?? normalizeWithCurrentState()[index],
-        ),
-      }),
-    )
-
-    if (!hasSizeChange(currentSizes, nextSizes)) {
-      return
-    }
-
-    if (transitionPanelIndex !== null) {
-      markPanelsTransitioning([transitionPanelIndex])
-    }
-
-    emitSizes(nextSizes)
+  function markTransitioning(id: string): void {
+    setTransitioningIds((previous) => (previous.includes(id) ? previous : [...previous, id]))
   }
 
-  function resolveNearestCollapsibleState(handleIndex: number): {
-    canCollapse: boolean
-    collapsed: boolean
-  } {
-    const panels = resolvedPanels()
-    const panelIndex = resolveNearestCollapsiblePanelIndex(handleIndex)
-    if (panelIndex !== null) {
-      const panel = panels[panelIndex]
-      return {
-        canCollapse: true,
-        collapsed: panel ? isPanelCollapsed(sizes()[panelIndex] ?? 0, panel) : false,
+  function panelIndexOf(panel: ResizablePanelRegistration): number {
+    return orderedPanels().indexOf(panel)
+  }
+
+  function panelIndexById(id: string): number {
+    return orderedPanels().findIndex((panel) => panel.id() === id)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Drag
+  // ---------------------------------------------------------------------------
+
+  function measurePanelSpacePx(): number {
+    let total = 0
+    for (const panel of orderedPanels()) {
+      const element = panel.element()
+      if (!element) {
+        continue
       }
+      const rect = element.getBoundingClientRect()
+      total += orientation() === 'horizontal' ? rect.width : rect.height
     }
-
-    return {
-      canCollapse: false,
-      collapsed: false,
-    }
+    return total
   }
 
-  function beginResize(nextSizes: number[]): void {
-    local.onResizeStart?.(resolvePixelSizes(nextSizes))
-  }
+  /**
+   * Applies the live collapse threshold: a collapsible panel collapses to
+   * `collapsedSize` once the candidate drops below `(min + collapsedSize) / 2`,
+   * and a collapsed panel expands back to `min` past the same midpoint.
+   */
+  function resolveThresholdedSizes(
+    candidate: number[],
+    previousSizes: number[],
+    specs: ResizableResolvedPanel[],
+  ): number[] {
+    let sizes = candidate
 
-  function endResize(nextSizes: number[]): void {
-    local.onResizeEnd?.(resolvePixelSizes(nextSizes))
-  }
+    for (let guard = 0; guard < 4; guard += 1) {
+      const pins = new Map<number, number>()
 
-  function emitSizes(normalizedSizes: number[]): void {
-    if (normalizedControlledSizes() === undefined) {
-      setUncontrolledSizes(
-        normalizedSizes.map((size): ResizableSize => `${fixToPrecision(size * 100)}%`),
-      )
+      specs.forEach((panel, index) => {
+        if (!panel.collapsible || panel.min <= panel.collapsedSize + EPSILON) {
+          return
+        }
+
+        const midpoint = (panel.min + panel.collapsedSize) / 2
+        const wasCollapsed = (previousSizes[index] ?? 0) <= panel.collapsedSize + EPSILON
+        const value = sizes[index] ?? 0
+
+        if (wasCollapsed) {
+          if (value <= midpoint + EPSILON) {
+            pins.set(index, panel.collapsedSize)
+          } else if (value < panel.min - EPSILON) {
+            pins.set(index, panel.min)
+          }
+        } else if (value < midpoint - EPSILON) {
+          pins.set(index, panel.collapsedSize)
+        } else if (value < panel.min - EPSILON) {
+          pins.set(index, panel.min)
+        }
+      })
+
+      if (pins.size === 0) {
+        return sizes
+      }
+
+      const floorSpecs = specs.map((panel) => ({
+        ...panel,
+        min: panel.collapsible ? panel.collapsedSize : panel.min,
+      }))
+      const pinned = floorSpecs.map((panel, index) => {
+        const pin = pins.get(index)
+        if (pin !== undefined) {
+          panel.min = pin
+          panel.max = pin
+        }
+        return panel
+      })
+
+      let next = sizes
+      for (const [index, pin] of pins) {
+        next = resizePanelToSize({
+          panelIndex: index,
+          size: pin,
+          strategy: RESIZE_FLAG_FOLLOWING,
+          initialSizes: next,
+          panels: pinned,
+        })
+      }
+
+      if (!hasSizeChange(sizes, next)) {
+        return next
+      }
+      sizes = next
     }
 
-    local.onValueChange?.(resolvePixelSizes(normalizedSizes))
+    return sizes
   }
 
-  let drag: DragState | null = null
-
-  function resetDragState(handleIndex: number, altKey: boolean): DragState {
-    if (drag && drag.started) {
-      endResize(drag.lastSizes)
-    }
-
-    drag = {
-      deltaPx: 0,
-      initialSizes: [...sizes()],
-      handleIndex,
-      altKey,
-      started: false,
-      lastSizes: [...sizes()],
-    }
-
-    return drag
-  }
-
-  function resizeHandleByDelta(handleIndex: number, deltaPx: number, altKey: boolean): void {
-    if (sizes().length <= 1) {
+  function dragHandle(precedingIndex: number, deltaPx: number, altKey: boolean): void {
+    const panels = orderedPanels()
+    if (panels.length <= 1 || precedingIndex < 0 || precedingIndex >= panels.length) {
       return
     }
 
-    if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
-      drag = resetDragState(handleIndex, altKey)
+    if (!drag || drag.panelIndex !== precedingIndex || drag.altKey !== altKey) {
+      // Re-base the computation (alt flipped mid-drag or a different handle);
+      // the session's commit state carries over.
+      const sizes = resolved().slice()
+      drag = {
+        panelIndex: precedingIndex,
+        altKey,
+        started: drag?.started ?? false,
+        commitBaseline: drag?.started === true ? drag.commitBaseline : sizes,
+        deltaPx: 0,
+        panelSpacePx: Math.max(measurePanelSpacePx(), 1),
+        initialSizes: sizes,
+        lastSizes: sizes,
+      }
     }
 
     drag.deltaPx += deltaPx
+    const candidate = resizeFromHandle({
+      handleIndex: precedingIndex,
+      deltaPercentage: drag.deltaPx / drag.panelSpacePx,
+      altKey,
+      initialSizes: drag.initialSizes,
+      panels: panelSpecs(true),
+    })
+    const next = resolveThresholdedSizes(candidate, drag.lastSizes, panelSpecs())
+    drag.lastSizes = next
 
-    const nextSizes = normalizeSizes(
-      resizeFromHandle({
-        handleIndex,
-        deltaPercentage: drag.deltaPx / Math.max(rootSize(), 1),
-        altKey,
-        initialSizes: drag.initialSizes,
-        panels: resolvedPanels(),
-      }),
-    )
-    const currentSizes = drag.lastSizes
-
-    if (!hasSizeChange(currentSizes, nextSizes)) {
-      return
-    }
-
-    if (!drag.started) {
-      setInteractionResizing(true)
-      beginResize(drag.initialSizes)
+    if (applyLayout(next)) {
       drag.started = true
+      setResizing(true)
     }
-
-    drag.lastSizes = nextSizes
-    emitSizes(nextSizes)
   }
 
-  function stopHandleDrag(): void {
-    if (drag?.started) {
-      const snappedSizes = snapDragEndSizes(drag.lastSizes)
-      if (hasSizeChange(drag.lastSizes, snappedSizes)) {
-        drag.lastSizes = snappedSizes
-        emitSizes(snappedSizes)
-      }
-
-      endResize(drag.lastSizes)
-    }
-
+  function endHandleDrag(): void {
+    const session = drag
     drag = null
-    setInteractionResizing(false)
+    setResizing(false)
+
+    if (session?.started && hasSizeChange(session.commitBaseline, session.lastSizes)) {
+      commitLayout(session.lastSizes)
+    }
   }
+
+  // ---------------------------------------------------------------------------
+  // Keyboard + collapse toggles
+  // ---------------------------------------------------------------------------
 
   function resizeHandleByPercentage(
-    handleIndex: number,
+    precedingIndex: number,
     deltaPercentage: number,
     altKey: boolean,
     event: KeyboardEvent,
   ): void {
-    const currentSizes = sizes()
-    const nextSizes = normalizeSizes(
-      resizeFromHandle({
-        handleIndex,
-        deltaPercentage,
-        altKey,
-        initialSizes: currentSizes,
-        panels: resolvedPanels(),
-      }),
-    )
-
-    if (!hasSizeChange(currentSizes, nextSizes)) {
+    const specs = panelSpecs()
+    if (specs.length <= 1 || precedingIndex < 0 || precedingIndex >= specs.length) {
       return
     }
 
-    setInteractionResizing(true)
-    beginResize(currentSizes)
-    emitSizes(nextSizes)
-    endResize(nextSizes)
-    scheduleInteractionResizeRelease()
+    const next = resizeFromHandle({
+      handleIndex: precedingIndex,
+      deltaPercentage,
+      altKey,
+      initialSizes: resolved(),
+      panels: specs,
+    })
+    if (!hasSizeChange(resolved(), next)) {
+      return
+    }
+
+    applyLayout(next)
+    commitLayout(next)
+    setResizing(true)
+    queueMicrotask(() => setResizing(false))
     event.preventDefault()
   }
 
-  const dispatchHandleKeyDown = createKeyDownHandler<HTMLElement, [number, boolean]>({
-    keys: (event, handleIndex, altKey) => {
+  /** Toggles the nearest collapsible neighbor (preceding first, then following). */
+  function toggleHandleCollapse(precedingIndex: number): boolean {
+    const specs = panelSpecs()
+    if (specs.length <= 1 || precedingIndex < 0 || precedingIndex >= specs.length) {
+      return false
+    }
+
+    const current = resolved()
+    const next = toggleHandleNearestPanel({
+      handleIndex: precedingIndex,
+      initialSizes: current,
+      panels: specs,
+      expandedSizes: specs.map(
+        (spec, index) => lastExpandedSizes.get(spec.panelId) ?? current[index] ?? 0,
+      ),
+    })
+    if (!applyLayout(next)) {
+      return false
+    }
+
+    const toggled = specs.findIndex(
+      (spec, index) =>
+        isPanelCollapsed(current[index] ?? 0, spec) !== isPanelCollapsed(next[index] ?? 0, spec),
+    )
+    if (toggled >= 0) {
+      markTransitioning(specs[toggled]!.panelId)
+    }
+    commitLayout(next)
+    return true
+  }
+
+  const dispatchHandleKeyDown = createKeyDownHandler<HTMLElement, [number]>({
+    keys: (event, precedingIndex) => {
       const horizontal = orientation() === 'horizontal'
-      const keyboardDelta = resolveKeyboardDelta(local.keyboardDelta, rootSize())
+      const delta = keyboardDelta() / 100
       const resize = (deltaPercentage: number) =>
-        resizeHandleByPercentage(handleIndex, deltaPercentage, altKey, event)
-      const collapse = {
-        when: () => (handleParts().get(handleIndex)?.local.action ?? 'resize') === 'collapse',
-        handle: () => toggleHandleCollapse(handleIndex),
+        resizeHandleByPercentage(precedingIndex, deltaPercentage, event.altKey, event)
+      const collapse: KeyBinding<HTMLElement, [number]> = {
+        preventDefault: false,
+        handle: () => {
+          if (toggleHandleCollapse(precedingIndex)) {
+            event.preventDefault()
+          }
+        },
       }
+
       return {
         Enter: collapse,
-        ' ': collapse,
         [horizontal ? 'ArrowLeft' : 'ArrowUp']: {
           preventDefault: false,
-          handle: (event) => resize(event.shiftKey ? -1 : -keyboardDelta),
+          handle: () => resize(event.shiftKey ? -1 : -delta),
         },
         [horizontal ? 'ArrowRight' : 'ArrowDown']: {
           preventDefault: false,
-          handle: (event) => resize(event.shiftKey ? 1 : keyboardDelta),
+          handle: () => resize(event.shiftKey ? 1 : delta),
         },
         Home: { preventDefault: false, handle: () => resize(-1) },
         End: { preventDefault: false, handle: () => resize(1) },
@@ -673,296 +472,206 @@ export function Resizable(props: ResizableProps): JSX.Element {
     },
   })
 
-  function onHandleKeyDown(handleIndex: number, event: KeyboardEvent, altKey: boolean): void {
-    if (local.disabled || !isHandleResizable(handleIndex)) {
+  function handleKeyDown(precedingIndex: number, event: KeyboardEvent): void {
+    if (precedingIndex < 0) {
+      return
+    }
+    dispatchHandleKeyDown(event, precedingIndex)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Panel API (Resizable.usePanel)
+  // ---------------------------------------------------------------------------
+
+  function collapsePanel(id: string): void {
+    const index = panelIndexById(id)
+    if (index < 0) {
       return
     }
 
-    local.onHandleKeyDown?.({
-      event,
-      handleIndex,
-      sizes: resolvePixelSizes(sizes()),
+    const next = collapsePanelSizes({
+      panelIndex: index,
+      strategy: RESIZE_FLAG_FOLLOWING,
+      initialSizes: resolved(),
+      panels: panelSpecs(),
     })
+    if (!applyLayout(next)) {
+      return
+    }
+    markTransitioning(id)
+    commitLayout(next)
+  }
 
-    dispatchHandleKeyDown(event, handleIndex, altKey)
+  function expandPanel(id: string): void {
+    const index = panelIndexById(id)
+    if (index < 0) {
+      return
+    }
+
+    const specs = panelSpecs()
+    const next = expandPanelSizes({
+      panelIndex: index,
+      strategy: RESIZE_FLAG_FOLLOWING,
+      initialSizes: resolved(),
+      panels: specs,
+      expandedSize: lastExpandedSizes.get(id) ?? specs[index]!.min,
+    })
+    if (!applyLayout(next)) {
+      return
+    }
+    markTransitioning(id)
+    commitLayout(next)
+  }
+
+  function resizePanel(id: string, size: number): void {
+    const index = panelIndexById(id)
+    if (index < 0) {
+      return
+    }
+
+    const next = resizePanelToSize({
+      panelIndex: index,
+      size: size / 100,
+      strategy: RESIZE_FLAG_FOLLOWING,
+      initialSizes: resolved(),
+      panels: panelSpecs(),
+    })
+    if (!applyLayout(next)) {
+      return
+    }
+    commitLayout(next)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Collapse transition callbacks
+  // ---------------------------------------------------------------------------
+
+  createEffect(
+    on(resolved, (sizes) => {
+      orderedPanels().forEach((panel, index) => {
+        const size = sizes[index] ?? 0
+        const collapsedSize = collapsedSizeFraction(panel)
+        const collapsed = isPanelCollapsed(size, {
+          collapsible: panel.collapsible(),
+          collapsedSize,
+        })
+        const id = panel.id()
+        const previous = previousCollapsed.get(id)
+
+        if (previous !== undefined && previous !== collapsed) {
+          if (collapsed) {
+            panel.onCollapse()
+          } else {
+            panel.onExpand()
+          }
+        }
+        if (!collapsed && size > collapsedSize + EPSILON) {
+          lastExpandedSizes.set(id, size)
+        }
+        previousCollapsed.set(id, collapsed)
+      })
+    }),
+  )
+
+  // ---------------------------------------------------------------------------
+  // Registration + context
+  // ---------------------------------------------------------------------------
+
+  function registerItem(item: ResizableItem): () => void {
+    item.seq = seq
+    seq += 1
+    const stored = item
+    setItems((previous) => [...previous, stored])
+    return () => {
+      setItems((previous) => previous.filter((entry) => entry !== stored))
+    }
+  }
+
+  function panelSize(panel: ResizablePanelRegistration): number | undefined {
+    // Before settle the registration set is partial; derive from the layout
+    // record directly so server markup and first client render agree.
+    if (!settled()) {
+      return panelPreSettleBasis(panel)
+    }
+    const index = panelIndexOf(panel)
+    if (index < 0) {
+      return undefined
+    }
+    return fixToPrecision((resolved()[index] ?? 0) * 100)
+  }
+
+  function panelPreSettleBasis(panel: ResizablePanelRegistration): number | undefined {
+    const entry = sourceLayout()?.[panel.id()]
+    if (entry === undefined) {
+      return undefined
+    }
+    // A collapsed entry must not be clamped up to `min`.
+    if (panel.collapsible() && entry <= panel.collapsedSize() + EPSILON) {
+      return panel.collapsedSize()
+    }
+    return fixToPrecision(clamp(entry, panel.min(), panel.max()))
+  }
+
+  function panelCollapsed(panel: ResizablePanelRegistration): boolean {
+    if (!settled()) {
+      const basis = panelPreSettleBasis(panel)
+      return (
+        basis !== undefined &&
+        isPanelCollapsed(basis / 100, {
+          collapsible: panel.collapsible(),
+          collapsedSize: collapsedSizeFraction(panel),
+        })
+      )
+    }
+    const index = panelIndexOf(panel)
+    if (index < 0) {
+      return false
+    }
+    return isPanelCollapsed(resolved()[index] ?? 0, {
+      collapsible: panel.collapsible(),
+      collapsedSize: collapsedSizeFraction(panel),
+    })
+  }
+
+  const context: ResizableContext = {
+    orientation,
+    disabled,
+    settled,
+    resizing,
+    slotOverrides: pickSlotOverrides(local),
+    registerItem,
+    orderedItems,
+    orderedPanels,
+    panelIndex: panelIndexOf,
+    panelSize,
+    panelPreSettleBasis,
+    panelCollapsed,
+    panelTransitioning: (panel) => transitioningIds().includes(panel.id()),
+    clearPanelTransition: (id) =>
+      setTransitioningIds((previous) => previous.filter((entry) => entry !== id)),
+    dragHandle,
+    endHandleDrag,
+    handleKeyDown,
+    collapsePanel,
+    expandPanel,
+    resizePanel,
   }
 
   return (
-    <div
-      data-slot="resizable"
-      {...rootSlot}
-      {...rest}
-      ref={(element) => {
-        rootRef = element
-        callRef(local.ref, element)
-      }}
-      id={local.id}
-    >
-      <Index each={resolvedPanels()}>
-        {(panel, index) => {
-          const panelItem = createMemo(() => panel())
-          const panelPart = createMemo(() => panelParts()[index])
-          const size = () => sizes()[index] ?? 0
-          const collapsed = () => isPanelCollapsed(size(), panelItem())
-          const isTransitioning = createMemo(() => transitioningPanelIndexes().includes(index))
-          const panelSlot = slotWith('panel', {
-            own: () => ({ class: panelItem().class, style: panelItem().style }),
-            enforced: () => ({
-              style: {
-                'flex-grow': size(),
-                'flex-shrink': 1,
-                'flex-basis': '0px',
-              },
-            }),
-            data: resizableDataAttributes.panel({
-              collapsed,
-              expanded: () => panelItem().collapsible && !collapsed(),
-              resizing: interactionResizing,
-              transitioning: isTransitioning,
-            }),
-          })
-
-          return (
-            <>
-              <div
-                ref={(element) => callRef(panelPart()!.local.ref, element)}
-                {...panelSlot}
-                {...panelPart()!.rest}
-                id={panelItem().panelId}
-                data-slot="resizable-panel"
-                onTransitionEnd={(event) => {
-                  const result = callHandler(event, panelPart()!.local.onTransitionEnd)
-                  if (!result.defaultPrevented) {
-                    onPanelTransitionFinish(index, event)
-                  }
-                }}
-                onTransitionCancel={(event) => {
-                  const result = callHandler(event, panelPart()!.local.onTransitionCancel)
-                  if (!result.defaultPrevented) {
-                    onPanelTransitionFinish(index, event)
-                  }
-                }}
-              >
-                {panelPart()!.content()}
-              </div>
-
-              <Show when={handleParts().get(index)}>
-                {(handlePart) => {
-                  const action = () => handlePart().local.action ?? 'resize'
-                  const handleDisabled = createMemo(
-                    () => local.disabled === true || !isHandleResizable(index),
-                  )
-                  const handleCollapseAction = createMemo(
-                    () => action() === 'collapse' && local.disabled !== true,
-                  )
-                  const gripDisabled = createMemo(() =>
-                    action() === 'collapse' ? local.disabled === true : handleDisabled(),
-                  )
-                  const collapseState = createMemo(() => resolveNearestCollapsibleState(index))
-                  const aria = createMemo(() =>
-                    getHandleAria({ handleIndex: index, sizes: sizes(), panels: resolvedPanels() }),
-                  )
-                  const bindings = useResizableHandle({
-                    handleIndex: () => index,
-                    orientation,
-                    disabled: handleDisabled,
-                    intersection: () => handlePart().local.intersection,
-                    onDrag: resizeHandleByDelta,
-                    onDragEnd: stopHandleDrag,
-                    onKeyDown: onHandleKeyDown,
-                  })
-
-                  function callHandleEvent<E extends Event>(
-                    event: E,
-                    handler: unknown,
-                    internal: (event: E) => void,
-                  ): void {
-                    const result = callHandler(event, handler)
-                    if (!result.defaultPrevented) {
-                      internal(event)
-                    }
-                  }
-
-                  function onDividerPointerDown(event: PointerEvent): void {
-                    callHandleEvent(event, handlePart().local.onPointerDown, bindings.onPointerDown)
-                  }
-
-                  function onGripPointerDown(event: PointerEvent): void {
-                    if (!handleCollapseAction()) {
-                      return
-                    }
-
-                    callHandler(event, handlePart().local.onPointerDown)
-                    if (!event.defaultPrevented) {
-                      event.stopPropagation()
-                    }
-                  }
-
-                  function onHandleClick(event: MouseEvent): void {
-                    if (!handleCollapseAction()) {
-                      return
-                    }
-
-                    const result = callHandler(event, handlePart().local.onClick)
-                    if (result.defaultPrevented) {
-                      return
-                    }
-
-                    event.stopPropagation()
-                    toggleHandleCollapse(index)
-                  }
-
-                  const handleSlot = slotWith('handle', {
-                    own: () => ({
-                      class: handlePart().local.class,
-                      style: handlePart().local.style,
-                    }),
-                    data: resizableDataAttributes.handle({
-                      active: bindings.active,
-                      cross: bindings.crossHovered,
-                      dragging: bindings.dragging,
-                    }),
-                  })
-                  const startIntersectionSlot = slotWith('intersection', {
-                    data: resizableDataAttributes.intersection({
-                      resizableHandleStartTarget: true,
-                      resizableHandleEndTarget: undefined,
-                    }),
-                  })
-                  const endIntersectionSlot = slotWith('intersection', {
-                    data: resizableDataAttributes.intersection({
-                      resizableHandleStartTarget: undefined,
-                      resizableHandleEndTarget: true,
-                    }),
-                  })
-                  const handleControlSlot = slotWith('handleControl', {
-                    data: resizableDataAttributes.handleControl({
-                      collapse: () => handleCollapseAction(),
-                    }),
-                  })
-
-                  const handleContext: ResizableT.HandleRenderProps = {
-                    get orientation() {
-                      return orientation()
-                    },
-                    get disabled() {
-                      return gripDisabled()
-                    },
-                    get action() {
-                      return action()
-                    },
-                    get active() {
-                      return bindings.active()
-                    },
-                    get dragging() {
-                      return bindings.dragging()
-                    },
-                    get canCollapse() {
-                      return collapseState().canCollapse
-                    },
-                    get collapsed() {
-                      return collapseState().collapsed
-                    },
-                  }
-
-                  return (
-                    <div
-                      ref={(element) => {
-                        bindings.setElement(element)
-                        callRef(handlePart().local.ref, element)
-                      }}
-                      {...handleSlot}
-                      {...handlePart().rest}
-                      role="separator"
-                      aria-controls={aria().controls}
-                      aria-orientation={orientation()}
-                      aria-valuemin={aria().valueMin}
-                      aria-valuemax={aria().valueMax}
-                      aria-valuenow={aria().valueNow}
-                      aria-disabled={handleDisabled() ? 'true' : undefined}
-                      tabIndex={handleDisabled() ? -1 : 0}
-                      data-slot="resizable-handle"
-                      onMouseEnter={(event) =>
-                        callHandleEvent(
-                          event,
-                          handlePart().local.onMouseEnter,
-                          bindings.onMouseEnter,
-                        )
-                      }
-                      onMouseLeave={(event) =>
-                        callHandleEvent(
-                          event,
-                          handlePart().local.onMouseLeave,
-                          bindings.onMouseLeave,
-                        )
-                      }
-                      onFocus={(event) =>
-                        callHandleEvent(event, handlePart().local.onFocus, bindings.onFocus)
-                      }
-                      onBlur={(event) =>
-                        callHandleEvent(event, handlePart().local.onBlur, bindings.onBlur)
-                      }
-                      onKeyDown={(event) =>
-                        callHandleEvent(event, handlePart().local.onKeyDown, bindings.onKeyDown)
-                      }
-                      onPointerDown={onDividerPointerDown}
-                      onClick={(event) => callHandler(event, handlePart().local.onClick)}
-                    >
-                      <Show when={bindings.startIntersectionVisible()}>
-                        <div
-                          data-slot="resizable-intersection"
-                          {...startIntersectionSlot}
-                          onMouseEnter={() =>
-                            bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
-                          }
-                          onMouseLeave={bindings.onIntersectionMouseLeave}
-                        />
-                      </Show>
-
-                      <Show when={handlePart().content() !== false}>
-                        <button
-                          type="button"
-                          data-slot="resizable-handle-control"
-                          tabIndex={-1}
-                          aria-label={
-                            handlePart().local['aria-label'] ??
-                            (action() === 'collapse'
-                              ? resolveNearestCollapsibleState(index).collapsed
-                                ? messages().expand
-                                : messages().collapse
-                              : undefined)
-                          }
-                          onPointerDown={onGripPointerDown}
-                          onClick={onHandleClick}
-                          {...handleControlSlot}
-                        >
-                          <Show when={handlePart().content() !== undefined}>
-                            {renderWithProps(handlePart().content(), handleContext)}
-                          </Show>
-                        </button>
-                      </Show>
-
-                      <Show when={bindings.endIntersectionVisible()}>
-                        <div
-                          data-slot="resizable-intersection"
-                          {...endIntersectionSlot}
-                          onMouseEnter={() =>
-                            bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
-                          }
-                          onMouseLeave={bindings.onIntersectionMouseLeave}
-                        />
-                      </Show>
-                    </div>
-                  )
-                }}
-              </Show>
-            </>
-          )
-        }}
-      </Index>
-    </div>
+    <ResizableProvider value={context}>
+      <div
+        data-slot="resizable"
+        {...rootSlot}
+        {...rest}
+        ref={(element) => callRef(local.ref, element)}
+        id={local.id}
+      >
+        {local.children}
+      </div>
+    </ResizableProvider>
   )
 }
 
+Resizable.usePanel = useResizablePanel
 Resizable.Panel = ResizablePanel
 Resizable.Handle = ResizableHandle

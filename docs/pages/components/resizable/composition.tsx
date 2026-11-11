@@ -42,9 +42,14 @@ export function Composition() {
 
   return (
     <div class="border border-border/60 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
-      <Resizable defaultValue={['22%', '36%', '42%']}>
+      <Resizable defaultValue={{ folders: 22, messages: 36, reading: 42 }}>
         {/* Column 1: Mailboxes */}
-        <Resizable.Panel min="16%" max="30%" class="p-2 bg-muted/25 flex flex-col justify-between">
+        <Resizable.Panel
+          id="folders"
+          min={16}
+          max={30}
+          class="p-2 bg-muted/25 flex flex-col justify-between"
+        >
           <div class="space-y-1">
             <div class="text-xs text-foreground font-semibold px-2 py-1 flex gap-1.5 items-center">
               <Icon name="i-lucide:mail" class="text-primary size-3.5" />
@@ -80,7 +85,7 @@ export function Composition() {
         <Resizable.Handle />
 
         {/* Column 2: Message list */}
-        <Resizable.Panel min="26%" max="50%" class="bg-background/60 flex flex-col">
+        <Resizable.Panel id="messages" min={26} max={50} class="bg-background/60 flex flex-col">
           <div class="p-2 border-b border-border/50 flex gap-2 items-center">
             <Icon name="i-lucide:search" class="text-muted-foreground size-3.5" />
             <input
@@ -119,7 +124,11 @@ export function Composition() {
         <Resizable.Handle />
 
         {/* Column 3: Reading pane */}
-        <Resizable.Panel min="30%" class="p-4 bg-background flex flex-col justify-between">
+        <Resizable.Panel
+          id="reading"
+          min={30}
+          class="p-4 bg-background flex flex-col justify-between"
+        >
           <div class="space-y-4">
             <div class="pb-3 border-b border-border/40 flex items-start justify-between">
               <div>

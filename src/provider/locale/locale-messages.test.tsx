@@ -17,7 +17,6 @@ import { MultiSelect } from '../../components/multi-select/multi-select'
 import { NumberInput } from '../../components/number-input/number-input'
 import { Pagination } from '../../components/pagination/pagination'
 import { Progress } from '../../components/progress/progress'
-import { Resizable } from '../../components/resizable/resizable'
 import { Select } from '../../components/select/select'
 import { Sheet } from '../../components/sheet/sheet'
 import { Sidebar } from '../../components/sidebar/sidebar'
@@ -194,26 +193,6 @@ describe('localized component text', () => {
     expect(screen.queryByRole('button', { name: 'Televerser' })).toBeNull()
   })
 
-  test('uses resizable grip messages and lets aria-label win', () => {
-    const screen = render(() => (
-      <MoraineProvider messages={{ resizable: { collapse: 'Reduire', expand: 'Etendre' } }}>
-        <Resizable>
-          <Resizable.Panel collapsible>Left</Resizable.Panel>
-          <Resizable.Handle action="collapse" />
-          <Resizable.Panel>Right</Resizable.Panel>
-        </Resizable>
-        <Resizable>
-          <Resizable.Panel collapsible>Left</Resizable.Panel>
-          <Resizable.Handle action="collapse" aria-label="Resize panels" />
-          <Resizable.Panel>Right</Resizable.Panel>
-        </Resizable>
-      </MoraineProvider>
-    ))
-
-    expect(screen.getByRole('button', { name: 'Reduire' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Resize panels' })).toBeTruthy()
-  })
-
   test('uses the sidebar message and lets ariaLabel win', async () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
@@ -356,17 +335,12 @@ describe('localized component text', () => {
 })
 
 describe('component translations prop', () => {
-  test('uses alert, kbd, progress, and resizable translations', () => {
+  test('uses alert, kbd, and progress translations', () => {
     const screen = render(() => (
       <>
         <Alert closable translations={{ close: 'Dismiss banner' }} />
         <Kbd value="meta" translations={{ meta: 'Command-Key' }} />
         <Progress aria-label="Task" translations={{ indeterminate: 'Working...' }} />
-        <Resizable translations={{ collapse: 'Fold panel' }}>
-          <Resizable.Panel collapsible>Left</Resizable.Panel>
-          <Resizable.Handle action="collapse" />
-          <Resizable.Panel>Right</Resizable.Panel>
-        </Resizable>
       </>
     ))
 
@@ -375,7 +349,6 @@ describe('component translations prop', () => {
     ).toBe('Dismiss banner')
     expect(screen.getByLabelText('Command-Key')).toBeTruthy()
     expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('Working...')
-    expect(screen.getByRole('button', { name: 'Fold panel' })).toBeTruthy()
   })
 
   test('uses select, combobox, and multi-select translations including tag removal', () => {

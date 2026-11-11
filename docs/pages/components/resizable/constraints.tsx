@@ -3,10 +3,11 @@ import { Icon, Resizable } from '@src'
 export function Constraints() {
   return (
     <div class="border border-border/60 rounded-xl bg-card/30 h-64 w-full shadow-xs overflow-hidden">
-      <Resizable defaultValue={['32%', '68%']}>
+      <Resizable defaultValue={{ inspector: 32, viewport: 68 }}>
         <Resizable.Panel
-          min="25%"
-          max="45%"
+          id="inspector"
+          min={25}
+          max={45}
           class="p-3 bg-muted/20 flex flex-col min-w-0 justify-between"
         >
           <div class="space-y-3">
@@ -40,7 +41,11 @@ export function Constraints() {
 
         <Resizable.Handle />
 
-        <Resizable.Panel min="35%" class="p-4 bg-background/50 flex flex-col justify-between">
+        <Resizable.Panel
+          id="viewport"
+          min={35}
+          class="p-4 bg-background/50 flex flex-col justify-between"
+        >
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs text-muted-foreground font-medium flex gap-1.5 items-center">

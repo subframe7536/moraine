@@ -26,7 +26,7 @@ import Playground from './playground'
       {
         part: 'Resizable.Handle',
         slot: 'handle',
-        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
+        children: [{ slot: 'intersection' }, { slot: 'grip' }, { slot: 'intersection' }],
       },
       {
         part: 'Resizable.Panel',
@@ -42,7 +42,8 @@ Use Resizable to split space into draggable, keyboard-accessible panels for mult
 single expandable disclosure or a drawer, see [Collapsible](/components/collapsible) or
 [Sheet](/components/sheet).
 
-The root owns the size of every panel. `Resizable.Panel` sets each panel's `min`, `max`, and
+The root owns the size of every panel as a layout record: a `Record` keyed by panel `id` with sizes
+as percentages of the group (`0`–`100`). `Resizable.Panel` sets each panel's `min`, `max`, and
 collapse constraints. Place `Resizable.Handle` between two panels to add pointer dragging, keyboard
 resizing, and collapse toggles.
 
@@ -52,12 +53,12 @@ import { Resizable } from 'moraine'
 export function Example() {
   return (
     <div class="h-64 w-full border border-border/60 rounded-xl overflow-hidden bg-card/30">
-      <Resizable defaultValue={['30%', '70%']}>
-        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
+      <Resizable defaultValue={{ sidebar: 30, content: 70 }}>
+        <Resizable.Panel id="sidebar" min={20} class="p-4 bg-muted/20">
           Sidebar
         </Resizable.Panel>
         <Resizable.Handle />
-        <Resizable.Panel min="30%" class="p-4 bg-background/50">
+        <Resizable.Panel id="content" min={30} class="p-4 bg-background/50">
           Content
         </Resizable.Panel>
       </Resizable>
@@ -68,65 +69,90 @@ export function Example() {
 
 ### Panel constraints
 
-Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. A value is a
-pixel number (`240`) or a percentage string relative to the root (`'25%'`). Dragging a handle grows
-one panel and shrinks its neighbor, stopping at each panel's `min` and `max`. A panel with
-`resizable={false}` stays at its current size.
+Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. All values are
+percentages of the group. Dragging a handle grows one panel and shrinks its neighbor, stopping at
+each panel's `min` and `max`. A panel with `resizable={false}` stays at its current size. Panels
+without an entry in the layout record share the remaining space.
 
 ```tsx
-<Resizable defaultValue={['32%', '68%']}>
-  <Resizable.Panel min="25%" max="45%">
+<Resizable defaultValue={{ inspector: 32, viewport: 68 }}>
+  <Resizable.Panel id="inspector" min={25} max={45}>
     Inspector
   </Resizable.Panel>
   <Resizable.Handle />
-  <Resizable.Panel min="35%">Viewport</Resizable.Panel>
+  <Resizable.Panel id="viewport" min={35}>
+    Viewport
+  </Resizable.Panel>
 </Resizable>
 ```
 
 ### Collapsible panels
 
-Set `collapsible` on a panel to let it collapse to `collapsibleMin` (default `0`). Set
-`action="collapse"` on the adjacent `Resizable.Handle` so clicking the grip or pressing <kbd>Enter</kbd>
-toggles the panel. A handle's children can be a render function that receives `collapsed`, `dragging`,
-and `active` to switch the icon. `onCollapse` and `onExpand` report the panel's pixel size when it
-toggles.
+Set `collapsible` on a panel to let it collapse to `collapsedSize` (default `0`). Pressing
+
+<kbd>Enter</kbd> on a handle toggles its nearest collapsible neighbor — the preceding panel first,
+then the following one. A handle's children can be a render function that receives `collapsed`,
+`dragging`, and `active` to switch the icon. `onCollapse` and `onExpand` fire on state transitions.
+
+Inside panel content, `Resizable.usePanel()` exposes `collapse()`, `expand()`, `resize(size)`,
+`size`, and `collapsed` — use it to build a collapse button.
 
 ```tsx
-<Resizable.Panel collapsible collapsibleMin={56} onCollapse={onCollapse} onExpand={onExpand}>
-  Sidebar
-</Resizable.Panel>
-<Resizable.Handle action="collapse">
-  {(state) => <Icon name={state.collapsed ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'} />}
-</Resizable.Handle>
+function CollapseButton() {
+  const panel = Resizable.usePanel()
+  return (
+    <button onClick={() => (panel.collapsed() ? panel.expand() : panel.collapse())}>
+      <Icon name={panel.collapsed() ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'} />
+    </button>
+  )
+}
+
+;<Resizable>
+  <Resizable.Panel id="nav" collapsible collapsedSize={8} min={20}>
+    <NavList />
+    <CollapseButton />
+  </Resizable.Panel>
+  <Resizable.Handle>
+    {(state) => (
+      <Icon name={state.collapsed ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'} />
+    )}
+  </Resizable.Handle>
+  <Resizable.Panel id="main">Content</Resizable.Panel>
+</Resizable>
 ```
 
 ### Controlled state and persistence
 
 Use `value` with `onValueChange` when the application coordinates layout presets, resets, or persists
-splits to storage. `onValueChange` receives exact pixel sizes. Sizes that do not match the panel count
-or fall outside each panel's bounds are normalized to fit the available space.
+splits to storage. Both carry the full layout record keyed by panel id. `onValueCommit` fires once
+per completed interaction — a drag that changed the layout, each keyboard step, a collapse toggle,
+or a `usePanel()` call.
 
 ```tsx
-<Resizable value={sizes()} onValueChange={setSizes}>
-  <Resizable.Panel min={150}>Logs</Resizable.Panel>
+<Resizable value={layout()} onValueChange={setLayout} onValueCommit={persist}>
+  <Resizable.Panel id="logs" min={15}>
+    Logs
+  </Resizable.Panel>
   <Resizable.Handle />
-  <Resizable.Panel min={150}>Output</Resizable.Panel>
+  <Resizable.Panel id="output" min={15}>
+    Output
+  </Resizable.Panel>
 </Resizable>
 ```
 
 ### Keyboard interaction
 
 Handles render semantic separator elements with `tabIndex={0}`, `role="separator"`, and standard
-ARIA boundary values.
+ARIA boundary values reported for the preceding panel.
 
 | Key                                          | Description                                                        |
 | -------------------------------------------- | ------------------------------------------------------------------ |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Decreases the active separator by `keyboardDelta` (default `10%`). |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Increases the active separator by `keyboardDelta` (default `10%`). |
-| <kbd>Shift</kbd> + <kbd>Arrow</kbd>          | Jumps the active separator to its minimum or maximum limit.        |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Decreases the preceding panel by `keyboardDelta` (default `10%`).  |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Increases the preceding panel by `keyboardDelta` (default `10%`).  |
+| <kbd>Shift</kbd> + <kbd>Arrow</kbd>          | Resizes by `1%` for fine-grained adjustments.                      |
 | <kbd>Home</kbd>                              | Snaps the adjacent panel to its minimum permitted size.            |
 | <kbd>End</kbd>                               | Snaps the adjacent panel to its maximum permitted size.            |
-| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel when `action="collapse"`.    |
+| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel (preceding, then following). |
 | <kbd>Alt</kbd> + drag                        | Distributes delta symmetrically across adjacent panels.            |
 
 ## Examples
@@ -139,15 +165,14 @@ Set `min` and `max` so the inspector cannot consume the editor.
 
 ### Collapse a project sidebar to an icon rail
 
-Use `collapsibleMin` for the remaining rail width, and `action="collapse"` on the handle so a click or
-
-<kbd>Enter</kbd> toggles it.
+Use `collapsedSize` for the remaining rail width. <kbd>Enter</kbd> on the handle or a
+`Resizable.usePanel()` button toggles it.
 
 <Preview path="./collapsible" />
 
 ### Switch between saved split presets
 
-Own `value` when the page stores pixel sizes or offers layout presets.
+Own `value` when the page stores layout records or offers presets.
 
 <Preview path="./controlled" />
 

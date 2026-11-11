@@ -33,11 +33,15 @@ export function VerticalDisable() {
         <Resizable
           orientation="vertical"
           disabled={disabled()}
-          defaultValue={['52%', '48%']}
+          defaultValue={{ editor: 52, results: 48 }}
           classes={{ handle: 'bg-border/80' }}
         >
           {/* Top Panel: SQL Query Editor */}
-          <Resizable.Panel min="25%" class="p-3 bg-muted/20 flex flex-col justify-between">
+          <Resizable.Panel
+            id="editor"
+            min={25}
+            class="p-3 bg-muted/20 flex flex-col justify-between"
+          >
             <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-foreground font-semibold flex gap-1.5 items-center">
@@ -77,7 +81,11 @@ export function VerticalDisable() {
           </Resizable.Handle>
 
           {/* Bottom Panel: Data Table Results */}
-          <Resizable.Panel min="25%" class="p-3 bg-background/50 flex flex-col justify-between">
+          <Resizable.Panel
+            id="results"
+            min={25}
+            class="p-3 bg-background/50 flex flex-col justify-between"
+          >
             <div class="overflow-auto space-y-2">
               <div class="text-xs flex items-center justify-between">
                 <span class="text-foreground font-medium">Results</span>

@@ -13,7 +13,6 @@ import type { defaultNumberInputMessages } from '../../components/number-input/n
 import type { defaultPaginationMessages } from '../../components/pagination/pagination.messages'
 import type { defaultPinInputMessages } from '../../components/pin-input/pin-input.messages'
 import type { defaultProgressMessages } from '../../components/progress/progress.messages'
-import type { defaultResizableMessages } from '../../components/resizable/resizable.messages'
 import type { defaultSelectMessages } from '../../components/select/select.messages'
 import type { defaultTagsFieldMessages } from '../../components/shared/form/select/tags-field.messages'
 import type { defaultSheetMessages } from '../../components/sheet/sheet.messages'
@@ -45,7 +44,6 @@ export interface MoraineMessages {
   numberInput: ComponentMessages<typeof defaultNumberInputMessages>
   fileUpload: ComponentMessages<typeof defaultFileUploadMessages>
   tagsField: ComponentMessages<typeof defaultTagsFieldMessages>
-  resizable: ComponentMessages<typeof defaultResizableMessages>
   sidebar: ComponentMessages<typeof defaultSidebarMessages>
   form: ComponentMessages<typeof defaultFormMessages>
   kbd: ComponentMessages<typeof defaultKbdMessages>

@@ -1,5 +1,9 @@
-import { clamp, fixToPrecision, nearlyEqual, normalizeSizeVector, resolveSize } from './size'
-import type { ResizableResolvedPanel, ResizableSize } from './types'
+import { clamp, fixToPrecision, nearlyEqual, normalizeSizeVector } from './size'
+import type { ResizableResolvedPanel } from './types'
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
 
 interface IndexSpan {
   start: number
@@ -26,6 +30,13 @@ function isCollapsedSize(size: number, collapsedSize: number): boolean {
   return size < collapsedSize || nearlyEqual(size, collapsedSize)
 }
 
+export function isPanelCollapsed(
+  size: number,
+  panel: Pick<ResizableResolvedPanel, 'collapsible' | 'collapsedSize'>,
+): boolean {
+  return panel.collapsible && isCollapsedSize(size, panel.collapsedSize)
+}
+
 function withCollapsedPanelMinOverride(
   panels: ResizableResolvedPanel[],
   initialSizes: number[],
@@ -36,8 +47,8 @@ function withCollapsedPanelMinOverride(
 
     if (
       !panel.collapsible ||
-      panel.min <= panel.collapsibleMin ||
-      !isCollapsedSize(size, panel.collapsibleMin)
+      panel.min <= panel.collapsedSize ||
+      !isCollapsedSize(size, panel.collapsedSize)
     ) {
       return panel
     }
@@ -45,7 +56,7 @@ function withCollapsedPanelMinOverride(
     changed = true
     return {
       ...panel,
-      min: panel.collapsibleMin,
+      min: panel.collapsedSize,
     }
   })
 
@@ -365,18 +376,17 @@ function resizePanelByDelta(input: {
 
 export function resizePanelToSize(input: {
   panelIndex: number
-  size: ResizableSize
+  size: number
   strategy: ResizeStrategy
   initialSizes: number[]
   panels: ResizableResolvedPanel[]
-  rootSize: number
 }): number[] {
   const panel = input.panels[input.panelIndex]
   if (!panel) {
     return normalizeSizeVector(input.initialSizes)
   }
 
-  const requestedSize = resolveSize(input.size, input.rootSize)
+  const requestedSize = isFiniteNumber(input.size) ? input.size : 0
   const allowedSize = clamp(requestedSize, panel.min, panel.max)
   const deltaPercentage = allowedSize - (input.initialSizes[input.panelIndex] ?? 0)
 
@@ -409,15 +419,15 @@ export function collapsePanel(input: {
   }
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
-  if (!panel.collapsible || isCollapsedSize(panelSize, panel.collapsibleMin)) {
+  if (!panel.collapsible || isCollapsedSize(panelSize, panel.collapsedSize)) {
     return normalizeSizeVector(input.initialSizes)
   }
 
-  const collapsePanels = withPanelMinOverride(input.panels, input.panelIndex, panel.collapsibleMin)
+  const collapsePanels = withPanelMinOverride(input.panels, input.panelIndex, panel.collapsedSize)
 
   return resizePanelByDelta({
     panelIndex: input.panelIndex,
-    deltaPercentage: panel.collapsibleMin - panelSize,
+    deltaPercentage: panel.collapsedSize - panelSize,
     strategy: input.strategy,
     initialSizes: input.initialSizes,
     panels: collapsePanels,
@@ -454,7 +464,7 @@ export function expandPanel(input: {
   }
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
-  if (!panel.collapsible || !isCollapsedSize(panelSize, panel.collapsibleMin)) {
+  if (!panel.collapsible || !isCollapsedSize(panelSize, panel.collapsedSize)) {
     return normalizeSizeVector(input.initialSizes)
   }
 
@@ -501,7 +511,7 @@ export function togglePanel(input: {
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
 
-  if (isCollapsedSize(panelSize, panel.collapsibleMin)) {
+  if (isCollapsedSize(panelSize, panel.collapsedSize)) {
     return expandPanel(input)
   }
 

@@ -2,7 +2,6 @@
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "resizable",
   "name": "Resizable",
-  "description": "Props for the Resizable component.",
   "kind": "composite",
   "parts": [
     {
@@ -12,14 +11,12 @@
         "kind": "export",
         "name": "Resizable"
       },
-      "description": "Props for the Resizable component.",
       "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Ordered `Resizable.Panel` and `Resizable.Handle` children."
+          "type": "JSX.Element"
         },
         {
           "name": "class",
@@ -36,58 +33,40 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "readonly ResizableSize[]",
-          "description": "Initial panel sizes for uncontrolled usage."
+          "type": "Layout",
+          "description": "Initial layout keyed by panel id (percent 0-100) for uncontrolled usage.\nPanels without an entry share the remaining space."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether the resizable component is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
+          "type": "boolean"
         },
         {
           "name": "id",
           "optional": true,
-          "type": "string",
-          "description": "Unique identifier for the resizable root."
+          "type": "string"
         },
         {
           "name": "keyboardDelta",
           "optional": true,
-          "type": "ResizableSize",
-          "description": "The amount to resize when using keyboard shortcuts.",
+          "type": "number",
+          "description": "Keyboard resize step in percent of the group.",
           "default": {
             "kind": "literal",
-            "value": "10%"
+            "value": 10
           }
-        },
-        {
-          "name": "onHandleKeyDown",
-          "optional": true,
-          "type": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void",
-          "description": "Callback when a key is pressed on a handle."
-        },
-        {
-          "name": "onResizeEnd",
-          "optional": true,
-          "type": "(sizes: number[]) => void",
-          "description": "Callback when a resize operation ends. Values are in pixels."
-        },
-        {
-          "name": "onResizeStart",
-          "optional": true,
-          "type": "(sizes: number[]) => void",
-          "description": "Callback when a resize operation starts. Values are in pixels."
         },
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(sizes: number[]) => void",
-          "description": "Callback when panel sizes change. Values are in pixels."
+          "type": "(layout: Layout) => void",
+          "description": "Called with the full layout record for the current panel ids on every\nlayout change."
+        },
+        {
+          "name": "onValueCommit",
+          "optional": true,
+          "type": "(layout: Layout) => void",
+          "description": "Called once per completed interaction with the final layout record:\nat drag end (only when the layout changed), on each keyboard step that\nchanged the layout, on collapse toggles, and on each\n`Resizable.usePanel()` collapse/expand/resize call."
         },
         {
           "name": "orientation",
@@ -112,16 +91,10 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "translations",
-          "optional": true,
-          "type": "Translations",
-          "description": "Localized message overrides for this resizable instance."
-        },
-        {
           "name": "value",
           "optional": true,
-          "type": "readonly ResizableSize[]",
-          "description": "Controlled panel sizes. Numbers are pixels; percentage strings are relative to the root."
+          "type": "Layout",
+          "description": "Controlled layout keyed by panel id (percent 0-100).\nWhen provided the component is fully controlled."
         }
       ]
     },
@@ -138,8 +111,7 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Content rendered inside the panel."
+          "type": "JSX.Element"
         },
         {
           "name": "class",
@@ -148,40 +120,42 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "collapsible",
+          "name": "collapsedSize",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether the panel is collapsible.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "collapsibleMin",
-          "optional": true,
-          "type": "ResizableSize",
-          "description": "Size of the panel when collapsed. Only applies when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "type": "number",
+          "description": "Size in percent applied when the panel is collapsed.",
           "default": {
             "kind": "literal",
             "value": 0
           }
         },
         {
+          "name": "collapsible",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the panel can collapse to `collapsedSize`."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Panel id. Used as the key in layout records and as the DOM id.\nGenerated when omitted."
+        },
+        {
           "name": "max",
           "optional": true,
-          "type": "ResizableSize",
-          "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "type": "number",
+          "description": "Maximum size as a percentage of the group (0-100).",
           "default": {
             "kind": "literal",
-            "value": 1
+            "value": 100
           }
         },
         {
           "name": "min",
           "optional": true,
-          "type": "ResizableSize",
-          "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "type": "number",
+          "description": "Minimum size as a percentage of the group (0-100).",
           "default": {
             "kind": "literal",
             "value": 0
@@ -190,20 +164,20 @@
         {
           "name": "onCollapse",
           "optional": true,
-          "type": "(size: number) => void",
-          "description": "Callback when the panel is collapsed. Size is in pixels."
+          "type": "() => void",
+          "description": "Called when the panel transitions to collapsed."
         },
         {
           "name": "onExpand",
           "optional": true,
-          "type": "(size: number) => void",
-          "description": "Callback when the panel is expanded. Size is in pixels."
+          "type": "() => void",
+          "description": "Called when the panel transitions out of collapsed."
         },
         {
           "name": "resizable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the panel is resizable.",
+          "description": "Whether the panel can be resized by handle interactions.",
           "default": {
             "kind": "literal",
             "value": true
@@ -228,20 +202,10 @@
       "defaultElement": "div",
       "props": [
         {
-          "name": "action",
-          "optional": true,
-          "type": "'resize' | 'collapse'",
-          "description": "Handle interaction behavior.",
-          "default": {
-            "kind": "literal",
-            "value": "resize"
-          }
-        },
-        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element | Component<HandleRenderProps>",
-          "description": "Content or render function receiving the live handle state.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+          "description": "Handle content. `false` hides the decorative grip; a function receives\n{@link HandleRenderProps} and mounts as a component."
         },
         {
           "name": "class",
@@ -253,11 +217,7 @@
           "name": "intersection",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this handle participates in intersection resizing.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
+          "description": "Extends the hit target to the crossing handles of nested resizable\ngroups so the junction drags on both axes at once."
         },
         {
           "name": "style",
@@ -272,14 +232,14 @@
     "root",
     "panel",
     "handle",
-    "handleControl",
+    "grip",
     "intersection"
   ],
   "dataAttributes": [
     {
       "target": "root",
       "attributes": [
-        "data-resizable-root"
+        "data-splitter-root"
       ]
     },
     {
@@ -300,16 +260,10 @@
       ]
     },
     {
-      "target": "handleControl",
-      "attributes": [
-        "data-collapse"
-      ]
-    },
-    {
       "target": "intersection",
       "attributes": [
-        "data-resizable-handle-end-target",
-        "data-resizable-handle-start-target"
+        "data-splitter-end-target",
+        "data-splitter-start-target"
       ]
     }
   ]

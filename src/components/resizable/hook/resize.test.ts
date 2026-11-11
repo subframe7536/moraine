@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest'
 
-import { resolvePanels } from './panel'
 import {
   RESIZE_FLAG_BOTH,
   RESIZE_FLAG_FOLLOWING,
@@ -11,32 +10,39 @@ import {
   resizePanelToSize,
   toggleHandleNearestPanel,
 } from './resize'
+import type { ResizableResolvedPanel } from './types'
 
-const ROOT_SIZE = 1000
+function panel(
+  input: Pick<ResizableResolvedPanel, 'panelId'> & Partial<ResizableResolvedPanel>,
+): ResizableResolvedPanel {
+  return {
+    min: 0,
+    max: 1,
+    resizable: true,
+    collapsible: false,
+    collapsedSize: 0,
+    ...input,
+  }
+}
 
 describe('resize', () => {
   test('resizePanelToSize(strategy=following) keeps collapsible neighbor above min', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%' },
-        { panelId: 'center', min: '20%', max: '100%' },
-        {
-          panelId: 'right',
-          min: '20%',
-          collapsible: true,
-        },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      { panelId: 'left', min: 0.2 },
+      { panelId: 'center', min: 0.2, max: 1 },
+      {
+        panelId: 'right',
+        min: 0.2,
+        collapsible: true,
+      },
+    ].map(panel)
 
     const nextSizes = resizePanelToSize({
       panelIndex: 1,
-      size: '60%',
+      size: 0.6,
       strategy: RESIZE_FLAG_FOLLOWING,
       initialSizes: [0.4, 0.3, 0.3],
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     expect(nextSizes[1]).toBeCloseTo(0.4, 6)
@@ -44,27 +50,22 @@ describe('resize', () => {
   })
 
   test('resizePanelToSize(strategy=preceding) keeps collapsible neighbor above min', () => {
-    const panels = resolvePanels(
-      [
-        {
-          panelId: 'left',
-          min: '20%',
-          collapsible: true,
-        },
-        { panelId: 'center', min: '20%', max: '100%' },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      {
+        panelId: 'left',
+        min: 0.2,
+        collapsible: true,
+      },
+      { panelId: 'center', min: 0.2, max: 1 },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const nextSizes = resizePanelToSize({
       panelIndex: 1,
-      size: '60%',
+      size: 0.6,
       strategy: RESIZE_FLAG_PRECEDING,
       initialSizes: [0.3, 0.3, 0.4],
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     expect(nextSizes[0]).toBeCloseTo(0.2, 6)
@@ -72,31 +73,26 @@ describe('resize', () => {
   })
 
   test('resizePanelToSize(strategy=both) keeps both collapsible neighbors above min', () => {
-    const panels = resolvePanels(
-      [
-        {
-          panelId: 'left',
-          min: '20%',
-          collapsible: true,
-        },
-        { panelId: 'center', min: '20%', max: '100%' },
-        {
-          panelId: 'right',
-          min: '20%',
-          collapsible: true,
-        },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      {
+        panelId: 'left',
+        min: 0.2,
+        collapsible: true,
+      },
+      { panelId: 'center', min: 0.2, max: 1 },
+      {
+        panelId: 'right',
+        min: 0.2,
+        collapsible: true,
+      },
+    ].map(panel)
 
     const nextSizes = resizePanelToSize({
       panelIndex: 1,
-      size: '80%',
+      size: 0.8,
       strategy: RESIZE_FLAG_BOTH,
       initialSizes: [0.3, 0.3, 0.4],
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     expect(nextSizes[0]).toBeCloseTo(0.2, 6)
@@ -105,14 +101,10 @@ describe('resize', () => {
   })
 
   test('collapsePanel returns unchanged sizes for non-collapsible or already-collapsed panel', () => {
-    const nonCollapsiblePanels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: false },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const nonCollapsiblePanels = [
+      { panelId: 'left', min: 0.2, collapsible: false },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const unchangedNonCollapsible = collapsePanel({
       panelIndex: 0,
@@ -123,14 +115,10 @@ describe('resize', () => {
 
     expect(unchangedNonCollapsible).toEqual([0.4, 0.6])
 
-    const collapsiblePanels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: true },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const collapsiblePanels = [
+      { panelId: 'left', min: 0.2, collapsible: true },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const unchangedCollapsed = collapsePanel({
       panelIndex: 0,
@@ -142,15 +130,11 @@ describe('resize', () => {
     expect(unchangedCollapsed).toEqual([0, 1])
   })
 
-  test('collapsePanel collapses to collapsibleMin when configured', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: true, collapsibleMin: '10%' },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+  test('collapsePanel collapses to collapsedSize when configured', () => {
+    const panels = [
+      { panelId: 'left', min: 0.2, collapsible: true, collapsedSize: 0.1 },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const nextSizes = collapsePanel({
       panelIndex: 0,
@@ -164,14 +148,10 @@ describe('resize', () => {
   })
 
   test('expandPanel expands collapsed panel to max when defaultSize is missing', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: true },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      { panelId: 'left', min: 0.2, collapsible: true },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const nextSizes = expandPanel({
       panelIndex: 0,
@@ -185,19 +165,15 @@ describe('resize', () => {
   })
 
   test('expandPanel prefers defaultSize when panel is collapsed', () => {
-    const panels = resolvePanels(
-      [
-        {
-          panelId: 'left',
-          min: '20%',
-          collapsible: true,
-          collapsibleMin: '10%',
-        },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      {
+        panelId: 'left',
+        min: 0.2,
+        collapsible: true,
+        collapsedSize: 0.1,
+      },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const nextSizes = expandPanel({
       panelIndex: 0,
@@ -212,14 +188,10 @@ describe('resize', () => {
   })
 
   test('toggleHandleNearestPanel handles no-collapsible, collapse and expand cases', () => {
-    const nonCollapsiblePanels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: false },
-        { panelId: 'right', min: '20%', collapsible: false },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const nonCollapsiblePanels = [
+      { panelId: 'left', min: 0.2, collapsible: false },
+      { panelId: 'right', min: 0.2, collapsible: false },
+    ].map(panel)
 
     const unchanged = toggleHandleNearestPanel({
       handleIndex: 0,
@@ -229,14 +201,10 @@ describe('resize', () => {
 
     expect(unchanged).toEqual([0.5, 0.5])
 
-    const collapsiblePanels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', collapsible: true },
-        { panelId: 'right', min: '20%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const collapsiblePanels = [
+      { panelId: 'left', min: 0.2, collapsible: true },
+      { panelId: 'right', min: 0.2 },
+    ].map(panel)
 
     const collapsed = toggleHandleNearestPanel({
       handleIndex: 0,
@@ -257,15 +225,11 @@ describe('resize', () => {
   })
 
   test('resizeFromHandle(altKey) keeps first-handle reverse path equivalent to mirrored center handle', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', max: '80%' },
-        { panelId: 'center', min: '20%', max: '90%' },
-        { panelId: 'right', min: '20%', max: '80%' },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      { panelId: 'left', min: 0.2, max: 0.8 },
+      { panelId: 'center', min: 0.2, max: 0.9 },
+      { panelId: 'right', min: 0.2, max: 0.8 },
+    ].map(panel)
 
     const initialSizes = [0.3, 0.4, 0.3]
 
@@ -289,51 +253,44 @@ describe('resize', () => {
   })
 
   test('resizePanelToSize keeps strategy behavior stable around epsilon neighborhood', () => {
-    const panels = resolvePanels(
-      [
-        {
-          panelId: 'left',
-          min: '24%',
-          collapsible: true,
-        },
-        { panelId: 'center', min: '20%', max: '100%' },
-        {
-          panelId: 'right',
-          min: '24%',
-          collapsible: true,
-        },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      {
+        panelId: 'left',
+        min: 0.24,
+        collapsible: true,
+      },
+      { panelId: 'center', min: 0.2, max: 1 },
+      {
+        panelId: 'right',
+        min: 0.24,
+        collapsible: true,
+      },
+    ].map(panel)
 
     const initialSizes = [0.24, 0.52, 0.24]
 
     const following = resizePanelToSize({
       panelIndex: 1,
-      size: '55.9999%',
+      size: 0.559999,
       strategy: RESIZE_FLAG_FOLLOWING,
       initialSizes,
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     const preceding = resizePanelToSize({
       panelIndex: 1,
-      size: '55.9999%',
+      size: 0.559999,
       strategy: RESIZE_FLAG_PRECEDING,
       initialSizes,
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     const both = resizePanelToSize({
       panelIndex: 1,
-      size: '55.9999%',
+      size: 0.559999,
       strategy: RESIZE_FLAG_BOTH,
       initialSizes,
       panels,
-      rootSize: ROOT_SIZE,
     })
 
     expect(following).toEqual(initialSizes)
@@ -342,18 +299,14 @@ describe('resize', () => {
   })
 
   test('resizeFromHandle never collapses panels through dragging', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', max: '100%', collapsible: true },
-        {
-          panelId: 'right',
-          min: '20%',
-          collapsible: true,
-        },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      { panelId: 'left', min: 0.2, max: 1, collapsible: true },
+      {
+        panelId: 'right',
+        min: 0.2,
+        collapsible: true,
+      },
+    ].map(panel)
 
     const initialSizes = [0.7, 0.3]
 
@@ -368,15 +321,11 @@ describe('resize', () => {
     expect(nextSizes[1]).toBeCloseTo(0.2, 6)
   })
 
-  test('resizeFromHandle keeps a collapsed panel pinned at collapsibleMin when dragging further out', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', max: '100%', collapsible: true, collapsibleMin: '10%' },
-        { panelId: 'right', min: '20%', max: '100%', collapsible: true },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+  test('resizeFromHandle keeps a collapsed panel pinned at collapsedSize when dragging further out', () => {
+    const panels = [
+      { panelId: 'left', min: 0.2, max: 1, collapsible: true, collapsedSize: 0.1 },
+      { panelId: 'right', min: 0.2, max: 1, collapsible: true },
+    ].map(panel)
 
     const initialSizes = [0.1, 0.9]
 
@@ -392,15 +341,11 @@ describe('resize', () => {
     expect(draggedOutside[1]).toBeCloseTo(0.9, 6)
   })
 
-  test('resizeFromHandle expands from collapsibleMin without snapping to min', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '20%', max: '100%', collapsible: true, collapsibleMin: '10%' },
-        { panelId: 'right', min: '20%', max: '100%', collapsible: true },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+  test('resizeFromHandle expands from collapsedSize without snapping to min', () => {
+    const panels = [
+      { panelId: 'left', min: 0.2, max: 1, collapsible: true, collapsedSize: 0.1 },
+      { panelId: 'right', min: 0.2, max: 1, collapsible: true },
+    ].map(panel)
 
     const initialSizes = [0.1, 0.9]
 
@@ -417,15 +362,11 @@ describe('resize', () => {
   })
 
   test('locks non-resizable panel size during resize', () => {
-    const panels = resolvePanels(
-      [
-        { panelId: 'left', min: '10%', max: '80%', resizable: true },
-        { panelId: 'middle', min: '10%', max: '80%', resizable: false },
-        { panelId: 'right', min: '10%', max: '80%', resizable: true },
-      ],
-      ROOT_SIZE,
-      'resizable-test',
-    )
+    const panels = [
+      { panelId: 'left', min: 0.1, max: 0.8, resizable: true },
+      { panelId: 'middle', min: 0.1, max: 0.8, resizable: false },
+      { panelId: 'right', min: 0.1, max: 0.8, resizable: true },
+    ].map(panel)
 
     const initialSizes = [0.3, 0.4, 0.3]
 
