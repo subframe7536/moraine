@@ -650,6 +650,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     )
   }
 
+  function EmptyState(): JSX.Element {
+    return (
+      <div data-slot="command-palette-empty" {...emptySlot}>
+        <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
+          {renderWithProps(merged.emptyRender, getContext())}
+        </Show>
+      </div>
+    )
+  }
+
+  function handleListboxRef(element: HTMLDivElement): void {
+    listboxElement = element
+    callRef(merged.listboxProps?.ref, element)
+  }
+
   const listboxSlot = slotWith('listbox', {
     own: () => ({
       class: merged.listboxProps?.class,
@@ -732,13 +747,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <List
             as="div"
             items={hasItems() ? visibleGroups() : []}
-            fallback={
-              <div data-slot="command-palette-empty" {...emptySlot}>
-                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
-                  {renderWithProps(merged.emptyRender, getContext())}
-                </Show>
-              </div>
-            }
+            fallback={<EmptyState />}
             itemRender={(context) => (
               <div data-slot="command-palette-group" {...groupSlot}>
                 <Show when={context.item.label}>
@@ -754,10 +763,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             id={listboxId()}
             role="listbox"
             data-slot="command-palette-listbox"
-            ref={(element: HTMLDivElement) => {
-              listboxElement = element
-              callRef(merged.listboxProps?.ref, element)
-            }}
+            ref={handleListboxRef}
             {...listboxSlot}
           />
         }
@@ -766,13 +772,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <List
             as="div"
             items={hasItems() ? virtualEntries() : []}
-            fallback={
-              <div data-slot="command-palette-empty" {...emptySlot}>
-                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
-                  {renderWithProps(merged.emptyRender, getContext())}
-                </Show>
-              </div>
-            }
+            fallback={<EmptyState />}
             virtualizer={virtualizer()}
             itemRender={(context) => {
               const virtualGroupSlot = slotWith('group', {
@@ -808,10 +808,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             id={listboxId()}
             role="listbox"
             data-slot="command-palette-listbox"
-            ref={(element: HTMLDivElement) => {
-              listboxElement = element
-              callRef(merged.listboxProps?.ref, element)
-            }}
+            ref={handleListboxRef}
             {...listboxSlot}
           />
         )}
