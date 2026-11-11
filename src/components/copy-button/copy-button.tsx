@@ -59,6 +59,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   )
 
   const clipboard = createCopy({
+    ownerDocument: () => root.element()?.ownerDocument,
     value: () => (typeof local.value === 'function' ? local.value() : local.value),
     copiedDuration: () => local.copiedDuration,
     onCopy: (data) => local.onCopy?.(data),

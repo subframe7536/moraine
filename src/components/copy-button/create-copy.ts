@@ -10,6 +10,12 @@ export type CopyState = 'idle' | 'copied' | 'failed'
 
 export interface CreateCopyOptions {
   /**
+   * Document owning the element that triggers the copy. Used for the execCommand
+   * fallback so it targets the same document as the invoking element.
+   */
+  ownerDocument?: Accessor<Document | undefined>
+
+  /**
    * Default source value to copy if none is provided to `copy()`.
    */
   value?: CopySource
@@ -77,12 +83,13 @@ export function isClipboardItem(item: unknown): item is ClipboardItem {
   return !isServer && typeof ClipboardItem !== 'undefined' && item instanceof ClipboardItem
 }
 
-export function copyWithCommand(text: string): boolean {
-  if (isServer || typeof document === 'undefined') {
+export function copyWithCommand(text: string, ownerDocument?: Document): boolean {
+  if (isServer || (ownerDocument === undefined && typeof document === 'undefined')) {
     return false
   }
 
-  const element = document.createElement('textarea')
+  const doc = ownerDocument ?? document
+  const element = doc.createElement('textarea')
   element.value = text
   element.setAttribute('readonly', '')
   element.style.contain = 'strict'
@@ -92,16 +99,16 @@ export function copyWithCommand(text: string): boolean {
   element.style.opacity = '0'
   element.style.fontSize = '16px'
 
-  const selection = document.getSelection()
+  const selection = doc.getSelection()
   const originalRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null
-  const container = document.body ?? document.documentElement
+  const container = doc.body ?? doc.documentElement
   container.appendChild(element)
   element.select()
   element.setSelectionRange(0, text.length)
 
   let successful = false
   try {
-    successful = document.execCommand('copy')
+    successful = doc.execCommand('copy')
   } catch {
     successful = false
   } finally {
@@ -115,13 +122,16 @@ export function copyWithCommand(text: string): boolean {
   return successful
 }
 
-export async function fallbackToCommand(data: CopyData): Promise<boolean> {
-  if (isServer || typeof window === 'undefined') {
+export async function fallbackToCommand(
+  data: CopyData,
+  ownerDocument?: Document,
+): Promise<boolean> {
+  if (isServer || (ownerDocument === undefined && typeof window === 'undefined')) {
     return false
   }
 
   if (typeof data === 'string') {
-    return copyWithCommand(data)
+    return copyWithCommand(data, ownerDocument)
   }
 
   const items = Array.isArray(data) ? data : [data]
@@ -142,7 +152,7 @@ export async function fallbackToCommand(data: CopyData): Promise<boolean> {
           const blob = await item.getType(textType)
           const text = await blob.text()
           if (typeof text === 'string') {
-            return copyWithCommand(text)
+            return copyWithCommand(text, ownerDocument)
           }
         } catch {
           // Fall through to next item or JSON fallback
@@ -153,13 +163,16 @@ export async function fallbackToCommand(data: CopyData): Promise<boolean> {
 
   try {
     const jsonText = JSON.stringify(data)
-    return copyWithCommand(jsonText)
+    return copyWithCommand(jsonText, ownerDocument)
   } catch {
     return false
   }
 }
 
-export async function writeClipboardWithFallback(data: CopyData): Promise<boolean> {
+export async function writeClipboardWithFallback(
+  data: CopyData,
+  ownerDocument?: Document,
+): Promise<boolean> {
   if (isServer || typeof window === 'undefined') {
     return false
   }
@@ -181,7 +194,7 @@ export async function writeClipboardWithFallback(data: CopyData): Promise<boolea
     }
   }
 
-  return fallbackToCommand(data)
+  return fallbackToCommand(data, ownerDocument)
 }
 
 export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
@@ -263,7 +276,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
         return false
       }
 
-      const success = await writeClipboardWithFallback(resolvedData)
+      const success = await writeClipboardWithFallback(resolvedData, options.ownerDocument?.())
       if (disposed || currentAttempt !== attempt) {
         return false
       }
