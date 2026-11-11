@@ -59,3 +59,13 @@ export function renderSidebarFixture(): string {
     </Sidebar>
   ))
 }
+
+export function renderSidebarRailFixture(): string {
+  return renderToString(() => (
+    <Sidebar defaultWidth={256}>
+      <Sidebar.Panel>Navigation</Sidebar.Panel>
+      <Sidebar.Rail />
+      <Sidebar.Inset>Content</Sidebar.Inset>
+    </Sidebar>
+  ))
+}

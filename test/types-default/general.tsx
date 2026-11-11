@@ -32,10 +32,13 @@ import type { AccordionT } from 'moraine'
 const missingValue: AccordionT.Item = { label: 'Missing' }
 void missingValue
 
-;<Resizable value={[300, '70%']} onValueChange={(sizes: number[]) => void sizes}>
-  <Resizable.Panel collapsible onCollapse={(size: number) => void size} />
+;<Resizable
+  value={{ a: 30, b: 70 }}
+  onValueChange={(layout: Record<string, number>) => void layout}
+>
+  <Resizable.Panel id="a" collapsible onCollapse={() => {}} />
   <Resizable.Handle intersection />
-  <Resizable.Panel />
+  <Resizable.Panel id="b" />
 </Resizable>
 
 ;<AvatarGroup max={0} />

@@ -202,7 +202,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
       {...handleSlot}
       {...rest}
       role="separator"
-      aria-orientation={ctx.orientation()}
+      aria-orientation={ctx.orientation() === 'horizontal' ? 'vertical' : 'horizontal'}
       aria-controls={aria().controls}
       aria-valuenow={aria().valueNow}
       aria-valuemin={aria().valueMin}

@@ -20,7 +20,7 @@ export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',
     panel:
-      'data-transitioning:transition-[flex-basis] min-h-0 min-w-0 overflow-auto motion-reduce:transition-none',
+      'min-h-0 min-w-0 overflow-auto motion-reduce:transition-none data-transitioning:[transition-property:flex-basis]',
     handle: `bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none ${FOCUS_VISIBLE_RING_CLASS} aria-disabled:cursor-default data-cross:cursor-move after:(content-[''] absolute)`,
     grip: 'rounded-lg bg-border flex shrink-0 select-none items-center justify-center z-sticky touch-none',
     intersection: 'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-base',

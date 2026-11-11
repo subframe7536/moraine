@@ -52,10 +52,25 @@ export namespace SidebarT {
     /** Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`. */
     isMobile?: boolean
     /**
-     * Desktop panel width as a CSS length. Defaults to the global `--sidebar-width`,
-     * or `clamp(14rem, 25%, 20rem)` when that is unset.
+     * Controlled desktop panel width in pixels. When `undefined` the
+     * `--mo-sidebar-width` custom property is left unset and the recipe
+     * default (`var(--sidebar-width, clamp(14rem, 25%, 20rem))`) applies.
      */
-    width?: string
+    width?: number
+    /** Initial desktop panel width in pixels for uncontrolled usage. */
+    defaultWidth?: number
+    /** Called with the pixel width on every width change. */
+    onWidthChange?: (width: number) => void
+    /**
+     * Called once per completed interaction with the final pixel width:
+     * at the end of a `Sidebar.Rail` drag that changed the width, and on
+     * each keyboard width change.
+     */
+    onWidthCommit?: (width: number) => void
+    /** Minimum desktop panel width in pixels for `Sidebar.Rail` resizing. @default 224 */
+    minWidth?: number
+    /** Maximum desktop panel width in pixels for `Sidebar.Rail` resizing. @default 480 */
+    maxWidth?: number
     /**
      * Max viewport width in pixels that counts as mobile.
      * Used as `(max-width: ${breakpoint}px)` when `isMobile` is omitted.
@@ -69,9 +84,21 @@ export namespace SidebarT {
 
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
+  export interface RailBase {
+    /** Disables pointer, keyboard, and click resizing. */
+    disabled?: boolean
+    /**
+     * Accessible name for the resize separator.
+     * Localized via MoraineProvider messages when omitted. English default is `Resize sidebar`.
+     */
+    'aria-label'?: string
+  }
+  export type RailProps = BaseProps<'div', RailBase, never, never, never>
+
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element
     as?: T
+    ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     /**
      * Accessible name for the mobile navigation Drawer. Native aria-label takes precedence;
      * title is used when neither native aria-label nor this prop is provided.

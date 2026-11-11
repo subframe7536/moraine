@@ -110,12 +110,12 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── popover/            # Popover overlay.
 │   ├── progress/           # Progress indicators.
 │   ├── radio-group/        # Radio group control.
-│   ├── resizable/          # Resizable panels and interaction hooks.
+│   ├── resizable/          # Resizable panels registered by id with percent layouts.
 │   ├── scroll-area/        # Scroll container with edge fade indicators.
 │   ├── select/             # Non-editable single collection selection.
 │   ├── separator/          # Visual separators.
 │   ├── sheet/              # Side or bottom sheet.
-│   ├── sidebar/            # Responsive sidebar layout.
+│   ├── sidebar/            # Responsive sidebar layout with a resizable rail.
 │   ├── skeleton/           # Skeleton loading placeholder.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── stepper/            # Step-based navigation.
@@ -127,7 +127,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── toggle-button/      # Two-state toggle button.
 │   ├── tooltip/            # Tooltip overlay.
 │   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
-│   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/).
+│   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/, splitter/).
 ├── data-table/             # `moraine/data-table` entry: DataTable and createDataTable over TanStack Table.
 ├── dnd/                    # `moraine/dnd` entry: sortables over dnd kit, composed through render props.
 │   ├── sortable.types.ts   # Public sortable types.

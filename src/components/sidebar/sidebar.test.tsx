@@ -1,8 +1,10 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
+import { Resizable } from '../resizable'
 
 import { Sidebar } from './sidebar'
 
@@ -328,7 +330,7 @@ describe('Sidebar', () => {
 
   test('sets the panel width through the width prop', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} width="18rem">
+      <Sidebar isMobile={false} width={288}>
         <FrameContent />
       </Sidebar>
     ))
@@ -336,7 +338,7 @@ describe('Sidebar', () => {
       screen.container
         .querySelector<HTMLElement>('[data-slot="sidebar"]')
         ?.style.getPropertyValue('--mo-sidebar-width'),
-    ).toBe('18rem')
+    ).toBe('288px')
   })
 
   test('offsets the collapsed floating panel by its outer gap', () => {
@@ -1272,5 +1274,384 @@ describe('Sidebar context validation', () => {
     expect(() => render(component)).toThrow(
       'useSidebarContext must be used within <SidebarProvider />',
     )
+  })
+})
+
+function createRect(input: { top: number; right: number; bottom: number; left: number }): DOMRect {
+  const { top, right, bottom, left } = input
+  return {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+    top,
+    right,
+    bottom,
+    left,
+    toJSON: () => ({}),
+  }
+}
+
+function setRect(element: Element, rect: DOMRect): void {
+  Object.defineProperty(element, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => rect,
+  })
+}
+
+function railOf(container: HTMLElement): HTMLElement {
+  return container.querySelector<HTMLElement>('[data-slot="sidebar-rail"]')!
+}
+
+function panelOf(container: HTMLElement): HTMLElement {
+  return container.querySelector<HTMLElement>('[data-slot="sidebar-panel"]')!
+}
+
+function sidebarWidth(container: HTMLElement): string {
+  return container
+    .querySelector<HTMLElement>('[data-slot="sidebar"]')!
+    .style.getPropertyValue('--mo-sidebar-width')
+}
+
+function dragRail(
+  rail: HTMLElement,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): void {
+  fireEvent.pointerDown(rail, { pointerId: 1, button: 0, clientX: from.x, clientY: from.y })
+  fireEvent.pointerMove(window, {
+    pointerId: 1,
+    clientX: to.x,
+    clientY: to.y,
+  })
+  fireEvent.pointerUp(window, {
+    pointerId: 1,
+    clientX: to.x,
+    clientY: to.y,
+  })
+}
+
+interface RailFrameProps {
+  width?: number
+  defaultWidth?: number
+  minWidth?: number
+  maxWidth?: number
+  onWidthChange?: (width: number) => void
+  onWidthCommit?: (width: number) => void
+  onOpenChange?: (open: boolean) => void
+  side?: 'left' | 'right'
+  railDisabled?: boolean
+  rail?: boolean
+}
+
+function RailFrame(props: RailFrameProps): JSX.Element {
+  return (
+    <Sidebar
+      isMobile={false}
+      side={props.side}
+      width={props.width}
+      defaultWidth={props.defaultWidth}
+      minWidth={props.minWidth}
+      maxWidth={props.maxWidth}
+      onWidthChange={props.onWidthChange}
+      onWidthCommit={props.onWidthCommit}
+      onOpenChange={props.onOpenChange}
+    >
+      <Sidebar.Panel>Navigation</Sidebar.Panel>
+      <Show when={props.rail !== false}>
+        <Sidebar.Rail disabled={props.railDisabled} />
+      </Show>
+      <Sidebar.Inset>
+        <Sidebar.Trigger>Toggle</Sidebar.Trigger>
+      </Sidebar.Inset>
+    </Sidebar>
+  )
+}
+
+// Panel left of the rail (side="left"): rail center >= panel center => grows right.
+function mockRailRects(
+  container: HTMLElement,
+  options?: { side?: 'left' | 'right'; panelWidth?: number },
+): void {
+  const width = options?.panelWidth ?? 240
+  if (options?.side === 'right') {
+    setRect(railOf(container), createRect({ top: 0, right: 559, bottom: 600, left: 559 }))
+    setRect(panelOf(container), createRect({ top: 0, right: 800, bottom: 600, left: 560 }))
+    return
+  }
+  setRect(railOf(container), createRect({ top: 0, right: width, bottom: 600, left: width }))
+  setRect(panelOf(container), createRect({ top: 0, right: width, bottom: 600, left: 0 }))
+}
+
+describe('Sidebar.Rail', () => {
+  test('renders a separator with ARIA values and messages aria-label', () => {
+    const screen = render(() => <RailFrame defaultWidth={240} />)
+    const rail = railOf(screen.container)
+    expect(rail.getAttribute('role')).toBe('separator')
+    expect(rail.getAttribute('aria-orientation')).toBe('vertical')
+    expect(rail.getAttribute('aria-valuemin')).toBe('0')
+    expect(rail.getAttribute('aria-valuemax')).toBe('480')
+    expect(rail.getAttribute('aria-valuenow')).toBe('240')
+    expect(rail.getAttribute('aria-label')).toBe('Resize sidebar')
+    expect(rail.getAttribute('aria-controls')).toBe(panelOf(screen.container).id)
+    expect(rail.tabIndex).toBe(0)
+  })
+
+  test('omits aria-valuenow while open with no resolved width', () => {
+    const screen = render(() => <RailFrame />)
+    expect(railOf(screen.container).getAttribute('aria-valuenow')).toBeNull()
+  })
+
+  test('drag grows the width, emits live changes, and commits once on release', () => {
+    const onWidthChange = vi.fn()
+    const onWidthCommit = vi.fn()
+    const screen = render(() => (
+      <RailFrame defaultWidth={240} onWidthChange={onWidthChange} onWidthCommit={onWidthCommit} />
+    ))
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 280, y: 10 })
+
+    expect(sidebarWidth(screen.container)).toBe('280px')
+    expect(onWidthChange).toHaveBeenLastCalledWith(280)
+    expect(onWidthCommit).toHaveBeenCalledTimes(1)
+    expect(onWidthCommit).toHaveBeenLastCalledWith(280)
+  })
+
+  test('a user ref on Panel receives the element without breaking rail measurement', () => {
+    let userPanel: HTMLElement | undefined
+    const screen = render(() => (
+      <Sidebar isMobile={false} side="right" defaultWidth={240}>
+        <Sidebar.Panel
+          ref={(element: HTMLElement) => {
+            userPanel = element
+          }}
+        >
+          Navigation
+        </Sidebar.Panel>
+        <Sidebar.Rail />
+        <Sidebar.Inset>Content</Sidebar.Inset>
+      </Sidebar>
+    ))
+    const panel = panelOf(screen.container)
+    expect(userPanel).toBe(panel)
+    mockRailRects(screen.container, { side: 'right' })
+    const rail = railOf(screen.container)
+
+    dragRail(rail, { x: 559, y: 10 }, { x: 519, y: 10 })
+
+    expect(sidebarWidth(screen.container)).toBe('280px')
+  })
+
+  test('drag works when the rail sits left of the panel (side="right" geometry)', () => {
+    const screen = render(() => <RailFrame side="right" defaultWidth={240} />)
+    mockRailRects(screen.container, { side: 'right' })
+    const rail = railOf(screen.container)
+
+    // sign = -1: dragging left grows the panel
+    dragRail(rail, { x: 559, y: 10 }, { x: 519, y: 10 })
+
+    expect(sidebarWidth(screen.container)).toBe('280px')
+  })
+
+  test('dragging below half the minimum closes; dragging back reopens clamped', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    // candidate 240 - 200 = 40 < 112 (minWidth 224 / 2)
+    dragRail(rail, { x: 240, y: 10 }, { x: 40, y: 10 })
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    expect(rail.hasAttribute('data-closed')).toBe(true)
+
+    // startWidth 0 from closed; +200 opens and clamps up to minWidth 224
+    dragRail(rail, { x: 40, y: 10 }, { x: 240, y: 10 })
+    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+    expect(sidebarWidth(screen.container)).toBe('224px')
+  })
+
+  test('width clamps at minWidth and maxWidth during a drag', () => {
+    const screen = render(() => <RailFrame defaultWidth={240} minWidth={200} maxWidth={300} />)
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 600, y: 10 })
+    expect(sidebarWidth(screen.container)).toBe('300px')
+
+    dragRail(rail, { x: 600, y: 10 }, { x: 400, y: 10 })
+    // candidate 300 - 200 = 100 == minWidth/2 boundary: stays open, clamps to min
+    expect(sidebarWidth(screen.container)).toBe('200px')
+  })
+
+  test('a click without movement toggles; a click after a drag does nothing', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => <RailFrame defaultWidth={240} onOpenChange={onOpenChange} />)
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    fireEvent.click(rail)
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+
+    fireEvent.click(rail)
+    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 260, y: 10 })
+    fireEvent.click(rail)
+    expect(onOpenChange).toHaveBeenCalledTimes(2)
+  })
+
+  test('keyboard resizes, snaps, and toggles; closed rail only answers Enter', () => {
+    const onWidthChange = vi.fn()
+    const onWidthCommit = vi.fn()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <RailFrame
+        defaultWidth={240}
+        onWidthChange={onWidthChange}
+        onWidthCommit={onWidthCommit}
+        onOpenChange={onOpenChange}
+      />
+    ))
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    fireEvent.keyDown(rail, { key: 'ArrowRight' })
+    expect(sidebarWidth(screen.container)).toBe('256px')
+    expect(onWidthCommit).toHaveBeenLastCalledWith(256)
+
+    fireEvent.keyDown(rail, { key: 'ArrowRight', shiftKey: true })
+    expect(sidebarWidth(screen.container)).toBe('257px')
+
+    fireEvent.keyDown(rail, { key: 'Home' })
+    expect(sidebarWidth(screen.container)).toBe('224px')
+    fireEvent.keyDown(rail, { key: 'End' })
+    expect(sidebarWidth(screen.container)).toBe('480px')
+
+    fireEvent.keyDown(rail, { key: 'Enter' })
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+
+    const widthCalls = onWidthChange.mock.calls.length
+    fireEvent.keyDown(rail, { key: 'ArrowRight' })
+    fireEvent.keyDown(rail, { key: 'Home' })
+    fireEvent.keyDown(rail, { key: 'End' })
+    expect(onWidthChange.mock.calls.length).toBe(widthCalls)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+
+    fireEvent.keyDown(rail, { key: 'Enter' })
+    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+  })
+
+  test('renders nothing on mobile', () => {
+    const screen = render(() => (
+      <Sidebar isMobile={true}>
+        <Sidebar.Panel>Navigation</Sidebar.Panel>
+        <Sidebar.Rail />
+        <Sidebar.Inset>Content</Sidebar.Inset>
+      </Sidebar>
+    ))
+    expect(screen.container.querySelector('[data-slot="sidebar-rail"]')).toBeNull()
+  })
+
+  test('controlled width emits but follows the prop', () => {
+    const onWidthChange = vi.fn()
+    const screen = render(() => <RailFrame width={240} onWidthChange={onWidthChange} />)
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 260, y: 10 })
+
+    expect(onWidthChange).toHaveBeenLastCalledWith(260)
+    expect(sidebarWidth(screen.container)).toBe('240px')
+  })
+
+  test('trigger close and reopen keeps the width', () => {
+    const screen = render(() => <RailFrame defaultWidth={240} />)
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 300, y: 10 })
+    expect(sidebarWidth(screen.container)).toBe('300px')
+
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="sidebar-trigger"]')!
+    fireEvent.click(trigger)
+    fireEvent.click(trigger)
+    expect(sidebarWidth(screen.container)).toBe('300px')
+  })
+
+  test('cross-drags a nested resizable handle and the rail together', async () => {
+    const screen = render(() => (
+      <Sidebar isMobile={false} defaultWidth={240}>
+        <Sidebar.Panel>Navigation</Sidebar.Panel>
+        <Sidebar.Rail />
+        <Sidebar.Inset>
+          <Resizable orientation="vertical" defaultValue={{ top: 50, bottom: 50 }}>
+            <Resizable.Panel id="top">Top</Resizable.Panel>
+            <Resizable.Handle intersection />
+            <Resizable.Panel id="bottom">Bottom</Resizable.Panel>
+          </Resizable>
+        </Sidebar.Inset>
+      </Sidebar>
+    ))
+    mockRailRects(screen.container)
+    const innerHandle = screen.container.querySelector<HTMLElement>(
+      '[data-slot="resizable-handle"]',
+    )!
+    const topPanel = screen.container.querySelector<HTMLElement>('#top')!
+    const bottomPanel = screen.container.querySelector<HTMLElement>('#bottom')!
+    // inner vertical-layout handle: a horizontal line whose LEFT edge touches the rail
+    setRect(innerHandle, createRect({ top: 80, right: 800, bottom: 81, left: 240 }))
+    setRect(topPanel, createRect({ top: 0, right: 560, bottom: 80, left: 240 }))
+    setRect(bottomPanel, createRect({ top: 81, right: 560, bottom: 600, left: 240 }))
+
+    const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
+    refreshSplitterIntersections()
+    await Promise.resolve()
+
+    const crossTarget = innerHandle.querySelector<HTMLElement>('[data-splitter-start-target]')!
+    expect(crossTarget).toBeTruthy()
+
+    // +40px on x (wider sidebar) and +20px on y (taller top panel)
+    fireEvent.pointerDown(crossTarget, { pointerId: 1, button: 0, clientX: 240, clientY: 81 })
+    fireEvent.pointerMove(window, {
+      pointerId: 1,
+      clientX: 280,
+      clientY: 101,
+    })
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      clientX: 280,
+      clientY: 101,
+    })
+
+    expect(sidebarWidth(screen.container)).toBe('280px')
+    expect(Number.parseFloat(topPanel.style.flexBasis)).toBeGreaterThan(50)
+  })
+
+  test('disabled rail ignores pointer and keys', () => {
+    const onWidthChange = vi.fn()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <RailFrame
+        defaultWidth={240}
+        railDisabled
+        onWidthChange={onWidthChange}
+        onOpenChange={onOpenChange}
+      />
+    ))
+    mockRailRects(screen.container)
+    const rail = railOf(screen.container)
+
+    expect(rail.getAttribute('aria-disabled')).toBe('true')
+    expect(rail.tabIndex).toBe(-1)
+
+    dragRail(rail, { x: 240, y: 10 }, { x: 280, y: 10 })
+    fireEvent.keyDown(rail, { key: 'ArrowRight' })
+    fireEvent.click(rail)
+
+    expect(sidebarWidth(screen.container)).toBe('240px')
+    expect(onWidthChange).not.toHaveBeenCalled()
+    expect(onOpenChange).not.toHaveBeenCalled()
   })
 })

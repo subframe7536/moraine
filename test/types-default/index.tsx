@@ -797,12 +797,18 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 </Tooltip>
 
 ;<Resizable>
-  <Resizable.Panel id="navigation" min="20%">
+  <Resizable.Panel id="navigation" min={20}>
     Navigation
   </Resizable.Panel>
-  <Resizable.Handle action="collapse">{(state) => String(state.collapsed)}</Resizable.Handle>
+  <Resizable.Handle>{(state) => String(state.collapsed)}</Resizable.Handle>
   <Resizable.Panel>Main</Resizable.Panel>
 </Resizable>
+
+;<Sidebar width={280} defaultWidth={240} minWidth={200} maxWidth={400}>
+  <Sidebar.Panel />
+  <Sidebar.Rail aria-label="Resize sidebar" />
+  <Sidebar.Inset />
+</Sidebar>
 
 ;<Sidebar isMobile={false}>
   <Sidebar.Panel aria-label="Sidebar navigation">

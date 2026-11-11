@@ -7,6 +7,7 @@ api:
   parts:
     [
       Panel,
+      Rail,
       Header,
       Content,
       Footer,
@@ -100,6 +101,7 @@ import Playground from './playground'
           },
         ],
       },
+      { part: 'Sidebar.Rail', slot: 'rail' },
       {
         part: 'Sidebar.Inset',
         slot: 'inset',
@@ -109,7 +111,7 @@ import Playground from './playground'
   }}
 />
 
-Trigger can appear anywhere inside the root. On mobile, `Sidebar.Panel` renders its regions inside an internal Drawer. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it rather than adding another `<main>`.
+Trigger can appear anywhere inside the root, and `Sidebar.Rail` sits directly between `Panel` and `Inset`. On mobile, `Sidebar.Panel` renders its regions inside an internal Drawer. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it rather than adding another `<main>`.
 
 ## Usage
 
@@ -174,29 +176,39 @@ On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions throug
 slots; Sidebar overrides do not style the internal Drawer. See [Theming](/docs/theming) for
 nested Provider behavior.
 
-`Sidebar` declares `--mo-sidebar-width` on its root. Pass `width` for one instance, or set the
-global `--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the desktop panel keeps
-its width and slides out with a negative margin, so its content does not reflow during the
-transition.
+`Sidebar` declares `--mo-sidebar-width` on its root. Pass a numeric `width` (controlled),
+`defaultWidth` (uncontrolled), `minWidth` (default `224`), or `maxWidth` (default `480`) in pixels;
+when none is given the recipe fallback `var(--sidebar-width, clamp(14rem, 25%, 20rem))` applies, so
+you can also set the global `--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the
+desktop panel keeps its width and slides out with a negative margin, so its content does not reflow
+during the transition.
 
 The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
 `class="h-dvh"` (or `h-svh`) on the root.
 
 Call `Sidebar.useContext()` from a descendant for `isMobile`, `isOpen`, `state`, `setOpen`, and
-`toggle`. A global application header belongs outside the frame. For desktop
-resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+`toggle`. A global application header belongs outside the frame.
 
-```tsx
-const frame = Sidebar.useContext()
+### Resizable rail
 
-<Show when={frame.isMobile()} fallback={<Resizable>...</Resizable>}>
-  <Sidebar.Panel>...</Sidebar.Panel>
-  <Sidebar.Inset>...</Sidebar.Inset>
-</Show>
-```
+Place `Sidebar.Rail` directly between `Sidebar.Panel` and `Sidebar.Inset` to make the desktop
+sidebar resizable; it renders nothing on mobile. Dragging the rail updates the pixel width live
+between `minWidth` and `maxWidth`; releasing emits `onWidthCommit` once. A click without movement
+toggles the sidebar, and dragging below half of `minWidth` closes it — drag back to reopen.
+Because the root is a splitter scope, a nested `Resizable` inside `Sidebar.Inset` whose handle has
+`intersection` and touches the rail cross-drags both.
 
-To persist desktop open state across reloads, control `open` from the app and store it in a cookie
-(not `localStorage`, which mismatches SSR hydration).
+| Key                                                          | Action                                            |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+| Growth arrow (`ArrowRight` or `ArrowLeft`, follows geometry) | resize by 16px                                    |
+| Growth arrow + `Shift`                                       | resize by 1px                                     |
+| Opposite arrow                                               | shrink (clamps at `minWidth`, never closes)       |
+| `Home` / `End`                                               | `minWidth` / `maxWidth`                           |
+| `Enter`                                                      | toggle open (the only key that acts while closed) |
+
+To persist desktop layout across reloads, control `open` and `width` from the app and store them in
+a cookie (not `localStorage`, which mismatches SSR hydration) inside `onOpenChange` and
+`onWidthCommit`.
 
 ### Navigation menu
 
@@ -275,10 +287,10 @@ height.
 
 ### Resize the explorer on desktop
 
-Branch on `Sidebar.useContext().isMobile()`. Compose `Resizable` on desktop; the same sidebar content
-moves into the mobile Drawer.
+`Sidebar.Rail` between `Panel` and `Inset` resizes the sidebar in pixels; on mobile the same content
+moves into the mobile Drawer with no rail.
 
-<Preview path="./drawer-resizable-render" />
+<Preview path="./resizable-rail" />
 
 ### Force the mobile drawer
 

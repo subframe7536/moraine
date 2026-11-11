@@ -51,16 +51,54 @@
           }
         },
         {
+          "name": "defaultWidth",
+          "optional": true,
+          "type": "number",
+          "description": "Initial desktop panel width in pixels for uncontrolled usage."
+        },
+        {
           "name": "isMobile",
           "optional": true,
           "type": "boolean",
           "description": "Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`."
         },
         {
+          "name": "maxWidth",
+          "optional": true,
+          "type": "number",
+          "description": "Maximum desktop panel width in pixels for `Sidebar.Rail` resizing.",
+          "default": {
+            "kind": "literal",
+            "value": 480
+          }
+        },
+        {
+          "name": "minWidth",
+          "optional": true,
+          "type": "number",
+          "description": "Minimum desktop panel width in pixels for `Sidebar.Rail` resizing.",
+          "default": {
+            "kind": "literal",
+            "value": 224
+          }
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
           "description": "Callback invoked when desktop open state changes."
+        },
+        {
+          "name": "onWidthChange",
+          "optional": true,
+          "type": "(width: number) => void",
+          "description": "Called with the pixel width on every width change."
+        },
+        {
+          "name": "onWidthCommit",
+          "optional": true,
+          "type": "(width: number) => void",
+          "description": "Called once per completed interaction with the final pixel width:\nat the end of a `Sidebar.Rail` drag that changed the width, and on\neach keyboard width change."
         },
         {
           "name": "open",
@@ -113,8 +151,8 @@
         {
           "name": "width",
           "optional": true,
-          "type": "string",
-          "description": "Desktop panel width as a CSS length. Defaults to the global `--sidebar-width`,\nor `clamp(14rem, 25%, 20rem)` when that is unset."
+          "type": "number",
+          "description": "Controlled desktop panel width in pixels. When `undefined` the\n`--mo-sidebar-width` custom property is left unset and the recipe\ndefault (`var(--sidebar-width, clamp(14rem, 25%, 20rem))`) applies."
         }
       ]
     },
@@ -160,6 +198,47 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sidebar-rail",
+      "name": "Sidebar.Rail",
+      "access": {
+        "kind": "attached",
+        "root": "Sidebar",
+        "member": "Rail"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "aria-label",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name for the resize separator.\nLocalized via MoraineProvider messages when omitted. English default is `Resize sidebar`."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disables pointer, keyboard, and click resizing."
         },
         {
           "name": "style",
@@ -928,6 +1007,7 @@
     "content",
     "footer",
     "inset",
+    "rail",
     "group",
     "groupLabel",
     "menu",
@@ -947,6 +1027,7 @@
       "attributes": [
         "data-mobile",
         "data-side",
+        "data-splitter-root",
         "data-variant"
       ]
     },
@@ -956,8 +1037,17 @@
         "data-closed",
         "data-expanded",
         "data-mobile",
+        "data-resizing",
         "data-side",
         "data-variant"
+      ]
+    },
+    {
+      "target": "rail",
+      "attributes": [
+        "data-active",
+        "data-closed",
+        "data-dragging"
       ]
     },
     {

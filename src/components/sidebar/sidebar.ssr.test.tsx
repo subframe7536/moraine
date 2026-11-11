@@ -1,7 +1,7 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { afterEach, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Sidebar } from './sidebar'
 import { useSidebarContext } from './sidebar-context'
@@ -103,4 +103,34 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
   expect(
     container.querySelector('[data-slot="sidebar-trigger"]')?.getAttribute('aria-controls'),
   ).toBe('sidebar-fixture')
+})
+
+test('renders the rail and pixel width custom property on the server', async () => {
+  const markup = renderSsrFixture(
+    '/src/components/sidebar/sidebar.ssr.fixture.tsx',
+    'renderSidebarRailFixture',
+  )
+  expect(markup).toContain('--mo-sidebar-width:256px')
+  expect(markup).toContain('aria-valuenow="256"')
+
+  window.matchMedia = vi
+    .fn()
+    .mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })
+  const { container } = hydrateFixture(
+    '/src/components/sidebar/sidebar.ssr.fixture.tsx',
+    'renderSidebarRailFixture',
+    () => (
+      <Sidebar defaultWidth={256}>
+        <Sidebar.Panel>Navigation</Sidebar.Panel>
+        <Sidebar.Rail />
+        <Sidebar.Inset>Content</Sidebar.Inset>
+      </Sidebar>
+    ),
+  )
+  await waitFor(() => expect(container.querySelector('[data-slot="sidebar-rail"]')).not.toBeNull())
+  const rail = container.querySelector<HTMLElement>('[data-slot="sidebar-rail"]')!
+  expect(rail.getAttribute('aria-valuenow')).toBe('256')
+  expect(rail.getAttribute('aria-controls')).toBe(
+    container.querySelector('[data-slot="sidebar-panel"]')?.id,
+  )
 })

@@ -414,7 +414,7 @@ describe('Resizable', () => {
     expect(handle!.getAttribute('aria-valuenow')).toBe('50')
     expect(handle!.getAttribute('aria-valuemin')).toBe('10')
     expect(handle!.getAttribute('aria-valuemax')).toBe('80')
-    expect(handle!.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(handle!.getAttribute('aria-orientation')).toBe('vertical')
   })
 
   test('nested roots still intersect and a cross drag moves both handles', async () => {

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
@@ -13,6 +13,18 @@ export interface SidebarContext extends SidebarT.Context {
     classes?: SidebarT.Classes
     styles?: SidebarT.Styles
   }
+  /** Desktop panel width in pixels; `undefined` falls back to the recipe default. */
+  width: Accessor<number | undefined>
+  setWidth: (width: number) => void
+  commitWidth: (width: number) => void
+  minWidth: Accessor<number>
+  maxWidth: Accessor<number>
+  /** True while a `Sidebar.Rail` drag is active. */
+  resizing: Accessor<boolean>
+  setResizing: (resizing: boolean) => void
+  /** Desktop panel element published by `Sidebar.Panel`; used by `Rail` for measuring. */
+  panelElement: Accessor<HTMLElement | undefined>
+  setPanelElement: (element: HTMLElement | undefined) => void
 }
 
 export const [SidebarProvider, useSidebarContext] =

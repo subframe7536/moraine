@@ -8,8 +8,17 @@ import type { SidebarStyleSlot, SidebarStyleVariants } from './sidebar.style-typ
 type SidebarDataSlot = keyof SidebarStyleSlot | 'trigger'
 
 export const sidebarDataAttributes = {
-  root: /* @__PURE__ */ createDataAttributes('mobile', 'side', 'variant'),
-  panel: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'mobile', 'side', 'variant'),
+  // 'splitter-root' must stay in sync with SPLITTER_ROOT_ATTRIBUTE in shared/splitter.
+  root: /* @__PURE__ */ createDataAttributes('mobile', 'side', 'splitter-root', 'variant'),
+  panel: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'expanded',
+    'mobile',
+    'resizing',
+    'side',
+    'variant',
+  ),
+  rail: /* @__PURE__ */ createDataAttributes('active', 'closed', 'dragging'),
   trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'open'),
   menuButton: /* @__PURE__ */ createDataAttributes('active', 'disabled', 'mobile'),
   menuAction: /* @__PURE__ */ createDataAttributes('mobile'),
@@ -24,11 +33,12 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
     base: {
       root: 'flex h-full min-h-0 w-full overflow-hidden',
       panel:
-        'bg-card flex shrink-0 flex-col h-full min-h-0 w-(--mo-sidebar-width) transition-[margin] duration-200 ease-out overflow-hidden data-mobile:(m-0 bg-transparent flex-1 w-full) motion-reduce:transition-none',
+        'bg-card flex shrink-0 flex-col h-full min-h-0 w-(--mo-sidebar-width) transition-[margin] duration-200 ease-out overflow-hidden data-mobile:(m-0 bg-transparent flex-1 w-full) data-resizing:transition-none motion-reduce:transition-none',
       header: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',
       content: 'flex flex-1 flex-col min-h-0 min-w-0 overflow-y-auto',
       footer: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',
       inset: 'bg-background flex-1 h-full min-h-0 min-w-0 relative overflow-y-auto',
+      rail: `outline-none shrink-0 w-0 cursor-ew-resize select-none relative z-10 touch-none before:(bg-transparent w-px content-[''] inset-y-0 left-1/2 absolute -translate-x-1/2) after:(w-2 content-[''] inset-y-0 left-1/2 absolute -translate-x-1/2) data-active:before:bg-primary data-dragging:before:bg-primary hover:before:bg-primary/50 ${FOCUS_VISIBLE_RING_CLASS}`,
       group: 'p-2 flex flex-col min-w-0 w-full relative',
       groupLabel:
         'text-xs text-muted-foreground font-medium px-2 flex shrink-0 h-8 select-none items-center',

@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, splitProps } from 'solid-js'
+import { Show, children as resolveChildren, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
+import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
+import { callRef } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -16,7 +18,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style', 'ref'])
   const content = resolveChildren(() => local.children)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
@@ -27,11 +29,16 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
     const closed = () => !contentProps.mobile && !context.isOpen()
+    const [element, setElement] = createSignal<HTMLElement>()
+    // Publish only the inline panel so `Rail` can measure it, even while closed.
+    const publishedElement = () => (contentProps.mobile ? undefined : element())
+    bindElement(publishedElement, publishElement(context.panelElement, context.setPanelElement))
     const panelSlot = slotWith('panel', {
       data: sidebarDataAttributes.panel({
         closed,
         expanded: () => !closed(),
         mobile: () => contentProps.mobile,
+        resizing: context.resizing,
         side: () => context.side,
         variant: () => context.variant,
       }),
@@ -42,6 +49,10 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         id={context.panelId()}
         data-slot="sidebar-panel"
         {...panelSlot}
+        ref={(node: HTMLElement) => {
+          setElement(node)
+          callRef(local.ref, node)
+        }}
         aria-hidden={closed() ? true : undefined}
         inert={closed() ? true : undefined}
         aria-label={local['aria-label']}

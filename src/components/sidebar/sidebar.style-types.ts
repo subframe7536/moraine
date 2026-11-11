@@ -19,6 +19,9 @@ export interface SidebarStyleSlot<T = unknown> {
   /** Main application content region beside the panel. */
   inset?: T
 
+  /** Drag separator between `Panel` and `Inset` that resizes the sidebar. */
+  rail?: T
+
   /** Navigation section that holds a label and a menu. */
   group?: T
 

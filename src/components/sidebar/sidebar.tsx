@@ -21,6 +21,7 @@ import { SidebarMenuSub } from './sidebar-menu-sub'
 import { SidebarMenuSubContent } from './sidebar-menu-sub-content'
 import { SidebarMenuSubTrigger } from './sidebar-menu-sub-trigger'
 import { SidebarPanel } from './sidebar-panel'
+import { SidebarRail } from './sidebar-rail'
 import { SidebarTrigger } from './sidebar-trigger'
 import { sidebarDataAttributes, sidebarRecipe } from './sidebar.recipe'
 import type { SidebarProps, SidebarT } from './sidebar.types'
@@ -45,6 +46,11 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'variant',
     'translations',
     'width',
+    'defaultWidth',
+    'onWidthChange',
+    'onWidthCommit',
+    'minWidth',
+    'maxWidth',
   ])
   const {
     slots: { root: rootSlot },
@@ -54,10 +60,17 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       root: sidebarDataAttributes.root(() => ({
         mobile: isMobile,
         side: () => context.side,
+        splitterRoot: true,
         variant: () => context.variant,
       })),
     },
-    own: { root: () => ({ style: { '--mo-sidebar-width': local.width } }) },
+    own: {
+      root: () => ({
+        style: {
+          '--mo-sidebar-width': width() === undefined ? undefined : `${width()}px`,
+        },
+      }),
+    },
   })
 
   const panelId = createId(() => local.panelId, 'sidebar-panel')
@@ -73,6 +86,20 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
   })
   const [mobileOpen, setMobileOpen] = createSignal(false)
+
+  const [width, setWidth] = createControllableValue<number | undefined>({
+    value: () => local.width,
+    defaultValue: () => local.defaultWidth,
+    onChange: (nextWidth) => {
+      if (nextWidth !== undefined) {
+        local.onWidthChange?.(nextWidth)
+      }
+    },
+  })
+  const minWidth = () => local.minWidth ?? 224
+  const maxWidth = () => Math.max(minWidth(), local.maxWidth ?? 480)
+  const [resizing, setResizing] = createSignal(false)
+  const [panelElement, setPanelElement] = createSignal<HTMLElement>()
 
   createEffect(
     on(isMobile, (mobile, previous) => {
@@ -120,6 +147,15 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       return variants.side
     },
     translations: () => local.translations,
+    width,
+    setWidth,
+    commitWidth: (nextWidth: number) => local.onWidthCommit?.(nextWidth),
+    minWidth,
+    maxWidth,
+    resizing,
+    setResizing,
+    panelElement,
+    setPanelElement,
   }
 
   return (
@@ -132,6 +168,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 }
 
 Sidebar.Panel = SidebarPanel
+Sidebar.Rail = SidebarRail
 Sidebar.Header = SidebarHeader
 Sidebar.Content = SidebarContent
 Sidebar.Footer = SidebarFooter
