@@ -384,7 +384,6 @@ export function createSelectState<T extends BaseSelectT.Item>(
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(selectionToFormValue(next, props.multiple === true))
       if (formInput) {
-        formInput.checked = next.length > 0
         formInput.value = primarySerializedValue()
       }
       props.onReset?.()
