@@ -16,247 +16,26 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
-import { useFormField, useFieldContext } from '../field/field-context'
+import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useFormValue } from '../shared/form/use-form-value'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 
+import { useFilePreviews } from './create-file-previews'
+import {
+  constrainMultipleFiles,
+  constrainSingleFile,
+  filterAcceptedFiles,
+  formatFileSize,
+  isFileDragEvent,
+  syncNativeInputFiles,
+} from './file-upload-utils'
 import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
-
-function isImageFile(file: File): boolean {
-  return file.type.startsWith('image/')
-}
-
-function isAcceptedFileType(file: File, accept?: string): boolean {
-  if (!accept || accept === '*') {
-    return true
-  }
-
-  const rules = accept
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean)
-
-  if (rules.length === 0) {
-    return true
-  }
-
-  const fileName = file.name.toLowerCase()
-  const fileType = file.type.toLowerCase()
-  const baseType = fileType.split('/')[0] ?? ''
-
-  return rules.some((rule) => {
-    if (rule === '*') {
-      return true
-    }
-
-    if (rule.startsWith('.')) {
-      return fileName.endsWith(rule)
-    }
-
-    if (rule.endsWith('/*')) {
-      return baseType === rule.split('/')[0]
-    }
-
-    return fileType === rule
-  })
-}
-
-function createObjectUrl(file: File): string | undefined {
-  if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
-    return undefined
-  }
-
-  return URL.createObjectURL(file)
-}
-
-function revokeObjectUrl(url: string): void {
-  if (typeof URL === 'undefined' || typeof URL.revokeObjectURL !== 'function') {
-    return
-  }
-
-  URL.revokeObjectURL(url)
-}
-
-function isFileDragEvent(event: DragEvent): boolean {
-  if (!event.dataTransfer) {
-    return Boolean(event.target && 'files' in event.target)
-  }
-
-  return Array.from(event.dataTransfer.types).some(
-    (type) => type === 'Files' || type === 'application/x-moz-file',
-  )
-}
-
-function createFileList(files: File[]): FileList | undefined {
-  if (typeof DataTransfer === 'undefined') {
-    return undefined
-  }
-
-  try {
-    const transfer = new DataTransfer()
-
-    for (const file of files) {
-      transfer.items.add(file)
-    }
-
-    return transfer.files
-  } catch {
-    return undefined
-  }
-}
-
-function syncNativeInputFiles(input: HTMLInputElement | undefined, files: File[]): boolean {
-  if (!input) {
-    return false
-  }
-
-  const fileList = createFileList(files)
-  if (fileList) {
-    try {
-      input.files = fileList
-      const assignedFiles = Array.from(input.files ?? [])
-
-      return (
-        assignedFiles.length === files.length &&
-        assignedFiles.every((file, index) => file === files[index])
-      )
-    } catch {
-      // Some browsers reject FileList assignment; preserve the component state and leave the native input unchanged.
-    }
-  }
-
-  if (files.length === 0) {
-    input.value = ''
-    return true
-  }
-
-  return false
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) {
-    return '0B'
-  }
-
-  const unit = 1024
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  const power = Math.floor(Math.log(bytes) / Math.log(unit))
-  const value = bytes / unit ** power
-  const precision = power === 0 ? 0 : 1
-
-  return `${value.toFixed(precision)}${units[power]}`
-}
-
-function createRejection(file: File, error: FileUploadT.Error): FileUploadT.Rejection {
-  return {
-    file,
-    errors: [error],
-  }
-}
-
-function getFileIdentity(file: File): string {
-  return [file.name, file.size, file.type, file.lastModified].join('\0')
-}
-
-function filterAcceptedFiles(
-  files: File[],
-  options: {
-    accept: string | undefined
-    existingFiles: File[]
-    minSize: number | undefined
-    maxSize: number | undefined
-  },
-): {
-  accepted: File[]
-  rejected: FileUploadT.Rejection[]
-} {
-  const accepted: File[] = []
-  const rejected: FileUploadT.Rejection[] = []
-  const seenFiles = new Set(options.existingFiles.map(getFileIdentity))
-
-  for (const file of files) {
-    const errors: FileUploadT.Error[] = []
-
-    if (!isAcceptedFileType(file, options.accept)) {
-      errors.push('FILE_INVALID_TYPE')
-    }
-
-    if (options.minSize !== undefined && file.size < options.minSize) {
-      errors.push('FILE_TOO_SMALL')
-    } else if (options.maxSize !== undefined && file.size > options.maxSize) {
-      errors.push('FILE_TOO_LARGE')
-    }
-
-    if (errors.length > 0) {
-      rejected.push({ file, errors })
-      continue
-    }
-
-    const fileIdentity = getFileIdentity(file)
-    if (seenFiles.has(fileIdentity)) {
-      rejected.push(createRejection(file, 'FILE_DUPLICATE'))
-      continue
-    }
-
-    seenFiles.add(fileIdentity)
-    accepted.push(file)
-  }
-
-  return { accepted, rejected }
-}
-
-function constrainMultipleFiles(
-  accepted: File[],
-  currentCount: number,
-  maxFiles: number,
-): {
-  accepted: File[]
-  rejected: FileUploadT.Rejection[]
-} {
-  const rejected: FileUploadT.Rejection[] = []
-  const remainingSlots = Number.isFinite(maxFiles)
-    ? Math.max(0, maxFiles - currentCount)
-    : Number.POSITIVE_INFINITY
-
-  if (remainingSlots === 0) {
-    for (const file of accepted) {
-      rejected.push(createRejection(file, 'TOO_MANY_FILES'))
-    }
-
-    return { accepted: [], rejected }
-  }
-
-  if (!Number.isFinite(remainingSlots) || accepted.length <= remainingSlots) {
-    return { accepted, rejected }
-  }
-
-  const boundedAccepted = accepted.slice(0, remainingSlots)
-  const overflow = accepted.slice(remainingSlots)
-
-  for (const file of overflow) {
-    rejected.push(createRejection(file, 'TOO_MANY_FILES'))
-  }
-
-  return { accepted: boundedAccepted, rejected }
-}
-
-function constrainSingleFile(accepted: File[]): {
-  accepted: File[]
-  rejected: FileUploadT.Rejection[]
-} {
-  if (accepted.length <= 1) {
-    return { accepted, rejected: [] }
-  }
-
-  const rejected = accepted.slice(1).map((file) => createRejection(file, 'TOO_MANY_FILES'))
-
-  return { accepted: [accepted[0]!], rejected }
-}
 
 /** Drag-and-drop file upload component with progress tracking and file list management. */
 export function FileUpload<Multiple extends boolean = false>(
@@ -289,6 +68,8 @@ export function FileUpload<Multiple extends boolean = false>(
     'maxSize',
     'onValueChange',
     'onFileReject',
+    'fileRender',
+    'itemRender',
     'size',
     'classes',
     'styles',
@@ -349,6 +130,7 @@ export function FileUpload<Multiple extends boolean = false>(
   const description = createMemo(() => merged.description)
   const dropzone = createMemo(() => merged.dropzone)
   const preview = createMemo(() => merged.preview)
+  const fileRenderer = createMemo(() => merged.fileRender ?? merged.itemRender)
 
   const initialDefaultValue = untrack(() => {
     if (local.defaultValue !== undefined) {
@@ -433,7 +215,10 @@ export function FileUpload<Multiple extends boolean = false>(
   } = useHiddenInputValidation({
     focusTarget: () => controlEl,
   })
-  const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
+  const previewUrls = useFilePreviews({
+    files: () => selectedFiles(),
+    preview: () => preview(),
+  })
 
   const labelId = () => `${field.id()}-label`
   const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
@@ -564,76 +349,22 @@ export function FileUpload<Multiple extends boolean = false>(
     commitSelectedFiles(nextFiles)
   }
 
-  function FileRemoveButton(props: { file: File; index: number }): JSX.Element {
+  function FileRemoveButton(buttonProps: { file: File; index: number }): JSX.Element {
     return (
       <button
         type="button"
-        aria-label={messages().remove({ name: props.file.name })}
+        aria-label={messages().remove({ name: buttonProps.file.name })}
         data-slot="file-upload-file-remove"
         {...fileRemoveSlot}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
-          removeFileAt(props.index)
+          removeFileAt(buttonProps.index)
         }}
       >
         <Icon name="icon-close" />
       </button>
     )
   }
-
-  createEffect(
-    on([selectedFiles, preview], ([files, previewsEnabled]) => {
-      setPreviewUrls((previous) => {
-        const next = new Map(previous)
-
-        for (const [file, url] of previous.entries()) {
-          if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
-            revokeObjectUrl(url)
-            next.delete(file)
-          }
-        }
-
-        if (!previewsEnabled) {
-          return next
-        }
-
-        for (const file of files) {
-          if (!isImageFile(file) || next.has(file)) {
-            continue
-          }
-
-          const url = createObjectUrl(file)
-          if (url) {
-            next.set(file, url)
-          }
-        }
-
-        return next
-      })
-    }),
-  )
-
-  createEffect(
-    on(
-      () => selectedFiles().length,
-      (count) => {
-        if (count > 0) {
-          return
-        }
-
-        const input = hiddenInput()
-        if (input) {
-          input.value = ''
-        }
-      },
-    ),
-  )
-
-  onCleanup(() => {
-    for (const url of previewUrls().values()) {
-      revokeObjectUrl(url)
-    }
-  })
 
   useFormReset(
     () => hiddenInput()?.form,
@@ -664,9 +395,7 @@ export function FileUpload<Multiple extends boolean = false>(
     )
   }
 
-  const onControlClick: JSX.EventHandler<HTMLButtonElement | HTMLDivElement, MouseEvent> = (
-    event,
-  ) => {
+  const onControlClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (event) => {
     callHandler(event, merged.onClick)
 
     if (!event.defaultPrevented) {
@@ -674,12 +403,12 @@ export function FileUpload<Multiple extends boolean = false>(
     }
   }
 
-  const onDropzoneKeyDown = createKeyDownHandler<HTMLDivElement>({
-    onKeyDown: () => merged.onKeyDown,
+  const onControlKeyDown = createKeyDownHandler<HTMLButtonElement>({
+    onKeyDown: () => merged.onKeyDown as any,
     keys: { Enter: openFileDialog, ' ': openFileDialog },
   })
 
-  const onDropzoneDragOver: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+  const onDropzoneDragOver: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
     callHandler(event, merged.onDragOver)
 
     if (event.defaultPrevented || field.disabled() || readOnly() || !isFileDragEvent(event)) {
@@ -697,7 +426,7 @@ export function FileUpload<Multiple extends boolean = false>(
     setDragging(true)
   }
 
-  const onDropzoneDragLeave: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+  const onDropzoneDragLeave: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
     callHandler(event, merged.onDragLeave)
 
     if (event.defaultPrevented) {
@@ -712,7 +441,7 @@ export function FileUpload<Multiple extends boolean = false>(
     setDragging(false)
   }
 
-  const onDropzoneDrop: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+  const onDropzoneDrop: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
     callHandler(event, merged.onDrop)
     setDragging(false)
 
@@ -741,42 +470,35 @@ export function FileUpload<Multiple extends boolean = false>(
       }
       aria-disabled={field.disabled() ? true : undefined}
     >
-      <Show
-        when={dropzone()}
-        fallback={
-          <button
-            type="button"
-            data-slot="file-upload-control"
-            {...controlAriaAttrs()}
-            {...controlSlot}
-            ref={setControlElement}
-            disabled={field.disabled()}
-            onFocus={(event) => field.emit('focus', event)}
-            onBlur={(event) => field.emit('blur', event)}
-            onClick={onControlClick}
-          >
-            <Content />
-          </button>
-        }
+      <button
+        type="button"
+        data-slot="file-upload-control"
+        {...controlAriaAttrs()}
+        {...controlSlot}
+        ref={setControlElement}
+        disabled={field.disabled()}
+        onFocus={(event) => field.emit('focus', event)}
+        onBlur={(event) => field.emit('blur', event)}
+        onClick={onControlClick}
+        onKeyDown={onControlKeyDown}
+        onDragOver={(event) => {
+          if (dropzone()) {
+            onDropzoneDragOver(event)
+          }
+        }}
+        onDragLeave={(event) => {
+          if (dropzone()) {
+            onDropzoneDragLeave(event)
+          }
+        }}
+        onDrop={(event) => {
+          if (dropzone()) {
+            onDropzoneDrop(event)
+          }
+        }}
       >
-        <div
-          role="button"
-          data-slot="file-upload-control"
-          {...controlAriaAttrs()}
-          {...controlSlot}
-          ref={setControlElement}
-          tabIndex={field.disabled() ? undefined : 0}
-          onFocus={(event) => field.emit('focus', event)}
-          onBlur={(event) => field.emit('blur', event)}
-          onClick={onControlClick}
-          onKeyDown={onDropzoneKeyDown}
-          onDragOver={onDropzoneDragOver}
-          onDragLeave={onDropzoneDragLeave}
-          onDrop={onDropzoneDrop}
-        >
-          <Content />
-        </div>
-      </Show>
+        <Content />
+      </button>
 
       <HiddenInput
         type="file"
@@ -804,29 +526,52 @@ export function FileUpload<Multiple extends boolean = false>(
         <ul data-slot="file-upload-files" {...filesSlot}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file-upload-file" {...fileSlot}>
-                <span data-slot="file-upload-file-preview" {...filePreviewSlot}>
-                  <Show
-                    when={previewUrls().get(file)}
-                    fallback={
-                      <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...iconSlot} />
-                    }
-                  >
-                    {(url) => <img class="size-full object-cover" src={url()} alt={file.name} />}
-                  </Show>
-                </span>
+              <Show
+                when={fileRenderer()}
+                fallback={
+                  <li data-slot="file-upload-file" {...fileSlot}>
+                    <span data-slot="file-upload-file-preview" {...filePreviewSlot}>
+                      <Show
+                        when={previewUrls().get(file)}
+                        fallback={
+                          <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...iconSlot} />
+                        }
+                      >
+                        {(url) => (
+                          <img class="size-full object-cover" src={url()} alt={file.name} />
+                        )}
+                      </Show>
+                    </span>
 
-                <div data-slot="file-upload-file-meta" {...fileMetaSlot}>
-                  <span data-slot="file-upload-file-name" {...fileNameSlot}>
-                    {file.name}
-                  </span>
-                  <span data-slot="file-upload-file-size" {...fileSizeSlot}>
-                    {formatFileSize(file.size)}
-                  </span>
-                </div>
+                    <div data-slot="file-upload-file-meta" {...fileMetaSlot}>
+                      <span data-slot="file-upload-file-name" {...fileNameSlot}>
+                        {file.name}
+                      </span>
+                      <span data-slot="file-upload-file-size" {...fileSizeSlot}>
+                        {formatFileSize(file.size)}
+                      </span>
+                    </div>
 
-                <FileRemoveButton file={file} index={index()} />
-              </li>
+                    <FileRemoveButton file={file} index={index()} />
+                  </li>
+                }
+              >
+                {(renderer) =>
+                  renderWithProps(renderer(), {
+                    file,
+                    get index() {
+                      return index()
+                    },
+                    get previewUrl() {
+                      return previewUrls().get(file)
+                    },
+                    remove: () => removeFileAt(index()),
+                    get disabled() {
+                      return field.disabled() || readOnly()
+                    },
+                  })
+                }
+              </Show>
             )}
           </For>
         </ul>

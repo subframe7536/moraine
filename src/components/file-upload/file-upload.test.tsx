@@ -877,4 +877,28 @@ describe('FileUpload', () => {
       screen.container.querySelector('[data-slot="file-upload"]')?.getAttribute('data-readonly'),
     ).toBe('')
   })
+
+  test('supports custom fileRender renderer', () => {
+    const file = createFile('custom.png', 'image/png')
+    const screen = render(() => (
+      <FileUpload
+        defaultValue={[file]}
+        multiple
+        fileRender={(props) => (
+          <li data-testid="custom-file-item">
+            <span>Name: {props.file.name}</span>
+            <button type="button" onClick={props.remove}>
+              Custom Remove
+            </button>
+          </li>
+        )}
+      />
+    ))
+
+    expect(screen.getByTestId('custom-file-item')).not.toBeNull()
+    expect(screen.getByText('Name: custom.png')).not.toBeNull()
+
+    fireEvent.click(screen.getByText('Custom Remove'))
+    expect(screen.queryByTestId('custom-file-item')).toBeNull()
+  })
 })

@@ -24,7 +24,7 @@ describe('FileUpload SSR Hydration', () => {
 
     const root = container.querySelector('[data-slot="file-upload"]')
     expect(root).not.toBeNull()
-    expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('DIV')
+    expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('BUTTON')
     expect(container.querySelector('[data-slot="file-upload-files"]')).toBeNull()
 
     setDropzone(false)

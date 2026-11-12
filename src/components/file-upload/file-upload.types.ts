@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -46,6 +46,14 @@ export namespace FileUploadT {
 
   export type Error = FileError
   export type Rejection = FileRejection
+
+  export interface FileRenderProps {
+    file: File
+    index: number
+    previewUrl?: string
+    remove: () => void
+    disabled: boolean
+  }
 
   /** Base props for the FileUpload component. */
   export interface Base<Multiple extends boolean = false>
@@ -116,6 +124,12 @@ export namespace FileUploadT {
 
     /** Callback when files are rejected (e.g., due to type or count). */
     onFileReject?: (files: Rejection[]) => void
+
+    /** Custom renderer for individual file entries in the preview list. */
+    fileRender?: Component<FileRenderProps>
+
+    /** Alias for `fileRender`. */
+    itemRender?: Component<FileRenderProps>
   }
 
   /** Props for the FileUpload component. */
