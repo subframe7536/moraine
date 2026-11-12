@@ -167,11 +167,6 @@ export namespace CommandPaletteT {
      * @default false
      */
     loading?: boolean
-    /**
-     * Disable built-in search filtering and render all provided items.
-     * @default false
-     */
-    disableFilter?: boolean
     /** Custom search text builder for built-in filtering. */
     getItemSearchText?: (item: TItem, group: Group<TItem>) => string
     /** Custom filter function that fully controls which groups and items are visible. */

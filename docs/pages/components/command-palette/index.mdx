@@ -75,7 +75,7 @@ export function Example() {
 
 Pass groups and items from application state. The palette filters the supplied collection and
 invokes `onSelect` or an item's own `onSelect`. Fetching commands, routing, and global shortcuts
-remain application-owned. Set `disableFilter` when the collection is already filtered.
+remain application-owned. Pass `filterItems` when using custom search logic or to bypass filtering when the collection is already filtered.
 
 ```tsx
 <CommandPalette

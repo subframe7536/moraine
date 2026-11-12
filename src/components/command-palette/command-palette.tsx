@@ -79,13 +79,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       return value
     }
 
-    let suffix = 0
-    let key = `${value}::${groupId}:${itemIndex}`
-    while (seenKeys.has(key)) {
-      suffix += 1
-      key = `${value}::${groupId}:${itemIndex}:${suffix}`
-    }
-
+    const key = `${value}::${groupId}:${itemIndex}`
     seenKeys.add(key)
     return key
   }
@@ -138,7 +132,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'onClose',
     'closeOnSelect',
     'loading',
-    'disableFilter',
     'getItemSearchText',
     'filterItems',
     'descriptionPosition',
@@ -269,14 +262,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }),
   )
 
-  createEffect(
-    on([inputElement, () => merged.searchTerm], ([input, searchTerm]) => {
-      if (searchTerm !== undefined && input && input.value !== searchTerm) {
-        input.value = searchTerm
-      }
-    }),
-  )
-
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
 
   const normalizedGroups = createMemo(() =>
@@ -285,17 +270,28 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const visibleGroups = createMemo(() => {
     const term = currentSearchTerm().trim()
     if (merged.filterItems) {
-      return createNormalizedGroups<TItem>(
-        merged.filterItems({
-          groups: groups(),
-          searchTerm: currentSearchTerm(),
-        }),
-        merged.getItemSearchText,
-        warnDuplicateValue,
-      )
+      const filtered = merged.filterItems({
+        groups: groups(),
+        searchTerm: currentSearchTerm(),
+      })
+      const groupMap = new Map(normalizedGroups().map((g) => [g.source, g]))
+      return filtered
+        .map((userGroup) => {
+          const normGroup =
+            groupMap.get(userGroup) ?? normalizedGroups().find((g) => g.source.id === userGroup.id)
+          if (!normGroup) {
+            return null
+          }
+          const itemSet = new Set(userGroup.items)
+          return Object.assign({}, normGroup, {
+            source: userGroup,
+            items: normGroup.items.filter((ni) => itemSet.has(ni.item)),
+          })
+        })
+        .filter((g): g is NormalizedGroup<TItem> => Boolean(g && g.items.length > 0))
     }
 
-    if (merged.disableFilter || term === '') {
+    if (term === '') {
       return normalizedGroups()
     }
 
@@ -672,6 +668,77 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }),
   })
 
+  const listItems = createMemo<unknown[]>(() => {
+    if (!hasItems()) {
+      return []
+    }
+    return merged.virtualizer ? virtualEntries() : visibleGroups()
+  })
+
+  function VirtualRow(
+    props: ListT.ItemRenderProps<CommandPaletteT.VirtualEntry<TItem>>,
+  ): JSX.Element {
+    const virtualGroupSlot = slotWith('group', {
+      own: () => ({
+        class: props.props?.class,
+        style: props.props?.style,
+      }),
+    })
+
+    return (
+      <Show
+        when={props.item.type === 'label'}
+        fallback={
+          <Show when={visibleItemByKey().get(props.item.key)}>
+            {(item) => <VisibleItem item={item()} virtualProps={props.props} />}
+          </Show>
+        }
+      >
+        <div
+          role="presentation"
+          data-slot="command-palette-group"
+          {...props.props}
+          {...virtualGroupSlot}
+        >
+          <span data-slot="command-palette-group-label" {...groupLabelSlot}>
+            {props.item.type === 'label' ? props.item.label : ''}
+          </span>
+        </div>
+      </Show>
+    )
+  }
+
+  function GroupRow(props: ListT.ItemRenderProps<NormalizedGroup<TItem>>): JSX.Element {
+    const groupLabelId = () => `${listboxId()}-group-${props.item.source.id}-label`
+    return (
+      <div
+        role="group"
+        aria-labelledby={props.item.label ? groupLabelId() : undefined}
+        data-slot="command-palette-group"
+        {...groupSlot}
+      >
+        <Show when={props.item.label}>
+          <span id={groupLabelId()} data-slot="command-palette-group-label" {...groupLabelSlot}>
+            {props.item.label}
+          </span>
+        </Show>
+
+        <For each={props.item.items}>{(item) => <VisibleItem item={item} />}</For>
+      </div>
+    )
+  }
+
+  function RowRender(context: ListT.ItemRenderProps<any>): JSX.Element {
+    return (
+      <Show
+        when={merged.virtualizer}
+        fallback={<GroupRow item={context.item} index={context.index} props={context.props} />}
+      >
+        <VirtualRow item={context.item} index={context.index} props={context.props} />
+      </Show>
+    )
+  }
+
   return (
     <div data-slot="command-palette" {...rootSlot} {...rest} ref={(el) => callRef(local.ref, el)}>
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
@@ -741,78 +808,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         </Show>
       </div>
 
-      <Show
-        when={merged.virtualizer}
-        fallback={
-          <List
-            as="div"
-            items={hasItems() ? visibleGroups() : []}
-            fallback={<EmptyState />}
-            itemRender={(context) => (
-              <div data-slot="command-palette-group" {...groupSlot}>
-                <Show when={context.item.label}>
-                  <span data-slot="command-palette-group-label" {...groupLabelSlot}>
-                    {context.item.label}
-                  </span>
-                </Show>
-
-                <For each={context.item.items}>{(item) => <VisibleItem item={item} />}</For>
-              </div>
-            )}
-            {...merged.listboxProps}
-            id={listboxId()}
-            role="listbox"
-            data-slot="command-palette-listbox"
-            ref={handleListboxRef}
-            {...listboxSlot}
-          />
-        }
-      >
-        {(virtualizer) => (
-          <List
-            as="div"
-            items={hasItems() ? virtualEntries() : []}
-            fallback={<EmptyState />}
-            virtualizer={virtualizer()}
-            itemRender={(context) => {
-              const virtualGroupSlot = slotWith('group', {
-                own: () => ({
-                  class: context.props?.class,
-                  style: context.props?.style,
-                }),
-              })
-
-              return (
-                <Show
-                  when={context.item.type === 'label'}
-                  fallback={
-                    <Show when={visibleItemByKey().get(context.item.key)}>
-                      {(item) => <VisibleItem item={item()} virtualProps={context.props} />}
-                    </Show>
-                  }
-                >
-                  <div
-                    role="presentation"
-                    data-slot="command-palette-group"
-                    {...context.props}
-                    {...virtualGroupSlot}
-                  >
-                    <span data-slot="command-palette-group-label" {...groupLabelSlot}>
-                      {context.item.type === 'label' ? context.item.label : ''}
-                    </span>
-                  </div>
-                </Show>
-              )
-            }}
-            {...merged.listboxProps}
-            id={listboxId()}
-            role="listbox"
-            data-slot="command-palette-listbox"
-            ref={handleListboxRef}
-            {...listboxSlot}
-          />
-        )}
-      </Show>
+      <List
+        as="div"
+        items={listItems()}
+        fallback={<EmptyState />}
+        virtualizer={merged.virtualizer as any}
+        itemRender={RowRender}
+        {...merged.listboxProps}
+        id={listboxId()}
+        role="listbox"
+        data-slot="command-palette-listbox"
+        ref={handleListboxRef}
+        {...listboxSlot}
+      />
 
       <Show when={merged.footerRender !== undefined}>
         <div data-slot="command-palette-footer" {...footerSlot}>

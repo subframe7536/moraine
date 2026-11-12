@@ -421,7 +421,7 @@ describe('CommandPalette', () => {
     const screen = render(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
-        disableFilter
+        filterItems={({ groups }) => groups}
         onSelect={onSelect}
         onClose={onClose}
         inputProps={{ onCompositionStart, onCompositionEnd }}
@@ -1122,12 +1122,24 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('skips built-in filtering when disableFilter is enabled', async () => {
-    render(() => <CommandPalette groups={GROUPS} searchTerm="missing" disableFilter />)
+  test('skips built-in filtering when custom filterItems returns all groups', async () => {
+    render(() => (
+      <CommandPalette groups={GROUPS} searchTerm="missing" filterItems={({ groups }) => groups} />
+    ))
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
       expect(body().getByText('Go to Dashboard')).toBeTruthy()
+    })
+  })
+
+  test('groups render with role="group" and aria-labelledby', async () => {
+    render(() => <CommandPalette groups={GROUPS} />)
+
+    await waitFor(() => {
+      const group = body().getByRole('group', { name: 'Actions' })
+      expect(group).not.toBeNull()
+      expect(group.getAttribute('aria-labelledby')).not.toBeNull()
     })
   })
 
