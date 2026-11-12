@@ -68,7 +68,6 @@ export function FileUpload<Multiple extends boolean = false>(
     'maxSize',
     'onValueChange',
     'onFileReject',
-    'fileRender',
     'itemRender',
     'size',
     'classes',
@@ -130,7 +129,6 @@ export function FileUpload<Multiple extends boolean = false>(
   const description = createMemo(() => merged.description)
   const dropzone = createMemo(() => merged.dropzone)
   const preview = createMemo(() => merged.preview)
-  const fileRenderer = createMemo(() => merged.fileRender ?? merged.itemRender)
 
   const initialDefaultValue = untrack(() => {
     if (local.defaultValue !== undefined) {
@@ -527,7 +525,7 @@ export function FileUpload<Multiple extends boolean = false>(
           <For each={selectedFiles()}>
             {(file, index) => (
               <Show
-                when={fileRenderer()}
+                when={merged.itemRender}
                 fallback={
                   <li data-slot="file-upload-file" {...fileSlot}>
                     <span data-slot="file-upload-file-preview" {...filePreviewSlot}>

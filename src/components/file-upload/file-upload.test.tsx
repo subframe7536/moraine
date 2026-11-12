@@ -878,13 +878,13 @@ describe('FileUpload', () => {
     ).toBe('')
   })
 
-  test('supports custom fileRender renderer', () => {
+  test('supports custom itemRender renderer', () => {
     const file = createFile('custom.png', 'image/png')
     const screen = render(() => (
       <FileUpload
         defaultValue={[file]}
         multiple
-        fileRender={(props) => (
+        itemRender={(props) => (
           <li data-testid="custom-file-item">
             <span>Name: {props.file.name}</span>
             <button type="button" onClick={props.remove}>

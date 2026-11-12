@@ -126,9 +126,6 @@ export namespace FileUploadT {
     onFileReject?: (files: Rejection[]) => void
 
     /** Custom renderer for individual file entries in the preview list. */
-    fileRender?: Component<FileRenderProps>
-
-    /** Alias for `fileRender`. */
     itemRender?: Component<FileRenderProps>
   }
 
