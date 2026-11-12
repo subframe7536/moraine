@@ -281,6 +281,30 @@ test('custom search input commits only completed composition and discards stale 
   expect(searchValue()).toBe('server')
   expect(onValueChange).toHaveBeenCalledTimes(2)
 })
+
+test('warns when multiple composition discarders are registered', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  try {
+    const MultiSearch = () => {
+      const state = BaseSelect.useContext()
+      state.registerCompositionDiscarder(() => {})
+      state.registerCompositionDiscarder(() => {})
+      return null
+    }
+
+    render(() => (
+      <BaseSelect items={items}>
+        <MultiSearch />
+      </BaseSelect>
+    ))
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('[moraine] BaseSelect: multiple composition discarders registered'),
+    )
+  } finally {
+    warn.mockRestore()
+  }
+})
 function Parts() {
   return (
     <>

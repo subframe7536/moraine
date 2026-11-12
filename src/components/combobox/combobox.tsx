@@ -210,7 +210,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...local}
           view={search.view()}
           slot={(slot) => slots[slot]}
-          emptyRender={() => (
+          emptyRender={(emptyProps) => (
             <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
               {renderWithProps(local.emptyRender, {
                 get inputValue() {
@@ -220,9 +220,9 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
                   return state.items().length > 0
                 },
                 get selectedValue() {
-                  return state.value()[0]
+                  return emptyProps.selectedValue
                 },
-                close: () => state.setOpen(false),
+                close: emptyProps.close,
               })}
             </Show>
           )}

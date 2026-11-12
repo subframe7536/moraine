@@ -1,5 +1,6 @@
 import type { Accessor } from 'solid-js'
 import {
+  DEV,
   Index,
   batch,
   createEffect,
@@ -69,8 +70,17 @@ export function createSelectState<T extends BaseSelectT.Item>(
     return byValue
   })
   createEffect(on(items, diagnoseDuplicateItems))
+  /**
+   * Resolves a selection value to its canonical item representation.
+   * Uses caller-provided `getItemByValue` if supplied (e.g. Combobox),
+   * falling back to the internal `items` collection map (e.g. Select, MultiSelect).
+   */
   function getCanonicalItem(value: T['value']): T | undefined {
-    return props.getItemByValue ? props.getItemByValue(value) : itemByValue().get(value)
+    const customLookup = props.getItemByValue
+    if (customLookup) {
+      return customLookup(value)
+    }
+    return itemByValue().get(value)
   }
   const [selection, setSelection] = createControllableValue<Value>({
     value: () => {
@@ -152,9 +162,6 @@ export function createSelectState<T extends BaseSelectT.Item>(
       field.setFormValue(selectionToFormValue(after, props.multiple === true))
     }
     props.onValueChange?.(after)
-    if (props.value !== undefined) {
-      field.setFormValue(selectionToFormValue(normalize(props.value), props.multiple === true))
-    }
     field.emit('change')
     field.emit('input')
   }
@@ -166,8 +173,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
       return
     }
     discardComposition()
+    const shouldClose = props.closeOnSelect ?? !props.multiple
     batch(() => {
-      if (props.closeOnSelect ?? !props.multiple) {
+      if (shouldClose) {
         setOpen(false)
       }
       change(
@@ -178,7 +186,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           : [item.value],
       )
     })
-    if (props.closeOnSelect ?? !props.multiple) {
+    if (shouldClose) {
       const target = focusOwner()
       // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
       queueMicrotask(() => {
@@ -341,6 +349,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
   )
   let compositionDiscarder: (() => void) | undefined
   function registerCompositionDiscarder(discard: () => void) {
+    if (DEV && compositionDiscarder && compositionDiscarder !== discard) {
+      console.warn(
+        '[moraine] BaseSelect: multiple composition discarders registered; overwriting previous discarder.',
+      )
+    }
     compositionDiscarder = discard
     onCleanup(() => {
       if (compositionDiscarder === discard) {

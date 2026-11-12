@@ -176,20 +176,25 @@ export function Modal(props: ModalProps): JSX.Element {
     }),
   )
 
+  function syncModalRestoreFocus(modal: boolean, ownerDocument: Document) {
+    if (modal && !restoreFocusOnDeactivate) {
+      restoreFocusOnDeactivate = true
+      captureRestoreFocus(ownerDocument)
+    } else if (!modal) {
+      restoreFocusOnDeactivate = false
+      capturedTrigger = undefined
+      capturedRestoreTarget = undefined
+    }
+  }
+
+  // Handles dynamic changes to the `modal` prop while the overlay is already present.
   createEffect(
     on(isModal, (modal) => {
       const currentContent = contentElement()
       if (!isPresent() || !currentContent) {
         return
       }
-      if (modal && !restoreFocusOnDeactivate) {
-        restoreFocusOnDeactivate = true
-        captureRestoreFocus(currentContent.ownerDocument)
-      } else if (!modal) {
-        restoreFocusOnDeactivate = false
-        capturedTrigger = undefined
-        capturedRestoreTarget = undefined
-      }
+      syncModalRestoreFocus(modal, currentContent.ownerDocument)
     }),
   )
 
@@ -197,14 +202,9 @@ export function Modal(props: ModalProps): JSX.Element {
     enabled: isPresent,
     contentElement,
     triggerElement,
+    // Initial activation capture when the overlay opens and enters the stack.
     onActivate: (context) => {
-      restoreFocusOnDeactivate = isModal()
-      if (restoreFocusOnDeactivate) {
-        captureRestoreFocus(context.entry.ownerDocument!)
-      } else {
-        capturedTrigger = undefined
-        capturedRestoreTarget = undefined
-      }
+      syncModalRestoreFocus(isModal(), context.entry.ownerDocument!)
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {

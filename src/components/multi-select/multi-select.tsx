@@ -489,7 +489,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           {...local}
           view={search.view()}
           slot={(slot) => slots[slot]}
-          emptyRender={() => (
+          emptyRender={(emptyProps) => (
             <Show
               when={local.emptyRender !== undefined}
               fallback={
@@ -512,7 +512,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   return atMax()
                 },
                 create,
-                close: () => state.setOpen(false),
+                close: emptyProps.close,
               })}
             </Show>
           )}

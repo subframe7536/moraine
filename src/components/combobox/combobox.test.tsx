@@ -616,3 +616,30 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
   // Row 999 ends at 32,000 px; aligning its end to a 160 px viewport gives 31,840.
   expect(scrollToFn).toHaveBeenLastCalledWith(31840, expect.anything(), virtualizer.instance())
 })
+
+test('forwards selectedValue and close to custom emptyRender', () => {
+  let capturedProps: any
+  render(() => (
+    <Combobox
+      items={[] as string[]}
+      defaultValue="Banana"
+      defaultOpen
+      emptyRender={(props) => {
+        capturedProps = props
+        return (
+          <button type="button" onClick={props.close}>
+            Custom empty {props.selectedValue}
+          </button>
+        )
+      }}
+    />
+  ))
+
+  expect(capturedProps).toBeDefined()
+  expect(capturedProps.selectedValue).toBe('Banana')
+  expect(typeof capturedProps.close).toBe('function')
+  capturedProps.close()
+  expect(
+    document.querySelector('[data-slot="combobox-content"]')?.getAttribute('data-closed'),
+  ).toBe('')
+})
