@@ -16,3 +16,18 @@ export function renderRadioGroupFixture(): string {
     />
   ))
 }
+
+export function renderSparseRadioGroupFixture(): string {
+  return renderToString(() => (
+    <RadioGroup
+      id="plans"
+      name="plan"
+      value="pro"
+      items={[
+        { value: 'basic', description: 'Basic description' },
+        { value: 'pro', label: 'Pro' },
+        { value: 'enterprise' },
+      ]}
+    />
+  ))
+}

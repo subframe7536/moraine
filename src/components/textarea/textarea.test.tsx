@@ -55,18 +55,7 @@ describe('Textarea', () => {
     expect(textarea.getAttribute('data-readonly')).toBe('')
   })
 
-  test.each([
-    ['sm', 'text-xs', 'leading-4', 'px-1.5', 'py-1', 'rounded-sm'],
-    ['md', 'text-sm', 'leading-5', 'px-2', 'py-1.5', 'rounded-md'],
-    ['lg', 'text-base', 'leading-6', 'px-2.5', 'py-2', 'rounded-lg'],
-  ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
-    const screen = render(() => <Textarea size={size} />)
-    const textarea = screen.container.querySelector('[data-slot="textarea"]') as HTMLElement
-
-    classes.forEach((className) => expect(textarea.className).toContain(className))
-  })
-
-  test('applies trim, number, lazy and empty value strategy modifiers', async () => {
+  test('applies trim, lazy and empty value strategy modifiers', async () => {
     const onTrim = vi.fn()
     const onLazy = vi.fn()
     const onPreserve = vi.fn()
@@ -176,7 +165,7 @@ describe('Textarea', () => {
     expect(maxLimited.rows).toBe(3)
   })
 
-  test('measures and schedules autoresize with the textarea owner window', () => {
+  test('measures autoresize with the owner window of an iframe-hosted textarea', () => {
     vi.useFakeTimers()
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
@@ -184,42 +173,31 @@ describe('Textarea', () => {
     const ownerWindow = iframe.contentWindow!
     const container = ownerDocument.createElement('div')
     ownerDocument.body.append(container)
-    const getComputedStyle = vi.spyOn(ownerWindow, 'getComputedStyle').mockReturnValue({
+    vi.spyOn(ownerWindow, 'getComputedStyle').mockReturnValue({
       paddingTop: '4px',
       paddingBottom: '4px',
       lineHeight: '16px',
     } as CSSStyleDeclaration)
-    const globalGetComputedStyle = vi.spyOn(window, 'getComputedStyle')
-    const setTimeout = vi.spyOn(ownerWindow, 'setTimeout')
-    const clearTimeout = vi.spyOn(ownerWindow, 'clearTimeout')
-    const [value, setValue] = createSignal('Initial')
 
-    const screen = render(
-      () => <Textarea value={value()} autoResize autoResizeDelay={25} rows={2} maxRows={4} />,
-      { container, baseElement: ownerDocument.body },
-    )
+    const screen = render(() => <Textarea autoResize rows={2} maxRows={4} />, {
+      container,
+      baseElement: ownerDocument.body,
+    })
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
     Object.defineProperty(textarea, 'scrollHeight', { configurable: true, value: 72 })
 
     expect(textarea.ownerDocument).toBe(ownerDocument)
-    expect(setTimeout).toHaveBeenCalled()
     vi.runAllTimers()
-    expect(getComputedStyle).toHaveBeenCalledWith(textarea)
-    expect(globalGetComputedStyle).not.toHaveBeenCalled()
     expect(textarea.rows).toBe(4)
 
-    setValue('Pending resize')
     screen.unmount()
-    expect(clearTimeout).toHaveBeenCalled()
     iframe.remove()
   })
 
-  test('applies classes.root override', () => {
+  test('applies classes.root to the root element', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="textarea"]')
 
-    expect(root?.className).toContain('focus:ring-ring/50')
-    expect(root?.className).toContain('data-invalid:border-danger')
     expect(root?.className).toContain('root-override')
   })
 
@@ -407,20 +385,24 @@ describe('Textarea', () => {
     expect(textarea.style.overflow).toBe('')
   })
 
-  test('cancels pending autofocus and autoresize timers on unmount', () => {
+  test('does not focus or resize after unmount while timers are pending', () => {
     vi.useFakeTimers()
-    const getComputedStyle = vi.spyOn(window, 'getComputedStyle')
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      paddingTop: '4',
+      paddingBottom: '4',
+      lineHeight: '16',
+    } as CSSStyleDeclaration)
     const screen = render(() => (
-      <Textarea autofocus autofocusDelay={100} autoResize autoResizeDelay={100} />
+      <Textarea autofocus autofocusDelay={100} autoResize autoResizeDelay={100} rows={2} />
     ))
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
     const focus = vi.spyOn(textarea, 'focus')
+    Object.defineProperty(textarea, 'scrollHeight', { configurable: true, value: 200 })
 
     screen.unmount()
-    getComputedStyle.mockClear()
     vi.runAllTimers()
 
     expect(focus).not.toHaveBeenCalled()
-    expect(getComputedStyle).not.toHaveBeenCalled()
+    expect(textarea.rows).toBe(2)
   })
 })

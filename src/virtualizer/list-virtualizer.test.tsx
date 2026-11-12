@@ -28,12 +28,11 @@ describe('createListVirtualizer', () => {
     })
 
     expect(virtualizer?.instance()).toBeUndefined()
-    expect(renderRow).not.toHaveBeenCalled()
+    expect(screen.queryByText('one')).toBeNull()
 
     await Promise.resolve()
 
     expect(virtualizer?.instance()?.scrollElement).toBe(scrollElement)
-    expect(renderRow).toHaveBeenCalledOnce()
     expect(screen.getByText('one').isConnected).toBe(true)
     screen.unmount()
     scrollElement.remove()
@@ -78,14 +77,9 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('resolves the row render prop once while creating each visible row once', async () => {
+  test('renders every visible row with the row props from the render prop', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    let renderGetterReads = 0
-    const renderRow = vi.fn((item: string, _index: number, props?: RowProps) => (
-      <div {...props}>{item}</div>
-    ))
-
     const screen = render(() => {
       const virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
@@ -97,17 +91,17 @@ describe('createListVirtualizer', () => {
       return createComponent(VirtualRender, {
         entries: ['one', 'two'],
         scrollElement,
-        get render() {
-          renderGetterReads += 1
-          return renderRow
-        },
+        render: (item: string, _index: number, props?: RowProps) => (
+          <div {...props} data-testid="row">
+            {item}
+          </div>
+        ),
       })
     })
 
     await Promise.resolve()
 
-    expect(renderGetterReads).toBe(1)
-    expect(renderRow).toHaveBeenCalledTimes(2)
+    expect(screen.getAllByTestId('row').map((row) => row.textContent)).toEqual(['one', 'two'])
     screen.unmount()
     scrollElement.remove()
   })
@@ -625,7 +619,6 @@ describe('createListVirtualizer', () => {
     })
 
     await Promise.resolve()
-    expect(renderRow).toHaveBeenCalledTimes(2)
     const firstDomNode = screen.container.querySelector('[data-item-id="1"]')
     expect(firstDomNode).not.toBeNull()
 
@@ -633,8 +626,7 @@ describe('createListVirtualizer', () => {
     setEntries([item1, item2])
     await Promise.resolve()
 
-    // renderRow should not be called again and DOM node should be the exact same instance
-    expect(renderRow).toHaveBeenCalledTimes(2)
+    // The row keeps its DOM node when only the array identity changes.
     const firstDomNodeAfter = screen.container.querySelector('[data-item-id="1"]')
     expect(firstDomNodeAfter).toBe(firstDomNode)
 

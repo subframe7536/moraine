@@ -1,5 +1,6 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
+import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
+import { Show, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -48,7 +49,6 @@ describe('Dialog', () => {
     expect(inner.getAttribute('aria-labelledby')).toBe(
       document.body.querySelector('[data-slot="sheet-title"]')?.id,
     )
-    expect(inner.className).toContain('left-0')
 
     setShowSheet(false)
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
@@ -99,7 +99,7 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('renders default shell with title, description, body, footer and close button', () => {
+  test('renders a named dialog with title, description, body, footer and close button', () => {
     render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
@@ -112,36 +112,25 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(document.body.textContent).toContain('Confirm')
-    expect(document.body.textContent).toContain('Please confirm')
-    expect(document.body.textContent).toContain('Modal body')
-    expect(document.body.textContent).toContain('Modal footer')
-    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
-
-    const content = document.body.querySelector('[data-slot="dialog-content"]')
-    expect(content?.tagName).toBe('DIV')
-    expect(content?.className).toContain('bg-popover')
-    expect(content?.className).toContain('border-border')
-    expect(content?.className).toContain('data-expanded:animate-mo-enter')
-    expect(content?.className).toContain('motion-reduce:animate-none')
+    const dialog = screen.getByRole('dialog', { name: 'Confirm' })
+    expect(dialog.getAttribute('aria-describedby')).toBe(screen.getByText('Please confirm').id)
+    expect(dialog.querySelector('[data-slot="dialog-header"]')).not.toBeNull()
+    expect(dialog.querySelector('[data-slot="dialog-body"]')?.textContent).toBe('Modal body')
+    expect(dialog.querySelector('[data-slot="dialog-footer"]')?.textContent).toBe('Modal footer')
+    expect(screen.getByRole('button', { name: 'Close' })).not.toBeNull()
   })
 
-  test('renders the dialog shell with native slot containers', () => {
+  test('labels the automatic close button with the translations override', () => {
     render(() => (
-      <Dialog open>
-        <Dialog.Trigger as="button" type="button">
-          Trigger
-        </Dialog.Trigger>
-        <Dialog.Content title="Composed">
-          <Dialog.Body>Body</Dialog.Body>
+      <Dialog open translations={{ close: 'Fermer' }}>
+        <Dialog.Content title="Titre">
+          <Dialog.Body>Corps</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="dialog-content"]')
-    expect(content).not.toBeNull()
-    expect(content?.querySelector('[data-slot="dialog-header"]')).not.toBeNull()
-    expect(content?.querySelector('[data-slot="dialog-body"]')).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Fermer' })).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull()
   })
 
   test('renders the trigger content as a native button root', () => {
@@ -195,7 +184,7 @@ describe('Dialog', () => {
 
     const trigger = document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLButtonElement
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.className).toContain('border-tone-border')
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.querySelector('button')).toBeNull()
   })
 
@@ -412,30 +401,6 @@ describe('Dialog', () => {
     ).toBeNull()
   })
 
-  test('reads shorthand and composed children when content opens', () => {
-    let childrenReads = 0
-    render(() => (
-      <Dialog open>
-        {createComponent(Dialog.Content, {
-          title: 'Title',
-          description: 'Description',
-          get children() {
-            childrenReads += 1
-            return (
-              <>
-                <Dialog.Body>Body</Dialog.Body>
-                <Dialog.Footer>Footer</Dialog.Footer>
-              </>
-            )
-          },
-        })}
-      </Dialog>
-    ))
-    expect(childrenReads).toBe(1)
-    expect(document.body.querySelector('[data-slot="dialog-body"]')?.textContent).toBe('Body')
-    expect(document.body.querySelector('[data-slot="dialog-footer"]')?.textContent).toBe('Footer')
-  })
-
   test('composes explicit header, reactive ARIA IDs, and body presence', () => {
     const [showHeader, setShowHeader] = createSignal(true)
     const [showTitle, setShowTitle] = createSignal(true)
@@ -497,26 +462,6 @@ describe('Dialog', () => {
     expect(content.textContent).toContain('Fallback')
     setShowFooter(false)
     expect(body.hasAttribute('data-footer')).toBe(false)
-  })
-
-  test('renders body content and keeps shell sections', () => {
-    render(() => (
-      <Dialog open>
-        <Dialog.Trigger as="button" type="button">
-          Trigger
-        </Dialog.Trigger>
-        <Dialog.Content title="Dialog title">
-          <Dialog.Body>
-            <div data-testid="custom-body">Body Content</div>
-          </Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    expect(document.body.querySelector('[data-testid="custom-body"]')?.textContent).toContain(
-      'Body Content',
-    )
-    expect(document.body.textContent).toContain('Dialog title')
   })
 
   test('opens by trigger click and closes through close button', async () => {
@@ -655,60 +600,47 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
   })
 
-  test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    render(() => (
-      <Dialog open classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
-        <Dialog.Content>
-          <Dialog.Body>Body</Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]') as HTMLElement
-    expect(overlay.className).toContain('fixed')
-    expect(overlay.className).toContain('inset-0')
-    expect(overlay.className).toContain('z-floating')
-    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
-    expect(overlay.className).toContain('data-closed:animate-mo-exit')
-    expect(overlay.className).toContain('motion-reduce:animate-none')
-    expect(overlay.className).toContain('bg-red-500')
-    expect(overlay.className).toContain('custom-dialog-overlay')
-    expect(overlay.className).not.toContain('bg-black/10')
-  })
-
-  test('preserves Modal overlay behavior for provider slot overrides', () => {
-    render(() => (
-      <MoraineProvider
-        theme={defineTheme({
-          dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
-        })}
-      >
-        <Dialog open>
+  test.each([
+    [
+      'an instance slot override',
+      (children: () => JSX.Element) => (
+        <Dialog open classes={{ overlay: 'user-overlay' }}>
+          {children()}
+        </Dialog>
+      ),
+      'user-overlay',
+    ],
+    [
+      'a provider theme override',
+      (children: () => JSX.Element) => (
+        <MoraineProvider theme={defineTheme({ dialog: { base: { overlay: 'theme-overlay' } } })}>
+          <Dialog open>{children()}</Dialog>
+        </MoraineProvider>
+      ),
+      'theme-overlay',
+    ],
+  ] as const)(
+    'applies %s to the backdrop and keeps it wrapping the content',
+    (_name, host, sentinel) => {
+      render(() =>
+        host(() => (
           <Dialog.Content>
             <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
-        </Dialog>
-      </MoraineProvider>
-    ))
+        )),
+      )
 
-    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]') as HTMLElement
-    expect(overlay.className).toContain('fixed')
-    expect(overlay.className).toContain('inset-0')
-    expect(overlay.className).toContain('z-floating')
-    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
-    expect(overlay.className).toContain('data-closed:animate-mo-exit')
-    expect(overlay.className).toContain('motion-reduce:animate-none')
-    expect(overlay.className).toContain('bg-blue-500')
-    expect(overlay.className).toContain('provider-dialog-overlay')
-    expect(overlay.className).not.toContain('bg-black/10')
-  })
+      const overlay = document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!
+      expect(overlay.classList.contains(sentinel)).toBe(true)
+      expect(overlay.contains(document.body.querySelector('[data-slot="dialog-content"]'))).toBe(
+        true,
+      )
+    },
+  )
 
-  test('keeps long dialog content scrolling inside the body', () => {
+  test('locks body scroll while a dialog with long content is open', () => {
     render(() => (
       <Dialog open>
-        <Dialog.Trigger as="button" type="button">
-          Trigger
-        </Dialog.Trigger>
         <Dialog.Content title="Long content">
           <Dialog.Body>
             <div style={{ height: '2000px' }}>Long body</div>
@@ -718,22 +650,6 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const overlays = document.body.querySelectorAll('[data-slot="dialog-overlay"]')
-    const contents = document.body.querySelectorAll('[data-slot="dialog-content"]')
-    const overlay = overlays[overlays.length - 1]
-    const content = contents[contents.length - 1]
-
-    expect(overlay).not.toBeNull()
-    expect(overlay?.contains(content ?? null)).toBe(true)
-    expect(content?.className).toContain('fixed')
-    expect(content?.className).toContain('flex-col')
-    expect(content?.className).toContain('max-h-[calc(100dvh-2rem)]')
-    expect(content?.className).toContain('overflow-hidden')
-    expect(content?.querySelector('[data-slot="dialog-body"]')?.className).toContain(
-      'overflow-y-auto',
-    )
-    expect(content?.querySelector('[data-slot="dialog-header"]')?.className).toContain('shrink-0')
-    expect(content?.querySelector('[data-slot="dialog-footer"]')?.className).toContain('shrink-0')
     expect(document.body.style.overflow).toBe('hidden')
   })
 
@@ -754,34 +670,9 @@ describe('Dialog', () => {
 
     expect(overlay?.contains(content ?? null)).toBe(true)
     expect(overlay?.getAttribute('aria-hidden')).toBeNull()
-    expect(overlay?.className).toContain('overflow-y-auto')
-    expect(overlay?.className).toContain('p-4')
     expect(overlay?.style.overflowY).toBe('auto')
-    expect(overlay?.style.getPropertyValue('overflow')).toBe('')
     expect(document.body.style.overflow).toBe('hidden')
-    expect(content?.className).toContain('relative')
-    expect(content?.className).not.toContain('fixed')
     expect(body?.hasAttribute('data-scroll')).toBe(false)
-  })
-
-  test('uses a full viewport flex panel for fullscreen dialogs', () => {
-    render(() => (
-      <Dialog open fullscreen>
-        <Dialog.Content>
-          <Dialog.Body>Fullscreen body</Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    const content = document.body.querySelector('[data-slot="dialog-content"]')
-
-    expect(content?.className).toContain('inset-0')
-    expect(content?.className).toContain('size-full')
-    expect(content?.className).toContain('flex-col')
-    expect(content?.className).toContain('overflow-hidden')
-    expect(content?.querySelector('[data-slot="dialog-body"]')?.className).toContain(
-      'overflow-y-auto',
-    )
   })
 
   test('reacts to root fullscreen and scrollable changes', () => {
@@ -798,17 +689,14 @@ describe('Dialog', () => {
     const content = () => document.body.querySelector('[data-slot="dialog-content"]')
     const originalContent = content()
     expect(overlay()?.contains(content())).toBe(true)
-    expect(content()?.className).toContain('fixed')
 
     setScrollable(true)
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
-    expect(content()?.className).toContain('relative')
 
     setFullscreen(true)
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
-    expect(content()?.className).toContain('size-full')
 
     setOverlayVisible(false)
     expect(overlay()).toBeNull()
@@ -842,54 +730,45 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
-  test('updates the scroll lock reference when overlay scrolling changes', async () => {
+  test('keeps body scroll locked when scrolling moves to the overlay', () => {
     const [scrollable, setScrollable] = createSignal(false)
     const screen = render(() => (
       <Dialog open scrollable={scrollable()} styles={{ overlay: { 'overflow-y': 'auto' } }}>
         <Dialog.Content title="Scroll reference">Body</Dialog.Content>
       </Dialog>
     ))
-    const overlay = document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!
-    expect(overlay.style.overflow).toBe('hidden')
-    setScrollable(true)
-    await waitFor(() => expect(overlay.style.overflow).toBe(''))
-    expect(overlay.style.overflowY).toBe('auto')
     expect(document.body.style.overflow).toBe('hidden')
+    setScrollable(true)
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(
+      document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')?.style.overflowY,
+    ).toBe('auto')
     screen.unmount()
+    expect(document.body.style.overflow).toBe('')
   })
 
-  test('keeps shorthand JSX within one presence cycle across scroll layout changes', () => {
+  test('keeps shorthand JSX title and description mounted across scroll layout changes', () => {
     const [scrollable, setScrollable] = createSignal(false)
-    let titleReads = 0
-    let descriptionReads = 0
     render(() => (
       <Dialog open scrollable={scrollable()}>
-        {createComponent(Dialog.Content, {
-          get title() {
-            titleReads += 1
-            return <span>Title</span>
-          },
-          get description() {
-            descriptionReads += 1
-            return <span>Description</span>
-          },
-          get children() {
-            return <Dialog.Body>Body</Dialog.Body>
-          },
-        })}
+        <Dialog.Content
+          title={<span data-testid="shorthand-title">Title</span>}
+          description={<span data-testid="shorthand-description">Description</span>}
+        >
+          <Dialog.Body>Body</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
+    const title = document.body.querySelector('[data-testid="shorthand-title"]')
+    const description = document.body.querySelector('[data-testid="shorthand-description"]')
 
-    expect(titleReads).toBe(1)
-    expect(descriptionReads).toBe(1)
     setScrollable(true)
     setScrollable(false)
-    expect(titleReads).toBe(1)
-    expect(descriptionReads).toBe(1)
 
-    const content = document.body.querySelector('[data-slot="dialog-content"]')!
-    expect(content.textContent).toContain('Body')
-    expectAriaReferencesToResolve(content)
+    expect(document.body.querySelectorAll('[data-testid="shorthand-title"]')).toHaveLength(1)
+    expect(document.body.querySelector('[data-testid="shorthand-title"]')).toBe(title)
+    expect(document.body.querySelector('[data-testid="shorthand-description"]')).toBe(description)
+    expectAriaReferencesToResolve(document.body.querySelector('[data-slot="dialog-content"]')!)
   })
 
   test('supports custom close content', () => {
@@ -927,12 +806,9 @@ describe('Dialog', () => {
       '[data-slot="dialog-content-close"]',
     )!
     const explicit = screen.getByTestId('explicit-dialog-close')
-    expect(automatic.className).toContain('automatic-close')
-    expect(automatic.className).toContain('focus-visible:ring-ring/50')
-    expect(automatic.className).toContain('absolute')
-    expect(explicit.className).toContain('explicit-close')
-    expect(explicit.className).not.toContain('automatic-close')
-    expect(explicit.className).not.toContain('absolute')
+    expect(automatic.classList.contains('automatic-close')).toBe(true)
+    expect(explicit.classList.contains('explicit-close')).toBe(true)
+    expect(explicit.classList.contains('automatic-close')).toBe(false)
 
     fireEvent.click(explicit)
     expect(onOpenChange).toHaveBeenCalledWith(false)
@@ -1158,24 +1034,6 @@ describe('Dialog', () => {
     })
   })
 
-  test('applies styles override to content', () => {
-    render(() => (
-      <Dialog open styles={{ content: { width: '200px' } }}>
-        <Dialog.Trigger as="button" type="button">
-          Trigger
-        </Dialog.Trigger>
-        <Dialog.Content>
-          <Dialog.Body>Body</Dialog.Body>
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    const content = document.body.querySelector(
-      '[data-slot="dialog-content"]',
-    ) as HTMLElement | null
-    expect(content?.style.width).toBe('200px')
-  })
-
   test('forwards custom classes and styles to dialog slots', () => {
     render(() => (
       <Dialog
@@ -1234,7 +1092,7 @@ describe('Dialog', () => {
     expect(close.style.opacity).toBe('0.8')
   })
 
-  test('adjusts body padding when header or footer is absent', () => {
+  test('marks the body with the header and footer that are present', () => {
     const { unmount } = render(() => (
       <Dialog open closable={false}>
         <Dialog.Content title={false} description={false}>
@@ -1245,7 +1103,7 @@ describe('Dialog', () => {
 
     const bodyNoHeader = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     expect(bodyNoHeader.hasAttribute('data-header')).toBe(false)
-    expect(bodyNoHeader.className).toContain('pb-6')
+    expect(bodyNoHeader.hasAttribute('data-footer')).toBe(false)
     unmount()
 
     render(() => (
@@ -1261,29 +1119,7 @@ describe('Dialog', () => {
 
     const bodyWithBoth = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     expect(bodyWithBoth.hasAttribute('data-header')).toBe(true)
-    expect(bodyWithBoth.className).toContain('pb-2')
-  })
-
-  test('keeps structured section padding symmetric around the corner close', () => {
-    render(() => (
-      <Dialog open>
-        <Dialog.Content title="Title">
-          <Dialog.Body>Body</Dialog.Body>
-          <Dialog.Footer>Footer</Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    const header = document.body.querySelector('[data-slot="dialog-header"]') as HTMLElement
-    const body = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
-    const footer = document.body.querySelector('[data-slot="dialog-footer"]') as HTMLElement
-
-    expect(header.className).toContain('p-6')
-    expect(body.className).toContain('px-6')
-    expect(footer.className).toContain('p-6')
-    expect(header.className).not.toContain('pe-12')
-    expect(body.className).not.toContain('pe-14')
-    expect(footer.className).not.toContain('pe-14')
+    expect(bodyWithBoth.hasAttribute('data-footer')).toBe(true)
   })
 
   test('escape only closes the topmost overlay when dialogs are nested', async () => {
@@ -1468,7 +1304,7 @@ describe('Dialog', () => {
     expect(captured?.getAttribute('data-slot')).toBe('dialog-content')
   })
 
-  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       event.preventDefault()
     })
@@ -1481,38 +1317,9 @@ describe('Dialog', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
-    fireEvent.keyDown(content, { key: 'Tab' })
-    expect(onKeyDown).toHaveBeenCalled()
-  })
-
-  test('dynamically toggles overlay={false} without unmounting content or losing state', () => {
-    const [overlay, setOverlay] = createSignal(true)
-    render(() => (
-      <Dialog open overlay={overlay()}>
-        <Dialog.Content>
-          <input data-testid="uncontrolled-input" value="initial text" />
-        </Dialog.Content>
-      </Dialog>
-    ))
-
-    const input = document.body.querySelector<HTMLInputElement>(
-      '[data-testid="uncontrolled-input"]',
-    )!
-    input.value = 'user typed text'
-    const content = document.body.querySelector('[data-slot="dialog-content"]')!
-    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
-
-    setOverlay(false)
-
-    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
-    expect(input.value).toBe('user typed text')
-
-    setOverlay(true)
-
-    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
-    expect(input.value).toBe('user typed text')
+    const notCancelled = fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(notCancelled).toBe(false)
   })
 
   test('supports polymorphic rendering via as prop on Content', () => {

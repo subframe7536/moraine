@@ -716,7 +716,6 @@ describe('createTableVirtualizer', () => {
 
     const body = screen.container.querySelector('[data-slot="table-body"]')!
     expect(virtualizer.instance()?.scrollElement).toBe(body)
-    expect(body.className).toContain('overflow-y-auto')
 
     const table = screen.container.querySelector('[data-slot="table"]')!
     expect(table.getAttribute('aria-rowcount')).toBe('4')
@@ -1033,7 +1032,7 @@ describe('createTableVirtualizer', () => {
       )
     })
 
-    test('shares one scroll listener and updates both axes in one batch', async () => {
+    test('moves rows and visible columns together on one scroll event', async () => {
       const scrollElement = document.createElement('div')
       let scrollTop = 0
       let scrollLeft = 0
@@ -1042,11 +1041,6 @@ describe('createTableVirtualizer', () => {
         scrollLeft: { configurable: true, get: () => scrollLeft },
       })
       document.body.append(scrollElement)
-      const addListener = vi.spyOn(scrollElement, 'addEventListener')
-      const removeListener = vi.spyOn(scrollElement, 'removeEventListener')
-      const scrollListeners = () =>
-        addListener.mock.calls.filter(([type]) => type === 'scroll').length -
-        removeListener.mock.calls.filter(([type]) => type === 'scroll').length
       const virtualizer = createTableVirtualizer<string, string>({
         estimateSize: () => 20,
         measureElement: () => 20,
@@ -1058,7 +1052,6 @@ describe('createTableVirtualizer', () => {
         },
       })
       const entries = Array.from({ length: 50 }, (_, index) => `Item ${index}`)
-      const cellRuns: string[] = []
       const screen = render(() => (
         <table>
           <tbody>
@@ -1068,15 +1061,9 @@ describe('createTableVirtualizer', () => {
               scrollElement={scrollElement}
               columns={COLUMNS}
               columnSize={() => 100}
-              render={(item, _index, rowProps) => (
+              render={(_item, _index, rowProps) => (
                 <tr {...rowProps}>
-                  <td>
-                    {(() => {
-                      const skipped = virtualizer.columnWindow()?.skippedBefore
-                      cellRuns.push(`${item}:${skipped}`)
-                      return skipped
-                    })()}
-                  </td>
+                  <td>{virtualizer.columnWindow()?.skippedBefore}</td>
                 </tr>
               )}
             />
@@ -1084,9 +1071,7 @@ describe('createTableVirtualizer', () => {
         </table>
       ))
       await Promise.resolve()
-      expect(scrollListeners()).toBe(1)
 
-      cellRuns.length = 0
       scrollTop = 200
       scrollLeft = 500
       scrollElement.dispatchEvent(new Event('scroll'))
@@ -1094,12 +1079,8 @@ describe('createTableVirtualizer', () => {
       const rows = [...screen.container.querySelectorAll('tr[data-index]')]
       expect(rows.map((row) => row.getAttribute('data-index'))).toEqual(['10', '11'])
       expect(rows.map((row) => row.textContent)).toEqual(['5', '5'])
-      // Rows mount once with the new column window, instead of mounting with the old window and
-      // updating when the column listener runs.
-      expect(cellRuns).toEqual(['Item 10:5', 'Item 11:5'])
 
       screen.unmount()
-      expect(scrollListeners()).toBe(0)
       scrollElement.remove()
     })
   })

@@ -76,7 +76,7 @@ describe('DataTable', () => {
     expect(screen.getByText('Charlie')).toBeDefined()
   })
 
-  it('supports column and global filtering without unregistered filterFn warnings', () => {
+  it('filters rows by column value and by global filter', () => {
     createRoot((dispose) => {
       const warnSpy = vi.spyOn(console, 'warn')
       const table = createPersonTable()
@@ -95,7 +95,7 @@ describe('DataTable', () => {
     })
   })
 
-  it('handles client-side sorting from the table instance', () => {
+  it('sorts rows when a column header is clicked, toggling direction', () => {
     render(() => {
       const table = createPersonTable()
       return <DataTable table={table} />
@@ -123,7 +123,7 @@ describe('DataTable', () => {
     expect(rows[3]?.textContent).toContain('Alice')
   })
 
-  it('handles multiple row selection when selection="multiple"', () => {
+  it('selects rows with checkboxes, and selected rows carry data-selected', () => {
     render(() => {
       const table = createPersonTable({
         selection: 'multiple',
@@ -148,7 +148,7 @@ describe('DataTable', () => {
     expect(bodyRows[1]?.hasAttribute('data-selected')).toBe(true)
   })
 
-  it('renders default empty state when dataset is empty', () => {
+  it('shows the default empty message when there are no rows', () => {
     render(() => {
       const table = createPersonTable({ data: [] })
       return <DataTable table={table} />
@@ -157,7 +157,7 @@ describe('DataTable', () => {
     expect(screen.getByText('No results.')).toBeDefined()
   })
 
-  it('renders custom emptyRender when dataset is empty', () => {
+  it('renders emptyRender in place of the empty message, with the column count', () => {
     render(() => {
       const table = createPersonTable({ data: [] })
       return (
@@ -175,16 +175,16 @@ describe('DataTable', () => {
     expect(empty.textContent).toBe('Custom empty message (cols: 3)')
   })
 
-  it('renders loading overlay when loading={true}', () => {
+  it('shows the loading overlay while loading', () => {
     const { container } = render(() => {
       const table = createPersonTable()
       return <DataTable table={table} loading />
     })
 
-    expect(container.querySelector('[data-slot="data-table-loading"]')).toBeDefined()
+    expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
   })
 
-  it('does not render pagination toolbar by default, and renders it when pagination is enabled', () => {
+  it('shows the pagination toolbar only when pagination is enabled', () => {
     const { container, unmount } = render(() => {
       const table = createPersonTable()
       return <DataTable table={table} />
@@ -211,8 +211,8 @@ describe('DataTable', () => {
     expect(screen.queryByRole('button', { name: /\/ page/i })).toBeNull()
   })
 
-  it('supports remote pagination with rowCount and manual', () => {
-    render(() => {
+  it('uses rowCount as the total for remote pagination', () => {
+    const { container } = render(() => {
       const table = createPersonTable({
         pagination: true,
         manual: true,
@@ -222,10 +222,12 @@ describe('DataTable', () => {
     })
 
     expect(screen.getByRole('navigation')).toBeDefined()
-    expect(screen.getByText('10')).toBeDefined()
+    expect(container.querySelector('[data-slot="data-table-pagination"]')?.textContent).toContain(
+      '100 rows',
+    )
   })
 
-  it('dispatches onPaginationChange with resolved value and pageIndex 0 on pageSize change without data cascades', async () => {
+  it('resets to page 0 with the resolved state when the page size changes, and ignores data-only updates', async () => {
     const onPaginationChange = vi.fn()
     const [data, setData] = createSignal(TEST_DATA)
     const [pagination, setPagination] = createSignal({ pageIndex: 2, pageSize: 5 })
@@ -263,7 +265,7 @@ describe('DataTable', () => {
     expect(onPaginationChange).not.toHaveBeenCalled()
   })
 
-  it('toggles pagination reactively without recreating the table instance', async () => {
+  it('shows and hides the pagination toolbar reactively, keeping the same table', async () => {
     const [paginated, setPaginated] = createSignal(false)
     const { container } = render(() => {
       const table = createPersonTable({
@@ -293,7 +295,7 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row').length).toBe(4)
   })
 
-  it('adds and removes the selection column reactively', () => {
+  it('adds and removes the selection column as selection changes', () => {
     const [mode, setMode] = createSignal<'multiple' | undefined>(undefined)
     render(() => {
       const table = createPersonTable({
@@ -313,7 +315,7 @@ describe('DataTable', () => {
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
   })
 
-  it('keeps uncontrolled state when only an onSortingChange listener is provided', () => {
+  it('keeps sorting itself when only onSortingChange is provided', () => {
     const onSortingChange = vi.fn()
     render(() => {
       const table = createPersonTable({ onSortingChange })
@@ -333,43 +335,23 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row')[1]?.textContent).toContain('Charlie')
   })
 
-  it('applies custom rowClass function', () => {
+  it('applies the rowClass result to matching rows', () => {
     render(() => {
       const table = createPersonTable()
       return (
         <DataTable
           table={table}
-          rowClass={(row) => (row.original.role === 'Intern' ? 'bg-amber-100' : undefined)}
+          rowClass={(row) => (row.original.role === 'Intern' ? 'user-intern-row' : undefined)}
         />
       )
     })
 
     const rows = screen.getAllByRole('row').slice(1)
-    expect(rows[2]?.className).toContain('bg-amber-100')
-    expect(rows[0]?.className).not.toContain('bg-amber-100')
+    expect(rows[2]?.classList.contains('user-intern-row')).toBe(true)
+    expect(rows[0]?.classList.contains('user-intern-row')).toBe(false)
   })
 
-  it('applies recipe variants such as size, hoverEffect, and showBorder', () => {
-    const { container } = render(() => {
-      const table = createPersonTable()
-      return <DataTable table={table} size="sm" hoverEffect showBorder="both" />
-    })
-
-    const table = container.querySelector('[data-slot="data-table"]')!
-    expect(table.className).toContain('text-xs')
-
-    const head = container.querySelector('[data-slot="data-table-head"]')!
-    expect(head.className).toContain('text-xs')
-
-    const row = container.querySelector(
-      '[data-slot="data-table-body"] [data-slot="data-table-row"]',
-    )!
-    expect(row.className).toContain(
-      '[tbody>&:not([data-selected],[data-empty]):hover]:bg-accent/50',
-    )
-  })
-
-  it('marks expanded display rows and keeps header rows unmarked', () => {
+  it('marks only expanded body rows with data-expanded', () => {
     const { container } = render(() => {
       const table = createPersonTable({
         expandable: true,
@@ -391,7 +373,7 @@ describe('DataTable', () => {
     expect(headerRow.hasAttribute('data-selected')).toBe(false)
   })
 
-  it('marks the empty-state row so row hover styles skip it', () => {
+  it('marks the empty-state row with data-empty', () => {
     const { container } = render(() => {
       const table = createPersonTable({ data: [] })
       return <DataTable table={table} hoverEffect />
@@ -401,7 +383,7 @@ describe('DataTable', () => {
     expect(emptyRow.hasAttribute('data-empty')).toBe(true)
   })
 
-  it('keeps sort controls detached at the end of the header cell', () => {
+  it('keeps the sort button outside the column label, so its name is the label alone', () => {
     const columns: DataTableT.Column<Person>[] = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age', meta: { align: 'right' } },
@@ -414,7 +396,6 @@ describe('DataTable', () => {
     const ageTh = screen.getByText('Age').closest('th')!
     const ageButton = ageTh.querySelector('[data-slot="data-table-sort-button"]')!
     expect(ageButton.contains(screen.getByText('Age'))).toBe(false)
-    expect(ageButton.parentElement?.lastElementChild).toBe(ageButton)
 
     const ageIcon = ageButton.querySelector('[data-slot="data-table-sort-icon"]')!
     expect(ageIcon.hasAttribute('data-sorted')).toBe(false)
@@ -442,7 +423,7 @@ describe('DataTable', () => {
     expect(screen.getByText('Diana')).toBeDefined()
   })
 
-  it('renders all rows when pagination is omitted', () => {
+  it('renders every row when pagination is omitted', () => {
     const twentyRows = Array.from({ length: 20 }, (_, i) => ({
       id: String(i + 1),
       name: `Person ${i + 1}`,
@@ -458,7 +439,7 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row').length).toBe(21)
   })
 
-  it('renders virtualized rows with a table virtualizer', async () => {
+  it('renders only the visible rows of a virtualized table', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
       measureElement: () => 30,
@@ -481,9 +462,6 @@ describe('DataTable', () => {
     await Promise.resolve()
 
     const tbody = container.querySelector('[data-slot="data-table-body"]')!
-    const spacers = tbody.querySelectorAll<HTMLTableRowElement>('tr[aria-hidden="true"]')
-    expect(spacers.length).toBe(2)
-
     const renderedRows = tbody.querySelectorAll('tr[data-index]')
     expect(renderedRows.length).toBeLessThan(50)
     expect(renderedRows.length).toBeGreaterThan(0)
@@ -492,7 +470,7 @@ describe('DataTable', () => {
     expect(table.getAttribute('aria-rowcount')).toBe('51')
   })
 
-  it('does not render pagination toolbar and warns when virtualizer is combined with pagination', () => {
+  it('hides pagination and warns when a virtualizer is combined with it', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
@@ -518,10 +496,13 @@ describe('DataTable', () => {
       observeElementOffset: (_instance, callback) => callback(0, false),
       overscan: 0,
     })
-    let table!: DataTableT.Instance<Person>
 
     const { container } = render(() => {
-      table = createPersonTable({ data: manyPeople(25), pagination: true, selection: 'multiple' })
+      const table = createPersonTable({
+        data: manyPeople(25),
+        pagination: true,
+        selection: 'multiple',
+      })
       return <DataTable table={table} virtualizer={virtualizer} />
     })
     await Promise.resolve()
@@ -531,11 +512,13 @@ describe('DataTable', () => {
 
     // The first checkbox is the select-all header.
     fireEvent.click(screen.getAllByRole('checkbox')[0]!)
-    expect(Object.keys(table.atoms.rowSelection?.get() ?? {}).length).toBe(25)
+    const rowBoxes = screen.getAllByRole('checkbox').slice(1)
+    expect(rowBoxes).toHaveLength(25)
+    expect(rowBoxes.every((box) => box.getAttribute('aria-checked') === 'true')).toBe(true)
     warnSpy.mockRestore()
   })
 
-  it('keeps rendering when filtering shrinks virtualized rows', async () => {
+  it('keeps the visible rows in sync when filtering shrinks a virtualized table', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 10,
       measureElement: () => 10,
@@ -575,15 +558,12 @@ describe('DataTable', () => {
       return <DataTable table={table} />
     })
 
-    const [parent] = table.getRowModel().rows
-    expect(parent!.getCanExpand()).toBe(true)
-    expect(parent!.subRows[0]!.getCanExpand()).toBe(false)
-
-    parent!.toggleExpanded()
+    expect(screen.queryByText('Child')).toBeNull()
+    table.getRowModel().rows[0]!.toggleExpanded()
     expect(screen.getByText('Child')).toBeDefined()
   })
 
-  it('applies provider theme overrides through the dataTable theme key', () => {
+  it('applies provider theme overrides to the table root', () => {
     render(() => {
       const table = createPersonTable()
       return (
@@ -593,10 +573,12 @@ describe('DataTable', () => {
       )
     })
 
-    expect(document.querySelector('[data-slot="data-table"]')!.className).toContain('p-theme-root')
+    expect(
+      document.querySelector('[data-slot="data-table"]')!.classList.contains('p-theme-root'),
+    ).toBe(true)
   })
 
-  it('handles single row selection when selection="single"', () => {
+  it('selects one row at a time with radio buttons when selection="single"', () => {
     render(() => {
       const table = createPersonTable({
         selection: 'single',
@@ -622,7 +604,7 @@ describe('DataTable', () => {
     expect(bodyRows.map((row) => row.hasAttribute('data-selected'))).toEqual([false, true, false])
   })
 
-  it('renders selection checkboxes with the shared check control and a mixed select-all state', () => {
+  it('selects every row from a mixed select-all state', () => {
     const { container } = render(() => {
       const table = createPersonTable({ selection: 'multiple' })
       return <DataTable table={table} size="lg" classes={{ checkbox: 'custom-checkbox' }} />
@@ -633,8 +615,7 @@ describe('DataTable', () => {
     expect(selectAll!.getAttribute('aria-checked')).toBe('false')
     expect(firstRow!.getAttribute('aria-label')).toBe('Select row')
     expect(firstRow!.getAttribute('data-slot')).toBe('data-table-checkbox')
-    expect(firstRow!.className).toContain('size-4.5')
-    expect(firstRow!.className).toContain('custom-checkbox')
+    expect(firstRow!.classList.contains('custom-checkbox')).toBe(true)
     // The lightweight control renders no form input per row.
     expect(container.querySelector('input[type="checkbox"]')).toBeNull()
 
@@ -699,7 +680,7 @@ describe('DataTable', () => {
     expect(radios.map((radio) => radio.disabled)).toEqual([false, false, true])
   })
 
-  it('respects canSelectRow to disable selection on specific rows', () => {
+  it('does not select a row that canSelectRow rejects', () => {
     render(() => {
       const table = createPersonTable({
         selection: 'multiple',
@@ -718,7 +699,7 @@ describe('DataTable', () => {
     expect(bodyRows[2]?.hasAttribute('data-selected')).toBe(false)
   })
 
-  it('applies sticky styles to th and supports maxHeight', () => {
+  it('sticks header cells and bounds the scroll height with maxHeight', () => {
     const { container } = render(() => {
       const table = createPersonTable()
       return <DataTable table={table} sticky maxHeight={300} />
@@ -727,9 +708,6 @@ describe('DataTable', () => {
     const scrollDiv = container.querySelector('[data-slot="data-table-scroll"]') as HTMLElement
     expect(scrollDiv.style.maxHeight).toBe('300px')
     expect(scrollDiv.style.overflowY).toBe('auto')
-
-    const table = container.querySelector('table') as HTMLElement
-    expect(table.className).toContain('border-separate')
 
     // The section sticks, so grouped header rows stack inside it instead of overlapping.
     const thead = container.querySelector<HTMLElement>('thead')!
@@ -740,7 +718,6 @@ describe('DataTable', () => {
     for (const th of ths) {
       expect(th.style.position).toBe('')
       expect(th.style.top).toBe('')
-      expect(th.className).toContain('bg-background')
     }
   })
 
@@ -788,7 +765,7 @@ describe('DataTable', () => {
     ).toBe(true)
   })
 
-  it('sticks footer cells to the bottom when sticky includes footer', () => {
+  it('sticks the footer with sticky=true, and only the footer with sticky="footer"', () => {
     const footerColumns: DataTableT.Column<Person>[] = [
       { accessorKey: 'name', header: 'Name', footer: 'Total' },
       { accessorKey: 'age', header: 'Age' },
@@ -818,7 +795,7 @@ describe('DataTable', () => {
     expect(headerSection.style.position).toBe('')
   })
 
-  it('supports columnPinning with sticky position and pixel offsets', () => {
+  it('pins start and end columns with sticky offsets and edge markers', () => {
     const pinnedCols: DataTableT.Column<Person>[] = [
       {
         accessorKey: 'name',
@@ -859,10 +836,6 @@ describe('DataTable', () => {
     expect(nameTd!.style.position).toBe('sticky')
     expect(nameTd!.style.left).toBe('0px')
     expect(nameTd!.getAttribute('data-pinned')).toBe('start')
-    expect(nameTd!.className).toContain('data-pinned:bg-background')
-    expect(nameTd!.className).toContain(
-      'data-[pinned-edge=start]:shadow-[inset_-1px_0_0_var(--border)]',
-    )
     expect(ageTd!.hasAttribute('data-pinned-edge')).toBe(false)
   })
 
@@ -908,11 +881,10 @@ describe('DataTable', () => {
     expect(Number(pinnedTh!.style.zIndex)).toBeGreaterThan(0)
     expect(plainTh!.style.zIndex).toBe('')
 
-    const loading = container.querySelector('[data-slot="data-table-loading"]')!
-    expect(loading.className).toContain('z-40')
+    expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
   })
 
-  it('renders column resize handles when resizable is true', () => {
+  it('shows a resize handle on every column when resizable', () => {
     const { container } = render(() => {
       const table = createPersonTable({ resizable: true })
       return <DataTable table={table} />
@@ -922,7 +894,7 @@ describe('DataTable', () => {
     expect(resizers.length).toBe(TEST_COLUMNS.length)
   })
 
-  it('supports expandable rows with expandable and expandedRowRender', async () => {
+  it('expands a row to show its detail content, and collapses it after the exit animation', async () => {
     render(() => {
       const table = createPersonTable({
         expandable: true,
@@ -949,10 +921,6 @@ describe('DataTable', () => {
     const wrapper = document.querySelector(
       '[data-slot="data-table-expanded-content"]',
     ) as HTMLElement
-    expect(wrapper.className).toContain('data-expanded:animate-accordion-down')
-    expect(wrapper.className).toContain('data-closed:animate-accordion-up')
-    expect(wrapper.style.animation).not.toBe('none')
-    expect(wrapper.style.height).not.toBe('auto')
 
     fireEvent.click(expandButtons[0]!)
     await Promise.resolve()
@@ -995,7 +963,7 @@ describe('DataTable', () => {
     expect(headers.slice(1)).toEqual(['Role', 'Name', 'Age'])
   })
 
-  it('applies the expandButton slot to expand toggles', () => {
+  it('applies the expandButton class slot to expand toggles', () => {
     render(() => {
       const table = createPersonTable({
         expandable: true,
@@ -1010,8 +978,7 @@ describe('DataTable', () => {
     })
 
     const [button] = screen.getAllByRole('button', { name: /expand row/i })
-    expect(button!.className).toContain('custom-expand')
-    expect(button!.className).toContain('data-expanded:rotate-90')
+    expect(button!.classList.contains('custom-expand')).toBe(true)
   })
 
   it('does not emit onRowClick when a selection checkbox is clicked', () => {
@@ -1135,7 +1102,7 @@ describe('DataTable', () => {
     expect((ths[1] as HTMLElement).style.width).toBe('120px')
   })
 
-  it('supports translations overrides on DataTable', () => {
+  it('localizes table text through the translations prop', () => {
     render(() => {
       const table = createPersonTable({
         data: [],
@@ -1164,10 +1131,10 @@ describe('DataTable', () => {
     expect(screen.getByRole('button', { name: '10 par page' })).toBeDefined()
   })
 
-  it('keeps top-level state and callbacks authoritative over tableOptions', () => {
-    createRoot((dispose) => {
-      const onSortingChange = vi.fn()
-      const escapeHatchSortingChange = vi.fn()
+  it('lets top-level options win over the same settings in tableOptions', () => {
+    const onSortingChange = vi.fn()
+    const escapeHatchSortingChange = vi.fn()
+    render(() => {
       const table = createPersonTable({
         pagination: { pageSize: 25 },
         initialState: { sorting: [{ id: 'name', desc: false }] },
@@ -1179,30 +1146,45 @@ describe('DataTable', () => {
           enableSorting: false,
         } as DataTableT.Options<Person>['tableOptions'],
       })
-
-      expect(table.atoms.sorting?.get()).toEqual([{ id: 'name', desc: false }])
-      expect(table.atoms.pagination?.get().pageSize).toBe(25)
-      expect(table.getColumn('name')!.getCanSort()).toBe(true)
-
-      table.getColumn('age')!.toggleSorting(false)
-      expect(onSortingChange).toHaveBeenCalledWith([{ id: 'age', desc: false }])
-      expect(escapeHatchSortingChange).not.toHaveBeenCalled()
-      dispose()
+      return <DataTable table={table} />
     })
+
+    // The top-level initial sort (ascending) applies, so Alice is first.
+    expect(screen.getAllByRole('row')[1]?.textContent).toContain('Alice')
+    expect(screen.getByRole('button', { name: /25 \/ page/i })).toBeDefined()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Name Sorted ascending' }))
+    expect(onSortingChange).toHaveBeenCalledWith([{ id: 'name', desc: true }])
+    expect(escapeHatchSortingChange).not.toHaveBeenCalled()
   })
 
-  it('still forwards tableOptions that have no top-level option', () => {
-    createRoot((dispose) => {
+  it('forwards tableOptions for settings without a top-level option', () => {
+    const { container } = render(() => {
       const table = createPersonTable({
         resizable: true,
+        columns: [{ accessorKey: 'name', header: 'Name', size: 100 }],
         tableOptions: { columnResizeMode: 'onEnd' },
       })
-      expect(table.options.columnResizeMode).toBe('onEnd')
-      dispose()
+      return <DataTable table={table} />
     })
+
+    const th = container.querySelector<HTMLElement>('thead th')!
+    const resizer = th.querySelector('[data-slot="data-table-resizer"]')!
+    resizer.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX: 100 }),
+    )
+    document.dispatchEvent(
+      new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: 160 }),
+    )
+    // onEnd keeps the width until the drag is released.
+    expect(th.style.width).toBe('100px')
+    document.dispatchEvent(
+      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+    )
+    expect(th.style.width).toBe('160px')
   })
 
-  it('lets a column with a derived reserved id replace the generated column instead of duplicating it', () => {
+  it('lets a derived reserved id replace the generated column, with a warning', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     createRoot((dispose) => {
       interface Flagged {
@@ -1230,7 +1212,7 @@ describe('DataTable', () => {
     warnSpy.mockRestore()
   })
 
-  it('replaces the generated column silently for an explicit reserved id', () => {
+  it('replaces the generated select column for an explicit id, without a warning', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     createRoot((dispose) => {
       const table = createPersonTable({
@@ -1396,11 +1378,14 @@ describe('DataTable', () => {
   })
 
   it('does not cap column widths when the table is not resizable', () => {
-    createRoot((dispose) => {
-      const table = createPersonTable({ columns: [{ accessorKey: 'name', size: 1500 }] })
-      expect(table.getColumn('name')!.getSize()).toBe(1500)
-      dispose()
+    const { container } = render(() => {
+      const table = createPersonTable({
+        columns: [{ accessorKey: 'name', header: 'Name', size: 1500 }],
+      })
+      return <DataTable table={table} />
     })
+
+    expect(container.querySelector<HTMLElement>('thead th')!.style.width).toBe('1500px')
   })
 
   it('names each sort button after its column', () => {
@@ -1512,7 +1497,7 @@ describe('DataTable', () => {
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
   })
 
-  describe('review fixes', () => {
+  describe('column groups, pinned edges, and select-all', () => {
     const GROUPED_COLUMNS: DataTableT.Column<Person>[] = [
       {
         id: 'grp',
@@ -1592,7 +1577,7 @@ describe('DataTable', () => {
       expect(edges()).toEqual(['start', null])
     })
 
-    it('shows a mixed checkbox on a tree parent with some selected sub-rows', () => {
+    it('shows a mixed checkbox on a tree parent with some selected sub-rows, and clears them together', () => {
       interface Node {
         id: string
         name: string
@@ -1619,19 +1604,20 @@ describe('DataTable', () => {
         })
         return <DataTable table={table} />
       })
-      const parentBox = () =>
-        screen.getByText('Parent').closest('tr')!.querySelector('[role="checkbox"]')!
+      const box = (name: string) =>
+        screen.getByText(name).closest('tr')!.querySelector('[role="checkbox"]')!
 
-      expect(parentBox().getAttribute('aria-checked')).toBe('false')
-      table.getRow('parent.a').toggleSelected(true)
-      expect(parentBox().getAttribute('aria-checked')).toBe('mixed')
-      table.getRow('parent.b').toggleSelected(true)
-      expect(parentBox().getAttribute('aria-checked')).toBe('true')
+      expect(box('Parent').getAttribute('aria-checked')).toBe('false')
+      fireEvent.click(box('Child A'))
+      expect(box('Parent').getAttribute('aria-checked')).toBe('mixed')
+      fireEvent.click(box('Child B'))
+      expect(box('Parent').getAttribute('aria-checked')).toBe('true')
 
       // Clearing the parent clears its sub-rows.
-      fireEvent.click(parentBox())
-      expect(Object.keys(table.atoms.rowSelection?.get() ?? {})).toEqual([])
-      expect(parentBox().getAttribute('aria-checked')).toBe('false')
+      fireEvent.click(box('Parent'))
+      expect(box('Parent').getAttribute('aria-checked')).toBe('false')
+      expect(box('Child A').getAttribute('aria-checked')).toBe('false')
+      expect(box('Child B').getAttribute('aria-checked')).toBe('false')
     })
 
     it('names select-all after the current page while the pagination toolbar shows', () => {
@@ -1933,7 +1919,7 @@ describe('DataTable', () => {
       expect(summary(container)).toBe('1 row')
     })
 
-    it('switches between the selection and row counts as rows are selected', () => {
+    it('switches the pagination summary between row count and selection count as rows are selected', () => {
       let table!: DataTableT.Instance<Person>
       const { container } = render(() => {
         table = createPersonTable({ pagination: true, selection: 'multiple' })
@@ -1942,10 +1928,10 @@ describe('DataTable', () => {
 
       expect(summary(container)).toBe('3 rows')
 
-      table.getRow('1').toggleSelected(true)
+      fireEvent.click(screen.getAllByRole('checkbox')[1]!)
       expect(summary(container)).toBe('1 of 3 selected')
 
-      table.getRow('1').toggleSelected(false)
+      fireEvent.click(screen.getAllByRole('checkbox')[1]!)
       expect(summary(container)).toBe('3 rows')
     })
 
@@ -2134,7 +2120,7 @@ describe('DataTable', () => {
       return [...row.querySelectorAll('td[data-tree]')].map((cell) => cell.textContent ?? '')
     }
 
-    it('declares the row depth on sub-rows and marks only their tree cell', () => {
+    it('indents sub-rows by depth and marks only their tree cell', () => {
       const { container } = render(() => {
         const table = createTreeTable()
         return <DataTable table={table} />

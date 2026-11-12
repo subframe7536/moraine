@@ -50,17 +50,6 @@ describe('Input', () => {
     expect(input.getAttribute('data-disabled')).toBe('')
   })
 
-  test('pairs the ghost accent background with its foreground on hover and focus', () => {
-    const screen = render(() => <Input variant="ghost" />)
-    const classes = screen.getByRole('textbox').className.split(/\s+/)
-
-    for (const state of ['hover', 'focus-within']) {
-      expect(classes).toContain(`${state}:bg-accent-hover`)
-      expect(classes).toContain(`${state}:text-accent-foreground`)
-    }
-    expect(classes).toContain('text-foreground')
-  })
-
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Input readOnly />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
@@ -70,43 +59,6 @@ describe('Input', () => {
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(root?.getAttribute('data-readonly')).toBe('')
     expect(input.getAttribute('data-readonly')).toBe('')
-  })
-
-  test('uses the Nuxt UI input density scale for every size', () => {
-    const screen = render(() => (
-      <>
-        <Input size="sm" />
-        <Input size="md" />
-        <Input size="lg" />
-      </>
-    ))
-    const roots = screen.container.querySelectorAll('[data-slot="input"]')
-    const rootClasses = Array.from(roots).map((root) => root.className.split(/\s+/))
-    const inputs = screen.getAllByRole('textbox')
-    const inputClasses = inputs.map((input) => input.className.split(/\s+/))
-
-    const expectedRootClasses = [
-      ['text-xs', 'h-7'],
-      ['text-sm', 'h-8'],
-      ['text-base', 'h-9'],
-    ]
-    const expectedInputClasses = [
-      ['leading-4', 'px-1.5', 'py-1'],
-      ['leading-5', 'px-2', 'py-1.5'],
-      ['leading-6', 'px-2.5', 'py-2'],
-    ]
-
-    expectedRootClasses.forEach((classes, index) => {
-      classes.forEach((className) => {
-        expect(rootClasses[index]).toContain(className)
-      })
-    })
-
-    expectedInputClasses.forEach((classes, index) => {
-      classes.forEach((className) => {
-        expect(inputClasses[index]).toContain(className)
-      })
-    })
   })
 
   test('applies trim modifier', async () => {
@@ -618,13 +570,10 @@ describe('Input', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(12)
   })
 
-  test('applies classes.root override', () => {
+  test('applies classes.root to the root element', () => {
     const screen = render(() => <Input classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="input"]')
 
-    expect(root?.className).toContain('focus:ring-ring/50')
-    expect(root?.className).toContain('data-invalid:border-danger')
-    expect(root?.className).toContain('focus:data-invalid:border-danger')
     expect(root?.className).toContain('root-override')
   })
 

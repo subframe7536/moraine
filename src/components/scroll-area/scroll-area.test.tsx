@@ -40,8 +40,6 @@ describe('ScrollArea', () => {
     expect(root.children).toHaveLength(1)
     expect(root.contains(screen.getByRole('button'))).toBe(true)
     expect(ref).toHaveBeenCalledWith(root)
-    expect(root.className).toContain('overflow-y-auto')
-    expect(root.className).not.toContain('mask-image')
     setDimensions(root, { clientHeight: 100, scrollHeight: 300 })
     root.scrollTop = 50
     fireEvent.scroll(root)
@@ -150,8 +148,6 @@ describe('ScrollArea', () => {
 
     setOrientation('horizontal')
     await waitFor(() => expectEdges(root, false, true))
-    expect(root.className).toContain('overflow-x-auto')
-    expect(root.className).toContain('[scrollbar-width:none]')
     setShadowSize(24)
     expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('24px')
 
@@ -164,7 +160,6 @@ describe('ScrollArea', () => {
     setVisibility('both')
     setShadow(false)
     expectEdges(root, false, false)
-    expect(root.className).not.toContain('mask-image')
     setVisibility('auto')
     setShadow(true)
     await waitFor(() => expectEdges(root, false, true))
@@ -227,7 +222,7 @@ describe('ScrollArea', () => {
       scrollArea: {
         defaultVariants: { shadow: true },
         base: {
-          root: 'rounded-lg',
+          root: 'theme-scroll-root',
           '--scroll-area-shadow-size': '18px',
           '--scroll-area-shadow-start': 'transparent, black 12px',
           '--scroll-area-shadow-end': 'black calc(100% - 12px), transparent',
@@ -252,7 +247,7 @@ describe('ScrollArea', () => {
     setDimensions(root, { clientHeight: 100, scrollHeight: 300 })
     await waitFor(() => expectEdges(root, false, true))
     expect(root.tabIndex).toBe(-1)
-    expect(root.className).toContain('rounded-lg')
+    expect(root.className).toContain('theme-scroll-root')
     expect(root.className).toContain('custom-root')
     expect(root.style.height).toBe('100px')
     expect(root.style.width).toBe('200px')

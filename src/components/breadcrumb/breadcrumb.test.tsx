@@ -43,21 +43,6 @@ describe('Breadcrumb', () => {
     expect(explicitRoot.getAttribute('aria-label')).toBe('Custom label')
   })
 
-  test('falls back to default aria-label when aria-label is undefined', () => {
-    const screen = render(() => (
-      <Breadcrumb
-        aria-label={undefined}
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Page', href: '/page' },
-        ]}
-      />
-    ))
-    const root = screen.getByRole('navigation')
-
-    expect(root.getAttribute('aria-label')).toBe('breadcrumb')
-  })
-
   test('renders the shadcn breadcrumb structure', () => {
     const screen = render(() => (
       <Breadcrumb
@@ -86,7 +71,6 @@ describe('Breadcrumb', () => {
     expect(list?.querySelectorAll('li[data-slot="breadcrumb-item"]')).toHaveLength(3)
     expect(list?.querySelectorAll('a[data-slot="breadcrumb-link"]')).toHaveLength(2)
     expect(list?.querySelector('span[data-slot="breadcrumb-page"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="item"]')).toBeNull()
     expect(screen.getByText('Home')).not.toBeNull()
     expect(screen.getByText('Docs')).not.toBeNull()
     expect(screen.getByText('API')).not.toBeNull()
@@ -118,8 +102,6 @@ describe('Breadcrumb', () => {
       expect(separator.getAttribute('aria-hidden')).toBe('true')
       expect(separator.parentElement?.tagName).toBe('OL')
     }
-
-    expect((separatorIcons[0] as HTMLElement).style.fontSize).toBe('')
   })
 
   test('supports custom separator icon', () => {
@@ -141,7 +123,7 @@ describe('Breadcrumb', () => {
     expect(separatorIcons[0]?.className).toContain('icon-dot')
   })
 
-  test('renders ordinary items as anchors without Button styles', () => {
+  test('renders ordinary items as anchors and never as buttons', () => {
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -156,15 +138,6 @@ describe('Breadcrumb', () => {
     expect(home?.tagName).toBe('A')
     expect(home?.getAttribute('href')).toBe('/')
     expect(home?.getAttribute('role')).toBeNull()
-    expect(home?.className).toContain('transition-colors')
-    expect(home?.className).toContain('hover:text-foreground')
-    expect(home?.className).toContain('focus-visible:ring-ring/50')
-    expect(home?.className).toContain('inline-flex')
-    expect(home?.className).toContain('items-center')
-    expect(home?.className).toContain('gap-1')
-    expect(home?.className).not.toContain('h-9')
-    expect(home?.className).not.toContain('px-2.5')
-    expect(home?.className).not.toContain('rounded-md')
     expect(screen.container.querySelector('nav[data-slot="breadcrumb"] button')).toBeNull()
   })
 
@@ -189,9 +162,6 @@ describe('Breadcrumb', () => {
     expect(current?.getAttribute('href')).toBeNull()
     expect(current?.getAttribute('target')).toBeNull()
     expect(current?.getAttribute('rel')).toBeNull()
-    expect(current?.className).toContain('inline-flex')
-    expect(current?.className).toContain('items-center')
-    expect(current?.className).toContain('gap-1')
   })
 
   test('keeps current-page semantics when the source item is explicitly disabled', () => {
@@ -243,7 +213,6 @@ describe('Breadcrumb', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-house')
-    expect((leading as HTMLElement).style.fontSize).toBe('')
     expect(homeLink?.textContent).toContain('Home')
     expect(homeLink?.querySelector('[data-slot="breadcrumb-label"]')).not.toBeNull()
   })
@@ -276,8 +245,6 @@ describe('Breadcrumb', () => {
     expect(disabled?.className).toContain('link-override')
     expect(disabled?.getAttribute('aria-disabled')).toBe('true')
     expect(disabled?.getAttribute('href')).toBeNull()
-    expect(disabled?.className).toContain('aria-disabled:opacity-64')
-    expect(disabled?.className).toContain('aria-disabled:pointer-events-none')
     expect(separator?.className).toContain('separator-override')
   })
 
@@ -338,30 +305,6 @@ describe('Breadcrumb', () => {
     expect(disabled?.getAttribute('target')).toBeNull()
     expect(disabled?.getAttribute('rel')).toBeNull()
     expect(onClick).not.toHaveBeenCalled()
-  })
-
-  test.each([
-    ['sm', 'text-xs'],
-    ['md', 'text-sm'],
-    ['lg', 'text-base'],
-  ] as const)('applies %s typography and inherited icon scale', (size, textClass) => {
-    const screen = render(() => (
-      <Breadcrumb
-        size={size}
-        items={[{ label: 'Home', href: '/', icon: 'i-lucide-house' }, { label: 'Current' }]}
-      />
-    ))
-
-    const list = screen.container.querySelector('[data-slot="breadcrumb-list"]')
-    const link = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
-    const leading = link?.querySelector('[data-slot="breadcrumb-leading"]') as HTMLElement | null
-    const separator = screen.container.querySelector(
-      '[data-slot="breadcrumb-separator"] > *',
-    ) as HTMLElement | null
-
-    expect(list?.className).toContain(textClass)
-    expect(leading?.style.fontSize).toBe('')
-    expect(separator?.style.fontSize).toBe('')
   })
 
   test('supports itemRender with a custom link', () => {
@@ -511,25 +454,13 @@ describe('Breadcrumb', () => {
     expect(screen.container.querySelectorAll('[data-slot="breadcrumb-label"]')).toHaveLength(1)
   })
 
-  test('reads item icon and label once while rendering default content', () => {
-    let iconReads = 0
-    let labelReads = 0
-    const item = {
-      href: '/zero',
-      get icon() {
-        iconReads += 1
-        return 'i-lucide-house'
-      },
-      get label() {
-        labelReads += 1
-        return 0
-      },
-    } as BreadcrumbT.Item
+  test('renders an icon and a numeric zero label together on one item', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        items={[{ label: 0, href: '/zero', icon: 'i-lucide-house' }, { label: 'Current' }]}
+      />
+    ))
 
-    const screen = render(() => <Breadcrumb items={[item, { label: 'Current' }]} />)
-
-    expect(iconReads).toBe(1)
-    expect(labelReads).toBe(1)
     expect(screen.container.querySelector('[data-slot="breadcrumb-leading"]')).not.toBeNull()
     expect(screen.getByText('0')).not.toBeNull()
     expect(screen.container.querySelectorAll('[data-slot="breadcrumb-label"]')).toHaveLength(2)

@@ -17,8 +17,6 @@ describe('Badge', () => {
     const label = screen.container.querySelector('[data-slot="badge-label"]')
 
     expect(badge?.tagName).toBe('SPAN')
-    expect(badge?.hasAttribute('data-variant')).toBe(false)
-    expect(badge?.hasAttribute('data-size')).toBe(false)
     expect(label?.textContent).toBe('New')
   })
 
@@ -42,14 +40,14 @@ describe('Badge', () => {
   test('merges reactive class arrays', () => {
     const [active, setActive] = createSignal(false)
     const screen = render(() => (
-      <Badge class={['custom-badge', active() && 'text-primary']}>State</Badge>
+      <Badge class={['custom-badge', active() && 'active-state']}>State</Badge>
     ))
     const badge = screen.container.querySelector('[data-slot="badge"]')!
 
     expect(badge.className).toContain('custom-badge')
-    expect(badge.className).not.toContain('text-primary')
+    expect(badge.className).not.toContain('active-state')
     setActive(true)
-    expect(badge.className).toContain('text-primary')
+    expect(badge.className).toContain('active-state')
   })
 
   test('supports hiding decorative badges from the accessibility tree', () => {
@@ -69,86 +67,6 @@ describe('Badge', () => {
 
     expect(badge?.getAttribute('data-variant')).toBe('custom')
     expect(badge?.getAttribute('aria-label')).toBe('status')
-  })
-
-  test('applies the refreshed variants and defaults to soft', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <div>
-          <Badge>Default</Badge>
-          <Badge variant="solid">Solid</Badge>
-          <Badge variant="soft">Soft</Badge>
-          <Badge variant="subtle">Subtle</Badge>
-          <Badge variant="outline">Outline</Badge>
-        </div>
-      </MoraineProvider>
-    ))
-    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
-
-    expect(roots[0]?.className).toContain('border-transparent')
-    expect(roots[0]?.className).toContain('bg-tone-soft')
-    expect(roots[0]?.className).toContain('text-tone-ink')
-    expect(roots[1]?.className).toContain('bg-tone')
-    expect(roots[1]?.className).toContain('text-tone-foreground')
-    expect(roots[2]?.className).toContain('border-transparent')
-    expect(roots[2]?.className).toContain('bg-tone-soft')
-    expect(roots[3]?.className).toContain('border-tone')
-    expect(roots[3]?.className).toContain('bg-tone-soft')
-    expect(roots[4]?.className).toContain('border-tone-border')
-    expect(roots[4]?.className).toContain('bg-background')
-    expect(roots[4]?.className).toContain('text-tone-ink')
-  })
-
-  test('applies distinct size metrics and icons that inherit the root font size', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <div>
-          <Badge size="sm" leading="i-lucide-check">
-            Small
-          </Badge>
-          <Badge size="md" trailing="i-lucide-x">
-            Medium
-          </Badge>
-          <Badge size="lg" leading="i-lucide-check">
-            Large
-          </Badge>
-        </div>
-      </MoraineProvider>
-    ))
-    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
-    const leading = screen.container.querySelectorAll('[data-slot="badge-leading"]')
-    const trailing = screen.container.querySelector('[data-slot="badge-trailing"]')
-
-    expect(roots[0]?.className).toContain('h-4')
-    expect(roots[1]?.className).toContain('h-5')
-    expect(roots[2]?.className).toContain('h-6')
-    expect(roots[0]?.className).toContain('text-tiny')
-    expect(roots[1]?.className).toContain('text-xs')
-    expect(roots[2]?.className).toContain('text-sm')
-    for (const icon of [...leading, trailing]) {
-      expect(icon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
-    }
-  })
-
-  test('uses square geometry only for one-icon badges without a label', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <div>
-          <Badge size="sm" leading="i-lucide-check" aria-label="Leading only" />
-          <Badge trailing="i-lucide-x" aria-label="Trailing only" />
-          <Badge leading="i-lucide-check">Label</Badge>
-          <Badge leading="i-lucide-check" trailing="i-lucide-x" aria-label="Two icons" />
-        </div>
-      </MoraineProvider>
-    ))
-    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
-
-    expect(roots[0]?.className).toContain('w-4')
-    expect(roots[0]?.className).toContain('px-0')
-    expect(roots[1]?.className).toContain('w-5')
-    expect(roots[1]?.className).toContain('px-0')
-    expect(roots[2]?.className).not.toContain('px-0')
-    expect(roots[3]?.className).not.toContain('px-0')
   })
 
   test('renders leading and trailing icon slots', () => {

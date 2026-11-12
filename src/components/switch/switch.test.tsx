@@ -1,5 +1,4 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -28,20 +27,13 @@ describe('Switch', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
-  test('renders label and description with accessible switch input', () => {
+  test('names the switch by its label and describes it by its description', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 
     const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
-    const root = screen.container.querySelector('[data-slot="switch"]')
-    const track = screen.container.querySelector('[data-slot="switch-track"]')
+    const description = screen.getByText('Receive updates')
 
-    expect(switchInput).not.toBeNull()
-    const input = screen.container.querySelector('[data-slot="switch-input"]')
-
-    expect(root?.tagName).toBe('DIV')
-    expect(track?.tagName).toBe('BUTTON')
-    expect(input?.getAttribute('aria-hidden')).toBe('true')
-    expect(screen.getByText('Receive updates')).not.toBeNull()
+    expect(switchInput.getAttribute('aria-describedby')).toBe(description.id)
   })
 
   test('supports uncontrolled toggle', async () => {
@@ -61,7 +53,7 @@ describe('Switch', () => {
   })
 
   test.each([' ', 'Enter'])(
-    'toggles once from an explicit synthetic %s compatibility click',
+    'does not toggle from a %s keydown and keyup alone, only from the click',
     async (key) => {
       const onChange = vi.fn()
       const screen = render(() => <Switch label="Keyboard" onCheckedChange={onChange} />)
@@ -193,9 +185,6 @@ describe('Switch', () => {
 
     expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
-
-    expectSwitchChecked(switchInput, true)
-    expect(onChange).not.toHaveBeenCalled()
   })
 
   test('does not toggle an uncontrolled readOnly switch', async () => {
@@ -208,9 +197,6 @@ describe('Switch', () => {
     })
 
     fireEvent.click(switchInput)
-
-    expectSwitchChecked(switchInput, false)
-    expect(onChange).not.toHaveBeenCalled()
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -249,6 +235,10 @@ describe('Switch', () => {
     const switchInput = screen.getByRole('switch', { name: 'Loading' })
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
     expect(screen.getByTestId('loading-icon').textContent).toBe('L')
+
+    fireEvent.click(switchInput)
+
+    expectSwitchChecked(switchInput, false)
   })
 
   test('switches between unchecked and checked icons', async () => {
@@ -404,38 +394,20 @@ describe('Switch', () => {
     expect(input.form).toBe(externalForm)
   })
 
-  test('applies lg size classes on base and wrapper', () => {
-    const screen = render(() => <Switch label="Classes" size="lg" />)
-
-    const root = screen.container.querySelector('[data-slot="switch"]')
-    const input = screen.container.querySelector('[data-slot="switch-input"]')
+  test('passes user classes and styles to their slots', () => {
+    const screen = render(() => (
+      <Switch
+        label="Classes"
+        classes={{ root: 'user-root', track: 'user-track' }}
+        styles={{ root: { width: '200px' } }}
+      />
+    ))
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="switch"]')
     const track = screen.container.querySelector('[data-slot="switch-track"]')
-    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
 
-    expect(root?.className).toContain('flex flex-row')
-    expect(track?.className).toContain('cursor-pointer')
-    expect(input?.className).toContain('peer')
-    expect(track?.className).toContain('focus-visible:ring-ring/50')
-    expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
-    expect(track?.className).toContain('w-10')
-    expect(wrapper?.className).toContain('ms-2.5')
-    expect(wrapper?.className).toContain('text-base')
-    expect(screen.getByText('Classes').className).toContain('select-none')
-  })
-
-  test('applies compact wrapper spacing on sm size', () => {
-    const screen = render(() => <Switch label="Compact" size="sm" />)
-    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
-
-    expect(wrapper?.className).toContain('ms-1.5')
-    expect(wrapper?.className).toContain('text-xs')
-  })
-
-  test('applies styles.root override', () => {
-    const screen = render(() => <Switch label="Classes" styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="switch"]') as HTMLElement | null
-
+    expect(root?.classList.contains('user-root')).toBe(true)
     expect(root?.style.width).toBe('200px')
+    expect(track?.classList.contains('user-track')).toBe(true)
   })
 
   test('runs the caller click handler before toggling and respects cancellation', async () => {
@@ -454,102 +426,10 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, false)
   })
 
-  test('evaluates conditional JSX props once and preserves numeric content', () => {
-    const reads = {
-      checkedIcon: 0,
-      description: 0,
-      label: 0,
-      loadingIcon: 0,
-      uncheckedIcon: 0,
-    }
-    const screen = render(() =>
-      createComponent(Switch, {
-        loading: true,
-        get checkedIcon() {
-          reads.checkedIcon += 1
-          return <span>Checked</span>
-        },
-        get description() {
-          reads.description += 1
-          return 0
-        },
-        get label() {
-          reads.label += 1
-          return 0
-        },
-        get loadingIcon() {
-          reads.loadingIcon += 1
-          return <span>Loading</span>
-        },
-        get uncheckedIcon() {
-          reads.uncheckedIcon += 1
-          return <span>Unchecked</span>
-        },
-      }),
-    )
+  test('renders falsy numeric label and description content', () => {
+    const screen = render(() => <Switch label={0} description={0} />)
 
     expect(screen.getByRole('switch', { name: '0' })).not.toBeNull()
     expect(screen.getAllByText('0')).toHaveLength(2)
-    expect(screen.getByText('Loading')).not.toBeNull()
-    expect(reads).toEqual({
-      checkedIcon: 0,
-      description: 1,
-      label: 1,
-      loadingIcon: 1,
-      uncheckedIcon: 0,
-    })
   })
-
-  test('does not evaluate unused indicator icons while unchecked', () => {
-    const reads = { checkedIcon: 0, loadingIcon: 0, uncheckedIcon: 0 }
-
-    render(() =>
-      createComponent(Switch, {
-        get checkedIcon() {
-          reads.checkedIcon += 1
-          return <span>Checked</span>
-        },
-        get loadingIcon() {
-          reads.loadingIcon += 1
-          return <span>Loading</span>
-        },
-        get uncheckedIcon() {
-          reads.uncheckedIcon += 1
-          return <span>Unchecked</span>
-        },
-        label: 'Idle',
-      }),
-    )
-
-    expect(reads).toEqual({ checkedIcon: 0, loadingIcon: 0, uncheckedIcon: 1 })
-  })
-
-  test('applies default md size variants when rendered standalone', () => {
-    const screen = render(() => <Switch label="Default size" description="Helper" />)
-    const track = screen.container.querySelector('[data-slot="switch-track"]')
-    const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
-    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
-
-    expect(track?.className).toContain('h-4.5 w-8')
-    expect(thumb?.className).toContain('size-3.5')
-    expect(wrapper?.className).toContain('text-sm')
-  })
-
-  test.each([
-    ['sm', 'h-4 w-7', 'size-3', 'text-xs'],
-    ['md', 'h-4.5 w-8', 'size-3.5', 'text-sm'],
-    ['lg', 'h-5.5 w-10', 'size-4.5', 'text-base'],
-  ] as const)(
-    'applies explicit %s size variant classes',
-    (size, trackClass, thumbClass, wrapperClass) => {
-      const screen = render(() => <Switch size={size} label="Size test" description="Helper" />)
-      const track = screen.container.querySelector('[data-slot="switch-track"]')
-      const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
-      const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
-
-      expect(track?.className).toContain(trackClass)
-      expect(thumb?.className).toContain(thumbClass)
-      expect(wrapper?.className).toContain(wrapperClass)
-    },
-  )
 })

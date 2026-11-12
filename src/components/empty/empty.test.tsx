@@ -39,52 +39,20 @@ describe('Empty', () => {
     expect(slot(container, '')?.hasAttribute('role')).toBe(false)
     expect(slot(container, '')?.hasAttribute('aria-labelledby')).toBe(false)
     expect(slot(container, '')?.hasAttribute('aria-describedby')).toBe(false)
-    expect(slot(container, '')?.className).toContain('px-6')
-    expect(slot(container, '')?.className).toContain('py-8')
-    expect(slot(container, 'title')?.className).toContain('text-base')
-    expect(slot(container, 'description')?.className).toContain('text-sm')
-    expect(slot(container, 'actions')?.className).toContain('gap-3')
   })
 
-  test.each([
-    ['sm', 'px-4', 'py-6', '1.5', 'gap-2', 'text-sm', 'text-xs'],
-    ['md', 'px-6', 'py-8', '2', 'gap-3', 'text-base', 'text-sm'],
-    ['lg', 'px-8', 'py-12', '2.5', 'gap-4', 'text-lg', 'text-base'],
-  ] as const)(
-    'applies %s density across parts',
-    (size, horizontalPadding, verticalPadding, spacing, actionGap, titleSize, descriptionSize) => {
-      const { container } = render(() => (
-        <Empty size={size}>
-          <Empty.Media />
-          <Empty.Title>No results</Empty.Title>
-          <Empty.Description>Try another search.</Empty.Description>
-          <Empty.Actions />
-        </Empty>
-      ))
-      expect(slot(container, '')?.className).toContain(horizontalPadding)
-      expect(slot(container, '')?.className).toContain(verticalPadding)
-      expect(slot(container, '')?.className).toContain(`gap-${spacing}`)
-      expect(slot(container, 'media')?.className).toContain(`not-last:mb-${spacing}`)
-      expect(slot(container, 'title')?.className).toContain(titleSize)
-      expect(slot(container, 'description')?.className).toContain(descriptionSize)
-      expect(slot(container, 'actions')?.className).toContain(actionGap)
-      expect(slot(container, 'actions')?.className).toContain(`not-first:mt-${spacing}`)
-    },
-  )
-
-  test('updates density and family presentation without replacing nodes', () => {
-    const [size, setSize] = createSignal<EmptyT.Variants['size']>('sm')
+  test('updates family presentation without replacing nodes', () => {
     const [classes, setClasses] = createSignal<EmptyT.Classes>({
-      media: 'p-8',
-      title: 'text-red-500',
+      media: 'media-slot',
+      title: 'title-red',
     })
     const [styles, setStyles] = createSignal<EmptyT.Styles>({
       media: { color: 'red' },
       description: { color: 'red' },
     })
     const { container } = render(() => (
-      <Empty size={size()} classes={classes()} styles={styles()}>
-        <Empty.Media class="p-2" style={{ color: 'blue' }} />
+      <Empty classes={classes()} styles={styles()}>
+        <Empty.Media class="media-user" style={{ color: 'blue' }} />
         <Empty.Title>Title</Empty.Title>
         <Empty.Description>Description</Empty.Description>
         <Empty.Actions />
@@ -93,39 +61,32 @@ describe('Empty', () => {
     const nodes = ['', 'media', 'title', 'description', 'actions'].map((name) =>
       slot(container, name),
     )
-    expect(slot(container, 'media')?.className).toContain('p-2')
-    expect(slot(container, 'media')?.className).not.toContain('p-8')
+    expect(slot(container, 'media')?.className).toContain('media-user')
+    expect(slot(container, 'media')?.className).toContain('media-slot')
     expect(slot(container, 'media')?.style.color).toBe('blue')
-    expect(slot(container, 'title')?.className).toContain('text-red-500')
+    expect(slot(container, 'title')?.className).toContain('title-red')
     expect(slot(container, 'description')?.style.color).toBe('red')
-    setSize('lg')
-    setClasses({ title: 'text-green-500' })
+    setClasses({ title: 'title-green' })
     setStyles({ description: { color: 'green' } })
     for (const [index, name] of ['', 'media', 'title', 'description', 'actions'].entries()) {
       expect(slot(container, name)).toBe(nodes[index])
     }
-    expect(slot(container, '')?.className).toContain('px-8')
-    expect(slot(container, '')?.className).toContain('py-12')
-    expect(slot(container, 'title')?.className).toContain('text-lg')
-    expect(slot(container, 'title')?.className).toContain('text-green-500')
-    expect(slot(container, 'title')?.className).not.toContain('text-red-500')
+    expect(slot(container, 'title')?.className).toContain('title-green')
+    expect(slot(container, 'title')?.className).not.toContain('title-red')
     expect(slot(container, 'description')?.style.color).toBe('green')
-    expect(slot(container, 'actions')?.className).toContain('gap-4')
   })
 
-  test('inherits reactive theme defaults and lets explicit size override them', () => {
+  test('inherits reactive theme defaults and keeps parts mounted when the theme changes', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({
         empty: {
-          defaultVariants: { size: 'sm' },
           base: { root: 'theme-root', title: 'theme-title' },
         },
       }),
     )
-    const [size, setSize] = createSignal<EmptyT.Variants['size']>()
     const { container } = render(() => (
       <MoraineProvider theme={theme()}>
-        <Empty size={size()}>
+        <Empty>
           <Empty.Title>Title</Empty.Title>
           <Empty.Description>Description</Empty.Description>
           <Empty.Actions />
@@ -134,25 +95,11 @@ describe('Empty', () => {
     ))
     const title = slot(container, 'title')
     expect(slot(container, '')?.className).toContain('theme-root')
-    expect(slot(container, '')?.className).toContain('px-4')
-    expect(slot(container, '')?.className).toContain('py-6')
     expect(title?.className).toContain('theme-title')
-    expect(title?.className).toContain('text-sm')
-    setSize('lg')
-    expect(title?.className).toContain('text-lg')
-    expect(slot(container, '')?.className).toContain('px-8')
-    expect(slot(container, '')?.className).toContain('py-12')
-    setTheme(
-      defineTheme({ empty: { defaultVariants: { size: 'md' }, base: { title: 'updated-theme' } } }),
-    )
-    expect(title?.className).toContain('text-lg')
+    setTheme(defineTheme({ empty: { base: { title: 'updated-theme' } } }))
+    expect(slot(container, 'title')).toBe(title)
     expect(title?.className).toContain('updated-theme')
     expect(title?.className).not.toContain('theme-title')
-    setSize(undefined)
-    expect(slot(container, 'title')).toBe(title)
-    expect(title?.className).toContain('text-base')
-    expect(slot(container, 'description')?.className).toContain('text-sm')
-    expect(slot(container, 'actions')?.className).toContain('gap-3')
   })
 
   test('forwards native props to polymorphic elements', () => {

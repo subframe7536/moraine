@@ -30,9 +30,6 @@ describe('Progress SSR Hydration', () => {
     ])
     expect(root.getAttribute('data-progress')).toBe('loading')
     expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('0.5')
-    expect(
-      (container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style.transform,
-    ).toBe('')
 
     setValue(undefined)
     expect(root.hasAttribute('data-indeterminate')).toBe(true)

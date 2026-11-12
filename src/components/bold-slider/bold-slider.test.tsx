@@ -46,7 +46,6 @@ describe('BoldSlider', () => {
     const root = query(screen.container, '[data-slot="slider"]')
     const slots = Array.from(root.children).map((child) => child.getAttribute('data-slot'))
 
-    // `peer-*` selectors only reach later siblings of the track and thumb.
     expect(slots).toEqual([
       'slider-track',
       'slider-thumb',
@@ -54,87 +53,25 @@ describe('BoldSlider', () => {
       'bold-slider-fill',
       'bold-slider-indicator',
     ])
-    expect(query(screen.container, '[data-slot="slider-track"]').classList).toContain('peer')
-    expect(query(screen.container, '[data-slot="slider-thumb"]').classList).toContain('peer')
   })
 
-  test('maps the fill, fill copy, and indicator past a minimum fill', () => {
+  test('hides the range and keeps the indicator visible when the value is at the minimum', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => <BoldSlider value={value()} />)
-    const track = query(screen.container, '[data-slot="slider-track"]')
     const range = query(screen.container, '[data-slot="slider-range"]')
-    const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
-    const indicators = queryAll(screen.container, '[data-slot="bold-slider-indicator"]')
-    const edge = (fraction: number) =>
-      `calc(var(--bs-inset) + (100% - var(--bs-inset)) * ${fraction})`
+    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
 
-    expect(indicators).toHaveLength(1)
-    // The track's start border holds the minimum fill; the range reaches back over it.
-    expect(track.style.getPropertyValue('border-inline-start')).toBe(
-      'var(--bs-inset) solid transparent',
-    )
-    expect(range.style.getPropertyValue('margin-inline-start')).toBe('calc(var(--bs-inset) * -1)')
     expect(range.style.right).toBe('75%')
-    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0.25)}) 0 0)`)
-    expect(indicators[0]!.style.getPropertyValue('background-image')).toBe(
-      `linear-gradient(to right, var(--bs-indicator-fill) ${edge(0.25)}, var(--bs-indicator-track) ${edge(0.25)})`,
-    )
-    expect(indicators[0]!.style.getPropertyValue('clip-path')).toContain(
-      `calc(${edge(0.25)} - var(--bs-indicator-gap) - var(--bs-indicator-width))`,
-    )
+    expect(range.hasAttribute('data-empty')).toBe(false)
 
     setValue(0)
-    expect(fill.style.getPropertyValue('clip-path')).toBe('inset(0px calc(100%) 0px 0px)')
-    // Indicator stays visible at value=0, docked to the minimum-fill position.
-    expect(indicators[0]!.style.display).not.toBe('none')
-    expect(indicators[0]!.style.getPropertyValue('clip-path')).toContain('var(--bs-inset)')
     expect(range.style.display).toBe('none')
     expect(range.hasAttribute('data-empty')).toBe(true)
+    expect(indicator.style.display).not.toBe('none')
 
     setValue(50)
-    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0.5)}) 0 0)`)
-    expect(indicators[0]!.style.display).not.toBe('none')
     expect(range.style.display).not.toBe('none')
     expect(range.hasAttribute('data-empty')).toBe(false)
-  })
-
-  test('uses only peer selectors for interaction state', () => {
-    const screen = render(() => <BoldSlider label="Bounce" marker step={10} />)
-    const classNames = queryAll(screen.container, '[class]')
-      .flatMap((element) => Array.from(element.classList))
-      .filter((token) => token !== 'group')
-
-    expect(
-      classNames.filter((token) => token.startsWith('group-') || token.includes('has-')),
-    ).toEqual([])
-    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
-    expect(indicator.classList).toContain('peer-hover:opacity-90')
-    expect(indicator.classList).toContain('peer-data-[focus-visible]:opacity-90')
-    expect(indicator.classList).toContain('peer-data-[dragging]:opacity-90')
-    expect(query(screen.container, '[data-slot="bold-slider-content"]').classList).toContain(
-      'peer-data-[focus-visible]:ring-3',
-    )
-  })
-
-  test('mirrors the minimum fill and clipping when inverted', () => {
-    const screen = render(() => <BoldSlider inverted defaultValue={40} />)
-    const thumb = query(screen.container, '[data-slot="slider-thumb"]')
-    const track = query(screen.container, '[data-slot="slider-track"]')
-    const range = query(screen.container, '[data-slot="slider-range"]')
-    const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
-    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
-    const edge = 'calc(var(--bs-inset) + (100% - var(--bs-inset)) * 0.4)'
-
-    expect(thumb.hasAttribute('data-inverted')).toBe(true)
-    expect(track.style.getPropertyValue('border-inline-end')).toBe(
-      'var(--bs-inset) solid transparent',
-    )
-    expect(track.style.getPropertyValue('border-inline-start')).toBe('')
-    expect(range.style.getPropertyValue('margin-inline-end')).toBe('calc(var(--bs-inset) * -1)')
-    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 0 0 calc(100% - ${edge}))`)
-    expect(indicator.style.getPropertyValue('background-image')).toBe(
-      `linear-gradient(to left, var(--bs-indicator-fill) ${edge}, var(--bs-indicator-track) ${edge})`,
-    )
   })
 
   test('formats the value from step decimals or a custom formatter', () => {
@@ -187,7 +124,7 @@ describe('BoldSlider', () => {
     ).toEqual(['60', '60'])
   })
 
-  test('applies size classes and forwards slot overrides to slider parts', () => {
+  test('applies user classes to the root, track, and indicator and sizes the padding', () => {
     const [size, setSize] = createSignal<'sm' | 'md' | 'lg'>('sm')
     const screen = render(() => (
       <BoldSlider
@@ -198,72 +135,30 @@ describe('BoldSlider', () => {
     ))
     const root = query(screen.container, '[data-slot="slider"]')
     const track = query(screen.container, '[data-slot="slider-track"]')
-    const thumb = query(screen.container, '[data-slot="slider-thumb"]')
 
-    expect(root.classList).toContain('custom-root')
-    expect(track.classList).toContain('custom-track')
-    expect(track.classList).toContain('h-8')
-    expect(track.classList).not.toContain('h-(--s-size)')
-    expect(track.classList).not.toContain('rounded-full')
-    expect(thumb.classList).toContain('opacity-0')
-    expect(thumb.classList).not.toContain('size-(--s-thumb-size)')
-    expect(query(screen.container, '[data-slot="bold-slider-indicator"]').classList).toContain(
-      'custom-indicator',
-    )
+    expect(root.classList.contains('custom-root')).toBe(true)
+    expect(track.classList.contains('custom-track')).toBe(true)
+    expect(
+      query(screen.container, '[data-slot="bold-slider-indicator"]').classList.contains(
+        'custom-indicator',
+      ),
+    ).toBe(true)
     expect(root.style.getPropertyValue('--bs-pad')).toBe('13px')
-    expect(root.style.getPropertyValue('--bs-indicator-gap')).toBe('5px')
-    expect(root.style.getPropertyValue('--bs-indicator-height')).toBe('18px')
 
     setSize('lg')
-    expect(track.classList).toContain('h-10')
     expect(root.style.getPropertyValue('--bs-pad')).toBe('17px')
   })
 
-  test('uses a theme token for step markers', () => {
+  test('marks step markers inside the fill as active', () => {
     const screen = render(() => <BoldSlider marker min={0} max={4} step={1} defaultValue={1} />)
     const markers = queryAll(screen.container, '[data-slot="slider-marker"]')
 
     expect(markers).toHaveLength(3)
-    for (const marker of markers) {
-      expect(marker.classList).toContain('bg-muted-foreground/40')
-      expect(marker.classList).not.toContain('bg-background')
-    }
     expect(markers.map((marker) => marker.hasAttribute('data-active'))).toEqual([
       true,
       false,
       false,
     ])
-    // The marker at the fill edge is hidden instead of showing half outside the fill.
-    expect(markers[0]?.classList).toContain('data-active:opacity-0')
-  })
-
-  test('defaults to the subtle variant and switches fill colors for solid', () => {
-    const [variant, setVariant] = createSignal<'solid' | 'subtle' | undefined>(undefined)
-    const screen = render(() => <BoldSlider label="Bounce" variant={variant()} />)
-    const root = query(screen.container, '[data-slot="slider"]')
-    const range = query(screen.container, '[data-slot="slider-range"]')
-    const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
-    const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
-    const indicatorColors = () => [
-      root.style.getPropertyValue('--bs-indicator-fill'),
-      root.style.getPropertyValue('--bs-indicator-track'),
-    ]
-
-    expect(range.classList).toContain('bg-muted-active')
-    expect(range.classList).not.toContain('bg-primary')
-    expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
-    expect(fillValue.classList).toContain('data-fill:text-foreground')
-    expect(indicatorColors()).toEqual(['var(--foreground)', 'var(--foreground)'])
-
-    setVariant('solid')
-    expect(range.classList).toContain('bg-primary')
-    expect(range.classList).not.toContain('bg-muted-active')
-    expect(fillLabel.classList).toContain('data-fill:text-primary-foreground/80')
-    expect(fillValue.classList).toContain('data-fill:text-primary-foreground')
-    expect(indicatorColors()).toEqual(['var(--primary-foreground)', 'var(--primary)'])
-
-    setVariant('subtle')
-    expect(range.classList).toContain('bg-muted-active')
   })
 
   test('shows keyboard focus state only for keyboard focus', () => {

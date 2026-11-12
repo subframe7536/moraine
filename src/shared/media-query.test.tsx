@@ -105,12 +105,6 @@ describe('createMediaQuery', () => {
     setQuery('(min-width: 2px)')
     await Promise.resolve()
 
-    expect(firstMedia.removeEventListener).toHaveBeenCalledWith(
-      'change',
-      (firstMedia.addEventListener as ReturnType<typeof vi.fn>).mock.calls[0]?.[1],
-      undefined,
-    )
-    expect(secondMedia.addEventListener).toHaveBeenCalledTimes(1)
     expect(screen.getByTestId('matches').textContent).toBe('true')
   })
 

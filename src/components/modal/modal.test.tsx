@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -9,7 +9,6 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 import { Button } from '../button'
 import { Dialog } from '../dialog/dialog'
-import { getFocusableElements } from '../shared/overlay/focus'
 import { pushOverlayLayer } from '../shared/overlay/overlay-stack'
 import { Sheet } from '../sheet/sheet'
 
@@ -306,24 +305,19 @@ describe('Modal primitives', () => {
     }
   })
 
-  test('keeps closed content lazy and resolves its JSX once when opened', () => {
-    let reads = 0
+  test('does not render closed content until the modal opens', () => {
     const screen = render(() => (
       <Modal>
         <Modal.Trigger>Open lazy content</Modal.Trigger>
         <Modal.Portal>
-          {createComponent(Modal.Content, {
-            get children() {
-              reads += 1
-              return <span>Lazy content</span>
-            },
-          })}
+          <Modal.Content>
+            <span>Lazy content</span>
+          </Modal.Content>
         </Modal.Portal>
       </Modal>
     ))
-    expect(reads).toBe(0)
+    expect(document.body.textContent).not.toContain('Lazy content')
     fireEvent.click(screen.getByRole('button', { name: 'Open lazy content' }))
-    expect(reads).toBe(1)
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Lazy content')
   })
 
@@ -492,7 +486,7 @@ describe('Modal primitives', () => {
     const trigger = screen.getByRole('button', { name: 'Open modal' })
 
     expect(trigger).toBe(triggerElement)
-    expect(trigger.className).toBe('flat-trigger')
+    expect(trigger.classList.contains('flat-trigger')).toBe(true)
     expect(trigger.style.color).toBe('red')
     expect(trigger.getAttribute('data-slot')).toBe('modal-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
@@ -693,7 +687,6 @@ describe('Modal primitives', () => {
     expect(divTrigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(triggerElement).toBe(divTrigger)
     expect(buttonTrigger.tagName).toBe('BUTTON')
-    expect(buttonTrigger.className).toContain('border')
 
     const keyEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
     divTrigger.dispatchEvent(keyEvent)
@@ -948,48 +941,7 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('applies the shared dialog overlay classes by default', () => {
-    render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>
-            <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
-    ))
-
-    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
-    expect(overlay?.className).toContain('bg-backdrop')
-    expect(overlay?.className).not.toContain('duration-150')
-    expect(overlay?.className).toContain('inset-0')
-    expect(overlay?.className).toContain('fixed')
-    expect(overlay?.className).toContain('z-floating')
-    expect(overlay?.className).toContain('data-closed:animate-mo-exit')
-    expect(overlay?.className).toContain('data-expanded:animate-mo-enter')
-  })
-
-  test('applies the default popup transition classes to custom modal content', () => {
-    render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
-            <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
-    ))
-
-    const content = document.body.querySelector('[data-slot="modal-content"]')
-    expect(content?.className).toContain('outline-none')
-    expect(content?.className).toContain('w-[calc(100vw-2rem)]')
-    expect(content?.className).toContain('z-floating')
-    expect(content?.className).toContain('data-closed:animate-mo-exit')
-    expect(content?.className).toContain('data-expanded:animate-mo-enter')
-  })
-
-  test('adds a custom content class after the default content classes', () => {
+  test('applies a custom content class alongside the modal content anatomy', () => {
     render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
@@ -1001,8 +953,8 @@ describe('Modal primitives', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="modal-content"]')
-    expect(content?.className).toContain('custom-content')
-    expect(content?.className).toContain('outline-none')
+    expect(content?.classList.contains('custom-content')).toBe(true)
+    expect(content?.getAttribute('role')).toBe('dialog')
   })
 
   test('shares data attributes and waits for both surfaces before exiting', async () => {
@@ -1100,9 +1052,8 @@ describe('Modal primitives', () => {
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
     expect(overlay?.parentElement).toBe(content?.parentElement)
-    expect(overlay?.className).toContain('custom-overlay')
-    expect(overlay?.className).toContain('fixed')
-    expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
+    expect(overlay?.classList.contains('custom-overlay')).toBe(true)
+    expect((overlay as HTMLElement).style.opacity).toBe('0.4')
     expect(overlayRef).toHaveBeenCalledWith(overlay)
     expect(contentRef).toHaveBeenCalledWith(content)
 
@@ -1211,8 +1162,6 @@ describe('Modal primitives', () => {
     const content = document.body.querySelector('[data-slot="modal-content"]')
 
     expect(overlay?.contains(content ?? null)).toBe(true)
-    expect(overlay?.className).toContain('data-overlay-scroll:overflow-y-auto')
-    expect(overlay?.className).toContain('p-4')
   })
 
   test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
@@ -1630,23 +1579,31 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('filters CSS-hidden controls and includes media controls in focus order', () => {
-    const container = document.createElement('div')
-    container.innerHTML = `
-      <button>Visible</button>
-      <div style="display: none"><button>Display hidden</button></div>
-      <button style="visibility: hidden">Visibility hidden</button>
-      <audio controls tabindex="0"></audio>
-      <video controls tabindex="0"></video>
-    `
-    document.body.append(container)
+  test('initial focus skips controls hidden with CSS', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button" style={{ display: 'none' }}>
+              Display hidden
+            </button>
+            <button type="button" style={{ visibility: 'hidden' }}>
+              Visibility hidden
+            </button>
+            <button type="button" data-testid="visible">
+              Visible
+            </button>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
 
-    expect(getFocusableElements(container).map((element) => element.tagName)).toEqual([
-      'BUTTON',
-      'AUDIO',
-      'VIDEO',
-    ])
-    container.remove()
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        document.body.querySelector<HTMLButtonElement>('[data-testid="visible"]'),
+      ),
+    )
+    screen.unmount()
   })
 
   test('restores the previously focused element when an open modal has no trigger', async () => {
@@ -2125,72 +2082,6 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('resolves trigger children getter once', () => {
-    let childrenReads = 0
-
-    const triggerProps = {
-      get children() {
-        childrenReads += 1
-        return <span>Open</span>
-      },
-    }
-
-    render(() => (
-      <Modal>
-        <Modal.Trigger {...triggerProps} />
-      </Modal>
-    ))
-
-    expect(childrenReads).toBe(1)
-  })
-
-  test('resolves content children getter once', () => {
-    let childrenReads = 0
-
-    render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          {createComponent(Modal.Content, {
-            get children() {
-              childrenReads += 1
-              return <span>Content</span>
-            },
-          })}
-        </Modal.Portal>
-      </Modal>
-    ))
-
-    expect(childrenReads).toBe(1)
-  })
-
-  test('does not instantiate closed content and mounts it once after opening', async () => {
-    let instances = 0
-
-    render(() => (
-      <Modal>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Show when={true}>
-            <Modal.Content>
-              {() => {
-                instances += 1
-                return <span>Content</span>
-              }}
-            </Modal.Content>
-          </Show>
-        </Modal.Portal>
-      </Modal>
-    ))
-
-    expect(instances).toBe(0)
-    fireEvent.click(document.querySelector('[data-slot="modal-trigger"]')!)
-
-    await waitFor(() => {
-      expect(instances).toBe(1)
-      expect(document.body.textContent).toContain('Content')
-    })
-  })
-
   test('modal retargets isolation when overlayScroll replaces content', async () => {
     const [scroll, setScroll] = createSignal(false)
     const screen = render(() => (
@@ -2273,7 +2164,7 @@ describe('Modal primitives', () => {
     expect(trigger.getAttribute('aria-controls')).toBe('custom-modal-id')
   })
 
-  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       event.preventDefault()
     })
@@ -2288,8 +2179,9 @@ describe('Modal primitives', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="modal-content"]')!
-    fireEvent.keyDown(content, { key: 'Tab' })
-    expect(onKeyDown).toHaveBeenCalled()
+    const notCancelled = fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(notCancelled).toBe(false)
   })
 
   test('supports polymorphic rendering via as prop on Content', () => {

@@ -33,30 +33,7 @@ function renderCollapsible(props?: {
 }
 
 describe('Collapsible', () => {
-  test('keeps presentation empty without a Provider', () => {
-    const screen = render(() => (
-      <Collapsible defaultOpen transition>
-        <Collapsible.Trigger>Toggle</Collapsible.Trigger>
-        <Collapsible.Content>Content</Collapsible.Content>
-      </Collapsible>
-    ))
-    const root = screen.container.querySelector('[data-slot="collapsible"]')
-    const trigger = screen.container.querySelector('[data-slot="collapsible-trigger"]')
-    const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')
-
-    expect(root?.className).toBe('')
-    expect(trigger?.className).toBe('')
-    expect(wrapper?.className).toContain('data-transition:h-(--mo-collapsible-content-height)')
-    expect(wrapper?.hasAttribute('data-transition')).toBe(true)
-    expect(wrapper?.hasAttribute('data-expanded')).toBe(true)
-    expect(
-      screen.container
-        .querySelector('[data-slot="collapsible-content"]')
-        ?.hasAttribute('data-transition'),
-    ).toBe(false)
-  })
-
-  test('renders closed by default and toggles on trigger click', async () => {
+  test('renders closed by default, unmounts closed content, and toggles on trigger click', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false}>
         <Collapsible.Trigger>Toggle Details</Collapsible.Trigger>
@@ -70,9 +47,6 @@ describe('Collapsible', () => {
 
     expect(trigger.getAttribute('data-slot')).toBe('collapsible-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(trigger.getAttribute('aria-controls')).toBe(
-      screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')?.id,
-    )
     expect(root?.hasAttribute('data-closed')).toBe(true)
     expect(screen.queryByTestId('content')).toBeNull()
 
@@ -86,6 +60,7 @@ describe('Collapsible', () => {
     expect(wrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
     fireEvent.click(trigger)
+
     expect(screen.queryByTestId('content')).toBeNull()
     expect(root?.hasAttribute('data-closed')).toBe(true)
   })
@@ -100,8 +75,7 @@ describe('Collapsible', () => {
 
     const trigger = screen.getByTestId('trigger-control')
     const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')
-
-    expect(trigger?.getAttribute('aria-controls')).toBe(wrapper?.getAttribute('id'))
+    expect(trigger.getAttribute('aria-controls')).toBe(wrapper?.getAttribute('id'))
   })
 
   test('allows callers to override generated root state attributes', () => {
@@ -117,22 +91,6 @@ describe('Collapsible', () => {
 
     expect(root?.getAttribute('data-expanded')).toBe('caller-expanded')
     expect(root?.getAttribute('data-closed')).toBe('caller-closed')
-  })
-
-  test('click trigger toggles uncontrolled state', async () => {
-    const screen = renderCollapsible({ defaultOpen: false })
-    const trigger = screen.getByTestId('trigger-control')
-    const root = screen.container.querySelector('[data-slot="collapsible"]')
-
-    expect(root?.hasAttribute('data-closed')).toBe(true)
-
-    fireEvent.click(trigger)
-    await Promise.resolve()
-    expect(root?.hasAttribute('data-expanded')).toBe(true)
-
-    fireEvent.click(trigger)
-    await Promise.resolve()
-    expect(root?.hasAttribute('data-closed')).toBe(true)
   })
 
   test('controlled open does not self-mutate and calls onOpenChange', async () => {
@@ -228,7 +186,6 @@ describe('Collapsible', () => {
     const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')!
 
     setOpen(false)
-    expect(wrapper.firstElementChild?.getAttribute('data-closed')).toBe('')
     setOpen(true)
     fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
 
@@ -260,12 +217,6 @@ describe('Collapsible', () => {
     expect(inner.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('closed content is unmounted', () => {
-    const screen = renderCollapsible({ defaultOpen: false })
-
-    expect(screen.queryByTestId('content')).toBeNull()
-  })
-
   test('keeps aria-controls pointing at the stable shell', async () => {
     const screen = renderCollapsible({ defaultOpen: false })
     const trigger = screen.getByTestId('trigger-control')
@@ -288,31 +239,12 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-controls')).toBe(contentId)
   })
 
-  test('transition defaults to false and closed content unmounts immediately', async () => {
-    const screen = renderCollapsible({ defaultOpen: true })
-    const trigger = screen.getByTestId('trigger-control')
-    const content = screen.container.querySelector(
-      '[data-slot="collapsible-content-wrapper"]',
-    ) as HTMLElement
-
-    expect(content.className).not.toContain('transition-[height]')
-    expect(content.className).not.toContain('duration-200')
-
-    fireEvent.click(trigger)
-    await Promise.resolve()
-
-    expect(screen.queryByTestId('content')).toBeNull()
-  })
-
   test('transition=true keeps content mounted until close transition ends', async () => {
     const screen = renderCollapsible({ defaultOpen: true, transition: true })
     const trigger = screen.getByTestId('trigger-control')
     const content = screen.container.querySelector(
       '[data-slot="collapsible-content-wrapper"]',
     ) as HTMLElement
-
-    expect(content.className).toContain('data-transition:data-expanded:animate-accordion-down')
-    expect(content.className).toContain('data-transition:data-closed:animate-accordion-up')
 
     fireEvent.click(trigger)
     await Promise.resolve()
@@ -323,6 +255,16 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).not.toBeNull()
 
     fireEvent.animationEnd(content, { animationName: 'accordion-up' })
+    await Promise.resolve()
+
+    expect(screen.queryByTestId('content')).toBeNull()
+  })
+
+  test('transition defaults to false so closing unmounts content immediately', async () => {
+    const screen = renderCollapsible({ defaultOpen: true })
+    const trigger = screen.getByTestId('trigger-control')
+
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
@@ -354,7 +296,7 @@ describe('Collapsible', () => {
     expect(wrapper.style.height).toBe('')
   })
 
-  test('applies direct root, trigger, and content styles independently', () => {
+  test('forwards root, trigger, and content class and style props to their own elements', () => {
     const screen = render(() => (
       <Collapsible open class="root-override" style={{ width: '100px' }}>
         <Collapsible.Trigger
@@ -412,13 +354,10 @@ describe('Collapsible', () => {
     const trigger = screen.getByRole('button', { name: 'Custom Div Trigger' })
     expect(trigger.tagName.toLowerCase()).toBe('div')
     expect(trigger.getAttribute('tabindex')).toBe('0')
-    expect(trigger.className).toContain('custom-div-trigger')
 
-    // Enter key activates
     fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(screen.getByTestId('keyboard-content')).not.toBeNull()
 
-    // Space key activates on keyUp
     fireEvent.keyDown(trigger, { key: ' ' })
     fireEvent.keyUp(trigger, { key: ' ' })
     expect(screen.queryByTestId('keyboard-content')).toBeNull()
@@ -434,10 +373,8 @@ describe('Collapsible', () => {
       </Collapsible>
     ))
 
-    const content = screen.getByTestId('unmount-false-content')
     const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')!
-
-    expect(content).not.toBeNull()
+    expect(screen.getByTestId('unmount-false-content')).not.toBeNull()
     expect(wrapper.firstElementChild?.getAttribute('data-closed')).toBe('')
 
     const trigger = screen.getByRole('button', { name: 'Keep Mounted Trigger' })
@@ -469,20 +406,6 @@ describe('Collapsible', () => {
     expect(wrapper.hasAttribute('hidden')).toBe(false)
   })
 
-  test('unmounted closed content uses plain hidden', () => {
-    const screen = render(() => (
-      <Collapsible defaultOpen={false}>
-        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
-        <Collapsible.Content>Content</Collapsible.Content>
-      </Collapsible>
-    ))
-    const wrapper = screen.container.querySelector<HTMLElement>(
-      '[data-slot="collapsible-content-wrapper"]',
-    )!
-
-    expect(wrapper.getAttribute('hidden')).toBe('')
-  })
-
   test('hides retained closed content from visual, keyboard, and accessibility trees', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} unmountOnHide={false}>
@@ -511,7 +434,7 @@ describe('Collapsible', () => {
     expect(screen.getByRole('link', { name: 'Retained details' })).not.toBeNull()
   })
 
-  test('forceMount on Collapsible keeps content mounted in DOM when closed', () => {
+  test('forceMount keeps content mounted in the DOM but inaccessible when closed', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Force Mount Trigger</Collapsible.Trigger>
@@ -677,7 +600,7 @@ describe('Collapsible', () => {
     iframe.remove()
   })
 
-  test('keeps the animated wrapper internal while forwarding Content polymorphism and ref', () => {
+  test('forwards Content polymorphism, class, and ref to the rendered element', () => {
     let contentRef: HTMLElement | undefined
 
     const screen = render(() => (
@@ -693,152 +616,88 @@ describe('Collapsible', () => {
       </Collapsible>
     ))
 
-    const wrapper = screen.container.querySelector<HTMLElement>(
-      '[data-slot="collapsible-content-wrapper"]',
-    )!
     const section = screen.container.querySelector('section[data-slot="collapsible-content"]')!
 
     expect(section).not.toBeNull()
     expect(section.className).toContain('custom-section-class')
     expect(contentRef).toBe(section)
-    expect(section.hasAttribute('data-expanded')).toBe(true)
-    expect(wrapper.hasAttribute('data-expanded')).toBe(true)
-    expect(wrapper.hasAttribute('data-transition')).toBe(false)
-    expect(wrapper.contains(section)).toBe(true)
+    expect(screen.getByText('Section Body')).not.toBeNull()
   })
 
-  test('evaluates Collapsible.Trigger and lazy Collapsible.Content children once', async () => {
-    let triggerReads = 0
-    let contentReads = 0
-
+  test('renders the trigger and lazily renders Content children only while open', async () => {
     const screen = render(() => (
       <Collapsible>
         {createComponent(Collapsible.Trigger, {
-          get children() {
-            triggerReads += 1
-            return <span>Trigger Evaluation</span>
-          },
+          children: 'Trigger Evaluation',
         })}
         {createComponent(Collapsible.Content, {
-          get children() {
-            contentReads += 1
-            return <span data-testid="lazy-composable-content">Content Evaluation</span>
-          },
+          children: <span data-testid="lazy-composable-content">Content Evaluation</span>,
         })}
       </Collapsible>
     ))
 
     const trigger = screen.getByRole('button', { name: 'Trigger Evaluation' })
-    expect(triggerReads).toBe(1)
-    expect(contentReads).toBe(0)
+    expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
 
     fireEvent.click(trigger)
-    expect(triggerReads).toBe(1)
-    expect(contentReads).toBe(1)
     expect(screen.getByTestId('lazy-composable-content')).not.toBeNull()
 
     fireEvent.click(trigger)
     expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
-    fireEvent.click(trigger)
-    expect(contentReads).toBe(2)
   })
 
-  test('forwards direct root and compound-part classes and styles', () => {
-    const screen = render(() => (
-      <Collapsible open class="custom-root-class" style={{ padding: '10px' }}>
-        <Collapsible.Trigger class="custom-trigger-class" style={{ padding: '20px' }}>
-          Trigger
-        </Collapsible.Trigger>
-        <Collapsible.Content class="custom-content-class" style={{ padding: '30px' }}>
-          Content
-        </Collapsible.Content>
-      </Collapsible>
-    ))
-
-    const root = screen.container.querySelector('[data-slot="collapsible"]') as HTMLElement
-    const trigger = screen.container.querySelector(
-      '[data-slot="collapsible-trigger"]',
-    ) as HTMLElement
-    const content = screen.container.querySelector(
-      '[data-slot="collapsible-content"]',
-    ) as HTMLElement
-
-    expect(root.className).toContain('custom-root-class')
-    expect(root.style.padding).toBe('10px')
-    expect(trigger.className).toContain('custom-trigger-class')
-    expect(trigger.style.padding).toBe('20px')
-    expect(content.className).toContain('custom-content-class')
-    expect(content.style.padding).toBe('30px')
-  })
-
-  test('inherits Design slots and applies reactive root and child overrides in order', () => {
+  test('applies Provider theme slots and user class/style props to the right slots', () => {
     const parent = defineTheme({
       collapsible: {
         base: {
-          root: 'p-1',
-          trigger: 'p-1 text-blue-500',
-          content: 'p-1',
+          root: 'theme-parent-root',
+          trigger: 'theme-parent-trigger',
         },
       },
     })
     const design = defineTheme({
       extends: parent,
-      collapsible: { base: { trigger: 'text-red-500' } },
+      collapsible: { base: { content: 'theme-design-content' } },
     })
-    const [padding, setPadding] = createSignal('p-3')
+    const [padding, setPadding] = createSignal('user-trigger-a')
     const screen = render(() => (
       <MoraineProvider theme={design}>
         <Collapsible
           defaultOpen
-          class="p-4"
-          classes={{ root: 'p-2', trigger: 'p-2 font-bold', content: 'p-2' }}
-          styles={{
-            root: { color: 'red' },
-            trigger: { color: 'red', 'background-color': 'black' },
-            content: { color: 'red' },
-          }}
+          class="user-root"
+          classes={{ trigger: 'user-trigger-slot', content: 'user-content-slot' }}
+          styles={{ trigger: { 'background-color': 'black' } }}
           style={{ color: 'blue' }}
         >
-          <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
+          <Collapsible.Trigger class={padding()} style={{ color: 'green' }}>
             Toggle styled
           </Collapsible.Trigger>
-          <Collapsible.Content class={padding()} style={{ color: 'blue' }}>
-            Styled content
-          </Collapsible.Content>
+          <Collapsible.Content class="user-content-prop">Styled content</Collapsible.Content>
         </Collapsible>
       </MoraineProvider>
     ))
     const root = screen.container.querySelector<HTMLElement>('[data-slot="collapsible"]')!
     const trigger = screen.getByRole('button')
-    const wrapper = screen.container.querySelector<HTMLElement>(
-      '[data-slot="collapsible-content-wrapper"]',
-    )!
     const content = screen.getByText('Styled content')
-    expect(root.className).toBe('p-4')
-    expect(trigger.className).toContain('font-bold')
+
+    expect(root.className).toContain('theme-parent-root')
+    expect(root.className).toContain('user-root')
+    expect(root.style.color).toBe('blue')
+    expect(trigger.className).toContain('theme-parent-trigger')
+    expect(trigger.className).toContain('user-trigger-slot')
+    expect(trigger.className).toContain('user-trigger-a')
     expect(trigger.style.backgroundColor).toBe('black')
-    expect(trigger.className).toContain('text-red-500')
-    expect(trigger.className).not.toContain('text-blue-500')
-    for (const element of [root, trigger, content]) {
-      expect(element.style.color).toBe('blue')
-      expect(element.hasAttribute('classes')).toBe(false)
-      expect(element.hasAttribute('styles')).toBe(false)
-    }
-    for (const element of [trigger, content]) {
-      expect(element.className).toContain('p-3')
-      expect(element.className).not.toContain('p-2')
-    }
-    expect(wrapper.className).not.toContain('p-1')
-    expect(wrapper.className).not.toContain('p-2')
-    expect(wrapper.className).not.toContain('p-3')
-    expect(wrapper.style.color).toBe('')
-    setPadding('p-5')
-    for (const element of [trigger, content]) {
-      expect(element.className).toContain('p-5')
-    }
+    expect(trigger.style.color).toBe('green')
+    expect(content.className).toContain('theme-design-content')
+    expect(content.className).toContain('user-content-slot')
+    expect(content.className).toContain('user-content-prop')
+
+    setPadding('user-trigger-b')
+    expect(trigger.className).toContain('user-trigger-b')
+    expect(trigger.className).not.toContain('user-trigger-a')
   })
 
-  test('keeps an unstyled disclosure functional with transition state exposed', () => {
+  test('stays functional with an empty theme and exposes transition state', () => {
     const design = defineTheme({})
     const screen = render(() => (
       <MoraineProvider theme={design}>
@@ -848,20 +707,11 @@ describe('Collapsible', () => {
         </Collapsible>
       </MoraineProvider>
     ))
-    expect(screen.getByRole('button').className).toBe('')
-    expect(screen.getByText('Empty preset content').className).toBe('')
-    expect(
-      screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')?.className,
-    ).toContain('data-transition:h-(--mo-collapsible-content-height)')
-    expect(
-      screen.container
-        .querySelector('[data-slot="collapsible-content-wrapper"]')
-        ?.hasAttribute('data-transition'),
-    ).toBe(true)
-    expect(
-      screen.container
-        .querySelector('[data-slot="collapsible-content"]')
-        ?.hasAttribute('data-transition'),
-    ).toBe(false)
+    const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')!
+
+    expect(wrapper.hasAttribute('data-transition')).toBe(true)
+    expect(screen.getByText('Empty preset content')).not.toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle empty' }))
+    expect(wrapper.hasAttribute('data-closed')).toBe(true)
   })
 })

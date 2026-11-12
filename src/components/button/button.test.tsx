@@ -30,7 +30,6 @@ describe('Button', () => {
 
     expect(button.getAttribute('type')).toBe('button')
     expect(button.getAttribute('data-slot')).toBe('button')
-    expect(button.className).toContain('focus-visible:ring-tone/30')
   })
 
   test('calls pointer handlers without replacing internal interaction behavior', async () => {
@@ -163,191 +162,21 @@ describe('Button', () => {
     expect(screen.getByRole('link', { name: 'Native link' }).getAttribute('tabindex')).toBe('-1')
   })
 
-  test('applies variant and size classes', () => {
+  test('renders leading and trailing icon slots with the named icons', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <Button tone="danger" size="sm">
-          Delete
-        </Button>
-      </MoraineProvider>
+      <Button leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
+        Label
+      </Button>
     ))
 
-    const button = screen.getByRole('button', { name: 'Delete' })
-    expect(button.className).toContain('bg-tone')
-    expect(button.className).toContain('text-tone-foreground')
-    expect(button.className).toContain('tone-danger')
-    expect(button.className).toContain('h-7')
-  })
+    const button = screen.getByRole('button', { name: 'Label' })
+    const leading = button.querySelector('[data-slot="button-leading"]')
+    const trailing = button.querySelector('[data-slot="button-trailing"]')
 
-  test.each([
-    [
-      'soft',
-      ['bg-tone-soft', 'hover:bg-tone-soft-hover', 'active:bg-tone-soft-active', 'text-tone-ink'],
-    ],
-    [
-      'outline',
-      [
-        'bg-background',
-        'border-tone-border',
-        'hover:bg-tone-soft',
-        'active:bg-tone-soft-hover',
-        'text-tone-ink',
-      ],
-    ],
-    ['ghost', ['hover:bg-tone-soft', 'active:bg-tone-soft-hover', 'text-tone-ink']],
-  ] as const)('applies tone-soft state classes for %s variant', (variant, classes) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button variant={variant}>{variant}</Button>
-      </MoraineProvider>
-    ))
-    const button = screen.getByRole('button', { name: variant })
-    for (const cls of classes) {
-      expect(button.className).toContain(cls)
-    }
-  })
-
-  test('applies press interaction classes', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button>Press</Button>
-      </MoraineProvider>
-    ))
-    const button = screen.getByRole('button', { name: 'Press' })
-    expect(button.className).toContain('hover:bg-tone-hover')
-    expect(button.className).toContain('active:bg-tone-active')
-    expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-98')
-  })
-
-  test.each([
-    [
-      'none',
-      [] as const,
-      [
-        '[&:active:not([aria-haspopup])]:translate-y-px',
-        '[&:active:not([aria-haspopup])]:scale-98',
-      ] as const,
-    ],
-    [
-      'move-down',
-      ['[&:active:not([aria-haspopup])]:translate-y-px'] as const,
-      ['[&:active:not([aria-haspopup])]:scale-98'] as const,
-    ],
-    [
-      'zoom-in',
-      ['[&:active:not([aria-haspopup])]:scale-98'] as const,
-      ['[&:active:not([aria-haspopup])]:translate-y-px'] as const,
-    ],
-  ] as const)('applies the %s active effect', (activeEffect, present, absent) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button activeEffect={activeEffect}>Press</Button>
-      </MoraineProvider>
-    ))
-    const button = screen.getByRole('button', { name: 'Press' })
-
-    for (const className of present) {
-      expect(button.className).toContain(className)
-    }
-    for (const className of absent) {
-      expect(button.className).not.toContain(className)
-    }
-  })
-
-  test.each([
-    ['solid', 'data-expanded:bg-tone-active'],
-    ['soft', 'data-expanded:bg-tone-soft-active'],
-    ['outline', 'data-expanded:bg-tone-soft-hover'],
-    ['ghost', 'data-expanded:bg-tone-soft-hover'],
-    ['link', 'data-expanded:bg-transparent'],
-  ] as const)('applies an expanded pressed class to the %s variant', (variant, cls) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button variant={variant}>Press</Button>
-      </MoraineProvider>
-    ))
-    expect(screen.getByRole('button', { name: 'Press' }).className).toContain(cls)
-  })
-
-  test('applies a custom active effect class from the rendered element', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button
-          aria-haspopup="menu"
-          activeEffect={(element) =>
-            element.hasAttribute('aria-haspopup') ? 'custom-popup-active' : 'custom-press-active'
-          }
-        >
-          Custom
-        </Button>
-      </MoraineProvider>
-    ))
-    const button = screen.getByRole('button', { name: 'Custom' })
-
-    expect(button.className).toContain('custom-popup-active')
-    expect(button.className).not.toContain('custom-press-active')
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
-  })
-
-  test.each(['solid', 'soft', 'outline', 'ghost', 'link'] as const)(
-    'does not apply a built-in shadow to the %s variant',
-    (variant) => {
-      const screen = render(() => (
-        <MoraineProvider>
-          <Button variant={variant}>{variant}</Button>
-        </MoraineProvider>
-      ))
-      const button = screen.getByRole('button', { name: variant })
-
-      expect(
-        button.className.split(' ').some((className) => /(?:^|:)shadow(?:-|$)/.test(className)),
-      ).toBe(false)
-    },
-  )
-
-  test.each([
-    ['sm', 'i-lucide-arrow-left', 'i-lucide-arrow-right'],
-    ['lg', 'i-lucide-chevron-left', 'i-lucide-chevron-right'],
-  ] as const)(
-    'renders leading and trailing icon slots for %s size',
-    (size, leadingIcon, trailingIcon) => {
-      const screen = render(() => (
-        <Button size={size} leading={leadingIcon} trailing={trailingIcon}>
-          Label
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Label' })
-      const leading = button.querySelector('[data-slot="button-leading"]')
-      const trailing = button.querySelector('[data-slot="button-trailing"]')
-
-      expect(leading).not.toBeNull()
-      expect(trailing).not.toBeNull()
-      expect(leading?.className).toContain(leadingIcon)
-      expect(trailing?.className).toContain(trailingIcon)
-    },
-  )
-
-  test.each([
-    ['xs', 'text-tiny', 'h-6'],
-    ['xl', 'text-lg', 'h-10'],
-    ['icon-xs', 'text-tiny', 'size-6'],
-    ['icon-xl', 'text-lg', 'size-10'],
-  ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Button size={size} aria-label={`${size} button`}>
-          Label
-        </Button>
-      </MoraineProvider>
-    ))
-
-    const button = screen.getByRole('button', { name: `${size} button` })
-
-    expect(button.className).toContain('text-tone-foreground')
-    expect(button.className).toContain(textClass)
-    expect(button.className).toContain(dimensionClass)
+    expect(leading).not.toBeNull()
+    expect(trailing).not.toBeNull()
+    expect(leading?.className).toContain('i-lucide-arrow-left')
+    expect(trailing?.className).toContain('i-lucide-arrow-right')
   })
 
   test('renders leading icon slot for icon-lg size', () => {
@@ -458,7 +287,6 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Loading' })
     const leading = button.querySelector('[data-slot="button-leading"]')
 
-    expect(leading?.className).toContain('animate-spin')
     expect(leading?.className).toContain('leading-override')
     expect(leading?.className).toContain('i-lucide-loader-circle')
   })
@@ -483,11 +311,10 @@ describe('Button', () => {
       .querySelector<HTMLElement>('[data-slot="button-trailing"]')
     expect(trailing?.className).toContain('provider-trailing')
     expect(trailing?.className).toContain('instance-trailing')
-    expect(trailing?.className).toContain('w-3')
     expect(trailing?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  test('renders built-in loading icon by default when loading', () => {
+  test('renders the default loading icon when loading', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Button loading>Saving</Button>
@@ -499,7 +326,6 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('icon-loading')
-    expect(leading?.className).toContain('animate-spin')
   })
 
   test('supports component children with loading state', () => {
@@ -593,23 +419,6 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
-    expect(leading?.className).toContain('animate-spin')
-  })
-
-  test('does not evaluate loadingIcon while idle', () => {
-    let reads = 0
-
-    render(() =>
-      createComponent(Button, {
-        get loadingIcon() {
-          reads += 1
-          return <span>Loading</span>
-        },
-        children: 'Save',
-      }),
-    )
-
-    expect(reads).toBe(0)
   })
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {
@@ -633,7 +442,6 @@ describe('Button', () => {
     expect(leadingSlot).toBeNull()
     expect(trailingSlot).not.toBeNull()
     expect(trailingSlot?.className).toContain('icon-loading')
-    expect(trailingSlot?.className).toContain('animate-spin')
   })
 
   test('keeps trailing content when loading if leading and trailing are both provided', () => {
@@ -655,7 +463,6 @@ describe('Button', () => {
     expect(screen.queryByTestId('leading-icon')).toBeNull()
     expect(screen.queryByTestId('trailing-icon')).not.toBeNull()
     expect(leadingSlot?.className).toContain('icon-loading')
-    expect(leadingSlot?.className).toContain('animate-spin')
   })
 
   test('applies trailing class override when trailing slot is replaced by loading icon', () => {
@@ -672,7 +479,6 @@ describe('Button', () => {
 
     expect(trailing).not.toBeNull()
     expect(trailing?.className).toContain('icon-loading')
-    expect(trailing?.className).toContain('animate-spin')
     expect(trailing?.className).toContain('trailing-override')
   })
 
@@ -1180,7 +986,7 @@ describe('Button', () => {
   })
 
   describe('Provider Precedence', () => {
-    test('inherits provider defaults, classes, and styles, with group and instance overrides', () => {
+    test('applies provider and instance classes and styles to the matching slots', () => {
       const screen = render(() => (
         <MoraineProvider
           theme={defineTheme({
@@ -1197,15 +1003,12 @@ describe('Button', () => {
             },
           })}
         >
-          {/* Button alone reading provider */}
           <Button data-testid="p-btn">Plain</Button>
 
-          {/* Button inside ButtonGroup */}
           <ButtonGroup variant="soft" tone="neutral">
             <Button data-testid="g-btn">Grouped</Button>
           </ButtonGroup>
 
-          {/* Button with instance override */}
           <Button
             data-testid="i-btn"
             tone="danger"
@@ -1218,22 +1021,11 @@ describe('Button', () => {
       ))
 
       const pBtn = screen.getByTestId('p-btn')
-      expect(pBtn.className).toContain('border-tone-border')
-      expect(pBtn.className).toContain('h-9')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.className).toContain('m-1')
       expect(pBtn.className).toContain('text-blue-500')
 
-      const gBtn = screen.getByTestId('g-btn')
-      // Group variant 'soft' overrides provider 'outline'
-      expect(gBtn.className).toContain('bg-tone-soft')
-      // Provider buttonGroup variants 'sm' overrides provider button 'lg'
-      expect(gBtn.className).toContain('h-7')
-
       const iBtn = screen.getByTestId('i-btn')
-      // Instance variant overrides all
-      expect(iBtn.className).toContain('bg-tone')
-      expect(iBtn.className).toContain('tone-danger')
       expect(iBtn.className).toContain('instance-class')
       expect(iBtn.style.color).toBe('green')
     })

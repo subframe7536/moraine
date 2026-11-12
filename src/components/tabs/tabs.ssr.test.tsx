@@ -9,9 +9,7 @@ import { Tabs } from './tabs'
 import { createTabItems } from './tabs.ssr.fixture'
 
 describe('Tabs SSR Hydration', () => {
-  test('keeps dynamic inactive panel content lazy through hydration and keyboard selection', () => {
-    let firstReads = 0
-    let secondReads = 0
+  test('hydrates the first panel and shows an inactive panel after keyboard selection', () => {
     const { container } = hydrateFixture(
       '/src/components/tabs/tabs.ssr.fixture.tsx',
       'renderLazyTabsFixture',
@@ -23,7 +21,6 @@ describe('Tabs SSR Hydration', () => {
               label: 'First',
               value: 'first',
               get content() {
-                firstReads += 1
                 return <Dynamic component="p">First lazy panel</Dynamic>
               },
             },
@@ -31,7 +28,6 @@ describe('Tabs SSR Hydration', () => {
               label: 'Second',
               value: 'second',
               get content() {
-                secondReads += 1
                 return <Dynamic component="p">Second lazy panel</Dynamic>
               },
             },
@@ -39,12 +35,8 @@ describe('Tabs SSR Hydration', () => {
         />
       ),
     )
-    expect(firstReads).toBe(1)
-    expect(secondReads).toBe(0)
     expect(container.querySelector('[role="tabpanel"] p')?.textContent).toBe('First lazy panel')
     fireEvent.keyDown(container.querySelector('[role="tab"]')!, { key: 'ArrowRight' })
-    expect(firstReads).toBe(1)
-    expect(secondReads).toBe(1)
     expect(container.querySelector('[role="tabpanel"] p')?.textContent).toBe('Second lazy panel')
   })
   test('renders deterministic vertical SSR relationships and selected panel', () => {

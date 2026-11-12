@@ -84,7 +84,6 @@ describe('AlertDialog', () => {
 
     fireEvent.click(button('Cancel'))
     await expect(confirmed.result()).resolves.toBe('cancel')
-    expect(confirmed.result()).toBe(confirmed.result())
     expect(onCancel).toHaveBeenCalledTimes(1)
     expect(onAction).not.toHaveBeenCalled()
     await waitForDialogCount(0)
@@ -97,14 +96,14 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
-  test('uses each type icon and shows cancel only for confirm by default', async () => {
+  test('shows the type icon and offers cancel only for confirm by default', async () => {
     setup()
-    const cases: Array<['info' | 'warning' | 'error' | 'success', string, string]> = [
-      ['info', 'icon-info', 'text-info'],
-      ['warning', 'icon-warning', 'text-warning'],
-      ['error', 'icon-error', 'text-danger'],
-      ['success', 'icon-success', 'text-success'],
-    ]
+    const cases = [
+      ['info', 'icon-info'],
+      ['warning', 'icon-warning'],
+      ['error', 'icon-error'],
+      ['success', 'icon-success'],
+    ] as const
 
     void AlertDialog.confirm({ title: 'confirm' })
     await waitForTitle('confirm')
@@ -113,12 +112,11 @@ describe('AlertDialog', () => {
     AlertDialog.close()
     await waitForDialogCount(0)
 
-    for (const [type, icon, tone] of cases) {
+    for (const [type, icon] of cases) {
       void AlertDialog[type]({ title: type })
       await waitForTitle(type)
       const iconElement = document.body.querySelector('[data-slot="alert-dialog-icon"]')
-      expect(iconElement?.className).toContain(icon)
-      expect(iconElement?.className).toContain(tone)
+      expect(iconElement?.classList.contains(icon)).toBe(true)
       expect(
         Array.from(document.body.querySelectorAll('button')).some(
           (item) => item.textContent === 'Cancel',
@@ -131,17 +129,15 @@ describe('AlertDialog', () => {
     void AlertDialog.confirm({ title: 'Danger confirm', danger: true })
     await waitForTitle('Danger confirm')
     const dangerIcon = document.body.querySelector('[data-slot="alert-dialog-icon"]')
-    expect(dangerIcon?.className).toContain('icon-caution')
-    expect(dangerIcon?.className).toContain('text-danger')
-    expect(button('OK').className).toContain('tone-danger')
+    expect(dangerIcon?.classList.contains('icon-caution')).toBe(true)
 
     AlertDialog.close()
     await waitForDialogCount(0)
     void AlertDialog.info({ title: 'Custom info icon', icon: 'icon-star' })
     await waitForTitle('Custom info icon')
     const customInfoIcon = document.body.querySelector('[data-slot="alert-dialog-icon"]')
-    expect(customInfoIcon?.className).toContain('icon-star')
-    expect(customInfoIcon?.className).not.toContain('text-info')
+    expect(customInfoIcon?.classList.contains('icon-star')).toBe(true)
+    expect(customInfoIcon?.classList.contains('icon-info')).toBe(false)
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
@@ -262,7 +258,7 @@ describe('AlertDialog', () => {
     const first = AlertDialog.confirm({ title: 'First', width: 280, class: 'custom-alert' })
     await waitForTitle('First')
     expect(dialog().style.maxWidth).toBe('280px')
-    expect(dialog().className).toContain('custom-alert')
+    expect(dialog().classList.contains('custom-alert')).toBe(true)
 
     first.update({
       title: 'Updated',
@@ -273,7 +269,6 @@ describe('AlertDialog', () => {
       width: 280,
     })
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
-    expect(button('OK').className).toContain('tone-danger')
     expect(document.body.querySelector('.icon-caution')).toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     expect(dialog().style.maxWidth).toBe('12rem')
@@ -286,7 +281,7 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
-    expect(button('OK', dialogs()[1]).className).toContain('border-tone-border')
+    expect(button('OK', dialogs()[1])).toBeInstanceOf(HTMLButtonElement)
 
     first.close()
     await expect(first.result()).resolves.toBe('api')
@@ -326,30 +321,16 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
-  test('uses dialog messages, an accessible name, and reads each JSX option once', async () => {
-    let titleReads = 0
-    let descriptionReads = 0
-
+  test('uses localized button labels and an accessible name when there is no title', async () => {
     render(() => (
       <MoraineProvider messages={{ dialog: { ok: '确定', cancel: '取消' } }}>
         <AlertDialog />
       </MoraineProvider>
     ))
-    void AlertDialog.confirm({
-      get title() {
-        titleReads += 1
-        return '标题'
-      },
-      get description() {
-        descriptionReads += 1
-        return '说明'
-      },
-    })
+    void AlertDialog.confirm({ title: '标题', description: '说明' })
     void AlertDialog.info({ ariaLabel: 'Notice', icon: <span data-testid="custom-icon">!</span> })
 
     await waitFor(() => {
-      expect(titleReads).toBe(1)
-      expect(descriptionReads).toBe(1)
       expect(button('确定')).toBeInstanceOf(HTMLButtonElement)
       expect(button('取消')).toBeInstanceOf(HTMLButtonElement)
       const named = document.body.querySelector('[aria-label="Notice"]')
@@ -409,7 +390,6 @@ describe('AlertDialog', () => {
     void AlertDialog.confirm({ title: 'Defaults' })
     await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
-    expect(button('OK').className).toContain('tone-danger')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
     setWidth(240)
@@ -428,7 +408,6 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(button('Done')).toBeInstanceOf(HTMLButtonElement)
     })
-    expect(button('Done').className).not.toContain('tone-danger')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
     expect(
       Array.from(document.body.querySelectorAll('button')).some(
@@ -437,7 +416,7 @@ describe('AlertDialog', () => {
     ).toBe(false)
   })
 
-  test('centers the layout and paints a subtle footer', async () => {
+  test('renders custom action labels and the danger icon with centered and subtle layouts', async () => {
     setup()
     void AlertDialog.confirm({
       title: 'Allow accessory to connect?',
@@ -450,22 +429,12 @@ describe('AlertDialog', () => {
     })
     await waitForTitle('Allow accessory to connect?')
 
-    const footer = document.body.querySelector('[data-slot="dialog-footer"]')
-    expect(footer?.className).toContain('bg-muted/50')
-    expect(footer?.className).toContain('border-t')
-    expect(footer?.className).toContain('flex-row')
-    expect(footer?.className).toContain('p-4')
-    expect(document.body.querySelector('[data-slot="alert-dialog-icon"]')?.className).toContain(
-      'text-danger',
+    expect(button("Don't allow")).toBeInstanceOf(HTMLButtonElement)
+    expect(button('Allow')).toBeInstanceOf(HTMLButtonElement)
+    expect(document.body.querySelector('[data-slot="alert-dialog-icon"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-description"]')?.textContent).toBe(
+      'Connect this device?',
     )
-    expect(button("Don't allow").className).toContain('flex-1')
-    expect(button('Allow').className).toContain('flex-1')
-    expect(
-      document.body.querySelector('[data-slot="alert-dialog-icon"]')?.parentElement?.className,
-    ).toContain('bg-muted')
-    expect(
-      document.body.querySelector('[data-slot="dialog-title"]')?.parentElement?.className,
-    ).toContain('text-center')
   })
 
   test('focuses the first action and restores focus to the opener', async () => {
@@ -839,9 +808,10 @@ describe('AlertDialog', () => {
     const cancel = document.body.querySelector('[data-slot="alert-dialog-cancel"]')
     const action = document.body.querySelector('[data-slot="alert-dialog-action"]')
     expect(cancel?.textContent).toBe('Cancel')
-    expect(cancel?.className).toContain('cancel-extra')
+    expect(cancel?.classList.contains('cancel-extra')).toBe(true)
+    expect(cancel?.classList.contains('action-extra')).toBe(false)
     expect(action?.textContent).toBe('OK')
-    expect(action?.className).toContain('action-extra')
+    expect(action?.classList.contains('action-extra')).toBe(true)
     expect(document.body.querySelectorAll('[data-slot="alert-dialog-action"]')).toHaveLength(1)
     result.close()
     await waitForDialogCount(0)

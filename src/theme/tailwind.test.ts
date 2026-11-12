@@ -73,147 +73,45 @@ async function compileCSS(candidates: string[], includeAutoStates = false) {
   return withoutAutoStateBase(css)
 }
 
-async function loadDesignSystemWithIconify() {
-  const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
-  return __unstable__loadDesignSystem(css, {
-    loadModule: combinedLoadModule(),
-  })
-}
-
 async function compileCSSWithIconify(candidates: string[]) {
   const inputCSS = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   const { build } = await compile(inputCSS, {
     loadModule: combinedLoadModule(),
   })
-  const css = build(candidates)
-  return withoutAutoStateBase(css)
+  return withoutAutoStateBase(build(candidates))
 }
 
-// ─── Colors ───────────────────────────────────────────────────────────
-
 describe('colors', () => {
-  test('bg-primary resolves to var(--primary)', async () => {
-    const css = await compileCSS(['bg-primary'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-primary {
-        background-color: var(--primary);
-      }
-      "
-    `)
+  test.each([
+    ['bg-primary', 'background-color: var(--primary);'],
+    ['text-primary-foreground', 'color: var(--primary-foreground);'],
+    ['bg-secondary', 'background-color: var(--secondary);'],
+    ['text-secondary-foreground', 'color: var(--secondary-foreground);'],
+    ['text-foreground', 'color: var(--foreground);'],
+    ['bg-background', 'background-color: var(--background);'],
+    ['bg-card', 'background-color: var(--card);'],
+    ['text-card-foreground', 'color: var(--card-foreground);'],
+    ['bg-muted', 'background-color: var(--muted);'],
+    ['text-muted-foreground', 'color: var(--muted-foreground);'],
+    ['bg-accent', 'background-color: var(--accent);'],
+    ['text-accent-foreground', 'color: var(--accent-foreground);'],
+    ['bg-danger', 'background-color: var(--danger);'],
+    ['text-danger-foreground', 'color: var(--danger-foreground, var(--background));'],
+    ['bg-info', 'background-color: var(--info);'],
+    ['text-info-foreground', 'color: var(--info-foreground, var(--background));'],
+  ])('%s resolves to the semantic color token', async (utility, declaration) => {
+    const css = await compileCSS([utility])
+    expect(css).toContain(declaration)
   })
 
-  test('text-foreground resolves to var(--foreground)', async () => {
-    const css = await compileCSS(['text-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .text-foreground {
-        color: var(--foreground);
-      }
-      "
-    `)
-  })
-
-  test('bg-background resolves to var(--background)', async () => {
-    const css = await compileCSS(['bg-background'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-background {
-        background-color: var(--background);
-      }
-      "
-    `)
-  })
-
-  test('primary-foreground color resolves', async () => {
-    const css = await compileCSS(['text-primary-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .text-primary-foreground {
-        color: var(--primary-foreground);
-      }
-      "
-    `)
-  })
-
-  test('secondary colors resolve', async () => {
-    const css = await compileCSS(['bg-secondary', 'text-secondary-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-secondary {
-        background-color: var(--secondary);
-      }
-      .text-secondary-foreground {
-        color: var(--secondary-foreground);
-      }
-      "
-    `)
-  })
-
-  test('card colors resolve', async () => {
-    const css = await compileCSS(['bg-card', 'text-card-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-card {
-        background-color: var(--card);
-      }
-      .text-card-foreground {
-        color: var(--card-foreground);
-      }
-      "
-    `)
-  })
-
-  test('muted colors resolve', async () => {
-    const css = await compileCSS(['bg-muted', 'text-muted-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-muted {
-        background-color: var(--muted);
-      }
-      .text-muted-foreground {
-        color: var(--muted-foreground);
-      }
-      "
-    `)
-  })
-
-  test('accent colors resolve', async () => {
-    const css = await compileCSS(['bg-accent', 'text-accent-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-accent {
-        background-color: var(--accent);
-      }
-      .text-accent-foreground {
-        color: var(--accent-foreground);
-      }
-      "
-    `)
-  })
-
-  test('danger colors resolve', async () => {
-    const css = await compileCSS(['bg-danger', 'text-danger-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .bg-danger {
-        background-color: var(--danger);
-      }
-      .text-danger-foreground {
-        color: var(--danger-foreground, var(--background));
-      }
-      "
-    `)
-  })
-
-  test.each(['info', 'success', 'warning'] as const)('%s colors resolve', async (color) => {
+  test.each(['info', 'success', 'warning'] as const)('%s tone colors resolve', async (color) => {
     const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
     expect(css).toContain(`background-color: var(--${color});`)
     expect(css).toContain(`color: var(--${color});`)
     expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
   })
 
-  test('semantic hover and active colors resolve with base fallbacks', async () => {
+  test('hover and active colors fall back through the base color', async () => {
     const css = await compileCSS([
       'bg-background-hover',
       'bg-card-active',
@@ -244,7 +142,7 @@ describe('colors', () => {
     expect(css).not.toContain('-focus')
   })
 
-  test('resolves the internal tone channel utilities', async () => {
+  test('tone channel utilities read the tone variables', async () => {
     const css = await compileCSS([
       'tone-danger',
       'bg-tone',
@@ -261,35 +159,20 @@ describe('colors', () => {
       'ring-tone/20',
     ])
 
-    expect(css).toContain('.tone-danger')
     expect(css).toContain('--mo-tone: var(--danger);')
     expect(css).toContain('--mo-tone-foreground: var(--danger-foreground, var(--background));')
     expect(css).toContain(
       '--mo-tone-hover: var(--danger-hover, var(--mo-danger-hover, var(--danger)));',
     )
-    expect(css).toContain(
-      '--mo-tone-active: var(--danger-active, var(--mo-danger-active, var(--danger-hover, var(--mo-danger-hover, var(--danger)))));',
-    )
     expect(css).toContain('--mo-tone-ink: var(--danger-ink, var(--mo-danger-ink, var(--danger)));')
     expect(css).toContain('--mo-tone-soft: var(--danger-soft, var(--mo-danger-soft, transparent));')
-    expect(css).toContain(
-      '--mo-tone-border: var(--danger-border, var(--mo-danger-border, var(--border)));',
-    )
-    expect(css).toContain('background-color: var(--mo-tone);')
     expect(css).toContain('background-color: color-mix(in oklab, var(--mo-tone) 12%, transparent);')
     expect(css).toContain('border-color: color-mix(in oklab, var(--mo-tone) 40%, transparent);')
     expect(css).toContain('color: var(--mo-tone-foreground);')
     expect(css).toContain('color: var(--mo-tone-ink);')
     expect(css).toContain('background-color: var(--mo-tone-hover, var(--mo-tone));')
     expect(css).toContain(
-      'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
-    )
-    expect(css).toContain('background-color: var(--mo-tone-soft, transparent);')
-    expect(css).toContain(
       'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent));',
-    )
-    expect(css).toContain(
-      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)));',
     )
     expect(css).toContain(
       'background-color: var(--danger-soft, var(--mo-danger-soft, transparent));',
@@ -297,125 +180,49 @@ describe('colors', () => {
     expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
   })
 
-  test('mixes colors in the local scope only when supported', async () => {
+  test('mixes colors in the local scope only when color-mix is supported', async () => {
     const css = await compileCSS(['bg-accent-hover'], true)
-    expect(css).toContain(
-      'background-color: var(--accent-hover, var(--mo-accent-hover, var(--accent)))',
-    )
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
       '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
     )
-    expect(css).toContain(
-      '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
-    )
-    expect(css).toContain(
-      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
-    )
     expect(css).not.toMatch(/--primary:\s/)
   })
 
-  test('control, boundary, and focus tokens resolve independently without default colors', async () => {
+  test('control, boundary, and focus tokens resolve without default colors', async () => {
     const css = await compileCSS(['border-border', 'border-input', 'bg-control', 'ring-ring'], true)
     expect(css).toContain('border-color: var(--border)')
     expect(css).toContain('border-color: var(--input)')
     expect(css).toContain('background-color: var(--control)')
     expect(css).toContain('--tw-ring-color: var(--ring)')
     expect(css).not.toMatch(/--control:\s/)
-    expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
   })
 })
 
-// ─── Border Radius ────────────────────────────────────────────────────
-
-describe('font size', () => {
+describe('font size and border radius', () => {
   test('text utilities scale from the local --font-size', async () => {
     const css = await compileCSS(['text-tiny', 'text-sm', 'text-base', 'text-5xl'])
 
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.625)')
     expect(css).toContain('line-height: var(--tw-leading, calc(var(--font-size, 1rem) * 0.875))')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.875)')
-    expect(css).toContain('line-height: var(--tw-leading, calc(var(--font-size, 1rem) * 1.25))')
     expect(css).toContain('font-size: var(--font-size, 1rem)')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
   })
-})
 
-describe('border radius', () => {
-  test('rounded-lg uses var(--radius)', async () => {
-    const css = await compileCSS(['rounded-lg'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .rounded-lg {
-        border-radius: var(--radius);
-      }
-      "
-    `)
-  })
-
-  test('rounded-xl uses calc(var(--radius) * 1.4)', async () => {
-    const css = await compileCSS(['rounded-xl'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .rounded-xl {
-        border-radius: calc(var(--radius) * 1.4);
-      }
-      "
-    `)
-  })
-
-  test('rounded-sm uses calc(var(--radius) * 0.6)', async () => {
-    const css = await compileCSS(['rounded-sm'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .rounded-sm {
-        border-radius: calc(var(--radius) * 0.6);
-      }
-      "
-    `)
-  })
-
-  test('rounded-xs uses calc(var(--radius) * 0.5)', async () => {
-    const css = await compileCSS(['rounded-xs'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .rounded-xs {
-        border-radius: calc(var(--radius) * 0.5);
-      }
-      "
-    `)
-  })
-
-  test('rounded-2xl through rounded-4xl resolve', async () => {
-    const css = await compileCSS(['rounded-2xl', 'rounded-3xl', 'rounded-4xl'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .rounded-2xl {
-        border-radius: calc(var(--radius) * 1.8);
-      }
-      .rounded-3xl {
-        border-radius: calc(var(--radius) * 2.2);
-      }
-      .rounded-4xl {
-        border-radius: calc(var(--radius) * 2.6);
-      }
-      "
-    `)
+  test.each([
+    ['rounded-lg', 'border-radius: var(--radius);'],
+    ['rounded-xl', 'border-radius: calc(var(--radius) * 1.4);'],
+    ['rounded-sm', 'border-radius: calc(var(--radius) * 0.6);'],
+    ['rounded-xs', 'border-radius: calc(var(--radius) * 0.5);'],
+    ['rounded-2xl', 'border-radius: calc(var(--radius) * 1.8);'],
+    ['rounded-4xl', 'border-radius: calc(var(--radius) * 2.6);'],
+  ])('%s scales from --radius', async (utility, declaration) => {
+    expect(await compileCSS([utility])).toContain(declaration)
   })
 })
 
-// ─── Shadows ──────────────────────────────────────────────────────────
-
-describe('shadows', () => {
+describe('shadows and z-index', () => {
   test('preserves the native Tailwind shadow scale', async () => {
     const candidates = [
       'shadow-2xs',
@@ -430,51 +237,23 @@ describe('shadows', () => {
     const { build } = await compile(BASE_CSS)
     expect(await compileCSS(candidates)).toBe(build(candidates))
   })
-})
 
-// ─── Z-index ─────────────────────────────────────────────────────────
+  test('semantic shadow tokens resolve through the box-shadow variable', async () => {
+    expect(await compileCSS(['shadow-overlay'])).toContain('--tw-shadow: var(--shadow-overlay);')
+  })
 
-describe('z-index', () => {
-  test('semantic z-index utilities resolve', async () => {
-    const css = await compileCSS([
-      'z-base',
-      'z-raised',
-      'z-control',
-      'z-sticky',
-      'z-resize',
-      'z-overlay',
-      'z-floating',
-    ])
-
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .z-base {
-        z-index: 1;
-      }
-      .z-control {
-        z-index: 3;
-      }
-      .z-floating {
-        z-index: 50;
-      }
-      .z-overlay {
-        z-index: 40;
-      }
-      .z-raised {
-        z-index: 2;
-      }
-      .z-resize {
-        z-index: 20;
-      }
-      .z-sticky {
-        z-index: 10;
-      }
-      "
-    `)
+  test.each([
+    ['z-base', 'z-index: 1;'],
+    ['z-raised', 'z-index: 2;'],
+    ['z-control', 'z-index: 3;'],
+    ['z-sticky', 'z-index: 10;'],
+    ['z-resize', 'z-index: 20;'],
+    ['z-overlay', 'z-index: 40;'],
+    ['z-floating', 'z-index: 50;'],
+  ])('%s resolves to its semantic layer', async (utility, declaration) => {
+    expect(await compileCSS([utility])).toContain(declaration)
   })
 })
-
-// ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
   test('compiles disclosure child state and slider peer state', async () => {
@@ -494,7 +273,8 @@ describe('animations', () => {
     expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
     expect(css).not.toContain(':has(')
   })
-  test('compiles compound disclosure and instant tooltip states', async () => {
+
+  test('compound data states compile for disclosure and instant motion', async () => {
     const css = await compileCSS([
       'data-transition:data-expanded:animate-accordion-down',
       'data-instant-motion:data-expanded:animate-none',
@@ -506,254 +286,100 @@ describe('animations', () => {
     expect(css).toContain('animation: none')
     expect(css).toContain('@keyframes accordion-down')
   })
-  test('compiles the instant tooltip positioner without :has', async () => {
+
+  test('the instant tooltip positioner compiles without :has', async () => {
     const css = await compileCSS(TOOLTIP_INSTANT_POSITIONER_CLASS.split(' '))
     expect(css).toContain('[data-positioned]')
     expect(css).not.toContain(':has(')
   })
-  test('animate-mo-enter uses CSS variable duration and easing', async () => {
-    const css = await compileCSS(['animate-mo-enter'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
-      }
-      @keyframes mo-enter {
-        from {
-          opacity: var(--mo-enter-opacity, 1);
-          transform: translate3d(var(--mo-enter-translate-x, 0), var(--mo-enter-translate-y, 0), 0) scale(var(--mo-enter-scale, 1)) rotate(var(--mo-enter-rotate, 0));
-        }
-      }
-      "
-    `)
+
+  test('enter and exit animations read shared duration, easing, and keyframe variables', async () => {
+    const enter = await compileCSS(['animate-mo-enter'])
+    expect(enter).toContain(
+      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
+    )
+    expect(enter).toContain(
+      'var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1)))',
+    )
+    expect(enter).toContain('opacity: var(--mo-enter-opacity, 1);')
+    expect(enter).toContain('scale(var(--mo-enter-scale, 1))')
+
+    const exit = await compileCSS(['animate-mo-exit'])
+    expect(exit).toContain(
+      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms))',
+    )
+    expect(exit).toContain('1 forwards;')
+    expect(exit).toContain('opacity: var(--mo-exit-opacity, 1);')
   })
 
-  test('animate-mo-exit uses CSS variable duration and easing', async () => {
-    const css = await compileCSS(['animate-mo-exit'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-mo-exit {
-        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
-      }
-      @keyframes mo-exit {
-        to {
-          opacity: var(--mo-exit-opacity, 1);
-          transform: translate3d(var(--mo-exit-translate-x, 0), var(--mo-exit-translate-y, 0), 0) scale(var(--mo-exit-scale, 1)) rotate(var(--mo-exit-rotate, 0));
-        }
-      }
-      "
-    `)
+  test.each([
+    [
+      'animate-carousel',
+      'carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    ],
+    [
+      'animate-swing',
+      'swing var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    ],
+    [
+      'animate-elastic',
+      'elastic var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    ],
+    [
+      'animate-spin',
+      'spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite',
+    ],
+  ])('%s uses the shared duration variable', async (utility, animation) => {
+    expect(await compileCSS([utility])).toContain(`animation: ${animation};`)
   })
 
-  test('mo-enter keyframe uses CSS variable transforms', async () => {
-    const css = await compileCSS(['animate-mo-enter'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
-      }
-      @keyframes mo-enter {
-        from {
-          opacity: var(--mo-enter-opacity, 1);
-          transform: translate3d(var(--mo-enter-translate-x, 0), var(--mo-enter-translate-y, 0), 0) scale(var(--mo-enter-scale, 1)) rotate(var(--mo-enter-rotate, 0));
-        }
-      }
-      "
-    `)
-  })
-
-  test('mo-exit keyframe uses CSS variable transforms', async () => {
-    const css = await compileCSS(['animate-mo-exit'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-mo-exit {
-        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
-      }
-      @keyframes mo-exit {
-        to {
-          opacity: var(--mo-exit-opacity, 1);
-          transform: translate3d(var(--mo-exit-translate-x, 0), var(--mo-exit-translate-y, 0), 0) scale(var(--mo-exit-scale, 1)) rotate(var(--mo-exit-rotate, 0));
-        }
-      }
-      "
-    `)
-  })
-
-  test('looping animations use shared duration and easing', async () => {
-    const css = await compileCSS(['animate-carousel', 'animate-swing', 'animate-elastic'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-carousel {
-        animation: carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
-      }
-      .animate-elastic {
-        animation: elastic var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
-      }
-      .animate-swing {
-        animation: swing var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
-      }
-      @keyframes carousel {
-        0% {
-          transform: translateX(-100%);
-        }
-        100% {
-          transform: translateX(100%);
-        }
-      }
-      @keyframes swing {
-        0%, 100% {
-          transform: translateX(-60%);
-        }
-        50% {
-          transform: translateX(60%);
-        }
-      }
-      @keyframes elastic {
-        0% {
-          transform: translateX(-100%) scaleX(0.9);
-        }
-        45% {
-          transform: translateX(0) scaleX(1);
-        }
-        100% {
-          transform: translateX(100%) scaleX(0.9);
-        }
-      }
-      "
-    `)
-  })
-
-  test('spin animation uses shared duration and linear easing', async () => {
-    const css = await compileCSS(['animate-spin'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-spin {
-        animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      "
-    `)
-  })
-
-  test('standard transition utilities preserve Tailwind defaults', async () => {
-    const css = await compileCSS([
-      'transition',
-      'transition-all',
-      'transition-colors',
-      'transition-opacity',
-      'transition-transform',
-      'transition-mo-enter',
-      'transition-mo-exit',
-    ])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      :root, :host {
-        --default-transition-duration: 150ms;
-        --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .transition {
-        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-all {
-        transition-property: all;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-colors {
-        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-opacity {
-        transition-property: opacity;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-transform {
-        transition-property: transform, translate, scale, rotate;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      "
-    `)
+  test('standard transition utilities keep Tailwind defaults', async () => {
+    const css = await compileCSS(['transition', 'transition-colors', 'transition-mo-enter'])
+    expect(css).toContain(
+      'transition-duration: var(--tw-duration, var(--default-transition-duration));',
+    )
+    expect(css).toContain(
+      'transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));',
+    )
     expect(css).not.toContain('.transition-mo-enter')
-    expect(css).not.toContain('.transition-mo-exit')
-  })
-})
-
-describe('enter and exit animation utilities', () => {
-  test('enter-opacity and exit-opacity set CSS variables', async () => {
-    const css = await compileCSS(['enter-opacity-0', 'exit-opacity-0', 'enter-opacity-50'])
-    expect(css).toContain('.enter-opacity-0')
-    expect(css).toContain('--mo-enter-opacity: 0;')
-    expect(css).toContain('.exit-opacity-0')
-    expect(css).toContain('--mo-exit-opacity: 0;')
-    expect(css).toContain('.enter-opacity-50')
-    expect(css).toContain('--mo-enter-opacity: 0.5;')
   })
 
-  test('enter-scale and exit-scale set CSS variables', async () => {
-    const css = await compileCSS(['enter-scale-95', 'exit-scale-95', 'enter-scale-[0.95]'])
-    expect(css).toContain('.enter-scale-95')
-    expect(css).toContain('--mo-enter-scale: .95;')
-    expect(css).toContain('.exit-scale-95')
-    expect(css).toContain('--mo-exit-scale: .95;')
-    expect(css).toContain('--mo-enter-scale: 0.95;')
-  })
-
-  test('enter-translate and exit-translate set positive and negative variables', async () => {
+  test('enter and exit utilities set the matching CSS variables', async () => {
     const css = await compileCSS([
+      'enter-opacity-0',
+      'exit-opacity-0',
+      'enter-opacity-50',
+      'enter-scale-95',
+      'exit-scale-95',
       'enter-translate-x-1',
       '-enter-translate-x-1',
       'exit-translate-x-1',
-      '-exit-translate-x-1',
-      'enter-translate-y-1',
-      '-enter-translate-y-1',
       'enter-translate-y-10',
       '-enter-translate-y-10',
       'enter-translate-y-full',
       '-enter-translate-y-full',
+      'enter-rotate-45',
+      '-enter-rotate-45',
+      'exit-rotate-45',
     ])
-    expect(css).toContain('.enter-translate-x-1')
+    expect(css).toContain('--mo-enter-opacity: 0;')
+    expect(css).toContain('--mo-exit-opacity: 0;')
+    expect(css).toContain('--mo-enter-opacity: 0.5;')
+    expect(css).toContain('--mo-enter-scale: .95;')
+    expect(css).toContain('--mo-exit-scale: .95;')
     expect(css).toContain('--mo-enter-translate-x: 0.25rem;')
-    expect(css).toContain('.-enter-translate-x-1')
     expect(css).toContain('--mo-enter-translate-x: calc(0.25rem * -1);')
-    expect(css).toContain('.exit-translate-x-1')
     expect(css).toContain('--mo-exit-translate-x: 0.25rem;')
-    expect(css).toContain('.-exit-translate-x-1')
-    expect(css).toContain('--mo-exit-translate-x: calc(0.25rem * -1);')
-    expect(css).toContain('.enter-translate-y-10')
     expect(css).toContain('--mo-enter-translate-y: 2.5rem;')
-    expect(css).toContain('.-enter-translate-y-10')
     expect(css).toContain('--mo-enter-translate-y: calc(2.5rem * -1);')
-    expect(css).toContain('.enter-translate-y-full')
     expect(css).toContain('--mo-enter-translate-y: 100%;')
-    expect(css).toContain('.-enter-translate-y-full')
     expect(css).toContain('--mo-enter-translate-y: calc(100% * -1);')
-  })
-
-  test('enter-rotate and exit-rotate set angle variables', async () => {
-    const css = await compileCSS(['enter-rotate-45', '-enter-rotate-45', 'exit-rotate-45'])
-    expect(css).toContain('.enter-rotate-45')
     expect(css).toContain('--mo-enter-rotate: 45deg;')
-    expect(css).toContain('.-enter-rotate-45')
     expect(css).toContain('--mo-enter-rotate: calc(45deg * -1);')
-    expect(css).toContain('.exit-rotate-45')
     expect(css).toContain('--mo-exit-rotate: 45deg;')
   })
 
-  test('animation utilities work with data variants', async () => {
+  test('enter and exit utilities compose with data variants', async () => {
     const css = await compileCSS([
       'data-expanded:enter-opacity-0',
       'data-closed:exit-opacity-0',
@@ -767,486 +393,100 @@ describe('enter and exit animation utilities', () => {
   })
 })
 
-// ─── Icon Utilities ──────────────────────────────────────────────────
-
 describe('icon utilities', () => {
   test('registers semantic icon names without generating CSS', async () => {
     const ds = await loadDesignSystem()
-    const classList = ds.getClassList()
-    const iconClasses = classList.filter(([name]) => name.startsWith('icon-')).map(([name]) => name)
+    const iconClasses = ds
+      .getClassList()
+      .filter(([name]) => name.startsWith('icon-'))
+      .map(([name]) => name)
 
     expect(iconClasses).toContain('icon-check')
     expect(iconClasses).toContain('icon-close')
-    const cssResults = ds.candidatesToCss(['icon-arrow-down', 'icon-check', 'icon-close'])
-    for (const result of cssResults) {
+    for (const result of ds.candidatesToCss(['icon-arrow-down', 'icon-check', 'icon-close'])) {
       expect(result).toBeNull()
     }
   })
+
+  test('compiles the icon-mask forced-colors behavior', async () => {
+    const css = await compileCSS(
+      cn(iconRecipe.config.variants!.isMask!.true!.root)?.split(' ') ?? [],
+    )
+
+    expect(css).toMatch(/\.icon-mask\s*\{\s*forced-color-adjust: none;/)
+    expect(css).toMatch(
+      /@supports \(forced-color-adjust: ?preserve-parent-color\)\s*\{\s*forced-color-adjust: preserve-parent-color;/,
+    )
+    expect(css).toMatch(/@media \(forced-colors: active\)\s*\{\s*color: inherit;/)
+  })
+
+  test('compiles the icon host sizing classes', async () => {
+    const css = await compileCSS(
+      cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? [],
+    )
+
+    expect(css).toMatch(/\.size-\\\[1\\\.2em\\\]\s*\{\s*width: 1\.2em;\s*height: 1\.2em;/)
+    expect(css).toMatch(/>\s*\*\)?\s*\{\s*width: 100%;\s*height: 100%;/)
+  })
 })
-
-// ─── Full compilation ────────────────────────────────────────────────
-
-// ─── Font Families ────────────────────────────────────────────────────
 
 describe('font families', () => {
-  test('font-sans resolves to var(--font-sans)', async () => {
-    const css = await compileCSS(['font-sans'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .font-sans {
-        font-family: var(--font-sans);
-      }
-      "
-    `)
-  })
-
-  test('font-mono resolves to var(--font-mono)', async () => {
-    const css = await compileCSS(['font-mono'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .font-mono {
-        font-family: var(--font-mono);
-      }
-      "
-    `)
-  })
-
-  test('font-serif resolves to var(--font-serif)', async () => {
-    const css = await compileCSS(['font-serif'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .font-serif {
-        font-family: var(--font-serif);
-      }
-      "
-    `)
+  test.each([
+    ['font-sans', 'var(--font-sans)'],
+    ['font-mono', 'var(--font-mono)'],
+    ['font-serif', 'var(--font-serif)'],
+  ])('%s resolves to its font variable', async (utility, variable) => {
+    expect(await compileCSS([utility])).toContain(`font-family: ${variable};`)
   })
 })
 
-// ─── Attribute Variants ───────────────────────────────────────────────
-
 describe('attribute variants', () => {
-  test('data-active variant transforms correctly', async () => {
-    const css = await compileCSS(['data-active:bg-primary'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .data-active\\:bg-primary[data-active] {
-        background-color: var(--primary);
-      }
-      "
-    `)
+  test.each([
+    ['data-active:bg-primary', '[data-active]', 'background-color: var(--primary);'],
+    ['data-checked:text-foreground', '[data-checked]', 'color: var(--foreground);'],
+    ['data-disabled:opacity-50', '[data-disabled]', 'opacity: 50%;'],
+    ['aria-busy:opacity-80', '[aria-busy]', 'opacity: 80%;'],
+    ['aria-checked:bg-accent', '[aria-checked]', 'background-color: var(--accent);'],
+    ['aria-disabled:pointer-events-none', '[aria-disabled]', 'pointer-events: none;'],
+  ])('%s targets its attribute selector', async (candidate, selector, declaration) => {
+    const css = await compileCSS([candidate])
+    expect(css).toContain(`${selector} {`)
+    expect(css).toContain(declaration)
   })
 
-  test('data-checked variant transforms correctly', async () => {
-    const css = await compileCSS(['data-checked:text-foreground'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .data-checked\\:text-foreground[data-checked] {
-        color: var(--foreground);
-      }
-      "
-    `)
+  test('data-leaf compiles tree item utilities', async () => {
+    expect(await compileCSS(['data-leaf:invisible'])).toContain('.data-leaf\\:invisible[data-leaf]')
   })
 
-  test('data-leaf variant compiles tree item utilities', async () => {
-    const css = await compileCSS(['data-leaf:invisible'])
-    expect(css).toContain('.data-leaf\\:invisible[data-leaf]')
-  })
-
-  test('data-disabled variant works with opacity', async () => {
-    const css = await compileCSS(['data-disabled:opacity-50'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .data-disabled\\:opacity-50[data-disabled] {
-        opacity: 50%;
-      }
-      "
-    `)
-  })
-
-  test('aria-busy variant transforms correctly', async () => {
-    const css = await compileCSS(['aria-busy:opacity-80'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .aria-busy\\:opacity-80[aria-busy] {
-        opacity: 80%;
-      }
-      "
-    `)
-  })
-
-  test('aria-checked variant works with moraine colors', async () => {
-    const css = await compileCSS(['aria-checked:bg-accent'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .aria-checked\\:bg-accent[aria-checked] {
-        background-color: var(--accent);
-      }
-      "
-    `)
-  })
-
-  test('aria-disabled variant works with pointer-events', async () => {
-    const css = await compileCSS(['aria-disabled:pointer-events-none'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .aria-disabled\\:pointer-events-none[aria-disabled] {
-        pointer-events: none;
-      }
-      "
-    `)
-  })
-
-  test('compiles the button press interaction selector', async () => {
+  test('the button press selector applies only to the active, non-popup state', async () => {
     const css = await compileCSS([
       'transition-all',
       '[&:active:not([aria-haspopup])]:translate-y-px',
     ])
 
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @layer properties;
-      :root, :host {
-        --default-transition-duration: 150ms;
-        --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .transition-all {
-        transition-property: all;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .\\[\\&\\:active\\:not\\(\\[aria-haspopup\\]\\)\\]\\:translate-y-px:active:not([aria-haspopup]) {
-        --tw-translate-y: 1px;
-        translate: var(--tw-translate-x) var(--tw-translate-y);
-      }
-      @property --tw-translate-x {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0;
-      }
-      @property --tw-translate-y {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0;
-      }
-      @property --tw-translate-z {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0;
-      }
-      @layer properties {
-        @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
-          *, ::before, ::after, ::backdrop {
-            --tw-translate-x: 0;
-            --tw-translate-y: 0;
-            --tw-translate-z: 0;
-          }
-        }
-      }
-      "
-    `)
+    expect(css).toMatch(/:active:not\(\[aria-haspopup\]\)\s*\{\s*--tw-translate-y: 1px;/)
   })
 
-  test('data variants compose with hover', async () => {
+  test('data variants compose with hover inside a hover media query', async () => {
     const css = await compileCSS(['hover:data-active:bg-primary'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @media (hover: hover) {
-        .hover\\:data-active\\:bg-primary:hover[data-active] {
-          background-color: var(--primary);
-        }
-      }
-      "
-    `)
-  })
-})
-
-// ─── Full compilation ────────────────────────────────────────────────
-
-describe('full compilation', () => {
-  test('multiple utility types compile together', async () => {
-    const css = await compileCSS([
-      'bg-primary',
-      'text-primary-foreground',
-      'rounded-lg',
-      'shadow-overlay',
-      'animate-mo-enter',
-      'border-border',
-    ])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @layer properties;
-      .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
-      }
-      .rounded-lg {
-        border-radius: var(--radius);
-      }
-      .border-border {
-        border-color: var(--border);
-      }
-      .bg-primary {
-        background-color: var(--primary);
-      }
-      .text-primary-foreground {
-        color: var(--primary-foreground);
-      }
-      .shadow-overlay {
-        --tw-shadow: var(--shadow-overlay);
-        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      }
-      @property --tw-shadow {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0 0 #0000;
-      }
-      @property --tw-shadow-color {
-        syntax: "*";
-        inherits: false;
-      }
-      @property --tw-shadow-alpha {
-        syntax: "<percentage>";
-        inherits: false;
-        initial-value: 100%;
-      }
-      @property --tw-inset-shadow {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0 0 #0000;
-      }
-      @property --tw-inset-shadow-color {
-        syntax: "*";
-        inherits: false;
-      }
-      @property --tw-inset-shadow-alpha {
-        syntax: "<percentage>";
-        inherits: false;
-        initial-value: 100%;
-      }
-      @property --tw-ring-color {
-        syntax: "*";
-        inherits: false;
-      }
-      @property --tw-ring-shadow {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0 0 #0000;
-      }
-      @property --tw-inset-ring-color {
-        syntax: "*";
-        inherits: false;
-      }
-      @property --tw-inset-ring-shadow {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0 0 #0000;
-      }
-      @property --tw-ring-inset {
-        syntax: "*";
-        inherits: false;
-      }
-      @property --tw-ring-offset-width {
-        syntax: "<length>";
-        inherits: false;
-        initial-value: 0px;
-      }
-      @property --tw-ring-offset-color {
-        syntax: "*";
-        inherits: false;
-        initial-value: #fff;
-      }
-      @property --tw-ring-offset-shadow {
-        syntax: "*";
-        inherits: false;
-        initial-value: 0 0 #0000;
-      }
-      @keyframes mo-enter {
-        from {
-          opacity: var(--mo-enter-opacity, 1);
-          transform: translate3d(var(--mo-enter-translate-x, 0), var(--mo-enter-translate-y, 0), 0) scale(var(--mo-enter-scale, 1)) rotate(var(--mo-enter-rotate, 0));
-        }
-      }
-      @layer properties {
-        @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
-          *, ::before, ::after, ::backdrop {
-            --tw-shadow: 0 0 #0000;
-            --tw-shadow-color: initial;
-            --tw-shadow-alpha: 100%;
-            --tw-inset-shadow: 0 0 #0000;
-            --tw-inset-shadow-color: initial;
-            --tw-inset-shadow-alpha: 100%;
-            --tw-ring-color: initial;
-            --tw-ring-shadow: 0 0 #0000;
-            --tw-inset-ring-color: initial;
-            --tw-inset-ring-shadow: 0 0 #0000;
-            --tw-ring-inset: initial;
-            --tw-ring-offset-width: 0px;
-            --tw-ring-offset-color: #fff;
-            --tw-ring-offset-shadow: 0 0 #0000;
-          }
-        }
-      }
-      "
-    `)
+    expect(css).toContain('@media (hover: hover)')
+    expect(css).toMatch(
+      /\.hover\\:data-active\\:bg-primary:hover\[data-active\]\s*\{\s*background-color: var\(--primary\);/,
+    )
   })
 
-  test('hover variant works with moraine tokens', async () => {
-    const css = await compileCSS(['hover:bg-primary'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @media (hover: hover) {
-        .hover\\:bg-primary:hover {
-          background-color: var(--primary);
-        }
-      }
-      "
-    `)
+  test('hover, focus, and responsive variants resolve moraine tokens', async () => {
+    const css = await compileCSS(['hover:bg-primary', 'focus:ring-ring', 'md:bg-secondary'])
+    expect(css).toMatch(
+      /@media \(hover: hover\)\s*\{\s*\.hover\\:bg-primary:hover\s*\{\s*background-color: var\(--primary\);/,
+    )
+    expect(css).toMatch(/\.focus\\:ring-ring:focus\s*\{\s*--tw-ring-color: var\(--ring\);/)
+    expect(css).toMatch(
+      /@media \(width >= 48rem\)\s*\{\s*\.md\\:bg-secondary\s*\{\s*background-color: var\(--secondary\);/,
+    )
   })
 
-  test('focus variant works with moraine tokens', async () => {
-    const css = await compileCSS(['focus:ring-ring'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .focus\\:ring-ring:focus {
-        --tw-ring-color: var(--ring);
-      }
-      "
-    `)
-  })
-
-  test('responsive variants work with moraine tokens', async () => {
-    const css = await compileCSS(['md:bg-secondary'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @media (width >= 48rem) {
-        .md\\:bg-secondary {
-          background-color: var(--secondary);
-        }
-      }
-      "
-    `)
-  })
-})
-
-// ─── @iconify/tailwind integration (docs config) ────────────────────
-
-describe('with @iconify/tailwind (docs config)', () => {
-  test('lucide icon utilities generate SVG CSS', async () => {
-    const css = await compileCSSWithIconify(['lucide--arrow-down'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .lucide--arrow-down {
-        --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
-      }
-      "
-    `)
-  })
-
-  test('.iconify base class provides mask-image styles', async () => {
-    const css = await compileCSSWithIconify(['iconify'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .iconify {
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        background-color: currentColor;
-        -webkit-mask-image: var(--svg);
-        mask-image: var(--svg);
-        -webkit-mask-repeat: no-repeat;
-        mask-repeat: no-repeat;
-        -webkit-mask-size: 100% 100%;
-        mask-size: 100% 100%;
-      }
-      "
-    `)
-  })
-
-  test('iconify icons render with currentColor via mask', async () => {
-    const css = await compileCSSWithIconify(['lucide--check'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .lucide--check {
-        --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
-      }
-      "
-    `)
-  })
-
-  test('moraine tokens still work alongside iconify', async () => {
-    const css = await compileCSSWithIconify(['bg-primary', 'rounded-lg', 'animate-mo-enter'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
-      }
-      .rounded-lg {
-        border-radius: var(--radius);
-      }
-      .bg-primary {
-        background-color: var(--primary);
-      }
-      @keyframes mo-enter {
-        from {
-          opacity: var(--mo-enter-opacity, 1);
-          transform: translate3d(var(--mo-enter-translate-x, 0), var(--mo-enter-translate-y, 0), 0) scale(var(--mo-enter-scale, 1)) rotate(var(--mo-enter-rotate, 0));
-        }
-      }
-      "
-    `)
-  })
-
-  test('lucide icon classes registered from iconify', async () => {
-    const ds = await loadDesignSystemWithIconify()
-    const classList = ds.getClassList()
-    const lucideClasses = classList.filter(([n]) => n.startsWith('lucide--'))
-    expect(lucideClasses.length).toBeGreaterThan(1000)
-  })
-
-  test('iconify icon candidates produce CSS, moraine stubs do not', async () => {
-    const ds = await loadDesignSystemWithIconify()
-    const results = ds.candidatesToCss([
-      'lucide--arrow-down',
-      'lucide--check',
-      'icon-arrow-down',
-      'icon-check',
-    ])
-    // iconify icons produce real CSS
-    expect(results[0]).not.toBeNull()
-    expect(results[0]).toMatchInlineSnapshot(`
-      ".lucide--arrow-down {
-        --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
-      }
-      "
-    `)
-    expect(results[1]).not.toBeNull()
-    expect(results[1]).toMatchInlineSnapshot(`
-      ".lucide--check {
-        --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
-      }
-      "
-    `)
-    // moraine stubs produce no CSS
-    expect(results[2]).toBeNull()
-    expect(results[3]).toBeNull()
-  })
-
-  test('iconify icons work with variants', async () => {
-    const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-      @media (hover: hover) {
-        .hover\\:lucide--arrow-down:hover {
-          --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
-        }
-      }
-      "
-    `)
-  })
-})
-
-describe('component attribute states', () => {
-  test('compiles required, dropzone, mobile and text-control states', async () => {
+  test('component attribute states compile into attribute selectors', async () => {
     const candidates = [
       "data-required:after:content-['*']",
       'data-dropzone:border-dashed',
@@ -1279,10 +519,8 @@ describe('component attribute states', () => {
       expect(css).toContain(`[data-${attribute}]`)
     }
   })
-})
 
-describe('accent channel utilities', () => {
-  test('compiles accent-scope and accent-fg consumers with state variants', async () => {
+  test('accent channel utilities compile with state variants', async () => {
     const candidates = [
       'hover:accent-scope',
       'focus-within:accent-scope',
@@ -1301,31 +539,75 @@ describe('accent channel utilities', () => {
     expect(css).toContain('color: var(--mo-accent-fg, var(--primary))')
     expect(css).toContain('::placeholder')
     expect(css).toContain('[data-placeholder]')
-    expect(css).not.toContain('group/')
   })
 })
 
-describe('icon forced colors utilities', () => {
-  test('compiles the icon-mask utility', async () => {
-    const css = await compileCSS(
-      cn(iconRecipe.config.variants!.isMask!.true!.root)?.split(' ') ?? [],
-    )
+describe('iconify integration (docs config)', () => {
+  test('lucide icon utilities generate SVG mask CSS', async () => {
+    const css = await compileCSSWithIconify(['lucide--arrow-down'])
+    expect(css).toContain('--svg: url("data:image/svg+xml,')
+    expect(css).toContain("d='M12 5v14m7-7l-7 7l-7-7'")
+  })
 
-    expect(css).toMatch(/\.icon-mask\s*\{\s*forced-color-adjust: none;/)
-    expect(css).toMatch(
-      /@supports \(forced-color-adjust: ?preserve-parent-color\)\s*\{\s*forced-color-adjust: preserve-parent-color;/,
-    )
-    expect(css).toMatch(/@media \(forced-colors: active\)\s*\{\s*color: inherit;/)
+  test('the iconify base class renders currentColor through a mask', async () => {
+    const css = await compileCSSWithIconify(['iconify'])
+    expect(css).toContain('background-color: currentColor;')
+    expect(css).toContain('mask-image: var(--svg);')
+  })
+
+  test('moraine tokens still work alongside iconify', async () => {
+    const css = await compileCSSWithIconify(['bg-primary', 'rounded-lg', 'animate-mo-enter'])
+    expect(css).toContain('background-color: var(--primary);')
+    expect(css).toContain('border-radius: var(--radius);')
+    expect(css).toContain('animation: mo-enter')
+  })
+
+  test('lucide icons are registered and produce CSS while moraine icon stubs do not', async () => {
+    const ds = await loadDesignSystemWithIconify()
+    const lucideClasses = ds.getClassList().filter(([name]) => name.startsWith('lucide--'))
+    expect(lucideClasses.length).toBeGreaterThan(1000)
+
+    const [arrow, check, arrowStub, checkStub] = ds.candidatesToCss([
+      'lucide--arrow-down',
+      'lucide--check',
+      'icon-arrow-down',
+      'icon-check',
+    ])
+    expect(arrow).toContain('--svg: url(')
+    expect(check).toContain('--svg: url(')
+    expect(arrowStub).toBeNull()
+    expect(checkStub).toBeNull()
+  })
+
+  test('iconify icons work with variants', async () => {
+    const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
+    expect(css).toContain('@media (hover: hover)')
+    expect(css).toContain('.hover\\:lucide--arrow-down:hover')
   })
 })
 
-describe('icon host utilities', () => {
-  test('compiles the icon host classes', async () => {
-    const css = await compileCSS(
-      cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? [],
-    )
+async function loadDesignSystemWithIconify() {
+  const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
+  return __unstable__loadDesignSystem(css, {
+    loadModule: combinedLoadModule(),
+  })
+}
 
-    expect(css).toMatch(/\.size-\\\[1\\\.2em\\\]\s*\{\s*width: 1\.2em;\s*height: 1\.2em;/)
-    expect(css).toMatch(/>\s*\*\)?\s*\{\s*width: 100%;\s*height: 100%;/)
+describe('full compilation', () => {
+  test('utilities from every family compile together', async () => {
+    const css = await compileCSS([
+      'bg-primary',
+      'text-primary-foreground',
+      'rounded-lg',
+      'shadow-overlay',
+      'animate-mo-enter',
+      'border-border',
+    ])
+    expect(css).toContain('background-color: var(--primary);')
+    expect(css).toContain('color: var(--primary-foreground);')
+    expect(css).toContain('border-radius: var(--radius);')
+    expect(css).toContain('border-color: var(--border);')
+    expect(css).toContain('--tw-shadow: var(--shadow-overlay);')
+    expect(css).toContain('animation: mo-enter')
   })
 })

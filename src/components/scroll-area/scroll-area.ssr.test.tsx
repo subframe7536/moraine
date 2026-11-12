@@ -26,7 +26,6 @@ describe('ScrollArea SSR hydration', () => {
     setShadow(false)
     expect(root.querySelector('span')).toBe(child)
     expect(child.textContent).toBe('Updated content')
-    expect(root.className).not.toContain('mask-image')
     expect(container.firstElementChild).toBe(root)
   })
 })

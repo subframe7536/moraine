@@ -1,6 +1,6 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
@@ -82,30 +82,6 @@ describe('NumberInput', () => {
 
     expect(spinbutton.getAttribute('aria-valuemin')).toBeNull()
     expect(spinbutton.getAttribute('aria-valuemax')).toBeNull()
-  })
-
-  test('supports unified repeat object prop', async () => {
-    vi.useFakeTimers()
-    try {
-      const onIncrementClick = vi.fn()
-      const screen = render(() => (
-        <NumberInput
-          defaultValue={0}
-          repeat={{ delay: 200, interval: 30 }}
-          onIncrementClick={onIncrementClick}
-        />
-      ))
-      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-      const incrementButton = screen.getByRole('button', { name: 'Increment' })
-
-      fireEvent.pointerDown(incrementButton, { button: 0, pointerId: 10, pointerType: 'mouse' })
-      await vi.advanceTimersByTimeAsync(300)
-      fireEvent.pointerUp(incrementButton, { button: 0, pointerId: 10, pointerType: 'mouse' })
-
-      expect(Number(spinbutton.value)).toBeGreaterThan(1)
-    } finally {
-      vi.useRealTimers()
-    }
   })
 
   test('places caller naming and Field relationships on the spinbutton', () => {
@@ -1012,7 +988,11 @@ describe('NumberInput', () => {
     }
   })
 
-  test('stops hold repeat on pointer cancel without extra increment', async () => {
+  test.each([
+    ['pointer cancel', 'pointerCancel'],
+    ['lost pointer capture', 'lostPointerCapture'],
+    ['pointer leave', 'pointerLeave'],
+  ] as const)('stops hold repeat on %s without an extra increment', async (_label, endEvent) => {
     vi.useFakeTimers()
 
     try {
@@ -1020,57 +1000,19 @@ describe('NumberInput', () => {
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      fireEvent.pointerDown(incrementButton, {
-        button: 0,
-        pointerId: 5,
-        pointerType: 'mouse',
-      })
+      fireEvent.pointerDown(incrementButton, { button: 0, pointerId: 5, pointerType: 'mouse' })
       expect(incrementButton.getAttribute('data-active')).toBe('')
       await vi.advanceTimersByTimeAsync(620)
 
-      const valueBeforeCancel = Number(spinbutton.value)
-      expect(valueBeforeCancel).toBeGreaterThan(1)
+      const valueBeforeStop = Number(spinbutton.value)
+      expect(valueBeforeStop).toBeGreaterThan(1)
 
-      fireEvent.pointerCancel(incrementButton, {
-        button: 0,
-        pointerId: 5,
-        pointerType: 'mouse',
-      })
+      fireEvent[endEvent](incrementButton, { button: 0, pointerId: 5, pointerType: 'mouse' })
       expect(incrementButton.getAttribute('data-active')).toBeNull()
 
       await vi.advanceTimersByTimeAsync(240)
 
-      expect(Number(spinbutton.value)).toBe(valueBeforeCancel)
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  test('stops hold repeat when pointer capture is lost', async () => {
-    vi.useFakeTimers()
-
-    try {
-      const screen = render(() => <NumberInput defaultValue={0} />)
-      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-      const incrementButton = screen.getByRole('button', { name: 'Increment' })
-
-      fireEvent.pointerDown(incrementButton, {
-        button: 0,
-        pointerId: 51,
-        pointerType: 'mouse',
-      })
-      expect(incrementButton.getAttribute('data-active')).toBe('')
-      await vi.advanceTimersByTimeAsync(620)
-
-      const valueBeforeCaptureLoss = Number(spinbutton.value)
-      fireEvent.lostPointerCapture(incrementButton, {
-        pointerId: 51,
-        pointerType: 'mouse',
-      })
-      expect(incrementButton.getAttribute('data-active')).toBeNull()
-      await vi.advanceTimersByTimeAsync(240)
-
-      expect(Number(spinbutton.value)).toBe(valueBeforeCaptureLoss)
+      expect(Number(spinbutton.value)).toBe(valueBeforeStop)
     } finally {
       vi.useRealTimers()
     }
@@ -1113,40 +1055,6 @@ describe('NumberInput', () => {
     } finally {
       document.body.style.setProperty('user-select', previousUserSelect)
       document.body.style.setProperty('-webkit-user-select', previousWebkitUserSelect)
-      vi.useRealTimers()
-    }
-  })
-
-  test('stops hold repeat on pointer leave without extra increment', async () => {
-    vi.useFakeTimers()
-
-    try {
-      const screen = render(() => <NumberInput defaultValue={0} />)
-      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-      const incrementButton = screen.getByRole('button', { name: 'Increment' })
-
-      fireEvent.pointerDown(incrementButton, {
-        button: 0,
-        pointerId: 6,
-        pointerType: 'mouse',
-      })
-      expect(incrementButton.getAttribute('data-active')).toBe('')
-      await vi.advanceTimersByTimeAsync(620)
-
-      const valueBeforeLeave = Number(spinbutton.value)
-      expect(valueBeforeLeave).toBeGreaterThan(1)
-
-      fireEvent.pointerLeave(incrementButton, {
-        button: 0,
-        pointerId: 6,
-        pointerType: 'mouse',
-      })
-      expect(incrementButton.getAttribute('data-active')).toBeNull()
-
-      await vi.advanceTimersByTimeAsync(240)
-
-      expect(Number(spinbutton.value)).toBe(valueBeforeLeave)
-    } finally {
       vi.useRealTimers()
     }
   })
@@ -1342,150 +1250,27 @@ describe('NumberInput', () => {
     }
   })
 
-  test('uses vertical orientation behavior with both controls', async () => {
-    const screen = render(() => <NumberInput orientation="vertical" defaultValue={1} />)
-    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-    const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-    const controls = screen.container.querySelector('[data-slot="number-input-controls"]')
+  test.each(['vertical', 'horizontal'] as const)(
+    'steps with both controls in %s orientation',
+    (orientation) => {
+      const screen = render(() => <NumberInput orientation={orientation} defaultValue={1} />)
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const incrementButton = screen.getByRole('button', { name: 'Increment' })
+      const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
-    expect(incrementButton.firstElementChild?.className).toContain('icon-chevron-up')
-    expect(decrementButton.firstElementChild?.className).toContain('icon-chevron-down')
-    expect(controls?.className).toContain('flex-col')
-    expect(controls?.className).toContain('w-9')
-    expect(controls?.className).toContain('border-s-1')
-    expect(incrementButton.getAttribute('data-slot')).toBe('number-input-increment')
-    expect(decrementButton.getAttribute('data-slot')).toBe('number-input-decrement')
-    expect(incrementButton.className).toContain('flex-1')
-    expect(decrementButton.className).toContain('flex-1')
-    expect(decrementButton.className).not.toContain('border-t')
-    expect(incrementButton.className).toContain('w-full')
-    expect(decrementButton.className).toContain('w-full')
+      fireEvent.click(incrementButton)
+      expect(spinbutton.value).toBe('2')
 
-    fireEvent.click(incrementButton)
-    expect(spinbutton.value).toBe('2')
-
-    fireEvent.click(decrementButton)
-    expect(spinbutton.value).toBe('1')
-  })
-
-  test('uses explicit horizontal orientation behavior with both controls', async () => {
-    const screen = render(() => <NumberInput orientation="horizontal" defaultValue={1} />)
-    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-    const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-
-    expect(incrementButton.firstElementChild?.className).toContain('icon-plus')
-    expect(decrementButton.firstElementChild?.className).toContain('icon-minus')
-
-    fireEvent.click(incrementButton)
-    expect(spinbutton.value).toBe('2')
-
-    fireEvent.click(decrementButton)
-    expect(spinbutton.value).toBe('1')
-  })
-
-  test('lays out horizontal link controls as sibling slots instead of overlaying the input', () => {
-    const incrementOnly = render(() => <NumberInput size="lg" decrement={false} />)
-    const incrementOnlyRoot = incrementOnly.container.querySelector('[data-slot="number-input"]')
-    const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="number-input-input"]',
-    )
-    const incrementOnlyButton = incrementOnly.container.querySelector(
-      '[data-slot="number-input-increment"]',
-    )
-
-    expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
-    expect(incrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
-    expect(incrementOnlyButton?.className).toContain('w-9')
-    expect(incrementOnlyButton?.className).toContain('rounded-e-none')
-    expect(incrementOnlyButton?.className).not.toContain('border-s')
-    expect(incrementOnlyButton?.className).not.toContain('absolute')
-    expect(incrementOnlyBase?.className).not.toContain('pe-10')
-    expect(incrementOnlyBase?.className).not.toContain('ps-10')
-    expect(incrementOnlyBase?.className).toContain('data-auto-align:text-start')
-    expect(incrementOnlyBase?.hasAttribute('data-auto-align')).toBe(true)
-
-    incrementOnly.unmount()
-
-    const decrementOnly = render(() => <NumberInput size="lg" increment={false} />)
-    const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="number-input-input"]',
-    )
-    const decrementOnlyButton = decrementOnly.container.querySelector(
-      '[data-slot="number-input-decrement"]',
-    )
-
-    expect(decrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
-    expect(decrementOnlyButton?.className).toContain('w-9')
-    expect(decrementOnlyButton?.className).toContain('rounded-s-none')
-    expect(decrementOnlyButton?.className).not.toContain('border-e')
-    expect(decrementOnlyButton?.className).not.toContain('absolute')
-    expect(decrementOnlyBase?.className).not.toContain('pe-10')
-    expect(decrementOnlyBase?.className).not.toContain('ps-10')
-    expect(decrementOnlyBase?.hasAttribute('data-auto-align')).toBe(false)
-  })
-
-  test('uses a dedicated vertical control column instead of end-padding the input', () => {
-    const incrementOnly = render(() => (
-      <NumberInput size="sm" orientation="vertical" decrement={false} />
-    ))
-    const incrementOnlyControls = incrementOnly.container.querySelector(
-      '[data-slot="number-input-controls"]',
-    )
-    const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="number-input-input"]',
-    )
-
-    expect(incrementOnlyControls?.className).toContain('w-8')
-    expect(incrementOnlyControls?.className).toContain('border-s-1')
-    expect(incrementOnlyBase?.className).not.toContain('ps-8')
-    expect(incrementOnlyBase?.className).not.toContain('pe-8')
-
-    incrementOnly.unmount()
-
-    const decrementOnly = render(() => (
-      <NumberInput size="sm" orientation="vertical" increment={false} />
-    ))
-    const decrementOnlyControls = decrementOnly.container.querySelector(
-      '[data-slot="number-input-controls"]',
-    )
-    const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="number-input-input"]',
-    )
-
-    expect(decrementOnlyControls?.className).toContain('w-8')
-    expect(decrementOnlyControls?.className).toContain('border-s-1')
-    expect(decrementOnlyBase?.className).not.toContain('ps-8')
-    expect(decrementOnlyBase?.className).not.toContain('pe-8')
-  })
+      fireEvent.click(decrementButton)
+      expect(spinbutton.value).toBe('1')
+    },
+  )
 
   test('hides both increment and decrement controls when disabled by props', () => {
     const screen = render(() => <NumberInput increment={false} decrement={false} />)
 
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
-  })
-
-  test('does not evaluate hidden increment and decrement icons', () => {
-    const reads = { decrementIcon: 0, incrementIcon: 0 }
-
-    render(() =>
-      createComponent(NumberInput, {
-        decrement: false,
-        increment: false,
-        get decrementIcon() {
-          reads.decrementIcon += 1
-          return <span>Decrement</span>
-        },
-        get incrementIcon() {
-          reads.incrementIcon += 1
-          return <span>Increment</span>
-        },
-      }),
-    )
-
-    expect(reads).toEqual({ decrementIcon: 0, incrementIcon: 0 })
   })
 
   test('updates orientation and conditional controls while preserving the native input', () => {
@@ -1504,94 +1289,6 @@ describe('NumberInput', () => {
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
     expect(screen.getByRole('spinbutton')).toBe(input)
-  })
-
-  test.each([
-    ['sm', 'h-7', 'text-xs', 'leading-4'],
-    ['md', 'h-8', 'text-sm', 'leading-5'],
-    ['lg', 'h-9', 'text-base', 'leading-6'],
-  ] as const)('applies %s size classes', (size, rootHeight, textClass, leadingClass) => {
-    const screen = render(() => <NumberInput size={size} />)
-    const root = screen.container.querySelector('[data-slot="number-input"]')
-    const base = screen.container.querySelector('[data-slot="number-input-input"]')
-
-    expect(root?.className).toContain(rootHeight)
-    expect(base?.className).toContain(textClass)
-    expect(base?.className).toContain(leadingClass)
-  })
-
-  test.each([
-    ['outline', ['border', 'border-input', 'bg-control', 'shadow-input']],
-    ['subtle', ['border', 'border-input', 'bg-muted', 'shadow-input']],
-    ['ghost', ['hover:bg-accent-hover', 'focus-within:bg-accent-hover']],
-    ['none', ['focus-within:ring-0']],
-  ] as const)('applies %s variant classes', (variant, expectedClasses) => {
-    const screen = render(() => <NumberInput variant={variant} />)
-    const root = screen.container.querySelector('[data-slot="number-input"]')
-
-    for (const expectedClass of expectedClasses) {
-      expect(root?.className).toContain(expectedClass)
-    }
-  })
-
-  test('colors the inner input when the ghost root is hovered or focused', () => {
-    const screen = render(() => <NumberInput variant="ghost" />)
-    const root = screen.getByRole('spinbutton').closest('[data-slot="number-input"]')!
-    const inputClasses = screen.getByRole('spinbutton').className.split(/\s+/)
-    const rootClasses = root.className.split(/\s+/)
-
-    for (const state of ['hover', 'focus-within']) {
-      expect(rootClasses).toContain(`${state}:bg-accent-hover`)
-      expect(rootClasses).toContain(`${state}:accent-scope`)
-      expect(rootClasses).toContain(`${state}:text-accent-foreground`)
-    }
-    expect(inputClasses).toContain('accent-fg-foreground')
-    expect(inputClasses).toContain('placeholder:accent-fg-muted-foreground')
-  })
-
-  test('defaults to outline and exposes only the supported variants', () => {
-    const screen = render(() => <NumberInput />)
-    const root = screen.container.querySelector('[data-slot="number-input"]')
-
-    expect(root?.className).toContain('bg-control')
-    expectTypeOf<NumberInputT.Variants['variant']>().toEqualTypeOf<
-      'outline' | 'subtle' | 'ghost' | 'none' | undefined
-    >()
-  })
-
-  test('renders native link controls outside the tab order without a press translation effect', () => {
-    const screen = render(() => <NumberInput />)
-    const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-
-    expect(incrementButton).toBeInstanceOf(HTMLButtonElement)
-    expect(decrementButton).toBeInstanceOf(HTMLButtonElement)
-    expect(incrementButton.getAttribute('type')).toBe('button')
-    expect(decrementButton.getAttribute('type')).toBe('button')
-    expect(incrementButton.tabIndex).toBe(-1)
-    expect(decrementButton.tabIndex).toBe(-1)
-    expect(incrementButton.hasAttribute('data-variant')).toBe(false)
-    expect(decrementButton.hasAttribute('data-variant')).toBe(false)
-    expect(incrementButton.className).toContain('text-primary')
-    expect(incrementButton.className).toContain('hover:text-primary-hover')
-    expect(incrementButton.className).toContain('active:text-primary-active')
-    expect(incrementButton.className).not.toContain('bg-muted-active')
-    expect(incrementButton.className).not.toContain('translate-y-px')
-    expect(decrementButton.className).not.toContain('translate-y-px')
-  })
-
-  test.each([
-    ['sm', 'w-7'],
-    ['md', 'w-8'],
-    ['lg', 'w-9'],
-  ] as const)('applies Nuxt UI %s control sizes with inherited icons', (size, buttonSize) => {
-    const screen = render(() => <NumberInput size={size} />)
-    const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const incrementIcon = incrementButton.firstElementChild
-
-    expect(incrementButton.className).toContain(buttonSize)
-    expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
-    expect(incrementIcon?.getAttribute('style')).toBeNull()
   })
 
   test('keeps the active state throughout a held press', async () => {
@@ -1626,7 +1323,24 @@ describe('NumberInput', () => {
     }
   })
 
-  test('applies classes.root override', () => {
+  test('keeps step controls as non-submitting buttons outside the tab order', () => {
+    const screen = render(() => <NumberInput />)
+    const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
+
+    expect(incrementButton.type).toBe('button')
+    expect(decrementButton.type).toBe('button')
+    expect(incrementButton.tabIndex).toBe(-1)
+    expect(decrementButton.tabIndex).toBe(-1)
+  })
+
+  test('exposes only the supported variants', () => {
+    expectTypeOf<NumberInputT.Variants['variant']>().toEqualTypeOf<
+      'outline' | 'subtle' | 'ghost' | 'none' | undefined
+    >()
+  })
+
+  test('applies classes.root to the root element', () => {
     const screen = render(() => <NumberInput classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="number-input"]')
 

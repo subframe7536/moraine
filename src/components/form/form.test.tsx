@@ -111,7 +111,9 @@ describe('Form', () => {
   test('replaces Design root styling without remounting the bound form', () => {
     const { screen, value } = renderWithOwner(
       () => {
-        const [design, setDesign] = createSignal(defineTheme({ form: { base: { root: 'p-2' } } }))
+        const [design, setDesign] = createSignal(
+          defineTheme({ form: { base: { root: 'theme-root-a' } } }),
+        )
         return { form: createForm({ schema: Schema }), design, setDesign }
       },
       (props) => (
@@ -122,13 +124,13 @@ describe('Form', () => {
     )
     const element = screen.container.querySelector<HTMLFormElement>('form')!
 
-    expect(element.className).toContain('p-2')
+    expect(element.className).toContain('theme-root-a')
 
-    value.setDesign(defineTheme({ form: { base: { root: 'p-4' } } }))
+    value.setDesign(defineTheme({ form: { base: { root: 'theme-root-b' } } }))
 
     expect(screen.container.querySelector('form')).toBe(element)
-    expect(element.className).toContain('p-4')
-    expect(element.className).not.toContain('p-2')
+    expect(element.className).toContain('theme-root-b')
+    expect(element.className).not.toContain('theme-root-a')
   })
 
   test('uses a control initialValue only when Formisch has no field input', async () => {
@@ -819,7 +821,7 @@ describe('Form', () => {
     expect(form.isDirty).toBe(true)
   })
 
-  test('restores Formisch and visible control state in the first reset microtask', async () => {
+  test('restores Formisch state and visible controls after a native reset', async () => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -896,28 +898,6 @@ describe('Form', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit second' }))
     await waitFor(() => expect(secondSubmit).toHaveBeenCalledTimes(1))
     expect(secondSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Second' })
-  })
-
-  test('applies default field gap on form root', () => {
-    const { screen } = renderWithOwner(
-      () =>
-        createForm({
-          schema: v.object({ value: v.string() }),
-          initialInput: { value: '' },
-        }),
-      (form) => (
-        <MoraineProvider>
-          <form.Form>
-            <form.Field name="value" label="Value">
-              <Input />
-            </form.Field>
-          </form.Form>
-        </MoraineProvider>
-      ),
-    )
-
-    const formElement = screen.container.querySelector('form')
-    expect(formElement?.className).toContain('space-y-4')
   })
 
   test('binds form.Field without requiring form.Form', () => {

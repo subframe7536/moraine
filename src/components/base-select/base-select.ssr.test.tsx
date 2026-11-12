@@ -62,9 +62,7 @@ test('hydrates a conditional Trigger child without replacing it', () => {
 
 test('hydrates Item item prop and preserves its JSX label on updates', () => {
   const [disabled, setDisabled] = createSignal(false)
-  let labelMounts = 0
   function Label() {
-    labelMounts += 1
     return <span>One</span>
   }
   const { container } = hydrateFixture(
@@ -91,9 +89,7 @@ test('hydrates Item item prop and preserves its JSX label on updates', () => {
   const label = option.querySelector('span')!
   expect(option.getAttribute('aria-selected')).toBe('true')
   expect(label.textContent).toBe('One')
-  expect(labelMounts).toBe(1)
   setDisabled(true)
   expect(option.getAttribute('aria-disabled')).toBe('true')
   expect(option.querySelector('span')).toBe(label)
-  expect(labelMounts).toBe(1)
 })

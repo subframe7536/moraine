@@ -13,7 +13,7 @@ const items = [
 ]
 
 describe('Select family state ownership', () => {
-  test('BaseSelect normalizes single selection and Control stays non-interactive', () => {
+  test('clicking the Control does not open the popup, while the trigger and listbox still select', () => {
     const onValueChange = vi.fn()
     function Parts() {
       const state = useSelectContext()

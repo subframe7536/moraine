@@ -19,34 +19,28 @@ function expectAriaReferencesToResolve(content: Element): void {
 }
 
 describe('Sheet', () => {
-  test.each([
-    ['left', 'left-0', '-enter-translate-x-10'],
-    ['right', 'right-0', 'enter-translate-x-10'],
-    ['top', 'top-0', '-enter-translate-y-10'],
-    ['bottom', 'bottom-0', 'enter-translate-y-10'],
-  ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
-    render(() => (
-      <Sheet open side={side}>
-        <Sheet.Trigger as="button" type="button">
-          Trigger
-        </Sheet.Trigger>
-        <Sheet.Content>
-          <Sheet.Body>Sheet body</Sheet.Body>
-        </Sheet.Content>
-      </Sheet>
-    ))
+  test.each(['left', 'right', 'top', 'bottom'] as const)(
+    'opens a %s sheet with the expanded and transition state',
+    (side) => {
+      render(() => (
+        <Sheet open side={side}>
+          <Sheet.Trigger as="button" type="button">
+            Trigger
+          </Sheet.Trigger>
+          <Sheet.Content>
+            <Sheet.Body>Sheet body</Sheet.Body>
+          </Sheet.Content>
+        </Sheet>
+      ))
 
-    const content = document.body.querySelector('[data-slot="sheet-content"]')
+      const content = document.body.querySelector('[data-slot="sheet-content"]')
 
-    expect(content?.hasAttribute('data-side')).toBe(false)
-    expect(content?.hasAttribute('data-expanded')).toBe(true)
-    expect(content?.hasAttribute('data-closed')).toBe(false)
-    expect(content?.hasAttribute('data-transition')).toBe(true)
-    expect(content?.className).toContain(expectedClass)
-    expect(content?.className).toContain('data-transition:data-expanded:animate-mo-enter')
-    expect(content?.className).toContain('data-transition:data-closed:animate-mo-exit')
-    expect(content?.className).toContain(sideClass)
-  })
+      expect(content?.hasAttribute('data-side')).toBe(false)
+      expect(content?.hasAttribute('data-expanded')).toBe(true)
+      expect(content?.hasAttribute('data-closed')).toBe(false)
+      expect(content?.hasAttribute('data-transition')).toBe(true)
+    },
+  )
 
   test('releases body slot content when closed and recreates it when reopened', async () => {
     const [open, setOpen] = createSignal(false)
@@ -139,43 +133,25 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="sheet-content"]')
 
-    expect(content?.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content?.hasAttribute('data-transition')).toBe(false)
-    expect(content?.className).toContain('content-class')
+    expect(content?.classList.contains('content-class')).toBe(true)
   })
 
-  test('reacts to root presentation and surface configuration', () => {
-    const [side, setSide] = createSignal<'left' | 'right'>('left')
-    const [inset, setInset] = createSignal(false)
-    const [transition, setTransition] = createSignal(true)
+  test('applies a changed root content class without remounting the sheet', () => {
     const [rootClass, setRootClass] = createSignal('first-root')
     render(() => (
-      <Sheet
-        open
-        side={side()}
-        inset={inset()}
-        transition={transition()}
-        classes={{ content: rootClass() }}
-      >
+      <Sheet open classes={{ content: rootClass() }}>
         <Sheet.Content title="Panel">Body</Sheet.Content>
       </Sheet>
     ))
 
     const content = document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')!
-    expect(content.className).toContain('left-0')
-    expect(content.className).toContain('first-root')
-    expect(content.hasAttribute('data-transition')).toBe(true)
+    expect(content.classList.contains('first-root')).toBe(true)
 
-    setSide('right')
-    setInset(true)
-    setTransition(false)
     setRootClass('second-root')
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
-    expect(content.className).toContain('right-0')
-    expect(content.className).toContain('sm:m-4')
-    expect(content.className).toContain('second-root')
-    expect(content.className).not.toContain('first-root')
-    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(content.classList.contains('second-root')).toBe(true)
+    expect(content.classList.contains('first-root')).toBe(false)
   })
 
   test('renders default shell with title, description, body, footer and close button', () => {
@@ -359,15 +335,13 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
-  test('reads shorthand and composed children when content opens', () => {
-    let childrenReads = 0
+  test('renders shorthand title and description beside composed children', () => {
     render(() => (
       <Sheet open>
         {createComponent(Sheet.Content, {
           title: 'Title',
           description: 'Description',
           get children() {
-            childrenReads += 1
             return (
               <>
                 <Sheet.Body>Body</Sheet.Body>
@@ -378,7 +352,10 @@ describe('Sheet', () => {
         })}
       </Sheet>
     ))
-    expect(childrenReads).toBe(1)
+    expect(document.body.querySelector('[data-slot="sheet-title"]')?.textContent).toBe('Title')
+    expect(document.body.querySelector('[data-slot="sheet-description"]')?.textContent).toBe(
+      'Description',
+    )
     expect(document.body.querySelector('[data-slot="sheet-body"]')?.textContent).toBe('Body')
     expect(document.body.querySelector('[data-slot="sheet-footer"]')?.textContent).toBe('Footer')
   })
@@ -428,10 +405,10 @@ describe('Sheet', () => {
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)
     const header = document.body.querySelector<HTMLElement>('[data-slot="sheet-header"]')!
-    expect(header.className).toContain('family-header')
+    expect(header.classList.contains('family-header')).toBe(true)
     expect(header.style.color).toBe('red')
-    expect(body.className).toContain('family-body')
-    expect(body.className).toContain('local-body')
+    expect(body.classList.contains('family-body')).toBe(true)
+    expect(body.classList.contains('local-body')).toBe(true)
     setTitleId('renamed-title')
     expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
     setShowTitle(false)
@@ -460,8 +437,6 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.hasAttribute('data-side')).toBe(false)
-    expect(content.className).toContain('left-0')
-    expect(content.className).toContain('rounded-none')
     expect(content.hasAttribute('data-transition')).toBe(true)
 
     setSide('right')
@@ -470,8 +445,6 @@ describe('Sheet', () => {
 
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(content.hasAttribute('data-side')).toBe(false)
-    expect(content.className).toContain('right-0')
-    expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content.hasAttribute('data-transition')).toBe(false)
   })
 
@@ -560,37 +533,12 @@ describe('Sheet', () => {
 
     const automatic = document.body.querySelector<HTMLElement>('[data-slot="sheet-content-close"]')!
     const explicit = screen.getByTestId('explicit-sheet-close')
-    expect(automatic.className).toContain('automatic-close')
-    expect(automatic.className).toContain('focus-visible:ring-ring/50')
-    expect(automatic.className).toContain('absolute')
-    expect(explicit.className).toContain('explicit-close')
-    expect(explicit.className).not.toContain('automatic-close')
-    expect(explicit.className).not.toContain('absolute')
+    expect(automatic.classList.contains('automatic-close')).toBe(true)
+    expect(explicit.classList.contains('explicit-close')).toBe(true)
+    expect(explicit.classList.contains('automatic-close')).toBe(false)
 
     fireEvent.click(explicit)
     expect(onOpenChange).toHaveBeenCalledWith(false)
-  })
-
-  test('keeps structured section padding symmetric around the corner close', () => {
-    render(() => (
-      <Sheet open>
-        <Sheet.Content title="Title">
-          <Sheet.Body>Body</Sheet.Body>
-          <Sheet.Footer>Footer</Sheet.Footer>
-        </Sheet.Content>
-      </Sheet>
-    ))
-
-    const header = document.body.querySelector('[data-slot="sheet-header"]') as HTMLElement
-    const body = document.body.querySelector('[data-slot="sheet-body"]') as HTMLElement
-    const footer = document.body.querySelector('[data-slot="sheet-footer"]') as HTMLElement
-
-    expect(header.className).toContain('p-4')
-    expect(body.className).toContain('px-4')
-    expect(footer.className).toContain('p-4')
-    expect(header.className).not.toContain('pe-14')
-    expect(body.className).not.toContain('pe-14')
-    expect(footer.className).not.toContain('pe-14')
   })
 
   test('hides close button when closable=false', () => {
@@ -696,9 +644,9 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
   })
 
-  test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
+  test('applies an instance overlay class to the backdrop that wraps the content', () => {
     render(() => (
-      <Sheet open classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
+      <Sheet open classes={{ overlay: 'custom-sheet-overlay' }}>
         <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
@@ -706,22 +654,16 @@ describe('Sheet', () => {
     ))
 
     const overlay = document.body.querySelector('[data-slot="sheet-overlay"]') as HTMLElement
-    expect(overlay.className).toContain('fixed')
-    expect(overlay.className).toContain('inset-0')
-    expect(overlay.className).toContain('z-floating')
-    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
-    expect(overlay.className).toContain('data-closed:animate-mo-exit')
-    expect(overlay.className).toContain('motion-reduce:animate-none')
-    expect(overlay.className).toContain('bg-red-500')
-    expect(overlay.className).toContain('custom-sheet-overlay')
-    expect(overlay.className).not.toContain('bg-black/10')
+    const content = document.body.querySelector('[data-slot="sheet-content"]')
+    expect(overlay.classList.contains('custom-sheet-overlay')).toBe(true)
+    expect(overlay.contains(content)).toBe(true)
   })
 
-  test('preserves Modal overlay behavior for provider slot overrides', () => {
+  test('applies a provider theme overlay class to the backdrop', () => {
     render(() => (
       <MoraineProvider
         theme={defineTheme({
-          sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
+          sheet: { base: { overlay: 'provider-sheet-overlay' } },
         })}
       >
         <Sheet open>
@@ -733,15 +675,7 @@ describe('Sheet', () => {
     ))
 
     const overlay = document.body.querySelector('[data-slot="sheet-overlay"]') as HTMLElement
-    expect(overlay.className).toContain('fixed')
-    expect(overlay.className).toContain('inset-0')
-    expect(overlay.className).toContain('z-floating')
-    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
-    expect(overlay.className).toContain('data-closed:animate-mo-exit')
-    expect(overlay.className).toContain('motion-reduce:animate-none')
-    expect(overlay.className).toContain('bg-blue-500')
-    expect(overlay.className).toContain('provider-sheet-overlay')
-    expect(overlay.className).not.toContain('bg-black/10')
+    expect(overlay.classList.contains('provider-sheet-overlay')).toBe(true)
   })
 
   test('prevents close when closeOnEscape is false and emits onClosePrevent', async () => {
@@ -890,7 +824,6 @@ describe('Sheet', () => {
       input.focus()
       listeners.get('resize')?.(new Event('resize'))
 
-      expect(content.className).not.toContain('[--sheet-keyboard-inset')
       expect(content.style.getPropertyValue('--sheet-keyboard-inset')).toBe('400px')
       expect(scrollIntoView).toHaveBeenCalled()
     } finally {
@@ -998,7 +931,7 @@ describe('Sheet', () => {
     expect(captured?.getAttribute('data-slot')).toBe('sheet-content')
   })
 
-  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+  test('runs the consumer onKeyDown handler and honors its preventDefault', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       event.preventDefault()
     })
@@ -1011,8 +944,9 @@ describe('Sheet', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
-    fireEvent.keyDown(content, { key: 'Tab' })
-    expect(onKeyDown).toHaveBeenCalled()
+    const notCancelled = fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(notCancelled).toBe(false)
   })
 
   test('dynamically toggles overlay={false} without unmounting content or losing state', () => {

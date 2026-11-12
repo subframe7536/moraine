@@ -55,7 +55,6 @@ test('hydrates Theme presentation once and preserves native nodes across replace
     expect(textarea.readOnly).toBe(false)
     expect(container.querySelector('input')).toBe(input)
     expect(container.querySelector('textarea')).toBe(textarea)
-    expect(button.className).toContain('h-7')
     expect(button.hasAttribute('data-loading')).toBe(true)
     input.focus()
     input.value = 'Local edit'

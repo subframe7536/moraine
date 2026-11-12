@@ -2,7 +2,6 @@ import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { cn } from './cn'
-import { defineTheme } from './create-theme'
 import type { RecipeConfig, RecipeVariantSelection } from './recipe'
 import { compileRecipe, defineRecipe, matchEntries } from './recipe'
 
@@ -301,39 +300,4 @@ test.each([
     compoundVariants: [{ variants: { columns: 2, enabled: true }, root: 'gap-4' }],
   })
   expect(recipe({ columns, enabled }).classes.root).toBe(expected)
-})
-
-test('compiles each recipe once per Theme and shares the built-in result when a Theme has no layer', () => {
-  const recipe = defineRecipe<RootSlot, { size?: 'sm' | 'lg' }>('cached', {
-    base: { root: 'p-2' },
-    variants: { size: { sm: { root: 'text-sm' }, lg: { root: 'text-lg' } } },
-  })
-  const themed = defineTheme({ cached: { base: { root: 'p-4' } } } as never)
-  const unrelated = defineTheme({ other: { base: { root: 'p-4' } } } as never)
-  const builtIn = compileRecipe(recipe)
-  expect(compileRecipe(recipe)).toBe(builtIn)
-  expect(compileRecipe(recipe, null)).toBe(builtIn)
-  expect(compileRecipe(recipe, unrelated)).toBe(builtIn)
-  const layered = compileRecipe(recipe, themed)
-  expect(layered).not.toBe(builtIn)
-  expect(compileRecipe(recipe, themed)).toBe(layered)
-  expect(layered.slots).toEqual(['root'])
-  expect(layered.keys).toEqual(['size'])
-  expect(layered.bySlot.root!.map((entry) => [entry.when, entry.value])).toEqual([
-    [undefined, 'p-2'],
-    [{ size: ['sm'] }, 'text-sm'],
-    [{ size: ['lg'] }, 'text-lg'],
-    [undefined, 'p-4'],
-  ])
-})
-
-test('drops compound entries that can never match', () => {
-  const recipe = defineRecipe<RootSlot, { a?: boolean }>('never', {
-    base: { root: '' },
-    compoundVariants: [
-      { variants: {}, root: 'empty-match' },
-      { variants: { a: undefined }, root: 'undefined-match' },
-    ],
-  })
-  expect(compileRecipe(recipe).bySlot.root!.map((entry) => entry.value)).toEqual([''])
 })

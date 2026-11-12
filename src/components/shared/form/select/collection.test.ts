@@ -86,7 +86,7 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('uses collision-safe string keys for grouped and item rows', () => {
+  test('gives every row a unique key even when raw values collide as strings', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const source = createSource([
       {
@@ -104,12 +104,15 @@ describe('canonical select collection', () => {
       { value: 0, label: 'Duplicate zero' },
     ])
     const keys = source.rows.map((row) => row.key)
-    expect(keys.every((key) => typeof key === 'string')).toBe(true)
     expect(new Set(keys).size).toBe(keys.length)
-    expect(keys).toContain('group:0')
-    expect(keys).toContain('item:string:group%3A0')
-    expect(keys).toContain('item:string:1')
-    expect(keys).toContain('item:number:1')
+    expect(source.items.map((item) => item.label)).toEqual([
+      'Dash group',
+      'Colon group',
+      'Item namespace',
+      'String one',
+      'Number one',
+      'Negative zero',
+    ])
     error.mockRestore()
   })
 
@@ -141,10 +144,8 @@ test('shares filtered rows without changing canonical lookup', () => {
   const source = createSource([{ type: 'group', label: 'Numbers', items: [first, second] }])
   const view = filterView(source, (item) => item.value === 2)
   expect(view.items).toEqual([second])
-  expect(view.rows).toEqual([
-    { type: 'label', key: 'group:0', label: 'Numbers', values: [2] },
-    { type: 'item', key: 'item:number:2', item: second },
-  ])
+  expect(view.rows.map((row) => row.type)).toEqual(['label', 'item'])
+  expect(view.rows[1]).toMatchObject({ type: 'item', item: second })
   expect(source.byValue.get(1)).toBe(first)
 })
 

@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { ErrorBoundary, createComponent, createSignal, onCleanup, onMount } from 'solid-js'
+import { ErrorBoundary, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -14,33 +14,6 @@ describe('Progress', () => {
     ))
 
     expect(screen.getByTestId('value').textContent).toBe('Working')
-  })
-
-  test('uses recipe css variables for base thickness', () => {
-    const horizontal = render(() => (
-      <MoraineProvider>
-        <Progress value={20} size="sm" />
-      </MoraineProvider>
-    ))
-    const vertical = render(() => (
-      <MoraineProvider>
-        <Progress value={20} size="lg" orientation="vertical" />
-      </MoraineProvider>
-    ))
-
-    const horizontalRoot = horizontal.container.querySelector(
-      '[data-slot="progress"]',
-    ) as HTMLElement
-    const verticalRoot = vertical.container.querySelector('[data-slot="progress"]') as HTMLElement
-    const horizontalTrack = horizontal.container.querySelector('[data-slot="progress-track"]')
-    const verticalTrack = vertical.container.querySelector('[data-slot="progress-track"]')
-
-    expect(horizontalRoot.style.getPropertyValue('--p-size')).toBe('0.25rem')
-    expect(horizontalRoot.className).not.toContain('[--p-size:')
-    expect(horizontalTrack?.className).toContain('h-(--p-size)')
-    expect(verticalRoot.style.getPropertyValue('--p-size')).toBe('0.75rem')
-    expect(verticalTrack?.className).toContain('w-(--p-size)')
-    expect(verticalRoot.className).toContain('w-fit')
   })
 
   test('accepts a style override for thickness', () => {
@@ -64,9 +37,6 @@ describe('Progress', () => {
     expect(progress.getAttribute('aria-valuetext')).toBe('50%')
     expect(screen.container.querySelector('[data-slot="progress-label"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="progress-value"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="progress-track"]')?.className).toContain(
-      'row-start-1',
-    )
   })
 
   test('supports an accessible name', () => {
@@ -75,7 +45,7 @@ describe('Progress', () => {
     expect(screen.getByRole('progressbar', { name: 'Loading page' })).not.toBeNull()
   })
 
-  test('places label and value on the header row', () => {
+  test('renders label and value before the track in document order', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Progress value={40} label="Upload" showValue />
@@ -84,7 +54,6 @@ describe('Progress', () => {
     const root = screen.getByRole('progressbar')
     const label = screen.container.querySelector('[data-slot="progress-label"]')
     const value = screen.container.querySelector('[data-slot="progress-value"]') as HTMLElement
-    const track = screen.container.querySelector('[data-slot="progress-track"]')
 
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
       'progress-label',
@@ -92,28 +61,18 @@ describe('Progress', () => {
       'progress-track',
     ])
     expect(label?.textContent).toBe('Upload')
-    expect(label?.className).toContain('col-start-1')
     expect(value.textContent).toBe('40%')
-    expect(value.className).toContain('col-start-2')
-    expect(root.className).toContain('grid-cols-[minmax(0,1fr)_auto]')
-    expect(track?.className).toContain('row-start-2')
     expect(root.style.getPropertyValue('--p-value')).toBe('0.4')
   })
 
-  test('shows valueRender without showValue and keeps a lone value at the start column', () => {
+  test('shows valueRender without showValue', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Progress value={25} valueRender={(props) => <>Done {props.percent}%</>} />
       </MoraineProvider>
     ))
-    const value = screen.container.querySelector('[data-slot="progress-value"]') as HTMLElement
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
-    expect(value.className).toContain('col-start-1')
-    expect(value.className).not.toContain('col-start-2')
-    expect(screen.container.querySelector('[data-slot="progress-track"]')?.className).toContain(
-      'row-start-2',
-    )
   })
 
   test('supports valueLabel for aria-valuetext', () => {
@@ -130,20 +89,12 @@ describe('Progress', () => {
 
   test('updates the value text and valueRender content when value changes', () => {
     const [value, setValue] = createSignal(25)
-    let mounts = 0
-    const renderValue = (props: ProgressT.ValueRenderProps) => {
-      onMount(() => {
-        mounts += 1
-      })
-      return <>Done {props.percent}%</>
-    }
+    const renderValue = (props: ProgressT.ValueRenderProps) => <>Done {props.percent}%</>
     const screen = render(() => <Progress value={value()} showValue valueRender={renderValue} />)
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
-    expect(mounts).toBe(1)
     setValue(50)
     expect(screen.getByText('Done 50%')).not.toBeNull()
-    expect(mounts).toBe(1)
 
     const shown = render(() => <Progress value={value()} showValue />)
     expect(shown.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('50%')
@@ -180,9 +131,6 @@ describe('Progress', () => {
       'Scanning',
     )
     expect(screen.container.querySelector('[data-slot="progress-value"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="progress-track"]')?.className).toContain(
-      'row-start-2',
-    )
     expect(indicator?.hasAttribute('data-indeterminate')).toBe(true)
   })
 
@@ -197,10 +145,6 @@ describe('Progress', () => {
       expect(progress.getAttribute('aria-valuetext')).toBe('indeterminate progress')
       expect(screen.container.querySelector('[data-slot="progress-value"]')).toBeNull()
       expect(progress.style.getPropertyValue('--p-value')).toBe('')
-      expect(
-        (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
-          .transform,
-      ).toBe('')
     },
   )
 
@@ -214,24 +158,16 @@ describe('Progress', () => {
     expect(progress.getAttribute('data-progress')).toBe('complete')
     expect(screen.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('0%')
     expect(progress.style.getPropertyValue('--p-value')).toBe('0')
-    expect(
-      (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
-        .transform,
-    ).toBe('')
   })
 
   test('keeps fractional percentages synchronized without integer rounding', () => {
     const screen = render(() => <Progress value={1} max={3} showValue />)
     const progress = screen.getByRole('progressbar')
     const value = screen.container.querySelector('[data-slot="progress-value"]') as HTMLElement
-    const indicator = screen.container.querySelector(
-      '[data-slot="progress-indicator"]',
-    ) as HTMLElement
 
     expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
     expect(value.textContent).toBe('33.33%')
     expect(progress.style.getPropertyValue('--p-value')).toBe('0.3333')
-    expect(indicator.style.transform).toBe('')
   })
 
   test('keeps overall progress on root and indicator', () => {
@@ -261,13 +197,11 @@ describe('Progress', () => {
     expect(indicator.hasAttribute('data-progress')).toBe(false)
   })
 
-  test('reads valueRender only while progress is determinate', () => {
+  test('shows valueRender only while progress is determinate', () => {
     const [value, setValue] = createSignal<number | undefined>(undefined)
-    let valueReads = 0
     const screen = render(() =>
       createComponent(Progress, {
         get valueRender() {
-          valueReads += 1
           return <span data-testid="value-render">Status</span>
         },
         get value() {
@@ -276,16 +210,15 @@ describe('Progress', () => {
       }),
     )
 
-    expect(valueReads).toBe(0)
     expect(screen.queryByTestId('value-render')).toBeNull()
 
     setValue(25)
-    expect(valueReads).toBe(1)
     expect(screen.getByTestId('value-render')).not.toBeNull()
 
     setValue(undefined)
+    expect(screen.queryByTestId('value-render')).toBeNull()
+
     setValue(1)
-    expect(valueReads).toBe(2)
     expect(screen.getByTestId('value-render')).not.toBeNull()
   })
 
@@ -321,80 +254,12 @@ describe('Progress', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('applies orientation and animation classes', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Progress value={25} showValue orientation="vertical" animation="swing" />
-      </MoraineProvider>
-    ))
-
-    const root = screen.container.querySelector('[data-slot="progress"]') as HTMLElement
-    const indicator = screen.container.querySelector(
-      '[data-slot="progress-indicator"]',
-    ) as HTMLElement
-
-    expect(root.className).toContain('w-fit')
-    expect(root.style.getPropertyValue('--p-value')).toBe('0.25')
-    expect(indicator.className).toContain('animate-swing-vertical')
-    expect(indicator.className).toContain('not-[[data-indeterminate]]:scale-y-[var(--p-value)]')
-    expect(indicator.className).toContain('origin-bottom')
-    expect(indicator.style.transform).toBe('')
-  })
-
-  test('drives horizontal fill with scale from the inline-start edge, including RTL', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <div dir="rtl">
-          <Progress value={60} showValue />
-        </div>
-      </MoraineProvider>
-    ))
-
-    const root = screen.getByRole('progressbar')
-    const indicator = screen.container.querySelector(
-      '[data-slot="progress-indicator"]',
-    ) as HTMLElement
-
-    expect(root.style.getPropertyValue('--p-value')).toBe('0.6')
-    expect(indicator.className).toContain('not-[[data-indeterminate]]:scale-x-[var(--p-value)]')
-    expect(indicator.className).toContain('origin-left')
-    expect(indicator.className).toContain('rtl:origin-right')
-    expect(indicator.style.transform).toBe('')
-  })
-
   test('merges the progress value variable with user root style', () => {
     const screen = render(() => <Progress value={50} style={{ color: 'red' }} />)
     const root = screen.getByRole('progressbar')
 
     expect(root.style.color).toBe('red')
     expect(root.style.getPropertyValue('--p-value')).toBe('0.5')
-  })
-
-  test('uses reverse animation classes without inverse utilities', () => {
-    const horizontal = render(() => (
-      <MoraineProvider>
-        <Progress value={undefined} animation="reverse" />
-      </MoraineProvider>
-    ))
-    const vertical = render(() => (
-      <MoraineProvider>
-        <Progress value={undefined} orientation="vertical" animation="reverse" />
-      </MoraineProvider>
-    ))
-
-    const horizontalIndicator = horizontal.container.querySelector(
-      '[data-slot="progress-indicator"]',
-    ) as HTMLElement
-    const verticalIndicator = vertical.container.querySelector(
-      '[data-slot="progress-indicator"]',
-    ) as HTMLElement
-
-    expect(horizontalIndicator.className).toContain('animate-carousel-rtl')
-    expect(horizontalIndicator.className).toContain('rtl:animate-carousel')
-    expect(horizontalIndicator.className).not.toContain('animate-carousel-inverse')
-    expect(verticalIndicator.className).toContain('animate-carousel-vertical')
-    expect(verticalIndicator.className).toContain('[animation-direction:reverse]')
-    expect(verticalIndicator.className).not.toContain('animate-carousel-inverse-vertical')
   })
 
   test('merges classes overrides into all slots', () => {

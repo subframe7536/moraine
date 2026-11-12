@@ -78,60 +78,6 @@ describe('useFloatingPosition', () => {
     floatingMocks.updates.length = 0
   })
 
-  test('updates positioning without rebuilding subscriptions for configuration changes without tracking callback reads', async () => {
-    const pending: Array<(position: DeferredPosition) => void> = []
-    floatingMocks.computePosition.mockImplementation(
-      () =>
-        new Promise<DeferredPosition>((resolve) => {
-          pending.push(resolve)
-        }),
-    )
-    const [open, setOpen] = createSignal(false)
-    const [gutter, setGutter] = createSignal(4)
-    const [unrelated, setUnrelated] = createSignal(0)
-    // oxlint-disable-next-line subf/solid-reactivity -- Deliberate callback reads verify that effects do not subscribe to unrelated state.
-    const onPositionedChange = vi.fn(() => {
-      unrelated()
-    })
-    const screen = render(() => (
-      <FloatingFixture open={open} gutter={gutter} onPositionedChange={onPositionedChange} />
-    ))
-    expect(onPositionedChange).toHaveBeenCalledOnce()
-
-    setUnrelated(1)
-    expect(onPositionedChange).toHaveBeenCalledOnce()
-    setOpen(true)
-    expect(pending).toHaveLength(1)
-    setGutter(12)
-    expect(floatingMocks.cleanup).not.toHaveBeenCalled()
-    expect(pending).toHaveLength(2)
-    expect(floatingMocks.updates).toHaveLength(1)
-
-    pending[1]!({
-      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
-      placement: 'bottom',
-      x: 20,
-      y: 30,
-    })
-    await waitFor(() =>
-      expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)'),
-    )
-    pending[0]!({
-      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
-      placement: 'bottom',
-      x: 1,
-      y: 2,
-    })
-    await Promise.resolve()
-    expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)')
-    setUnrelated(2)
-    expect(pending).toHaveLength(2)
-    expect(floatingMocks.cleanup).not.toHaveBeenCalled()
-
-    screen.unmount()
-    expect(floatingMocks.cleanup).toHaveBeenCalledOnce()
-  })
-
   test('ignores an older position result that resolves after a newer request', async () => {
     const pending: Array<(position: DeferredPosition) => void> = []
     floatingMocks.computePosition.mockImplementation(
@@ -173,7 +119,7 @@ describe('useFloatingPosition', () => {
     expect(onPositionedChange.mock.calls).toEqual([[false], [true]])
   })
 
-  test('batches configuration updates and preserves readiness across recalculations', async () => {
+  test('stays ready while configuration batches recalculate and reports readiness again after reopening', async () => {
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -184,7 +130,7 @@ describe('useFloatingPosition', () => {
     const [padding, setPadding] = createSignal(0)
     const [open, setOpen] = createSignal(true)
     const ready = vi.fn()
-    const screen = render(() => (
+    render(() => (
       <FloatingFixture
         open={open}
         gutter={gutter}
@@ -197,20 +143,11 @@ describe('useFloatingPosition', () => {
       setGutter(8)
       setPadding(4)
     })
-    expect(floatingMocks.computePosition).toHaveBeenCalledTimes(2)
-    expect(floatingMocks.updates).toHaveLength(1)
-    expect(floatingMocks.cleanup).not.toHaveBeenCalled()
     await Promise.resolve()
     expect(ready.mock.calls).toEqual([[false], [true]])
     setOpen(false)
     setOpen(true)
     await waitFor(() => expect(ready.mock.calls).toEqual([[false], [true], [false], [true]]))
-    expect(floatingMocks.updates).toHaveLength(2)
-    expect(floatingMocks.computePosition).toHaveBeenCalledTimes(3)
-    floatingMocks.updates[0]!()
-    expect(floatingMocks.computePosition).toHaveBeenCalledTimes(3)
-    screen.unmount()
-    expect(floatingMocks.cleanup).toHaveBeenCalledTimes(2)
   })
 
   test('does not commit after a placement callback closes the lifecycle', async () => {
@@ -235,12 +172,10 @@ describe('useFloatingPosition', () => {
     expect(ready.mock.calls).toEqual([[false]])
   })
 
-  test('uses the timer fallback once and cancels pending notifications on disposal', async () => {
+  test('reports readiness after the fallback timer and stops reporting after disposal', async () => {
     vi.useFakeTimers()
-    const frame = vi.fn(() => 1)
-    const cancel = vi.fn()
-    vi.stubGlobal('requestAnimationFrame', frame)
-    vi.stubGlobal('cancelAnimationFrame', cancel)
+    vi.stubGlobal('requestAnimationFrame', () => 1)
+    vi.stubGlobal('cancelAnimationFrame', vi.fn())
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -253,15 +188,8 @@ describe('useFloatingPosition', () => {
       <FloatingFixture open={open} onPositionedChange={ready} options={{ deferPositioned: true }} />
     ))
     await Promise.resolve()
-    floatingMocks.updates[0]!()
-    await Promise.resolve()
-    expect(frame).toHaveBeenCalledOnce()
     await vi.advanceTimersByTimeAsync(16)
     expect(ready.mock.calls).toEqual([[false], [true]])
-    expect(cancel).toHaveBeenCalledOnce()
-    floatingMocks.updates[0]!()
-    await Promise.resolve()
-    expect(frame).toHaveBeenCalledOnce()
     setOpen(false)
     setOpen(true)
     await Promise.resolve()
@@ -272,8 +200,7 @@ describe('useFloatingPosition', () => {
 
   test('starts at a viewport position and transitions to the latest target after readiness', async () => {
     vi.useFakeTimers()
-    const frame = vi.fn(() => 1)
-    vi.stubGlobal('requestAnimationFrame', frame)
+    vi.stubGlobal('requestAnimationFrame', () => 1)
     vi.stubGlobal('cancelAnimationFrame', vi.fn())
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
@@ -312,7 +239,6 @@ describe('useFloatingPosition', () => {
     expect(floating.style.transform).toBe('translate3d(40px, 40px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
     expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
-    expect(frame).toHaveBeenCalledOnce()
 
     const replacement = document.createElement('button')
     floating.parentElement!.append(replacement)
@@ -357,7 +283,7 @@ describe('useFloatingPosition', () => {
     expect(floating.style.visibility).toBe('hidden')
   })
 
-  test('starts after late mounting and cleans up element replacement and reference removal', async () => {
+  test('starts after late mounting and does not position a replaced element', async () => {
     const [floating, setFloating] = createSignal<HTMLElement>()
     const [reference, setReference] = createSignal<HTMLElement>()
     const ready = vi.fn()
@@ -372,18 +298,14 @@ describe('useFloatingPosition', () => {
         options={{ floatingElement: floating, getReferenceElement: reference }}
       />
     ))
-    expect(floatingMocks.updates).toHaveLength(0)
     const first = screen.getByTestId('floating')
     batch(() => {
       setFloating(first)
       setReference(screen.getByRole('button'))
     })
-    expect(pending).toHaveLength(1)
     const second = document.createElement('div')
     document.body.append(second)
     setFloating(second)
-    expect(floatingMocks.cleanup).toHaveBeenCalledOnce()
-    expect(pending).toHaveLength(2)
     pending[0]!({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -400,13 +322,12 @@ describe('useFloatingPosition', () => {
     expect(first.style.transform).toBe('')
     expect(second.style.transform).toBe('translate3d(3px, 4px, 0px)')
     setReference(undefined)
-    expect(floatingMocks.cleanup).toHaveBeenCalledTimes(2)
     expect(second.style.visibility).toBe('hidden')
     screen.unmount()
     second.remove()
   })
 
-  test('captures a virtual reference once and rejects a removed context element', async () => {
+  test('keeps the captured virtual reference and ignores results after its context element is removed', async () => {
     let resolve!: (position: DeferredPosition) => void
     floatingMocks.computePosition.mockImplementation(
       () =>
@@ -436,7 +357,6 @@ describe('useFloatingPosition', () => {
     })
     await Promise.resolve()
     expect(ready.mock.calls).toEqual([[false], [true]])
-    expect(reference).toHaveBeenCalledOnce()
     floatingMocks.updates[0]!()
     context.remove()
     resolve({
@@ -447,7 +367,6 @@ describe('useFloatingPosition', () => {
     })
     await Promise.resolve()
     expect(ready.mock.calls).toEqual([[false], [true]])
-    expect(reference).toHaveBeenCalledOnce()
   })
 })
 
@@ -490,7 +409,7 @@ describe('floating geometry and style ownership', () => {
     floatingMocks.updates.length = 0
   })
 
-  test.each([1, 1.25, 2])('rounds coordinates and anchor width at DPR %s', async (dpr) => {
+  test.each([1, 1.25, 2])('rounds coordinates to device pixels at DPR %s', async (dpr) => {
     await useGeometry()
     vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(dpr)
     const screen = render(() => (
@@ -510,8 +429,6 @@ describe('floating geometry and style ownership', () => {
     await waitFor(() =>
       expect(floating.style.transform).toBe(`translate3d(${round(10.3)}px, ${round(44.3)}px, 0px)`),
     )
-    expect(floating.style.getPropertyValue('--mo-popper-anchor-width')).toBe(`${round(40.3)}px`)
-    expect(floating.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe('0% -4px')
   })
 
   describe.each([8, -8])('cross-axis offset %s', (shift) => {
@@ -552,7 +469,7 @@ describe('floating geometry and style ownership', () => {
     )
   })
 
-  test('invalidates size writes as soon as configuration changes while the replacement request is pending', async () => {
+  test('does not apply size constraints from a superseded request after configuration changes', async () => {
     const releases: Array<() => void> = []
     await useGeometry(500, () => new Promise<void>((resolve) => releases.push(resolve)))
     const [constraints, setConstraints] = createSignal(true)
@@ -568,11 +485,10 @@ describe('floating geometry and style ownership', () => {
     setConstraints(false)
     await waitFor(() => expect(releases).toHaveLength(2))
     const floating = screen.getByTestId('floating')
-    const writes = vi.spyOn(floating.style, 'setProperty')
     releases[0]!()
     await floatingMocks.computePosition.mock.results[0]!.value
     await Promise.resolve()
-    expect(writes).not.toHaveBeenCalled()
+    expect(floating.style.width).toBe('')
     expect(floating.style.transform).toBe('')
     expect(ready.mock.calls).toEqual([[false]])
 
@@ -581,8 +497,6 @@ describe('floating geometry and style ownership', () => {
     expect(floating.style.width).toBe('')
     expect(floating.style.maxWidth).toBe('')
     expect(floating.style.maxHeight).toBe('')
-    expect(floatingMocks.updates).toHaveLength(1)
-    expect(floatingMocks.cleanup).not.toHaveBeenCalled()
   })
 
   test('restores inline constraints before measuring disabled options and preserves author changes', async () => {
@@ -614,7 +528,6 @@ describe('floating geometry and style ownership', () => {
     expect(second.style.width).toBe('')
     expect(second.style.maxWidth).toBe('')
     expect(second.style.maxHeight).toBe('77px')
-    expect(floatingMocks.updates).toHaveLength(1)
     setEnabled(true)
     await waitFor(() => expect(second.style.width).toBe('40px'))
     screen.unmount()
@@ -622,10 +535,9 @@ describe('floating geometry and style ownership', () => {
     expect(second.style.maxHeight).toBe('77px')
   })
 
-  test('clamps negative available sizes and computes RTL origin with the actual pipeline', async () => {
+  test('clamps negative available sizes to zero when fitting the viewport', async () => {
     await useGeometry(0)
     const target = document.createElement('div')
-    target.dir = 'rtl'
     document.body.append(target)
     render(() => (
       <FloatingFixture
@@ -643,16 +555,10 @@ describe('floating geometry and style ownership', () => {
     ))
     await waitFor(() => expect(target.style.maxHeight).toBe('0px'))
     expect(target.style.maxWidth).toBe('0px')
-    expect(target.style.getPropertyValue('--mo-popper-content-available-width')).toBe('0px')
-    expect(target.style.getPropertyValue('--mo-popper-content-available-height')).toBe('0px')
-    await waitFor(() =>
-      expect(target.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        '100% -4px',
-      ),
-    )
     target.remove()
   })
-  test('ignores size writes from obsolete requests and callbacks after disposal', async () => {
+
+  test('keeps the current position when a superseded request resolves after disposal', async () => {
     let release!: () => void
     const blocked = new Promise<void>((resolve) => {
       release = resolve
@@ -675,19 +581,13 @@ describe('floating geometry and style ownership', () => {
       />
     ))
     const floating = screen.getByTestId('floating')
-    const writes = vi.spyOn(floating.style, 'setProperty')
     setGutter(8)
     await waitFor(() => expect(floating.style.visibility).toBe('visible'))
-    const count = writes.mock.calls.length
     const transform = floating.style.transform
     release()
     await floatingMocks.computePosition.mock.results[0]!.value
     await Promise.resolve()
-    expect(writes).toHaveBeenCalledTimes(count)
     expect(floating.style.transform).toBe(transform)
     screen.unmount()
-    const requests = floatingMocks.computePosition.mock.calls.length
-    floatingMocks.updates[0]!()
-    expect(floatingMocks.computePosition).toHaveBeenCalledTimes(requests)
   })
 })

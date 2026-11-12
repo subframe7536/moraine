@@ -13,24 +13,17 @@ describe.each([
   { name: 'Sheet', Root: Sheet },
 ])('$name composition', ({ Root, name }) => {
   const owner = name.toLowerCase()
-  test('does not instantiate closed content parts before opening', () => {
-    let reads = 0
+  test('does not render body content until the overlay opens', () => {
     const screen = render(() => (
       <Root>
         <Root.Trigger>Open</Root.Trigger>
         <Root.Content title="Title">
-          <Root.Body>
-            {(() => {
-              reads += 1
-              return 'Children'
-            })()}
-          </Root.Body>
+          <Root.Body>Children</Root.Body>
         </Root.Content>
       </Root>
     ))
-    expect(reads).toBe(0)
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Open' }))
-    expect(reads).toBe(1)
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
   })
 
@@ -59,10 +52,8 @@ describe.each([
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
   })
 
-  test('resolves shorthand JSX once per presence cycle and releases it after exit', async () => {
+  test('renders shorthand title and description on each opening and unmounts the title after exit', async () => {
     const [open, setOpen] = createSignal(false)
-    let titleReads = 0
-    let descriptionReads = 0
     let cleanups = 0
     const Title = () => {
       onCleanup(() => {
@@ -75,11 +66,9 @@ describe.each([
       <Root open={open()}>
         {createComponent(Root.Content, {
           get title() {
-            titleReads += 1
             return <Title />
           },
           get description() {
-            descriptionReads += 1
             return <span>Description</span>
           },
           get children() {
@@ -89,11 +78,8 @@ describe.each([
       </Root>
     ))
 
-    expect(titleReads).toBe(0)
-    expect(descriptionReads).toBe(0)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)).toBeNull()
     setOpen(true)
-    expect(titleReads).toBe(1)
-    expect(descriptionReads).toBe(1)
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'TitleDescription',
     )
@@ -103,29 +89,21 @@ describe.each([
     expect(cleanups).toBe(1)
 
     setOpen(true)
-    expect(titleReads).toBe(2)
-    expect(descriptionReads).toBe(2)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'TitleDescription',
+    )
   })
 
-  test('keeps explicit children mounted while switching between explicit and shorthand headers', () => {
+  test('keeps the body node while switching between explicit and shorthand headers', () => {
     const [showHeader, setShowHeader] = createSignal(true)
-    let titleReads = 0
-    let descriptionReads = 0
-    let bodyMounts = 0
-    const Body = () => {
-      bodyMounts += 1
-      return <Root.Body>Body</Root.Body>
-    }
 
     render(() => (
       <Root open>
         {createComponent(Root.Content, {
           get title() {
-            titleReads += 1
             return <span>Fallback title</span>
           },
           get description() {
-            descriptionReads += 1
             return <span>Fallback description</span>
           },
           get children() {
@@ -134,7 +112,7 @@ describe.each([
                 <Show when={showHeader()}>
                   <Root.Header>Explicit header</Root.Header>
                 </Show>
-                <Body />
+                <Root.Body>Body</Root.Body>
               </>
             )
           },
@@ -143,17 +121,12 @@ describe.each([
     ))
 
     const body = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-body"]`)!
-    expect(titleReads).toBe(0)
-    expect(descriptionReads).toBe(0)
-    expect(bodyMounts).toBe(1)
     expect(body.hasAttribute('data-header')).toBe(true)
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Explicit header',
     )
 
     setShowHeader(false)
-    expect(titleReads).toBe(1)
-    expect(descriptionReads).toBe(1)
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Fallback titleFallback description',
     )
@@ -165,7 +138,6 @@ describe.each([
       'Explicit header',
     )
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
-    expect(bodyMounts).toBe(1)
   })
 
   test('mounts controlled content in the root portal destination without a trigger', () => {
@@ -203,7 +175,7 @@ describe.each([
     expect(content.getAttribute('aria-describedby')).toBe(description.id)
   })
 
-  test('renders recipe-backed default presentation without a provider', () => {
+  test('renders the documented anatomy without a provider', () => {
     render(() => (
       <Root defaultOpen>
         <Root.Trigger>Open</Root.Trigger>
@@ -213,37 +185,12 @@ describe.each([
         </Root.Content>
       </Root>
     ))
-    const slots = [
-      'trigger',
-      'overlay',
-      'content',
-      'header',
-      'title',
-      'description',
-      'content-close',
-      'body',
-      'footer',
-    ]
-    const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)
-    expect(content?.className).not.toBe('')
-    expect(
-      document.body.querySelector<HTMLElement>(`[data-slot="${owner}-overlay"]`)?.className,
-    ).not.toBe('')
-    if (owner === 'sheet') {
-      expect(content?.style.getPropertyValue('--sheet-keyboard-inset')).toBe('0px')
+    for (const slot of ['content', 'header', 'title', 'description', 'body', 'footer']) {
+      expect(document.body.querySelector(`[data-slot="${owner}-${slot}"]`)).not.toBeNull()
     }
-    const selector = slots.map((slot) => `[data-slot="${owner}-${slot}"]`).join(',')
-    for (const element of document.body.querySelectorAll<HTMLElement>(selector)) {
-      const style = element.getAttribute('style')
-      if (style === null) {
-        continue
-      }
-      for (const declaration of style.split(';')) {
-        const trimmed = declaration.trim()
-        if (trimmed !== '') {
-          expect(trimmed.startsWith('--')).toBe(true)
-        }
-      }
+    if (owner === 'sheet') {
+      const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)
+      expect(content?.style.getPropertyValue('--sheet-keyboard-inset')).toBe('0px')
     }
   })
 

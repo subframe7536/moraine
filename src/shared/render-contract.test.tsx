@@ -439,9 +439,11 @@ describe('render and polymorphic contracts', () => {
     const view = render(() => <AlertDialog dialogRender={ComponentRender} />)
 
     const handle1 = AlertDialog.custom(<div>Static Custom Dialog</div>)
+    expect(screen.getByText('Static Custom Dialog')).toBeTruthy()
     handle1.close()
 
     const handle2 = AlertDialog.custom(ComponentRender)
+    expect(screen.getByText('Component Dialog')).toBeTruthy()
     handle2.close()
 
     view.unmount()

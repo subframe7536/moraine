@@ -60,7 +60,7 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
-test('replaces the SSR desktop layout without retaining duplicate mobile content', async () => {
+test('turns the server desktop markup into one drawer trigger on a mobile client', async () => {
   window.matchMedia = vi
     .fn()
     .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })

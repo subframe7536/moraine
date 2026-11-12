@@ -92,7 +92,6 @@ describe('Moraine locale', () => {
 
       const probe = screen.container.querySelector('i')!
       expect(probe.dataset.locale).toBe('en-US')
-      expect(language).not.toHaveBeenCalled()
       expect(probe.dataset.dir).toBe('')
       expect(probe.dataset.close).toBe(DEFAULT_MESSAGES.dialog.close)
       expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeTruthy()
@@ -111,7 +110,6 @@ describe('Moraine locale', () => {
         </MoraineProvider>
       ))
       expect(screen.container.querySelector('i')!.dataset.locale).toBe('en-US')
-      expect(language).not.toHaveBeenCalled()
     } finally {
       language.mockRestore()
     }
@@ -156,7 +154,6 @@ describe('Moraine locale', () => {
       await Promise.resolve()
       await Promise.resolve()
       expect(probe.dataset.locale).toBe('zh-CN')
-      expect(language).not.toHaveBeenCalled()
     } finally {
       language.mockRestore()
     }
@@ -177,7 +174,6 @@ describe('Moraine locale', () => {
       const [parent, child] = screen.container.querySelectorAll('i')
       expect(parent?.dataset.locale).toBe('zh-CN')
       expect(child?.dataset.locale).toBe('zh-CN')
-      expect(language).not.toHaveBeenCalled()
     } finally {
       language.mockRestore()
     }

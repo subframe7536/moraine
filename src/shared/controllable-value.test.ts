@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
+import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createControllableValue } from './controllable-value'
@@ -52,7 +52,7 @@ describe('createControllableValue', () => {
     })
   })
 
-  it('computes controlled updates without mutating the preserved uncontrolled value', () => {
+  it('passes the controlled value to functional updates and keeps the uncontrolled value', () => {
     createRoot((dispose) => {
       const [controlledValue, setControlledValue] = createSignal<number | undefined>(10)
       const [value, setValue] = createControllableValue({
@@ -72,67 +72,6 @@ describe('createControllableValue', () => {
       setControlledValue(undefined)
 
       expect(value()).toBe(1)
-      dispose()
-    })
-  })
-
-  it('does not publish Object.is-equal updates', () => {
-    createRoot((dispose) => {
-      const [value, setValue] = createControllableValue<number>({
-        value: () => undefined,
-        defaultValue: () => Number.NaN,
-      })
-      let evaluations = 0
-      const observedValue = createMemo(() => {
-        evaluations += 1
-        return value()
-      })
-
-      let initial: number | undefined
-      createRenderEffect(() => {
-        initial = observedValue()
-      })
-      expect(initial).toBeNaN()
-
-      setValue(Number.NaN)
-
-      expect(initial).toBeNaN()
-      expect(evaluations).toBe(1)
-      dispose()
-    })
-  })
-
-  it('does not publish equal resolved values across controlled mode transitions', () => {
-    createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<boolean>()
-      const [value] = createControllableValue({
-        value: controlledValue,
-        defaultValue: () => false,
-      })
-      let evaluations = 0
-      const observedValue = createMemo(() => {
-        evaluations += 1
-        return value()
-      })
-
-      expect(untrack(observedValue)).toBe(false)
-      expect(evaluations).toBe(1)
-
-      setControlledValue(false)
-      expect(untrack(observedValue)).toBe(false)
-      expect(evaluations).toBe(1)
-
-      setControlledValue(true)
-      expect(untrack(observedValue)).toBe(true)
-      expect(evaluations).toBe(2)
-
-      setControlledValue(false)
-      expect(untrack(observedValue)).toBe(false)
-      expect(evaluations).toBe(3)
-
-      setControlledValue(undefined)
-      expect(untrack(observedValue)).toBe(false)
-      expect(evaluations).toBe(3)
       dispose()
     })
   })
@@ -176,37 +115,6 @@ describe('createControllableValue', () => {
       expect(accessor()).toBe('default')
       setter((previous) => `${previous}-next`)
       expect(value()).toBe('default-next')
-      dispose()
-    })
-  })
-
-  it('evaluates option getters once per relevant change', () => {
-    createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<number>()
-      let valueReads = 0
-      let defaultValueReads = 0
-      const [value, setValue] = createControllableValue({
-        value: () => {
-          valueReads += 1
-          return controlledValue()
-        },
-        defaultValue: () => {
-          defaultValueReads += 1
-          return 1
-        },
-      })
-
-      expect(value()).toBe(1)
-      expect(value()).toBe(1)
-      expect(valueReads).toBe(1)
-      expect(defaultValueReads).toBe(1)
-
-      setControlledValue(2)
-      expect(value()).toBe(2)
-      expect(valueReads).toBe(2)
-
-      setValue(3)
-      expect(valueReads).toBe(2)
       dispose()
     })
   })

@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { Show, createComponent, createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
@@ -173,8 +173,8 @@ describe('Popover', () => {
     vi.useRealTimers()
   })
 
-  test('supports click mode and renders content', () => {
-    render(() => (
+  test('renders content as a dialog in a portal outside the trigger container', () => {
+    const screen = render(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
           Trigger
@@ -183,10 +183,10 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="popover-content"]')
+    const dialog = document.body.querySelector('[role="dialog"]')
 
-    expect(content?.textContent).toContain('Popover content')
-    expect(content?.getAttribute('role')).toBe('dialog')
+    expect(dialog?.textContent).toContain('Popover content')
+    expect(screen.container.contains(dialog)).toBe(false)
   })
 
   test('renders the trigger content as a native button root', () => {
@@ -208,22 +208,6 @@ describe('Popover', () => {
     expect(trigger?.hasAttribute('data-expanded')).toBe(true)
     expect(trigger?.hasAttribute('data-closed')).toBe(false)
     expect(document.getElementById(trigger?.getAttribute('aria-controls') ?? '')).not.toBeNull()
-  })
-
-  test('marks the trigger with the shared expanded overlay trigger class', () => {
-    render(() => (
-      <Popover open>
-        <Popover.Trigger as={Button} variant="outline">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Popover content'}</Popover.Content>
-      </Popover>
-    ))
-
-    const trigger = document.body.querySelector('[data-slot="popover-trigger"]')!
-
-    expect(trigger.getAttribute('aria-expanded')).toBe('true')
-    expect(trigger.classList).toContain('aria-expanded:bg-muted')
   })
 
   test('renders an anchor trigger root', () => {
@@ -318,21 +302,6 @@ describe('Popover', () => {
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     await finishExitMotion()
     await waitFor(() => expect(trigger.hasAttribute('aria-controls')).toBe(false))
-  })
-
-  test('supports hover mode and renders content', () => {
-    render(() => (
-      <Popover mode="hover" open>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Hover content'}</Popover.Content>
-      </Popover>
-    ))
-
-    const content = document.body.querySelector('[data-slot="popover-content"]')
-
-    expect(content?.textContent).toContain('Hover content')
   })
 
   test('opens hover mode only for mouse pointers', async () => {
@@ -649,87 +618,77 @@ describe('Popover', () => {
     )
   })
 
-  test('evaluates getter-backed trigger and content values once', () => {
-    let triggerReads = 0
-    let contentReads = 0
-
+  test('defaults to the bottom side with centered alignment', () => {
     render(() => (
       <Popover open>
-        {createComponent(Popover.Trigger, {
-          get children() {
-            triggerReads += 1
-            return <span>Trigger</span>
-          },
-        })}
-        {createComponent(Popover.Content, {
-          get children() {
-            contentReads += 1
-            return <span>Cached content</span>
-          },
-        })}
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>Placement content</Popover.Content>
       </Popover>
     ))
 
-    expect(triggerReads).toBe(1)
-    expect(contentReads).toBe(1)
+    const content = document.body.querySelector('[data-slot="popover-content"]')
+
+    expect(content?.getAttribute('data-side')).toBe('bottom')
+    expect(content?.getAttribute('data-align')).toBe('center')
   })
 
   test.each([
-    ['top-start', 'mb-(--mo-popper-content-overflow-padding)'],
-    ['right-start', 'ml-(--mo-popper-content-overflow-padding)'],
-    ['bottom-start', 'mt-(--mo-popper-content-overflow-padding)'],
-    ['left-start', 'mr-(--mo-popper-content-overflow-padding)'],
-  ] as const)('applies side class for placement %s', (placement, expectedClass) => {
+    ['top', 'start'],
+    ['right', 'end'],
+    ['bottom', 'start'],
+    ['left', 'end'],
+  ] as const)('reports side %s and alignment %s on the content', (placement, align) => {
     render(() => (
-      <Popover
-        open
-        placement={placement.split('-')[0] as 'top' | 'right' | 'bottom' | 'left'}
-        align="start"
-      >
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Placement content'}</Popover.Content>
+      <Popover open placement={placement} align={align}>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>Placement content</Popover.Content>
       </Popover>
     ))
 
     const content = document.body.querySelector('[data-slot="popover-content"]')
 
-    expect(content?.className).toContain(expectedClass)
+    expect(content?.getAttribute('data-side')).toBe(placement)
+    expect(content?.getAttribute('data-align')).toBe(align)
   })
 
-  test('supports classes for content slot', () => {
+  test('routes classes and styles to their slots', () => {
     render(() => (
       <Popover
         open
-        classes={{
-          content: 'content-slot-class',
-        }}
+        classes={{ trigger: 'user-trigger', content: 'user-content', body: 'user-body' }}
+        styles={{ content: { width: '200px' } }}
       >
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>Styled</Popover.Content>
+      </Popover>
+    ))
+
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')
+
+    expect(document.body.querySelector('[data-slot="popover-trigger"]')?.className).toContain(
+      'user-trigger',
+    )
+    expect(content?.className).toContain('user-content')
+    expect(content?.style.width).toBe('200px')
+    expect(document.body.querySelector('[data-slot="popover-body"]')?.className).toContain(
+      'user-body',
+    )
+  })
+
+  test('marks a defaultOpen popover as positioned after it mounts', async () => {
+    render(() => (
+      <Popover defaultOpen>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content>{'Styled'}</Popover.Content>
+        <Popover.Content>{'Positioned'}</Popover.Content>
       </Popover>
     ))
 
     const content = document.body.querySelector('[data-slot="popover-content"]')
-
-    expect(content?.className).toContain('content-slot-class')
-  })
-
-  test('renders into portal by default', () => {
-    const screen = render(() => (
-      <Popover open>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Portal default'}</Popover.Content>
-      </Popover>
-    ))
-
-    expect(screen.container.querySelector('[data-slot="popover-content"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
+    await waitFor(() => {
+      expect(content?.parentElement?.hasAttribute('data-positioned')).toBe(true)
+    })
   })
 
   test('renders controlled overlay without a trigger', async () => {
@@ -746,27 +705,15 @@ describe('Popover', () => {
     })
   })
 
-  test('does not render body wrapper when content is undefined or null', () => {
-    const undefinedPanelScreen = render(() => (
-      <Popover open>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content />
-      </Popover>
-    ))
-    expect(
-      undefinedPanelScreen.container.ownerDocument.body.querySelector('[data-slot="popover-body"]'),
-    ).toBeNull()
-
+  test.each([undefined, null])('does not render the body when content is %s', (children) => {
     render(() => (
       <Popover open>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{null}</Popover.Content>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>{children}</Popover.Content>
       </Popover>
     ))
+
+    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="popover-body"]')).toBeNull()
   })
 
@@ -1204,42 +1151,7 @@ describe('Popover', () => {
     })
   })
 
-  test('positions defaultOpen popover on initial mount', async () => {
-    render(() => (
-      <Popover defaultOpen>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Positioned'}</Popover.Content>
-      </Popover>
-    ))
-
-    await waitFor(() => {
-      const positioner = document.body.querySelector(
-        '[data-slot="popover-positioner"]',
-      ) as HTMLElement | null
-
-      expect(positioner?.style.transform).toContain('translate3d(')
-    })
-  })
-
-  test('applies styles override to content', () => {
-    render(() => (
-      <Popover open styles={{ content: { width: '200px' } }}>
-        <Popover.Trigger as="button" type="button">
-          Trigger
-        </Popover.Trigger>
-        <Popover.Content>{'Styled'}</Popover.Content>
-      </Popover>
-    ))
-
-    const content = document.body.querySelector(
-      '[data-slot="popover-content"]',
-    ) as HTMLElement | null
-    expect(content?.style.width).toBe('200px')
-  })
-
-  test('updates preferred side and alignment when placement props change without replacing content', () => {
+  test('updates side and alignment when placement props change without replacing content', () => {
     const [placement, setPlacement] = createSignal<'bottom' | 'right'>('bottom')
     const [align, setAlign] = createSignal<'center' | 'end'>('center')
 
@@ -1253,9 +1165,6 @@ describe('Popover', () => {
     ))
 
     const initialContent = document.body.querySelector('[data-slot="popover-content"]')
-    expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(initialContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
     expect(initialContent?.getAttribute('data-side')).toBe('bottom')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
@@ -1264,9 +1173,6 @@ describe('Popover', () => {
 
     const updatedContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(updatedContent).toBe(initialContent)
-    expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(updatedContent?.classList).toContain('data-[side=right]:-enter-translate-x-1')
     expect(updatedContent?.getAttribute('data-side')).toBe('right')
     expect(updatedContent?.getAttribute('data-align')).toBe('end')
   })

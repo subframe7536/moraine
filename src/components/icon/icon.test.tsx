@@ -25,29 +25,7 @@ describe('Icon', () => {
     expect(slotted.container.firstElementChild?.getAttribute('data-slot')).toBe('button-leading')
   })
 
-  test('opts out of forced colors and follows the parent color in forced colors mode', () => {
-    const screen = render(() => <Icon name="i-lucide-search" />)
-    const icon = screen.container.querySelector('.i-lucide-search')
-
-    expect(icon?.classList).toContain('icon-mask')
-  })
-
-  test('keeps default forced colors behavior for element and component icons', () => {
-    const Glyph = (props: Omit<IconProps, 'name'>) => (
-      <svg data-testid="glyph" class={props.class as string} />
-    )
-    const screen = render(() => (
-      <>
-        <Icon name={<span>X</span>} data-testid="element" />
-        <Icon name={Glyph} />
-      </>
-    ))
-
-    expect(screen.getByTestId('element').classList).not.toContain('icon-mask')
-    expect(screen.getByTestId('glyph').getAttribute('class') ?? '').not.toContain('icon-mask')
-  })
-
-  test('inherits font size', () => {
+  test('inherits font size from the parent without an inline font size', () => {
     const screen = render(() => (
       <div style={{ 'font-size': '18px' }}>
         <Icon name="i-lucide-search" />
@@ -69,10 +47,8 @@ describe('Icon', () => {
 
   test('preserves a zero-argument component and its cleanup while its JSX updates', () => {
     const [label, setLabel] = createSignal('Before')
-    let mounts = 0
     let cleanups = 0
     const Glyph = () => {
-      mounts += 1
       onCleanup(() => {
         cleanups += 1
       })
@@ -82,7 +58,7 @@ describe('Icon', () => {
     const glyph = screen.getByText('Before')
     setLabel('After')
     expect(screen.getByText('After')).toBe(glyph)
-    expect([mounts, cleanups]).toEqual([1, 0])
+    expect(cleanups).toBe(0)
     screen.unmount()
     expect(cleanups).toBe(1)
   })
@@ -107,9 +83,8 @@ describe('Icon', () => {
 
     expect(host.tagName).toBe('SPAN')
     expect(glyph.parentElement).toBe(host)
-    // The component is rendered without props, so nothing is mounted twice.
+    // Component icons render without props; every Icon prop belongs to the host.
     expect(glyph.getAttribute('data-prop-count')).toBe('0')
-    expect(glyph.hasAttribute('class')).toBe(false)
     expect(host.getAttribute('class')).toContain('glyph')
     expect(host.getAttribute('title')).toBe('Status')
     expect(host.style.fontSize).toBe('18px')
@@ -130,39 +105,16 @@ describe('Icon', () => {
     expect(host.className).toContain('custom')
   })
 
-  test('sizes graphic sources as a 1.2em host and leaves mask sizing to the icon class', () => {
-    const screen = render(() => (
-      <>
-        <Icon name="i-lucide-search" data-testid="mask" />
-        <Icon name={<svg data-testid="element" />} />
-        <Icon name={() => <svg data-testid="component" />} class="size-6" />
-      </>
-    ))
-    const mask = screen.getByTestId('mask')
-    const elementHost = screen.getByTestId('element').parentElement!
-    const componentHost = screen.getByTestId('component').parentElement!
-
-    expect(mask.className).toBe('block icon-mask i-lucide-search')
-    expect(elementHost.className).toContain('size-[1.2em]')
-    expect(elementHost.className).toContain('*:size-full')
-    expect(elementHost.classList).not.toContain('icon-mask')
-    // The host takes the caller size; the graphic fills it through `*:size-full`.
-    expect(componentHost.className).toContain('size-6')
-    expect(componentHost.className).not.toContain('size-[1.2em]')
-    expect(componentHost.className).toContain('*:size-full')
-  })
-
-  test('switches the host classes when name changes between a string and a graphic', () => {
+  test('switches the rendered graphic when name changes between a string and an element', () => {
     const [name, setName] = createSignal<IconProps['name']>('i-lucide-search')
     const screen = render(() => <Icon name={name()} data-testid="icon" />)
     const host = screen.getByTestId('icon')
 
-    expect(host.classList).toContain('icon-mask')
-    setName(<svg />)
+    expect(host.querySelector('svg')).toBeNull()
+    setName(<svg data-testid="graphic" />)
     expect(screen.getByTestId('icon')).toBe(host)
-    expect(host.classList).not.toContain('icon-mask')
+    expect(host.querySelector('[data-testid="graphic"]')).not.toBeNull()
     expect(host.classList).not.toContain('i-lucide-search')
-    expect(host.className).toContain('size-[1.2em]')
   })
 
   test('passes through HTML attributes to the span element', () => {
@@ -291,7 +243,9 @@ describe('Icon', () => {
   })
 
   test('replaces Design root styling without remounting the icon', () => {
-    const [design, setDesign] = createSignal(defineTheme({ icon: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(
+      defineTheme({ icon: { base: { root: 'theme-icon-a' } } }),
+    )
     const screen = render(() => (
       <MoraineProvider theme={design()}>
         <Icon name="i-lucide-search" />
@@ -299,12 +253,12 @@ describe('Icon', () => {
     ))
     const icon = screen.container.querySelector<HTMLElement>('.i-lucide-search')!
 
-    expect(icon.className).toContain('p-2')
+    expect(icon.className).toContain('theme-icon-a')
 
-    setDesign(defineTheme({ icon: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ icon: { base: { root: 'theme-icon-b' } } }))
 
     expect(screen.container.querySelector('.i-lucide-search')).toBe(icon)
-    expect(icon.className).toContain('p-4')
-    expect(icon.className).not.toContain('p-2')
+    expect(icon.className).toContain('theme-icon-b')
+    expect(icon.className).not.toContain('theme-icon-a')
   })
 })

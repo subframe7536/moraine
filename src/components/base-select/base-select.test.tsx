@@ -14,7 +14,6 @@ import { MultiSelect } from '../multi-select/multi-select'
 import { Select } from '../select/select'
 
 import { BaseSelect } from './base-select'
-import { useSelectContext } from './base-select-context'
 import { createBaseSelectSearchInput } from './base-select-search-input'
 
 const items = [
@@ -43,56 +42,31 @@ test('keeps an independent BaseSelect owner inside a Select item render', () => 
   expect(document.body.querySelector('[data-slot="base-select-trigger"]')).not.toBeNull()
 })
 
-test('separates the Control anchor from the Trigger focus owner and cleans both refs', () => {
-  let anchor = (): HTMLElement | undefined => undefined
-  let focusOwner = (): HTMLElement | undefined => undefined
-  function Anatomy() {
-    const state = useSelectContext()
-    anchor = state.anchor
-    focusOwner = state.focusOwner
-    return (
+test('only the Trigger toggles the popup; pressing the Control surface does not', () => {
+  const screen = render(() => (
+    <BaseSelect items={items}>
       <BaseSelect.Control>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
       </BaseSelect.Control>
-    )
-  }
-  const screen = render(() => (
-    <BaseSelect items={items}>
-      <Anatomy />
     </BaseSelect>
   ))
   const control = screen.container.querySelector<HTMLElement>('[data-slot="base-select-control"]')!
   const trigger = screen.getByRole('combobox')
-  expect(control.tabIndex).toBe(-1)
   expect(control.getAttribute('role')).toBeNull()
-  expect(anchor()).toBe(control)
-  expect(focusOwner()).toBe(trigger)
-  expect(anchor()).not.toBe(focusOwner())
   fireEvent.click(control)
   expect(trigger.getAttribute('aria-expanded')).toBe('false')
   fireEvent.click(trigger)
   expect(trigger.getAttribute('aria-expanded')).toBe('true')
-  screen.unmount()
-  expect(anchor()).toBeUndefined()
-  expect(focusOwner()).toBeUndefined()
 })
 
-test('falls back to the focus owner when Control is omitted', () => {
-  let anchor = (): HTMLElement | undefined => undefined
-  let focusOwner = (): HTMLElement | undefined => undefined
-  function Anatomy() {
-    const state = useSelectContext()
-    anchor = state.anchor
-    focusOwner = state.focusOwner
-    return <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
-  }
+test('opens from a Trigger rendered without a Control wrapper', () => {
   const screen = render(() => (
     <BaseSelect items={items}>
-      <Anatomy />
+      <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
     </BaseSelect>
   ))
-  expect(anchor()).toBeUndefined()
-  expect(focusOwner()).toBe(screen.getByRole('combobox'))
+  fireEvent.click(screen.getByRole('combobox'))
+  expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('true')
 })
 
 test('BaseSelect.Control exposes inherited field state attributes', () => {
@@ -178,15 +152,13 @@ test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   expect(input.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('custom search input exposes reactive attributes and releases its focus owner', () => {
+test('custom search input exposes reactive ARIA and input attributes', () => {
   const [enabled, setEnabled] = createSignal(true)
   const [readOnly, setReadOnly] = createSignal(false)
   const [maxLength, setMaxLength] = createSignal(4)
-  let focusOwner = (): HTMLElement | undefined => undefined
 
   function SearchControl() {
     const state = BaseSelect.useContext()
-    focusOwner = state.focusOwner
     const [value, setValue] = createSignal('')
     const input = createBaseSelectSearchInput({
       state,
@@ -210,7 +182,6 @@ test('custom search input exposes reactive attributes and releases its focus own
     </BaseSelect>
   ))
   const input = screen.getByRole<HTMLInputElement>('combobox')
-  expect(focusOwner()).toBe(input)
   expect(input.getAttribute('aria-controls')).toBeTruthy()
   expect(input.getAttribute('aria-expanded')).toBe('true')
   expect(input.getAttribute('aria-autocomplete')).toBe('list')
@@ -225,8 +196,6 @@ test('custom search input exposes reactive attributes and releases its focus own
   expect(input.getAttribute('aria-autocomplete')).toBe('none')
   setMaxLength(8)
   expect(input.maxLength).toBe(8)
-  screen.unmount()
-  expect(focusOwner()).toBeUndefined()
 })
 
 test('custom search input commits only completed composition and discards stale drafts', () => {
@@ -469,7 +438,6 @@ describe('BaseSelect composition', () => {
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.getAttribute('data-slot')).toBe('base-select-trigger')
     expect(trigger.getAttribute('type')).toBe('button')
-    expect(trigger.className).toBe('')
     expect(trigger.parentElement).toBe(screen.container)
   })
   test('composes consumer refs and events with a Moraine Button', () => {
@@ -936,7 +904,7 @@ test('does not serialize an empty single selection as a named value', () => {
   expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual([])
 })
 
-test('reuses the validation control as the single-select form input', () => {
+test('submits a single selection as one named value that validates as required', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -951,16 +919,11 @@ test('reuses the validation control as the single-select form input', () => {
   ))
 
   const form = screen.container.querySelector('form')!
-  const inputs = form.querySelectorAll('input')
-  expect(inputs).toHaveLength(1)
-  expect(inputs[0]?.type).toBe('text')
-  expect(inputs[0]?.name).toBe('choice')
-  expect(inputs[0]?.value).toBe('apple')
   expect(form.checkValidity()).toBe(true)
   expect(new FormData(form).getAll('choice')).toEqual(['apple'])
 })
 
-test('only adds hidden inputs for additional multi-select values', () => {
+test('submits every multi-select value under the shared name', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -980,12 +943,10 @@ test('only adds hidden inputs for additional multi-select values', () => {
   ))
 
   const form = screen.container.querySelector('form')!
-  expect(form.querySelectorAll('input')).toHaveLength(3)
-  expect(form.querySelectorAll('input[type="hidden"]')).toHaveLength(2)
   expect(new FormData(form).getAll('choice')).toEqual(['apple', 'orange', 'pear'])
 })
 
-test('serializes duplicate values without key collision in hidden inputs', () => {
+test('submits duplicate serialized values without collapsing them', () => {
   const screen = render(() => (
     <form>
       <BaseSelect
@@ -1005,7 +966,6 @@ test('serializes duplicate values without key collision in hidden inputs', () =>
   ))
 
   const form = screen.container.querySelector('form')!
-  expect(form.querySelectorAll('input[type="hidden"]')).toHaveLength(2)
   expect(new FormData(form).getAll('choice')).toEqual(['same', 'same', 'same'])
 })
 

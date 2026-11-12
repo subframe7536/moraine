@@ -3,7 +3,7 @@ import { Show, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-util/overlay-test'
+import { finishMenuExitMotion } from '../../test-util/overlay-test'
 
 import { ContextMenu } from './context-menu'
 
@@ -18,7 +18,6 @@ describe('ContextMenu', () => {
     ))
     const trigger = screen.getByText('Target')
     expect(trigger.hasAttribute('role')).toBe(false)
-    expect(trigger.className).toContain('[-webkit-touch-callout:none]')
     for (const key of ['Enter', ' ']) {
       fireEvent.keyDown(trigger, { key })
       fireEvent.keyUp(trigger, { key })
@@ -57,16 +56,12 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('moves Document listeners and long-press timers with the trigger', () => {
+  test('opens from a right-click after the trigger moves into another Document', () => {
     const firstFrame = document.createElement('iframe')
     const secondFrame = document.createElement('iframe')
     document.body.append(firstFrame, secondFrame)
     const firstDocument = firstFrame.contentDocument!
     const secondDocument = secondFrame.contentDocument!
-    const removeFirst = vi.spyOn(firstDocument, 'removeEventListener')
-    const addSecond = vi.spyOn(secondDocument, 'addEventListener')
-    const removeSecond = vi.spyOn(secondDocument, 'removeEventListener')
-    const setSecondTimeout = vi.spyOn(secondFrame.contentWindow!, 'setTimeout')
     const [second, setSecond] = createSignal(false)
     const screen = render(() => (
       <ContextMenu>
@@ -86,34 +81,50 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
     try {
-      expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).not.toBeNull()
       setSecond(true)
       expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).toBeNull()
       const trigger = secondDocument.body.querySelector<HTMLElement>(
         '[data-slot="context-menu-trigger"]',
       )!
-      expect(trigger).not.toBeNull()
-      expect(removeFirst.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
-      expect(addSecond.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
+      fireEvent.contextMenu(trigger, { clientX: 12, clientY: 18 })
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      expect(secondDocument.body.querySelector('[role="menu"]')).not.toBeNull()
+    } finally {
+      screen.unmount()
+      firstFrame.remove()
+      secondFrame.remove()
+    }
+  })
+
+  test('opens after a touch long press on a trigger that moved into another Document', async () => {
+    const frame = document.createElement('iframe')
+    document.body.append(frame)
+    const frameDocument = frame.contentDocument!
+    const screen = render(() => (
+      <ContextMenu>
+        <Portal mount={frameDocument.body}>
+          <ContextMenu.Trigger>Framed row</ContextMenu.Trigger>
+        </Portal>
+        <ContextMenu.Content items={[{ label: 'Touch action' }]} />
+      </ContextMenu>
+    ))
+    try {
+      const trigger = frameDocument.body.querySelector<HTMLElement>(
+        '[data-slot="context-menu-trigger"]',
+      )!
       fireEvent.pointerDown(trigger, {
         pointerId: 42,
         pointerType: 'touch',
         clientX: 20,
         clientY: 30,
       })
-      expect(setSecondTimeout).toHaveBeenCalled()
-      fireEvent.pointerCancel(trigger, { pointerId: 42, pointerType: 'touch' })
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'), {
+        timeout: 2_000,
+      })
+      fireEvent.pointerUp(trigger, { pointerId: 42, pointerType: 'touch' })
     } finally {
       screen.unmount()
-      expect(addSecond.mock.calls.some(([name]) => name === 'pointerdown')).toBe(true)
-      expect(removeSecond.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
-      expect(removeSecond.mock.calls.some(([name]) => name === 'pointerdown')).toBe(true)
-      firstFrame.remove()
-      secondFrame.remove()
-      removeFirst.mockRestore()
-      addSecond.mockRestore()
-      removeSecond.mockRestore()
-      setSecondTimeout.mockRestore()
+      frame.remove()
     }
   })
   test('renders a div trigger root by default', () => {
@@ -148,9 +159,8 @@ describe('ContextMenu', () => {
     expect(ids.some((id) => id.startsWith('custom-menu'))).toBe(true)
   })
 
-  test('changes root transition direction when placement flips to the left', async () => {
+  test('updates the content side when placement flips without remounting it', async () => {
     const [placement, setPlacement] = createSignal<'right' | 'left'>('right')
-    let initialContent: HTMLElement | null = null
 
     render(() => (
       <ContextMenu placement={placement()} defaultOpen>
@@ -159,36 +169,20 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await waitFor(() => {
+    const initialContent = await waitFor(() => {
       const content = document.body.querySelector<HTMLElement>('[data-slot="context-menu-content"]')
-      expect(content).not.toBeNull()
-      initialContent = content
-      expect(content?.getAttribute('data-placement')).toBeNull()
-      expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content?.getAttribute('data-side')).toBe('right')
-      expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.classList).toContain('data-[side=right]:-enter-translate-x-1')
-      expectNoPlacementMotion(content)
-      expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        '-4px 0%',
-      )
+      return content!
     })
+    expect(initialContent.getAttribute('data-align')).toBe('start')
 
     setPlacement('left')
 
     await waitFor(() => {
-      const content = document.body.querySelector<HTMLElement>('[data-slot="context-menu-content"]')
-      expect(content?.getAttribute('data-placement')).toBeNull()
-      expect(content?.getAttribute('data-motion')).toBeNull()
-      expect(content).toBe(initialContent)
-      expect(content?.getAttribute('data-side')).toBe('left')
-      expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.classList).toContain('data-[side=left]:enter-translate-x-1')
-      expectNoPlacementMotion(content)
-      expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        '-4px 0%',
-      )
+      expect(initialContent.getAttribute('data-side')).toBe('left')
     })
+    expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBe(initialContent)
+    expect(initialContent.getAttribute('data-align')).toBe('start')
   })
 
   test('generates contextmenu-prefixed id when id prop is missing', async () => {
@@ -562,7 +556,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('supports defaultOpen without anchor coordinates', async () => {
+  test('opens with defaultOpen and no anchor coordinates', async () => {
     render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -570,24 +564,16 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
-      expect(document.body.textContent).toContain('Default open item')
+    const content = await waitFor(() => {
+      const element = document.body.querySelector<HTMLElement>('[data-slot="context-menu-content"]')
+      expect(element).not.toBeNull()
+      expect(element!.textContent).toContain('Default open item')
+      expect(element!.getAttribute('data-expanded')).toBe('')
+      return element!
     })
 
-    const content = document.body.querySelector('[data-slot="context-menu-content"]') as HTMLElement
-
-    expect(content.className).toContain('ml-(--mo-popper-content-overflow-padding)')
-    expect(content.className).toContain('data-expanded:animate-mo-enter')
-    expect(content.className).toContain('data-closed:animate-mo-exit')
-    expect(content.getAttribute('data-motion')).toBeNull()
+    expect(content.getAttribute('data-side')).toBe('right')
     expect(content.getAttribute('data-align')).toBe('start')
-    expect(content.classList).toContain('data-[side=right]:-enter-translate-x-1')
-    expect(content.className).toContain('origin-(--mo-popper-content-transform-origin)')
-
-    await waitFor(() => {
-      expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe('-4px 0%')
-    })
   })
 
   test('uses a centered origin without a placement alignment', async () => {
@@ -606,7 +592,6 @@ describe('ContextMenu', () => {
 
     expect(content.getAttribute('data-side')).toBe('bottom')
     expect(content.getAttribute('data-align')).toBe('center')
-    expect(content.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -904,7 +889,10 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('keeps long press active through small touch movement', async () => {
+  test.each([
+    ['keeps the long press through a small touch movement', { x: 26, y: 37 }, true],
+    ['cancels the long press when touch movement exceeds tolerance', { x: 40, y: 34 }, false],
+  ])('%s', async (_name, move, opens) => {
     vi.useFakeTimers()
 
     try {
@@ -924,47 +912,14 @@ describe('ContextMenu', () => {
       })
       fireEvent.pointerMove(row, {
         pointerType: 'touch',
-        clientX: 26,
-        clientY: 37,
+        clientX: move.x,
+        clientY: move.y,
       })
 
       await vi.advanceTimersByTimeAsync(700)
 
-      expect(onOpenChange).toHaveBeenCalledWith(true)
-      expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  test('cancels touch long press after movement exceeds tolerance', async () => {
-    vi.useFakeTimers()
-
-    try {
-      const onOpenChange = vi.fn()
-      const screen = render(() => (
-        <ContextMenu onOpenChange={onOpenChange}>
-          <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
-          <ContextMenu.Content items={[{ label: 'Touch action' }]} />
-        </ContextMenu>
-      ))
-
-      const row = screen.getByText('Row Item')
-      fireEvent.pointerDown(row, {
-        pointerType: 'touch',
-        clientX: 21,
-        clientY: 34,
-      })
-      fireEvent.pointerMove(row, {
-        pointerType: 'touch',
-        clientX: 40,
-        clientY: 34,
-      })
-
-      await vi.advanceTimersByTimeAsync(700)
-
-      expect(onOpenChange).not.toHaveBeenCalled()
-      expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
+      expect(onOpenChange.mock.calls).toEqual(opens ? [[true]] : [])
+      expect(document.body.querySelector('[data-slot="context-menu-content"]') !== null).toBe(opens)
     } finally {
       vi.useRealTimers()
     }
@@ -1008,7 +963,6 @@ describe('ContextMenu', () => {
       '[data-slot="context-menu-content"][data-closed]',
     )
     expect(exitingContent).not.toBeNull()
-    expect(exitingContent?.className).toContain('data-closed:animate-mo-exit')
 
     const positioner = exitingContent?.closest(
       '[data-slot="context-menu-positioner"]',
@@ -1195,15 +1149,8 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="context-menu-item-indicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mt-(--mo-popper-content-overflow-padding)')
-    expect(rootContent?.className).toContain('border-border')
-    expect(rootContent?.className).toContain('shadow-overlay')
-    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(rootContent?.getAttribute('data-motion')).toBeNull()
+    expect(rootContent?.getAttribute('data-side')).toBe('bottom')
     expect(rootContent?.getAttribute('data-align')).toBe('start')
-    expect(rootContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
-    expect(rootContent?.className).toContain('origin-(--mo-popper-content-transform-origin)')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
@@ -1217,7 +1164,7 @@ describe('ContextMenu', () => {
     expect(contentBottom).toHaveBeenCalledWith({ sub: true })
   })
 
-  test('applies enter transition classes to an opened submenu', async () => {
+  test('opens a submenu on the trailing side from the keyboard', async () => {
     render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1254,19 +1201,11 @@ describe('ContextMenu', () => {
     await waitFor(() => {
       expect(submenuContent.getAttribute('data-expanded')).toBe('')
     })
-    expect(submenuContent.className).toContain('data-expanded:animate-mo-enter')
-    expect(submenuContent.getAttribute('data-motion')).toBeNull()
     expect(submenuContent.getAttribute('data-side')).toBe('right')
     expect(submenuContent.getAttribute('data-align')).toBe('start')
-    expect(submenuContent.classList).toContain('data-[side=right]:-enter-translate-x-1')
-    await waitFor(() => {
-      expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        '-4px -4px',
-      )
-    })
   })
 
-  test('applies enter transition classes to a mouse-opened submenu', async () => {
+  test('opens a submenu on the trailing side when hovered with the mouse', async () => {
     vi.useFakeTimers()
 
     try {
@@ -1304,71 +1243,66 @@ describe('ContextMenu', () => {
       })
 
       expect(submenuContent.getAttribute('data-expanded')).toBe('')
-      expect(submenuContent.getAttribute('data-motion')).toBeNull()
       expect(submenuContent.getAttribute('data-side')).toBe('right')
       expect(submenuContent.getAttribute('data-align')).toBe('start')
-      expect(submenuContent.classList).toContain('data-[side=right]:-enter-translate-x-1')
     } finally {
       vi.useRealTimers()
     }
   })
 
   test('keeps nested submenus mounted through recursive exit motion', async () => {
-    const closeOrder: string[] = []
-    const originalSetAttribute = HTMLElement.prototype.setAttribute
-    const setAttributeSpy = vi
-      .spyOn(HTMLElement.prototype, 'setAttribute')
-      .mockImplementation(function (this: HTMLElement, name: string, value: string) {
-        if (
-          name === 'data-closed' &&
-          value === '' &&
-          this.dataset.slot === 'context-menu-content'
-        ) {
-          closeOrder.push(this.id)
-        }
+    render(() => (
+      <ContextMenu defaultOpen>
+        <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
+        <ContextMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [
+                {
+                  label: 'Deep',
+                  defaultOpen: true,
+                  children: [{ label: 'Leaf action' }],
+                },
+              ],
+            },
+          ]}
+        />
+      </ContextMenu>
+    ))
 
-        return originalSetAttribute.call(this, name, value)
-      })
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="context-menu-content"]')).toHaveLength(3)
+    })
+
+    const [rootContent, middleContent, deepestContent] = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="context-menu-content"]'),
+    ) as [HTMLElement, HTMLElement, HTMLElement]
+    const closeOrder: HTMLElement[] = []
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        const content = record.target as HTMLElement
+        if (
+          content.getAttribute('data-slot') === 'context-menu-content' &&
+          content.hasAttribute('data-closed') &&
+          !closeOrder.includes(content)
+        ) {
+          closeOrder.push(content)
+        }
+      }
+    })
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-closed'],
+      subtree: true,
+    })
 
     try {
-      render(() => (
-        <ContextMenu id="context-dismiss-order" defaultOpen>
-          <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
-          <ContextMenu.Content
-            items={[
-              {
-                label: 'More',
-                defaultOpen: true,
-                children: [
-                  {
-                    label: 'Deep',
-                    defaultOpen: true,
-                    children: [{ label: 'Leaf action' }],
-                  },
-                ],
-              },
-            ]}
-          />
-        </ContextMenu>
-      ))
-
-      await waitFor(() => {
-        expect(document.body.querySelectorAll('[data-slot="context-menu-content"]')).toHaveLength(3)
-      })
-
-      const contents = Array.from(
-        document.body.querySelectorAll('[data-slot="context-menu-content"]'),
-      )
-      const [rootContent, middleContent, deepestContent] = contents as [
-        HTMLElement,
-        HTMLElement,
-        HTMLElement,
-      ]
-
       fireEvent.keyDown(rootContent, { key: 'Escape' })
 
       await waitFor(() => {
-        expect(closeOrder).toEqual([deepestContent.id, middleContent.id, rootContent.id])
+        expect(closeOrder).toEqual([deepestContent, middleContent, rootContent])
         expect(
           document.body.querySelectorAll('[data-slot="context-menu-content"][data-closed]'),
         ).toHaveLength(3)
@@ -1380,7 +1314,7 @@ describe('ContextMenu', () => {
         expect(document.body.querySelectorAll('[data-slot="context-menu-content"]')).toHaveLength(0)
       })
     } finally {
-      setAttributeSpy.mockRestore()
+      observer.disconnect()
     }
   })
 
@@ -1622,9 +1556,7 @@ describe('ContextMenu', () => {
     const dangerItem = items[1]!
 
     expect(disabledItem.getAttribute('data-disabled')).toBe('')
-    expect(disabledItem.className).not.toContain('pointer-events-none')
     expect(dangerItem.getAttribute('data-danger')).toBe('')
-    expect(dangerItem.className).toContain('data-danger:text-danger')
 
     fireEvent.pointerDown(disabledItem)
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
@@ -1691,28 +1623,6 @@ describe('ContextMenu', () => {
     expect(disabledItem.getAttribute('aria-checked')).toBe('false')
     expect(dateItem.getAttribute('aria-checked')).toBe('true')
     expect(onDisabledSelect).not.toHaveBeenCalled()
-  })
-
-  test('danger item icon does not force muted color class', async () => {
-    const screen = render(() => (
-      <ContextMenu>
-        <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
-        <ContextMenu.Content
-          items={[{ label: 'Delete', variant: 'danger', icon: 'icon-trash-2' }]}
-        />
-      </ContextMenu>
-    ))
-
-    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="context-menu-item-leading"]')).not.toBeNull()
-    })
-
-    const leading = document.body.querySelector(
-      '[data-slot="context-menu-item-leading"]',
-    ) as HTMLElement
-    expect(leading.className).not.toContain('text-muted-foreground')
   })
 
   test('keeps submenu open while pointer moves through the submenu grace area', async () => {

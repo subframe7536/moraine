@@ -87,7 +87,7 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
   })
 
-  test.each([0, ''])('mounts a panel for nullish-safe content %s', (content) => {
+  test.each([0, ''])('mounts a panel for falsy content %s', (content) => {
     const screen = render(() => (
       <Stepper items={[{ value: 'step', title: 'Step', content, class: 'item-only' }]} />
     ))
@@ -98,8 +98,7 @@ describe('Stepper', () => {
     )
   })
 
-  test('reads JSX fields once and delays the inactive panel', () => {
-    const reads = { title: 0, description: 0, content: 0 }
+  test('renders JSX titles and delays an inactive panel until its step is selected', () => {
     const [value, setValue] = createSignal('first')
     const view = render(() => (
       <Stepper
@@ -108,26 +107,17 @@ describe('Stepper', () => {
           { value: 'first', title: 'First' },
           {
             value: 'second',
-            get title() {
-              reads.title++
-              return <span>Second</span>
-            },
-            get description() {
-              reads.description++
-              return <span>Description</span>
-            },
-            get content() {
-              reads.content++
-              return <span>Panel</span>
-            },
+            title: <span>Second</span>,
+            description: <span>Description</span>,
+            content: <span>Panel</span>,
           },
         ]}
       />
     ))
-    expect(reads).toEqual({ title: 1, description: 1, content: 0 })
+    expect(view.getByText('Second')).not.toBeNull()
+    expect(view.queryByRole('tabpanel')).toBeNull()
     setValue('second')
     expect(view.getByRole('tabpanel').textContent).toBe('Panel')
-    expect(reads).toEqual({ title: 1, description: 1, content: 1 })
   })
 
   const ITEMS: [StepperT.Item, StepperT.Item, StepperT.Item] = [
@@ -423,7 +413,7 @@ describe('Stepper', () => {
     expect(onValueChange).toHaveBeenCalledWith('shipping')
   })
 
-  test('applies orientation classes and slot overrides', () => {
+  test('applies orientation to the tablist and class overrides to their slots', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Stepper
@@ -440,48 +430,28 @@ describe('Stepper', () => {
 
     const root = screen.container.querySelector('[data-slot="stepper"]')
     const trigger = screen.container.querySelector('[data-slot="stepper-trigger"]')
-    const separator = screen.container.querySelector('[data-slot="stepper-separator"]')
     const content = screen.container.querySelector('[data-slot="stepper-content"]')
 
-    expect(root?.className).toContain('flex-row')
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('trigger-override')
-    expect(separator?.className).toContain('bottom-1')
     expect(content?.className).toContain('content-override')
   })
 
-  test.each([
-    ['sm', 'size-8', 'start-4', 'top-9'],
-    ['md', 'size-9', 'start-4.5', 'top-10'],
-    ['lg', 'size-10', 'start-5', 'top-11'],
-  ] as const)('applies %s sizing and reactive orientation', (size, markerSize, start, top) => {
+  test('updates aria-orientation on orientation change without remounting steps', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
-    const screen = render(() => (
-      <MoraineProvider>
-        <Stepper items={ITEMS} size={size} orientation={orientation()} />
-      </MoraineProvider>
-    ))
+    const screen = render(() => <Stepper items={ITEMS} orientation={orientation()} />)
     const indicator = screen.container.querySelector<HTMLElement>(
       '[data-slot="stepper-indicator"]',
     )!
-    const separator = screen.container.querySelector<HTMLElement>(
-      '[data-slot="stepper-separator"]',
-    )!
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="stepper"]')!
-    expect(indicator.className).toContain(markerSize)
-    expect(root.getAttribute('style')).toBeNull()
-    expect(separator.classList.contains(start)).toBe(false)
-    expect(separator.classList.contains(top)).toBe(false)
-    expect(separator.className).toContain('flex-1')
+
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('horizontal')
     setOrientation('vertical')
-    expect(separator.className).toContain('absolute')
-    expect(separator.classList.contains(start)).toBe(true)
-    expect(separator.classList.contains(top)).toBe(true)
-    expect(separator.className).not.toContain('flex-1')
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(screen.container.querySelector('[data-slot="stepper-indicator"]')).toBe(indicator)
   })
 
-  test('selects through the title and description and updates indicator state', () => {
+  test('selects through the title and description and reports each step state', () => {
     const screen = render(() => <Stepper items={ITEMS} clickable />)
     const triggers = screen.getAllByRole('tab')
     const title = screen.getByText('Shipping')
@@ -496,11 +466,7 @@ describe('Stepper', () => {
       screen.container.querySelectorAll('[data-slot="stepper-indicator"]'),
     ).map((element) => element.getAttribute('data-state'))
     expect(states).toEqual(['completed', 'completed', 'active'])
-    expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
-    const separators = screen.container.querySelectorAll('[data-slot="stepper-separator"]')
-    expect(separators).toHaveLength(2)
-    expect(separators[0]!.getAttribute('aria-hidden')).toBe('true')
-    expect(separators[0]!.parentElement).toBe(triggers[0]!.parentElement)
+    expect(screen.container.querySelectorAll('[data-slot="stepper-separator"]')).toHaveLength(2)
   })
 
   test('omits empty text wrappers and the connector for a single step', () => {

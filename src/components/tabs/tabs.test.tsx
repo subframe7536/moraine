@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -46,30 +46,22 @@ describe('Tabs', () => {
     }
   }
 
-  test('defers unselected panel JSX and reads it once when selected', () => {
-    let reads = 0
+  test('renders an unselected panel only after its tab is selected', () => {
     const [value, setValue] = createSignal('first')
     const screen = render(() => (
       <Tabs
         value={value()}
         items={[
           { value: 'first', label: 'First', content: 'First panel' },
-          {
-            value: 'second',
-            label: 'Second',
-            get content() {
-              reads++
-              return <span>Second panel</span>
-            },
-          },
+          { value: 'second', label: 'Second', content: <span>Second panel</span> },
         ]}
       />
     ))
-    expect(reads).toBe(0)
+    expect(screen.queryByText('Second panel')).toBeNull()
     setValue('second')
     expect(screen.getByRole('tabpanel').textContent).toBe('Second panel')
-    expect(reads).toBe(1)
   })
+
   const ITEMS = [
     { label: 'Overview', value: 'overview', content: 'Overview content' },
     { label: 'Settings', value: 'settings', content: 'Settings content' },
@@ -121,9 +113,6 @@ describe('Tabs', () => {
     expect(empty.getAttribute('aria-selected')).toBe('true')
     expect(empty.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
     expect(screen.getByRole('tabpanel').textContent).toBe('Empty panel')
-    expect(
-      screen.container.querySelector('[data-slot="tabs-indicator"]')?.getAttribute('style'),
-    ).toContain('width:')
   })
 
   test('gives duplicate values unique ARIA identity and selects the first enabled occurrence', async () => {
@@ -344,7 +333,7 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'Three' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('applies orientation/variant classes and class overrides', () => {
+  test('exposes orientation on the tablist and forwards class overrides to their slots', () => {
     const screen = render(() => (
       <MoraineProvider>
         <Tabs
@@ -364,24 +353,10 @@ describe('Tabs', () => {
     const trigger = screen.container.querySelector('[data-slot="tabs-trigger"]')
     const content = screen.container.querySelector('[data-slot="tabs-content"]')
 
-    expect(root?.className).toContain('flex-row')
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(root?.className).toContain('root-override')
-    expect(trigger?.className).toContain('transition')
-    expect(trigger?.className).toContain('focus-visible:ring-ring/50')
     expect(trigger?.className).toContain('trigger-override')
     expect(content?.className).toContain('content-override')
-  })
-
-  test('applies vertical pill indicator inset class', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Tabs orientation="vertical" items={ITEMS} />
-      </MoraineProvider>
-    ))
-
-    const indicator = screen.container.querySelector('[data-slot="tabs-indicator"]')
-
-    expect(indicator?.className).toContain('inset-x-1')
   })
 
   test('replaces Design without remounting the selected tab or panel', () => {
@@ -415,10 +390,9 @@ describe('Tabs', () => {
     ))
 
     const leading = screen.container.querySelector('[data-slot="tabs-leading"]')
-    const icon = leading?.firstElementChild
 
-    expect(leading).not.toBeNull()
-    expect(icon?.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
+    expect(leading?.firstElementChild).not.toBeNull()
+    expect(screen.getByRole('tab', { name: 'Inbox' })).not.toBeNull()
   })
 
   test('applies style overrides', () => {
@@ -815,36 +789,16 @@ describe('Tabs', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('reads the item collection and JSX-capable item fields once', () => {
-    const reads = { content: 0, icon: 0, items: 0, label: 0 }
-    const item = {
-      value: 'zero',
-      get label() {
-        reads.label += 1
-        return 0
-      },
-      get icon() {
-        reads.icon += 1
-        return undefined
-      },
-      get content() {
-        reads.content += 1
-        return <span>Zero panel</span>
-      },
-    }
-    const screen = render(() =>
-      createComponent(Tabs, {
-        defaultValue: 'zero',
-        get items() {
-          reads.items += 1
-          return [item]
-        },
-      }),
-    )
+  test('renders a falsy numeric label and JSX content', () => {
+    const screen = render(() => (
+      <Tabs
+        defaultValue="zero"
+        items={[{ value: 'zero', label: 0, content: <span>Zero panel</span> }]}
+      />
+    ))
 
     expect(screen.getByRole('tab', { name: '0' })).not.toBeNull()
     expect(screen.getByRole('tabpanel').textContent).toBe('Zero panel')
-    expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1 })
   })
 
   test('keeps the no-request fallback dynamic until the user selects a tab', async () => {

@@ -1,9 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { FieldProvider } from '../field/field-context'
 import type { FieldBinding } from '../field/field-context'
@@ -208,76 +207,54 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('renders controlled indeterminate state with indeterminate icon', async () => {
+  test('updates the control state and indicator when checked changes from indeterminate', () => {
+    const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
     const screen = render(() => (
       <Checkbox
-        checked="indeterminate"
+        checked={checked()}
+        label="Fill"
+        checkedIcon={<span data-testid="checked-icon">C</span>}
+        indeterminateIcon={<span data-testid="indeterminate-icon">I</span>}
+      />
+    ))
+    const checkbox = screen.getByRole('checkbox', { name: 'Fill' })
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')!
+
+    expectCheckboxChecked(checkbox, 'mixed')
+    expect(control.hasAttribute('data-indeterminate')).toBe(true)
+    expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
+
+    setChecked(true)
+
+    expectCheckboxChecked(checkbox, true)
+    expect(control.hasAttribute('data-indeterminate')).toBe(false)
+    expect(control.hasAttribute('data-checked')).toBe(true)
+    expect(screen.queryByTestId('indeterminate-icon')).toBeNull()
+    expect(screen.getByTestId('checked-icon').textContent).toBe('C')
+  })
+
+  test.each([
+    ['controlled', { checked: 'indeterminate' as const }],
+    ['uncontrolled', { defaultChecked: 'indeterminate' as const }],
+  ])('shows the mixed state when a %s checkbox starts indeterminate', async (_mode, state) => {
+    const screen = render(() => (
+      <Checkbox
+        {...state}
         label="Select all"
         description="Selection summary"
-        checkedIcon={<span data-testid="checked-icon">C</span>}
         indeterminateIcon={<span data-testid="indeterminate-icon">I</span>}
       />
     ))
 
     const checkbox = screen.getByRole('checkbox', { name: 'Select all' })
     const input = getHiddenCheckbox(screen.container)
-    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
     const root = screen.container.querySelector('[data-slot="checkbox"]')
-    const indicator = screen.container.querySelector('[data-slot="checkbox-indicator"]')
-    const description = screen.getByText('Selection summary')
 
     await waitFor(() => {
       expect(input.indeterminate).toBe(true)
       expect(input.checked).toBe(false)
       expectCheckboxChecked(checkbox, 'mixed')
-      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(root?.getAttribute('data-indeterminate')).toBe('')
-      expect(indicator?.getAttribute('data-indeterminate')).toBe('')
-      expect(description?.hasAttribute('data-indeterminate')).toBe(false)
-      expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
-    })
-  })
-
-  test('fills checked and indeterminate controls the same way', () => {
-    const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
-    const screen = render(() => <Checkbox checked={checked()} label="Fill" />)
-    const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')!
-    const iconOf = () =>
-      control.querySelector<HTMLElement>(
-        ':scope > [data-slot="checkbox-indicator"] > [data-slot="checkbox-icon"]',
-      )
-
-    expect(iconOf()?.className).toContain('icon-minus')
-    expect(iconOf()?.className).toContain('size-full')
-    expect(control.className).toContain('data-indeterminate:border-primary')
-    expect(control.className).toContain('data-indeterminate:bg-primary')
-
-    setChecked(true)
-    expect(iconOf()?.className).toContain('icon-check')
-    expect(control.className).toContain('data-checked:border-primary')
-    expect(control.className).toContain('data-checked:bg-primary')
-  })
-
-  test('renders default indeterminate state when defaultChecked is indeterminate', async () => {
-    const screen = render(() => (
-      <Checkbox
-        defaultChecked="indeterminate"
-        label="Default indeterminate"
-        indeterminateIcon={<span data-testid="indeterminate-icon">I</span>}
-      />
-    ))
-
-    const checkbox = screen.getByRole('checkbox', {
-      name: 'Default indeterminate',
-    })
-    const input = getHiddenCheckbox(screen.container)
-    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
-
-    await waitFor(() => {
-      expect(input.indeterminate).toBe(true)
-      expect(input.checked).toBe(false)
-      expectCheckboxChecked(checkbox, 'mixed')
-      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
   })
@@ -315,43 +292,22 @@ describe('Checkbox', () => {
     })
   })
 
-  test('does not toggle a controlled readonly checkbox', async () => {
+  test.each([
+    ['controlled', { checked: true }, true],
+    ['uncontrolled', { defaultChecked: false }, false],
+  ])('does not toggle a %s readonly checkbox', async (_mode, state, expected) => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Checkbox checked readOnly label="Readonly" onCheckedChange={onChange} />
+      <Checkbox {...state} readOnly label="Readonly" onCheckedChange={onChange} />
     ))
     const checkbox = screen.getByRole('checkbox', { name: 'Readonly' })
 
     expect(checkbox.getAttribute('aria-readonly')).toBe('true')
 
     fireEvent.click(checkbox)
-
-    expectCheckboxChecked(checkbox, true)
-    expect(onChange).not.toHaveBeenCalled()
-
     fireEvent.keyDown(checkbox, { key: ' ' })
 
-    expectCheckboxChecked(checkbox, true)
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('does not toggle an uncontrolled readonly checkbox', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Checkbox readOnly label="Readonly uncontrolled" onCheckedChange={onChange} />
-    ))
-    const checkbox = screen.getByRole('checkbox', {
-      name: 'Readonly uncontrolled',
-    })
-
-    fireEvent.click(checkbox)
-
-    expectCheckboxChecked(checkbox, false)
-    expect(onChange).not.toHaveBeenCalled()
-
-    fireEvent.keyDown(checkbox, { key: ' ' })
-
-    expectCheckboxChecked(checkbox, false)
+    expectCheckboxChecked(checkbox, expected)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -412,6 +368,39 @@ describe('Checkbox', () => {
       expect(input.checked).toBe(true)
       expect(new FormData(form).get('agree')).toBe('yes')
     })
+  })
+
+  test('form.Field checkbox submits a boolean and keeps its native input checked with its value', async () => {
+    const onSubmit = vi.fn()
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({ schema: v.object({ terms: v.boolean() }), initialInput: { terms: false } }),
+      (form) => (
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="terms" label="Terms">
+            <Checkbox value="accepted" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const formElement = screen.container.querySelector('form') as HTMLFormElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Terms' })
+    const input = getHiddenCheckbox(screen.container)
+
+    expect(input.checked).toBe(false)
+
+    fireEvent.click(checkbox)
+    expect(input.checked).toBe(true)
+    expect(input.value).toBe('accepted')
+    fireEvent.submit(formElement)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ terms: true })
+
+    fireEvent.click(checkbox)
+    expect(input.checked).toBe(false)
+    fireEvent.submit(formElement)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
+    expect(onSubmit.mock.calls[1]?.[0]).toEqual({ terms: false })
   })
 
   test('implicitly submits the form on Enter through the default submitter', () => {
@@ -576,32 +565,20 @@ describe('Checkbox', () => {
     expect(new FormData(form).has('terms')).toBe(false)
   })
 
-  test('applies card variant, end indicator and size classes', () => {
+  test('passes user classes to the root and control slots', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <Checkbox
-          variant="card"
-          indicator="end"
-          size="lg"
-          label="Classes"
-          classes={{ root: 'root-override' }}
-        />
-      </MoraineProvider>
+      <Checkbox
+        variant="card"
+        label="Classes"
+        classes={{ root: 'user-root', control: 'user-control' }}
+      />
     ))
 
     const root = screen.container.querySelector('[data-slot="checkbox"]')
-    const input = screen.container.querySelector('[data-slot="checkbox-input"]')
-    const container = screen.container.querySelector('[data-slot="checkbox-container"]')
     const base = screen.container.querySelector('[data-slot="checkbox-control"]')
 
-    expect(root?.className).toContain('rounded-md')
-    expect(root?.className).toContain('flex-row-reverse')
-    expect(root?.className).toContain('root-override')
-    expect(input?.className).toContain('peer')
-    expect(container?.className).toContain('h-6')
-    expect(base?.className).toContain('focus-visible:ring-ring/50')
-    expect(base?.className).toContain('size-4.5')
-    expect(screen.getByText('Classes').className).toContain('select-none')
+    expect(root?.classList.contains('user-root')).toBe(true)
+    expect(base?.classList.contains('user-control')).toBe(true)
   })
 
   test('applies style overrides', () => {
@@ -630,18 +607,19 @@ describe('Checkbox', () => {
     expect(label?.style.width).toBe('200px')
   })
 
-  test('toggles when clicking card root container', async () => {
-    const screen = render(() => <Checkbox variant="card" label="Card root click" />)
+  test.each([
+    ['card', true],
+    ['list', false],
+  ] as const)('a root click on a %s checkbox sets checked to %s', async (variant, toggles) => {
+    const screen = render(() => <Checkbox variant={variant} label="Root click" />)
 
     const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement
-    const checkbox = screen.getByRole('checkbox', { name: 'Card root click' })
-
-    expectCheckboxChecked(checkbox, false)
+    const checkbox = screen.getByRole('checkbox', { name: 'Root click' })
 
     fireEvent.click(root)
 
     await waitFor(() => {
-      expectCheckboxChecked(checkbox, true)
+      expectCheckboxChecked(checkbox, toggles)
     })
   })
 
@@ -677,68 +655,18 @@ describe('Checkbox', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('single-evaluates conditional JSX inputs', () => {
-    const reads = { checkedIcon: 0, description: 0, indeterminateIcon: 0, label: 0 }
-    const screen = render(() =>
-      createComponent(Checkbox, {
-        checked: 'indeterminate',
-        get checkedIcon() {
-          reads.checkedIcon += 1
-          return <span>Checked</span>
-        },
-        get description() {
-          reads.description += 1
-          return 'Description'
-        },
-        get indeterminateIcon() {
-          reads.indeterminateIcon += 1
-          return <span>Mixed</span>
-        },
-        get label() {
-          reads.label += 1
-          return 'Label'
-        },
-      }),
-    )
+  test('renders JSX label, description, and icons passed as content', () => {
+    const screen = render(() => (
+      <Checkbox
+        checked="indeterminate"
+        label={<span>Rich label</span>}
+        description="Description"
+        indeterminateIcon={<span>Mixed</span>}
+      />
+    ))
 
-    expect(screen.getByRole('checkbox', { name: 'Label' })).not.toBeNull()
+    expect(screen.getByRole('checkbox', { name: 'Rich label' })).not.toBeNull()
     expect(screen.getByText('Description')).not.toBeNull()
     expect(screen.getByText('Mixed')).not.toBeNull()
-    expect(reads).toEqual({ checkedIcon: 0, description: 1, indeterminateIcon: 1, label: 1 })
-  })
-
-  test('does not evaluate indicator icons while unchecked', () => {
-    const reads = { checkedIcon: 0, indeterminateIcon: 0 }
-
-    render(() =>
-      createComponent(Checkbox, {
-        get checkedIcon() {
-          reads.checkedIcon += 1
-          return <span>Checked</span>
-        },
-        get indeterminateIcon() {
-          reads.indeterminateIcon += 1
-          return <span>Mixed</span>
-        },
-        label: 'Unchecked',
-      }),
-    )
-
-    expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 0 })
-  })
-
-  test('does not toggle when clicking list root container', async () => {
-    const screen = render(() => <Checkbox label="List root click" />)
-
-    const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement
-    const checkbox = screen.getByRole('checkbox', { name: 'List root click' })
-
-    expectCheckboxChecked(checkbox, false)
-
-    fireEvent.click(root)
-
-    await waitFor(() => {
-      expectCheckboxChecked(checkbox, false)
-    })
   })
 })

@@ -201,7 +201,9 @@ describe('PinInput', () => {
 
   test('validationType="number" only accepts digits', () => {
     const screen = render(() => <PinInput validationType="number" length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
 
     expect(inputs[0]?.inputMode).toBe('numeric')
     expect(inputs[0]?.pattern).toBe('\\d{1}')
@@ -221,7 +223,9 @@ describe('PinInput', () => {
 
   test('otp prop sets autocomplete="one-time-code" on the first input', () => {
     const screen = render(() => <PinInput otp length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input')
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
     expect(inputs[0]?.autocomplete).toBe('one-time-code')
     expect(inputs[1]?.autocomplete).toBe('off')
   })
@@ -409,15 +413,11 @@ describe('PinInput', () => {
     expect(onComplete).toHaveBeenCalledWith('123456')
   })
 
-  test('renders separators correctly with numeric step', () => {
-    const screen = render(() => <PinInput length={6} separator={3} />)
-    const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
-    expect(separators).toHaveLength(1)
-    expect(separators[0]?.textContent).toBe('•')
-  })
-
-  test('renders separators with separator={true} to split inputs evenly in half', () => {
-    const screen = render(() => <PinInput length={6} separator />)
+  test.each([
+    ['a numeric step', 3],
+    ['separator={true}, which splits the slots in half', true],
+  ] as const)('renders one default separator for a 6-slot pin with %s', (_label, separator) => {
+    const screen = render(() => <PinInput length={6} separator={separator} />)
     const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
     expect(separators).toHaveLength(1)
     expect(separators[0]?.textContent).toBe('•')
@@ -585,17 +585,6 @@ describe('PinInput', () => {
     expect(inputs[2]?.value).toBe('3')
     expect(inputs[3]?.value).toBe('4')
     expect(document.activeElement).toBe(inputs[3])
-  })
-
-  test('applies border-only invalid styles to slots and focus-ring only on focus', () => {
-    const screen = render(() => <PinInput length={3} />)
-    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
-      '[data-slot="pin-input-input"]',
-    )
-    const classes = inputs[0]?.className.split(/\s+/) ?? []
-    expect(classes).toContain('data-invalid:border-danger')
-    expect(classes).not.toContain('data-invalid:ring-3')
-    expect(classes).toContain('focus:data-invalid:ring-danger/20')
   })
 
   test('associates Field label and description with the group and inputs', () => {
@@ -884,10 +873,9 @@ describe('PinInput', () => {
     )
 
     const invalidEvent = new Event('invalid', { cancelable: true })
-    const preventDefaultSpy = vi.spyOn(invalidEvent, 'preventDefault')
     hidden.dispatchEvent(invalidEvent)
 
-    expect(preventDefaultSpy).toHaveBeenCalledTimes(1)
+    expect(invalidEvent.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(inputs[0])
     expect(root.getAttribute('data-invalid')).toBe('')
     expect(inputs[0]?.getAttribute('aria-invalid')).toBe('true')

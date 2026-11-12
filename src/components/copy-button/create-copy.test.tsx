@@ -106,24 +106,13 @@ describe('createCopy', () => {
     expect(clipboard.state()).toBe('copied')
   })
 
-  test('falls back to JSON.stringify when ClipboardItem has no text type', async () => {
+  test('copies the JSON form of a ClipboardItem without a text type on legacy fallback', async () => {
     vi.stubGlobal('navigator', {})
-    let copiedContent = ''
-    const origCreateElement = document.createElement.bind(document)
-    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-      const el = origCreateElement(tag)
-      if (tag === 'textarea') {
-        Object.defineProperty(el, 'value', {
-          set: (val: string) => {
-            copiedContent = val
-          },
-          get: () => copiedContent,
-        })
-      }
-      return el
+    let copiedContent: string | undefined
+    document.execCommand = vi.fn(() => {
+      copiedContent = document.querySelector('textarea')?.value
+      return true
     })
-    const execCommand = vi.fn().mockReturnValue(true)
-    document.execCommand = execCommand
 
     const nonTextData = { foo: 'bar' } as unknown as ClipboardItem
     const clipboard = setup()
@@ -169,22 +158,28 @@ describe('createCopy', () => {
     })
   })
 
-  test('reset cancels the duration timer and resets state to idle', async () => {
-    const clipboard = setup()
+  test('reset returns to idle and prevents the pending reset from reporting again', async () => {
+    const onStatusChange = vi.fn()
+    const clipboard = setup({ onStatusChange })
     await clipboard.copy('test')
     expect(clipboard.state()).toBe('copied')
 
     clipboard.reset()
     expect(clipboard.state()).toBe('idle')
-    expect(vi.getTimerCount()).toBe(0)
+    onStatusChange.mockClear()
+
+    vi.advanceTimersByTime(1000)
+    expect(onStatusChange).not.toHaveBeenCalled()
   })
 
-  test('cleanup cancels reset timer on unmount', async () => {
-    const clipboard = setup()
+  test('reports no status changes after the owner is disposed', async () => {
+    const onStatusChange = vi.fn()
+    const clipboard = setup({ onStatusChange })
     await clipboard.copy('unmount-test')
-    expect(vi.getTimerCount()).toBe(1)
+    onStatusChange.mockClear()
 
     dispose()
-    expect(vi.getTimerCount()).toBe(0)
+    vi.advanceTimersByTime(1000)
+    expect(onStatusChange).not.toHaveBeenCalled()
   })
 })

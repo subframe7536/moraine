@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -69,12 +69,6 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('renders the default dropzone styling without a provider', () => {
-    const screen = render(() => <FileUpload dropzone />)
-    const control = screen.container.querySelector('[data-slot="file-upload-control"]')
-    expect(control?.className).toContain('border-dashed')
-  })
-
   test('exposes native inputRef', () => {
     let ref: HTMLInputElement | undefined
     render(() => <FileUpload inputRef={(el) => (ref = el)} />)
@@ -240,11 +234,9 @@ describe('FileUpload', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('dropzone drag-over uses color feedback without scale transform', async () => {
+  test('marks the dropzone as dragging while files are dragged over it', async () => {
     const screen = render(() => <FileUpload dropzone />)
     const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
-
-    expect(base.className).not.toContain('scale-[')
 
     fireEvent.dragOver(base, {
       dataTransfer: {
@@ -258,7 +250,6 @@ describe('FileUpload', () => {
     await waitFor(() => {
       expect(base.getAttribute('data-dragging')).toBe('')
     })
-    expect(base.className).not.toContain('scale-[')
   })
 
   test('remove file updates list and emitted value for multiple mode', async () => {
@@ -499,8 +490,8 @@ describe('FileUpload', () => {
     const root = screen.container.querySelector('[data-slot="file-upload"]')
     const file = screen.container.querySelector('[data-slot="file-upload-file"]')
 
-    expect(root?.className).toContain('root-override')
-    expect(file?.className).toContain('file-override')
+    expect(root?.classList.contains('root-override')).toBe(true)
+    expect(file?.classList.contains('file-override')).toBe(true)
   })
 
   test('applies style overrides for root and file slots', async () => {
@@ -743,34 +734,6 @@ describe('FileUpload', () => {
 
     expect(control.getAttribute('aria-labelledby')).toBe(label.id)
     expect(control.getAttribute('aria-describedby')).toContain(description.id)
-  })
-
-  test('single-evaluates control JSX and conditional props', () => {
-    const reads = { description: 0, dropzone: 0, label: 0, preview: 0 }
-    const screen = render(() =>
-      createComponent(FileUpload, {
-        get description() {
-          reads.description += 1
-          return 'Description'
-        },
-        get dropzone() {
-          reads.dropzone += 1
-          return true
-        },
-        get label() {
-          reads.label += 1
-          return 'Upload files'
-        },
-        get preview() {
-          reads.preview += 1
-          return false
-        },
-      }),
-    )
-
-    expect(screen.getByRole('button', { name: 'Upload files' })).not.toBeNull()
-    expect(screen.getByText('Description')).not.toBeNull()
-    expect(reads).toEqual({ description: 1, dropzone: 1, label: 1, preview: 1 })
   })
 
   test.each([

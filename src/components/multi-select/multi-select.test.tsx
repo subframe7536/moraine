@@ -588,7 +588,7 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(2)
   })
 
-  test('uses direct focus-visible styling on the non-editable trigger', () => {
+  test('a pointer press on the non-editable control focuses its trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const trigger = screen.getByRole('combobox')
@@ -596,14 +596,13 @@ describe('MultiSelect', () => {
     expect(control.hasAttribute('data-editable')).toBe(false)
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.getAttribute('data-slot')).toBe('multi-select-trigger')
-    expect(trigger.className).toContain('focus-visible:after:')
     expect(control.querySelector('input[data-slot="multi-select-input"]')).toBeNull()
 
     fireEvent.pointerDown(control, { pointerType: 'mouse' })
     expect(document.activeElement).toBe(trigger)
   })
 
-  test('keeps editable MultiSelect on the existing focus-within path', () => {
+  test('an editable MultiSelect is a single text input inside the control', () => {
     const screen = render(() => <MultiSelect items={ITEMS} search />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const input = screen.getByRole('combobox')

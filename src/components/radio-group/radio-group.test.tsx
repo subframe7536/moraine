@@ -20,25 +20,19 @@ describe('RadioGroup', () => {
     expect(rootEl?.getAttribute('data-slot')).toBe('radio-group')
   })
 
-  test('renders radio options with form-field label and no legacy wrappers', () => {
+  test('names the radiogroup by the Field label and describes it by the Field description', () => {
     const screen = render(() => (
       <Field label="Plan" description="Select one plan">
         <RadioGroup items={['Basic', 'Pro']} />
       </Field>
     ))
 
-    expect(screen.getByText('Plan')).not.toBeNull()
+    const group = screen.getByRole('radiogroup', { name: 'Plan' })
+    const description = screen.getByText('Select one plan')
+
     expect(screen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })).not.toBeNull()
     expect(screen.getByRole<HTMLInputElement>('radio', { name: 'Pro' })).not.toBeNull()
-
-    const group = screen.getByRole('radiogroup')
-    const label = screen.getByText('Plan')
-
-    expect(label.getAttribute('for')).toBeNull()
-    expect(group.getAttribute('aria-describedby')).toContain('description')
-    expect(screen.container.querySelector('[data-slot="fieldset"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="legend"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="radio-group-container"]')).not.toBeNull()
+    expect(group.getAttribute('aria-describedby')).toContain(description.id)
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
@@ -61,7 +55,6 @@ describe('RadioGroup', () => {
     expect(disabledControl?.getAttribute('data-required')).toBe('')
     expect(disabledControl?.getAttribute('data-disabled')).toBe('')
     expect(disabledItem?.getAttribute('data-disabled')).toBe('')
-    expect(disabledItem?.className).toContain('data-disabled:opacity-64')
 
     disabledScreen.unmount()
 
@@ -561,50 +554,16 @@ describe('RadioGroup', () => {
     }
   })
 
-  test('applies horizontal table layout classes', () => {
-    const screen = render(() => (
-      <RadioGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
-    ))
+  test('reports the orientation to assistive technology', () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} orientation="horizontal" />)
 
-    const group = screen.getByRole('radiogroup')
-    const firstItem = screen.container.querySelector('[data-slot="radio-group-item"]')
-    const firstInput = screen.container.querySelector('[data-slot="radio-group-input"]')
-    const firstContainer = screen.container.querySelector('[data-slot="radio-group-container"]')
-    const firstBase = screen.container.querySelector('[data-slot="radio-group-control"]')
-
-    expect(group.className).toContain('flex-row')
-    expect(group.className).not.toContain('flex-wrap')
-    expect(firstItem?.className).toContain('p-4')
-    expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
-    expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
-    expect(firstItem?.className).toContain('-ms-px')
-    expect(firstItem?.className).toContain('first-of-type:ms-0')
-    expect(firstInput?.className).toContain('peer')
-    expect(firstContainer?.className).toContain('h-6')
-    expect(firstBase?.className).toContain('peer-focus-visible:ring-ring/50')
+    expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('horizontal')
   })
 
-  test('uses block labels for balanced list alignment', () => {
-    const screen = render(() => (
-      <RadioGroup
-        items={[{ value: 'starter', label: 'Starter', description: 'For personal projects' }]}
-      />
-    ))
+  test('defaults the orientation to vertical', () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} />)
 
-    expect(screen.getByText('Starter').className).toContain('block')
-  })
-
-  test('applies vertical table layout classes', () => {
-    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" size="lg" />)
-
-    const group = screen.getByRole('radiogroup')
-    const firstItem = screen.container.querySelector('[data-slot="radio-group-item"]')
-
-    expect(group.className).toContain('flex-col')
-    expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
-    expect(firstItem?.className).toContain('last-of-type:rounded-b-lg')
-    expect(firstItem?.className).toContain('-mt-px')
-    expect(firstItem?.className).toContain('first-of-type:mt-0')
+    expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('vertical')
   })
 
   test.each(['card', 'table'] as const)(
@@ -629,42 +588,6 @@ describe('RadioGroup', () => {
       })
     },
   )
-
-  test('raises the selected table item above adjacent rows', () => {
-    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
-    const selectedItem = screen.container.querySelector('[data-slot="radio-group-item"]')
-
-    expect(selectedItem?.className).toContain('z-base')
-  })
-
-  test('prevents the default radio control from shrinking into an oval', () => {
-    const screen = render(() => <RadioGroup items={['A']} defaultValue="A" />)
-    const control = screen.container.querySelector('[data-slot="radio-group-control"]')
-    const indicator = screen.container.querySelector('[data-slot="radio-group-indicator"]')
-
-    expect(control?.className).toContain('rounded-full')
-    expect(control?.className).toContain('size-4')
-    expect(control?.className).toContain('shrink-0')
-    expect(indicator?.className).toContain('size-2')
-  })
-
-  test('selects option when clicking table item container', async () => {
-    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
-
-    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
-    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
-    const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
-
-    expect(radioA.checked).toBe(true)
-    expect(radioB.checked).toBe(false)
-
-    fireEvent.click(items[1] as HTMLElement)
-
-    await waitFor(() => {
-      expect(radioA.checked).toBe(false)
-      expect(radioB.checked).toBe(true)
-    })
-  })
 
   test('respects canceled group clicks and nested interactive label descendants', async () => {
     const onChange = vi.fn()
@@ -743,23 +666,28 @@ describe('RadioGroup', () => {
     )
   })
 
-  test('does not select option when clicking list item container', async () => {
-    const screen = render(() => <RadioGroup items={['A', 'B']} defaultValue="A" />)
+  test.each([
+    ['table', true],
+    ['list', false],
+  ] as const)(
+    'a click on the item container of a %s radio group selects it: %s',
+    async (variant, selects) => {
+      const screen = render(() => (
+        <RadioGroup items={['A', 'B']} variant={variant} defaultValue="A" />
+      ))
 
-    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
-    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
-    const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
+      const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+      const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+      const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
 
-    expect(radioA.checked).toBe(true)
-    expect(radioB.checked).toBe(false)
+      fireEvent.click(items[1] as HTMLElement)
 
-    fireEvent.click(items[1] as HTMLElement)
-
-    await waitFor(() => {
-      expect(radioA.checked).toBe(true)
-      expect(radioB.checked).toBe(false)
-    })
-  })
+      await waitFor(() => {
+        expect(radioA.checked).toBe(!selects)
+        expect(radioB.checked).toBe(selects)
+      })
+    },
+  )
 
   test('sets aria-readonly and prevents changes when readOnly', async () => {
     const onChange = vi.fn()
@@ -779,10 +707,11 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('applies style overrides to item and radio slots', () => {
+  test('applies class and style overrides to their slots', () => {
     const screen = render(() => (
       <RadioGroup
         items={['A']}
+        classes={{ root: 'user-root' }}
         styles={{
           item: { width: '200px' },
           control: { width: '200px' },
@@ -791,10 +720,12 @@ describe('RadioGroup', () => {
       />
     ))
 
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="radio-group"]')
     const item = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-item"]')
     const base = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-control"]')
     const label = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-label"]')
 
+    expect(root?.classList.contains('user-root')).toBe(true)
     expect(item?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')

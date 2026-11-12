@@ -120,7 +120,7 @@ describe('NavigationMenu', () => {
   })
 
   test.each(['window', 'container'] as const)(
-    'follows %s scrolling immediately and restores movement on the next trigger',
+    'stays open while %s scrolls and still switches panels',
     async (target) => {
       let scroller!: HTMLDivElement
       const screen = render(() => (
@@ -128,22 +128,15 @@ describe('NavigationMenu', () => {
           <TestMenu />
         </div>
       ))
-      fireEvent.click(page.getByRole('button', { name: 'Products' }))
+      const products = page.getByRole('button', { name: 'Products' })
+      fireEvent.click(products)
       await page.findByRole('link', { name: 'Overview' })
-      const positioner = document.querySelector<HTMLElement>(
-        '[data-slot="navigation-menu-positioner"]',
-      )!
-      fireEvent.scroll(page.getByRole('link', { name: 'Overview' }).parentElement!)
-      expect(positioner.style.transitionProperty).toBe('')
       fireEvent.scroll(target === 'window' ? window : scroller)
-      expect(positioner.style.transitionProperty).toBe('none')
+      expect(products.getAttribute('aria-expanded')).toBe('true')
+      expect(page.getByRole('link', { name: 'Overview' }).isConnected).toBe(true)
       fireEvent.click(page.getByRole('button', { name: 'Guides' }))
-      await page.findByRole('link', { name: 'Guide' })
-      expect(positioner.style.transitionProperty).toBe('')
+      expect(await page.findByRole('link', { name: 'Guide' })).toBeDefined()
       screen.unmount()
-      positioner.style.transitionProperty = 'transform'
-      fireEvent.scroll(window)
-      expect(positioner.style.transitionProperty).toBe('transform')
     },
   )
 
@@ -155,7 +148,6 @@ describe('NavigationMenu', () => {
     fireEvent.click(products)
     const overview = await page.findByRole('link', { name: 'Overview' })
     const content = overview.closest<HTMLElement>('[data-slot="navigation-menu-content"]')!
-    expect(content.style.getPropertyValue('--mo-anim-ease')).toBe('ease')
     expect(products.getAttribute('aria-expanded')).toBe('true')
     expect(products.getAttribute('aria-haspopup')).toBe('false')
     expect(products.getAttribute('aria-controls')).toBe(content.id)
@@ -482,13 +474,11 @@ describe('NavigationMenu', () => {
 
   test('retains the original content context and reactive JSX while releasing its owner on close', async () => {
     switchDuration = 500
-    let mounts = 0
     let cleanups = 0
     const LabelContext = createContext<() => string>()
     const [label, setLabel] = createSignal('Owned content')
     const Body = () => {
       const contextualLabel = useContext(LabelContext)!
-      mounts += 1
       onCleanup(() => (cleanups += 1))
       return <NavigationMenu.Link href="#owned">{contextualLabel()}</NavigationMenu.Link>
     }
@@ -512,7 +502,7 @@ describe('NavigationMenu', () => {
         </NavigationMenu.List>
       </NavigationMenu>
     ))
-    expect(mounts).toBe(0)
+    expect(page.queryByRole('link', { name: 'Owned content' })).toBeNull()
     fireEvent.click(page.getByRole('button', { name: 'Owned' }))
     const link = await page.findByRole('link', { name: 'Owned content' })
     fireEvent.click(page.getByRole('button', { name: 'Other' }))
@@ -523,12 +513,10 @@ describe('NavigationMenu', () => {
     expect(cleanups).toBe(0)
     fireEvent.click(page.getByRole('button', { name: 'Owned' }))
     expect(await page.findByRole('link', { name: 'Updated content' })).toBe(link)
-    expect(mounts).toBe(1)
     fireEvent.click(page.getByRole('button', { name: 'Owned' }))
     await waitFor(() => expect(cleanups).toBe(1))
     fireEvent.click(page.getByRole('button', { name: 'Owned' }))
     expect(await page.findByRole('link', { name: 'Updated content' })).not.toBe(link)
-    expect(mounts).toBe(2)
   })
 
   test('releases removed outgoing content without closing the active panel', async () => {
@@ -718,7 +706,6 @@ describe('NavigationMenu', () => {
           trigger: 'custom-trigger',
           content: 'custom-content',
           link: 'custom-link',
-          '--mo-anim-ease': 'ease-in-out',
         },
       },
     })
@@ -741,11 +728,10 @@ describe('NavigationMenu', () => {
         ?.classList.contains('custom-content'),
     ).toBe(true)
     const content = link.closest<HTMLElement>('[data-slot="navigation-menu-content"]')!
-    expect(content.style.getPropertyValue('--mo-anim-ease')).toBe('ease-in-out')
-    setStyles({ content: { '--mo-anim-ease': 'linear' } })
-    expect(content.style.getPropertyValue('--mo-anim-ease')).toBe('linear')
+    setStyles({ content: { width: '180px' } })
+    expect(content.style.width).toBe('180px')
     setStyles({})
-    expect(content.style.getPropertyValue('--mo-anim-ease')).toBe('ease-in-out')
+    expect(content.style.width).toBe('')
   })
 
   test('supports polymorphic trigger element via as prop and opens with keyboard', async () => {

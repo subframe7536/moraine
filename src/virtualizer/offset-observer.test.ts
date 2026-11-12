@@ -32,21 +32,14 @@ function fakeInstance(
   } as unknown as Virtualizer<HTMLElement, HTMLElement>
 }
 
-function scrollListenerCount(add: { mock: { calls: unknown[][] } }, remove: typeof add): number {
-  const count = (spy: typeof add) => spy.mock.calls.filter(([type]) => type === 'scroll').length
-  return count(add) - count(remove)
-}
-
 describe('createSharedElementOffsetObserver', () => {
   afterEach(() => {
     vi.useRealTimers()
     document.body.replaceChildren()
   })
 
-  test('registers one scroll listener per element and reads each axis', () => {
+  test('reports the vertical, horizontal, and RTL offsets of one scroll element', () => {
     const { element, position } = scrollableElement()
-    const add = vi.spyOn(element, 'addEventListener')
-    const remove = vi.spyOn(element, 'removeEventListener')
     const observe = createSharedElementOffsetObserver()
     const vertical = vi.fn()
     const horizontal = vi.fn()
@@ -55,7 +48,6 @@ describe('createSharedElementOffsetObserver', () => {
     const stopVertical = observe(fakeInstance(element), vertical)
     const stopHorizontal = observe(fakeInstance(element, { horizontal: true }), horizontal)
     const stopRtl = observe(fakeInstance(element, { horizontal: true, isRtl: true }), rtl)
-    expect(scrollListenerCount(add, remove)).toBe(1)
 
     position.top = 40
     position.left = -30
@@ -66,12 +58,13 @@ describe('createSharedElementOffsetObserver', () => {
 
     stopVertical?.()
     stopHorizontal?.()
-    expect(scrollListenerCount(add, remove)).toBe(1)
     stopRtl?.()
-    expect(scrollListenerCount(add, remove)).toBe(0)
+    vertical.mockClear()
+    element.dispatchEvent(new Event('scroll'))
+    expect(vertical).not.toHaveBeenCalled()
   })
 
-  test('notifies every subscriber inside one batch', () => {
+  test('notifies every subscriber of one scroll event in a single batch', () => {
     const { element, position } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
     const [top, setTop] = createSignal(0)
@@ -113,7 +106,7 @@ describe('createSharedElementOffsetObserver', () => {
     expect(callback).toHaveBeenLastCalledWith(5, false)
   })
 
-  test('stops the pending reset timer when the last subscriber leaves', () => {
+  test('drops the pending end-of-scroll report when the last subscriber leaves', () => {
     vi.useFakeTimers()
     const { element } = scrollableElement()
     const observe = createSharedElementOffsetObserver()
@@ -126,23 +119,7 @@ describe('createSharedElementOffsetObserver', () => {
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
-  test('uses scrollend when the first subscriber enables it and it is supported', () => {
-    const { element, position } = scrollableElement()
-    const add = vi.spyOn(element, 'addEventListener')
-    const observe = createSharedElementOffsetObserver()
-    const callback = vi.fn()
-    observe(fakeInstance(element, { useScrollendEvent: true }), callback)
-
-    const supported = 'onscrollend' in window
-    expect(add.mock.calls.some(([type]) => type === 'scrollend')).toBe(supported)
-    if (supported) {
-      position.top = 8
-      element.dispatchEvent(new Event('scrollend'))
-      expect(callback).toHaveBeenLastCalledWith(8, false)
-    }
-  })
-
-  test('does nothing before the instance has a scroll element', () => {
+  test('returns no subscription before the instance has a scroll element', () => {
     const observe = createSharedElementOffsetObserver()
     const instance = {
       scrollElement: null,

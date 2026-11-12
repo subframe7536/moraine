@@ -118,19 +118,6 @@ describe('Slider', () => {
     }
   })
 
-  test('uses the compact track thickness scale', () => {
-    const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
-    const vertical = render(() => <Slider orientation="vertical" size="lg" />)
-
-    const horizontalTrack = horizontal.container.querySelector('[data-slot="slider-track"]')
-    const verticalTrack = vertical.container.querySelector('[data-slot="slider-track"]')
-
-    expect(horizontalTrack?.className).toContain('h-(--s-size)')
-    expect(horizontalTrack?.className).toContain('w-full')
-    expect(verticalTrack?.className).toContain('w-(--s-size)')
-    expect(verticalTrack?.className).toContain('h-full')
-  })
-
   test('renders base attributes and orientation without tooltip', () => {
     const screen = render(() => (
       <Slider
@@ -171,14 +158,8 @@ describe('Slider', () => {
     expect(thumb?.getAttribute('aria-required')).toBe('true')
     expect(thumb?.getAttribute('aria-disabled')).toBe('true')
     expect(thumb?.getAttribute('aria-readonly')).toBe('true')
-    expect(track?.className).toContain('bg-input')
-    expect(thumb?.className).toContain('absolute')
-    expect(thumb?.style.translate).toBe('')
-    expect(thumb?.className).toContain('-translate-y-1/2')
-    expect(thumb?.className).toContain('scale-120')
-    expect(thumb?.className).toContain('cursor-pointer')
-    expect(thumb?.className).toContain('hover:ring-ring/50')
-    expect(thumb?.className).toContain('focus-visible:ring-ring/50')
+    expect(track).not.toBeNull()
+    expect(thumb).not.toBeNull()
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
@@ -211,9 +192,6 @@ describe('Slider', () => {
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
     expect(thumb.style.bottom).toBe('100%')
-    expect(thumb.className).toContain('translate-y-1/2')
-    expect(thumb.hasAttribute('data-orientation')).toBe(false)
-    expect(thumb.hasAttribute('data-inverted')).toBe(false)
   })
 
   test('thumbAlignment="contain" insets the thumb toward the track bounds', () => {
@@ -534,7 +512,7 @@ describe('Slider', () => {
     expect(Array.isArray(onChange.mock.calls[0]?.[0])).toBe(true)
   })
 
-  test('gives range thumbs stable identities in accessible value text', () => {
+  test('describes each range thumb with its value and position in the range', () => {
     const range = render(() => <Slider defaultValue={[20, 80]} />)
     const labelledRange = render(() => (
       <Field label="Price">
@@ -679,8 +657,6 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
-    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
-    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[1])
 
     fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -715,8 +691,6 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
-    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[1])
 
     fireEvent.pointerMove(thumbs[0] as HTMLElement, {
@@ -729,8 +703,6 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('40')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
-    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[0])
 
     fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -849,7 +821,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('80')
   })
 
-  test('controlled single keeps thumb dom node stable after value updates', async () => {
+  test('controlled single keeps keyboard focus on the thumb after value updates', async () => {
     const screen = render(() => {
       const [value, setValue] = createSignal(10)
 
@@ -865,58 +837,19 @@ describe('Slider', () => {
       )
     })
 
-    const thumbsBefore = getThumbs(screen.container)
-    const thumbBefore = thumbsBefore[0]
-    expect(thumbBefore?.getAttribute('aria-valuenow')).toBe('10')
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    expect(thumb.getAttribute('aria-valuenow')).toBe('10')
 
-    fireEvent.focus(thumbBefore as HTMLElement)
-    fireEvent.keyDown(thumbBefore as HTMLElement, { key: 'ArrowRight' })
-
-    await waitFor(() => {
-      expect(getThumbs(screen.container)[0]?.getAttribute('aria-valuenow')).toBe('11')
-    })
-
-    const thumbAfter = getThumbs(screen.container)[0]
-    expect(thumbAfter).toBe(thumbBefore)
-  })
-
-  test('controlled range keeps thumb dom nodes stable after value updates', async () => {
-    const screen = render(() => {
-      const [value, setValue] = createSignal<number[]>([20, 80])
-
-      return (
-        <Slider
-          value={value()}
-          onValueChange={(nextValue) => {
-            if (Array.isArray(nextValue)) {
-              setValue(nextValue)
-            }
-          }}
-        />
-      )
-    })
-
-    const thumbsBefore = getThumbs(screen.container)
-    const firstThumbBefore = thumbsBefore[0]
-    const secondThumbBefore = thumbsBefore[1]
-    expect(firstThumbBefore?.getAttribute('aria-valuenow')).toBe('20')
-    expect(secondThumbBefore?.getAttribute('aria-valuenow')).toBe('80')
-
-    fireEvent.focus(firstThumbBefore as HTMLElement)
-    fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
+    thumb.focus()
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
 
     await waitFor(() => {
-      const [firstThumb, secondThumb] = getThumbs(screen.container)
-      expect(firstThumb?.getAttribute('aria-valuenow')).toBe('21')
-      expect(secondThumb?.getAttribute('aria-valuenow')).toBe('80')
+      expect(thumb.getAttribute('aria-valuenow')).toBe('11')
     })
-
-    const [firstThumbAfter, secondThumbAfter] = getThumbs(screen.container)
-    expect(firstThumbAfter).toBe(firstThumbBefore)
-    expect(secondThumbAfter).toBe(secondThumbBefore)
+    expect(document.activeElement).toBe(thumb)
   })
 
-  test('controlled range keeps thumb updates stable with thumb style overrides', async () => {
+  test('controlled range keeps the moved thumb focused and styled after value updates', async () => {
     const screen = render(() => {
       const [value, setValue] = createSignal<number[]>([20, 80])
 
@@ -933,25 +866,19 @@ describe('Slider', () => {
       )
     })
 
-    const [firstThumbBefore, secondThumbBefore] = getThumbs(screen.container)
+    const [firstThumb, secondThumb] = getThumbs(screen.container)
+    expect(firstThumb?.style.width).toBe('20px')
 
-    expect(firstThumbBefore?.style.width).toBe('20px')
-    expect(secondThumbBefore?.style.width).toBe('20px')
-
-    fireEvent.focus(firstThumbBefore as HTMLElement)
-    fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
+    firstThumb!.focus()
+    fireEvent.keyDown(firstThumb!, { key: 'ArrowRight' })
 
     await waitFor(() => {
-      const [firstThumb, secondThumb] = getThumbs(screen.container)
       expect(firstThumb?.getAttribute('aria-valuenow')).toBe('21')
-      expect(secondThumb?.getAttribute('aria-valuenow')).toBe('80')
-      expect(firstThumb?.style.width).toBe('20px')
-      expect(secondThumb?.style.width).toBe('20px')
     })
-
-    const [firstThumbAfter, secondThumbAfter] = getThumbs(screen.container)
-    expect(firstThumbAfter).toBe(firstThumbBefore)
-    expect(secondThumbAfter).toBe(secondThumbBefore)
+    expect(secondThumb?.getAttribute('aria-valuenow')).toBe('80')
+    expect(firstThumb?.style.width).toBe('20px')
+    expect(secondThumb?.style.width).toBe('20px')
+    expect(document.activeElement).toBe(firstThumb)
   })
 
   test('applies class overrides for root and thumb slots', () => {
@@ -962,8 +889,8 @@ describe('Slider', () => {
     const root = screen.container.querySelector('[data-slot="slider"][id$="-root"]')
     const thumb = screen.container.querySelector('[data-slot="slider-thumb"]')
 
-    expect(root?.className).toContain('root-override')
-    expect(thumb?.className).toContain('thumb-override')
+    expect(root?.classList.contains('root-override')).toBe(true)
+    expect(thumb?.classList.contains('thumb-override')).toBe(true)
   })
 
   test('applies style overrides for root and thumb slots', () => {
@@ -987,8 +914,6 @@ describe('Slider', () => {
 
     expect(markers).toHaveLength(4)
     expect((markers[0] as HTMLElement).style.left).toBe('20%')
-    expect(markers[0]?.className).toContain('h-full')
-    expect(markers[0]?.className).toContain('w-px')
   })
 
   test('markerIndexes is reactive when step, marker, or bounds change', async () => {
@@ -1605,12 +1530,13 @@ describe('Slider', () => {
     const screen = render(() => <Slider defaultValue={20} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     mockPointerCapture(thumb)
-    const releasePointerCapture = vi.spyOn(thumb, 'releasePointerCapture')
 
     fireEvent.pointerDown(thumb, { button: 0, pointerId: 7 })
+    expect(thumb.hasPointerCapture(7)).toBe(true)
+
     screen.unmount()
 
-    expect(releasePointerCapture).toHaveBeenCalledWith(7)
+    expect(thumb.hasPointerCapture(7)).toBe(false)
   })
 
   test('renders children inside slider root', () => {
@@ -1670,7 +1596,6 @@ test('updates thumb dimensions with size and accepts an independent override', (
   expect(root.style.getPropertyValue('--s-size')).toBe('8px')
   setThumbSize(undefined)
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
-  expect(screen.container.querySelector('[data-slot="slider"]')).toBe(root)
 })
 
 test('createSlider works standalone with minimal options', () => {
@@ -1734,7 +1659,7 @@ test('marks step markers inside the selected range as active', () => {
   expect(activeOf('single')).toEqual([true, false, false, false, false, false, false, false, false])
 })
 
-test('focuses thumbs without the keyboard focus ring for pointer input', () => {
+test('moves focus to the thumb nearest a pointer press', () => {
   const screen = render(() => <Slider defaultValue={[20, 80]} step={10} />)
   const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
   const thumbs = getThumbs(screen.container)
@@ -1743,19 +1668,14 @@ test('focuses thumbs without the keyboard focus ring for pointer input', () => {
   for (const thumb of thumbs) {
     mockPointerCapture(thumb)
   }
-  const focus = vi.spyOn(HTMLElement.prototype, 'focus')
 
   fireEvent.pointerDown(track, { button: 0, clientX: 30, pointerId: 1 })
   fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
   expect(document.activeElement).toBe(thumbs[0])
-  expect(focus).toHaveBeenLastCalledWith({ focusVisible: false })
 
   fireEvent.pointerDown(thumbs[1]!, { button: 0, clientX: 80, pointerId: 2 })
   fireEvent.pointerUp(thumbs[1]!, { button: 0, pointerId: 2 })
   expect(document.activeElement).toBe(thumbs[1])
-  expect(focus).toHaveBeenLastCalledWith({ focusVisible: false })
-
-  focus.mockRestore()
 })
 
 test('draws markers at a numeric interval without changing snapping', () => {

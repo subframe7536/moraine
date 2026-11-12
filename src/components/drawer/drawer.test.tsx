@@ -668,17 +668,7 @@ describe('Drawer', () => {
       expect(el.style.opacity).toBe('')
     })
 
-    test('resolves the snap offset before the presence style flush', async () => {
-      const realGetComputedStyle = window.getComputedStyle
-      const flushedOffsets: string[] = []
-      vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) => {
-        const result = realGetComputedStyle(el, pseudo)
-        if (el instanceof HTMLElement && el.dataset.slot === 'drawer-content') {
-          flushedOffsets.push(el.style.getPropertyValue('--drawer-snap-point-offset'))
-        }
-        return result
-      })
-
+    test('sets the resolved snap offset on the content as soon as it opens', async () => {
       render(() => (
         <Drawer defaultOpen snapPoints={['148px', 1]}>
           <Drawer.Content>
@@ -689,13 +679,8 @@ describe('Drawer', () => {
       await waitFor(() =>
         expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
       )
-      await Promise.resolve()
 
-      const cssOffset = 'max(0px, calc(100% - 148px), calc(100% - 100dvh))'
-      expect(content().style.getPropertyValue('--drawer-snap-point-offset')).toBe(cssOffset)
-      expect(flushedOffsets.length).toBeGreaterThan(0)
-      // The first flush (presence registration) must already see the resolved offset.
-      expect(flushedOffsets[0]).toBe(cssOffset)
+      expect(snapOffsetValue()).toBe('max(0px, calc(100% - 148px), calc(100% - 100dvh))')
     })
 
     test('resets the snap point to the default after the drawer finishes closing', async () => {
@@ -1944,6 +1929,41 @@ describe('Drawer', () => {
       expect(child.style.getPropertyValue('--drawer-nested-num')).toBe('1')
       expect(grandchild.hasAttribute('data-nested-open')).toBe(false)
       expect(grandchild.style.getPropertyValue('--drawer-nested-num')).toBe('0')
+    })
+
+    test('counts sibling nested drawers and keeps the other count when one closes', async () => {
+      const [secondOpen, setSecondOpen] = createSignal(true)
+      render(() => (
+        <Drawer defaultOpen>
+          <Drawer.Content>
+            <Drawer.Body>
+              <Drawer defaultOpen>
+                <Drawer.Content>
+                  <Drawer.Body>First child</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+              <Drawer open={secondOpen()} onOpenChange={setSecondOpen}>
+                <Drawer.Content>
+                  <Drawer.Body>Second child</Drawer.Body>
+                </Drawer.Content>
+              </Drawer>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelectorAll('[data-slot="drawer-content"]')).toHaveLength(3),
+      )
+
+      const parent = document.body.querySelector<HTMLElement>('[data-slot="drawer-content"]')!
+      expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('2')
+
+      setSecondOpen(false)
+      await finishExitMotion()
+      await waitFor(() => {
+        expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('1')
+      })
+      expect(parent.hasAttribute('data-nested-open')).toBe(true)
     })
 
     test('ancestors track the frontmost drawer height', async () => {

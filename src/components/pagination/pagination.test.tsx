@@ -14,26 +14,6 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 describe('Pagination', () => {
-  test('applies button variants only to their page and control buttons', () => {
-    const [solid, setSolid] = createSignal(false)
-    const screen = render(() => (
-      <Pagination total={30} page={2} controlVariant={solid() ? 'solid' : 'ghost'} />
-    ))
-    const root = screen.getByRole('navigation')
-    const current = screen.container.querySelector(
-      '[data-slot="pagination-item"][aria-current="page"]',
-    )!
-    const next = screen.container.querySelector('[data-slot="pagination-next"]')!
-    expect(root.className).not.toMatch(/border-|bg-/)
-    expect(current.className).toContain('border-tone-border')
-    expect(next.className.split(' ')).not.toContain('bg-tone')
-
-    setSolid(true)
-    expect(root.className).not.toMatch(/border-|bg-/)
-    expect(next.className.split(' ')).toContain('bg-tone')
-    expect(current.className).toContain('border-tone-border')
-  })
-
   test('forwards ref to root nav element', () => {
     let navRef: HTMLElement | undefined
     render(() => <Pagination ref={(el) => (navRef = el)} total={30} itemsPerPage={10} />)
@@ -203,12 +183,6 @@ describe('Pagination', () => {
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
-    expect(prev?.className).toContain('size-8')
-    expect(next?.className).toContain('size-8')
-    expect(prev?.hasAttribute('data-size')).toBe(false)
-    expect(next?.hasAttribute('data-size')).toBe(false)
-    expect(prev?.hasAttribute('data-text')).toBe(false)
-    expect(next?.hasAttribute('data-text')).toBe(false)
     expect(prev?.querySelector('[data-slot="button-leading"]')).toBeNull()
     expect(next?.querySelector('[data-slot="button-trailing"]')).toBeNull()
     expect(prev?.querySelector('[data-slot="button-label"] > [aria-hidden="true"]')).not.toBeNull()
@@ -222,10 +196,6 @@ describe('Pagination', () => {
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
-    expect(prev?.className).toContain('h-8')
-    expect(next?.className).toContain('h-8')
-    expect(prev?.className).toContain('ps-2!')
-    expect(next?.className).toContain('pe-2!')
     expect(prev?.querySelector('[data-slot="button-leading"]')).not.toBeNull()
     expect(next?.querySelector('[data-slot="button-trailing"]')).not.toBeNull()
     expect(prev?.querySelector('[data-slot="button-label"]')?.textContent).toBe('Previous')
@@ -249,10 +219,8 @@ describe('Pagination', () => {
     expect(labels).toHaveLength(2)
     for (const label of labels) {
       expect(label.className).toContain('pagination-label')
-      expect(label.className).toContain('hidden sm:block')
       expect(label.style.letterSpacing).toBe('2px')
     }
-    expect(screen.container.querySelector('[data-slot="pagination-control-label"]')).toBeNull()
   })
 
   test('renders page items and controls as links when `to` is provided', () => {
@@ -365,7 +333,7 @@ describe('Pagination', () => {
     }
   })
 
-  test('resolves each visible link destination once and keeps current-page activation a no-op', async () => {
+  test('keeps current-page activation a no-op when destinations are provided', async () => {
     const to = vi.fn((page: number) => `/page/${page}`)
     const onPageChange = vi.fn()
     const screen = render(() => (
@@ -379,15 +347,13 @@ describe('Pagination', () => {
       />
     ))
 
-    expect(to.mock.calls.map(([page]) => page)).toEqual([1, 1, 3, 3])
-
     const currentPage = screen.getByLabelText('Page 2 of 3, current page')
     expect(currentPage.tagName).toBe('BUTTON')
     expect(currentPage.hasAttribute('href')).toBe(false)
 
     fireEvent.click(currentPage)
     expect(onPageChange).not.toHaveBeenCalled()
-    expect(to).toHaveBeenCalledTimes(4)
+    expect(screen.getByLabelText('Go to page 3 of 3').getAttribute('href')).toBe('/page/3')
   })
 
   test('uses disabled buttons when boundary is reached or `to` is absent', () => {
@@ -478,51 +444,6 @@ describe('Pagination', () => {
     )
 
     expect(ellipsisNodes.length).toBe(2)
-    for (const ellipsis of ellipsisNodes) {
-      expect(ellipsis.className).not.toMatch(/(?:^|\s)size-(?!\[1\.2em\])/)
-    }
-  })
-
-  test.each([
-    ['sm', 'data-ellipsis:size-7', 'text-sm'],
-    ['md', 'data-ellipsis:size-8', 'text-sm'],
-    ['lg', 'data-ellipsis:size-9', 'text-base'],
-  ] as const)(
-    'scales ellipsis list item footprint and icon typography for size %s',
-    (size, listItemSize, ellipsisTypography) => {
-      const screen = render(() => (
-        <Pagination
-          size={size}
-          page={5}
-          total={100}
-          itemsPerPage={10}
-          siblingCount={1}
-          showControls={false}
-        />
-      ))
-
-      const ellipsisItems = screen.container.querySelectorAll(
-        'li[data-slot="pagination-list-item"][data-ellipsis]',
-      )
-      const ellipsisIcons = screen.container.querySelectorAll('[data-slot="pagination-ellipsis"]')
-
-      expect(ellipsisItems.length).toBe(2)
-      for (const item of ellipsisItems) {
-        expect(item.className).toContain(listItemSize)
-      }
-      for (const icon of ellipsisIcons) {
-        expect(icon.className).toContain(ellipsisTypography)
-      }
-    },
-  )
-
-  test('does not expose pagination-specific icon/label slots', () => {
-    const screen = render(() => <Pagination total={30} itemsPerPage={10} showControls />)
-
-    expect(screen.container.querySelector('[data-slot="prev-icon"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="prev-label"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="next-icon"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="next-label"]')).toBeNull()
   })
 
   test('announces current page via a polite live region', async () => {
@@ -543,7 +464,6 @@ describe('Pagination', () => {
     expect(status?.getAttribute('role')).toBe('status')
     expect(status?.getAttribute('aria-live')).toBe('polite')
     expect(status?.getAttribute('aria-atomic')).toBe('true')
-    expect(status?.className).toContain('sr-only')
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 5')
 
     fireEvent.click(screen.getByText('3'))

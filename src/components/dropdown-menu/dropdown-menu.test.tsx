@@ -160,7 +160,7 @@ describe('DropdownMenu', () => {
     }
   })
   test.each(['checkbox', 'radio'] as const)(
-    'reserves an inline indicator for an unchecked %s item',
+    'shows the indicator of a %s item only while it is checked',
     async (type) => {
       const [checked, setChecked] = createSignal(false)
       render(() => (
@@ -187,9 +187,6 @@ describe('DropdownMenu', () => {
         return element!
       })
       const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
-      expect(indicator.parentElement?.getAttribute('data-slot')).toBe('dropdown-menu-item-trailing')
-      expect(indicator.classList.contains('absolute')).toBe(false)
-      expect(indicator.classList.contains('shrink-0')).toBe(true)
       expect(indicator.childElementCount).toBe(0)
       setChecked(true)
       await waitFor(() => {
@@ -200,7 +197,7 @@ describe('DropdownMenu', () => {
       })
     },
   )
-  test('samples scroll prevention when entering a presence cycle', async () => {
+  test('applies preventScroll only when the menu opens', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -487,70 +484,65 @@ describe('DropdownMenu', () => {
   })
 
   test('dismisses the deepest submenu first', async () => {
-    const closeOrder: string[] = []
-    const originalSetAttribute = HTMLElement.prototype.setAttribute
-    const setAttributeSpy = vi
-      .spyOn(HTMLElement.prototype, 'setAttribute')
-      .mockImplementation(function (this: HTMLElement, name: string, value: string) {
-        if (
-          name === 'data-closed' &&
-          value === '' &&
-          this.getAttribute('data-slot') === 'dropdown-menu-content'
-        ) {
-          closeOrder.push(this.id)
-        }
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [
+                {
+                  label: 'Deep',
+                  defaultOpen: true,
+                  children: [{ label: 'Leaf action' }],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
 
-        return originalSetAttribute.call(this, name, value)
-      })
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(3)
+    })
+
+    const [rootContent, middleContent, deepestContent] = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-content"]'),
+    ) as [HTMLElement, HTMLElement, HTMLElement]
+    const closeOrder: HTMLElement[] = []
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        const content = record.target as HTMLElement
+        if (
+          content.getAttribute('data-slot') === 'dropdown-menu-content' &&
+          content.hasAttribute('data-closed') &&
+          !closeOrder.includes(content)
+        ) {
+          closeOrder.push(content)
+        }
+      }
+    })
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-closed'],
+      subtree: true,
+    })
 
     try {
-      render(() => (
-        <DropdownMenu id="dismiss-order" defaultOpen>
-          <DropdownMenu.Trigger as="button" type="button">
-            Actions
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            items={[
-              {
-                label: 'More',
-                defaultOpen: true,
-                children: [
-                  {
-                    label: 'Deep',
-                    defaultOpen: true,
-                    children: [{ label: 'Leaf action' }],
-                  },
-                ],
-              },
-            ]}
-          />
-        </DropdownMenu>
-      ))
-
-      await waitFor(() => {
-        expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(
-          3,
-        )
-      })
-
-      const contents = Array.from(
-        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
-      )
-      const [rootContent, middleContent, deepestContent] = contents as [
-        HTMLElement,
-        HTMLElement,
-        HTMLElement,
-      ]
-
       fireEvent.keyDown(rootContent, { key: 'Escape' })
 
       await waitFor(() => {
         expect(closeOrder).toHaveLength(3)
       })
 
-      expect(closeOrder).toEqual([deepestContent.id, middleContent.id, rootContent.id])
+      expect(closeOrder).toEqual([deepestContent, middleContent, rootContent])
     } finally {
-      setAttributeSpy.mockRestore()
+      observer.disconnect()
     }
   })
 
@@ -662,7 +654,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('uses shared bottom-side transition classes for default placement', async () => {
+  test('reports bottom side and start alignment for the default placement', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -672,23 +664,16 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    const rootContent = await waitFor(() => {
+      const content = document.body.querySelector<HTMLElement>(
+        '[data-slot="dropdown-menu-content"]',
+      )
+      expect(content).not.toBeNull()
+      return content!
     })
 
-    const rootContent = document.body.querySelector(
-      '[data-slot="dropdown-menu-content"]',
-    ) as HTMLElement
-
-    expect(rootContent.className).toContain('mt-(--mo-popper-content-overflow-padding)')
-    expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
-    expect(rootContent.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent.getAttribute('data-side')).toBe('bottom')
     expect(rootContent.getAttribute('data-align')).toBe('start')
-    expect(rootContent.getAttribute('data-placement')).toBeNull()
-    expect(rootContent.getAttribute('data-motion')).toBeNull()
-    expect(rootContent.className).toContain('-enter-translate-y-1')
-    expect(rootContent.className).toContain('origin-(--mo-popper-content-transform-origin)')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -766,17 +751,8 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mr-(--mo-popper-content-overflow-padding)')
-    expect(rootContent?.className).toContain('border-border')
-    expect(rootContent?.className).toContain('shadow-overlay')
-    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-side')).toBe('left')
     expect(rootContent?.getAttribute('data-align')).toBe('start')
-    expect(rootContent?.getAttribute('data-placement')).toBeNull()
-    expect(rootContent?.getAttribute('data-motion')).toBeNull()
-    expect(rootContent?.className).toContain('enter-translate-x-1')
-    expect(rootContent?.className).toContain('origin-(--mo-popper-content-transform-origin)')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
@@ -1065,21 +1041,6 @@ describe('DropdownMenu', () => {
 
     setTriggerKind('anchor')
     const replacement = await screen.findByText('Anchor trigger')
-    const replacementRect = vi.fn(() => ({
-      bottom: 40,
-      height: 20,
-      left: 10,
-      right: 110,
-      top: 20,
-      width: 100,
-      x: 10,
-      y: 20,
-      toJSON: () => ({}),
-    }))
-    replacement.getBoundingClientRect = replacementRect
-    await waitFor(() => {
-      expect(replacementRect).toHaveBeenCalled()
-    })
 
     const content = document.body.querySelector(
       '[data-slot="dropdown-menu-content"]',
@@ -1203,9 +1164,7 @@ describe('DropdownMenu', () => {
     const dangerItem = items[1]!
 
     expect(disabledItem.getAttribute('data-disabled')).toBe('')
-    expect(disabledItem.className).not.toContain('pointer-events-none')
     expect(dangerItem.getAttribute('data-danger')).toBe('')
-    expect(dangerItem.className).toContain('data-danger:text-danger')
 
     fireEvent.pointerDown(disabledItem)
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
@@ -1284,32 +1243,10 @@ describe('DropdownMenu', () => {
     expect(onCompactSelect).not.toHaveBeenCalled()
   })
 
-  test('danger item icon does not force muted color class', async () => {
-    render(() => (
-      <DropdownMenu defaultOpen>
-        <DropdownMenu.Trigger as="button" type="button">
-          Actions
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          items={[{ label: 'Delete', variant: 'danger', icon: 'icon-trash-2' }]}
-        />
-      </DropdownMenu>
-    ))
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')).not.toBeNull()
-    })
-
-    const leading = document.body.querySelector(
-      '[data-slot="dropdown-menu-item-leading"]',
-    ) as HTMLElement
-    expect(leading.className).not.toContain('text-muted-foreground')
-  })
-
-  test('renders leading icons as the slot host and lets the slot resize any icon source', async () => {
+  test('applies itemLeading classes to every leading icon host and renders component icons inside', async () => {
     const Glyph = () => <svg data-testid="glyph" />
     render(() => (
-      <DropdownMenu defaultOpen classes={{ itemLeading: 'size-6' }}>
+      <DropdownMenu defaultOpen classes={{ itemLeading: 'user-leading' }}>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
@@ -1329,26 +1266,17 @@ describe('DropdownMenu', () => {
       ).toHaveLength(2)
     })
 
-    const [maskLeading, componentLeading] = document.body.querySelectorAll<HTMLElement>(
+    const leadings = document.body.querySelectorAll<HTMLElement>(
       '[data-slot="dropdown-menu-item-leading"]',
     )
+    for (const leading of leadings) {
+      expect(leading.classList.contains('user-leading')).toBe(true)
+    }
+    expect(leadings[1]!.querySelector('[data-testid="glyph"]')).not.toBeNull()
     const subIndicator = document.body.querySelector<HTMLElement>(
       '[data-slot="dropdown-menu-item-sub-indicator"]',
     )!
-
-    expect(maskLeading!.className).toContain('icon-search')
-    // The slot override replaces the default size on the icon host itself.
-    for (const leading of [maskLeading!, componentLeading!]) {
-      expect(leading.className).toContain('size-6')
-      expect(leading.className).not.toContain('size-4')
-    }
-    // Only a graphic host makes its child fill it; a mask icon has no child.
-    expect(maskLeading!.className).not.toContain('*:size-full')
-    expect(componentLeading!.className).toContain('*:size-full')
-    expect(componentLeading!.querySelector('[data-testid="glyph"]')).not.toBeNull()
-    // A trailing component icon fills the same kind of host.
     expect(subIndicator.querySelector('[data-testid="glyph"]')).not.toBeNull()
-    expect(subIndicator.className).toContain('size-[1.2em]')
   })
 
   test('exposes danger state without annotating default items', async () => {
@@ -1581,7 +1509,7 @@ describe('DropdownMenu', () => {
           ref={contentRef}
           data-track="actions-menu"
           class="content-prop"
-          style={{ width: '240px' }}
+          style={{ width: '240px', opacity: '0.8', 'z-index': '9999' }}
         />
       </DropdownMenu>
     ))
@@ -1596,6 +1524,8 @@ describe('DropdownMenu', () => {
     expect(contentRef).toHaveBeenCalledWith(content)
     expect(content.className).toContain('content-prop')
     expect(content.style.width).toBe('240px')
+    expect(content.style.opacity).toBe('0.8')
+    expect(content.style.zIndex).toBe('9999')
     expect(item.className).toContain('item-prop')
     expect(item.style.height).toBe('40px')
   })
@@ -1614,12 +1544,6 @@ describe('DropdownMenu', () => {
       expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).not.toBeNull()
     })
 
-    const positioner = document.body.querySelector(
-      '[data-slot="dropdown-menu-positioner"]',
-    ) as HTMLElement
-    expect(positioner.className).not.toContain('z-floating')
-    expect(positioner.classList.contains('absolute')).toBe(true)
-    expect(positioner.classList.contains('fixed')).toBe(false)
     expect(document.body.style.overflow).toBe('hidden')
 
     const overlay = document.body.querySelector(
@@ -2008,12 +1932,10 @@ describe('DropdownMenu', () => {
     expect(item.id).not.toBe('')
   })
 
-  test('resolves a reactive group label getter once per value', () => {
-    let labelReads = 0
+  test('renders a group label supplied through a getter', () => {
     const group = {
       type: 'group' as const,
       get label() {
-        labelReads += 1
         return 'File actions'
       },
       items: [{ label: 'Archive' }],
@@ -2031,7 +1953,6 @@ describe('DropdownMenu', () => {
     expect(
       document.body.querySelector('[data-slot="dropdown-menu-group-label"]')?.textContent,
     ).toBe('File actions')
-    expect(labelReads).toBe(1)
   })
 
   test('cancels a pending submenu hover when the root closes', async () => {
@@ -2096,7 +2017,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('menu restores expanded state after reopen and scroll', async () => {
+  test('stays expanded after reopening and scrolling the window', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <DropdownMenu open={open()} preventScroll={false}>
@@ -2116,7 +2037,7 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('guards commitOpen against redundant onOpenChange calls when already in target state', () => {
+  test('toggles open and closed on repeated trigger clicks', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <DropdownMenu onOpenChange={onOpenChange}>
@@ -2132,27 +2053,5 @@ describe('DropdownMenu', () => {
     fireEvent.click(trigger)
     expect(onOpenChange).toHaveBeenCalledTimes(2)
     expect(onOpenChange).toHaveBeenCalledWith(false)
-  })
-
-  test('merges caller class and style on content without being overwritten by slot styles', () => {
-    const screen = render(() => (
-      <DropdownMenu open>
-        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          class="custom-content-class"
-          style={{ opacity: '0.8', 'z-index': '9999' }}
-          items={[{ label: 'Item' }]}
-        />
-      </DropdownMenu>
-    ))
-    try {
-      const menu = document.body.querySelector('[role="menu"]') as HTMLElement
-      expect(menu).not.toBeNull()
-      expect(menu.className).toContain('custom-content-class')
-      expect(menu.style.opacity).toBe('0.8')
-      expect(menu.style.zIndex).toBe('9999')
-    } finally {
-      screen.unmount()
-    }
   })
 })

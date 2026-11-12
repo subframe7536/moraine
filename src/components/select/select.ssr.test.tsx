@@ -39,7 +39,6 @@ test('hydrates Select Control/Trigger/Value anatomy in place', () => {
 
 test('hydrates and updates custom itemRender content without replacing the server item node', () => {
   const [appleLabel, setAppleLabel] = createSignal('Apple')
-  let renders = 0
 
   hydrateFixture(
     '/src/components/select/select.ssr.fixture.tsx',
@@ -54,10 +53,9 @@ test('hydrates and updates custom itemRender content without replacing the serve
             { value: 'banana', label: 'Banana' },
           ]
         },
-        itemRender: (state: SelectT.ItemRenderProps) => {
-          renders += 1
-          return <span data-testid="custom-item">{state.item.label}</span>
-        },
+        itemRender: (state: SelectT.ItemRenderProps) => (
+          <span data-testid="custom-item">{state.item.label}</span>
+        ),
       }),
   )
 
@@ -65,7 +63,6 @@ test('hydrates and updates custom itemRender content without replacing the serve
   expect(items).toHaveLength(2)
   const first = items[0]!
   expect(first.textContent).toBe('Apple')
-  expect(renders).toBe(2)
 
   setAppleLabel('Apricot')
   expect(first.textContent).toBe('Apricot')

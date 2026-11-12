@@ -37,9 +37,8 @@ describe('createTypeahead', () => {
     vi.useRealTimers()
   })
 
-  test('ignores modifiers and cleans pending timeouts on owner disposal', () => {
+  test('ignores modifiers and leaves no pending timers after its owner is disposed', () => {
     vi.useFakeTimers()
-    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
     const dispose = createRoot((dispose) => {
       const typeahead = createTypeahead({
         getItems: () => [{ text: 'Alpha' }],
@@ -56,8 +55,7 @@ describe('createTypeahead', () => {
     })
 
     dispose()
-    expect(clearTimeoutSpy).toHaveBeenCalled()
-    clearTimeoutSpy.mockRestore()
+    expect(vi.getTimerCount()).toBe(0)
     vi.useRealTimers()
   })
 })

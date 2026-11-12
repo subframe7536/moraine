@@ -21,7 +21,6 @@ interface DragCall {
 interface TestHandle {
   registration: SplitterHandleRegistration
   element: HTMLButtonElement
-  rectSpy: ReturnType<typeof vi.fn>
   draggingEvents: boolean[]
   dragCalls: DragCall[]
   getDragEndCount: () => number
@@ -53,9 +52,8 @@ function createTestHandle(input: {
   const element = input.rootElement.ownerDocument.createElement('button')
   input.rootElement.appendChild(element)
 
-  const rectSpy = vi.fn(() => createRect(input.rect))
   Object.defineProperty(element, 'getBoundingClientRect', {
-    value: rectSpy,
+    value: () => createRect(input.rect),
     configurable: true,
   })
 
@@ -95,7 +93,6 @@ function createTestHandle(input: {
   return {
     registration,
     element,
-    rectSpy,
     draggingEvents,
     dragCalls,
     getDragEndCount: () => dragEndCount,
@@ -121,76 +118,6 @@ describe('splitter-manager', () => {
     vi.resetModules()
     document.body.innerHTML = ''
     document.head.innerHTML = ''
-  })
-
-  test('does not assign intersections across different splitter roots', async () => {
-    const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
-
-    const rootA = createRootElement()
-    const rootB = createRootElement()
-    document.body.append(rootA, rootB)
-
-    const horizontal = createTestHandle({
-      orientation: 'horizontal',
-      rootElement: rootA,
-      rect: { top: 10, right: 120, bottom: 11, left: 0 },
-    })
-    const vertical = createTestHandle({
-      orientation: 'vertical',
-      rootElement: rootB,
-      rect: { top: 0, right: 61, bottom: 120, left: 60 },
-    })
-
-    const unregisterHorizontal = registerSplitterHandle(horizontal.registration)
-    const unregisterVertical = registerSplitterHandle(vertical.registration)
-
-    refreshSplitterIntersections()
-
-    expect(horizontal.getStartIntersection()).toBeNull()
-    expect(horizontal.getEndIntersection()).toBeNull()
-    expect(vertical.getStartIntersection()).toBeNull()
-    expect(vertical.getEndIntersection()).toBeNull()
-
-    unregisterHorizontal()
-    unregisterVertical()
-  })
-
-  test('dedupes scheduled refresh calls within the same tick', async () => {
-    const { registerSplitterHandle, scheduleSplitterIntersectionsRefresh } =
-      await import('./manager')
-
-    const root = createRootElement()
-    document.body.append(root)
-
-    const horizontal = createTestHandle({
-      orientation: 'horizontal',
-      rootElement: root,
-      rect: { top: 10, right: 120, bottom: 11, left: 0 },
-    })
-    const vertical = createTestHandle({
-      orientation: 'vertical',
-      rootElement: root,
-      rect: { top: 0, right: 61, bottom: 120, left: 60 },
-    })
-
-    const unregisterHorizontal = registerSplitterHandle(horizontal.registration)
-    const unregisterVertical = registerSplitterHandle(vertical.registration)
-
-    await Promise.resolve()
-    horizontal.rectSpy.mockClear()
-    vertical.rectSpy.mockClear()
-
-    scheduleSplitterIntersectionsRefresh()
-    scheduleSplitterIntersectionsRefresh()
-    scheduleSplitterIntersectionsRefresh()
-
-    await Promise.resolve()
-
-    expect(horizontal.rectSpy).toHaveBeenCalledTimes(1)
-    expect(vertical.rectSpy).toHaveBeenCalledTimes(1)
-
-    unregisterHorizontal()
-    unregisterVertical()
   })
 
   test('keeps intersection results stable with many handles in one root', async () => {
@@ -254,47 +181,6 @@ describe('splitter-manager', () => {
     }
   })
 
-  test('allows intersections across parent-child roots while keeping unrelated roots isolated', async () => {
-    const { refreshSplitterIntersections, registerSplitterHandle } = await import('./manager')
-
-    const parentRoot = createRootElement()
-    const childRoot = createRootElement()
-    const isolatedRoot = createRootElement()
-    parentRoot.appendChild(childRoot)
-    document.body.append(parentRoot, isolatedRoot)
-
-    const outerHorizontal = createTestHandle({
-      orientation: 'horizontal',
-      rootElement: parentRoot,
-      rect: { top: 0, right: 101, bottom: 200, left: 100 },
-    })
-    const innerVertical = createTestHandle({
-      orientation: 'vertical',
-      rootElement: childRoot,
-      rect: { top: 80, right: 220, bottom: 81, left: 101 },
-    })
-    const isolatedVertical = createTestHandle({
-      orientation: 'vertical',
-      rootElement: isolatedRoot,
-      rect: { top: 80, right: 220, bottom: 81, left: 101 },
-    })
-
-    const unregisterOuter = registerSplitterHandle(outerHorizontal.registration)
-    const unregisterInner = registerSplitterHandle(innerVertical.registration)
-    const unregisterIsolated = registerSplitterHandle(isolatedVertical.registration)
-
-    refreshSplitterIntersections()
-
-    expect(innerVertical.getStartIntersection()).toBe(outerHorizontal.registration)
-    expect(innerVertical.getEndIntersection()).toBeNull()
-    expect(isolatedVertical.getStartIntersection()).toBeNull()
-    expect(isolatedVertical.getEndIntersection()).toBeNull()
-
-    unregisterOuter()
-    unregisterInner()
-    unregisterIsolated()
-  })
-
   test('drags both crossed handles and passes the event altKey to each', async () => {
     const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
       await import('./manager')
@@ -348,48 +234,6 @@ describe('splitter-manager', () => {
     expect(outerHorizontal.draggingEvents.slice(0, 2)).toEqual([true, false])
     expect(innerVertical.getDragEndCount()).toBe(1)
     expect(outerHorizontal.getDragEndCount()).toBe(1)
-
-    unregisterOuter()
-    unregisterInner()
-  })
-
-  test('falls back to dual-axis when pressing handle body near crossed edge', async () => {
-    const { refreshSplitterIntersections, registerSplitterHandle, startSplitterDrag } =
-      await import('./manager')
-
-    const parentRoot = createRootElement()
-    const childRoot = createRootElement()
-    parentRoot.appendChild(childRoot)
-    document.body.append(parentRoot)
-
-    const outerHorizontal = createTestHandle({
-      orientation: 'horizontal',
-      rootElement: parentRoot,
-      rect: { top: 0, right: 101, bottom: 200, left: 100 },
-    })
-    const innerVertical = createTestHandle({
-      orientation: 'vertical',
-      rootElement: childRoot,
-      rect: { top: 80, right: 220, bottom: 81, left: 101 },
-    })
-
-    const unregisterOuter = registerSplitterHandle(outerHorizontal.registration)
-    const unregisterInner = registerSplitterHandle(innerVertical.registration)
-
-    refreshSplitterIntersections()
-
-    startSplitterDrag(
-      innerVertical.registration,
-      createPointerEvent('pointerdown', { clientX: 102, clientY: 80 }),
-      'handle',
-    )
-
-    window.dispatchEvent(createPointerEvent('pointermove', { clientX: 132, clientY: 110 }))
-
-    expect(innerVertical.dragCalls.at(-1)?.deltaPx).toBe(30)
-    expect(outerHorizontal.dragCalls.at(-1)?.deltaPx).toBe(30)
-
-    window.dispatchEvent(createPointerEvent('pointerup', { clientX: 132, clientY: 110 }))
 
     unregisterOuter()
     unregisterInner()

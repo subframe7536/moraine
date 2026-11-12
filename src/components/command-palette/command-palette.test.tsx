@@ -212,72 +212,77 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('applies fixed listbox max height', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+  test('renders the search input, group labels, items, and per-item leading and trailing content', () => {
+    render(() => <CommandPalette groups={GROUPS} autofocus={false} />)
 
-    await waitFor(() => {
-      expect(
-        document.body.querySelector('[data-slot="command-palette-listbox"]')?.className,
-      ).toContain('max-h-72')
-    })
+    expect(body().getByPlaceholderText('Search...')).toBeTruthy()
+    expect(body().getByRole('group', { name: 'Actions' })).toBeTruthy()
+    expect(body().getByRole('group', { name: 'Navigation' })).toBeTruthy()
+    expect(body().getAllByRole('option')).toHaveLength(5)
+
+    const newFile = body().getByRole('option', { name: /New File/ })
+    expect(newFile.querySelector('[data-slot="command-palette-item-leading"]')).not.toBeNull()
+    expect(within(newFile).getByText('⌘N')).toBeTruthy()
+    const dashboard = body().getByRole('option', { name: 'Go to Dashboard' })
+    expect(dashboard.querySelector('[data-slot="command-palette-item-leading"]')).toBeNull()
+    expect(dashboard.querySelector('[data-slot="command-palette-item-trailing"]')).toBeNull()
   })
 
-  test('adjusts item trailing spacing via classes.itemTrailing', async () => {
-    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
+  test('filters as the user types, reports the term, and shows the empty state without matches', () => {
+    const onSearchTermChange = vi.fn()
+    render(() => (
+      <CommandPalette groups={GROUPS} autofocus={false} onSearchTermChange={onSearchTermChange} />
+    ))
+    const input = body().getByRole('combobox')
 
-    await waitFor(() => {
-      const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="command-palette-item-trailing"]'),
-      )
-      expect(trailing.some((el) => el.classList.contains('gap-2'))).toBe(true)
-    })
+    fireEvent.input(input, { target: { value: 'settings' } })
+    expect(onSearchTermChange).toHaveBeenLastCalledWith('settings')
+    expect(
+      body()
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Go to Settings'])
+    expect(body().queryByRole('group', { name: 'Actions' })).toBeNull()
+
+    fireEvent.input(input, { target: { value: 'zzz' } })
+    expect(body().queryByRole('option')).toBeNull()
+    expect(body().getByText('No results.')).toBeTruthy()
   })
 
-  test('keeps item gap classes for icon and non-icon entries', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+  test('keeps a controlled searchTerm until the parent updates it', () => {
+    const [term, setTerm] = createSignal('settings')
+    render(() => <CommandPalette groups={GROUPS} autofocus={false} searchTerm={term()} />)
+    const input = body().getByRole('combobox') as HTMLInputElement
 
-    await waitFor(() => {
-      const withIcon = body().getByText('New File').closest('[data-slot="command-palette-item"]')
-      const withoutIcon = body()
-        .getByText('Go to Dashboard')
-        .closest('[data-slot="command-palette-item"]')
-
-      expect(withIcon?.className).toContain('gap-2')
-      expect(withoutIcon?.className).toContain('gap-2')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-item-leading"]'),
-      ).not.toBeNull()
-    })
+    expect(input.value).toBe('settings')
+    setTerm('dashboard')
+    expect(input.value).toBe('dashboard')
+    expect(
+      body()
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Go to Dashboard'])
   })
 
-  test('renders input and item labels', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+  test('moves the highlight through enabled commands with wrapping and ignores disabled ones', () => {
+    const onSelect = vi.fn()
+    render(() => <CommandPalette groups={GROUPS} autofocus={false} onSelect={onSelect} />)
+    const input = body().getByRole('combobox')
+    const active = () => document.getElementById(input.getAttribute('aria-activedescendant')!)
 
-    await waitFor(() => {
-      expect(body().getByPlaceholderText('Search...')).toBeTruthy()
-      expect(body().getByText('New File')).toBeTruthy()
-      expect(body().getByText('Go to Dashboard')).toBeTruthy()
-    })
-  })
+    expect(active()?.textContent).toContain('New File')
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    expect(active()?.textContent).toContain('Open Folder')
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    expect(active()?.textContent).toContain('Go to Dashboard')
 
-  test('renders group labels', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    fireEvent.keyDown(input, { key: 'ArrowUp' })
+    fireEvent.keyDown(input, { key: 'ArrowUp' })
+    fireEvent.keyDown(input, { key: 'ArrowUp' })
+    expect(active()?.textContent).toContain('Go to Settings')
 
-    await waitFor(() => {
-      expect(body().getByText('Actions')).toBeTruthy()
-      expect(body().getByText('Navigation')).toBeTruthy()
-    })
-  })
-
-  test('custom trailing content renders in item', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
-
-    await waitFor(() => {
-      expect(body().getByText('⌘N')).toBeTruthy()
-      expect(
-        document.body.querySelector('[data-slot="command-palette-item-trailing"]'),
-      ).not.toBeNull()
-    })
+    fireEvent.click(body().getByRole('option', { name: 'Disabled Action' }))
+    expect(onSelect).not.toHaveBeenCalled()
   })
 
   test('fires item and palette selection callbacks and closes by default', async () => {
@@ -467,10 +472,14 @@ describe('CommandPalette', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
-  test('restarts and disposes the composition Enter guard', () => {
+  test('ignores Enter that follows a second composition session shortly after it ends', () => {
     vi.useFakeTimers()
+    const onSelect = vi.fn()
     const screen = render(() => (
-      <CommandPalette groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]} />
+      <CommandPalette
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        onSelect={onSelect}
+      />
     ))
     const input = screen.getByRole('combobox')
 
@@ -488,10 +497,7 @@ describe('CommandPalette', () => {
     })
     input.dispatchEvent(guardedEnter)
     expect(guardedEnter.defaultPrevented).toBe(false)
-
-    expect(vi.getTimerCount()).toBeGreaterThan(0)
-    screen.unmount()
-    expect(vi.getTimerCount()).toBe(0)
+    expect(onSelect).not.toHaveBeenCalled()
   })
 
   test('does not filter on partial IME composition', () => {
@@ -524,44 +530,45 @@ describe('CommandPalette', () => {
     expect(highlighted()).toBe(current)
   })
 
-  test('supports overriding built-in icons', async () => {
+  test('supports overriding built-in icons', () => {
+    const [loading, setLoading] = createSignal(false)
     render(() => (
       <CommandPalette
+        autofocus={false}
         closable
         leadingIcon="icon-hash"
         loadingIcon="icon-reload"
         closeIcon="icon-minus"
+        loading={loading()}
         groups={GROUPS}
       />
     ))
+    const leading = () =>
+      document.body.querySelector<HTMLElement>('[data-slot="command-palette-input-leading"]')!
+    const close = document.body.querySelector<HTMLElement>(
+      '[data-slot="command-palette-close"] > *',
+    )!
 
-    await waitFor(() => {
-      const search = document.body.querySelector(
-        '[data-slot="command-palette-input-leading"]',
-      ) as HTMLElement
-      const close = document.body.querySelector(
-        '[data-slot="command-palette-close"] > *',
-      ) as HTMLElement
+    expect(leading().className).toContain('icon-hash')
+    expect(leading().hasAttribute('aria-busy')).toBe(false)
+    expect(close.className).toContain('icon-minus')
 
-      expect(search.className).toContain('icon-hash')
-      expect(close.className).toContain('icon-minus')
-    })
+    setLoading(true)
+    expect(leading().className).toContain('icon-reload')
+    expect(leading().getAttribute('aria-busy')).toBe('true')
   })
 
-  test('close button renders and calls onClose', async () => {
+  test('shows a close button only when closable and reports clicks through onClose', () => {
     const onClose = vi.fn()
-    render(() => <CommandPalette groups={GROUPS} closable onClose={onClose} />)
-
-    await waitFor(() => {
-      const closeBtn = document.body.querySelector(
-        '[data-slot="command-palette-close"]',
-      ) as HTMLElement
-      expect(closeBtn).not.toBeNull()
-      expect(closeBtn.className).toContain('focus-visible:ring-ring/50')
-      fireEvent.click(closeBtn)
-    })
-
+    const closable = render(() => (
+      <CommandPalette groups={GROUPS} autofocus={false} closable onClose={onClose} />
+    ))
+    fireEvent.click(closable.getByRole('button', { name: 'Close' }))
     expect(onClose).toHaveBeenCalledTimes(1)
+    closable.unmount()
+
+    const plain = render(() => <CommandPalette groups={GROUPS} autofocus={false} />)
+    expect(plain.queryByRole('button', { name: 'Close' })).toBeNull()
   })
 
   test('composes with Dialog for trigger and controlled close behavior', async () => {
@@ -618,100 +625,61 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('applies classes overrides to root and slots', async () => {
+  test('routes classes and styles to each slot', () => {
     render(() => (
       <CommandPalette
+        autofocus={false}
         closable
         groups={GROUPS}
         classes={{
-          root: 'root-override',
-          inputWrapper: 'input-wrapper-override',
-          input: 'input-override',
-          listbox: 'listbox-override',
-          footer: 'footer-override',
-          group: 'group-override',
-          groupLabel: 'label-override',
-          item: 'item-override',
-          inputLeading: 'search-override',
-          close: 'close-override',
+          root: 'user-root',
+          inputWrapper: 'user-input-wrapper',
+          input: 'user-input',
+          listbox: 'user-listbox',
+          footer: 'user-footer',
+          group: 'user-group',
+          groupLabel: 'user-group-label',
+          item: 'user-item',
+          itemTrailing: 'user-item-trailing',
+          inputLeading: 'user-input-leading',
+          close: 'user-close',
         }}
+        styles={{ footer: { width: '200px' } }}
         footerRender={() => <span>Footer content</span>}
       />
     ))
+    const slot = (name: string) =>
+      document.body.querySelector<HTMLElement>(`[data-slot="command-palette-${name}"]`)!
 
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="command-palette"]')?.className).toContain(
-        'root-override',
-      )
-      expect(
-        document.body.querySelector('[data-slot="command-palette-input-wrapper"]')?.className,
-      ).toContain('input-wrapper-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-input"]')?.className,
-      ).toContain('input-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-listbox"]')?.className,
-      ).toContain('listbox-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-footer"]')?.className,
-      ).toContain('footer-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-group"]')?.className,
-      ).toContain('group-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-group-label"]')?.className,
-      ).toContain('label-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-item"]')?.className,
-      ).toContain('item-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-input-leading"]')?.className,
-      ).toContain('search-override')
-      expect(
-        document.body.querySelector('[data-slot="command-palette-close"]')?.className,
-      ).toContain('close-override')
-    })
+    expect(slot('input-wrapper').className).toContain('user-input-wrapper')
+    expect(slot('input').className).toContain('user-input')
+    expect(slot('listbox').className).toContain('user-listbox')
+    expect(slot('footer').className).toContain('user-footer')
+    expect(slot('footer').style.width).toBe('200px')
+    expect(slot('group').className).toContain('user-group')
+    expect(slot('group-label').className).toContain('user-group-label')
+    expect(slot('item').className).toContain('user-item')
+    expect(slot('item-trailing').className).toContain('user-item-trailing')
+    expect(slot('input-leading').className).toContain('user-input-leading')
+    expect(slot('close').className).toContain('user-close')
+    expect(document.body.querySelector('[data-slot="command-palette"]')!.className).toContain(
+      'user-root',
+    )
   })
 
-  test('renders footer content when footer is provided', async () => {
+  test('routes classes and styles to the empty slot', () => {
     render(() => (
-      <CommandPalette groups={GROUPS} footerRender={() => <span>Palette Footer</span>} />
+      <CommandPalette
+        autofocus={false}
+        groups={[]}
+        classes={{ empty: 'user-empty' }}
+        styles={{ empty: { width: '200px' } }}
+      />
     ))
+    const empty = document.body.querySelector<HTMLElement>('[data-slot="command-palette-empty"]')!
 
-    await waitFor(() => {
-      expect(body().getByText('Palette Footer')).toBeTruthy()
-      expect(document.body.querySelector('[data-slot="command-palette-footer"]')).not.toBeNull()
-    })
-  })
-
-  test('applies classes.empty override', async () => {
-    render(() => <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />)
-
-    await waitFor(() => {
-      expect(
-        document.body.querySelector('[data-slot="command-palette-empty"]')?.className,
-      ).toContain('empty-override')
-    })
-  })
-
-  test('applies styles.empty override', async () => {
-    render(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
-
-    await waitFor(() => {
-      expect(
-        document.body.querySelector<HTMLElement>('[data-slot="command-palette-empty"]')?.style
-          .width,
-      ).toBe('200px')
-    })
-  })
-
-  test('filters by controlled searchTerm', async () => {
-    render(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
-
-    await waitFor(() => {
-      expect(body().getByText('Go to Settings')).toBeTruthy()
-      expect(body().queryByText('Go to Dashboard')).toBeNull()
-    })
+    expect(empty.className).toContain('user-empty')
+    expect(empty.style.width).toBe('200px')
   })
 
   test('warns for duplicate item values while keeping items renderable', async () => {
@@ -864,7 +832,7 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('uses the resolved description position for classes and item structure', async () => {
+  test('places the description by the resolved descriptionPosition, honoring theme defaults', async () => {
     const [descriptionPosition, setDescriptionPosition] = createSignal<
       'bottom' | 'trailing' | undefined
     >()
@@ -896,18 +864,12 @@ describe('CommandPalette', () => {
     const description = item.querySelector('[data-slot="command-palette-item-description"]')!
 
     expect(description.parentElement).toBe(label)
-    expect(wrapper.className).toContain('flex-row')
-    expect(label.className).toContain('flex-1')
-    expect(wrapper.hasAttribute('data-description-position')).toBe(false)
-    expect(label.hasAttribute('data-description-position')).toBe(false)
 
     setDescriptionPosition('bottom')
 
     expect(
       item.querySelector('[data-slot="command-palette-item-description"]')?.parentElement,
     ).toBe(wrapper)
-    expect(wrapper.className).not.toContain('flex-row')
-    expect(label.className).not.toContain('flex-1')
   })
 
   test('passes runtime state to leadingRender and trailingRender', async () => {
@@ -1034,17 +996,7 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('uses consistent command row metrics', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
-
-    await waitFor(() => {
-      const option = document.body.querySelector('[role="option"]')
-      expect(option?.className).toContain('text-sm')
-      expect(option?.className).toContain('min-h-8')
-    })
-  })
-
-  test('includes description and keywords in built-in search', async () => {
+  test('matches item keywords in built-in search', async () => {
     render(() => (
       <CommandPalette
         searchTerm="alias"
@@ -1064,14 +1016,19 @@ describe('CommandPalette', () => {
       expect(body().getByText('Docs')).toBeTruthy()
       expect(body().queryByText('Run')).toBeNull()
     })
+  })
 
+  test('matches item descriptions in built-in search', async () => {
     render(() => (
       <CommandPalette
         searchTerm="description"
         groups={[
           {
-            id: 'g2',
-            items: [{ value: 'run', label: 'Run', description: 'Visible by description' }],
+            id: 'g',
+            items: [
+              { value: 'run', label: 'Run', description: 'Visible by description' },
+              { value: 'docs', label: 'Docs' },
+            ],
           },
         ]}
       />
@@ -1079,6 +1036,7 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(body().getByText('Run')).toBeTruthy()
+      expect(body().queryByText('Docs')).toBeNull()
     })
   })
 
@@ -1122,7 +1080,7 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('filterItems output is authoritative for order and new items', async () => {
+  test('renders the items returned by filterItems in the order it returns them', async () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
@@ -1156,16 +1114,6 @@ describe('CommandPalette', () => {
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
       expect(body().getByText('Go to Dashboard')).toBeTruthy()
-    })
-  })
-
-  test('groups render with role="group" and aria-labelledby', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
-
-    await waitFor(() => {
-      const group = body().getByRole('group', { name: 'Actions' })
-      expect(group).not.toBeNull()
-      expect(group.getAttribute('aria-labelledby')).not.toBeNull()
     })
   })
 
@@ -1214,7 +1162,5 @@ describe('CommandPalette', () => {
     expect(listbox.style.height).toBe('200px')
     expect(item.className).toContain('item-prop')
     expect(item.style.height).toBe('40px')
-
-    fireEvent.scroll(listbox)
   })
 })

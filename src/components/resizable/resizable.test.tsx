@@ -134,6 +134,51 @@ function dragHandle(
   fireEvent.pointerUp(handle, { pointerId, clientX: to.x, clientY: to.y })
 }
 
+function innerHandleOf(container: HTMLElement): HTMLElement {
+  return handlesOf(container)[1]!
+}
+
+/** Two nested groups whose outer vertical bar and inner horizontal bar cross at (100, 80). */
+async function renderNestedGroups() {
+  const screen = render(() => (
+    <Resizable>
+      <Resizable.Panel id="outer-a">Outer Left</Resizable.Panel>
+      <Resizable.Handle intersection />
+      <Resizable.Panel id="outer-b">
+        <Resizable orientation="vertical">
+          <Resizable.Panel id="inner-a">Inner Top</Resizable.Panel>
+          <Resizable.Handle intersection />
+          <Resizable.Panel id="inner-b">Inner Bottom</Resizable.Panel>
+        </Resizable>
+      </Resizable.Panel>
+    </Resizable>
+  ))
+  const [outerHandle, innerHandle] = handlesOf(screen.container)
+  setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
+  setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
+  setRect(
+    screen.container.querySelector<HTMLElement>('#outer-a')!,
+    createRect({ top: 0, right: 100, bottom: 600, left: 0 }),
+  )
+  setRect(
+    screen.container.querySelector<HTMLElement>('#inner-a')!,
+    createRect({ top: 0, right: 900, bottom: 80, left: 100 }),
+  )
+  setRect(
+    screen.container.querySelector<HTMLElement>('#outer-b')!,
+    createRect({ top: 0, right: 1000, bottom: 600, left: 101 }),
+  )
+  setRect(
+    screen.container.querySelector<HTMLElement>('#inner-b')!,
+    createRect({ top: 81, right: 900, bottom: 600, left: 100 }),
+  )
+
+  const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
+  refreshSplitterIntersections()
+  await Promise.resolve()
+  return screen
+}
+
 describe('Resizable', () => {
   test('renders panels sized by defaultValue record and fills missing entries', () => {
     const screen = render(() => (
@@ -361,7 +406,7 @@ describe('Resizable', () => {
     expectPanelBasis(b, 40)
   })
 
-  test('keyboard arrows, shift, home, end resize the separator', () => {
+  test('arrow keys step the split, Shift+arrow jumps further, Home and End reach the limits', () => {
     const onValueCommit = vi.fn()
     const screen = render(() => (
       <TwoPanels defaultValue={{ a: 50, b: 50 }} onValueCommit={onValueCommit} />
@@ -441,67 +486,74 @@ describe('Resizable', () => {
   })
 
   test('nested roots still intersect and a cross drag moves both handles', async () => {
+    const screen = await renderNestedGroups()
+    const crossTarget = innerHandleOf(screen.container).querySelector<HTMLElement>(
+      '[data-slot="resizable-intersection"]',
+    )!
+
+    // Drag from the cross target on the inner handle: both axes resize.
+    fireEvent.pointerDown(crossTarget, { pointerId: 1, button: 0, clientX: 101, clientY: 81 })
+    // pointerdown captures on the handle element; moves dispatch on window.
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 81, clientY: 101 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 81, clientY: 101 })
+
+    // outer-a shrank from 50% (20px of ~999px outer space), inner-a grew
+    expect(panelBasis(screen.container.querySelector<HTMLElement>('#outer-a'))).toBeLessThan(50)
+    expect(panelBasis(screen.container.querySelector<HTMLElement>('#inner-a'))).toBeGreaterThan(50)
+  })
+
+  test('pressing the handle body near a crossed edge drags both axes', async () => {
+    const screen = await renderNestedGroups()
+
+    fireEvent.pointerDown(innerHandleOf(screen.container), {
+      pointerId: 1,
+      button: 0,
+      clientX: 102,
+      clientY: 80,
+    })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 132, clientY: 110 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 132, clientY: 110 })
+
+    expect(panelBasis(screen.container.querySelector<HTMLElement>('#outer-a'))).toBeGreaterThan(50)
+    expect(panelBasis(screen.container.querySelector<HTMLElement>('#inner-a'))).toBeGreaterThan(50)
+  })
+
+  test('handles of unrelated sibling groups do not link where they cross', async () => {
     const screen = render(() => (
-      <Resizable>
-        <Resizable.Panel id="outer-a">Outer Left</Resizable.Panel>
-        <Resizable.Handle intersection />
-        <Resizable.Panel id="outer-b">
-          <Resizable orientation="vertical">
-            <Resizable.Panel id="inner-a">Inner Top</Resizable.Panel>
-            <Resizable.Handle intersection />
-            <Resizable.Panel id="inner-b">Inner Bottom</Resizable.Panel>
-          </Resizable>
-        </Resizable.Panel>
-      </Resizable>
+      <>
+        <Resizable>
+          <Resizable.Panel id="left-a">Left A</Resizable.Panel>
+          <Resizable.Handle intersection />
+          <Resizable.Panel id="left-b">Left B</Resizable.Panel>
+        </Resizable>
+        <Resizable orientation="vertical">
+          <Resizable.Panel id="right-a">Right A</Resizable.Panel>
+          <Resizable.Handle intersection />
+          <Resizable.Panel id="right-b">Right B</Resizable.Panel>
+        </Resizable>
+      </>
     ))
-
-    const [outerHandle, innerHandle] = handlesOf(screen.container)
-    const [outerA, innerA] = [
-      screen.container.querySelector<HTMLElement>('#outer-a')!,
-      screen.container.querySelector<HTMLElement>('#inner-a')!,
-    ]
-
-    // outer handle is a vertical bar ending at the inner handle's height
-    setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
-    setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
-    setRect(outerA, createRect({ top: 0, right: 100, bottom: 600, left: 0 }))
-    setRect(innerA, createRect({ top: 0, right: 900, bottom: 80, left: 100 }))
-    setRect(
-      screen.container.querySelector<HTMLElement>('#outer-b')!,
-      createRect({ top: 0, right: 1000, bottom: 600, left: 101 }),
-    )
-    setRect(
-      screen.container.querySelector<HTMLElement>('#inner-b')!,
-      createRect({ top: 81, right: 900, bottom: 600, left: 100 }),
-    )
+    setPanelSizes(screen.container, 500)
+    const [leftHandle, rightHandle] = handlesOf(screen.container)
+    // The vertical group's horizontal bar crosses the horizontal group's vertical bar.
+    setRect(leftHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
+    setRect(rightHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
     const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
     refreshSplitterIntersections()
     await Promise.resolve()
 
-    const crossTargets = screen.container.querySelectorAll('[data-slot="resizable-intersection"]')
-    expect(crossTargets.length).toBeGreaterThan(0)
+    expect(screen.container.querySelectorAll('[data-slot="resizable-intersection"]')).toHaveLength(
+      0,
+    )
 
-    // Drag from the cross target on the inner handle: both axes resize.
-    const crossTarget = innerHandle!.querySelector(
-      '[data-slot="resizable-intersection"]',
-    ) as HTMLElement
-    fireEvent.pointerDown(crossTarget, { pointerId: 1, button: 0, clientX: 101, clientY: 81 })
-    // pointerdown captures on the handle element; moves dispatch on window.
-    fireEvent.pointerMove(window, {
-      pointerId: 1,
-      clientX: 81,
-      clientY: 101,
-    })
-    fireEvent.pointerUp(window, {
-      pointerId: 1,
-      clientX: 81,
-      clientY: 101,
-    })
+    fireEvent.pointerDown(rightHandle!, { pointerId: 1, button: 0, clientX: 150, clientY: 81 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 150, clientY: 101 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 150, clientY: 101 })
 
-    // outer-a shrank from 50% (20px of ~999px outer space), inner-a grew
-    expect(panelBasis(outerA)).toBeLessThan(50)
-    expect(panelBasis(innerA)).toBeGreaterThan(50)
+    expectPanelBasis(screen.container.querySelector<HTMLElement>('#left-a'), 50)
+    expectPanelBasis(screen.container.querySelector<HTMLElement>('#left-b'), 50)
+    expect(panelBasis(screen.container.querySelector<HTMLElement>('#right-a'))).toBeGreaterThan(50)
   })
 
   test('toggling Alt mid-drag still commits the final layout once', () => {
@@ -583,7 +635,7 @@ describe('Resizable', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('marks handle data attributes during hover and drag', () => {
+  test('marks the handle active on hover and dragging during a drag', () => {
     const screen = render(() => <TwoPanels defaultValue={{ a: 50, b: 50 }} />)
     setPanelSizes(screen.container, 500)
     const [handle] = handlesOf(screen.container)
@@ -625,7 +677,7 @@ describe('Resizable', () => {
     expect(onValueCommit).toHaveBeenCalledTimes(1)
   })
 
-  test('handle children render as state render-props and children={false} hides the grip', () => {
+  test('passes drag state to a render-prop handle and hides the grip with children={false}', () => {
     const screen = render(() => (
       <Resizable>
         <Resizable.Panel id="a">A</Resizable.Panel>

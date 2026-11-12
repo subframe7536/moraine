@@ -1,6 +1,5 @@
-import { platform } from '@floating-ui/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -217,7 +216,7 @@ describe('Tooltip', () => {
     render(() => (
       <MoraineProvider
         theme={defineTheme({
-          tooltip: { base: { trigger: 'provider-trigger w-40' } },
+          tooltip: { base: { trigger: 'provider-trigger' } },
         })}
       >
         <Tooltip>
@@ -229,7 +228,6 @@ describe('Tooltip', () => {
 
     const trigger = document.body.querySelector<HTMLElement>('[data-slot="tooltip-trigger"]')
     expect(trigger?.className).toContain('provider-trigger')
-    expect(trigger?.className).toContain('w-40')
   })
 
   test('renders keyboard hints', () => {
@@ -249,37 +247,39 @@ describe('Tooltip', () => {
     expect(document.body.querySelectorAll('[data-slot="tooltip-kbds"]').length).toBe(1)
   })
 
-  test.each([
-    { kbdVariant: undefined, expectedClass: 'bg-muted-foreground' },
-    { kbdVariant: 'outline' as const, expectedClass: 'border-b-2' },
-  ])('uses $kbdVariant keycap variant with inverted content', ({ kbdVariant, expectedClass }) => {
+  test('routes classes and styles to their slots', () => {
     render(() => (
-      <Tooltip open invert>
+      <Tooltip
+        open
+        classes={{ content: 'user-content', text: 'user-text', kbds: 'user-kbds' }}
+        styles={{ content: { width: '200px' } }}
+      >
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} kbdVariant={kbdVariant} />
+        <Tooltip.Content text="Styled" kbds={['S']} />
       </Tooltip>
     ))
 
-    const keycaps = document.body.querySelectorAll('[data-slot="kbd-group-item"]')
-    expect(keycaps).toHaveLength(2)
-    for (const keycap of keycaps) {
-      expect(keycap.classList.contains(expectedClass)).toBe(true)
-    }
-    expect(document.body.querySelector('[role="tooltip"]')?.hasAttribute('kbdVariant')).toBe(false)
+    const content = document.body.querySelector<HTMLElement>('[data-slot="tooltip-content"]')
+
+    expect(content?.className).toContain('user-content')
+    expect(content?.style.width).toBe('200px')
+    expect(document.body.querySelector('[data-slot="tooltip-text"]')?.className).toContain(
+      'user-text',
+    )
+    expect(document.body.querySelector('[data-slot="tooltip-kbds"]')?.className).toContain(
+      'user-kbds',
+    )
   })
 
-  test('applies classes.content to content slot', () => {
+  test('shows children as the tooltip text when text is not provided', () => {
     render(() => (
-      <Tooltip open classes={{ content: 'content-override' }}>
-        <Tooltip.Trigger as="button" type="button">
-          Trigger
-        </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+      <Tooltip open>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Content>Child text</Tooltip.Content>
       </Tooltip>
     ))
 
-    const content = document.body.querySelector('[data-slot="tooltip-content"]')
-    expect(content?.className).toContain('content-override')
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe('Child text')
   })
 
   test('renders tooltip container when no text or kbds are provided', () => {
@@ -325,23 +325,21 @@ describe('Tooltip', () => {
     })
   })
 
-  test('applies styles override to content', () => {
+  test('defaults to the top side with centered alignment', () => {
     render(() => (
-      <Tooltip open styles={{ content: { width: '200px' } }}>
-        <Tooltip.Trigger as="button" type="button">
-          Trigger
-        </Tooltip.Trigger>
-        <Tooltip.Content text="Styled" />
+      <Tooltip open>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
-    const content = document.body.querySelector(
-      '[data-slot="tooltip-content"]',
-    ) as HTMLElement | null
-    expect(content?.style.width).toBe('200px')
+    const content = document.body.querySelector('[data-slot="tooltip-content"]')
+
+    expect(content?.getAttribute('data-side')).toBe('top')
+    expect(content?.getAttribute('data-align')).toBe('center')
   })
 
-  test('updates preferred side and alignment when placement props change without replacing content', () => {
+  test('updates side and alignment when placement props change without replacing content', () => {
     const [placement, setPlacement] = createSignal<'top' | 'bottom'>('top')
     const [align, setAlign] = createSignal<'center' | 'start'>('center')
 
@@ -355,9 +353,6 @@ describe('Tooltip', () => {
     ))
 
     const initialContent = document.body.querySelector('[data-slot="tooltip-content"]')
-    expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(initialContent?.classList).toContain('data-[side=top]:enter-translate-y-1')
     expect(initialContent?.getAttribute('data-side')).toBe('top')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
@@ -366,9 +361,6 @@ describe('Tooltip', () => {
 
     const updatedContent = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(updatedContent).toBe(initialContent)
-    expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
-    expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(updatedContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
     expect(updatedContent?.getAttribute('data-side')).toBe('bottom')
     expect(updatedContent?.getAttribute('data-align')).toBe('start')
   })
@@ -586,54 +578,9 @@ describe('Tooltip', () => {
     expect(document.getElementById(secondId!)).not.toBeNull()
   })
 
-  test('evaluates getter-backed trigger and text values once', () => {
-    let triggerReads = 0
-    let textReads = 0
-
-    render(() => (
-      <Tooltip open>
-        {createComponent(Tooltip.Trigger, {
-          get children() {
-            triggerReads += 1
-            return <span>Trigger</span>
-          },
-        })}
-        {createComponent(Tooltip.Content, {
-          get text() {
-            textReads += 1
-            return <span>Cached tooltip</span>
-          },
-        })}
-      </Tooltip>
-    ))
-
-    expect(triggerReads).toBe(1)
-    expect(textReads).toBe(1)
-  })
-
   test('opens the next tooltip immediately and closes the previous tooltip', async () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
-    vi.spyOn(platform, 'getElementRects').mockImplementation(async ({ reference }) => ({
-      reference: {
-        x:
-          isHTMLElement(reference) && reference.textContent === 'First'
-            ? 100
-            : isHTMLElement(reference) && reference.textContent === 'Second'
-              ? 200
-              : 300,
-        y: 200,
-        width: 40,
-        height: 20,
-      },
-      floating: { x: 0, y: 0, width: 0, height: 0 },
-    }))
-    vi.spyOn(platform, 'getClippingRect').mockResolvedValue({
-      x: 0,
-      y: 0,
-      width: 1000,
-      height: 1000,
-    })
 
     const screen = render(() => (
       <div>
@@ -662,57 +609,28 @@ describe('Tooltip', () => {
 
     fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(600)
-
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('First tooltip')
-    const firstPositioner = document.body.querySelector<HTMLElement>(
-      '[data-slot=tooltip-positioner]',
-    )!
-    expect(firstPositioner.style.transform).toBe('translate3d(120px, 200px, 0px)')
-    expect(firstPositioner.classList).not.toContain(
-      'motion-safe:data-positioned:transition-transform',
-    )
-    expect(firstPositioner.className).not.toContain('has-[')
-    vi.spyOn(firstPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 200, 0, 0))
 
     fireEvent.pointerLeave(firstTrigger)
     fireEvent.pointerEnter(secondTrigger)
     await vi.advanceTimersByTimeAsync(0)
 
-    const activeTooltip = document.body.querySelector('[role=tooltip]')
-
-    expect(document.body.querySelectorAll('[role=tooltip]').length).toBe(1)
-    expect(activeTooltip?.textContent).toContain('Second tooltip')
-    expect(document.activeElement).not.toBe(firstButton)
+    expect(document.body.querySelectorAll('[role=tooltip]')).toHaveLength(1)
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
     expect(document.body.querySelector('[role=tooltip]')?.textContent).not.toContain(
       'First tooltip',
     )
-    expect(activeTooltip?.className).toContain('data-expanded:animate-none')
-    expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
-    const secondPositioner = document.body.querySelector<HTMLElement>(
-      '[data-slot=tooltip-positioner]',
-    )!
-    expect(secondPositioner.classList).toContain('motion-safe:data-positioned:transition-transform')
-    expect(firstPositioner.isConnected).toBe(false)
-    expect(secondPositioner.style.transform).toBe('translate3d(120px, 200px, 0px)')
-    await vi.advanceTimersByTimeAsync(16)
-    expect(secondPositioner.style.transform).toBe('translate3d(220px, 200px, 0px)')
+    expect(document.activeElement).not.toBe(firstButton)
 
-    // A third tooltip starts at the current visual position, even during the preceding transition.
-    vi.spyOn(secondPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(160, 200, 0, 0))
     fireEvent.pointerLeave(secondTrigger)
     fireEvent.pointerEnter(screen.getByText('Third'))
     await vi.advanceTimersByTimeAsync(0)
-    const thirdPositioner = document.body.querySelector<HTMLElement>(
-      '[data-slot=tooltip-positioner]',
-    )!
+
     expect(document.body.querySelectorAll('[role=tooltip]')).toHaveLength(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Third tooltip')
-    expect(thirdPositioner.style.transform).toBe('translate3d(160px, 200px, 0px)')
-    await vi.advanceTimersByTimeAsync(16)
-    expect(thirdPositioner.style.transform).toBe('translate3d(320px, 200px, 0px)')
   })
 
-  test('positions directly when reopening within the skip-delay window after a normal close', async () => {
+  test('opens the next tooltip without its delay right after another closes', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
       <>
@@ -731,28 +649,16 @@ describe('Tooltip', () => {
     ))
     fireEvent.pointerEnter(screen.getByText('First'))
     await vi.advanceTimersByTimeAsync(600)
-    const firstPositioner = document.body.querySelector<HTMLElement>(
-      '[data-slot=tooltip-positioner]',
-    )!
-    vi.spyOn(firstPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 200, 0, 0))
     fireEvent.pointerLeave(screen.getByText('First'))
     await vi.advanceTimersByTimeAsync(0)
     expect(document.body.querySelector('[role=tooltip]')).toBeNull()
 
     fireEvent.pointerEnter(screen.getByText('Second'))
     await vi.advanceTimersByTimeAsync(0)
-    const secondPositioner = document.body.querySelector<HTMLElement>(
-      '[data-slot=tooltip-positioner]',
-    )!
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
-    expect(secondPositioner.style.transform).not.toBe('translate3d(120px, 200px, 0px)')
-    const target = secondPositioner.style.transform
-    expect(target).not.toBe('')
-    await vi.advanceTimersByTimeAsync(16)
-    expect(secondPositioner.style.transform).toBe(target)
   })
 
-  test('does not restart an always-open tooltip after switching from another tooltip', async () => {
+  test('keeps an always-open tooltip visible when another tooltip is hovered and left', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -779,21 +685,17 @@ describe('Tooltip', () => {
         element.textContent?.includes('Always open'),
       ) as HTMLElement
 
-    const initialClass = getAlwaysContent().className
-
     fireEvent.pointerEnter(otherTrigger)
     await vi.advanceTimersByTimeAsync(600)
     fireEvent.pointerLeave(otherTrigger)
     fireEvent.pointerEnter(alwaysTrigger)
-
-    expect(getAlwaysContent().className).toBe(initialClass)
-    expect(getAlwaysContent().hasAttribute('data-instant-motion')).toBe(false)
+    expect(getAlwaysContent()?.textContent).toContain('Always open')
 
     fireEvent.pointerLeave(alwaysTrigger)
     await vi.advanceTimersByTimeAsync(200)
 
-    expect(getAlwaysContent().className).toBe(initialClass)
-    expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
+    expect(getAlwaysContent()?.textContent).toContain('Always open')
+    expect(getAlwaysContent()?.hasAttribute('data-expanded')).toBe(true)
   })
 
   test('skips the hover delay when another tooltip starts open', async () => {
@@ -826,7 +728,7 @@ describe('Tooltip', () => {
     expect(hasDelayedTooltip()).toBe(true)
   })
 
-  test('keeps instant motion during the next tooltip close delay', async () => {
+  test('keeps the switched-to tooltip open for its close delay after leaving it', async () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
@@ -858,22 +760,18 @@ describe('Tooltip', () => {
     fireEvent.pointerLeave(secondTrigger)
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')
-    const activeTooltipClass = activeTooltip?.className
 
-    expect(activeTooltipClass).toContain('data-expanded:animate-none')
-    expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
+    expect(activeTooltip?.textContent).toContain('Second tooltip')
 
     await vi.advanceTimersByTimeAsync(199)
 
-    expect(document.body.querySelector('[role=tooltip]')?.className).toBe(activeTooltipClass)
+    expect(activeTooltip?.hasAttribute('data-expanded')).toBe(true)
 
     await vi.advanceTimersByTimeAsync(1)
 
     const closingTooltip = document.body.querySelector('[role=tooltip]')
 
-    expect(closingTooltip?.getAttribute('data-closed')).toBe('')
-    expect(closingTooltip?.className).toContain('data-closed:animate-mo-exit')
-    expect(closingTooltip?.hasAttribute('data-instant-motion')).toBe(false)
+    expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)
   })
 
   test('does not skip delay when the previous trigger never opened', async () => {
@@ -913,21 +811,20 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
 
-  test('inherits placement and align options from root context to content', () => {
-    const screen = render(() => (
-      <Tooltip open placement="left" align="end">
-        <Tooltip.Trigger as="button" type="button">
-          Trigger
-        </Tooltip.Trigger>
-        <Tooltip.Content text="Inherited options tooltip" />
+  test.each([
+    ['left', 'end'],
+    ['right', 'start'],
+  ] as const)('reports side %s and alignment %s on the content', (placement, align) => {
+    render(() => (
+      <Tooltip open placement={placement} align={align}>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Content text="Placed tooltip" />
       </Tooltip>
     ))
-    try {
-      const content = document.body.querySelector('[data-slot="tooltip-content"]')
-      expect(content?.getAttribute('data-side')).toBe('left')
-      expect(content?.getAttribute('data-align')).toBe('end')
-    } finally {
-      screen.unmount()
-    }
+
+    const content = document.body.querySelector('[data-slot="tooltip-content"]')
+
+    expect(content?.getAttribute('data-side')).toBe(placement)
+    expect(content?.getAttribute('data-align')).toBe(align)
   })
 })

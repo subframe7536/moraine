@@ -349,14 +349,10 @@ describe('Combobox', () => {
 
     // Form value remains ''
     expect(getInput(form)).toEqual({ choice: '' })
-    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
-      'input[aria-hidden="true"]',
-    )
-    expect(hiddenInput?.value).toBe('')
   })
 
   test('preserves initial empty-string Form.Field selection when defaultSearchValue hides the empty item', () => {
-    const { screen, value: form } = renderWithOwner(
+    const { value: form } = renderWithOwner(
       () =>
         createForm({
           schema: v.object({ choice: v.nullable(v.string()) }),
@@ -380,10 +376,6 @@ describe('Combobox', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: '' })
-    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
-      'input[aria-hidden="true"]',
-    )
-    expect(hiddenInput?.value).toBe('')
   })
 
   test('treats empty string as unselected when items do not contain an empty string value', () => {
@@ -404,14 +396,10 @@ describe('Combobox', () => {
       ),
     )
 
-    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
-      'input[aria-hidden="true"]',
-    )
-    expect(hiddenInput?.value).toBe('')
-    expect(hiddenInput?.getAttribute('name')).toBeNull()
+    expect(new FormData(screen.container.querySelector('form')!).has('choice')).toBe(false)
   })
 
-  test('has data-editable on control for search input focus ring', () => {
+  test('marks the editable control with data-editable', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="combobox-control"]')!
     expect(control.hasAttribute('data-editable')).toBe(true)
@@ -617,29 +605,20 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
   expect(scrollToFn).toHaveBeenLastCalledWith(31840, expect.anything(), virtualizer.instance())
 })
 
-test('forwards selectedValue and close to custom emptyRender', () => {
-  let capturedProps: any
-  render(() => (
+test('custom emptyRender shows the selected value and its close action dismisses the popup', () => {
+  const screen = render(() => (
     <Combobox
       items={[] as string[]}
       defaultValue="Banana"
       defaultOpen
-      emptyRender={(props) => {
-        capturedProps = props
-        return (
-          <button type="button" onClick={props.close}>
-            Custom empty {props.selectedValue}
-          </button>
-        )
-      }}
+      emptyRender={(props) => (
+        <button type="button" onClick={props.close}>
+          Custom empty {props.selectedValue}
+        </button>
+      )}
     />
   ))
 
-  expect(capturedProps).toBeDefined()
-  expect(capturedProps.selectedValue).toBe('Banana')
-  expect(typeof capturedProps.close).toBe('function')
-  capturedProps.close()
-  expect(
-    document.querySelector('[data-slot="combobox-content"]')?.getAttribute('data-closed'),
-  ).toBe('')
+  fireEvent.click(within(document.body).getByRole('button', { name: 'Custom empty Banana' }))
+  expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
 })

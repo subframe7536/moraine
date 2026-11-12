@@ -24,7 +24,10 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     stepper: { defaultVariants: { orientation: 'vertical' } },
     resizable: { defaultVariants: { orientation: 'vertical' } },
     radioGroup: { defaultVariants: { orientation: 'horizontal' } },
-    sidebar: { defaultVariants: { side: 'right' } },
+    sidebar: {
+      defaultVariants: { side: 'right' },
+      variants: { side: { right: { root: 'sidebar-right' }, left: { root: 'sidebar-left' } } },
+    },
   })
   const [theme, setTheme] = createSignal<MoraineTheme | null>(verticalTheme)
   const screen = render(() => (
@@ -54,7 +57,6 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     </MoraineProvider>
   ))
   expect(screen.getByTestId('separator').getAttribute('aria-orientation')).toBe('vertical')
-  expect(screen.getByTestId('separator').classList.contains('w-px')).toBe(true)
   expect(screen.getByTestId('explicit').getAttribute('aria-orientation')).toBe('horizontal')
   expect(screen.getByRole('slider', { name: 'Thumb' }).getAttribute('aria-orientation')).toBe(
     'vertical',
@@ -63,8 +65,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     expect(list.getAttribute('aria-orientation')).toBe('vertical')
   }
   expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('horizontal')
-  expect(screen.getByTestId('resizable').classList.contains('flex-col')).toBe(true)
-  expect(screen.getByTestId('sidebar').classList.contains('flex-row-reverse')).toBe(true)
+  expect(screen.getByTestId('sidebar').className).toContain('sidebar-right')
   const alpha = screen.getByRole('tab', { name: 'Alpha' })
   alpha.focus()
   fireEvent.keyDown(alpha, { key: 'ArrowDown' })
@@ -79,14 +80,25 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     expect(list.getAttribute('aria-orientation')).toBe('horizontal')
   }
   expect(screen.getByRole('radiogroup').getAttribute('aria-orientation')).toBe('vertical')
-  expect(screen.getByTestId('resizable').classList.contains('flex-row')).toBe(true)
-  expect(screen.getByTestId('sidebar').classList.contains('flex-row')).toBe(true)
+  expect(screen.getByTestId('sidebar').className).not.toContain('sidebar-right')
 })
 
 test('uses the theme side for Sheet and lets explicit props override it', () => {
   const [side, setSide] = createSignal<'right' | undefined>()
   render(() => (
-    <MoraineProvider theme={defineTheme({ sheet: { defaultVariants: { side: 'left' } } })}>
+    <MoraineProvider
+      theme={defineTheme({
+        sheet: {
+          defaultVariants: { side: 'left' },
+          variants: {
+            side: {
+              left: { content: 'sheet-left' },
+              right: { content: 'sheet-right' },
+            },
+          },
+        },
+      })}
+    >
       <Sheet open side={side()}>
         <Sheet.Content>
           <Sheet.Body>Panel</Sheet.Body>
@@ -95,9 +107,10 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
     </MoraineProvider>
   ))
   const content = document.body.querySelector('[data-slot="sheet-content"]')!
-  expect(content.classList.contains('left-0')).toBe(true)
+  expect(content.classList.contains('sheet-left')).toBe(true)
   setSide('right')
-  expect(content.classList.contains('right-0')).toBe(true)
+  expect(content.classList.contains('sheet-right')).toBe(true)
+  expect(content.classList.contains('sheet-left')).toBe(false)
 })
 
 test('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
@@ -142,7 +155,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     'horizontal',
   )
 
-  // Sidebar inherits built-in side: 'left', so mobile Drawer opens on the left (left-0, not right-0)
+  // Sidebar inherits built-in side: 'left', so mobile Drawer opens on the left
   fireEvent.click(screen.getByText('Toggle Sidebar'))
   await waitFor(() => {
     const content = document.body.querySelector('[data-slot="drawer-content"]')!

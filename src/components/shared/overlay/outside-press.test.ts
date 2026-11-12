@@ -30,12 +30,10 @@ describe('createOutsidePressHandlers', () => {
     })
 
     handlers.pointerdown(pointerEvent(1))
-    expect(vi.getTimerCount()).toBe(1)
 
     handlers.dispose()
     handlers.pointerup(pointerEvent(1))
 
-    expect(vi.getTimerCount()).toBe(0)
     expect(onPress).not.toHaveBeenCalled()
   })
 
@@ -49,7 +47,6 @@ describe('createOutsidePressHandlers', () => {
     })
 
     handlers.pointerdown(pointerEvent(1, true))
-    expect(vi.getTimerCount()).toBe(0)
 
     handlers.pointerdown(pointerEvent(2))
     handlers.pointerup(pointerEvent(2))

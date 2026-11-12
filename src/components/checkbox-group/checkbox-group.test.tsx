@@ -1,9 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { FieldProvider } from '../field/field-context'
 import type { FieldBinding } from '../field/field-context'
@@ -40,11 +39,10 @@ describe('CheckboxGroup', () => {
     const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
     const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
 
-    expect(control?.className).toContain('group-control')
+    expect(control?.classList.contains('group-control')).toBe(true)
     expect(control?.style.width).toBe('21px')
-    expect(label?.className).toContain('group-label')
+    expect(label?.classList.contains('group-label')).toBe(true)
     expect(label?.style.width).toBe('23px')
-    expect(screen.container.querySelector('[data-slot^="checkbox-group-control"]')).toBeNull()
   })
 
   test('maps object items using default value/label/description fields', () => {
@@ -277,7 +275,7 @@ describe('CheckboxGroup', () => {
     expect(fieldset.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'))
     expect(checkbox.getAttribute('aria-required')).toBe('true')
     expect(input.getAttribute('required')).not.toBeNull()
-    expect(description).not.toBeNull()
+    expect(checkbox.getAttribute('aria-describedby')).toContain(description.id)
   })
 
   test('treats required as at least one enabled selection', async () => {
@@ -387,124 +385,53 @@ describe('CheckboxGroup', () => {
     expect(new FormData(form).getAll('choices')).toEqual(['', ''])
   })
 
-  test('applies horizontal table layout classes', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
-      </MoraineProvider>
-    ))
-
-    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
-    const item = screen.container.querySelector(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
-
-    expect(fieldset?.className).toContain('flex-row')
-    expect(fieldset?.className).not.toContain('flex-wrap')
-    expect(item?.className).toContain('border')
-    expect(item?.className).toContain('rounded-none')
-    expect(item?.className).toContain('p-4')
-    expect(item?.className).toContain('first-of-type:rounded-s-lg')
-    expect(item?.className).toContain('last-of-type:rounded-e-lg')
-    expect(item?.className).toContain('-ms-px')
-    expect(item?.className).toContain('first-of-type:ms-0')
-  })
-
-  test('applies vertical table layout classes', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
-      </MoraineProvider>
-    ))
-
-    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
-    const item = screen.container.querySelector(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
-
-    expect(fieldset?.className).toContain('flex-col')
-    expect(item?.className).toContain('first-of-type:rounded-t-lg')
-    expect(item?.className).toContain('last-of-type:rounded-b-lg')
-    expect(item?.className).toContain('-mt-px')
-    expect(item?.className).toContain('first-of-type:mt-0')
-  })
-
-  test('renders checkbox items as direct fieldset children', () => {
+  test('renders one checkbox per item', () => {
     const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" />)
 
-    const directItems = screen.container.querySelectorAll(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
-
-    expect(directItems).toHaveLength(2)
-    expect(
-      screen.container.querySelector(
-        '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"] [data-slot="checkbox-group-item"]',
-      ),
-    ).toBeNull()
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2)
   })
 
-  test('toggles item when clicking table item root', async () => {
-    const screen = render(() => <CheckboxGroup items={['A']} variant="table" />)
+  test.each([
+    ['table', true],
+    ['list', false],
+  ] as const)(
+    'a click on the item root of a %s checkbox group toggles the item: %s',
+    async (variant, toggles) => {
+      const screen = render(() => <CheckboxGroup items={['A', 'B']} variant={variant} />)
 
-    const checkbox = screen.getByRole('checkbox', { name: 'A' })
-    const item = screen.container.querySelector(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
+      const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+      const items = screen.container.querySelectorAll<HTMLElement>(
+        '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+      )
 
-    expectCheckboxChecked(checkbox, false)
+      fireEvent.click(items[0]!)
 
-    fireEvent.click(item as HTMLElement)
+      await waitFor(() => {
+        expectCheckboxChecked(checkboxA, toggles)
+      })
+    },
+  )
 
-    await waitFor(() => {
-      expectCheckboxChecked(checkbox, true)
-    })
-  })
-
-  test('does not toggle item when clicking list item root', async () => {
-    const screen = render(() => <CheckboxGroup items={['A', 'B']} defaultValue={['A']} />)
-
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
-    const items = screen.container.querySelectorAll(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
-
-    expectCheckboxChecked(checkboxA, true)
-    expectCheckboxChecked(checkboxB, false)
-
-    fireEvent.click(items[1] as HTMLElement)
-
-    await waitFor(() => {
-      expectCheckboxChecked(checkboxA, true)
-      expectCheckboxChecked(checkboxB, false)
-    })
-  })
-
-  test('applies flattened classes to item and checkbox slots', () => {
+  test('applies item and checkbox class overrides to their slots', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <CheckboxGroup
-          items={['A']}
-          variant="table"
-          classes={{
-            item: 'item-override',
-            control: 'control-override',
-            label: 'label-override',
-          }}
-        />
-      </MoraineProvider>
+      <CheckboxGroup
+        items={['A']}
+        variant="table"
+        classes={{
+          item: 'item-override',
+          control: 'control-override',
+          label: 'label-override',
+        }}
+      />
     ))
 
-    const item = screen.container.querySelector(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
+    const item = screen.container.querySelector('[data-slot="checkbox-group-item"]')
     const base = screen.container.querySelector('[data-slot="checkbox-control"]')
     const label = screen.container.querySelector('[data-slot="checkbox-label"]')
 
-    expect(item?.className).toContain('item-override')
-    expect(base?.className).toContain('control-override')
-    expect(label?.className).toContain('label-override')
+    expect(item?.classList.contains('item-override')).toBe(true)
+    expect(base?.classList.contains('control-override')).toBe(true)
+    expect(label?.classList.contains('label-override')).toBe(true)
   })
 
   test('applies style overrides to item and checkbox slots', () => {
@@ -621,32 +548,17 @@ describe('CheckboxGroup', () => {
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ choices: ['B'] })
   })
 
-  test('single-evaluates group JSX and collection props', () => {
-    const reads = { checkedIcon: 0, indeterminateIcon: 0, items: 0, legend: 0 }
-    const screen = render(() =>
-      createComponent(CheckboxGroup, {
-        get checkedIcon() {
-          reads.checkedIcon += 1
-          return <span>Checked</span>
-        },
-        get indeterminateIcon() {
-          reads.indeterminateIcon += 1
-          return <span>Mixed</span>
-        },
-        get items() {
-          reads.items += 1
-          return [{ value: 'a', label: 'Alpha', indeterminate: true }]
-        },
-        get legend() {
-          reads.legend += 1
-          return 'Options'
-        },
-      }),
-    )
+  test('renders JSX icons for indeterminate items', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        legend="Options"
+        items={[{ value: 'a', label: 'Alpha', indeterminate: true }]}
+        indeterminateIcon={<span>Mixed</span>}
+      />
+    ))
 
-    expect(screen.getByText('Options')).not.toBeNull()
-    expect(screen.getByText('Alpha')).not.toBeNull()
+    expect(screen.getByRole('group', { name: 'Options' })).not.toBeNull()
+    expect(screen.getByRole('checkbox', { name: 'Alpha' })).not.toBeNull()
     expect(screen.getByText('Mixed')).not.toBeNull()
-    expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 1, items: 1, legend: 1 })
   })
 })

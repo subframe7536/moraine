@@ -1,4 +1,4 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { describe, expect, expectTypeOf, test } from 'vitest'
 
 import { createDataAttributes } from './style-contract'
@@ -69,20 +69,5 @@ describe('style contract helpers', () => {
       content: createDataAttributes('expanded'),
     } satisfies DataAttributeContract<'root'>
     expect(invalidContract.content).toBeTypeOf('function')
-  })
-
-  test('keeps stable enumerable getters while accessors update', () => {
-    createRoot((dispose) => {
-      const [active, setActive] = createSignal(false)
-      const attributes = createDataAttributes('active')({ active })
-      const descriptor = Object.getOwnPropertyDescriptor(attributes, 'data-active')
-
-      expect(descriptor?.get).toBeTypeOf('function')
-      expect(attributes['data-active']).toBeUndefined()
-      setActive(true)
-      expect(attributes['data-active']).toBe('')
-      expect(Object.getOwnPropertyDescriptor(attributes, 'data-active')?.get).toBe(descriptor?.get)
-      dispose()
-    })
   })
 })

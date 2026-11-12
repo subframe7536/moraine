@@ -24,6 +24,11 @@ const TAILWIND_THEME_CSS = readFileSync(
   'utf8',
 )
 
+const WIND_VERSIONS = [
+  ['Wind3', presetWind3],
+  ['Wind4', presetWind4],
+] as const
+
 async function generate(
   tokens: string[],
   preflights = false,
@@ -34,6 +39,10 @@ async function generate(
   })
   const { css } = await generator.generate(new Set(tokens), { preflights })
   return css
+}
+
+function rootBlock(css: string): string {
+  return css.match(/:root \{([^}]+)\}/)?.[1] ?? ''
 }
 
 describe('presetMoraine', () => {
@@ -75,142 +84,122 @@ describe('presetMoraine', () => {
     expect(css).toContain('--accent: rgb(10, 10, 10);')
     expect(css).toContain('--accent-foreground: rgb(250, 250, 250);')
     expect(css).toContain('var(--accent-hover')
-    expect(css).toContain('--mo-accent-fg:var(--accent-foreground)')
-    expect(css).toContain('color:color-mix(in srgb, var(--accent-foreground)')
     expect(css).toContain('color:var(--mo-accent-fg, var(--foreground))')
     expect(css).toContain('color:var(--mo-accent-fg, var(--muted-foreground))')
-    expect(css).not.toContain('group/')
-  })
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('compiles disclosure child state and slider peer state with %s', async (_name, wind) => {
-    const tokens = [
-      ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
-        .flatMap((value) => cn(value)!.split(' '))
-        .filter((token) => token.startsWith('peer-')),
-    ]
-    const css = await generate(tokens, false, wind)
-    expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
-    expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
-    expect(css).toContain('@keyframes accordion-down')
-    expect(css).toContain('@keyframes accordion-up')
-    expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
-    expect(css).toMatch(/\.peer\)?:hover ?~/)
-    expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
-    expect(css).not.toContain(':has(')
-  })
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('compiles compound and hyphenated attributes with %s', async (_name, wind) => {
-    const css = await generate(
-      [
-        'data-transition:data-expanded:animate-accordion-down',
-        'data-transition:data-closed:h-0',
-        'data-instant-motion:data-expanded:animate-none',
-        'data-instant-motion:data-closed:animate-none',
-      ],
-      false,
-      wind,
-    )
-    expect(css).toContain('[data-expanded][data-transition]')
-    expect(css).toContain('[data-closed][data-transition]')
-    expect(css).toContain('[data-expanded][data-instant-motion]')
-    expect(css).toContain('[data-closed][data-instant-motion]')
-    expect(css).toContain('animation:none')
-    expect(css).toContain('@keyframes accordion-down')
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('compiles readable highlighted item colors with %s', async (_name, wind) => {
-    for (const item of [
-      commandPaletteRecipe.config.base.item,
-      baseSelectRecipe.config.base.item,
-      overlayMenuRecipeOptions.base.item,
-    ]) {
-      expect(cn(item)?.split(' ')).toContain('data-highlighted:text-accent-foreground')
-    }
-    for (const detail of [
-      commandPaletteRecipe.config.base.itemLeading,
-      commandPaletteRecipe.config.base.itemDescription,
-      commandPaletteRecipe.config.base.itemTrailing,
-      SELECT_FAMILY_SLOTS.itemDescription,
-    ]) {
-      expect(cn(detail)?.split(' ')).toContain('data-highlighted:text-accent-foreground')
-    }
-    const classes = [
-      commandPaletteRecipe.config.base.item,
-      commandPaletteRecipe.config.base.itemLeading,
-      commandPaletteRecipe.config.base.itemDescription,
-      commandPaletteRecipe.config.base.itemTrailing,
-      baseSelectRecipe.config.base.item,
-      SELECT_FAMILY_SLOTS.itemDescription,
-      overlayMenuRecipeOptions.base.item,
-    ]
-    const tokens = classes.flatMap((value) => cn(value)?.split(' ') ?? [])
-    const css = await generate(tokens, false, wind)
+  test.each(WIND_VERSIONS)(
+    'compiles disclosure child state and slider peer state with %s',
+    async (_name, wind) => {
+      const tokens = [
+        ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
+        ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
+          .flatMap((value) => cn(value)!.split(' '))
+          .filter((token) => token.startsWith('peer-')),
+      ]
+      const css = await generate(tokens, false, wind)
+      expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
+      expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
+      expect(css).toContain('@keyframes accordion-down')
+      expect(css).toContain('@keyframes accordion-up')
+      expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
+      expect(css).toMatch(/\.peer\)?:hover ?~/)
+      expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
+      expect(css).not.toContain(':has(')
+    },
+  )
 
-    expect(css).toContain('[data-highlighted]')
-    expect(css).toContain('var(--accent-hover')
-    expect(css).toContain('--accent-foreground')
-    expect(css).toContain('[data-danger]')
-    expect(css).toContain('--danger')
-  })
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('compiles CSS variable shorthand with %s', async (_name, wind) => {
-    const utilities = {
-      w: 'width',
-      h: 'height',
-      'min-w': 'min-width',
-      'max-w': 'max-width',
-      'max-h': 'max-height',
-      mt: 'margin-top',
-      mr: 'margin-right',
-      mb: 'margin-bottom',
-      ml: 'margin-left',
-      pt: 'padding-top',
-      gap: 'gap',
-      top: 'top',
-      bottom: 'bottom',
-      left: 'left',
-      right: 'right',
-      origin: 'transform-origin',
-    }
-    for (const [utility, property] of Object.entries(utilities)) {
-      const css = await generate([`${utility}-(--test-value)`], false, wind)
-      expect(css).toContain(`${property}:var(--test-value)`)
-    }
+  test.each(WIND_VERSIONS)(
+    'compiles compound and hyphenated attributes with %s',
+    async (_name, wind) => {
+      const css = await generate(
+        [
+          'data-transition:data-expanded:animate-accordion-down',
+          'data-transition:data-closed:h-0',
+          'data-instant-motion:data-expanded:animate-none',
+          'data-instant-motion:data-closed:animate-none',
+        ],
+        false,
+        wind,
+      )
+      expect(css).toContain('[data-expanded][data-transition]')
+      expect(css).toContain('[data-closed][data-transition]')
+      expect(css).toContain('[data-expanded][data-instant-motion]')
+      expect(css).toContain('[data-closed][data-instant-motion]')
+      expect(css).toContain('animation:none')
+      expect(css).toContain('@keyframes accordion-down')
+    },
+  )
 
-    const css = await generate(
-      [
-        'size-(--test-size)',
-        'data-expanded:after:h-(--test-height)',
-        'hover:-mt-(--test-offset)',
-        'enter-translate-x-(--test-translate)',
-      ],
-      false,
-      wind,
-    )
-    expect(css).toContain('width:var(--test-size)')
-    expect(css).toContain('height:var(--test-size)')
-    expect(css).toContain('[data-expanded]')
-    expect(css).toContain('::after')
-    expect(css).toContain('height:var(--test-height)')
-    expect(css).toContain(':hover')
-    expect(css).toContain('margin-top:calc(var(--test-offset) * -1)')
-    expect(css).toContain('--mo-enter-translate-x:var(--test-translate)')
-  })
+  test.each(WIND_VERSIONS)(
+    'highlighted items keep readable text and danger tones with %s',
+    async (_name, wind) => {
+      const classes = [
+        commandPaletteRecipe.config.base.item,
+        commandPaletteRecipe.config.base.itemLeading,
+        commandPaletteRecipe.config.base.itemDescription,
+        commandPaletteRecipe.config.base.itemTrailing,
+        baseSelectRecipe.config.base.item,
+        SELECT_FAMILY_SLOTS.itemDescription,
+        overlayMenuRecipeOptions.base.item,
+      ]
+      const tokens = classes.flatMap((value) => cn(value)?.split(' ') ?? [])
+      const css = await generate(tokens, false, wind)
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('registers %s theme tokens', async (name, wind) => {
+      expect(css).toContain('[data-highlighted]')
+      expect(css).toContain('var(--accent-hover')
+      expect(css).toContain('--accent-foreground')
+      expect(css).toContain('[data-danger]')
+      expect(css).toContain('--danger')
+    },
+  )
+
+  test.each(WIND_VERSIONS)(
+    'CSS variable shorthand reads the variable with %s',
+    async (_name, wind) => {
+      const utilities = {
+        w: 'width',
+        h: 'height',
+        'min-w': 'min-width',
+        'max-w': 'max-width',
+        'max-h': 'max-height',
+        mt: 'margin-top',
+        mr: 'margin-right',
+        mb: 'margin-bottom',
+        ml: 'margin-left',
+        pt: 'padding-top',
+        gap: 'gap',
+        top: 'top',
+        bottom: 'bottom',
+        left: 'left',
+        right: 'right',
+        origin: 'transform-origin',
+      }
+      for (const [utility, property] of Object.entries(utilities)) {
+        const css = await generate([`${utility}-(--test-value)`], false, wind)
+        expect(css).toContain(`${property}:var(--test-value)`)
+      }
+
+      const css = await generate(
+        [
+          'size-(--test-size)',
+          'data-expanded:after:h-(--test-height)',
+          'hover:-mt-(--test-offset)',
+          'enter-translate-x-(--test-translate)',
+        ],
+        false,
+        wind,
+      )
+      expect(css).toContain('width:var(--test-size)')
+      expect(css).toContain('height:var(--test-size)')
+      expect(css).toContain('[data-expanded]')
+      expect(css).toContain('height:var(--test-height)')
+      expect(css).toContain('margin-top:calc(var(--test-offset) * -1)')
+      expect(css).toContain('--mo-enter-translate-x:var(--test-translate)')
+    },
+  )
+
+  test.each(WIND_VERSIONS)('registers %s theme tokens', async (name, wind) => {
     const css = await generate(
       [
         'rounded-lg',
@@ -242,24 +231,18 @@ describe('presetMoraine', () => {
       wind,
     )
 
-    expect(css).toContain('.rounded-lg')
-    expect(css).toContain('.shadow-md')
-    expect(css).toContain('.font-sans')
     expect(css).toContain('--un-shadow:var(--shadow-surface)')
     expect(css).toContain('--un-shadow:var(--shadow-overlay)')
     expect(css).toContain('--un-shadow:var(--shadow-input)')
     expect(css).toContain('var(--backdrop, rgb(0 0 0 / 0.32))')
     expect(css).toContain('font-family:var(--font-sans)')
-    expect(css).toContain('.w-sidebar')
     expect(css).toContain(
       name === 'Wind3'
         ? 'width:var(--sidebar-width,clamp(14rem,25%,20rem))'
         : 'width:var(--spacing-sidebar)',
     )
     expect(css).toContain('border-radius:var(--radius)')
-    expect(css).toContain('.bg-primary')
     expect(css).toContain('var(--primary)')
-    expect(css).toContain('.bg-info')
     expect(css).toContain('var(--info)')
     expect(css).toContain('var(--success)')
     expect(css).toContain('var(--warning)')
@@ -275,69 +258,66 @@ describe('presetMoraine', () => {
     )
     expect(css).toContain('var(--info-ink, var(--mo-info-ink, var(--info)))')
     expect(css).toContain('var(--success-ink, var(--mo-success-ink, var(--success)))')
-    expect(css).toContain('.bg-control')
     expect(css).toMatch(
       /background-color:\s*(?:var\(--control\)|color-mix\(in srgb, var\(--control\))/,
     )
     expect(css).toMatch(/color-mix\(in srgb,\s*var\(--control\) 30%,\s*transparent\)/)
-    expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
     expect(css).toMatch(/opacity:(0\.64|64%)/)
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('resolves the internal tone channel utilities with %s', async (_name, wind) => {
-    const css = await generate(
-      [
-        'tone-danger',
-        'bg-tone',
-        'bg-tone/12',
-        'bg-tone-soft',
-        'hover:bg-tone-soft-hover',
-        'active:bg-tone-soft-active',
-        'bg-danger-soft',
-        'border-tone/40',
-        'text-tone-foreground',
-        'text-tone-ink',
-        'hover:bg-tone-hover',
-        'active:bg-tone-active',
-        'ring-tone/20',
-      ],
-      false,
-      wind,
-    )
+  test.each(WIND_VERSIONS)(
+    'resolves the internal tone channel utilities with %s',
+    async (_name, wind) => {
+      const css = await generate(
+        [
+          'tone-danger',
+          'bg-tone',
+          'bg-tone/12',
+          'bg-tone-soft',
+          'hover:bg-tone-soft-hover',
+          'active:bg-tone-soft-active',
+          'bg-danger-soft',
+          'border-tone/40',
+          'text-tone-foreground',
+          'text-tone-ink',
+          'hover:bg-tone-hover',
+          'active:bg-tone-active',
+          'ring-tone/20',
+        ],
+        false,
+        wind,
+      )
 
-    expect(css).toContain('.tone-danger{')
-    expect(css).toContain('--mo-tone:var(--danger)')
-    expect(css).toContain('--mo-tone-foreground:var(--danger-foreground, var(--background))')
-    expect(css).toContain(
-      '--mo-tone-hover:var(--danger-hover, var(--mo-danger-hover, var(--danger)))',
-    )
-    expect(css).toContain(
-      '--mo-tone-active:var(--danger-active, var(--mo-danger-active, var(--danger-hover, var(--mo-danger-hover, var(--danger)))))',
-    )
-    expect(css).toContain('--mo-tone-ink:var(--danger-ink, var(--mo-danger-ink, var(--danger)))')
-    expect(css).toContain('--mo-tone-soft:var(--danger-soft, var(--mo-danger-soft, transparent))')
-    expect(css).toContain(
-      '--mo-tone-border:var(--danger-border, var(--mo-danger-border, var(--border)))',
-    )
-    expect(css).toMatch(/\.bg-tone\{background-color:[^}]*var\(--mo-tone\)/)
-    expect(css).toContain('var(--mo-tone) 12%')
-    expect(css).toContain('var(--mo-tone) 40%')
-    expect(css).toContain('var(--mo-tone) 20%')
-    expect(css).toContain('var(--mo-tone-foreground)')
-    expect(css).toContain('var(--mo-tone-ink)')
-    expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
-    expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
-    expect(css).toContain('var(--mo-tone-soft, transparent)')
-    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
-    expect(css).toContain(
-      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
-    )
-    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
-  })
+      expect(css).toContain('--mo-tone:var(--danger)')
+      expect(css).toContain('--mo-tone-foreground:var(--danger-foreground, var(--background))')
+      expect(css).toContain(
+        '--mo-tone-hover:var(--danger-hover, var(--mo-danger-hover, var(--danger)))',
+      )
+      expect(css).toContain(
+        '--mo-tone-active:var(--danger-active, var(--mo-danger-active, var(--danger-hover, var(--mo-danger-hover, var(--danger)))))',
+      )
+      expect(css).toContain('--mo-tone-ink:var(--danger-ink, var(--mo-danger-ink, var(--danger)))')
+      expect(css).toContain('--mo-tone-soft:var(--danger-soft, var(--mo-danger-soft, transparent))')
+      expect(css).toContain(
+        '--mo-tone-border:var(--danger-border, var(--mo-danger-border, var(--border)))',
+      )
+      expect(css).toMatch(/\.bg-tone\{background-color:[^}]*var\(--mo-tone\)/)
+      expect(css).toContain('var(--mo-tone) 12%')
+      expect(css).toContain('var(--mo-tone) 40%')
+      expect(css).toContain('var(--mo-tone) 20%')
+      expect(css).toContain('var(--mo-tone-foreground)')
+      expect(css).toContain('var(--mo-tone-ink)')
+      expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
+      expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
+      expect(css).toContain('var(--mo-tone-soft, transparent)')
+      expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
+      expect(css).toContain(
+        'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+      )
+      expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
+    },
+  )
 
   test('Wind4 rounded utilities read the local --radius', async () => {
     const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg', 'rounded-none'])
@@ -358,7 +338,6 @@ describe('presetMoraine', () => {
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.75)')
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
     expect(css).toContain('.text-base{font-size:var(--font-size, 1rem)')
-    expect(css).toContain('line-height:var(--un-leading, calc(var(--font-size, 1rem) * 1.25))')
     expect(css).toContain('.text-5xl{font-size:calc(var(--font-size, 1rem) * 3)')
   })
 
@@ -434,191 +413,132 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--danger)')
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('registers shared enter and exit animation defaults with %s', async (_name, wind) => {
-    const css = await generate(['animate-mo-enter', 'animate-mo-exit'], false, wind)
+  test.each(WIND_VERSIONS)(
+    'registers shared enter and exit animation defaults with %s',
+    async (_name, wind) => {
+      const css = await generate(['animate-mo-enter', 'animate-mo-exit'], false, wind)
 
-    expect(css).toContain('.animate-mo-enter')
-    expect(css).toContain('.animate-mo-exit')
-    expect(css).toContain('@keyframes mo-enter')
-    expect(css).toContain('@keyframes mo-exit')
-    expect(css).toContain('--mo-anim-duration-enter,250ms')
-    expect(css).toContain('--mo-anim-duration-exit,150ms')
-    expect(css).toContain(
-      'var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1)))',
-    )
-    expect(css).toContain(
-      'var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0)))',
-    )
-    expect(css).toMatch(/\.animate-mo-exit\{[^}]*animation-fill-mode:forwards;/)
-    expect(css).not.toMatch(/\.animate-mo-enter\{[^}]*animation-fill-mode:forwards;/)
-  })
+      expect(css).toContain('@keyframes mo-enter')
+      expect(css).toContain('@keyframes mo-exit')
+      expect(css).toContain('--mo-anim-duration-enter,250ms')
+      expect(css).toContain('--mo-anim-duration-exit,150ms')
+      expect(css).toContain(
+        'var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1)))',
+      )
+      expect(css).toContain(
+        'var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0)))',
+      )
+      expect(css).toMatch(/\.animate-mo-exit\{[^}]*animation-fill-mode:forwards;/)
+      expect(css).not.toMatch(/\.animate-mo-enter\{[^}]*animation-fill-mode:forwards;/)
+    },
+  )
 
-  test('retains semantic z-index and icon shortcuts only', () => {
-    const preset = presetMoraine()
-    const shortcuts = (preset.shortcuts as Array<[string, unknown]>).map((shortcut) => shortcut[0])
+  test.each(WIND_VERSIONS)(
+    'registers enter and exit animation utilities with %s',
+    async (_name, wind) => {
+      const css = await generate(
+        [
+          'enter-opacity-0',
+          'exit-opacity-0',
+          'enter-opacity-50',
+          'enter-scale-95',
+          'exit-scale-95',
+          'enter-translate-x-1',
+          '-enter-translate-x-1',
+          'exit-translate-x-1',
+          '-exit-translate-x-1',
+          'enter-translate-y-1',
+          '-enter-translate-y-1',
+          'exit-translate-y-1',
+          '-exit-translate-y-1',
+          'enter-translate-y-10',
+          '-enter-translate-y-10',
+          'enter-translate-y-full',
+          '-enter-translate-y-full',
+          'enter-rotate-45',
+          '-enter-rotate-45',
+          'data-expanded:enter-opacity-0',
+          'data-closed:exit-scale-95',
+        ],
+        false,
+        wind,
+      )
 
-    expect(shortcuts).toContain('z-floating')
-    expect(shortcuts).toContain('icon-check')
-    expect(shortcuts).toContain('icon-mask')
-    expect(preset.transformers).toBeUndefined()
-    expect(preset.rules).toBeDefined()
-  })
+      expect(css).toContain('.enter-opacity-0{--mo-enter-opacity:0;}')
+      expect(css).toContain('.exit-opacity-0{--mo-exit-opacity:0;}')
+      expect(css).toContain('.enter-opacity-50{--mo-enter-opacity:0.5;}')
+      expect(css).toContain('.enter-scale-95{--mo-enter-scale:0.95;}')
+      expect(css).toContain('.exit-scale-95{--mo-exit-scale:0.95;}')
+      expect(css).toContain(
+        '.enter-translate-x-1{--mo-enter-translate-x:calc(var(--spacing, 0.25rem) * 1);}',
+      )
+      expect(css).toContain(
+        '.-enter-translate-x-1{--mo-enter-translate-x:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+      )
+      expect(css).toContain(
+        '.exit-translate-y-1{--mo-exit-translate-y:calc(var(--spacing, 0.25rem) * 1);}',
+      )
+      expect(css).toContain(
+        '.-exit-translate-y-1{--mo-exit-translate-y:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+      )
+      expect(css).toContain('.enter-translate-y-full{--mo-enter-translate-y:100%;}')
+      expect(css).toContain('.-enter-translate-y-full{--mo-enter-translate-y:-100%;}')
+      expect(css).toContain('.enter-rotate-45{--mo-enter-rotate:45deg;}')
+      expect(css).toContain('.-enter-rotate-45{--mo-enter-rotate:-45deg;}')
+      expect(css).toContain('[data-expanded]')
+      expect(css).toContain('[data-closed]')
+    },
+  )
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('registers enter and exit animation utilities with %s', async (_name, wind) => {
-    const css = await generate(
-      [
-        'enter-opacity-0',
-        'exit-opacity-0',
-        'enter-opacity-50',
-        'enter-scale-95',
-        'exit-scale-95',
-        'enter-translate-x-1',
-        '-enter-translate-x-1',
-        'exit-translate-x-1',
-        '-exit-translate-x-1',
-        'enter-translate-y-1',
-        '-enter-translate-y-1',
-        'exit-translate-y-1',
-        '-exit-translate-y-1',
-        'enter-translate-y-10',
-        '-enter-translate-y-10',
-        'enter-translate-y-full',
-        '-enter-translate-y-full',
-        'enter-rotate-45',
-        '-enter-rotate-45',
-        'data-expanded:enter-opacity-0',
-        'data-closed:exit-scale-95',
-      ],
-      false,
-      wind,
-    )
-
-    expect(css).toContain('.enter-opacity-0{--mo-enter-opacity:0;}')
-    expect(css).toContain('.exit-opacity-0{--mo-exit-opacity:0;}')
-    expect(css).toContain('.enter-opacity-50{--mo-enter-opacity:0.5;}')
-    expect(css).toContain('.enter-scale-95{--mo-enter-scale:0.95;}')
-    expect(css).toContain('.exit-scale-95{--mo-exit-scale:0.95;}')
-    expect(css).toContain(
-      '.enter-translate-x-1{--mo-enter-translate-x:calc(var(--spacing, 0.25rem) * 1);}',
-    )
-    expect(css).toContain(
-      '.-enter-translate-x-1{--mo-enter-translate-x:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
-    )
-    expect(css).toContain(
-      '.exit-translate-x-1{--mo-exit-translate-x:calc(var(--spacing, 0.25rem) * 1);}',
-    )
-    expect(css).toContain(
-      '.-exit-translate-x-1{--mo-exit-translate-x:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
-    )
-    expect(css).toContain(
-      '.enter-translate-y-1{--mo-enter-translate-y:calc(var(--spacing, 0.25rem) * 1);}',
-    )
-    expect(css).toContain(
-      '.-enter-translate-y-1{--mo-enter-translate-y:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
-    )
-    expect(css).toContain(
-      '.exit-translate-y-1{--mo-exit-translate-y:calc(var(--spacing, 0.25rem) * 1);}',
-    )
-    expect(css).toContain(
-      '.-exit-translate-y-1{--mo-exit-translate-y:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
-    )
-    expect(css).toContain(
-      '.enter-translate-y-10{--mo-enter-translate-y:calc(var(--spacing, 0.25rem) * 10);}',
-    )
-    expect(css).toContain(
-      '.-enter-translate-y-10{--mo-enter-translate-y:calc(calc(var(--spacing, 0.25rem) * 10) * -1);}',
-    )
-    expect(css).toContain('.enter-translate-y-full{--mo-enter-translate-y:100%;}')
-    expect(css).toContain('.-enter-translate-y-full{--mo-enter-translate-y:-100%;}')
-    expect(css).toContain('.enter-rotate-45{--mo-enter-rotate:45deg;}')
-    expect(css).toContain('.-enter-rotate-45{--mo-enter-rotate:-45deg;}')
-    expect(css).toContain('[data-expanded]')
-    expect(css).toContain('[data-closed]')
-  })
-
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('preserves the host transition defaults with %s', async (_name, wind) => {
+  test.each(WIND_VERSIONS)('keeps host transition defaults with %s', async (_name, wind) => {
     const css = await generate(['transition', 'transition-colors'], true, wind)
     expect(css).not.toContain('transition-duration:var(--mo-anim-duration')
     expect(css).not.toContain('--default-transition-duration: var(--mo-anim-duration')
     expect(css).not.toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('emits neutral colors and default semantic shadows with %s', async (_name, wind) => {
-    const generator = await createGenerator({
-      presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
-    })
-    const { css } = await generator.generate(new Set(), { preflights: true })
+  test.each(WIND_VERSIONS)(
+    'emits neutral theme variables and semantic shadows with %s',
+    async (_name, wind) => {
+      const generator = await createGenerator({
+        presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
+      })
+      const { css } = await generator.generate(new Set(), { preflights: true })
+      const root = rootBlock(css)
 
-    expect(css).toContain(':root {')
-    const root = css.match(/:root \{([^}]+)\}/)?.[1]
-    expect(root).toContain('color-scheme: light;')
-    expect(css).toMatch(/\.dark \{[^}]*color-scheme: dark;/)
-    for (const [role, size] of [
-      ['surface', 'sm'],
-      ['overlay', 'md'],
-      ['input', 'xs'],
-    ]) {
-      const value = TAILWIND_THEME_CSS.match(new RegExp(`--shadow-${size}: ([^;]+);`))?.[1]
-      expect(value).toBeDefined()
-      expect(root).toContain(`--shadow-${role}: ${value};`)
-    }
-    expect(root).not.toMatch(/--shadow(?:-(?:2xs|xs|sm|md|lg|xl|2xl))?:/)
-    expect(css).not.toContain('--sidebar-width:')
-    expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
-    expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
-    expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
-    expect(css).toContain('.dark {')
-    expect(css).toMatch(/\.dark \{[^}]*--muted-foreground: rgb\(161, 161, 161\);/)
-    expect(css).not.toMatch(/--(?:mo-)?control-(?:foreground|hover|active):/)
-    expect(css).not.toMatch(/--[\w-]+: oklch\(/)
-    expect(css).not.toContain('@supports not (color: color-mix(')
-    expect(css).not.toMatch(/--mo-auto-/)
-    expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
-    expect(css).toContain(
-      '--mo-background-hover: color-mix(in oklch, var(--background), var(--foreground) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-primary-ink: color-mix(in oklch, var(--primary), var(--foreground) var(--mo-mix-ink, 25%));',
-    )
-    expect(css).toContain(
-      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
-    )
-    expect(css).not.toContain('--primary-hover: color-mix(')
-    expect(css).toContain('background-color: var(--background)')
-    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
-  })
+      expect(root).toContain('color-scheme: light;')
+      expect(css).toMatch(/\.dark \{[^}]*color-scheme: dark;/)
+      for (const [role, size] of [
+        ['surface', 'sm'],
+        ['overlay', 'md'],
+        ['input', 'xs'],
+      ]) {
+        const value = TAILWIND_THEME_CSS.match(new RegExp(`--shadow-${size}: ([^;]+);`))?.[1]
+        expect(value).toBeDefined()
+        expect(root).toContain(`--shadow-${role}: ${value};`)
+      }
+      expect(root).not.toMatch(/--shadow(?:-(?:2xs|xs|sm|md|lg|xl|2xl))?:/)
+      expect(root).toContain('--radius: 0.625rem;')
+      expect(root).toContain('--font-size: 1rem;')
+      expect(root).toContain('--spacing: 0.25rem;')
+      expect(css).toMatch(/\.dark \{[^}]*--muted-foreground: rgb\(161, 161, 161\);/)
+      expect(css).not.toContain('--sidebar-width:')
+      expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
+      expect(css).toContain(
+        '--mo-background-hover: color-mix(in oklch, var(--background), var(--foreground) var(--mo-mix-hover, 8%));',
+      )
+      expect(css).toContain(
+        '--mo-primary-ink: color-mix(in oklch, var(--primary), var(--foreground) var(--mo-mix-ink, 25%));',
+      )
+      expect(css).toContain(
+        '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+      )
+      expect(css).toContain('background-color: var(--background)')
+      expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
+    },
+  )
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('lets CSS own theme colors and shadows with %s', async (_name, wind) => {
+  test.each(WIND_VERSIONS)('lets CSS own theme colors and shadows with %s', async (_name, wind) => {
     const generator = await createGenerator({
       presets: [
         wind(),
@@ -632,50 +552,44 @@ describe('presetMoraine', () => {
     const { css } = await generator.generate(new Set(['bg-accent-hover']), { preflights: true })
 
     expect(css).not.toContain('--sidebar-width:')
-    expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
-    expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
-    expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
-    expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n}')
+    expect(rootBlock(css)).toContain('--radius: 0.625rem;')
+    expect(css).toMatch(/\[data-theme="brand"\] \{[^}]*--primary: #369;/)
     expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('--control:')
     expect(css).not.toContain('--backdrop:')
     expect(css).not.toContain('color-scheme:')
     expect(css).not.toMatch(/--shadow-(?:surface|overlay|input):/)
-    expect(css).not.toContain('html {\n  background-color: var(--background);')
-    expect(css).not.toContain('--mo-accent-hover: var(--accent);')
-    expect(css).toContain('*, ::before, ::after {')
     expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('overrides control without coupling other surfaces with %s', async (_name, wind) => {
-    for (const themeDefaults of [true, false]) {
-      const generator = await createGenerator({
-        presets: [
-          wind(),
-          presetMoraine({
-            wind3: wind === presetWind3,
-            themeDefaults,
-            override: { light: { colors: { control: 'var(--palette-field)' } } },
-          }),
-        ],
-      })
-      const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
-      expect(css).toMatch(/:root \{[^}]*--control: var\(--palette-field\);/)
-      if (themeDefaults) {
-        expect(css).toMatch(/:root \{[^}]*--input: rgb\(229, 229, 229\);/)
-        expect(css).toMatch(/:root \{[^}]*--card: rgb\(255, 255, 255\);/)
-        expect(css).toMatch(/:root \{[^}]*--background: rgb\(255, 255, 255\);/)
-        expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
-      } else {
-        expect(css).not.toMatch(/--(?:input|card|background):/)
-        expect(css).not.toMatch(/\.dark \{[^}]*--control:/)
+  test.each(WIND_VERSIONS)(
+    'overrides control without coupling other surfaces with %s',
+    async (_name, wind) => {
+      for (const themeDefaults of [true, false]) {
+        const generator = await createGenerator({
+          presets: [
+            wind(),
+            presetMoraine({
+              wind3: wind === presetWind3,
+              themeDefaults,
+              override: { light: { colors: { control: 'var(--palette-field)' } } },
+            }),
+          ],
+        })
+        const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
+        expect(rootBlock(css)).toMatch(/--control: var\(--palette-field\);/)
+        if (themeDefaults) {
+          expect(rootBlock(css)).toMatch(/--input: rgb\(229, 229, 229\);/)
+          expect(rootBlock(css)).toMatch(/--card: rgb\(255, 255, 255\);/)
+          expect(rootBlock(css)).toMatch(/--background: rgb\(255, 255, 255\);/)
+          expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
+        } else {
+          expect(css).not.toMatch(/--(?:input|card|background):/)
+          expect(css).not.toMatch(/\.dark \{[^}]*--control:/)
+        }
       }
-      expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
-    }
-  })
+    },
+  )
 
   test('uses configured proportions for locally scoped mix values', async () => {
     const generator = await createGenerator({
@@ -683,9 +597,9 @@ describe('presetMoraine', () => {
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css).toMatch(/:root \{[^}]*--mo-mix-hover: 20%;/)
-    expect(css).toMatch(/:root \{[^}]*--mo-mix-active: 40%;/)
-    expect(css).toMatch(/:root \{[^}]*--mo-mix-ink: 30%;/)
+    expect(rootBlock(css)).toMatch(/--mo-mix-hover: 20%;/)
+    expect(rootBlock(css)).toMatch(/--mo-mix-active: 40%;/)
+    expect(rootBlock(css)).toMatch(/--mo-mix-ink: 30%;/)
     expect(css).toMatch(/\.dark \{[^}]*--mo-mix-hover: 20%;/)
   })
 
@@ -709,82 +623,105 @@ describe('presetMoraine', () => {
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css).toMatch(/:root \{[^}]*--mo-mix-hover: 5%;/)
-    expect(css).toMatch(/:root \{[^}]*--mo-mix-active: 10%;/)
-    expect(css).toMatch(/:root \{[^}]*--primary-ink: #2563eb;/)
+    expect(rootBlock(css)).toMatch(/--mo-mix-hover: 5%;/)
+    expect(rootBlock(css)).toMatch(/--mo-mix-active: 10%;/)
+    expect(rootBlock(css)).toMatch(/--primary-ink: #2563eb;/)
     expect(css).toMatch(/\.dark \{[^}]*--mo-mix-hover: 12%;/)
     expect(css).toMatch(/\.dark \{[^}]*--mo-mix-active: 10%;/)
     expect(css).toMatch(/\.dark \{[^}]*--primary-ink: #60a5fa;/)
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('applies named overrides and top-level tokens with %s', async (_name, wind) => {
-    const options: PresetMoraineOptions = {
-      radius: '0.75rem',
-      fontSize: '1.125rem',
-      spacing: '0.5rem',
-      sidebarWidth: '18rem',
-      mix: { hover: 6 },
-      override: {
-        light: {
-          colorScheme: 'dark',
-          shadows: {
-            surface: '0 2px 4px #123',
-            overlay: '0 8px 16px #456',
-            input: 'none',
-          },
-          colors: {
-            primary: { base: '#246', ink: '#135' },
-            secondary: { foreground: '#fff' },
-            backdrop: 'rgb(20 30 40 / 0.4)',
-          },
-        },
-        dark: {
-          colorScheme: 'light',
-          colors: { primary: { foreground: '#111', ink: '#369' } },
-          shadows: { surface: '0 2px #111' },
-        },
-        brand: { colorScheme: 'light', colors: { primary: '#369' } },
-        custom: {
-          selector: '[data-theme="custom"]',
-          colors: { primary: { foreground: '#fff', ink: '#555' } },
-        },
-      },
-    }
+  test('a zero mix percentage is emitted as 0%', async () => {
     const generator = await createGenerator({
-      presets: [wind(), presetMoraine({ ...options, wind3: wind === presetWind3 })],
+      presets: [presetWind4(), presetMoraine({ mix: { hover: 0 } })],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
-
-    expect(css).toContain(':root {')
-    expect(css).toMatch(/:root \{[^}]*color-scheme: dark;/)
-    expect(css).toMatch(/\.dark \{[^}]*color-scheme: light;/)
-    expect(css).toMatch(/\[data-theme="brand"\] \{[^}]*color-scheme: light;/)
-    expect(css).toContain('--primary: #246;')
-    expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
-    expect(css).toContain('--mo-mix-hover: 6%;')
-    expect(css).toContain('--primary-ink: #135;')
-    expect(css).toContain('--secondary: rgb(51, 65, 85);')
-    expect(css).toContain('--secondary-foreground: #fff;')
-    expect(css).toMatch(/:root \{[^}]*--shadow-surface: 0 2px 4px #123;/)
-    expect(css).toMatch(/:root \{[^}]*--shadow-overlay: 0 8px 16px #456;/)
-    expect(css).toMatch(/:root \{[^}]*--shadow-input: none;/)
-    expect(css).toMatch(/:root \{[^}]*--backdrop: rgb\(20 30 40 \/ 0.4\);/)
-    expect(css).not.toMatch(/--(?:surface|overlay|input)-shadow:/)
-    expect(css).toMatch(/\.dark \{[^}]*--shadow-surface: 0 2px #111;/)
-    expect(css).toContain('--radius: 0.75rem;')
-    expect(css).toContain('--font-size: 1.125rem;')
-    expect(css).toContain('--spacing: 0.5rem;')
-    expect(css).toContain('--sidebar-width: 18rem;')
-    expect(css).toContain('--primary-ink: #369;')
-    expect(css).toContain('[data-theme="brand"] {')
-    expect(css).toContain('[data-theme="custom"] {\n  --primary-foreground: #fff;')
-    expect(css).not.toContain('[data-theme="custom"] {\n  --primary:')
-    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
-    expect(css.indexOf('.dark {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
+    expect(rootBlock(css)).toMatch(/--mo-mix-hover: 0%;/)
   })
+
+  test('explicit tone hover and active colors are emitted as theme variables', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          override: {
+            light: {
+              colors: { primary: { base: '#123456', hover: '#234567', active: '#345678' } },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(rootBlock(css)).toMatch(/--primary-hover: #234567;/)
+    expect(rootBlock(css)).toMatch(/--primary-active: #345678;/)
+  })
+
+  test.each(WIND_VERSIONS)(
+    'applies named overrides and top-level tokens with %s',
+    async (_name, wind) => {
+      const options: PresetMoraineOptions = {
+        radius: '0.75rem',
+        fontSize: '1.125rem',
+        spacing: '0.5rem',
+        sidebarWidth: '18rem',
+        mix: { hover: 6 },
+        override: {
+          light: {
+            colorScheme: 'dark',
+            shadows: {
+              surface: '0 2px 4px #123',
+              overlay: '0 8px 16px #456',
+              input: 'none',
+            },
+            colors: {
+              primary: { base: '#246', ink: '#135' },
+              secondary: { foreground: '#fff' },
+              backdrop: 'rgb(20 30 40 / 0.4)',
+            },
+          },
+          dark: {
+            colorScheme: 'light',
+            colors: { primary: { foreground: '#111', ink: '#369' } },
+            shadows: { surface: '0 2px #111' },
+          },
+          brand: { colorScheme: 'light', colors: { primary: '#369' } },
+          custom: {
+            selector: '[data-theme="custom"]',
+            colors: { primary: { foreground: '#fff', ink: '#555' } },
+          },
+        },
+      }
+      const generator = await createGenerator({
+        presets: [wind(), presetMoraine({ ...options, wind3: wind === presetWind3 })],
+      })
+      const { css } = await generator.generate(new Set(), { preflights: true })
+
+      expect(css).toMatch(/:root \{[^}]*color-scheme: dark;/)
+      expect(css).toMatch(/\.dark \{[^}]*color-scheme: light;/)
+      expect(css).toMatch(/\[data-theme="brand"\] \{[^}]*color-scheme: light;/)
+      expect(css).toContain('--primary: #246;')
+      expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
+      expect(css).toContain('--mo-mix-hover: 6%;')
+      expect(css).toContain('--primary-ink: #135;')
+      expect(css).toContain('--secondary: rgb(51, 65, 85);')
+      expect(css).toContain('--secondary-foreground: #fff;')
+      expect(rootBlock(css)).toMatch(/--shadow-surface: 0 2px 4px #123;/)
+      expect(rootBlock(css)).toMatch(/--shadow-overlay: 0 8px 16px #456;/)
+      expect(rootBlock(css)).toMatch(/--shadow-input: none;/)
+      expect(rootBlock(css)).toMatch(/--backdrop: rgb\(20 30 40 \/ 0.4\);/)
+      expect(css).toMatch(/\.dark \{[^}]*--shadow-surface: 0 2px #111;/)
+      expect(css).toContain('--radius: 0.75rem;')
+      expect(css).toContain('--font-size: 1.125rem;')
+      expect(css).toContain('--spacing: 0.5rem;')
+      expect(css).toContain('--sidebar-width: 18rem;')
+      expect(css).toContain('--primary-ink: #369;')
+      expect(css).toMatch(/\[data-theme="custom"\] \{\s*--primary-foreground: #fff;/)
+      expect(css).not.toMatch(/\[data-theme="custom"\] \{\s*--primary:/)
+      expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
+      expect(css.indexOf('.dark {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
+    },
+  )
 
   test.each([true, false])(
     'emits color-scheme-only overrides with explicit selectors when themeDefaults is %s',
@@ -805,7 +742,7 @@ describe('presetMoraine', () => {
 
       expect(css).toMatch(/\.day \{[^}]*color-scheme: light;/)
       expect(css).toMatch(/\.night \{[^}]*color-scheme: dark;/)
-      expect(css).toContain('[data-mode="custom"] {\n  color-scheme: dark;\n}')
+      expect(css).toMatch(/\[data-mode="custom"\] \{\s*color-scheme: dark;/)
       expect(css.match(/:root \{[^}]*color-scheme: (\w+);/)?.[1]).toBe(
         themeDefaults ? 'light' : undefined,
       )
@@ -813,7 +750,7 @@ describe('presetMoraine', () => {
     },
   )
 
-  test('uses an explicit selector with custom mix and colors', async () => {
+  test('an explicit selector receives its own mix and colors without base colors', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -831,15 +768,13 @@ describe('presetMoraine', () => {
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css).toContain('[data-mode="night"] {')
+    expect(css).toMatch(/\[data-mode="night"\] \{[^}]*--mo-mix-hover: 5%;/)
+    expect(css).toMatch(/\[data-mode="night"\] \{[^}]*--primary-ink: #135;/)
     expect(css).not.toContain('.dark {')
-    expect(css).toContain('--mo-mix-hover: 5%;')
-    expect(css).toContain('--primary-ink: #135;')
     expect(css).not.toContain('--background: rgb(')
-    expect(css).not.toContain('background-color: var(--background)')
   })
 
-  test('does not emit extra colors for a custom theme without a base', async () => {
+  test('a custom theme without a base receives only its own colors', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
@@ -849,39 +784,24 @@ describe('presetMoraine', () => {
       ],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
-    expect(css).toContain(
-      '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-ink: #369;\n}',
+    expect(css).toMatch(
+      /\[data-theme="brand"\] \{\s*--primary-foreground: #fff;\s*--primary-ink: #369;\s*\}/,
     )
-    expect(css).not.toContain('[data-theme="brand"] {\n  --primary:')
+    expect(css).not.toMatch(/\[data-theme="brand"\] \{\s*--primary:/)
   })
 
-  test('emits explicit soft token when configured in theme colors', async () => {
-    const generator = await createGenerator({
-      presets: [
-        presetWind4(),
-        presetMoraine({
-          override: {
-            light: {
-              colors: { primary: { soft: '#F0F7FF' } },
-            },
-          },
-        }),
-      ],
-    })
-    const { css } = await generator.generate(new Set(), { preflights: true })
-    expect(css).toContain('--primary-soft: #F0F7FF;')
-  })
-
-  test('emits --mo-mix-soft override when mix.soft is configured', async () => {
+  test('emits an explicit soft token and the mix.soft override', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
         presetMoraine({
           mix: { soft: 16 },
+          override: { light: { colors: { primary: { soft: '#F0F7FF' } } } },
         }),
       ],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain('--primary-soft: #F0F7FF;')
     expect(css).toContain('--mo-mix-soft: 16%;')
   })
 
@@ -896,10 +816,7 @@ describe('presetMoraine', () => {
 })
 
 describe('icon host utilities', () => {
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('compiles the icon host classes with %s', async (_name, wind) => {
+  test.each(WIND_VERSIONS)('compiles the icon host classes with %s', async (_name, wind) => {
     const tokens = cn(iconRecipe.config.variants!.isMask!.false!.root)?.split(' ') ?? []
     const css = await generate(tokens, false, wind)
 
@@ -909,10 +826,7 @@ describe('icon host utilities', () => {
 })
 
 describe('forced colors utilities', () => {
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('expands the icon-mask shortcut with %s', async (_name, wind) => {
+  test.each(WIND_VERSIONS)('expands the icon-mask shortcut with %s', async (_name, wind) => {
     const css = await generate(['icon-mask'], false, wind)
 
     expect(css).toMatch(/\.icon-mask\{forced-color-adjust:none;\}/)

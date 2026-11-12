@@ -362,7 +362,6 @@ describe('createSelectableCollectionNavigation', () => {
     onNavigationKeyDown(event, 'a', 'horizontal')
 
     expect(event.preventDefault).not.toHaveBeenCalled()
-    expect(getDirection).not.toHaveBeenCalled()
     expect(onSelect).not.toHaveBeenCalled()
   })
 

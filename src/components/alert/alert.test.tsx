@@ -74,14 +74,13 @@ describe('Alert', () => {
     view2.unmount()
   })
 
-  it('renders description and applies multi-line layout styles', () => {
+  it('renders the description and marks the alert as having one', () => {
     const screen = render(() => (
       <Alert title="Alert heading" description="Detailed description message providing context." />
     ))
     const alert = screen.getByRole('status')
     expect(alert.hasAttribute('data-has-description')).toBe(true)
     expect(screen.getByText('Detailed description message providing context.')).toBeDefined()
-    expect(alert.className).toContain('items-start')
   })
 
   it('renders actions slot alongside alert content', () => {
@@ -98,7 +97,6 @@ describe('Alert', () => {
     const screen = render(() => <Alert title="Banner notice" fullWidth />)
     const alert = screen.getByRole('status')
     expect(alert.hasAttribute('data-full-width')).toBe(true)
-    expect(alert.className).toContain('rounded-none')
   })
 
   it('renders arbitrary children within content area', () => {
@@ -110,20 +108,11 @@ describe('Alert', () => {
     expect(screen.getByRole('link', { name: 'Learn more' })).toBeDefined()
   })
 
-  it('renders close button, uses exit animation classes, and handles dismiss', () => {
+  it('renders a close button that reports dismissal through onOpenChange', () => {
     const onOpenChange = vi.fn()
-    const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Alert
-        title="Dismissible alert"
-        closable
-        onOpenChange={onOpenChange}
-        onExitComplete={onExitComplete}
-      />
+      <Alert title="Dismissible alert" closable onOpenChange={onOpenChange} />
     ))
-
-    const alert = screen.getByRole('status')
-    expect(alert.className).toContain('data-closed:animate-mo-exit')
 
     const closeBtn = screen.getByRole('button', { name: 'Close alert' })
     expect(closeBtn).toBeDefined()

@@ -1,4 +1,3 @@
-import { Droppable } from '@dnd-kit/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
@@ -223,16 +222,26 @@ describe('createListSortable', () => {
     expect(onReorder).not.toHaveBeenCalled()
   })
 
-  test('destroys sortable entity when item unmounts', async () => {
-    const destroySpy = vi.spyOn(Droppable.prototype, 'destroy')
+  test('keeps the remaining rows draggable after an item is removed', async () => {
     const [items, setItems] = createSignal(['a', 'b', 'c'])
-    const onReorder = vi.fn()
-    renderList({ items, onReorder })
+    const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
+    const { rows, handles, labels } = renderList({ items, onReorder })
 
-    expect(destroySpy).not.toHaveBeenCalled()
     setItems(['a', 'c'])
-    await waitFor(() => expect(destroySpy).toHaveBeenCalledTimes(1))
-    destroySpy.mockRestore()
+    await waitFor(() => expect(labels()).toEqual(['a', 'c']))
+
+    fireEvent.pointerDown(handles[2]!, { ...POINTER_DOWN, clientX: 10, clientY: 250 })
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 60 })
+    await waitFor(() => expect(rows[2]!.getAttribute('data-dragging')).not.toBeNull())
+
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 10 })
+    await waitFor(() => expect(rows[0]!.getAttribute('data-drop-position')).toBe('before'))
+
+    fireEvent.pointerUp(document, { ...POINTER, clientX: 10, clientY: 10 })
+    await waitFor(() => expect(labels()).toEqual(['c', 'a']))
+    expect(onReorder).toHaveBeenCalledWith(
+      expect.objectContaining({ item: 'c', items: ['c', 'a'] }),
+    )
   })
 })
 

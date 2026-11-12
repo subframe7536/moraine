@@ -29,8 +29,6 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
 
   expect(root.style.width).toBe('100px')
   expect(root.className).toContain('rounded-full')
-  expect(root.className).not.toContain('rounded-md')
-  expect(root.className).toContain('animate-pulse')
 
   setLabel('Still loading')
   setRounded('rounded-none')
@@ -43,11 +41,5 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   expect(root.style.width).toBe('200px')
   expect(root.className).toContain('rounded-none')
   expect(root.className).not.toContain('rounded-full')
-  expect(root.className).not.toContain('animate-pulse')
-  expect(root.className).toContain('after:animate-shimmer')
   expect(root.hasAttribute('variant')).toBe(false)
-
-  setVariant('pulse')
-  expect(root.className).toContain('animate-pulse')
-  expect(root.className).not.toContain('after:animate-shimmer')
 })

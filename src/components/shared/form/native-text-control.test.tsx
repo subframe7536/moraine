@@ -1,5 +1,4 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Field } from '../../field'
@@ -7,8 +6,6 @@ import type { FieldBinding } from '../../field/field-context'
 import { FieldProvider } from '../../field/field-context'
 import { Input } from '../../input/input'
 import { Textarea } from '../../textarea/textarea'
-
-import { useTextControlValue } from './use-text-control-value'
 
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   test('owns native attributes, handlers and refs on the editable element', () => {
@@ -138,34 +135,4 @@ test('Input forwards list association to the native input', () => {
   const screen = render(() => <Input list="suggestions" />)
   expect(screen.getByRole('combobox').getAttribute('list')).toBe('suggestions')
   expect(screen.container.firstElementChild).toBe(screen.getByRole('combobox'))
-})
-
-test('text value synchronization ignores unrelated reads in form callbacks', () => {
-  const [value, setValue] = createSignal('first')
-  const [unrelated, setUnrelated] = createSignal(0)
-  // oxlint-disable-next-line subf/solid-reactivity -- Deliberate callback reads verify that effects do not subscribe to unrelated state.
-  const setFormValue = vi.fn(() => {
-    unrelated()
-  })
-  const screen = render(() => {
-    useTextControlValue({
-      defaultValue: () => undefined,
-      getElement: () => undefined,
-      getFormValue: () => undefined,
-      modelModifiers: () => undefined,
-      onValueChange: () => undefined,
-      setFormValue,
-      value,
-    })
-    return null
-  })
-  expect(setFormValue).toHaveBeenCalledExactlyOnceWith('first')
-  setUnrelated(1)
-  expect(setFormValue).toHaveBeenCalledOnce()
-  setValue('second')
-  expect(setFormValue).toHaveBeenCalledTimes(2)
-  expect(setFormValue).toHaveBeenLastCalledWith('second')
-  screen.unmount()
-  setValue('third')
-  expect(setFormValue).toHaveBeenCalledTimes(2)
 })

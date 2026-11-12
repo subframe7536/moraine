@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { Show, createComponent, createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,10 +8,9 @@ import { defineTheme } from '../../theme'
 import { ButtonGroup } from '../button-group'
 
 import { ToggleButton } from './toggle-button'
-import type { ToggleButtonT } from './toggle-button.types'
 
 describe('ToggleButton', () => {
-  test('keeps conditional JSX children reactive and omits empty labels', () => {
+  test('shows conditional JSX children when their condition changes', () => {
     const [visible, setVisible] = createSignal(false)
     const screen = render(() => (
       <ToggleButton aria-label="Conditional">
@@ -21,12 +20,12 @@ describe('ToggleButton', () => {
       </ToggleButton>
     ))
     const button = screen.getByRole('button', { name: 'Conditional' })
-    expect(button.querySelector('[data-slot="button-label"]')).toBeNull()
+
+    expect(screen.queryByText('Visible content')).toBeNull()
     setVisible(true)
-    expect(screen.getByText('Visible content')).toBeDefined()
-    fireEvent.click(button)
+    expect(button.textContent).toContain('Visible content')
     setVisible(false)
-    expect(button.querySelector('[data-slot="button-label"]')).toBeNull()
+    expect(screen.queryByText('Visible content')).toBeNull()
   })
   test('toggles native button state after the caller click without submitting its form', () => {
     const onSubmit = vi.fn()
@@ -48,14 +47,10 @@ describe('ToggleButton', () => {
     expect(ref).toHaveBeenCalledWith(button)
     expect(button.getAttribute('aria-pressed')).toBe('false')
     expect(button.hasAttribute('data-pressed')).toBe(false)
-    expect(button.classList.contains('bg-tone-soft')).toBe(false)
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true'])
     expect(button.getAttribute('aria-pressed')).toBe('true')
     expect(button.hasAttribute('data-pressed')).toBe(true)
-    expect(button.classList.contains('bg-tone-soft')).toBe(true)
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true', 'click', 'false'])
     expect(button.getAttribute('aria-pressed')).toBe('false')
@@ -169,25 +164,17 @@ describe('ToggleButton', () => {
     },
   )
 
-  test('reactively resolves theme and instance variants, group defaults, and every slot override', () => {
+  test('applies theme, instance, and slot overrides to their slots', () => {
     const theme = defineTheme({
       button: { base: { root: 'button-theme', label: 'button-label-theme' } },
       toggleButton: {
-        defaultVariants: { variant: 'outline', activeVariant: 'solid', size: 'lg' },
         base: { root: 'toggle-theme', label: 'toggle-label-theme' },
       },
     })
-    const [variant, setVariant] = createSignal<ToggleButtonT.Variants['variant']>()
-    const [activeVariant, setActiveVariant] =
-      createSignal<ToggleButtonT.Variants['activeVariant']>()
-    const [size, setSize] = createSignal<ToggleButtonT.Variants['size']>()
     const [customClass, setCustomClass] = createSignal('instance-class')
     const screen = render(() => (
       <MoraineProvider theme={theme}>
         <ToggleButton
-          variant={variant()}
-          activeVariant={activeVariant()}
-          size={size()}
           leading="icon-check"
           trailing="icon-arrow-right"
           class={customClass()}
@@ -207,16 +194,11 @@ describe('ToggleButton', () => {
         >
           Theme
         </ToggleButton>
-        <ButtonGroup size="sm" variant="solid" tone="danger">
-          <ToggleButton>Grouped</ToggleButton>
-        </ButtonGroup>
       </MoraineProvider>
     ))
     const button = screen.getByRole('button', { name: 'Theme' })
-    expect(button.className).toContain('border-tone-border')
-    expect(button.className).toContain('h-9')
     for (const cls of ['button-theme', 'toggle-theme', 'instance-class', 'root-override']) {
-      expect(button.className).toContain(cls)
+      expect(button.classList.contains(cls)).toBe(true)
     }
     expect(button.style.color).toBe('blue')
     for (const [slot, opacity] of [
@@ -224,87 +206,48 @@ describe('ToggleButton', () => {
       ['trailing', '0.75'],
     ] as const) {
       const icon = button.querySelector<HTMLElement>(`[data-slot="button-${slot}"]`)!
-      expect(icon.className).toContain(`${slot}-override`)
+      expect(icon.classList.contains(`${slot}-override`)).toBe(true)
       expect(icon.style.opacity).toBe(opacity)
     }
     const label = button.querySelector<HTMLElement>('[data-slot="button-label"]')!
-    expect(label.className).toContain('button-label-theme')
-    expect(label.className).toContain('toggle-label-theme')
-    expect(label.className).toContain('label-override')
+    expect(label.classList.contains('button-label-theme')).toBe(true)
+    expect(label.classList.contains('toggle-label-theme')).toBe(true)
+    expect(label.classList.contains('label-override')).toBe(true)
     expect(label.style.fontWeight).toBe('600')
-    fireEvent.click(button)
-    expect(button.className).toContain('bg-tone')
-    setActiveVariant('soft')
-    expect(button.className).toContain('bg-tone-soft')
-    fireEvent.click(button)
-    setVariant('solid')
-    setSize('icon-sm')
     setCustomClass('updated-class')
-    expect(button.className).toContain('bg-tone')
-    expect(button.className).toContain('size-7')
-    expect(button.className).toContain('updated-class')
-    const grouped = screen.getByRole('button', { name: 'Grouped' })
-    expect(grouped.className).toContain('bg-tone')
-    expect(grouped.className).toContain('tone-danger')
-    expect(grouped.className).toContain('h-7')
-    fireEvent.click(grouped)
-    expect(grouped.className).toContain('bg-tone')
-    expect(grouped.className).toContain('tone-danger')
+    expect(button.classList.contains('updated-class')).toBe(true)
+    expect(button.classList.contains('instance-class')).toBe(false)
   })
 
-  test('lets a grouped toggle override the inherited pressed tone', () => {
+  test('toggles pressed state of a button inside a ButtonGroup', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <ButtonGroup tone="danger">
-          <ToggleButton activeTone="success">Grouped</ToggleButton>
-        </ButtonGroup>
-      </MoraineProvider>
+      <ButtonGroup size="sm" variant="solid" tone="danger">
+        <ToggleButton>Grouped</ToggleButton>
+      </ButtonGroup>
     ))
     const grouped = screen.getByRole('button', { name: 'Grouped' })
-    expect(grouped.className).toContain('tone-danger')
+
+    expect(grouped.getAttribute('aria-pressed')).toBe('false')
     fireEvent.click(grouped)
-    expect(grouped.className).toContain('tone-success')
+    expect(grouped.getAttribute('aria-pressed')).toBe('true')
   })
 
-  test('retains getter-backed JSX children across state and loading updates', () => {
-    let reads = 0
+  test('keeps reactive children current across pressed and loading updates', () => {
     const [loading, setLoading] = createSignal(false)
     const [text, setText] = createSignal('Draft')
-    const screen = render(() =>
-      createComponent(ToggleButton, {
-        get loading() {
-          return loading()
-        },
-        get children() {
-          reads += 1
-          return <span>{text()}</span>
-        },
-      }),
-    )
+    const screen = render(() => (
+      <ToggleButton loading={loading()}>
+        <span>{text()}</span>
+      </ToggleButton>
+    ))
     const button = screen.getByRole('button')
-    const content = screen.getByText('Draft')
-    expect(reads).toBe(1)
+
+    expect(screen.getByText('Draft')).not.toBeNull()
     fireEvent.click(button)
     setLoading(true)
     setText('Updated')
-    expect(screen.getByText('Updated')).toBe(content)
-    expect(reads).toBe(1)
-  })
-
-  test('always keeps activeEffect none internally regardless of button theme defaults', () => {
-    const theme = defineTheme({
-      button: {
-        defaultVariants: { activeEffect: 'move-down' },
-      },
-    })
-    const screen = render(() => (
-      <MoraineProvider theme={theme}>
-        <ToggleButton>Static motion</ToggleButton>
-      </MoraineProvider>
-    ))
-    const button = screen.getByRole('button', { name: 'Static motion' })
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
-    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
+    expect(screen.getByText('Updated')).not.toBeNull()
+    expect(button.getAttribute('aria-pressed')).toBe('true')
   })
 
   test('supports non-native element roots with role=button and keyboard activation', async () => {

@@ -431,30 +431,42 @@ describe('createTransitionPresence', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
-  test('releases animation listeners when its owner is disposed during an exit', () => {
-    const removeEventListener = vi.spyOn(HTMLElement.prototype, 'removeEventListener')
-    let setOpen: ((open: boolean) => void) | undefined
-
+  test('ignores exit events that arrive after its owner is disposed mid-exit', async () => {
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'none',
+    }))
+    const exit = vi.fn()
+    let element!: HTMLElement
+    let setOpen!: (open: boolean) => void
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
-      const presence = createTransitionPresence({ open })
       setOpen = updateOpen
-
+      const presence = createTransitionPresence({ open, onExitComplete: exit })
       return (
         <Show when={presence.present()}>
-          <PresenceElement presence={presence} />
+          <PresenceElement
+            presence={presence}
+            onElement={(node) => {
+              element = node
+            }}
+          />
         </Show>
       )
     })
 
-    setOpen?.(false)
-    screen.unmount()
+    closed = true
+    setOpen(false)
+    await flushExitDetection()
+    expect(element.isConnected).toBe(true)
 
-    const removedAnimationListeners = removeEventListener.mock.calls.filter(
-      ([type]) =>
-        type === 'animationstart' || type === 'animationend' || type === 'animationcancel',
-    )
-    expect(removedAnimationListeners).toHaveLength(3)
+    screen.unmount()
+    const callsAtUnmount = exit.mock.calls.length
+    dispatchAnimationEvent(element, 'animationend', 'mo-exit')
+    fireEvent(element, new Event('transitionend', { bubbles: true }))
+
+    expect(exit).toHaveBeenCalledTimes(callsAtUnmount)
   })
 
   test('ignores animation events from descendants', async () => {

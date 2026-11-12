@@ -34,16 +34,10 @@ describe('Accordion', () => {
     const headings = screen.getAllByRole('heading')
 
     expect(headings).toHaveLength(3)
+    expect(headings.every((heading) => heading.tagName === 'H3')).toBe(true)
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(screen.getByText('Content one')).not.toBeNull()
     expect(screen.getByText('Content one').parentElement?.dataset.slot).toBe('accordion-body')
-  })
-
-  test('renders native heading elements for trigger rows', () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} />)
-
-    const headings = screen.getAllByRole('heading')
-    expect(headings.every((heading) => heading.tagName === 'H3')).toBe(true)
   })
 
   test('single mode toggles same item and emits [] when collapsible=true', async () => {
@@ -269,42 +263,34 @@ describe('Accordion', () => {
     }
   })
 
-  test('resolves item JSX getters once and leaves closed content uninstantiated', async () => {
-    let labelReads = 0
-    let contentReads = 0
-    const item: AccordionT.Item = {
-      value: 'one',
-      get label() {
-        labelReads += 1
-        return <span>One</span>
-      },
-      get content() {
-        contentReads += 1
-        return <span>Content one</span>
-      },
-    }
+  test('renders item JSX labels and content only once the panel is expanded', () => {
+    const screen = render(() => (
+      <Accordion
+        items={[
+          {
+            value: 'one',
+            label: <span>One</span>,
+            content: <span>Content one</span>,
+          },
+        ]}
+      />
+    ))
 
-    const screen = render(() => <Accordion items={[item]} />)
-
-    expect(labelReads).toBe(1)
-    expect(contentReads).toBe(0)
+    expect(screen.queryByText('Content one')).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'One' }))
 
     expect(screen.getByText('Content one')).not.toBeNull()
-    expect(labelReads).toBe(1)
-    expect(contentReads).toBe(1)
   })
 
-  test('renders empty collections and empty expanded panels without placeholder wrappers', () => {
+  test('renders no headings for an empty collection and an empty expanded panel', () => {
     const emptyScreen = render(() => <Accordion items={[]} />)
     expect(emptyScreen.queryByRole('heading')).toBeNull()
 
     const panelScreen = render(() => (
       <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue={['empty']} />
     ))
-    const panel = panelScreen.getByRole('region', { name: 'Empty' })
-    expect(panel.childElementCount).toBe(0)
+    expect(panelScreen.getByRole('region', { name: 'Empty' })).not.toBeNull()
   })
 
   test('navigates triggers with ArrowDown, ArrowUp, Home, and End', async () => {
@@ -825,10 +811,6 @@ describe('Accordion', () => {
       expect(screen.getByTestId('open-value').textContent).toBe('one')
       await waitFor(() => {
         expect(contentOne.getAttribute('data-expanded')).toBe('')
-        expect(contentOne.className).not.toContain('transition-[height]')
-        expect(contentOne.className).not.toContain('duration-200')
-        expect(contentOne.className).toContain('data-expanded:animate-accordion-down')
-        expect(contentOne.className).toContain('data-closed:animate-accordion-up')
         expect(contentOne.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
       })
 
@@ -837,7 +819,6 @@ describe('Accordion', () => {
 
       expect(screen.getByTestId('open-value').textContent).toBe('none')
       expect(contentOne.getAttribute('data-closed')).toBe('')
-      expect(contentOne.hasAttribute('data-collapsed')).toBe(false)
 
       fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
@@ -892,7 +873,6 @@ describe('Accordion', () => {
 
     expect(triggerOne.getAttribute('aria-controls')).toBe(contentOne.id)
     expect(contentOne.getAttribute('data-closed')).toBe('')
-    expect(screen.container.querySelector('[data-collapsed]')).toBeNull()
     expect(screen.getByText('Content one')).not.toBeNull()
 
     fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })

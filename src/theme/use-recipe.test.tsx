@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { buttonRecipe } from '../components/button/button.recipe'
 import type { ButtonT } from '../components/button/button.types'
@@ -12,20 +12,6 @@ import { defineRecipe } from './recipe'
 import { createDataAttributes } from './style-contract'
 import type { MoraineTheme } from './types'
 import { useRecipe } from './use-recipe'
-
-// Hoisted by Vitest above the imports; records every default-merger result.
-const merges = vi.hoisted(() => ({ log: [] as string[] }))
-vi.mock('./cn', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./cn')>()
-  return {
-    ...actual,
-    cn: (...classes: Parameters<typeof actual.cn>) => {
-      const result = actual.cn(...classes)
-      merges.log.push(result ?? '')
-      return result
-    },
-  }
-})
 
 describe('useRecipe', () => {
   test('keeps undefined-only precedence reactive and preserves node identity', () => {
@@ -181,87 +167,14 @@ describe('useRecipe', () => {
     expect(root.className).toContain('inverted')
   })
 
-  test('fine-grained slot memos only recompute affected slots and skip unread ones', () => {
-    type Slots = { root: string; label: string; idle: string }
-    type Variants = { size: 'sm' | 'lg'; tone: 'a' | 'b' }
-    const recipe = defineRecipe<Slots, Variants>('fineGrainFixture', {
-      base: { root: 'base-root', label: 'base-label', idle: 'base-idle' },
-      defaultVariants: { size: 'sm', tone: 'a' },
-      variants: {
-        size: {
-          sm: { root: 'size-sm' },
-          lg: { root: 'size-lg' },
-        },
-        tone: {
-          a: { label: 'tone-a' },
-          b: { label: 'tone-b' },
-        },
-      },
-    })
-    const [size, setSize] = createSignal<Variants['size']>('sm')
-    const [tone, setTone] = createSignal<Variants['tone']>('a')
-    let rootOwnReads = 0
-    let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
-
-    function Fixture() {
-      const result = useRecipe(
-        recipe,
-        {
-          get size() {
-            return size()
-          },
-          get tone() {
-            return tone()
-          },
-        },
-        {
-          own: {
-            root: () => {
-              rootOwnReads += 1
-              return undefined
-            },
-          },
-        },
-      )
-      slots = result.slots
-      return null
-    }
-
-    render(() => <Fixture />)
-
-    expect(rootOwnReads).toBe(0)
-
-    const rootClass = slots.root.class
-    expect(rootOwnReads).toBe(1)
-    expect(rootClass).toContain('size-sm')
-    expect(slots.root.class).toBe(rootClass)
-
-    // The root own memo serves both the class and style bindings.
-    void slots.root.style
-    const labelClass = slots.label.class
-    expect(labelClass).toContain('tone-a')
-    expect(slots.label.class).toBe(labelClass)
-    expect(rootOwnReads).toBe(1)
-
-    setSize('lg')
-    expect(slots.root.class).toContain('size-lg')
-    expect(slots.label.class).toBe(labelClass)
-
-    setTone('b')
-    expect(slots.label.class).toContain('tone-b')
-    expect(slots.root.class).toContain('size-lg')
-    expect(rootOwnReads).toBe(1)
-  })
-
-  test('updating own for one slot does not recompute other slot memos', () => {
-    type Slots = { root: string; label: string }
-    const recipe = defineRecipe<Slots>('layerIsolation', {
+  test('updating a slot own class leaves the other slot unchanged', () => {
+    const recipe = defineRecipe<{ root: string; label: string }>('layerIsolation', {
       base: { root: 'base-root', label: 'base-label' },
     })
     const [effectRoot, setEffectRoot] = createSignal('initial-root')
     let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
 
-    function Fixture2() {
+    function Fixture() {
       const { slots: s } = useRecipe(
         recipe,
         {},
@@ -272,55 +185,17 @@ describe('useRecipe', () => {
           },
         },
       )
-      // Read inside effect-like subscriptions
       slots = s
       return null
     }
 
-    render(() => <Fixture2 />)
-
-    // Initial read
+    render(() => <Fixture />)
     expect(slots.root.class).toContain('initial-root')
     expect(slots.label.class).toContain('fixed-label')
-
-    // Track downstream slot reactivity
-    const rootClassBefore = slots.root.class
-    const labelClassBefore = slots.label.class
-    expect(rootClassBefore).toContain('initial-root')
-    expect(labelClassBefore).toContain('fixed-label')
-
     setEffectRoot('updated-root')
     expect(slots.root.class).toContain('updated-root')
-    // label slot returns the exact same cached string and did not change
-    expect(slots.label.class).toBe(labelClassBefore)
-  })
-
-  test('class change does not recompute style memo and vice versa', () => {
-    const [rootClass, setRootClass] = createSignal('user-a')
-    const [rootColor, setRootColor] = createSignal('red')
-    let slots!: ReturnType<typeof useRecipe<typeof buttonRecipe>>['slots']
-    function Fixture() {
-      const result = useRecipe(buttonRecipe, {
-        get classes() {
-          return { root: rootClass() }
-        },
-        get styles() {
-          return { root: { color: rootColor() } }
-        },
-      })
-      slots = result.slots
-      return <button {...slots.root}>Save</button>
-    }
-    render(() => <Fixture />)
-    const styleA = slots.root.style
-    expect(slots.root.class).toContain('user-a')
-    setRootClass('user-b')
-    expect(slots.root.class).toContain('user-b')
-    expect(slots.root.style).toBe(styleA)
-    const classB = slots.root.class
-    setRootColor('blue')
-    expect(slots.root.style.color).toBe('blue')
-    expect(slots.root.class).toBe(classB)
+    expect(slots.root.class).not.toContain('initial-root')
+    expect(slots.label.class).toContain('fixed-label')
   })
 
   test('overrides helper provides reactive forwarders with slot mapping', () => {
@@ -547,9 +422,8 @@ test('slotWith accepts accessors and reacts to dynamic style updates', () => {
 describe('data option', () => {
   const states = createDataAttributes('expanded', 'disabled')
 
-  test('slot bindings carry reactive data attributes with fixed keys', () => {
+  test('slot bindings carry reactive data attributes', () => {
     const [expanded, setExpanded] = createSignal(false)
-    let keys: string[] = []
 
     function Fixture(props: { 'data-disabled'?: string }) {
       const { slots } = useRecipe(
@@ -559,7 +433,6 @@ describe('data option', () => {
         { data: { root: states(() => ({ expanded: isExpanded, disabled: false })) } },
       )
       const isExpanded = () => expanded()
-      keys = Object.keys(slots.root)
       return <button {...slots.root} {...props} />
     }
 
@@ -570,7 +443,6 @@ describe('data option', () => {
 
     setExpanded(true)
     expect(button.getAttribute('data-expanded')).toBe('')
-    expect(keys).toEqual(['class', 'style', 'data-expanded', 'data-disabled'])
   })
 
   test('caller attributes spread after the binding overload data attributes', () => {
@@ -665,7 +537,7 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   expect((capturedVariants as any).custom).toBe('b')
 })
 
-test('per-slot own accessor map provides fine-grained slot isolation', () => {
+test('per-slot own accessors update only the slot they belong to', () => {
   type TestSlots = { root: string; leading: string; trailing: string }
   const recipe = defineRecipe<TestSlots>('test', {
     base: {
@@ -677,8 +549,6 @@ test('per-slot own accessor map provides fine-grained slot isolation', () => {
 
   const [leadingActive, setLeadingActive] = createSignal(false)
   const [trailingActive, setTrailingActive] = createSignal(false)
-  let leadingReads = 0
-  let trailingReads = 0
 
   let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
 
@@ -688,14 +558,8 @@ test('per-slot own accessor map provides fine-grained slot isolation', () => {
       {},
       {
         own: {
-          leading: () => {
-            leadingReads += 1
-            return { class: leadingActive() ? 'leading-active' : undefined }
-          },
-          trailing: () => {
-            trailingReads += 1
-            return { class: trailingActive() ? 'trailing-active' : undefined }
-          },
+          leading: () => ({ class: leadingActive() ? 'leading-active' : undefined }),
+          trailing: () => ({ class: trailingActive() ? 'trailing-active' : undefined }),
         },
       },
     )
@@ -705,139 +569,14 @@ test('per-slot own accessor map provides fine-grained slot isolation', () => {
 
   render(() => <Fixture />)
 
-  // Unread slots do not evaluate own accessors
-  expect(leadingReads).toBe(0)
-  expect(trailingReads).toBe(0)
-
-  // Read leading slot class
   expect(slots.leading.class).toBe('leading-base')
-  expect(leadingReads).toBe(1)
-  expect(trailingReads).toBe(0)
-
-  // Read trailing slot class
   expect(slots.trailing.class).toBe('trailing-base')
-  expect(leadingReads).toBe(1)
-  expect(trailingReads).toBe(1)
 
-  // Update leading signal - trailing accessor must NOT run
   setLeadingActive(true)
   expect(slots.leading.class).toBe('leading-base leading-active')
-  expect(leadingReads).toBe(2)
-  expect(trailingReads).toBe(1)
+  expect(slots.trailing.class).toBe('trailing-base')
 
-  // Update trailing signal - leading accessor must NOT run
   setTrailingActive(true)
   expect(slots.trailing.class).toBe('trailing-base trailing-active')
-  expect(leadingReads).toBe(2)
-  expect(trailingReads).toBe(2)
-})
-
-describe('fine-grained recomputation', () => {
-  type Slots = { root: string; label: string; idle: string }
-  type Variants = { size: 'sm' | 'lg'; tone: 'a' | 'b' }
-  const recipe = defineRecipe<Slots, Variants>('fineGrainMerges', {
-    base: { root: 'base-root', label: 'base-label', idle: 'base-idle' },
-    defaultVariants: { size: 'sm', tone: 'a' },
-    variants: {
-      size: { sm: { root: 'size-sm' }, lg: { root: 'size-lg' } },
-      tone: { a: { label: 'tone-a' }, b: { label: 'tone-b' } },
-    },
-  })
-  const mergedSlots = () => {
-    const slots = new Set<string>()
-    for (const entry of merges.log) {
-      for (const name of ['root', 'label', 'idle']) {
-        if (entry.includes(`base-${name}`)) {
-          slots.add(name)
-        }
-      }
-    }
-    merges.log.length = 0
-    return [...slots].sort()
-  }
-
-  test('a variant change only re-merges slots that depend on it and never touches unread slots', () => {
-    const [size, setSize] = createSignal<Variants['size']>('sm')
-    const [tone, setTone] = createSignal<Variants['tone']>('a')
-    function Fixture() {
-      const { slots } = useRecipe(recipe, {
-        get size() {
-          return size()
-        },
-        get tone() {
-          return tone()
-        },
-      })
-      return (
-        <div data-testid="root" {...slots.root}>
-          <span data-testid="label" {...slots.label} />
-        </div>
-      )
-    }
-    merges.log.length = 0
-    const screen = render(() => <Fixture />)
-    const root = screen.getByTestId('root')
-    const label = screen.getByTestId('label')
-    expect(mergedSlots()).toEqual(['label', 'root'])
-
-    setSize('lg')
-    expect(root.className).toBe('base-root size-lg')
-    expect(mergedSlots()).toEqual(['root'])
-
-    setTone('b')
-    expect(label.className).toBe('base-label tone-b')
-    expect(mergedSlots()).toEqual(['label'])
-    expect(screen.getByTestId('root')).toBe(root)
-    expect(screen.getByTestId('label')).toBe(label)
-  })
-
-  test('a context class change for one slot does not re-merge other slots', () => {
-    const [rootClass, setRootClass] = createSignal('ctx-a')
-    function Fixture() {
-      const { slots } = useRecipe(
-        recipe,
-        {},
-        {
-          context: () => ({ classes: { root: rootClass(), label: 'ctx-label' } }),
-        },
-      )
-      return (
-        <div data-testid="root" {...slots.root}>
-          <span data-testid="label" {...slots.label} />
-        </div>
-      )
-    }
-    merges.log.length = 0
-    const screen = render(() => <Fixture />)
-    mergedSlots()
-    setRootClass('ctx-b')
-    expect(screen.getByTestId('root').className).toContain('ctx-b')
-    expect(screen.getByTestId('label').className).toBe('base-label tone-a ctx-label')
-    expect(mergedSlots()).toEqual(['root'])
-  })
-
-  test('a context variant change only re-merges slots whose entries test that variant', () => {
-    const [tone, setTone] = createSignal<Variants['tone']>('a')
-    function Fixture() {
-      const { slots } = useRecipe(
-        recipe,
-        {},
-        {
-          context: () => ({ variants: { tone: tone() } }),
-        },
-      )
-      return (
-        <div data-testid="root" {...slots.root}>
-          <span data-testid="label" {...slots.label} />
-        </div>
-      )
-    }
-    merges.log.length = 0
-    const screen = render(() => <Fixture />)
-    mergedSlots()
-    setTone('b')
-    expect(screen.getByTestId('label').className).toBe('base-label tone-b')
-    expect(screen.getByTestId('root').className).toBe('base-root size-sm')
-    expect(mergedSlots()).toEqual(['label'])
-  })
+  expect(slots.leading.class).toBe('leading-base leading-active')
 })

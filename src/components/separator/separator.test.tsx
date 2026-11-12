@@ -18,12 +18,9 @@ describe('Separator', () => {
     expect(root?.getAttribute('data-slot')).toBe('separator')
     expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
-    expect(root?.className).toContain('h-px')
-    expect(root?.className).toContain('w-full')
-    expect(root?.className).toContain('bg-border')
   })
 
-  test('updates orientation semantics and classes reactively', () => {
+  test('updates orientation semantics reactively without remounting', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
       <MoraineProvider>
@@ -33,15 +30,12 @@ describe('Separator', () => {
     const root = screen.getByRole('separator')
 
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(root.className).toContain('h-px')
 
     setOrientation('vertical')
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root.className).toContain('w-px')
-    expect(root.className).toContain('h-full')
   })
 
   test('forwards native attributes and lets callers override generated metadata', () => {
@@ -79,18 +73,6 @@ describe('Separator', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('uses root color inheritance for the line', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Separator class="text-primary" />
-      </MoraineProvider>
-    ))
-    const root = screen.container.querySelector('[data-slot="separator"]')
-
-    expect(root?.className).toContain('text-primary')
-    expect(root?.className).not.toContain('border-primary')
-  })
-
   test('applies root class and style overrides', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -104,7 +86,9 @@ describe('Separator', () => {
   })
 
   test('replaces Design root styling without remounting the separator', () => {
-    const [design, setDesign] = createSignal(defineTheme({ separator: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(
+      defineTheme({ separator: { base: { root: 'theme-separator-a' } } }),
+    )
     const screen = render(() => (
       <MoraineProvider theme={design()}>
         <Separator />
@@ -112,12 +96,12 @@ describe('Separator', () => {
     ))
     const root = screen.getByRole('separator')
 
-    expect(root.className).toContain('p-2')
+    expect(root.className).toContain('theme-separator-a')
 
-    setDesign(defineTheme({ separator: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ separator: { base: { root: 'theme-separator-b' } } }))
 
     expect(screen.getByRole('separator')).toBe(root)
-    expect(root.className).toContain('p-4')
-    expect(root.className).not.toContain('p-2')
+    expect(root.className).toContain('theme-separator-b')
+    expect(root.className).not.toContain('theme-separator-a')
   })
 })

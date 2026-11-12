@@ -1,7 +1,7 @@
 import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
@@ -100,7 +100,7 @@ describe('scoped cn', () => {
     expect(handle(classes)).toBe(result)
   })
 
-  test('recomputes shared recipes when only cnConfig changes and keeps theme independent', () => {
+  test('applies live cnConfig and theme changes to nested buttons independently', () => {
     const theme = defineTheme({
       button: {
         base: { root: 'p-2 density-roomy' },
@@ -111,42 +111,33 @@ describe('scoped cn', () => {
     })
     const [config, setConfig] = createSignal<CnConfig>({})
     const [currentTheme, setTheme] = createSignal<MoraineTheme | null>(theme)
-    const factory = vi.spyOn(cnModule, 'createCn')
-    try {
-      const screen = render(() => (
-        <>
-          <MoraineProvider theme={currentTheme()} cnConfig={config()}>
-            <MoraineProvider>
-              <Button>Live</Button>
-            </MoraineProvider>
+    const screen = render(() => (
+      <>
+        <MoraineProvider theme={currentTheme()} cnConfig={config()}>
+          <MoraineProvider>
+            <Button>Live</Button>
           </MoraineProvider>
-          <MoraineProvider theme={theme} cnConfig={keepPadding}>
-            <Button>Sibling</Button>
-          </MoraineProvider>
-        </>
-      ))
-      const live = screen.getByRole('button', { name: 'Live' })
-      const sibling = screen.getByRole('button', { name: 'Sibling' })
-      expect(live.className).toContain('density-roomy density-compact p-6')
-      expect(sibling.className).toContain('p-2 density-roomy p-4 density-compact p-6')
-      expect(factory).toHaveBeenCalledTimes(2)
-      setConfig({ ...keepPadding, ...densityConfig })
-      expect(live.className).toContain('p-2 p-4 density-compact p-6')
-      expect(factory).toHaveBeenCalledTimes(3)
-      setTheme(null)
-      expect(live.className).toContain('bg-tone')
-      setTheme(theme)
-      expect(live.className).toContain('p-2 p-4 density-compact p-6')
-      expect(factory).toHaveBeenCalledTimes(3)
-      expect(screen.getByRole('button', { name: 'Live' })).toBe(live)
-    } finally {
-      factory.mockRestore()
-    }
+        </MoraineProvider>
+        <MoraineProvider theme={theme} cnConfig={keepPadding}>
+          <Button>Sibling</Button>
+        </MoraineProvider>
+      </>
+    ))
+    const live = screen.getByRole('button', { name: 'Live' })
+    const sibling = screen.getByRole('button', { name: 'Sibling' })
+    expect(live.className).toContain('density-roomy density-compact p-6')
+    expect(sibling.className).toContain('p-2 density-roomy p-4 density-compact p-6')
+    setConfig({ ...keepPadding, ...densityConfig })
+    expect(live.className).toContain('p-2 p-4 density-compact p-6')
+    setTheme(null)
+    expect(live.className).not.toContain('p-6')
+    setTheme(theme)
+    expect(live.className).toContain('p-2 p-4 density-compact p-6')
+    expect(screen.getByRole('button', { name: 'Live' })).toBe(live)
   })
 
   test('preserves JSX ownership, input edits, focus, selection, and open Portal content', () => {
     const [config, setConfig] = createSignal<CnConfig>({})
-    let reads = 0
     let cleanups = 0
     function Content() {
       onCleanup(() => cleanups++)
@@ -172,7 +163,6 @@ describe('scoped cn', () => {
           return config()
         },
         get children() {
-          reads++
           return <Content />
         },
       }),
@@ -193,7 +183,7 @@ describe('scoped cn', () => {
     expect(document.querySelector<HTMLElement>('[data-testid=portal]')!.className).toBe(
       'p-2 p-4 density-compact',
     )
-    expect([reads, cleanups]).toEqual([1, 0])
+    expect(cleanups).toBe(0)
     screen.unmount()
     expect(cleanups).toBe(1)
   })

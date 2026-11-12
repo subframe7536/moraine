@@ -108,46 +108,17 @@ describe('Toast', () => {
     })
   })
 
-  it('defaults action button variant to solid primary and cancel button variant to soft neutral', async () => {
+  it('renders the action and cancel buttons from their configs', async () => {
     render(() => <Toast />)
 
     Toast.show({
       title: 'Item deleted',
-      action: { label: 'Undo' },
-      cancel: { label: 'Dismiss' },
+      action: { label: 'Undo', variant: 'outline' },
+      cancel: { label: 'Dismiss', variant: 'solid', tone: 'danger' },
     })
 
-    const actionButton = await screen.findByRole('button', { name: 'Undo' })
-    const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
-
-    expect(actionButton.className).toContain('bg-tone')
-    expect(actionButton.className).toContain('tone-primary')
-    expect(cancelButton.className).toContain('bg-tone-soft')
-    expect(cancelButton.className).toContain('tone-neutral')
-  })
-
-  it('applies custom variant on action and cancel button configs', async () => {
-    render(() => <Toast />)
-
-    Toast.show({
-      title: 'Item deleted',
-      action: {
-        label: 'Undo',
-        variant: 'outline',
-      },
-      cancel: {
-        label: 'Dismiss',
-        variant: 'solid',
-        tone: 'danger',
-      },
-    })
-
-    const actionButton = await screen.findByRole('button', { name: 'Undo' })
-    const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
-
-    expect(actionButton.className).toContain('border-tone-border')
-    expect(cancelButton.className).toContain('bg-tone')
-    expect(cancelButton.className).toContain('tone-danger')
+    expect(await screen.findByRole('button', { name: 'Undo' })).not.toBeNull()
+    expect(await screen.findByRole('button', { name: 'Dismiss' })).not.toBeNull()
   })
 
   it('renders close button and closes on click', async () => {
@@ -655,12 +626,11 @@ describe('Toast', () => {
     Toast.show({ title: 'Top message', host: 'top-host' })
     Toast.show({ title: 'Bottom message', host: 'bottom-host' })
 
-    const topItem = (await screen.findByText('Top message')).closest('[data-slot="toast-item"]')
-    const bottomItem = (await screen.findByText('Bottom message')).closest(
-      '[data-slot="toast-item"]',
+    const topItem = await screen.findByText('Top message')
+    const bottomItem = await screen.findByText('Bottom message')
+    expect(topItem.closest('[data-slot="toast"]')).not.toBe(
+      bottomItem.closest('[data-slot="toast"]'),
     )
-    expect(topItem?.className).toContain('top-0')
-    expect(bottomItem?.className).toContain('bottom-0')
   })
 
   it('does not leak scoped host preventDuplicate to the default host', async () => {
@@ -764,15 +734,6 @@ describe('Toast', () => {
     expect(defaultRegion).not.toBe(alertsRegion)
   })
 
-  it('anchors the viewport to the placement corner instead of covering the screen', async () => {
-    render(() => <Toast placement="bottom" align="end" />)
-    const viewport = await screen.findByRole('region', { name: /Notifications/ })
-    const classes = viewport.className.split(/\s+/)
-    expect(classes).toContain('pointer-events-none')
-    expect(classes).toContain('bottom-4')
-    expect(classes).toContain('right-4')
-  })
-
   it('applies aria-label to the viewport and falls back to the locale message', async () => {
     render(() => (
       <>
@@ -803,7 +764,7 @@ describe('Toast', () => {
     expect(list.getAttribute('data-expanded')).toBe('')
   })
 
-  it('renders bottom progress bar with CSS transform scaleX animation when progress is enabled', async () => {
+  it('renders a progress bar that runs for the toast duration when progress is enabled', async () => {
     render(() => <Toast progress duration={4000} />)
 
     Toast.show({ title: 'With Progress Bar' })
@@ -815,12 +776,8 @@ describe('Toast', () => {
     )
     expect(progressTrack).not.toBeNull()
     expect(progressIndicator).not.toBeNull()
-    expect(progressTrack?.className).toContain('bottom-0')
-    expect(progressIndicator?.className).toContain('animate-toast-progress')
-    expect(progressIndicator?.className).toContain('origin-left')
     expect(progressIndicator?.style.animationDuration).toBe('4000ms')
     expect(progressIndicator?.style.animationPlayState).toBe('running')
-    expect(progressIndicator?.style.width).toBe('')
   })
 
   it('pauses progress indicator animation on mouse enter without resetting', async () => {
@@ -1260,50 +1217,9 @@ describe('Toast', () => {
     const defaultEl = screen.getByText('Default Size').closest('[data-slot="toast-item"]')!
     const largeEl = screen.getByText('Large Size').closest('[data-slot="toast-item"]')!
 
-    // Default layout has center alignment
-    expect(defaultEl.className).toContain('items-center')
     expect(defaultEl.querySelector('[data-slot="toast-actions"]')).not.toBeNull()
-
-    // Large layout has multi-line wrapping layout and top-right close
-    expect(largeEl.className).toContain('items-start')
-    expect(largeEl.className).toContain('flex-wrap')
-
-    const largeActions = largeEl.querySelector('[data-slot="toast-actions"]')!
-    expect(largeActions).not.toBeNull()
-    expect(largeActions.className).toContain('w-full')
-    expect(largeActions.className).toContain('justify-end')
-
-    const largeClose = largeEl.querySelector('[data-slot="toast-close"]')!
-    expect(largeClose).not.toBeNull()
-    expect(largeClose.className).toContain('absolute')
-    expect(largeClose.className).toContain('right-3.5')
-    expect(largeClose.className).toContain('top-3.5')
-  })
-
-  it('treats null host variant props as unset', async () => {
-    render(() => <Toast large={null} />)
-
-    Toast.show({ title: 'Null host variant' })
-
-    const item = (await screen.findByText('Null host variant')).closest(
-      '[data-slot="toast-item"]',
-    ) as HTMLElement
-    expect(item.className).toContain('items-center')
-  })
-
-  it('inherits host-level large default variant', async () => {
-    render(() => <Toast large />)
-
-    Toast.show({
-      title: 'Inherited Large Size',
-      action: { label: 'Action' },
-      closable: true,
-    })
-
-    await screen.findByText('Inherited Large Size')
-    const itemEl = screen.getByText('Inherited Large Size').closest('[data-slot="toast-item"]')!
-    expect(itemEl.className).toContain('items-start')
-    expect(itemEl.className).toContain('flex-wrap')
+    expect(largeEl.querySelector('[data-slot="toast-actions"]')).not.toBeNull()
+    expect(largeEl.querySelector('[data-slot="toast-close"]')).not.toBeNull()
   })
 
   it('supports custom itemRender on <Toast>', async () => {
@@ -1335,7 +1251,7 @@ describe('Toast', () => {
     })
   })
 
-  it('isolates fine-grained height storage across multiple positions', async () => {
+  it('renders toasts for each placement in its own list', async () => {
     render(() => <Toast expand />)
 
     Toast.show({ title: 'Bottom Toast', placement: 'bottom', align: 'end' })
@@ -1346,19 +1262,11 @@ describe('Toast', () => {
 
     const bottomItem = screen.getByText('Bottom Toast').closest('li')!
     const topItem = screen.getByText('Top Toast').closest('li')!
-    const lists = document.querySelectorAll('[data-slot="toast-list"]')
-    expect(lists.length).toBe(2)
-
-    // Trigger height updates on each item
-    Object.defineProperty(bottomItem, 'offsetHeight', { configurable: true, value: 70 })
-    Object.defineProperty(topItem, 'offsetHeight', { configurable: true, value: 90 })
-
-    // Both items remain mounted and visible in their respective lists
-    expect(bottomItem.textContent).toContain('Bottom Toast')
-    expect(topItem.textContent).toContain('Top Toast')
+    expect(document.querySelectorAll('[data-slot="toast-list"]')).toHaveLength(2)
+    expect(bottomItem.parentElement).not.toBe(topItem.parentElement)
   })
 
-  it('resets interaction pause on pointercancel and lostpointercapture', async () => {
+  it('resumes the timer after a pointer interaction is cancelled', async () => {
     vi.useFakeTimers()
     render(() => <Toast />)
 

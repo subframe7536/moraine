@@ -8,11 +8,8 @@ import {
   createEventListenerMap,
 } from './event-listener'
 
-function createTarget() {
-  return {
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-  } as unknown as HTMLElement
+function click(target: EventTarget) {
+  target.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 }
 
 describe('attachEventListener', () => {
@@ -22,217 +19,140 @@ describe('attachEventListener', () => {
     }).not.toThrow()
   })
 
-  test('forwards advanced options unchanged to registration and cleanup', () => {
-    const target = createTarget()
-    const controller = new AbortController()
-    const options = {
-      capture: true,
-      passive: true,
-      once: true,
-      signal: controller.signal,
-    }
-    const listener = vi.fn<(event: MouseEvent) => void>()
+  test('listens until the returned cleanup runs', () => {
+    const target = document.createElement('button')
+    const listener = vi.fn()
 
-    const cleanup = attachEventListener(target, 'click', listener, options)
-
-    expect(target.addEventListener).toHaveBeenCalledWith('click', listener, options)
+    const cleanup = attachEventListener(target, 'click', listener)
+    click(target)
+    expect(listener).toHaveBeenCalledOnce()
 
     cleanup()
+    click(target)
+    expect(listener).toHaveBeenCalledOnce()
+  })
 
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', listener, options)
+  test('honors the once option', () => {
+    const target = document.createElement('button')
+    const listener = vi.fn()
+
+    attachEventListener(target, 'click', listener, { once: true })
+    click(target)
+    click(target)
+
+    expect(listener).toHaveBeenCalledOnce()
   })
 })
 
-describe('attachEventListeners', () => {
-  test('registers all listeners and disposes them together', () => {
-    const target = createTarget()
+describe('attachEventListenerMap', () => {
+  test('registers every listener and disposes them together', () => {
+    const target = document.createElement('button')
+    const onClick = vi.fn()
+    const onKeyDown = vi.fn()
 
-    const cleanup = attachEventListenerMap(
-      target,
-      {
-        click: () => {},
-        keydown: () => {},
-      },
-      true,
-    )
-
-    expect(target.addEventListener).toHaveBeenCalledTimes(2)
+    const cleanup = attachEventListenerMap(target, { click: onClick, keydown: onKeyDown })
+    click(target)
+    target.dispatchEvent(new KeyboardEvent('keydown'))
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(onKeyDown).toHaveBeenCalledOnce()
 
     cleanup()
-
-    expect(target.removeEventListener).toHaveBeenCalledTimes(2)
-    expect(target.removeEventListener).toHaveBeenNthCalledWith(
-      1,
-      'click',
-      expect.any(Function),
-      true,
-    )
-    expect(target.removeEventListener).toHaveBeenNthCalledWith(
-      2,
-      'keydown',
-      expect.any(Function),
-      true,
-    )
+    click(target)
+    target.dispatchEvent(new KeyboardEvent('keydown'))
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(onKeyDown).toHaveBeenCalledOnce()
   })
 
-  test('registers and removes only defined map entries', () => {
-    const target = createTarget()
-    const click = vi.fn<(event: MouseEvent) => void>()
+  test('skips undefined entries', () => {
+    const target = document.createElement('button')
+    const onClick = vi.fn()
 
-    const cleanup = attachEventListenerMap(target, {
-      click,
-      keydown: undefined,
-    })
+    attachEventListenerMap(target, { click: onClick, keydown: undefined })
+    click(target)
+    target.dispatchEvent(new KeyboardEvent('keydown'))
 
-    expect(target.addEventListener).toHaveBeenCalledTimes(1)
-    expect(target.addEventListener).toHaveBeenCalledWith('click', click, undefined)
-
-    cleanup()
-
-    expect(target.removeEventListener).toHaveBeenCalledTimes(1)
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', click, undefined)
+    expect(onClick).toHaveBeenCalledOnce()
   })
 })
 
 describe('createEventListener', () => {
-  test('registers a listener and removes it on cleanup', () => {
-    const target = createTarget()
-    const listener = vi.fn<(event: MouseEvent) => void>()
+  test('stops calling the listener once its owner is disposed', () => {
+    const target = document.createElement('button')
+    const listener = vi.fn()
 
     createRoot((dispose) => {
-      createEventListener(target, 'click', listener, true)
-
-      expect(target.addEventListener).toHaveBeenCalledTimes(1)
-      expect(target.addEventListener).toHaveBeenCalledWith('click', expect.any(Function), true)
-
-      const wrappedListener = (target.addEventListener as ReturnType<typeof vi.fn>).mock
-        .calls[0]?.[1] as EventListener
-      const event = { type: 'click' } as MouseEvent
-
-      wrappedListener(event)
-      expect(listener).toHaveBeenCalledWith(event)
-
+      createEventListener(target, 'click', listener)
+      click(target)
+      expect(listener).toHaveBeenCalledOnce()
       dispose()
     })
 
-    const wrappedListener = (target.addEventListener as ReturnType<typeof vi.fn>).mock
-      .calls[0]?.[1] as EventListener
-
-    expect(target.removeEventListener).toHaveBeenCalledTimes(1)
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', wrappedListener, true)
+    click(target)
+    expect(listener).toHaveBeenCalledOnce()
   })
 
-  test('normalizes object options for cleanup', () => {
-    const target = createTarget()
+  test('honors capture when the listener sits on an ancestor', () => {
+    const parent = document.createElement('div')
+    const child = document.createElement('button')
+    parent.append(child)
+    const order: string[] = []
 
     createRoot((dispose) => {
-      createEventListener(target, 'click', () => {}, { capture: true, passive: true })
+      createEventListener(parent, 'click', () => order.push('parent'), true)
+      child.addEventListener('click', () => order.push('child'))
+      click(child)
       dispose()
     })
 
-    const wrappedListener = (target.addEventListener as ReturnType<typeof vi.fn>).mock
-      .calls[0]?.[1] as EventListener
-
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', wrappedListener, {
-      capture: true,
-      passive: true,
-    })
+    expect(order).toEqual(['parent', 'child'])
   })
 
-  test('detaches the previous target before attaching a replacement', async () => {
-    const firstTarget = createTarget()
-    const secondTarget = createTarget()
+  test('detaches the previous target when the target changes', async () => {
+    const first = document.createElement('button')
+    const second = document.createElement('button')
+    const listener = vi.fn()
 
     const lifecycle = createRoot((dispose) => {
-      const [target, setTarget] = createSignal<HTMLElement | undefined>(firstTarget)
-
+      const [target, setTarget] = createSignal<HTMLElement | undefined>(first)
       createEffect(
         on(target, (element) => {
-          createEventListener(element, 'click', () => {})
+          createEventListener(element, 'click', listener)
         }),
       )
-
       return { dispose, setTarget }
     })
 
     await Promise.resolve()
+    click(first)
+    expect(listener).toHaveBeenCalledTimes(1)
 
-    expect(firstTarget.addEventListener).toHaveBeenCalledTimes(1)
+    lifecycle.setTarget(second)
+    click(first)
+    expect(listener).toHaveBeenCalledTimes(1)
+    click(second)
+    expect(listener).toHaveBeenCalledTimes(2)
 
-    lifecycle.setTarget(secondTarget)
-
-    expect(firstTarget.removeEventListener).toHaveBeenCalledTimes(1)
-    expect(secondTarget.addEventListener).toHaveBeenCalledTimes(1)
-    expect(
-      (firstTarget.removeEventListener as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
-    ).toBeLessThan(
-      (secondTarget.addEventListener as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0]!,
-    )
-
-    lifecycle.setTarget(undefined)
-
-    expect(secondTarget.removeEventListener).toHaveBeenCalledTimes(1)
     lifecycle.dispose()
   })
 
-  test('dispatches current reactive state without duplicate registration', () => {
-    const target = createTarget()
+  test('dispatches the latest reactive state without duplicate registration', () => {
+    const target = document.createElement('button')
     const seen: string[] = []
 
     createRoot((dispose) => {
       const [value, setValue] = createSignal('first')
-
       createEventListener(target, 'click', () => {
         seen.push(value())
       })
-
-      const registeredListener = (target.addEventListener as ReturnType<typeof vi.fn>).mock
-        .calls[0]?.[1] as EventListener
-
-      registeredListener(new MouseEvent('click'))
+      click(target)
       setValue('second')
-      registeredListener(new MouseEvent('click'))
-
+      click(target)
       expect(seen).toEqual(['first', 'second'])
-      expect(target.addEventListener).toHaveBeenCalledTimes(1)
       dispose()
     })
   })
 
-  test('re-registers changed options without retaining the previous registration', async () => {
-    const target = createTarget()
-
-    const lifecycle = createRoot((dispose) => {
-      const [capture, setCapture] = createSignal(false)
-
-      createEffect(
-        on(capture, (capture) => {
-          createEventListener(target, 'click', () => {}, { capture, passive: true })
-        }),
-      )
-
-      return { dispose, setCapture }
-    })
-
-    await Promise.resolve()
-
-    expect(target.addEventListener).toHaveBeenLastCalledWith('click', expect.any(Function), {
-      capture: false,
-      passive: true,
-    })
-
-    lifecycle.setCapture(true)
-
-    expect(target.removeEventListener).toHaveBeenCalledTimes(1)
-    expect(target.addEventListener).toHaveBeenCalledTimes(2)
-    expect(target.addEventListener).toHaveBeenLastCalledWith('click', expect.any(Function), {
-      capture: true,
-      passive: true,
-    })
-    lifecycle.dispose()
-  })
-
-  test('is safe to construct without a browser target', () => {
+  test('is safe to construct without a target', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListener(undefined, 'custom', () => {})
@@ -244,73 +164,48 @@ describe('createEventListener', () => {
 
 describe('createEventListenerMap', () => {
   test('registers multiple listeners and removes them on cleanup', () => {
-    const target = createTarget()
+    const target = document.createElement('button')
+    const onClick = vi.fn()
+    const onFocusIn = vi.fn()
 
     createRoot((dispose) => {
-      createEventListenerMap(target, {
-        click: () => {},
-        focusin: () => {},
-      })
-
-      expect(target.addEventListener).toHaveBeenCalledTimes(2)
-
+      createEventListenerMap(target, { click: onClick, focusin: onFocusIn })
+      click(target)
+      target.dispatchEvent(new FocusEvent('focusin'))
+      expect(onClick).toHaveBeenCalledOnce()
+      expect(onFocusIn).toHaveBeenCalledOnce()
       dispose()
     })
 
-    expect(target.removeEventListener).toHaveBeenCalledTimes(2)
-  })
-
-  test('supports per-event options tuple and removes with matching options', () => {
-    const target = createTarget()
-    const touchListener = () => {}
-    const clickListener = () => {}
-
-    createRoot((dispose) => {
-      createEventListenerMap(target, {
-        click: clickListener,
-        touchmove: [touchListener, { passive: false }],
-      })
-
-      expect(target.addEventListener).toHaveBeenCalledWith('click', clickListener, undefined)
-      expect(target.addEventListener).toHaveBeenCalledWith('touchmove', touchListener, {
-        passive: false,
-      })
-
-      dispose()
-    })
-
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', clickListener, undefined)
-    expect(target.removeEventListener).toHaveBeenCalledWith('touchmove', touchListener, {
-      passive: false,
-    })
+    click(target)
+    target.dispatchEvent(new FocusEvent('focusin'))
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(onFocusIn).toHaveBeenCalledOnce()
   })
 
   test('per-event options override map-level options', () => {
-    const target = createTarget()
-    const listenerA = () => {}
-    const listenerB = () => {}
+    const target = document.createElement('div')
+    const child = document.createElement('button')
+    target.append(child)
+    const order: string[] = []
 
     createRoot((dispose) => {
       createEventListenerMap(
         target,
         {
-          click: listenerA,
-          scroll: [listenerB, { passive: true }],
+          click: [() => order.push('parent'), { capture: false }],
         },
         { capture: true },
       )
-
-      expect(target.addEventListener).toHaveBeenCalledWith('click', listenerA, { capture: true })
-      expect(target.addEventListener).toHaveBeenCalledWith('scroll', listenerB, { passive: true })
-
+      child.addEventListener('click', () => order.push('child'))
+      click(child)
       dispose()
     })
 
-    expect(target.removeEventListener).toHaveBeenCalledWith('click', listenerA, { capture: true })
-    expect(target.removeEventListener).toHaveBeenCalledWith('scroll', listenerB, { passive: true })
+    expect(order).toEqual(['child', 'parent'])
   })
 
-  test('handles null or undefined target gracefully', () => {
+  test('handles a missing target gracefully', () => {
     expect(() => {
       createRoot((dispose) => {
         createEventListenerMap(undefined, { click: () => {} })

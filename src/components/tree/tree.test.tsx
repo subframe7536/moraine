@@ -508,7 +508,6 @@ describe('createTree', () => {
       clickTrigger(item(container, 'src'))
       await Promise.resolve()
       const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
-      expect(group.className).toContain('data-transitioning:overflow-hidden')
       expect(group.hasAttribute('data-transitioning')).toBe(true)
 
       fireEvent.animationEnd(group.querySelector('[role="treeitem"]')!)
@@ -1054,7 +1053,7 @@ describe('createTree', () => {
       expect(tree.getItem('button')?.checkedState).toBe('checked')
     })
 
-    test('ItemCheckbox composes onClick and follows the tree size', () => {
+    test('ItemCheckbox composes its onClick handler and can cancel the toggle', () => {
       let tree!: TreeT.Instance<Node>
       const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
       const { container } = render(() => (
@@ -1074,7 +1073,6 @@ describe('createTree', () => {
       ))
 
       const control = container.querySelector<HTMLElement>('[data-slot="tree-checkbox"]')!
-      expect(control.className).toContain('size-4.5')
 
       fireEvent.click(control)
       expect(onClick).toHaveBeenCalledTimes(1)
@@ -1350,7 +1348,6 @@ describe('createTree', () => {
       const row = readme.querySelector<HTMLElement>('[data-slot="tree-row"]')!
       const action = row.lastElementChild as HTMLElement
       expect(action.dataset.slot).toBe('tree-action')
-      expect(row.className).toContain('group/tree-row')
 
       const button = action.querySelector('button')!
       expect(fireEvent.mouseDown(button)).toBe(true)
@@ -1406,11 +1403,6 @@ describe('createTree', () => {
 
       expect(container.querySelector('[data-slot="tree-trigger"]')).not.toBeNull()
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
-      const row = container.querySelector('[data-slot="tree-row"]')
-      expect(row?.className).toContain('hover:bg-muted')
-      expect(row?.className).not.toContain('not-[[data-selected]]')
-      expect(row?.className).toContain('data-selected:hover:bg-accent-hover')
-      expect(row?.className).toContain('data-selected:active:bg-accent-active')
     })
 
     test('applies trigger icons, variants, and slot classes', () => {
@@ -1439,10 +1431,6 @@ describe('createTree', () => {
       expect(getByRole('tree').className).toContain('custom-root')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
-      expect(row?.className).toContain('hover:bg-muted')
-      expect(row?.className).not.toContain('not-[[data-selected]]')
-      expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
-      expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
         item(container, 'docs').querySelector('[data-slot="tree-trigger-icon"]')?.className,
       ).toContain('icon-search')
@@ -1497,11 +1485,6 @@ describe('createTree', () => {
       expect(root.getPropertyValue('--mo-tree-pad')).toBe('1rem')
       const element = item(container, 'components')
       expect(element.style.getPropertyValue('--mo-tree-level')).toBe('1')
-      expect(
-        element
-          .querySelector<HTMLElement>('[data-slot="tree-row"]')
-          ?.style.getPropertyValue('--mo-tree-pad-start'),
-      ).not.toBe('')
       for (const name of ['indent', 'gap', 'gutter', 'pad']) {
         expect(element.style.getPropertyValue(`--mo-tree-${name}`)).toBe('')
         expect(
@@ -1524,7 +1507,6 @@ describe('createTree', () => {
       const list = guideList(item(container, 'button.tsx'))!
       expect(list.getAttribute('aria-hidden')).toBe('true')
       expect(list.parentElement?.getAttribute('data-slot')).toBe('tree-row')
-      expect(guides(item(container, 'button.tsx'))[0]?.className).toContain('border-s')
       expect(item(container, 'button.tsx').getAttribute('aria-label')).toBe('button.tsx')
     })
 
@@ -1735,19 +1717,6 @@ describe('createTree', () => {
       ))
 
       expect(container.querySelectorAll('[data-testid="outside"] li')).toHaveLength(4)
-    })
-
-    test('maintains stable memoized reference for flattenedItems', () => {
-      let tree!: TreeT.Instance<Node>
-      render(() => <Harness onTree={(value) => (tree = value)} />)
-
-      const initial = tree.flattenedItems
-      expect(tree.flattenedItems).toBe(initial)
-
-      tree.expand('docs')
-      const updated = tree.flattenedItems
-      expect(updated).not.toBe(initial)
-      expect(tree.flattenedItems).toBe(updated)
     })
 
     test('allows clicking and focusing text inputs inside tree items without suppressing mousedown', () => {

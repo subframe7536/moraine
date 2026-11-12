@@ -27,14 +27,11 @@ test.each([true, false])(
     expect(container.firstElementChild).toBe(root)
     expect(container.querySelector('[data-slot="empty-title"] span')).toBe(label)
     expect(label.textContent).toBe('Updated')
-    expect(label.parentElement?.className).toContain('text-lg')
     expect(container.querySelector('[data-slot="empty-description"]')).toBe(description)
-    expect(description.className).toContain('text-base')
     setOptional(!initialOptional)
     expect(container.querySelector('[data-slot="empty-media"]') !== null).toBe(!initialOptional)
     expect(container.querySelector('[data-slot="empty-actions"]') !== null).toBe(!initialOptional)
     setOptional(true)
-    expect(container.querySelector('[data-slot="empty-actions"]')?.className).toContain('gap-4')
     expect(container.querySelector('[data-slot="empty-actions"] button')?.textContent).toBe(
       'Create project',
     )

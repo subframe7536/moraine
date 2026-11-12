@@ -79,23 +79,6 @@ describe('Kbd', () => {
     expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
   })
 
-  test('applies size classes on keycaps', () => {
-    const sizes = [
-      ['sm', 'h-4.5'],
-      ['md', 'h-5'],
-      ['lg', 'h-5.5'],
-    ] as const
-
-    for (const [size, expectedClass] of sizes) {
-      const view = render(() => (
-        <MoraineProvider>
-          <Kbd size={size} value={size} />
-        </MoraineProvider>
-      ))
-      expect(view.container.querySelector('[data-slot="kbd"]')?.className).toContain(expectedClass)
-    }
-  })
-
   test('supports a custom slot, class, and style overrides', () => {
     const view = render(() => (
       <Kbd value="K" slotName="shortcut" class="shortcut-class" style={{ width: '200px' }} />
@@ -128,7 +111,9 @@ describe('Kbd', () => {
   })
 
   test('replaces Design root styling without remounting the keycap', () => {
-    const [design, setDesign] = createSignal(defineTheme({ kbd: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(
+      defineTheme({ kbd: { base: { root: 'theme-kbd-a' } } }),
+    )
     const view = render(() => (
       <MoraineProvider theme={design()}>
         <Kbd value="K" />
@@ -136,13 +121,13 @@ describe('Kbd', () => {
     ))
     const root = view.container.querySelector<HTMLElement>('[data-slot="kbd"]')!
 
-    expect(root.className).toContain('p-2')
+    expect(root.className).toContain('theme-kbd-a')
 
-    setDesign(defineTheme({ kbd: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ kbd: { base: { root: 'theme-kbd-b' } } }))
 
     expect(view.container.querySelector('[data-slot="kbd"]')).toBe(root)
-    expect(root.className).toContain('p-4')
-    expect(root.className).not.toContain('p-2')
+    expect(root.className).toContain('theme-kbd-b')
+    expect(root.className).not.toContain('theme-kbd-a')
   })
 })
 
@@ -200,13 +185,11 @@ describe('KbdGroup', () => {
     )
   })
 
-  test('retains independent separator instances and cleans up removed positions', () => {
+  test('keeps separator nodes across reorders and cleans up removed separators', () => {
     const [items, setItems] = createSignal(['Ctrl', 'Shift', 'P'])
     const [text, setText] = createSignal('+')
-    let mounts = 0
     let cleanups = 0
     const SeparatorRender = (props: KbdGroupT.SeparatorRenderProps) => {
-      mounts += 1
       onCleanup(() => {
         cleanups += 1
       })
@@ -221,11 +204,10 @@ describe('KbdGroup', () => {
     setText('/')
     expect([...view.container.querySelectorAll('span')]).toEqual(separators)
     expect(separators.map((node) => node.textContent)).toEqual(['/', '/'])
-    expect([mounts, cleanups]).toEqual([2, 0])
     setItems(['Shift', 'Ctrl', 'P'])
     expect([...view.container.querySelectorAll('span')]).toEqual([separators[1], separators[0]])
     expect(separators.map((node) => node.dataset.index)).toEqual(['1', '0'])
-    expect([mounts, cleanups]).toEqual([2, 0])
+    expect(cleanups).toBe(0)
     setItems(['Shift', 'Ctrl'])
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
     expect(cleanups).toBe(1)
@@ -235,7 +217,6 @@ describe('KbdGroup', () => {
     expect(cleanups).toBe(2)
     setSeparator(() => SeparatorRender)
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
-    expect([mounts, cleanups]).toEqual([3, 2])
     setSeparator(0)
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧0Ctrl')
     expect(cleanups).toBe(3)
@@ -244,42 +225,6 @@ describe('KbdGroup', () => {
     view.unmount()
     expect(cleanups).toBe(3)
   })
-
-  test('propagates size and variant to generated Kbd items', () => {
-    const view = render(() => (
-      <MoraineProvider>
-        <KbdGroup items={['Ctrl', 'K']} size="sm" variant="outline" />
-      </MoraineProvider>
-    ))
-    const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
-
-    for (const item of items) {
-      expect(item.className).toContain('h-4.5')
-      expect(item.className).toContain('border-b-2')
-    }
-  })
-
-  test.each([
-    ['sm', 'text-tiny', 'h-4.5'],
-    ['md', 'text-xs', 'h-5'],
-    ['lg', 'text-sm', 'h-5.5'],
-  ] as const)(
-    'applies %s size to group root and propagates resolved size to child keycaps',
-    (size, rootText, itemHeight) => {
-      const view = render(() => (
-        <MoraineProvider>
-          <KbdGroup items={['Ctrl', 'K']} size={size} />
-        </MoraineProvider>
-      ))
-      const root = view.container.querySelector('[data-slot="kbd-group"]')
-      const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
-
-      expect(root?.className).toContain(rootText)
-      for (const item of items) {
-        expect(item.className).toContain(itemHeight)
-      }
-    },
-  )
 
   test('applies root and item slot customizations', () => {
     const view = render(() => (

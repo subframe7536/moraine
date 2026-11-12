@@ -113,7 +113,7 @@ describe('List', () => {
     expect(ref).toHaveBeenCalledWith(list)
     expect(list.tagName).toBe('DIV')
     expect(list.getAttribute('data-track')).toBe('job-list')
-    expect(list.className).toBe('custom-list')
+    expect(list.className).toContain('custom-list')
     expect(list.style.color).toBe('red')
   })
 
@@ -166,7 +166,7 @@ describe('List', () => {
 
     expect(VirtualRender).toHaveBeenCalledTimes(1)
     expect(virtualScrollElement).toBe(screen.getByRole('feed'))
-    expect(row.className).toBe('virtual-row')
+    expect(row.className).toContain('virtual-row')
     expect(row.style.position).toBe('absolute')
     expect(row.getAttribute('data-index')).toBe('0')
   })

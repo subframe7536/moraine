@@ -22,12 +22,11 @@ describe('useHiddenInputValidation', () => {
       })
 
       const event = new Event('invalid', { cancelable: true })
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
 
       // @ts-expect-error test event call
       onInvalid(event)
 
-      expect(preventDefaultSpy).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
       expect(nativeInvalid()).toBe(true)
       expect(focus).toHaveBeenCalledTimes(1)
       dispose()

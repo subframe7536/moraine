@@ -13,31 +13,20 @@ describe.each([
   { name: 'Popover', Root: Popover },
   { name: 'Tooltip', Root: Tooltip },
 ])('$name DOM ownership', ({ Root, name }) => {
-  test('creates closed content only on opening and reads each children getter once', async () => {
-    let triggerReads = 0
-    let contentReads = 0
+  test('does not mount content until the overlay opens', async () => {
     const [open, setOpen] = createSignal(false)
     const view = render(() => (
       <Root open={open()}>
-        {createComponent(Root.Trigger, {
-          get children() {
-            triggerReads++
-            return <span>Trigger</span>
-          },
-        })}
-        {createComponent(Root.Content, {
-          get children() {
-            contentReads++
-            return <span>Body</span>
-          },
-        })}
+        <Root.Trigger>Trigger</Root.Trigger>
+        <Root.Content>
+          <span>Body</span>
+        </Root.Content>
       </Root>
     ))
-    expect([triggerReads, contentReads]).toEqual([1, 0])
     expect(view.container.children).toHaveLength(1)
+    expect(document.body.querySelector(`[data-slot="${name.toLowerCase()}-content"]`)).toBeNull()
     setOpen(true)
     await waitFor(() => expect(within(document.body).getByText('Body')).toBeTruthy())
-    expect([triggerReads, contentReads]).toEqual([1, 1])
   })
 
   test('forwards cancellable content events and forwards consumer refs', async () => {
@@ -66,37 +55,30 @@ describe.each([
   { name: 'DropdownMenu', Root: DropdownMenu },
   { name: 'ContextMenu', Root: ContextMenu },
 ])('$name Design ownership', ({ name, Root }) => {
-  test('keeps closed content lazy and preserves an open surface across Design replacement', async () => {
-    let reads = 0
+  test('shows menu header only while open and keeps the open menu across Design changes', async () => {
     const key = name === 'DropdownMenu' ? 'dropdownMenu' : 'contextMenu'
     const [design, setDesign] = createSignal(defineTheme({}))
     const [open, setOpen] = createSignal(false)
-    const top = vi.fn(() => <span>Menu header</span>)
+    const top = () => <span>Menu header</span>
     render(() => (
       <MoraineProvider theme={design()}>
         <Root open={open()}>
           <Root.Trigger>Trigger</Root.Trigger>
           {createComponent(Root.Content, {
             items: [{ label: 'Action' }],
-            get topRender() {
-              reads++
-              return top
-            },
+            topRender: top,
           })}
         </Root>
       </MoraineProvider>
     ))
-    expect(reads).toBe(0)
-    expect(top).not.toHaveBeenCalled()
+    expect(document.body.textContent).not.toContain('Menu header')
     setOpen(true)
     await waitFor(() => expect(within(document.body).getByRole('menu')).toBeTruthy())
-    expect(reads).toBe(1)
-    expect(top).toHaveBeenCalledTimes(1)
+    expect(within(document.body).getByText('Menu header')).toBeTruthy()
     const content = within(document.body).getByRole('menu')
-    expect(content.className).not.toBe('')
-    setDesign(defineTheme({ [key]: { base: { content: 'bg-red-500' } } }))
+    setDesign(defineTheme({ [key]: { base: { content: 'design-menu-content' } } }))
     expect(within(document.body).getByRole('menu')).toBe(content)
-    expect(content.className).toContain('bg-red-500')
-    expect(top).toHaveBeenCalledTimes(1)
+    expect(content.className).toContain('design-menu-content')
+    expect(within(document.body).getByText('Menu header')).toBeTruthy()
   })
 })

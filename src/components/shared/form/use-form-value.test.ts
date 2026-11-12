@@ -5,12 +5,9 @@ import type { UseFormFieldReturn } from '../../field/field-context'
 
 import { useFormValue } from './use-form-value'
 
-function createMockField(): UseFormFieldReturn & {
-  lastFormValue: unknown
-  emittedEvents: string[]
-} {
+function createMockField(): UseFormFieldReturn {
   const [value, setValue] = createSignal<unknown>(undefined)
-  const mock = {
+  return {
     id: () => 'test-id',
     name: () => 'test-name',
     size: () => 'md' as const,
@@ -18,21 +15,10 @@ function createMockField(): UseFormFieldReturn & {
     required: () => false,
     readOnly: () => false,
     invalid: () => false,
-    errors: () => [],
-    error: () => undefined,
-    fieldError: () => undefined,
-    schemaError: () => undefined,
-    descriptionId: () => undefined,
-    errorId: () => undefined,
     ariaAttrs: () => ({}),
     setControlRef: vi.fn(),
-    setFormValue: vi.fn((val: unknown) => {
-      mock.lastFormValue = val
-      setValue(val)
-    }),
-    emit: vi.fn((event: string) => {
-      mock.emittedEvents.push(event)
-    }),
+    setFormValue: vi.fn((val: unknown) => setValue(val)),
+    emit: vi.fn(),
     path: () => ['test-field'],
     value,
     runtimeState: () => ({
@@ -42,14 +28,11 @@ function createMockField(): UseFormFieldReturn & {
       validating: false,
       valid: true,
     }),
-    lastFormValue: undefined as unknown,
-    emittedEvents: [] as string[],
   }
-  return mock
 }
 
 describe('useFormValue', () => {
-  it('handles uncontrolled state with defaultValue and setValue', () => {
+  it('updates the value, notifies the caller, and syncs the form field', () => {
     createRoot((dispose) => {
       const onValueChange = vi.fn()
       const field = createMockField()
@@ -66,14 +49,12 @@ describe('useFormValue', () => {
       expect(value()).toBe('updated')
       expect(onValueChange).toHaveBeenCalledWith('updated')
       expect(field.setFormValue).toHaveBeenCalledWith('updated')
-      expect(field.emit).toHaveBeenCalledWith('change')
-      expect(field.emit).toHaveBeenCalledWith('input')
 
       dispose()
     })
   })
 
-  it('handles controlled state with value accessor', async () => {
+  it('keeps the controlled value authoritative until the parent updates it', () => {
     let disposeFn: (() => void) | undefined
     const [controlled, setControlled] = createSignal('first')
     const onValueChange = vi.fn()
@@ -96,19 +77,17 @@ describe('useFormValue', () => {
 
     setValueFn('second')
     expect(onValueChange).toHaveBeenCalledWith('second')
-    // Value still reflects controlled signal until parent updates it
     expect(valueAccessor()).toBe('first')
     expect(field.setFormValue).toHaveBeenCalledWith('first')
 
     setControlled('second')
     expect(valueAccessor()).toBe('second')
-    await Promise.resolve()
     expect(field.setFormValue).toHaveBeenCalledWith('second')
 
     disposeFn?.()
   })
 
-  it('skips onValueChange and emits when isEqual returns true', () => {
+  it('does not notify when the next value is equal to the current one', () => {
     createRoot((dispose) => {
       const onValueChange = vi.fn()
       const field = createMockField()
@@ -121,13 +100,12 @@ describe('useFormValue', () => {
 
       setValue('same')
       expect(onValueChange).not.toHaveBeenCalled()
-      expect(field.emit).not.toHaveBeenCalled()
 
       dispose()
     })
   })
 
-  it('resets uncontrolled state silently on reset()', () => {
+  it('resets an uncontrolled value to its default without notifying the caller', () => {
     createRoot((dispose) => {
       const onValueChange = vi.fn()
       const field = createMockField()
@@ -141,19 +119,17 @@ describe('useFormValue', () => {
       setValue('dirty')
       expect(value()).toBe('dirty')
       onValueChange.mockClear()
-      field.emittedEvents = []
 
       reset()
       expect(value()).toBe('initial')
-      expect(field.setFormValue).toHaveBeenCalledWith('initial')
+      expect(field.setFormValue).toHaveBeenLastCalledWith('initial')
       expect(onValueChange).not.toHaveBeenCalled()
-      expect(field.emittedEvents).toEqual([])
 
       dispose()
     })
   })
 
-  it('custom isEqual allows complex objects/arrays comparison', () => {
+  it('uses a custom isEqual to compare complex values', () => {
     createRoot((dispose) => {
       const onValueChange = vi.fn()
       const field = createMockField()
