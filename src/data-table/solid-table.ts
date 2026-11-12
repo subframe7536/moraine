@@ -8,8 +8,10 @@ import {
   createMemo,
   createRoot,
   createSignal,
+  getOwner,
   mergeProps,
   on,
+  onCleanup,
   untrack,
 } from 'solid-js'
 
@@ -18,9 +20,12 @@ import {
  * `defer: true` aligns with `@tanstack/store` subscription semantics, notifying
  * subscribers on subsequent changes rather than immediately upon registration.
  */
+type Observer<T> = ((val: T) => void) | { next?: (val: T) => void }
+
 function subscribeToSignal<T>(
   signal: () => T,
-  observerOrFn: ((val: T) => void) | { next?: (val: T) => void },
+  observerOrFn: Observer<T>,
+  subscriptions: Set<() => void>,
 ): { unsubscribe: () => void } {
   const cb =
     typeof observerOrFn === 'function' ? observerOrFn : observerOrFn?.next?.bind(observerOrFn)
@@ -29,6 +34,12 @@ function subscribeToSignal<T>(
   }
   let disposed = false
   let dispose: (() => void) | undefined
+  const unsubscribe = () => {
+    disposed = true
+    subscriptions.delete(unsubscribe)
+    dispose?.()
+  }
+  subscriptions.add(unsubscribe)
   createRoot((d) => {
     dispose = d
     createEffect(
@@ -43,17 +54,23 @@ function subscribeToSignal<T>(
       ),
     )
   })
-  return {
-    unsubscribe: () => {
-      disposed = true
-      dispose?.()
-    },
-  }
+  return { unsubscribe }
 }
 
-/** Framework reactivity bindings for table-core without observable or createComputed. */
-export function createSolidReactivity(): TableReactivityBindings {
+/**
+ * Framework reactivity bindings for table-core without observable or createComputed.
+ * `dispose` tears down every subscription table-core has not already unsubscribed.
+ */
+export function createSolidReactivity(): TableReactivityBindings & { dispose: () => void } {
+  const subscriptions = new Set<() => void>()
+  const dispose = () => {
+    for (const unsubscribe of subscriptions) {
+      unsubscribe()
+    }
+  }
+
   return {
+    dispose,
     createOptionsStore: true,
     wrapExternalAtoms: false,
     schedule: (fn: () => void) => queueMicrotask(fn),
@@ -66,7 +83,8 @@ export function createSolidReactivity(): TableReactivityBindings {
       })
       return Object.assign(() => memo(), {
         get: () => memo(),
-        subscribe: (observerOrFn: any) => subscribeToSignal(memo, observerOrFn),
+        subscribe: (observerOrFn: Observer<T>) =>
+          subscribeToSignal(memo, observerOrFn, subscriptions),
       })
     },
     createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>): any => {
@@ -76,18 +94,19 @@ export function createSolidReactivity(): TableReactivityBindings {
       })
       return Object.assign(() => signal(), {
         get: () => signal(),
-        set: (updater: any) => {
+        set: (updater: T | ((prev: T) => T)) => {
           if (typeof updater === 'function') {
-            setSignal(updater)
+            setSignal(updater as (prev: T) => T)
           } else {
             setSignal(() => updater)
           }
         },
-        subscribe: (observerOrFn: any) => subscribeToSignal(signal, observerOrFn),
+        subscribe: (observerOrFn: Observer<T>) =>
+          subscribeToSignal(signal, observerOrFn, subscriptions),
       })
     },
     addSubscription: () => {},
-    unmount: () => {},
+    unmount: dispose,
   }
 }
 
@@ -100,6 +119,9 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   tableOptions: TableOptions<TFeatures, TData>,
 ): Table<TFeatures, TData> {
   const reactivity = createSolidReactivity()
+  if (getOwner()) {
+    onCleanup(reactivity.dispose)
+  }
   const mergedOptions = mergeProps(tableOptions, {
     features: {
       coreReactivityFeature: reactivity,

@@ -11,7 +11,7 @@ import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { FlexRender } from './flex-render'
-import { createTable } from './solid-table'
+import { createSolidReactivity, createTable } from './solid-table'
 
 interface TestRow {
   a: string
@@ -33,6 +33,26 @@ const data: TestRow[] = [
   { a: '2', b: 'x' },
   { a: '1', b: 'y' },
 ]
+
+describe('createSolidReactivity', () => {
+  it('dispose stops subscriptions that table-core did not unsubscribe', () => {
+    const reactivity = createSolidReactivity()
+    const atom = reactivity.createWritableAtom(0) as {
+      set: (value: number) => void
+      subscribe: (cb: (value: number) => void) => unknown
+    }
+    const seen: number[] = []
+
+    atom.subscribe((value) => seen.push(value))
+    atom.set(1)
+    expect(seen).toEqual([1])
+
+    reactivity.dispose()
+    atom.set(2)
+
+    expect(seen).toEqual([1])
+  })
+})
 
 describe('createTable', () => {
   it('setOptions updates tracked row reads', () => {
