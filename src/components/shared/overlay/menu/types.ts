@@ -1,11 +1,17 @@
+import type { ReferenceElement } from '@floating-ui/dom'
 import type { ClassValue } from 'cn'
-import type { Component, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { OverlayAlign, OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding as ComponentSlotBinding } from '../../../../theme/use-recipe'
 import type { IconT } from '../../../icon'
 
-import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
+import type {
+  OverlayMenuAnchorRect,
+  OverlayMenuCloseOptions,
+  OverlayMenuFocusStrategy,
+  OverlayMenuLayerState,
+} from './menu.utils'
 import type { OverlayMenuStyleSlot } from './style-types'
 
 export interface OverlayMenuContentSlotProps {
@@ -320,6 +326,23 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
    * Context menu handler for the content wrapper.
    */
   onContentContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
+}
+
+export interface OverlayMenuLayerProps<
+  TItem extends OverlayMenuItem = OverlayMenuItem,
+> extends OverlayMenuProps<TItem> {
+  ariaLabelledBy?: string
+  close: (options?: OverlayMenuCloseOptions) => void
+  closeOnTab: (direction: 'forward' | 'backward') => void
+  closeRoot: (options?: OverlayMenuCloseOptions) => void
+  depth: number
+  getReferenceElement: () => ReferenceElement | undefined
+  parentLayer?: OverlayMenuLayerState
+  present: Accessor<boolean>
+  refState?: (state: OverlayMenuLayerState | undefined) => void
+  registerBranch: (element: HTMLElement) => () => void
+  /** Keeps this layer's content mounted through its exit animation. */
+  registerPresenceElement: (element: HTMLElement) => () => void
 }
 
 /**

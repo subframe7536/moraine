@@ -28,6 +28,10 @@ export function createSelectableItemHandlers(
     disabled: () => boolean
     element: Accessor<HTMLDivElement | undefined>
     itemId: Accessor<string>
+    onHighlight?: () => void
+    onPointerLeave?: (event: PointerEvent & { currentTarget: HTMLDivElement }) => void
+    keys?: Record<string, () => void>
+    direction?: () => 'ltr' | 'rtl'
   },
 ): Pick<
   JSX.HTMLAttributes<HTMLDivElement>,
@@ -40,6 +44,11 @@ export function createSelectableItemHandlers(
   | 'onPointerLeave'
 > {
   const highlight = (): void => {
+    if (options.onHighlight) {
+      options.onHighlight()
+      return
+    }
+
     if (layer.highlightedItemId() === options.itemId()) {
       return
     }
@@ -89,7 +98,8 @@ export function createSelectableItemHandlers(
     onKeyDown: createKeyDownHandler<HTMLDivElement>({
       disabled: options.disabled,
       skipRepeat: true,
-      keys: { Enter: options.activate, ' ': options.activate },
+      direction: options.direction,
+      keys: options.keys ?? { Enter: options.activate, ' ': options.activate },
     }),
     onPointerDown: (event) => {
       if (options.disabled()) {
@@ -105,7 +115,11 @@ export function createSelectableItemHandlers(
     onPointerLeave: (event) => {
       if (event.pointerType === 'mouse') {
         layer.clearQueuedPointerEnter(event.currentTarget)
-        layer.focusContent()
+        if (options.onPointerLeave) {
+          options.onPointerLeave(event)
+        } else {
+          layer.focusContent()
+        }
       }
     },
   }
@@ -149,7 +163,7 @@ interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
   ) => OverlayMenuItemRenderProps<TItem>
 }
 
-interface MenuItemSlotOptions {
+export interface MenuItemSlotOptions {
   class?: ClassValue
   style?: JSX.CSSProperties
   data: DataAttributeBag
