@@ -93,7 +93,7 @@ export namespace PinInputT {
     defaultValue?: string[] | string
 
     /**
-     * Callback when the pin input value changes.
+     * Callback when the pin input value changes, passing the slot characters as an array.
      */
     onValueChange?: (value: string[]) => void
 
@@ -110,7 +110,7 @@ export namespace PinInputT {
     onValueInvalid?: (value: string) => void
 
     /**
-     * Native change event, after value synchronization and Field notification.
+     * Callback when the pin input value changes, passing the joined string.
      */
     onChange?: (value: string) => void
 
