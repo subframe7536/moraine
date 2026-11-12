@@ -4,7 +4,7 @@ import { createSignal } from 'solid-js'
 import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { callRef } from '../../shared/utils'
-import { containFocusInContainer } from '../shared/overlay/utils'
+import { containFocusInContainer } from '../shared/overlay/focus'
 
 import type { ModalContext } from './modal-context'
 

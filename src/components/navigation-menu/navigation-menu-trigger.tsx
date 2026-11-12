@@ -7,8 +7,8 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
+import { resolveDirection } from '../shared/overlay/direction'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
-import { resolveDirection } from '../shared/overlay/utils'
 
 import {
   isMousePointer,

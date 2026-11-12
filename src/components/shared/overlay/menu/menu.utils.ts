@@ -6,7 +6,7 @@ import type { KeyBindingOptions } from '../../../../shared/keyboard'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
-import { focusWithoutScrolling } from '../utils'
+import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem } from './types'
 

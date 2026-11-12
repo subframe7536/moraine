@@ -20,18 +20,15 @@ import { createSelectableCollectionNavigation } from '../../shared/selectable-co
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
+import { resolveDirection } from '../shared/overlay/direction'
+import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
 import {
   createPointerGraceIntent,
   isPointInPointerGraceIntent,
 } from '../shared/overlay/menu/menu.utils'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
 import type { PopperContentContext } from '../shared/overlay/popper.types'
-import {
-  focusWithoutScrolling,
-  getFocusableElements,
-  resolveDirection,
-  scrollIntoViewWithin,
-} from '../shared/overlay/utils'
+import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
 import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
 

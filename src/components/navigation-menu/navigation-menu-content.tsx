@@ -8,13 +8,10 @@ import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
+import { resolveDirection } from '../shared/overlay/direction'
+import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
 import { mergePopperElementProps } from '../shared/overlay/popper'
-import {
-  focusWithoutScrolling,
-  getFocusableElements,
-  resolveDirection,
-  scrollIntoViewWithin,
-} from '../shared/overlay/utils'
+import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'

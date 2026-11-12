@@ -26,7 +26,9 @@ import { useButtonInteraction } from '../../../shared/use-button-interaction'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
+import { acquireAriaHideOutside } from './aria-hide'
 import { useFloatingPosition } from './floating'
+import { containFocusInContainer, focusContent, focusTrigger } from './focus'
 import { useOverlayInteraction } from './interaction'
 import { resolveFloatingPlacement } from './placement'
 import { popperDataAttributes } from './popper.recipe'
@@ -38,13 +40,7 @@ import type {
   PopperPointerDownOutsideEvent,
   PopperTriggerProps,
 } from './popper.types'
-import {
-  acquireAriaHideOutside,
-  acquireBodyScrollLock,
-  focusContent,
-  focusTrigger,
-  containFocusInContainer,
-} from './utils'
+import { acquireBodyScrollLock } from './scroll-lock'
 /** Preserve floating behavior while forwarding the surface's native ref and events. */
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,

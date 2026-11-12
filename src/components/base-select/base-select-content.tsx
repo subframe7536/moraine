@@ -8,7 +8,7 @@ import { createTransitionPresence } from '../../shared/transition-presence'
 import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
-import { acquireBodyScrollLock } from '../shared/overlay/utils'
+import { acquireBodyScrollLock } from '../shared/overlay/scroll-lock'
 
 import { useSelectContext } from './base-select-context'
 import {

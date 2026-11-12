@@ -4,9 +4,9 @@ import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
+import { getFocusableElements } from '../shared/overlay/focus'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
-import { getFocusableElements } from '../shared/overlay/utils'
 
 import { usePopoverContext } from './popover-context'
 import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'

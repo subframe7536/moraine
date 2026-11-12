@@ -20,7 +20,7 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
-import { resolveDirection } from '../shared/overlay/utils'
+import { resolveDirection } from '../shared/overlay/direction'
 
 import { tabsDataAttributes, tabsRecipe } from './tabs.recipe'
 import type { TabsProps, TabsT } from './tabs.types'

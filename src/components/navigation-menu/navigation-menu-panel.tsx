@@ -4,8 +4,8 @@ import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createEventListener } from '../../shared/event-listener'
+import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
-import { resolveDirection } from '../shared/overlay/utils'
 
 import { isMousePointer, useNavigationMenuContext } from './navigation-menu-context'
 import {

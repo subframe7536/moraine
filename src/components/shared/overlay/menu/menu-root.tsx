@@ -7,13 +7,9 @@ import { createTransitionPresence } from '../../../../shared/transition-presence
 import { createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import { containsComposed, isNode } from '../dom'
+import { focusTrigger, focusWithoutScrolling, getFocusableElements } from '../focus'
 import { useOverlayInteraction } from '../interaction'
-import {
-  acquireBodyScrollLock,
-  focusTrigger,
-  focusWithoutScrolling,
-  getFocusableElements,
-} from '../utils'
+import { acquireBodyScrollLock } from '../scroll-lock'
 
 import { OverlayMenuLayer } from './menu-layer'
 import { createVirtualReference } from './menu.utils'

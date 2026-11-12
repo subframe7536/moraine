@@ -4,10 +4,11 @@ import { createEffect, on, onCleanup } from 'solid-js'
 import { createEventListenerMap } from '../../../shared/event-listener'
 import { createKeyDownHandler } from '../../../shared/keyboard'
 
+import { createCompositionState } from './composition'
 import { isNode } from './dom'
+import { createOutsidePressHandlers } from './outside-press'
 import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack'
 import type { OverlayStackEntry } from './overlay-stack'
-import { createCompositionState, createOutsidePressHandlers } from './utils'
 
 interface SuppressedPointerClick {
   pointerId: number

@@ -10,7 +10,7 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon/index'
-import { resolveDirection } from '../shared/overlay/utils'
+import { resolveDirection } from '../shared/overlay/direction'
 
 import { stepperDataAttributes, stepperRecipe } from './stepper.recipe'
 import type { StepperProps, StepperT } from './stepper.types'

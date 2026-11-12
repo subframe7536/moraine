@@ -6,15 +6,11 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { createEventListenerMap } from '../../shared/event-listener'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
+import { acquireAriaHideOutside } from '../shared/overlay/aria-hide'
 import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../shared/overlay/dom'
+import { focusContent, focusTrigger, focusWithoutScrolling } from '../shared/overlay/focus'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
-import {
-  acquireAriaHideOutside,
-  acquireBodyScrollLock,
-  focusContent,
-  focusWithoutScrolling,
-  focusTrigger,
-} from '../shared/overlay/utils'
+import { acquireBodyScrollLock } from '../shared/overlay/scroll-lock'
 
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'

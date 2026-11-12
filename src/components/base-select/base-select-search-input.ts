@@ -4,7 +4,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { isAndroidUserAgent } from '../../shared/utils'
-import { createCompositionState } from '../shared/overlay/utils'
+import { createCompositionState } from '../shared/overlay/composition'
 
 import type { BaseSelectT } from './base-select.types'
 

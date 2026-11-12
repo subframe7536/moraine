@@ -14,7 +14,8 @@ import { createEffect, on, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
 
-import { getTransformOrigin, resolveDirection } from './utils'
+import { resolveDirection } from './direction'
+import { getTransformOrigin } from './transform-origin'
 
 const PLACEMENT_PATTERN = /^(?:top|bottom|left|right)(?:-(?:start|end))?$/
 

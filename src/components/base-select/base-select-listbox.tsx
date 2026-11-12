@@ -4,7 +4,7 @@ import { createEffect, createSignal, on, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
 import { sameValue } from '../shared/form/select/collection'
-import { scrollIntoViewWithin } from '../shared/overlay/utils'
+import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'

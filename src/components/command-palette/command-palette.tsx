@@ -25,7 +25,8 @@ import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared
 import { Icon } from '../icon'
 import { List } from '../list'
 import type { ListT } from '../list'
-import { createCompositionState, resolveDirection } from '../shared/overlay/utils'
+import { createCompositionState } from '../shared/overlay/composition'
+import { resolveDirection } from '../shared/overlay/direction'
 
 import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
