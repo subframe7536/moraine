@@ -96,13 +96,8 @@ export default defineConfig({
               includeDependenciesRecursively: true,
             },
             {
-              name: 'moraine-components',
-              test: /[\\/]src[\\/]components[\\/]/,
-              includeDependenciesRecursively: false,
-            },
-            {
-              name: 'moraine-shared',
-              test: /[\\/]src[\\/]shared[\\/]/,
+              name: 'moraine',
+              test: /[\\/]src[\\/]/,
               includeDependenciesRecursively: false,
             },
           ],
