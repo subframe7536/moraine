@@ -1000,4 +1000,28 @@ describe('Form', () => {
     expect(screen.queryByText('Manual error')).toBeNull()
     expect(screen.queryByText('Schema error')).toBeNull()
   })
+
+  test('exposes plain dot-joined paths as native names for FormData', () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ email: v.string(), profile: v.object({ name: v.string() }) }),
+          initialInput: { email: 'dev@example.com', profile: { name: 'Ada' } },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+          <form.Field name={['profile', 'name']} label="Name">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    const data = new FormData(screen.container.querySelector('form')!)
+    expect(data.get('email')).toBe('dev@example.com')
+    expect(data.get('profile.name')).toBe('Ada')
+  })
 })

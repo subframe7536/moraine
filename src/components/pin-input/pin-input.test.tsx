@@ -1165,4 +1165,78 @@ describe('PinInput', () => {
     expect(inputs[0]?.getAttribute('form')).toBe('external-form')
     expect(hidden.getAttribute('form')).toBe('external-form')
   })
+
+  test('validates on change inside form.Field with validate change', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.pipe(v.string(), v.length(4, 'Enter 4 digits.')) }),
+          initialInput: { code: '' },
+          validate: 'change',
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code">
+            <PinInput length={4} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    fireEvent.input(inputs[0]!, { target: { value: '1' } })
+
+    await waitFor(() => expect(screen.getByText('Enter 4 digits.')).not.toBeNull())
+  })
+
+  test('focuses the first empty slot when submitting an invalid form with a partial value', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.pipe(v.string(), v.length(4, 'Enter 4 digits.')) }),
+          initialInput: { code: '12' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code">
+            <PinInput length={4} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(inputs[2]))
+  })
+
+  test('focuses the last slot when submitting an invalid form with every slot filled', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.pipe(v.string(), v.regex(/^0+$/, 'Use zeros only.')) }),
+          initialInput: { code: '1234' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code">
+            <PinInput length={4} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(inputs[3]))
+  })
 })

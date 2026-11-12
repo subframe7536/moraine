@@ -112,6 +112,10 @@ Checkbox and radio items receive their checked or selected state from your appli
 their callbacks. Nested children create submenus. Disabled items remain visible but cannot be
 activated.
 
+A parent item with `children` can take `open` and `onOpenChange` to control its submenu. `onOpenChange`
+reports every open or close request from pointer, keyboard, or click interaction. With a controlled
+`open`, the submenu stays at the prop value until you update it.
+
 ```tsx
 <DropdownMenu.Content
   items={[

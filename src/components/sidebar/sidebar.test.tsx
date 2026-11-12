@@ -1109,6 +1109,20 @@ describe('Sidebar landmarks', () => {
     )
     expect(screen.container.querySelector('#app-sidebar')).not.toBeNull()
   })
+
+  test('Trigger aria-controls still resolves when a consumer passes a panel id', () => {
+    const screen = render(() => (
+      <Sidebar isMobile={false} panelId="app-sidebar">
+        <Sidebar.Panel id="consumer-id">Navigation</Sidebar.Panel>
+        <Sidebar.Inset>
+          <Sidebar.Trigger>Toggle</Sidebar.Trigger>
+        </Sidebar.Inset>
+      </Sidebar>
+    ))
+    const controlled = screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-controls')
+    expect(controlled).toBe('app-sidebar')
+    expect(screen.container.querySelector(`#${controlled}`)).toBe(panelOf(screen.container))
+  })
 })
 
 describe('Sidebar context validation', () => {

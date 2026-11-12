@@ -567,6 +567,25 @@ describe('Toast', () => {
     })
   })
 
+  it('moves to the error state when the promise producer throws synchronously', async () => {
+    render(() => <Toast />)
+
+    expect(() =>
+      Toast.promise(
+        () => {
+          throw new Error('Sync failure')
+        },
+        {
+          loading: { title: 'Checking access...' },
+          error: (err) => ({ title: `Check failed: ${(err as Error).message}` }),
+        },
+      ),
+    ).not.toThrow()
+
+    expect(await screen.findByText('Check failed: Sync failure')).not.toBeNull()
+    expect(screen.queryByText('Checking access...')).toBeNull()
+  })
+
   it('does not apply the final duration to the loading toast', async () => {
     vi.useFakeTimers()
     try {

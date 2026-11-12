@@ -152,6 +152,12 @@ export function PinInput(props: PinInputProps): JSX.Element {
     resetChars,
   } = state
 
+  createEffect(
+    on(getTargetIndex, (index) => {
+      field.setControlRef(inputEls[index] ?? undefined)
+    }),
+  )
+
   const fieldDataState = {
     disabled: field.disabled,
     invalid: () => !field.disabled() && (field.invalid() || nativeInvalid()),
@@ -553,9 +559,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 id={`${field.id()}-${idx}`}
                 ref={(element) => {
                   inputEls[idx] = element
-                  if (idx === 0) {
-                    field.setControlRef(element)
-                  }
                 }}
                 type={local.mask ? 'password' : 'text'}
                 inputMode={inputMode()}

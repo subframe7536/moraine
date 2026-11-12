@@ -23,7 +23,7 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
 
   return {
     get name() {
-      return field.props.name
+      return field.path?.join('.')
     },
     get path() {
       return field.path?.slice()
@@ -59,9 +59,7 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
       } else if (type === 'focus') {
         field.props.onFocus()
       } else if (type === 'change') {
-        if (event && 'currentTarget' in event) {
-          field.props.onChange(event as Parameters<typeof field.props.onChange>[0])
-        }
+        field.props.onChange(event as Parameters<typeof field.props.onChange>[0])
       } else if (type === 'input') {
         if (event && 'currentTarget' in event) {
           field.props.onInput(event as Parameters<typeof field.props.onInput>[0])

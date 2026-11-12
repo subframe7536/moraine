@@ -51,7 +51,7 @@ export namespace ContextMenuT {
     align?: OverlayAlign
     /** Gap between the anchor and the content. @default 0 */
     gutter?: number
-    /** Cross-axis or alignment offset relative to the anchor. @default 0 */
+    /** Cross-axis or alignment offset relative to the anchor. @default 4 */
     shift?: number
     /** Whether body scroll should be locked while the menu is open. @default true */
     preventScroll?: boolean

@@ -46,7 +46,6 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     return (
       <Dynamic
         component={(local.as ?? 'aside') as ValidComponent}
-        id={context.panelId()}
         data-slot="sidebar-panel"
         {...panelSlot}
         ref={(node: HTMLElement) => {
@@ -57,6 +56,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         inert={closed() ? true : undefined}
         aria-label={local['aria-label']}
         {...(rest as object)}
+        id={context.panelId()}
       >
         {content()}
       </Dynamic>

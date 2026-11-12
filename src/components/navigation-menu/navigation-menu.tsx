@@ -72,7 +72,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
   )
   return (
     <NavigationMenuProvider value={context}>
-      <nav {...attributes} id={context.id()} data-slot="navigation-menu" {...rootSlot}>
+      <nav data-slot="navigation-menu" {...rootSlot} {...attributes} id={context.id()}>
         {local.children}
         <NavigationMenuPanel />
       </nav>

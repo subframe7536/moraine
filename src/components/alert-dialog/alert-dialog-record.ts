@@ -112,7 +112,7 @@ export function createAlertDialogRecord(
       classes: mergeSlots(defaults.classes, call.classes),
       style: pickDefined(call.style, defaults.style),
       styles: mergeSlots(defaults.styles, call.styles),
-      translations: call.translations ?? defaults.translations,
+      translations: mergeSlots(defaults.translations, call.translations),
     }
   }
 

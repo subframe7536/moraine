@@ -213,18 +213,19 @@ export function AlertDialogEntry(props: {
     ),
   )
 
+  const idle = () => props.record.pending() === undefined
+
   return (
     <Dialog
       id={String(props.record.id)}
       open={props.record.open()}
       modal
-      closable={(options().closable ?? false) && props.record.pending() === undefined}
-      closeOnOverlayClick={
-        options().closeOnOverlayClick === true && props.record.pending() === undefined
-      }
-      closeOnEscape={options().closeOnEscape !== false && props.record.pending() === undefined}
+      translations={options().translations}
+      closable={(options().closable ?? false) && idle()}
+      closeOnOverlayClick={options().closeOnOverlayClick === true && idle()}
+      closeOnEscape={options().closeOnEscape !== false && idle()}
       onOpenChange={(next) => {
-        if (!next && props.record.pending() === undefined) {
+        if (!next && idle()) {
           props.record.presentation.close('dismiss')
         }
       }}

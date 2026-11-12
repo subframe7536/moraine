@@ -114,7 +114,8 @@ export function createTransitionPresence(
       return options.open() ? '' : undefined
     },
   }
-  const [registrations, setRegistrations] = createSignal<Map<number, HTMLElement>>(new Map())
+  const registrations = new Map<number, HTMLElement>()
+  const [revision, setRevision] = createSignal(0)
   const animationNames = new Map<HTMLElement, Array<string>>()
   const trackedElements = new Map<HTMLElement, TrackedElement>()
   const measuredElements = new Set<HTMLElement>()
@@ -233,32 +234,25 @@ export function createTransitionPresence(
     measuredElements.delete(element)
     animationNames.delete(element)
     pendingAnimations.delete(element)
-    finishHiding()
-  }
-
-  const updateRegistration = (update: (current: Map<number, HTMLElement>) => void): void => {
-    setRegistrations((current) => {
-      const next = new Map(current)
-      update(next)
-      return next
+    // oxlint-disable-next-line subf/solid-reactivity -- Owner teardown releases before `disposed` is set, so settle after it.
+    queueMicrotask(() => {
+      if (!disposed) {
+        finishHiding()
+      }
     })
   }
 
   const addRegistration = (element: HTMLElement): number => {
     const registrationId = nextRegistrationId++
     retainElement(element)
-    updateRegistration((current) => {
-      current.set(registrationId, element)
-    })
+    registrations.set(registrationId, element)
+    setRevision((current) => current + 1)
     return registrationId
   }
 
   const removeRegistration = (registrationId: number): void => {
-    let element: HTMLElement | undefined
-    updateRegistration((current) => {
-      element = current.get(registrationId)
-      current.delete(registrationId)
-    })
+    const element = registrations.get(registrationId)
+    registrations.delete(registrationId)
 
     if (element) {
       releaseElement(element)
@@ -276,8 +270,8 @@ export function createTransitionPresence(
   })
 
   createEffect(
-    on([options.open, registrations], ([open, currentRegistrations]) => {
-      const currentElements = Array.from(new Set(currentRegistrations.values()))
+    on([options.open, revision], ([open]) => {
+      const currentElements = Array.from(new Set(registrations.values()))
 
       if (open) {
         clearPendingAnimations()
@@ -365,7 +359,6 @@ export function createTransitionPresence(
       const registrationId = addRegistration(element)
       let active = true
 
-      // oxlint-disable-next-line subf/solid-reactivity -- Registration cleanup can complete an exit and must read current presence.
       return () => {
         if (!active) {
           return

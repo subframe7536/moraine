@@ -469,6 +469,97 @@ describe('createTransitionPresence', () => {
     expect(exit).toHaveBeenCalledTimes(callsAtUnmount)
   })
 
+  test('does not report an exit when its owner unmounts before the exit starts', async () => {
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'none',
+    }))
+    const exit = vi.fn()
+    let setOpen!: (open: boolean) => void
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      setOpen = updateOpen
+      const presence = createTransitionPresence({ open, onExitComplete: exit })
+      return (
+        <Show when={presence.present()}>
+          <PresenceElement presence={presence} />
+        </Show>
+      )
+    })
+
+    closed = true
+    setOpen(false)
+    screen.unmount()
+    await flushExitDetection()
+
+    expect(exit).not.toHaveBeenCalled()
+  })
+
+  test('does not report an exit when its owner unmounts mid-exit', async () => {
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'none',
+    }))
+    const exit = vi.fn()
+    let setOpen!: (open: boolean) => void
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      setOpen = updateOpen
+      const presence = createTransitionPresence({ open, onExitComplete: exit })
+      return (
+        <Show when={presence.present()}>
+          <PresenceElement presence={presence} />
+        </Show>
+      )
+    })
+
+    closed = true
+    setOpen(false)
+    await flushExitDetection()
+    screen.unmount()
+    await flushExitDetection()
+
+    expect(exit).not.toHaveBeenCalled()
+  })
+
+  test('reports an exit when its element is removed while hiding', async () => {
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'none',
+    }))
+    const exit = vi.fn()
+    let setOpen!: (open: boolean) => void
+    let setMounted!: (mounted: boolean) => void
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const [mounted, updateMounted] = createSignal(true)
+      setOpen = updateOpen
+      setMounted = updateMounted
+      const presence = createTransitionPresence({ open, onExitComplete: exit })
+      return (
+        <Show when={presence.present()}>
+          <Show when={mounted()}>
+            <PresenceElement presence={presence} />
+          </Show>
+        </Show>
+      )
+    })
+
+    closed = true
+    setOpen(false)
+    await flushExitDetection()
+    expect(exit).not.toHaveBeenCalled()
+
+    setMounted(false)
+    await flushExitDetection()
+
+    expect(exit).toHaveBeenCalledOnce()
+    screen.unmount()
+  })
+
   test('ignores animation events from descendants', async () => {
     const fixture = renderPresence()
     const child = document.createElement('span')

@@ -140,6 +140,14 @@ describe('NavigationMenu', () => {
     },
   )
 
+  test('lets caller data attributes overload the root slot attributes', () => {
+    render(() => <TestMenu data-orientation="caller" />)
+
+    expect(page.getByRole('navigation', { name: 'Main' }).getAttribute('data-orientation')).toBe(
+      'caller',
+    )
+  })
+
   test('opens native navigation panels lazily and exposes accessible state', async () => {
     const _screen = render(() => <TestMenu />)
     expect(page.getByRole('navigation', { name: 'Main' })).toBeDefined()

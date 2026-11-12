@@ -115,7 +115,7 @@ export namespace AlertDialogT {
     closeOnOverlayClick?: boolean
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
-    /** Localized message overrides for this dialog instance. */
+    /** Localized message overrides for this dialog, merged per key over the host translations. */
     translations?: DialogT.Translations
   }
 

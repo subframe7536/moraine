@@ -79,6 +79,11 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
   defaultOpen?: boolean
 
   /**
+   * Event handler called when the submenu requests an open or close change.
+   */
+  onOpenChange?: (open: boolean) => void
+
+  /**
    * Nested menu items for creating submenus.
    */
   children?: OverlayMenuItem[]

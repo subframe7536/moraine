@@ -441,6 +441,157 @@ describe('DropdownMenu', () => {
     expect(document.activeElement).toBe(subTrigger)
   })
 
+  test('reports uncontrolled submenu open changes through onOpenChange', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'More', onOpenChange, children: [{ label: 'Nested action' }] }]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item"]')).not.toBeNull()
+    })
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted as HTMLElement
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+    })
+    expect(onOpenChange.mock.calls).toEqual([[true]])
+
+    const submenuContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
+    fireEvent.keyDown(submenuContent, { key: 'ArrowLeft' })
+
+    await waitFor(() => {
+      expect(submenuContent.getAttribute('data-closed')).toBe('')
+    })
+    expect(onOpenChange.mock.calls).toEqual([[true], [false]])
+  })
+
+  test('keeps a controlled submenu closed until its open prop changes', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              open: false,
+              onOpenChange,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item"]')).not.toBeNull()
+    })
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted as HTMLElement
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    })
+    expect(subTrigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.body.textContent).not.toContain('Nested action')
+  })
+
+  test('follows a controlled submenu open prop and reports close requests', async () => {
+    const [open, setOpen] = createSignal(false)
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              get open() {
+                return open()
+              },
+              onOpenChange,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item"]')).not.toBeNull()
+    })
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted as HTMLElement
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    })
+    expect(document.body.textContent).not.toContain('Nested action')
+
+    setOpen(true)
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+    })
+    const submenuContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
+    fireEvent.keyDown(submenuContent, { key: 'ArrowLeft' })
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledTimes(2)
+    })
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    expect(document.body.textContent).toContain('Nested action')
+
+    setOpen(false)
+    await waitFor(() => {
+      expect(submenuContent.getAttribute('data-closed')).toBe('')
+    })
+  })
+
   test('applies itemSubIndicator presentation inside submenu layers', async () => {
     render(() => (
       <DropdownMenu defaultOpen classes={{ itemSubIndicator: 'custom-sub-indicator' }}>

@@ -55,6 +55,11 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       value: () => ('open' in itemProps.item ? itemProps.item.open : undefined),
       defaultValue: () =>
         'defaultOpen' in itemProps.item ? (itemProps.item.defaultOpen ?? false) : false,
+      onChange: (open) => {
+        if ('onOpenChange' in itemProps.item) {
+          itemProps.item.onOpenChange?.(open)
+        }
+      },
     })
     const [autoFocusStrategy, setAutoFocusStrategy] = createSignal<OverlayMenuFocusStrategy>('none')
     const contentPresence = createTransitionPresence({

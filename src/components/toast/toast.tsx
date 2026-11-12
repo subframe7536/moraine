@@ -203,9 +203,9 @@ Toast.success = (options) => showToast(withType('success', options))
 Toast.warning = (options) => showToast(withType('warning', options))
 Toast.error = (options) => showToast(withType('error', options))
 Toast.loading = (options) => showToast(withType('loading', options))
-Toast.promise = (value, options) => {
+Toast.promise = <T,>(value: Promise<T> | (() => Promise<T>), options: ToastT.PromiseOptions<T>) => {
   const handle = Toast.loading(options.loading ?? {})
-  const task = Promise.resolve(typeof value === 'function' ? value() : value)
+  const task = new Promise<T>((resolve) => resolve(typeof value === 'function' ? value() : value))
   void task.then(
     (data) => {
       const next = typeof options.success === 'function' ? options.success(data) : options.success

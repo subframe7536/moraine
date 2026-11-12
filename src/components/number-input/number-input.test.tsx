@@ -736,6 +736,30 @@ describe('NumberInput', () => {
     expect(getInput(form)).toEqual({ quantity: 8 })
   })
 
+  test('validates on change inside form.Field with validate change', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ quantity: v.pipe(v.number(), v.minValue(5, 'Too small.')) }),
+          initialInput: { quantity: 5 },
+          validate: 'change',
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="quantity" label="Quantity">
+            <NumberInput />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.input(screen.getByLabelText<HTMLInputElement>('Quantity'), {
+      target: { value: '2' },
+    })
+
+    await waitFor(() => expect(screen.getByText('Too small.')).not.toBeNull())
+  })
+
   test('reacts to external Formisch input without publishing callbacks', () => {
     const onRawValueChange = vi.fn()
     const { screen, value: form } = renderWithOwner(

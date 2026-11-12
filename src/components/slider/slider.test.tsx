@@ -163,6 +163,38 @@ describe('Slider', () => {
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
+  test('marks the range empty only when a single value is at the minimum', () => {
+    const [negativeValue, setNegativeValue] = createSignal(0)
+    const negative = render(() => (
+      <Slider min={-10} max={10} value={negativeValue()} onValueChange={setNegativeValue} />
+    ))
+    const negativeRange = negative.container.querySelector(
+      '[data-slot="slider-range"]',
+    ) as HTMLElement
+
+    expect(negativeRange.hasAttribute('data-empty')).toBe(false)
+    setNegativeValue(-10)
+    expect(negativeRange.hasAttribute('data-empty')).toBe(true)
+    setNegativeValue(10)
+    expect(negativeRange.hasAttribute('data-empty')).toBe(false)
+    negative.unmount()
+
+    const zeroMin = render(() => <Slider defaultValue={0} />)
+    expect(
+      (zeroMin.container.querySelector('[data-slot="slider-range"]') as HTMLElement).hasAttribute(
+        'data-empty',
+      ),
+    ).toBe(true)
+    zeroMin.unmount()
+
+    const rangeSlider = render(() => <Slider min={-10} max={10} defaultValue={[0, 5]} />)
+    expect(
+      (
+        rangeSlider.container.querySelector('[data-slot="slider-range"]') as HTMLElement
+      ).hasAttribute('data-empty'),
+    ).toBe(false)
+  })
+
   test('vertical arrow keys follow the visual direction', async () => {
     const verticalChange = vi.fn()
     const verticalScreen = render(() => (

@@ -340,6 +340,20 @@ describe('AlertDialog', () => {
     })
   })
 
+  test('merges host and call translations per key, including the corner close button', async () => {
+    render(() => <AlertDialog translations={{ close: 'Fermer', cancel: 'Retour' }} />)
+    void AlertDialog.confirm({
+      title: 'Localized',
+      closable: true,
+      translations: { ok: 'Oui' },
+    })
+    await waitForTitle('Localized')
+
+    expect(button('Fermer')).toBeInstanceOf(HTMLButtonElement)
+    expect(button('Retour')).toBeInstanceOf(HTMLButtonElement)
+    expect(button('Oui')).toBeInstanceOf(HTMLButtonElement)
+  })
+
   test('hides cancel for confirm and shows it for other methods when requested', async () => {
     setup()
     void AlertDialog.confirm({ title: 'No cancel', cancel: false })

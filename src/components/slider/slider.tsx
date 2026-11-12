@@ -86,7 +86,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             return false
           }
           const val = values[0]!
-          return val === 0 || slider.getValuePercent(val) === 0
+          return slider.getValuePercent(val) === 0
         },
         multiple: isMultiple,
         inverted: () => merged.inverted,
