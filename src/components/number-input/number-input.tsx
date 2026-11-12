@@ -85,11 +85,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'onIncrementClick',
     'onDecrementClick',
     'repeat',
-    'holdRepeat',
-    'repeatDelayMs',
-    'repeatIntervalMs',
-    'repeatThrottleMs',
-    'repeatPointerTypes',
     'disabled',
     'required',
     'readOnly',
@@ -137,8 +132,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   const merged = mergeProps(
     {
-      holdRepeat: true,
-      repeatPointerTypes: 'all' as const,
       stepSnapping: true,
     },
     local,
@@ -285,16 +278,16 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   }
 
   const repeatConfig = createMemo<RepeatConfig | null>(() => {
-    if (merged.repeat === false || merged.holdRepeat === false) {
+    if (merged.repeat === false) {
       return null
     }
     const cfg =
       typeof merged.repeat === 'object' && merged.repeat !== null ? merged.repeat : undefined
     return {
-      delay: cfg?.delay ?? merged.repeatDelayMs ?? 500,
-      interval: cfg?.interval ?? merged.repeatIntervalMs ?? 80,
-      throttle: cfg?.throttle ?? merged.repeatThrottleMs ?? 0,
-      pointerTypes: cfg?.pointerTypes ?? merged.repeatPointerTypes ?? 'all',
+      delay: cfg?.delay ?? 500,
+      interval: cfg?.interval ?? 80,
+      throttle: cfg?.throttle ?? 0,
+      pointerTypes: cfg?.pointerTypes ?? 'all',
     }
   })
 

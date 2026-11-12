@@ -29,7 +29,7 @@ export function LongPress() {
       <div class="space-y-2">
         <NumberInput
           value={singleStepValue()}
-          holdRepeat={false}
+          repeat={false}
           onRawValueChange={(value) => {
             if (value !== undefined) {
               setSingleStepValue(value)
@@ -41,7 +41,7 @@ export function LongPress() {
           variant="subtle"
         />
         <p class="text-xs text-muted-foreground">
-          Set <code>holdRepeat=false</code> to keep press-and-hold at a single step. Current value:{' '}
+          Set <code>repeat=false</code> to keep press-and-hold at a single step. Current value:{' '}
           {singleStepValue()}
         </p>
       </div>

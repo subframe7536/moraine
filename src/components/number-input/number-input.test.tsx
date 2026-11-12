@@ -1156,7 +1156,7 @@ describe('NumberInput', () => {
 
     try {
       const screen = render(() => (
-        <NumberInput defaultValue={0} repeatDelayMs={300} repeatIntervalMs={40} />
+        <NumberInput defaultValue={0} repeat={{ delay: 300, interval: 40 }} />
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1188,12 +1188,7 @@ describe('NumberInput', () => {
 
     try {
       const screen = render(() => (
-        <NumberInput
-          defaultValue={0}
-          repeatDelayMs={200}
-          repeatIntervalMs={30}
-          repeatThrottleMs={120}
-        />
+        <NumberInput defaultValue={0} repeat={{ delay: 200, interval: 30, throttle: 120 }} />
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
@@ -1219,11 +1214,11 @@ describe('NumberInput', () => {
     }
   })
 
-  test('respects holdRepeat=false by not repeating while holding', async () => {
+  test('respects repeat=false by not repeating while holding', async () => {
     vi.useFakeTimers()
 
     try {
-      const screen = render(() => <NumberInput defaultValue={0} holdRepeat={false} />)
+      const screen = render(() => <NumberInput defaultValue={0} repeat={false} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 

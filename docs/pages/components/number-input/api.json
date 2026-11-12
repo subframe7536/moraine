@@ -108,16 +108,6 @@
           "description": "`Intl.NumberFormat` options for display formatting and parsing, such as\n`{ style: 'currency', currency: 'USD' }`."
         },
         {
-          "name": "holdRepeat",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether press-and-hold should trigger repeated value changes.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -265,46 +255,6 @@
           "default": {
             "kind": "literal",
             "value": true
-          }
-        },
-        {
-          "name": "repeatDelayMs",
-          "optional": true,
-          "type": "number",
-          "description": "Delay in milliseconds before repeated value changes start.",
-          "default": {
-            "kind": "literal",
-            "value": 500
-          }
-        },
-        {
-          "name": "repeatIntervalMs",
-          "optional": true,
-          "type": "number",
-          "description": "Interval in milliseconds between repeated value changes.",
-          "default": {
-            "kind": "literal",
-            "value": 80
-          }
-        },
-        {
-          "name": "repeatPointerTypes",
-          "optional": true,
-          "type": "'all' | PointerType",
-          "description": "Pointer types that can trigger press-and-hold repeat.",
-          "default": {
-            "kind": "literal",
-            "value": "all"
-          }
-        },
-        {
-          "name": "repeatThrottleMs",
-          "optional": true,
-          "type": "number",
-          "description": "Minimum elapsed time in milliseconds between repeat triggers.",
-          "default": {
-            "kind": "literal",
-            "value": 0
           }
         },
         {
