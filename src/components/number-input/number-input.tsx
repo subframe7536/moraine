@@ -15,13 +15,7 @@ import { delegateEvents } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
-import {
-  formatLocaleNumber,
-  isPartialNumber,
-  parseLocaleNumber,
-  toNumber,
-} from '../../provider/locale/number'
-import { createControllableValue } from '../../shared/controllable-value'
+import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
@@ -32,10 +26,10 @@ import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 import { getActiveElement } from '../shared/overlay/dom'
-import { snapValueToStep } from '../slider/utils'
 
 import type { ControlKind } from './number-input-press'
 import { createNumberInputPress } from './number-input-press'
+import { clamp, createNumberInput } from './number-input-state'
 import { defaultNumberInputMessages } from './number-input.messages'
 import { numberInputDataAttributes, numberInputRecipe } from './number-input.recipe'
 import type { NumberInputProps } from './number-input.types'
@@ -53,38 +47,6 @@ function isIOSUserAgent(): boolean {
 
 type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value))
-}
-
-function getDecimalPrecision(value: number): number {
-  const [coefficient = '', exponentText] = String(value).toLowerCase().split('e')
-  const fractionLength = coefficient.split('.')[1]?.length ?? 0
-  const exponent = Number(exponentText ?? 0)
-
-  return Math.max(0, fractionLength - exponent)
-}
-
-/** Adds decimal step values without exposing binary arithmetic noise. */
-function addDecimal(value: number, amount: number): number {
-  const result = value + amount
-  const precision = Math.max(getDecimalPrecision(value), getDecimalPrecision(amount))
-  const multiplier = 10 ** precision
-
-  if (!Number.isFinite(multiplier)) {
-    return result
-  }
-
-  const multipliedValue = Math.round(value * multiplier)
-  const multipliedAmount = Math.round(amount * multiplier)
-
-  if (!Number.isSafeInteger(multipliedValue) || !Number.isSafeInteger(multipliedAmount)) {
-    return result
-  }
-
-  return (multipliedValue + multipliedAmount) / multiplier
 }
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
@@ -228,22 +190,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     return undefined
   })
 
-  const [resolvedValue, setResolvedValue] = createControllableValue<number | undefined>({
-    value: () => {
-      const controlledValue = explicitControlledValue()
-      if (controlledValue !== undefined) {
-        return controlledValue
-      }
-
-      if (field.value() !== undefined) {
-        return toNumber(field.value() as string | number | undefined, 0, locale(), formatOptions())
-      }
-
-      return undefined
-    },
-    defaultValue: () => initialDefaultValue,
-  })
-
   const minValue = () => merged.minValue ?? Number.MIN_SAFE_INTEGER
   const maxValue = () => merged.maxValue ?? Number.MAX_SAFE_INTEGER
   const stepValue = () => (typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1)
@@ -252,18 +198,30 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       ? merged.largeStep
       : Number(merged.largeStep) || stepValue() * 10
 
-  const currentValue = createMemo(() => {
-    const value = resolvedValue()
-    return value === undefined ? undefined : clamp(value, minValue(), maxValue())
+  const state = createNumberInput({
+    explicitControlledValue,
+    fieldValue: field.value,
+    initialDefaultValue,
+    minValue,
+    maxValue,
+    rawMinValue: () => merged.minValue,
+    rawMaxValue: () => merged.maxValue,
+    step: stepValue,
+    largeStep: largeStepValue,
+    stepSnapping: () => merged.stepSnapping !== false,
+    locale,
+    formatOptions,
+    disabled: field.disabled,
+    readOnly,
+    onRawValueChange: (value) => merged.onRawValueChange?.(value),
+    onValueChange: (value) => merged.onValueChange?.(value),
+    setFormValue: (value) => field.setFormValue(value),
+    resetNativeInvalid,
+    emitChange: () => field.emit('change'),
+    emitInput: () => field.emit('input'),
   })
-  const formattedValue = createMemo(() => {
-    const value = currentValue()
-    return value === undefined ? '' : formatLocaleNumber(value, locale(), formatOptions())
-  })
-  const initialResetValue = untrack(currentValue)
 
-  // Draft text exists only while actively typing uncommitted or partial input.
-  const [draftText, setDraftText] = createSignal<string>()
+  const initialResetValue = untrack(state.currentValue)
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
@@ -284,20 +242,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         }
       },
     ),
-  )
-
-  // Sync external numeric or locale changes without clobbering accepted manual text.
-  createEffect(
-    on([currentValue, locale], ([value, localeTag]) => {
-      const draft = draftText()
-      if (draft !== undefined) {
-        const parsed = parseLocaleNumber(draft, localeTag, formatOptions())
-        if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
-          return
-        }
-        setDraftText(undefined)
-      }
-    }),
   )
 
   const incrementIcon = (): IconT.Name => {
@@ -326,122 +270,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     required: field.required,
   }
 
-  function commitValue(nextValue: number): boolean {
-    if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
-      return false
-    }
-
-    const committedValue = clamp(nextValue, minValue(), maxValue())
-    if (Object.is(committedValue, currentValue())) {
-      return false
-    }
-
-    const controlledValue = explicitControlledValue()
-
-    if (controlledValue === undefined) {
-      setResolvedValue(committedValue)
-      field.setFormValue(committedValue)
-    }
-
-    resetNativeInvalid()
-    merged.onRawValueChange?.(committedValue)
-    merged.onValueChange?.(String(committedValue))
-
-    if (controlledValue !== undefined) {
-      const latestControlledValue = explicitControlledValue()
-      field.setFormValue(
-        latestControlledValue === undefined
-          ? committedValue
-          : clamp(latestControlledValue, minValue(), maxValue()),
-      )
-    }
-
-    field.emit('change')
-    field.emit('input')
-    return true
-  }
-
-  function clearValue(): boolean {
-    if (field.disabled() || readOnly() || resolvedValue() === undefined) {
-      return false
-    }
-
-    if (explicitControlledValue() === undefined) {
-      setResolvedValue(undefined)
-    }
-    field.setFormValue(undefined)
-
-    resetNativeInvalid()
-    merged.onRawValueChange?.(undefined)
-    merged.onValueChange?.('')
-
-    field.emit('change')
-    field.emit('input')
-    return true
-  }
-
-  function getStepBase(): number {
-    const draft = draftText()
-    if (draft !== undefined) {
-      const parsed = parseLocaleNumber(draft, locale(), formatOptions())
-      if (parsed !== undefined) {
-        return parsed
-      }
-    }
-
-    // Empty seeds from zero; commitValue clamps the stepped result into bounds.
-    return currentValue() ?? 0
-  }
-
-  // Snap the current value onto the operation's step grid in the direction of travel;
-  // if it already sits on the grid, step once and snap again (Kobalte `varyValue` semantics).
-  function getSteppedValue(rawValue: number, amount: number): number {
-    if (!merged.stepSnapping || amount === 0) {
-      return addDecimal(rawValue, amount)
-    }
-
-    const step = Math.abs(amount)
-    const min = merged.minValue ?? Number.NaN
-    const max = merged.maxValue ?? Number.NaN
-
-    let nextValue = snapValueToStep(rawValue, min, max, step)
-    const movedInDirection = amount > 0 ? nextValue > rawValue : nextValue < rawValue
-    if (!movedInDirection) {
-      nextValue = snapValueToStep(addDecimal(rawValue, amount), min, max, step)
-    }
-
-    return nextValue
-  }
-
-  function stepBy(amount: number): boolean {
-    const wasDirty = draftText() !== undefined
-    const nextValue = getSteppedValue(getStepBase(), amount)
-    const boundedValue = clamp(nextValue, minValue(), maxValue())
-    const changed = commitValue(nextValue)
-
-    if (changed && Object.is(currentValue(), boundedValue)) {
-      setDraftText(undefined)
-      return true
-    }
-
-    if (!wasDirty) {
-      setDraftText(undefined)
-    }
-
-    return false
-  }
-
-  function incrementValue(amount = stepValue()): boolean {
-    return stepBy(amount)
-  }
-
-  function decrementValue(amount = stepValue()): boolean {
-    return stepBy(-amount)
-  }
-
   function isControlInteractive(kind: ControlKind): boolean {
     const isIncrement = kind === 'increment'
-    const value = currentValue()
+    const value = state.currentValue()
     return (
       !field.disabled() &&
       !readOnly() &&
@@ -456,9 +287,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     isInteractive: isControlInteractive,
     onStep: (kind) => {
       if (kind === 'increment') {
-        incrementValue()
+        state.incrementValue()
       } else {
-        decrementValue()
+        state.decrementValue()
       }
     },
     getUserOnClick: (kind) =>
@@ -499,19 +330,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       return
     }
 
-    const draft = draftText()
-    if (draft !== undefined) {
-      if (draft.trim() === '') {
-        clearValue()
-      } else {
-        const parsed = parseLocaleNumber(draft, locale(), formatOptions())
-        if (parsed !== undefined) {
-          commitValue(parsed)
-        }
-      }
-      setDraftText(undefined)
-    }
-
+    state.commitDraft()
     field.emit('blur', event)
   }
 
@@ -548,11 +367,11 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     }
 
     if (delta < 0) {
-      incrementValue(event.shiftKey ? largeStepValue() : stepValue())
+      state.incrementValue(event.shiftKey ? largeStepValue() : stepValue())
       return
     }
 
-    decrementValue(event.shiftKey ? largeStepValue() : stepValue())
+    state.decrementValue(event.shiftKey ? largeStepValue() : stepValue())
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
@@ -567,21 +386,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   useFormReset(
     () => inputEl?.form,
     () => {
-      const controlledValue = explicitControlledValue()
-      const nextValue =
-        controlledValue === undefined
-          ? initialResetValue
-          : clamp(controlledValue, minValue(), maxValue())
-
-      if (controlledValue === undefined) {
-        setResolvedValue(nextValue)
-      }
-      field.setFormValue(nextValue)
-      setDraftText(undefined)
-      resetNativeInvalid()
+      state.reset(initialResetValue)
       if (inputEl) {
-        inputEl.value =
-          nextValue === undefined ? '' : formatLocaleNumber(nextValue, locale(), formatOptions())
+        inputEl.value = state.formattedValue()
       }
     },
   )
@@ -591,19 +398,12 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       setIsIOS(true)
     }
 
-    if (inputEl) {
-      inputEl.defaultValue =
-        initialResetValue === undefined
-          ? ''
-          : formatLocaleNumber(initialResetValue, locale(), formatOptions())
-
+    if (inputEl && inputEl.ownerDocument !== document) {
       // Solid delegates these events on the global document by default.
-      if (inputEl.ownerDocument !== document) {
-        delegateEvents(
-          ['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'],
-          inputEl.ownerDocument,
-        )
-      }
+      delegateEvents(
+        ['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'],
+        inputEl.ownerDocument,
+      )
     }
 
     if (!merged.autofocus) {
@@ -620,35 +420,28 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({
     disabled: () => field.disabled() || readOnly(),
     keys: {
-      ArrowUp: () => incrementValue(),
-      ArrowDown: () => decrementValue(),
-      PageUp: () => incrementValue(largeStepValue()),
-      PageDown: () => decrementValue(largeStepValue()),
+      ArrowUp: () => state.incrementValue(),
+      ArrowDown: () => state.decrementValue(),
+      PageUp: () => state.incrementValue(largeStepValue()),
+      PageDown: () => state.decrementValue(largeStepValue()),
       Home: {
         when: () => merged.minValue !== undefined,
         handle: () => {
-          commitValue(minValue())
-          setDraftText(undefined)
+          state.commitValue(minValue())
+          state.setDraftText(undefined)
         },
       },
       End: {
         when: () => merged.maxValue !== undefined,
         handle: () => {
-          commitValue(maxValue())
-          setDraftText(undefined)
+          state.commitValue(maxValue())
+          state.setDraftText(undefined)
         },
       },
       Enter: {
         preventDefault: false,
         handle: () => {
-          const draft = draftText()
-          if (draft !== undefined) {
-            const parsed = parseLocaleNumber(draft, locale(), formatOptions())
-            if (parsed !== undefined) {
-              commitValue(parsed)
-            }
-            setDraftText(undefined)
-          }
+          state.commitDraft()
         },
       },
     },
@@ -676,7 +469,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
           aria-hidden="true"
           name={field.name()}
           form={merged.form}
-          value={currentValue() !== undefined ? String(currentValue()) : ''}
+          value={state.currentValue() !== undefined ? String(state.currentValue()) : ''}
           required={field.required()}
           disabled={field.disabled()}
           readOnly={readOnly()}
@@ -698,52 +491,27 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         }}
         id={field.id()}
         form={merged.form}
-        value={draftText() ?? formattedValue()}
+        value={state.draftText() ?? state.formattedValue()}
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
         aria-valuemin={minValue()}
         aria-valuemax={maxValue()}
-        aria-valuenow={currentValue()}
-        aria-valuetext={formattedValue()}
+        aria-valuenow={state.currentValue()}
+        aria-valuetext={state.formattedValue()}
         onInput={(event) => {
-          resetNativeInvalid()
           if (field.disabled() || readOnly()) {
-            event.currentTarget.value = draftText() ?? formattedValue()
+            event.currentTarget.value = state.draftText() ?? state.formattedValue()
             return
           }
-
-          const rawInput = event.currentTarget.value
-          setDraftText(rawInput)
-
-          // Only commit if it's a complete valid number
-          const parsed = parseLocaleNumber(rawInput, locale(), formatOptions())
-          if (parsed !== undefined && !isPartialNumber(rawInput, locale(), formatOptions())) {
-            commitValue(parsed)
-          }
+          state.handleInput(event.currentTarget.value)
         }}
         onChange={(event) => {
           if (field.disabled() || readOnly()) {
-            event.currentTarget.value = draftText() ?? formattedValue()
+            event.currentTarget.value = state.draftText() ?? state.formattedValue()
             return
           }
-
-          const rawInput = event.currentTarget.value
-          setDraftText(rawInput)
-
-          // On change (typically blur), try to parse and commit
-          const parsed = parseLocaleNumber(rawInput, locale(), formatOptions())
-          if (parsed !== undefined) {
-            commitValue(parsed)
-          } else if (
-            rawInput.trim() === '' ||
-            isPartialNumber(rawInput, locale(), formatOptions())
-          ) {
-            // Empty or partial input - wait for blur
-          } else {
-            // Invalid input - revert to current value
-            setDraftText(undefined)
-          }
+          state.handleChange(event.currentTarget.value)
         }}
         onKeyDown={onInputKeyDown}
         onBlur={onBlur}
