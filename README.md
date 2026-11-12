@@ -3,7 +3,7 @@
 Inspired by Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component library with atomic class styling.
 
 > [!important]
-> **Status: Stable.** Moraine follows [semantic versioning](https://semver.org) from `v1.0.0`. See the [changelog](./CHANGELOG.md) for upgrade notes.
+> **Status: Beta.** Breaking changes are allowed between minors before `v1.0.0`. Use at your own risk.
 
 ## Documentation
 
