@@ -163,6 +163,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       disabled: () => Boolean(itemProps.item.disabled),
       element: triggerElement,
       itemId: submenuId,
+      submenuId,
       keys: {
         Enter: () => openSubmenu('first'),
         ' ': () => openSubmenu('first'),

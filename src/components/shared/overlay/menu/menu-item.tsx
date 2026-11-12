@@ -29,6 +29,8 @@ export function createSelectableItemHandlers(
     disabled: () => boolean
     element: Accessor<HTMLDivElement | undefined>
     itemId: Accessor<string>
+    /** Submenu owned by this item; focusing the item keeps it open. */
+    submenuId?: Accessor<string>
     onHighlight?: () => void
     onPointerLeave?: (event: PointerEvent & { currentTarget: HTMLDivElement }) => void
     keys?: Record<string, () => void>
@@ -92,7 +94,7 @@ export function createSelectableItemHandlers(
     },
     onFocus: () => {
       if (!options.disabled()) {
-        layer.closeSubmenus()
+        layer.closeSubmenus(options.submenuId?.())
         layer.setHighlightedItemId(options.itemId())
       }
     },
