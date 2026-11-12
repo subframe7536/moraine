@@ -25,8 +25,7 @@
   ],
   "type": "module",
   "sideEffects": [
-    "*.css",
-    "./dist/*.css"
+    "*.css"
   ],
   "types": "./dist/index.d.mts",
   "exports": {
@@ -120,11 +119,11 @@
     "vitest": "^5.1.0"
   },
   "peerDependencies": {
-    "@dnd-kit/dom": "^0.5.1",
-    "@iconify/tailwind": "1.2.0",
+    "@dnd-kit/dom": "^0.5.3",
+    "@iconify/tailwind": "^1.2.0",
     "@subf/unocss": "catalog:peers",
     "@tanstack/table-core": "^9.3.1",
-    "@tanstack/virtual-core": "^3.17.4",
+    "@tanstack/virtual-core": "^3.19.11",
     "solid-js": "catalog:",
     "tailwindcss": "catalog:peers"
   },
