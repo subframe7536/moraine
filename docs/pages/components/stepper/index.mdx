@@ -83,8 +83,9 @@ it in those handlers.
 
 ### Panels and orientation
 
-Step labels and panels use tab-like relationships. Put panel JSX on `item.content`. Vertical
-orientation changes the layout and the arrow-key directions. Stepper marks every step before the
+Step labels and panels use tab-like relationships. Every item requires a unique `value`. Pass a
+component as `item.content`; Stepper renders it with `{ value, active, completed, index }` only for
+the active step. Vertical orientation changes the layout and the arrow-key directions. Stepper marks every step before the
 active one as completed from its index; supply `item.icon` to replace the default step number.
 
 ```tsx
@@ -92,8 +93,8 @@ active one as completed from its index; supply `item.icon` to replace the defaul
   defaultValue="details"
   orientation="vertical"
   items={[
-    { value: 'details', title: 'Project details', content: <ProjectForm /> },
-    { value: 'target', title: 'Deploy target', content: <TargetForm /> },
+    { value: 'details', title: 'Project details', content: () => <ProjectForm /> },
+    { value: 'target', title: 'Deploy target', content: () => <TargetForm /> },
   ]}
 />
 ```

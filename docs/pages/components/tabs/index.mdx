@@ -55,22 +55,18 @@ export function Example() {
 Use `value` with `onValueChange` for controlled tabs, or `defaultValue` for an initial local selection.
 Disabled items are skipped during selection and keyboard navigation.
 
-For JSX panel content, use an item `content` getter. Tabs reads it lazily, so a panel is built only
-when its tab is selected. This matters in SSR and MDX, where building an unselected panel eagerly
-can emit markup the hydrated tree does not expect.
+Every item requires a unique `value`. For JSX panel content, pass a component as `content`. Tabs
+renders it with `{ value, selected }` only while its tab is selected, so an unselected panel is never
+built. This matters in SSR and MDX, where building a panel eagerly can emit markup the hydrated tree
+does not expect.
 
 ```tsx
 <Tabs
   value={tab()}
   onValueChange={setTab}
   items={[
-    {
-      value: 'overview',
-      label: 'Overview',
-      get content() {
-        return <OverviewPanel />
-      },
-    },
+    { value: 'overview', label: 'Overview', content: () => <OverviewPanel /> },
+    { value: 'billing', label: 'Billing', content: (props) => <Billing active={props.selected} /> },
   ]}
 />
 ```

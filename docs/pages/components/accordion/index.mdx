@@ -55,6 +55,20 @@ export function Example() {
 }
 ```
 
+### Content
+
+`content` accepts text or JSX, or a component that receives `{ value, expanded, closed, disabled }`.
+Use the component form to build heavy panels only when they are needed. `headingLevel` sets the
+heading level wrapping each trigger.
+
+```tsx
+<Accordion
+  items={[
+    { value: 'billing', label: 'Billing', content: (props) => <Invoices open={props.expanded} /> },
+  ]}
+/>
+```
+
 ### Open items
 
 `value`, `defaultValue`, and `onValueChange` always use an array of item values. Single mode opens at most
