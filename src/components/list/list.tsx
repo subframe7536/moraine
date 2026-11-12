@@ -19,7 +19,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     'items',
     'itemRender',
     'virtualizer',
-    'fallback',
+    'emptyRender',
     'ref',
     'classes',
     'styles',
@@ -44,7 +44,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       }}
     >
       <Show
-        when={'fallback' in props && !local.items?.length}
+        when={'emptyRender' in props && !local.items?.length}
         fallback={
           <VirtualContent<TItem>
             virtualizer={local.virtualizer}
@@ -65,7 +65,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
           />
         }
       >
-        {(_empty) => local.fallback}
+        {(_empty) => local.emptyRender}
       </Show>
     </Dynamic>
   )

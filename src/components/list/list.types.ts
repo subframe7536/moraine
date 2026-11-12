@@ -33,7 +33,7 @@ export namespace ListT {
 
   export type Base<TItem> = {
     /** Content rendered inside the list when the collection is empty. */
-    fallback?: JSX.Element
+    emptyRender?: JSX.Element
     /** Reactive collection rendered by the list. */
     items?: readonly TItem[]
     /** Renders one collection item. */

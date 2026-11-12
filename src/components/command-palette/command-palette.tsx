@@ -823,7 +823,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <List
         as="div"
         items={listItems()}
-        fallback={<EmptyState />}
+        emptyRender={<EmptyState />}
         virtualizer={merged.virtualizer as unknown as ListT.Virtualizer<ListRow<TItem>> | undefined}
         itemRender={RowRender}
         {...merged.listboxProps}

@@ -45,7 +45,9 @@ export default function ListPlayground() {
           <List
             as={props.as}
             items={TASKS.slice(0, props.count)}
-            fallback={<li class="text-sm text-muted-foreground px-3 py-6 text-center">No tasks</li>}
+            emptyRender={
+              <li class="text-sm text-muted-foreground px-3 py-6 text-center">No tasks</li>
+            }
             itemRender={(row) => (
               <li class="px-3 py-2 border-b border-border flex gap-3 items-center last:border-b-0">
                 <Show when={props.showIndex}>

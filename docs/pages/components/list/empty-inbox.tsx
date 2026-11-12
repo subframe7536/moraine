@@ -14,7 +14,7 @@ export function EmptyInbox() {
     <div class="max-w-md w-full space-y-3">
       <List
         items={items()}
-        fallback={<li class="text-sm text-muted-foreground px-3 py-2">Inbox is empty</li>}
+        emptyRender={<li class="text-sm text-muted-foreground px-3 py-2">Inbox is empty</li>}
         class="border border-border rounded-md overflow-hidden"
         itemRender={(row) => (
           <li class="px-3 py-2 border-b border-border last:border-b-0">

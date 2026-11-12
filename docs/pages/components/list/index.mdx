@@ -43,12 +43,12 @@ export function Example() {
 when using `virtualizer`; the virtualizer needs them for positioning and measurement. The default
 root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different
 root with `as` for another structure. TypeScript infers the item and root element types from `items`
-and `as`. `fallback` renders when the collection is empty.
+and `as`. `emptyRender` renders when the collection is empty.
 
 ```tsx
 <List
   items={rows()}
-  fallback={<li>No items</li>}
+  emptyRender={<li>No items</li>}
   itemRender={(item) => <li>{item.item.label}</li>}
 />
 ```
@@ -114,9 +114,9 @@ handles, keyboard dragging, and options.
 
 ## Examples
 
-### Clear an inbox to an empty fallback
+### Clear an inbox to an empty state
 
-`fallback` renders when `items` is empty. List does not invent empty copy; pass the row markup you
+`emptyRender` renders when `items` is empty. List does not invent empty copy; pass the row markup you
 want shown.
 
 <Preview path="./empty-inbox" />

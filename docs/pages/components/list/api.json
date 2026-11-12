@@ -46,7 +46,7 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "fallback",
+          "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element",
           "description": "Content rendered inside the list when the collection is empty."
