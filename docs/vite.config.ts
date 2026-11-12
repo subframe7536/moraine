@@ -80,27 +80,37 @@ export default defineConfig({
   },
   build: {
     rolldownOptions: {
-      output: {
-        codeSplitting: {
-          groups: [
-            {
-              name: 'solid-vendor',
-              test: /[\\/]node_modules[\\/]solid-js[\\/]/,
-              priority: 30,
-              includeDependenciesRecursively: true,
+      checks: { pluginTimings: false },
+    },
+  },
+  environments: {
+    client: {
+      build: {
+        rolldownOptions: {
+          output: {
+            codeSplitting: {
+              groups: [
+                {
+                  name: 'solid-vendor',
+                  test: /[\\/]node_modules[\\/]solid-js[\\/]/,
+                  priority: 30,
+                  includeDependenciesRecursively: true,
+                },
+                {
+                  name: 'moraine-theme',
+                  test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
+                  priority: 20,
+                  includeDependenciesRecursively: true,
+                },
+                {
+                  name: 'moraine',
+                  test: /[\\/]src[\\/]/,
+                  maxSize: 250_000,
+                  includeDependenciesRecursively: false,
+                },
+              ],
             },
-            {
-              name: 'moraine-theme',
-              test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
-              priority: 20,
-              includeDependenciesRecursively: true,
-            },
-            {
-              name: 'moraine',
-              test: /[\\/]src[\\/]/,
-              includeDependenciesRecursively: false,
-            },
-          ],
+          },
         },
       },
     },
