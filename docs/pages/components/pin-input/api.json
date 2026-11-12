@@ -136,12 +136,6 @@
           "description": "Native blur event when focus leaves the pin input group."
         },
         {
-          "name": "onChange",
-          "optional": true,
-          "type": "(value: string) => void",
-          "description": "Callback when the pin input value changes, passing the joined string."
-        },
-        {
           "name": "onComplete",
           "optional": true,
           "type": "(value: string) => void",

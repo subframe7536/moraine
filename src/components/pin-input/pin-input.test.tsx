@@ -620,16 +620,9 @@ describe('PinInput', () => {
 
   test('form reset restores the default value without firing value callbacks', async () => {
     const onValueChange = vi.fn()
-    const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <PinInput
-          name="code"
-          defaultValue="12"
-          length={4}
-          onValueChange={onValueChange}
-          onChange={onChange}
-        />
+        <PinInput name="code" defaultValue="12" length={4} onValueChange={onValueChange} />
       </form>
     ))
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
@@ -641,14 +634,12 @@ describe('PinInput', () => {
     fireEvent.input(inputs[0]!, { target: { value: '9' } })
     expect(inputs[0]?.value).toBe('9')
     onValueChange.mockClear()
-    onChange.mockClear()
 
     form.reset()
     await waitFor(() => expect(inputs[0]?.value).toBe('1'))
     expect(inputs[1]?.value).toBe('2')
     expect(inputs[2]?.value).toBe('')
     expect(onValueChange).not.toHaveBeenCalled()
-    expect(onChange).not.toHaveBeenCalled()
   })
 
   test('form reset keeps the controlled value without firing value callbacks', async () => {

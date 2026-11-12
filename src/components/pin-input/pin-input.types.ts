@@ -110,11 +110,6 @@ export namespace PinInputT {
     onValueInvalid?: (value: string) => void
 
     /**
-     * Callback when the pin input value changes, passing the joined string.
-     */
-    onChange?: (value: string) => void
-
-    /**
      * Whether to submit the owning form when the pin input becomes complete.
      * @default false
      */

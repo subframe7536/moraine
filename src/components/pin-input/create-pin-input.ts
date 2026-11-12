@@ -15,7 +15,6 @@ export interface CreatePinInputOptions {
   disabled: Accessor<boolean>
   readOnly: Accessor<boolean>
   onValueChange?: Accessor<((value: string[]) => void) | undefined>
-  onChange?: Accessor<((value: string) => void) | undefined>
   completeValue: (joined: string) => void
   resetNativeInvalid?: () => void
   emitChange?: () => void
@@ -189,7 +188,6 @@ export function createPinInput(options: CreatePinInputOptions) {
     }
 
     options.onValueChange?.()?.(next)
-    options.onChange?.()?.(nextJoined)
 
     if (nextComplete) {
       if (chars().join('') === nextJoined) {
