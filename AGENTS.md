@@ -3,7 +3,7 @@
 This file contains definitive guidelines for agentic coding agents working on Moraine, a SolidJS component library that provide comprehensive components, reference from Nuxt UI and Shadcn.
 Agents must follow these instructions to ensure consistency, quality, and maintainability.
 
-Current stage: pre-alpha. breaking change allowed.
+Current stage: 1.0 release candidate. Breaking changes are allowed until `v1.0.0` is tagged; afterwards the public API follows semver and breaking changes require a major release. Record user-visible changes in `CHANGELOG.md`.
 
 ## Essential Commands
 
