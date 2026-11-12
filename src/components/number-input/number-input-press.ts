@@ -5,6 +5,13 @@ import { callHandler } from '../../shared/utils'
 
 export type ControlKind = 'increment' | 'decrement'
 
+export interface RepeatConfig {
+  delay: number
+  interval: number
+  throttle: number
+  pointerTypes: string
+}
+
 export interface CreateNumberInputPressOptions {
   isInteractive: (kind: ControlKind) => boolean
   onStep: (kind: ControlKind) => void
@@ -13,11 +20,7 @@ export interface CreateNumberInputPressOptions {
   ) => JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined
   focusInput: () => void
   getDocument: () => Document | undefined
-  holdRepeat: () => boolean | undefined
-  repeatDelayMs: () => number | undefined
-  repeatIntervalMs: () => number | undefined
-  repeatThrottleMs: () => number | undefined
-  repeatPointerTypes: () => string | undefined
+  repeat: () => RepeatConfig | null
 }
 
 interface SavedSelection {
@@ -31,8 +34,6 @@ interface PressState {
   delayTimer?: ReturnType<typeof setTimeout>
   repeatTimer?: ReturnType<typeof setInterval>
   repeatStarted: boolean
-  suppressNextClick: boolean
-  syntheticClicksPending: number
   lastTriggeredAt: number
   lastPointerType?: string
   targetEl: HTMLButtonElement | null
@@ -44,8 +45,6 @@ function createPressState(): PressState {
     delayTimer: undefined,
     repeatTimer: undefined,
     repeatStarted: false,
-    suppressNextClick: false,
-    syntheticClicksPending: 0,
     lastTriggeredAt: 0,
     lastPointerType: undefined,
     targetEl: null,
@@ -111,7 +110,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
     }
   }
 
-  function finishPress(kind: ControlKind, suppressClick: boolean): void {
+  function finishPress(kind: ControlKind): void {
     const state = states[kind]
     if (state.activePointerId === null) {
       return
@@ -120,15 +119,8 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
     clearRepeatTimers(state)
     state.activePointerId = null
     state.targetEl = null
-    state.suppressNextClick = suppressClick
-    state.repeatStarted = false
     setPressedControls((prev) => (prev[kind] ? { ...prev, [kind]: false } : prev))
     unlockSelection()
-  }
-
-  function isAllowedPointerType(pointerType: string): boolean {
-    const allowed = options.repeatPointerTypes() ?? 'all'
-    return allowed === 'all' || allowed === pointerType
   }
 
   // Cancel hold immediately when callback or reactive state makes control non-interactive.
@@ -137,23 +129,24 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       [() => options.isInteractive('increment'), () => options.isInteractive('decrement')],
       ([increment, decrement]) => {
         if (states.increment.activePointerId !== null && !increment) {
-          finishPress('increment', false)
+          finishPress('increment')
         }
         if (states.decrement.activePointerId !== null && !decrement) {
-          finishPress('decrement', false)
+          finishPress('decrement')
         }
       },
     ),
   )
 
-  function triggerControlClick(kind: ControlKind): void {
+  function triggerStep(kind: ControlKind): void {
     const state = states[kind]
     if (!options.isInteractive(kind) || state.activePointerId === null) {
-      finishPress(kind, false)
+      finishPress(kind)
       return
     }
 
-    const throttleMs = Math.max(0, options.repeatThrottleMs() ?? 0)
+    const repeat = options.repeat()
+    const throttleMs = Math.max(0, repeat?.throttle ?? 0)
     const now = Date.now()
 
     if (throttleMs > 0 && now - state.lastTriggeredAt < throttleMs) {
@@ -162,18 +155,26 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
 
     state.lastTriggeredAt = now
     state.repeatStarted = true
-    state.suppressNextClick = true
-    state.syntheticClicksPending += 1
-    state.targetEl?.click()
+
+    const userOnClick = options.getUserOnClick(kind)
+    if (userOnClick) {
+      callHandler(new MouseEvent('click', { bubbles: true, cancelable: true }), userOnClick)
+    }
+
+    options.onStep(kind)
+    options.focusInput()
+
+    if (!options.isInteractive(kind)) {
+      finishPress(kind)
+    }
   }
 
   function onPointerDown(kind: ControlKind, event: PointerEvent): void {
-    if (
-      options.holdRepeat() === false ||
-      !options.isInteractive(kind) ||
-      event.button !== 0 ||
-      !isAllowedPointerType(event.pointerType)
-    ) {
+    const repeat = options.repeat()
+    const allowed = repeat?.pointerTypes ?? 'all'
+    const isAllowedPointer = allowed === 'all' || allowed === event.pointerType
+
+    if (!repeat || !options.isInteractive(kind) || event.button !== 0 || !isAllowedPointer) {
       return
     }
 
@@ -186,7 +187,6 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
     state.targetEl = event.currentTarget as HTMLButtonElement
     state.lastPointerType = event.pointerType
     state.repeatStarted = false
-    state.suppressNextClick = false
     state.lastTriggeredAt = 0
     setPressedControls((prev) => (prev[kind] ? prev : { ...prev, [kind]: true }))
 
@@ -196,15 +196,15 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
 
     lockSelection()
 
-    const delayMs = Math.max(0, options.repeatDelayMs() ?? 500)
-    const intervalMs = Math.max(16, options.repeatIntervalMs() ?? 80)
+    const delayMs = Math.max(0, repeat.delay)
+    const intervalMs = Math.max(16, repeat.interval)
 
     state.delayTimer = setTimeout(() => {
       if (state.activePointerId === null) {
         return
       }
 
-      triggerControlClick(kind)
+      triggerStep(kind)
 
       if (state.activePointerId === null) {
         return
@@ -215,7 +215,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
           return
         }
 
-        triggerControlClick(kind)
+        triggerStep(kind)
       }, intervalMs)
     }, delayMs)
   }
@@ -226,14 +226,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       return
     }
 
-    const shouldSynthesizeClick = !state.repeatStarted && state.lastPointerType !== 'mouse'
-
-    if (shouldSynthesizeClick) {
-      state.syntheticClicksPending += 1
-      state.targetEl?.click()
-    }
-
-    finishPress(kind, state.repeatStarted || shouldSynthesizeClick)
+    finishPress(kind)
   }
 
   function onPointerCancel(kind: ControlKind, event: PointerEvent): void {
@@ -242,7 +235,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       return
     }
 
-    finishPress(kind, false)
+    finishPress(kind)
   }
 
   function onPointerLeave(kind: ControlKind): void {
@@ -251,7 +244,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       return
     }
 
-    finishPress(kind, false)
+    finishPress(kind)
   }
 
   const onContextMenu: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = (event) => {
@@ -274,26 +267,13 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
 
     if (!options.isInteractive(kind)) {
       if (state.activePointerId !== null) {
-        finishPress(kind, false)
+        finishPress(kind)
       }
       return
     }
 
-    if (state.syntheticClicksPending > 0) {
-      state.syntheticClicksPending -= 1
-      callHandler(event, options.getUserOnClick(kind))
-      if (!event.defaultPrevented && options.isInteractive(kind)) {
-        options.onStep(kind)
-        options.focusInput()
-      }
-      if (!options.isInteractive(kind) && state.activePointerId !== null) {
-        finishPress(kind, true)
-      }
-      return
-    }
-
-    if (state.suppressNextClick) {
-      state.suppressNextClick = false
+    if (state.repeatStarted) {
+      state.repeatStarted = false
       if (event.cancelable) {
         event.preventDefault()
       }
@@ -308,7 +288,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       options.focusInput()
     }
     if (!options.isInteractive(kind) && state.activePointerId !== null) {
-      finishPress(kind, false)
+      finishPress(kind)
     }
   }
 

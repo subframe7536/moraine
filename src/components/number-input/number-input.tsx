@@ -27,7 +27,7 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 import { getActiveElement } from '../shared/overlay/dom'
 
-import type { ControlKind } from './number-input-press'
+import type { ControlKind, RepeatConfig } from './number-input-press'
 import { createNumberInputPress } from './number-input-press'
 import { clamp, createNumberInput } from './number-input-state'
 import { defaultNumberInputMessages } from './number-input.messages'
@@ -84,6 +84,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'onFocus',
     'onIncrementClick',
     'onDecrementClick',
+    'repeat',
     'holdRepeat',
     'repeatDelayMs',
     'repeatIntervalMs',
@@ -283,6 +284,20 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     )
   }
 
+  const repeatConfig = createMemo<RepeatConfig | null>(() => {
+    if (merged.repeat === false || merged.holdRepeat === false) {
+      return null
+    }
+    const cfg =
+      typeof merged.repeat === 'object' && merged.repeat !== null ? merged.repeat : undefined
+    return {
+      delay: cfg?.delay ?? merged.repeatDelayMs ?? 500,
+      interval: cfg?.interval ?? merged.repeatIntervalMs ?? 80,
+      throttle: cfg?.throttle ?? merged.repeatThrottleMs ?? 0,
+      pointerTypes: cfg?.pointerTypes ?? merged.repeatPointerTypes ?? 'all',
+    }
+  })
+
   const press = createNumberInputPress({
     isInteractive: isControlInteractive,
     onStep: (kind) => {
@@ -296,11 +311,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick,
     focusInput: () => inputEl?.focus(),
     getDocument: () => inputEl?.ownerDocument,
-    holdRepeat: () => merged.holdRepeat,
-    repeatDelayMs: () => merged.repeatDelayMs,
-    repeatIntervalMs: () => merged.repeatIntervalMs,
-    repeatThrottleMs: () => merged.repeatThrottleMs,
-    repeatPointerTypes: () => merged.repeatPointerTypes,
+    repeat: repeatConfig,
   })
 
   function resolveControlProps(kind: ControlKind): NumberInputControlProps {
@@ -495,8 +506,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
-        aria-valuemin={minValue()}
-        aria-valuemax={maxValue()}
+        aria-valuemin={merged.minValue}
+        aria-valuemax={merged.maxValue}
         aria-valuenow={state.currentValue()}
         aria-valuetext={state.formattedValue()}
         onInput={(event) => {

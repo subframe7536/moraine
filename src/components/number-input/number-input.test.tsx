@@ -76,6 +76,38 @@ describe('NumberInput', () => {
     expect(onIncrementClick).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
   })
 
+  test('omits aria-valuemin and aria-valuemax when explicit bounds are not provided', () => {
+    const screen = render(() => <NumberInput defaultValue={5} />)
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+    expect(spinbutton.getAttribute('aria-valuemin')).toBeNull()
+    expect(spinbutton.getAttribute('aria-valuemax')).toBeNull()
+  })
+
+  test('supports unified repeat object prop', async () => {
+    vi.useFakeTimers()
+    try {
+      const onIncrementClick = vi.fn()
+      const screen = render(() => (
+        <NumberInput
+          defaultValue={0}
+          repeat={{ delay: 200, interval: 30 }}
+          onIncrementClick={onIncrementClick}
+        />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const incrementButton = screen.getByRole('button', { name: 'Increment' })
+
+      fireEvent.pointerDown(incrementButton, { button: 0, pointerId: 10, pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(300)
+      fireEvent.pointerUp(incrementButton, { button: 0, pointerId: 10, pointerType: 'mouse' })
+
+      expect(Number(spinbutton.value)).toBeGreaterThan(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   test('places caller naming and Field relationships on the spinbutton', () => {
     const screen = render(() => (
       <>

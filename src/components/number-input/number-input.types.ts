@@ -27,6 +27,29 @@ export namespace NumberInputT {
 
   export type PointerType = 'mouse' | 'touch' | 'pen'
 
+  export interface RepeatOptions {
+    /**
+     * Delay in milliseconds before repeated value changes start.
+     * @default 500
+     */
+    delay?: number
+    /**
+     * Interval in milliseconds between repeated value changes.
+     * @default 80
+     */
+    interval?: number
+    /**
+     * Minimum elapsed time in milliseconds between repeat triggers.
+     * @default 0
+     */
+    throttle?: number
+    /**
+     * Pointer types that can trigger press-and-hold repeat.
+     * @default 'all'
+     */
+    pointerTypes?: 'all' | PointerType
+  }
+
   /**
    * Base props for the NumberInput component.
    */
@@ -189,32 +212,43 @@ export namespace NumberInputT {
     onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
 
     /**
+     * Configuration for press-and-hold repeat, or boolean to toggle.
+     * @default true
+     */
+    repeat?: boolean | RepeatOptions
+
+    /**
      * Whether press-and-hold should trigger repeated value changes.
      * @default true
+     * @deprecated Use `repeat` instead.
      */
     holdRepeat?: boolean
 
     /**
      * Delay in milliseconds before repeated value changes start.
      * @default 500
+     * @deprecated Use `repeat={{ delay }}` instead.
      */
     repeatDelayMs?: number
 
     /**
      * Interval in milliseconds between repeated value changes.
      * @default 80
+     * @deprecated Use `repeat={{ interval }}` instead.
      */
     repeatIntervalMs?: number
 
     /**
      * Minimum elapsed time in milliseconds between repeat triggers.
      * @default 0
+     * @deprecated Use `repeat={{ throttle }}` instead.
      */
     repeatThrottleMs?: number
 
     /**
      * Pointer types that can trigger press-and-hold repeat.
      * @default 'all'
+     * @deprecated Use `repeat={{ pointerTypes }}` instead.
      */
     repeatPointerTypes?: 'all' | PointerType
   }
