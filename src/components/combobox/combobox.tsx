@@ -5,7 +5,7 @@ import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -18,6 +18,7 @@ import {
   serializeSourceValue,
   singleValueToSelection,
 } from '../shared/form/select/collection'
+import { ClearButton, ToggleTrigger, useControlPress } from '../shared/form/select/control-action'
 import { DefaultSelectContent } from '../shared/form/select/default-content'
 import {
   COMBOBOX_LOCAL_PROP_KEYS,
@@ -25,7 +26,6 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
 } from '../shared/form/select/props'
 import { useComboboxSearch } from '../shared/form/select/search'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/form/select/select-field.recipe'
 
 import { defaultComboboxMessages } from './combobox.messages'
 import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
@@ -149,31 +149,22 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       dispatchInputKeyDown(event)
     }
 
+    const controlPress = useControlPress({
+      focusOwner: state.focusOwner,
+      focus: focusInput,
+      openOnControlClick: () => local.openOnControlClick ?? false,
+      setOpen: state.setOpen,
+      onPointerDown: rootProps.onPointerDown,
+      onClick: rootProps.onClick,
+    })
+
     return (
       <>
         <BaseSelect.Control
           {...controlSlot}
           {...rootProps}
+          {...controlPress}
           ref={(element) => callRef(local.ref, element)}
-          onPointerDown={(event) => {
-            callHandler(event, rootProps.onPointerDown)
-            if (
-              !event.defaultPrevented &&
-              event.target !== state.focusOwner() &&
-              event.pointerType !== 'touch' &&
-              event.pointerType !== 'pen'
-            ) {
-              event.preventDefault()
-              focusInput()
-            }
-          }}
-          onClick={(event) => {
-            callHandler(event, rootProps.onClick)
-            if (!event.defaultPrevented && (local.openOnControlClick ?? false)) {
-              focusInput()
-              state.setOpen(true)
-            }
-          }}
         >
           <Show when={local.leadingIcon}>
             {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
@@ -191,57 +182,29 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             onKeyDown={onInputKeyDown}
           />
           <Show when={local.allowClear && canClear()}>
-            <button
-              type="button"
-              data-slot="combobox-clear"
-              aria-label={messages().clear}
-              tabIndex={0}
-              {...clearSlot}
+            <ClearButton
+              dataSlot="combobox-clear"
+              ariaLabel={messages().clear}
+              slot={clearSlot}
               disabled={state.locked()}
-              onPointerDown={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                focusInput()
-              }}
-              onClick={(event) => {
-                event.stopPropagation()
-                clear()
-              }}
-            >
-              <Icon name={local.closeIcon ?? 'icon-close'} />
-            </button>
-          </Show>
-          <button
-            type="button"
-            tabIndex={-1}
-            data-slot="combobox-trigger"
-            aria-label={local.loading ? messages().loading : messages().toggle}
-            aria-controls={state.listboxId()}
-            aria-expanded={state.open() ? 'true' : 'false'}
-            aria-busy={local.loading ? 'true' : undefined}
-            {...triggerSlot}
-            disabled={state.field.disabled() || Boolean(local.loading)}
-            onPointerDown={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              focusInput()
-            }}
-            onClick={(event) => {
-              event.stopPropagation()
-              state.setOpen(!state.open())
-            }}
-          >
-            <Icon
-              name={
-                local.loading
-                  ? (local.loadingIcon ?? 'icon-loading')
-                  : (local.trailingIcon ?? 'icon-chevron-down')
-              }
-              // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- the loading icon is not a recipe slot; it only needs data-loading for SELECT_LOADING_ICON_CLASS
-              {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
-              class={SELECT_LOADING_ICON_CLASS}
+              closeIcon={local.closeIcon}
+              onFocusOwner={focusInput}
+              onClear={clear}
             />
-          </button>
+          </Show>
+          <ToggleTrigger
+            dataSlot="combobox-trigger"
+            ariaLabel={local.loading ? messages().loading : messages().toggle}
+            ariaControls={state.listboxId()}
+            expanded={state.open()}
+            loading={local.loading}
+            loadingIcon={local.loadingIcon}
+            slot={triggerSlot}
+            trailingIcon={local.trailingIcon}
+            disabled={state.field.disabled()}
+            onFocusOwner={focusInput}
+            onClick={() => state.setOpen(!state.open())}
+          />
         </BaseSelect.Control>
         <DefaultSelectContent
           {...local}

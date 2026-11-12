@@ -6,7 +6,7 @@ import { collatorEquals, createSearchCollator } from '../../provider/locale/coll
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -19,6 +19,7 @@ import {
   sameValue,
   serializeSourceValue,
 } from '../shared/form/select/collection'
+import { ClearButton, ToggleTrigger, useControlPress } from '../shared/form/select/control-action'
 import { DefaultSelectContent } from '../shared/form/select/default-content'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
@@ -26,7 +27,10 @@ import {
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from '../shared/form/select/props'
 import { useComboboxSearch } from '../shared/form/select/search'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/form/select/select-field.recipe'
+import {
+  SELECT_LOADING_ICON_CLASS,
+  selectLoadingData,
+} from '../shared/form/select/select-field.recipe'
 import { createTagsField } from '../shared/form/select/tags-field'
 
 import { defaultMultiSelectMessages } from './multi-select.messages'
@@ -337,35 +341,23 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       data: multiSelectDataAttributes.input({ duplicate: isDuplicate }),
     })
 
+    const controlPress = useControlPress({
+      focusOwner: state.focusOwner,
+      focus: focusControl,
+      disabled: state.locked,
+      openOnControlClick: () => local.openOnControlClick ?? !editable(),
+      setOpen: state.setOpen,
+      onPointerDown: rootProps.onPointerDown,
+      onClick: rootProps.onClick,
+    })
+
     return (
       <>
         <BaseSelect.Control
           {...controlSlot}
           {...rootProps}
+          {...controlPress}
           ref={(element) => callRef(local.ref, element)}
-          onPointerDown={(event) => {
-            callHandler(event, rootProps.onPointerDown)
-            if (
-              !event.defaultPrevented &&
-              event.target !== state.focusOwner() &&
-              event.pointerType !== 'touch' &&
-              event.pointerType !== 'pen'
-            ) {
-              event.preventDefault()
-              focusControl()
-            }
-          }}
-          onClick={(event) => {
-            callHandler(event, rootProps.onClick)
-            if (
-              !event.defaultPrevented &&
-              !state.locked() &&
-              (local.openOnControlClick ?? !editable())
-            ) {
-              focusControl()
-              state.setOpen(true)
-            }
-          }}
         >
           <Show when={local.leadingIcon}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
@@ -438,21 +430,15 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             </Show>
           </div>
           <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.value()))}>
-            <button
-              type="button"
-              tabIndex={0}
-              data-slot="multi-select-clear"
-              aria-label={messages().clear}
+            <ClearButton
+              dataSlot="multi-select-clear"
+              ariaLabel={messages().clear}
+              slot={clearSlot}
               disabled={state.locked()}
-              {...clearSlot}
-              onPointerDown={tags.isolatePointer}
-              onClick={(event) => {
-                event.stopPropagation()
-                clear()
-              }}
-            >
-              <Icon name={local.closeIcon ?? 'icon-close'} />
-            </button>
+              closeIcon={local.closeIcon}
+              onFocusOwner={focusControl}
+              onClear={clear}
+            />
           </Show>
           <Show
             when={editable()}
@@ -478,56 +464,25 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                       ? (local.loadingIcon ?? 'icon-loading')
                       : (local.trailingIcon ?? 'icon-chevron-down')
                   }
-                  // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The trailing icon has no recipe slot; data-loading only drives SELECT_LOADING_ICON_CLASS.
-                  {...multiSelectDataAttributes.trigger({
-                    closed: undefined,
-                    disabled: undefined,
-                    expanded: undefined,
-                    invalid: undefined,
-                    loading: () => local.loading,
-                  })}
+                  {...selectLoadingData(local.loading)}
                   class={SELECT_LOADING_ICON_CLASS}
                 />
               </BaseSelect.Trigger>
             }
           >
-            <button
-              type="button"
-              tabIndex={-1}
-              data-slot="multi-select-trigger"
-              aria-label={local.loading ? messages().loading : messages().toggle}
-              aria-controls={state.listboxId()}
-              aria-expanded={state.open() ? 'true' : 'false'}
-              aria-busy={local.loading ? 'true' : undefined}
-              {...triggerSlot}
-              disabled={state.field.disabled() || Boolean(local.loading)}
-              onPointerDown={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                focusControl()
-              }}
-              onClick={(event) => {
-                event.stopPropagation()
-                state.setOpen(!state.open())
-              }}
-            >
-              <Icon
-                name={
-                  local.loading
-                    ? (local.loadingIcon ?? 'icon-loading')
-                    : (local.trailingIcon ?? 'icon-chevron-down')
-                }
-                // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- The trailing icon has no recipe slot; data-loading only drives SELECT_LOADING_ICON_CLASS.
-                {...multiSelectDataAttributes.trigger({
-                  closed: undefined,
-                  disabled: undefined,
-                  expanded: undefined,
-                  invalid: undefined,
-                  loading: () => local.loading,
-                })}
-                class={SELECT_LOADING_ICON_CLASS}
-              />
-            </button>
+            <ToggleTrigger
+              dataSlot="multi-select-trigger"
+              ariaLabel={local.loading ? messages().loading : messages().toggle}
+              ariaControls={state.listboxId()}
+              expanded={state.open()}
+              loading={local.loading}
+              loadingIcon={local.loadingIcon}
+              slot={triggerSlot}
+              trailingIcon={local.trailingIcon}
+              disabled={state.field.disabled()}
+              onFocusOwner={focusControl}
+              onClick={() => state.setOpen(!state.open())}
+            />
           </Show>
         </BaseSelect.Control>
         <DefaultSelectContent

@@ -22,6 +22,10 @@ export const FIELD_INPUT_CLASS = `outline-none bg-transparent flex-1 w-full ${DI
 
 export const SELECT_LOADING_ICON_CLASS = 'data-loading:animate-spin'
 
+export function selectLoadingData(loading?: boolean): Record<string, string | undefined> {
+  return loading ? { 'data-loading': '' } : {}
+}
+
 export const PRIMARY_TRIGGER_CLASS =
   'text-start outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center static disabled:pointer-events-none'
 

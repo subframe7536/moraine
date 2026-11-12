@@ -3,7 +3,6 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
-import { createKeyDownHandler } from '../../shared/keyboard'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -15,6 +14,7 @@ import {
   serializeSourceValue,
   singleValueToSelection,
 } from '../shared/form/select/collection'
+import { ClearButton, createSelectClearKeyDownHandler } from '../shared/form/select/control-action'
 import { DefaultSelectContent } from '../shared/form/select/default-content'
 import {
   createBaseSelectStyleProps,
@@ -87,17 +87,10 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             {...triggerSlot}
-            onKeyDown={createKeyDownHandler({
-              keys: {
-                Delete: {
-                  when: () => Boolean(local.allowClear) && hasValue(),
-                  handle: clear,
-                },
-                Backspace: {
-                  when: () => Boolean(local.allowClear) && hasValue(),
-                  handle: clear,
-                },
-              },
+            onKeyDown={createSelectClearKeyDownHandler({
+              allowClear: () => local.allowClear,
+              canClear: hasValue,
+              clear,
             })}
           >
             <Show when={local.leadingIcon}>
@@ -120,26 +113,15 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             />
           </BaseSelect.Trigger>
           <Show when={!local.loading && local.allowClear && hasValue()}>
-            <button
-              type="button"
-              data-slot="select-clear"
-              aria-label={messages().clear}
-              tabIndex={0}
-              {...clearSlot}
+            <ClearButton
+              dataSlot="select-clear"
+              ariaLabel={messages().clear}
+              slot={clearSlot}
               disabled={state.locked()}
-              onPointerDown={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                state.focusOwner()?.focus()
-              }}
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                clear()
-              }}
-            >
-              <Icon name={local.closeIcon ?? 'icon-close'} />
-            </button>
+              closeIcon={local.closeIcon}
+              onFocusOwner={() => state.focusOwner()?.focus()}
+              onClear={clear}
+            />
           </Show>
         </BaseSelect.Control>
         <DefaultSelectContent {...local} view={source()} slot={(slot) => slots[slot]} />
