@@ -97,7 +97,7 @@ export namespace NumberInputT {
     stepSnapping?: boolean
 
     /**
-     * Callback when the formatted string value changes. Emits `''` when the input is cleared.
+     * Callback when the canonical string value changes. Emits `''` when the input is cleared.
      */
     onValueChange?: (value: string) => void
 

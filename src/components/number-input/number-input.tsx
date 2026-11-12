@@ -22,6 +22,7 @@ import {
   toNumber,
 } from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
+import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -29,6 +30,7 @@ import type { IconT } from '../icon'
 import { Icon } from '../icon'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
 import { useFormReset } from '../shared/form/use-form-reset'
+import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 import { getActiveElement } from '../shared/overlay/dom'
 import { snapValueToStep } from '../slider/utils'
 
@@ -206,6 +208,14 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   let inputEl: HTMLInputElement | undefined
 
+  const {
+    nativeInvalid,
+    resetNativeInvalid,
+    onInvalid: handleHiddenInputInvalid,
+  } = useHiddenInputValidation({
+    focusTarget: () => inputEl,
+  })
+
   const explicitControlledValue = createMemo<number | undefined>(() => {
     if (merged.rawValue !== undefined) {
       return toNumber(merged.rawValue, 0)
@@ -310,7 +320,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
   const fieldDataState = {
-    invalid: field.invalid,
+    invalid: () => field.invalid() || nativeInvalid(),
     disabled: field.disabled,
     readonly: readOnly,
     required: field.required,
@@ -333,8 +343,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       field.setFormValue(committedValue)
     }
 
+    resetNativeInvalid()
     merged.onRawValueChange?.(committedValue)
-    merged.onValueChange?.(formatLocaleNumber(committedValue, locale(), formatOptions()))
+    merged.onValueChange?.(String(committedValue))
 
     if (controlledValue !== undefined) {
       const latestControlledValue = explicitControlledValue()
@@ -360,6 +371,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     }
     field.setFormValue(undefined)
 
+    resetNativeInvalid()
     merged.onRawValueChange?.(undefined)
     merged.onValueChange?.('')
 
@@ -544,6 +556,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
+  const [isIOS, setIsIOS] = createSignal(false)
 
   onCleanup(() => {
     if (autofocusTimeoutId !== undefined) {
@@ -565,6 +578,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       }
       field.setFormValue(nextValue)
       setDraftText(undefined)
+      resetNativeInvalid()
       if (inputEl) {
         inputEl.value =
           nextValue === undefined ? '' : formatLocaleNumber(nextValue, locale(), formatOptions())
@@ -573,6 +587,10 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   )
 
   onMount(() => {
+    if (isIOSUserAgent()) {
+      setIsIOS(true)
+    }
+
     if (inputEl) {
       inputEl.defaultValue =
         initialResetValue === undefined
@@ -651,11 +669,25 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         </button>
       </Show>
 
+      <Show when={field.name()}>
+        <HiddenInput
+          type="text"
+          tabIndex={-1}
+          aria-hidden="true"
+          name={field.name()}
+          form={merged.form}
+          value={currentValue() !== undefined ? String(currentValue()) : ''}
+          required={field.required()}
+          disabled={field.disabled()}
+          readOnly={readOnly()}
+          onInvalid={handleHiddenInputInvalid}
+        />
+      </Show>
+
       <input
         data-slot="number-input-input"
         type="text"
-        // iOS decimal/numeric keyboards omit the minus key.
-        inputMode={isIOSUserAgent() && minValue() < 0 ? 'text' : 'decimal'}
+        inputMode={isIOS() && minValue() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         placeholder={merged.placeholder}
         {...inputSlot}
@@ -665,7 +697,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
           callRef(local.inputRef, e)
         }}
         id={field.id()}
-        name={field.name()}
         form={merged.form}
         value={draftText() ?? formattedValue()}
         required={field.required()}
@@ -676,6 +707,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         aria-valuenow={currentValue()}
         aria-valuetext={formattedValue()}
         onInput={(event) => {
+          resetNativeInvalid()
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = draftText() ?? formattedValue()
             return

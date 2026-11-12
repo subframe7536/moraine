@@ -641,6 +641,30 @@ describe('NumberInput', () => {
     expect(new FormData(readOnlyForm).getAll('quantity')).toEqual(['4'])
   })
 
+  test('submits canonical numeric value in non-English locale and removes name from visible spinbutton', () => {
+    const screen = render(() => (
+      <form>
+        <NumberInput name="price" value="1,5" locale="de-DE" required />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+    const hiddenInput = form.querySelector('input[type="text"][name="price"]') as HTMLInputElement
+
+    expect(spinbutton.getAttribute('name')).toBeNull()
+    expect(spinbutton.value).toBe('1,5')
+    expect(hiddenInput).not.toBeNull()
+    expect(hiddenInput.value).toBe('1.5')
+    expect(new FormData(form).get('price')).toBe('1.5')
+
+    // Test hidden input validation handling
+    const invalidEvent = new Event('invalid', { cancelable: true })
+    const preventDefaultSpy = vi.spyOn(invalidEvent, 'preventDefault')
+    hiddenInput.dispatchEvent(invalidEvent)
+    expect(preventDefaultSpy).toHaveBeenCalled()
+    expect(document.activeElement).toBe(spinbutton)
+  })
+
   test('parses locale-formatted string props and emits locale-formatted changes in order', async () => {
     const calls: Array<string> = []
     const screen = render(() => (
