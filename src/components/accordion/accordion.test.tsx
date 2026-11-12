@@ -995,10 +995,45 @@ describe('Accordion', () => {
         items={[
           { value: 'settings', ariaLabel: 'Settings section', leading: 'icon-close' },
           { value: 'profile', leading: 'icon-close' },
+          { leading: 'icon-close' },
         ]}
       />
     ))
     expect(screen.getByRole('button', { name: 'Settings section' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'profile' })).toBeTruthy()
+    // When value and label are omitted, aria-label should not fall back to internal generated id
+    const buttons = screen.getAllByRole('button')
+    expect(buttons[2]?.getAttribute('aria-label')).toBeNull()
+  })
+
+  test('supports configurable headingLevel', () => {
+    const screen = render(() => (
+      <Accordion
+        headingLevel={2}
+        items={[{ value: 'h2-item', label: 'H2 Item', content: 'H2 Content' }]}
+      />
+    ))
+    expect(screen.getByRole('heading', { level: 2 })).not.toBeNull()
+  })
+
+  test('renders item content as a component receiving { expanded, closed, disabled, value }', () => {
+    const CustomContent = (props: AccordionT.ContentRenderProps) => (
+      <div data-testid="custom-content">
+        Value: {props.value}, Expanded: {String(props.expanded)}, Closed: {String(props.closed)}
+      </div>
+    )
+
+    const screen = render(() => (
+      <Accordion
+        defaultValue={['custom']}
+        items={[{ value: 'custom', label: 'Custom', content: CustomContent }]}
+      />
+    ))
+
+    const content = screen.getByTestId('custom-content')
+    expect(content.textContent).toBe('Value: custom, Expanded: true, Closed: false')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Custom' }))
+    expect(content.textContent).toBe('Value: custom, Expanded: false, Closed: true')
   })
 })

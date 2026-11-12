@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -14,6 +14,13 @@ export namespace AccordionT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
+  export interface ContentRenderProps {
+    expanded: boolean
+    closed: boolean
+    disabled: boolean
+    value: string
+  }
 
   export interface Item {
     /**
@@ -44,9 +51,9 @@ export namespace AccordionT {
     leading?: IconT.Name
 
     /**
-     * Content to display when the accordion item is expanded.
+     * Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }.
      */
-    content?: JSX.Element
+    content?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Optional class applied to the item element.
@@ -105,6 +112,12 @@ export namespace AccordionT {
      * @default 'icon-chevron-down'
      */
     trailing?: IconT.Name
+
+    /**
+     * Heading level for the accordion item header element.
+     * @default 3
+     */
+    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6
   }
 
   /**
