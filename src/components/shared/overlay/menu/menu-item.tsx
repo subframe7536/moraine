@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, Component, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, onCleanup, onMount } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -12,6 +12,7 @@ import { createId } from '../../../../shared/utils'
 import type { Cn } from '../../../../theme/cn'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
+import { mergeSlotBindingData } from '../../../../theme/use-recipe'
 import { Icon } from '../../../icon'
 import type { IconT } from '../../../icon'
 import { KbdGroup } from '../../../kbd-group'
@@ -196,21 +197,8 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     cn,
   } = options
 
-  function getItemSlot(item: MenuItemSlotOptions): SlotBinding {
-    const binding = resolveSlot('item')
-    const itemSlot = mergeProps(
-      {
-        get class() {
-          return cn(binding.class, item.class)
-        },
-        get style() {
-          return { ...item.style, ...binding.style }
-        },
-      },
-      item.data,
-    )
-    return itemSlot
-  }
+  const getItemSlot = (item: MenuItemSlotOptions): SlotBinding =>
+    mergeSlotBindingData(resolveSlot('item'), item.data, item, cn)
 
   function getItemRenderProps(
     item: TItem,

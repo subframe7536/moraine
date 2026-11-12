@@ -722,7 +722,7 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'Account',
-              children: [
+              items: [
                 { type: 'separator' },
                 {
                   label: 'Profile',
@@ -1989,7 +1989,7 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'File actions',
-              children: [{ label: 'Archive' }],
+              items: [{ label: 'Archive' }],
             },
           ]}
         />
@@ -2016,7 +2016,7 @@ describe('DropdownMenu', () => {
         labelReads += 1
         return 'File actions'
       },
-      children: [{ label: 'Archive' }],
+      items: [{ label: 'Archive' }],
     }
 
     render(() => (

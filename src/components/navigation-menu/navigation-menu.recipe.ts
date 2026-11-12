@@ -18,6 +18,12 @@ export const NAVIGATION_MENU_POSITIONER_CLASS =
 export const NAVIGATION_MENU_PANEL_CLASS = `text-popover-foreground border border-border rounded-md bg-popover shadow-overlay origin-(--mo-popper-content-transform-origin) transition-[width,height] relative overflow-hidden motion-reduce:transition-none data-closed:(animate-mo-exit exit-opacity-0 exit-scale-90) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-90)`
 export const NAVIGATION_MENU_FOCUS_GUARD_CLASS = VISUALLY_HIDDEN_CLASS
 
+export const NAVIGATION_MENU_CONTROL_ATTR = 'data-moraine-navigation-menu-control'
+export const NAVIGATION_MENU_FOCUS_GUARD_ATTR = 'data-moraine-navigation-menu-focus-guard'
+
+export const navigationMenuControlData = { [NAVIGATION_MENU_CONTROL_ATTR]: '' } as const
+export const navigationMenuFocusGuardData = { [NAVIGATION_MENU_FOCUS_GUARD_ATTR]: '' } as const
+
 export const navigationMenuDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'orientation'),
   list: /* @__PURE__ */ createDataAttributes('orientation'),

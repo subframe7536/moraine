@@ -33,7 +33,7 @@ export default function ContextMenuPlayground() {
               {
                 type: 'group',
                 label: 'Edit',
-                children: [
+                items: [
                   { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
                   {
                     label: 'Copy',
@@ -54,7 +54,7 @@ export default function ContextMenuPlayground() {
               },
               {
                 type: 'group',
-                children: [
+                items: [
                   { type: 'separator' },
                   {
                     type: 'checkbox',

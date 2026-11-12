@@ -352,7 +352,7 @@ describe('resolveMenuGroups', () => {
     })
   })
 
-  test('handles explicit group objects with items and legacy children', () => {
+  test('handles explicit group objects with items', () => {
     const item1 = { label: 'Profile' }
     const item2 = { label: 'Billing' }
     const item3 = { label: 'Settings' }
@@ -360,7 +360,7 @@ describe('resolveMenuGroups', () => {
     const groups = resolveMenuGroups([
       item1,
       { type: 'group', label: 'Account', items: [item2] },
-      { type: 'group', label: 'Preferences', children: [item3] },
+      { type: 'group', label: 'Preferences', items: [item3] },
     ])
 
     expect(groups).toHaveLength(3)

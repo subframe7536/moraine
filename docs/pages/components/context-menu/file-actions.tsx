@@ -21,7 +21,7 @@ export function FileActions() {
           type: 'checkbox',
           label: 'Add to favorites',
           checked: favorite(),
-          onCheckedChange: (checked) => {
+          onCheckedChange: (checked: boolean) => {
             setFavorite(checked)
             setStatus(checked ? 'Added to favorites.' : 'Removed from favorites.')
           },

@@ -1,4 +1,6 @@
 export { OverlayMenu } from './menu-root'
+export { createOverlayMenuOpen } from './menu-open'
+export type { CreateOverlayMenuOpenOptions, OverlayMenuOpenState } from './menu-open'
 export {
   getOverlayMenuTextValue,
   hasOverlayMenuChildren,
@@ -31,12 +33,8 @@ export type {
   OverlayMenuGroupItem,
   OverlayMenuSeparatorItem,
   OverlayMenuItem,
-  OverlayMenuSharedItem,
   OverlayMenuSharedSlots,
   OverlayMenuSlotBinding,
   OverlayMenuItemRenderProps,
-  OverlayMenuSharedItemRenderProps,
-  OverlayMenuSharedProps,
   OverlayMenuProps,
-  OverlayMenuRootProps,
 } from './types'

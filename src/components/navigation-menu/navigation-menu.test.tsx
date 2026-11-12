@@ -6,6 +6,7 @@ import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { NavigationMenu } from './navigation-menu'
+import { NAVIGATION_MENU_FOCUS_GUARD_ATTR } from './navigation-menu.recipe'
 import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
 
 function TestMenu(props: NavigationMenuProps) {
@@ -340,7 +341,7 @@ describe('NavigationMenu', () => {
     products.focus()
     fireEvent.keyDown(products, { key: 'Tab' })
     const guard = _screen.container.querySelector<HTMLElement>(
-      '[data-moraine-navigation-menu-focus-guard]',
+      `[${NAVIGATION_MENU_FOCUS_GUARD_ATTR}]`,
     )!
     guard.focus()
     await waitFor(() => expect(document.activeElement).toBe(overview))

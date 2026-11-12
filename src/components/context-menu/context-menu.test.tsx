@@ -1147,7 +1147,7 @@ describe('ContextMenu', () => {
             {
               type: 'group',
               label: 'Account',
-              children: [
+              items: [
                 { type: 'separator' },
                 {
                   label: 'Profile',

@@ -159,11 +159,6 @@ export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
    * Child items in this group.
    */
   items?: OverlayMenuItem[]
-
-  /**
-   * Backward-compatible alias for `items`.
-   */
-  children?: OverlayMenuItem[]
 }
 
 export interface OverlayMenuSeparatorItem extends OverlayMenuBaseItem {
@@ -176,11 +171,6 @@ export type OverlayMenuItem =
   | OverlayMenuRadioItem
   | OverlayMenuGroupItem
   | OverlayMenuSeparatorItem
-
-/**
- * Backward-compatible alias for OverlayMenuItem.
- */
-export type OverlayMenuSharedItem<_TItem = OverlayMenuItem> = OverlayMenuItem
 
 export type OverlayMenuSharedSlots<T = unknown> = OverlayMenuStyleSlot<T>
 export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => ComponentSlotBinding
@@ -195,12 +185,6 @@ export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
   isRadio: boolean
   hasChildren: boolean
 }
-
-/**
- * Backward-compatible alias for OverlayMenuItemRenderProps.
- */
-export type OverlayMenuSharedItemRenderProps<TItem = OverlayMenuItem> =
-  OverlayMenuItemRenderProps<TItem>
 
 export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuItem> {
   owner: 'dropdown-menu' | 'context-menu'
@@ -343,21 +327,4 @@ export interface OverlayMenuLayerProps<
   registerBranch: (element: HTMLElement) => () => void
   /** Keeps this layer's content mounted through its exit animation. */
   registerPresenceElement: (element: HTMLElement) => () => void
-}
-
-/**
- * Backward-compatible alias for OverlayMenuProps.
- */
-export type OverlayMenuSharedProps<TItem extends OverlayMenuItem = OverlayMenuItem> =
-  OverlayMenuProps<TItem>
-
-/**
- * Backward-compatible alias for root props.
- */
-export interface OverlayMenuRootProps<
-  TItem extends OverlayMenuItem = OverlayMenuItem,
-> extends Partial<OverlayMenuProps<TItem>> {
-  defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
-  disabled?: boolean
 }

@@ -23,7 +23,7 @@ export function WorkspaceView() {
     {
       type: 'group',
       label: 'Visible fields',
-      children: [
+      items: [
         {
           type: 'checkbox',
           label: 'Project owner',

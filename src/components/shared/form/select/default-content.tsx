@@ -1,21 +1,12 @@
 import type { Component, JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  Match,
-  mergeProps,
-  Show,
-  Switch,
-  on,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { callHandler, callRef } from '../../../../shared/utils'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
+import { mergeSlotBindingData } from '../../../../theme/use-recipe'
 import { VirtualContent } from '../../../../virtualizer/virtual-content'
 import type { VirtualRowProps } from '../../../../virtualizer/virtualizer.types'
 import { BaseSelect } from '../../../base-select/base-select'
@@ -69,20 +60,10 @@ function DefaultSelectContentBody<T extends SelectItem>(
   )
   let atBottom = false
   // The item bindings come from the owning select; per-item `data-*` state is added here.
-  function slotWithData(name: 'itemDescription', options: { data: DataAttributeBag }): SlotBinding {
-    const binding = mergeProps(
-      {
-        get class() {
-          return props.slot(name).class
-        },
-        get style() {
-          return props.slot(name).style
-        },
-      },
-      options.data,
-    )
-    return binding
-  }
+  const slotWithData = (
+    name: 'itemDescription',
+    options: { data: DataAttributeBag },
+  ): SlotBinding => mergeSlotBindingData(props.slot(name), options.data)
   function SelectItem(itemProps: { item: T; rowProps?: VirtualRowProps }) {
     const item = () => props.view.byValue?.get(itemProps.item.value) ?? itemProps.item
     const presentation: BaseSelectT.ItemRenderProps<T> = {

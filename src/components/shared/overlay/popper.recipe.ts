@@ -11,10 +11,9 @@ export const POPPER_SIDE_X_CLASS =
   'data-[side=left]:mr-(--mo-popper-content-overflow-padding) data-[side=right]:ml-(--mo-popper-content-overflow-padding) data-[side=left]:enter-translate-x-1 data-[side=left]:exit-translate-x-1 data-[side=right]:-enter-translate-x-1 data-[side=right]:-exit-translate-x-1'
 export const POPPER_SIDE_CLASS = `${POPPER_SIDE_Y_CLASS}  ${POPPER_SIDE_X_CLASS}`
 
-type PopperDataSlot = 'trigger' | 'content' | 'positioner'
+type PopperDataSlot = 'trigger' | 'content'
 
 export const popperDataAttributes = {
   trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),
   content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
-  positioner: /* @__PURE__ */ createDataAttributes('positioned'),
 } satisfies DataAttributeContract<PopperDataSlot>

@@ -76,7 +76,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
         defaultGroup = []
       }
 
-      const groupItems = (item.items ?? item.children) as TItem[] | undefined
+      const groupItems = item.items as TItem[] | undefined
       if (groupItems?.length) {
         groups.push({
           label: item.label,

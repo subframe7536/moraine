@@ -1,11 +1,19 @@
-import { createEffect, createSignal, mergeProps, on, onCleanup, untrack } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  onCleanup,
+  untrack,
+} from 'solid-js'
 
-import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createEventListenerMap } from '../../shared/event-listener'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
+import { createOverlayMenuOpen } from '../shared/overlay/menu'
 import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
 import type { OverlayTriggerBinding } from '../shared/overlay/trigger'
 import { getContextMenuTriggerAccessibility } from '../shared/overlay/trigger'
@@ -49,13 +57,18 @@ export function createContextMenu(props: ContextMenuProps) {
     props,
   )
 
-  const [open, setOpen] = createControllableValue<boolean>({
-    value: () => merged.open,
-    defaultValue: () => Boolean(merged.defaultOpen),
-    onChange: (nextOpen) => merged.onOpenChange?.(nextOpen),
+  const {
+    isOpen: open,
+    commitOpen,
+    autoFocusStrategy,
+    setAutoFocusStrategy,
+  } = createOverlayMenuOpen({
+    open: () => merged.open,
+    defaultOpen: () => merged.defaultOpen,
+    onOpenChange: (nextOpen) => merged.onOpenChange?.(nextOpen),
+    disabled: () => Boolean(merged.disabled),
+    defaultAutoFocusStrategy: 'content',
   })
-  const [autoFocusStrategy, setAutoFocusStrategy] =
-    createSignal<OverlayMenuFocusStrategy>('content')
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement>()
   const ownerDocument = () => triggerElement()?.ownerDocument
@@ -74,18 +87,6 @@ export function createContextMenu(props: ContextMenuProps) {
   const activeLongPressPointers = new Set<number>()
   let pointerEventGuard: { pointerId: number; pointerType: string } | undefined
   let suppressedContextMenu: { pointerType: string; x: number; y: number } | undefined
-
-  const commitOpen = (nextOpen: boolean): void => {
-    if (nextOpen === open()) {
-      return
-    }
-
-    if (!nextOpen) {
-      setAutoFocusStrategy('none')
-    }
-
-    setOpen(nextOpen)
-  }
 
   const openFromPoint = (
     x: number,
@@ -442,6 +443,10 @@ export function createContextMenu(props: ContextMenuProps) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
+  const triggerAccessibility = createMemo(() =>
+    getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)),
+  )
+
   const triggerDataAttrs = contextMenuDataAttributes.trigger({
     closed: () => !open(),
     disabled: () => merged.disabled,
@@ -458,14 +463,13 @@ export function createContextMenu(props: ContextMenuProps) {
     },
     'data-slot': 'context-menu-trigger',
     get disabled() {
-      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)).disabled
+      return triggerAccessibility().disabled
     },
     get 'aria-disabled'() {
-      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled))
-        .ariaDisabled
+      return triggerAccessibility().ariaDisabled
     },
     get tabIndex() {
-      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)).tabIndex
+      return triggerAccessibility().tabIndex
     },
     onContextMenu: (event: MouseEvent) => {
       if (event.defaultPrevented) {
@@ -547,6 +551,7 @@ export function createContextMenu(props: ContextMenuProps) {
       get overflowPadding() {
         return merged.overflowPadding
       },
+      onAutoFocusHandled: () => setAutoFocusStrategy('none'),
       getAnchorRect,
       onContentPointerDown,
       onContentContextMenu,

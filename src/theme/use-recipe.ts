@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Owner } from 'solid-js'
-import { getOwner } from 'solid-js'
+import { getOwner, mergeProps } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 import { useMoraineContext } from '../provider/moraine-context'
@@ -112,6 +112,43 @@ export function pickSlotOverrides<S extends string>(props: SlotOverrides<S>): Sl
       return props.styles
     },
   }
+}
+
+/**
+ * Merges slot binding class, style, and data-* attributes with optional per-item class/style additions.
+ */
+export function mergeSlotBindingData(
+  binding: SlotBinding,
+  data?: DataAttributeBag,
+  extra?: { class?: ClassValue; style?: JSX.CSSProperties | string },
+  cn?: Cn,
+): SlotBinding {
+  const merged = mergeProps(
+    {
+      get class() {
+        if (!extra?.class) {
+          return binding.class
+        }
+        if (cn) {
+          return cn(binding.class, extra.class)
+        }
+        if (typeof extra.class === 'string') {
+          return `${binding.class ?? ''} ${extra.class}`.trim()
+        }
+        return binding.class
+      },
+      get style() {
+        if (!extra?.style) {
+          return binding.style
+        }
+        return typeof extra.style === 'object'
+          ? { ...(binding.style as object), ...extra.style }
+          : binding.style
+      },
+    },
+    data,
+  )
+  return merged
 }
 
 /** Client: lazy memo under `owner`. Server: the plain computation, evaluated on every read. */

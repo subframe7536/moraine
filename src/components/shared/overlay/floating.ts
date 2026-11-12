@@ -393,3 +393,31 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
     ),
   )
 }
+
+/** Synchronizes the floating positioner element's z-index with the rendered content element's CSS z-index. */
+export function usePositionerZIndex(
+  positionerElement: Accessor<HTMLElement | undefined>,
+  contentElement: Accessor<HTMLElement | undefined>,
+): void {
+  createEffect(
+    on([positionerElement, contentElement], ([positioner, content]) => {
+      if (!positioner || !content) {
+        return
+      }
+
+      queueMicrotask(() => {
+        if (
+          positioner.isConnected &&
+          content.isConnected &&
+          positionerElement() === positioner &&
+          contentElement() === content
+        ) {
+          const contentZIndex = content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
+          if (contentZIndex && contentZIndex !== 'auto') {
+            positioner.style.zIndex = contentZIndex
+          }
+        }
+      })
+    }),
+  )
+}

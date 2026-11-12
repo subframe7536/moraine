@@ -27,7 +27,7 @@ import { callHandler, callRef, createId } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
 import { acquireAriaHideOutside } from './aria-hide'
-import { useFloatingPosition } from './floating'
+import { useFloatingPosition, usePositionerZIndex } from './floating'
 import { containFocusInContainer, focusContent, focusTrigger } from './focus'
 import { useOverlayInteraction } from './interaction'
 import { resolveFloatingPlacement } from './placement'
@@ -297,30 +297,7 @@ export function PopperContent(
     slide: () => options.slide,
   })
 
-  createEffect(
-    on([positionerElement, contentElement], ([positioner, content]) => {
-      if (!positioner || !content) {
-        return
-      }
-
-      queueMicrotask(() => {
-        untrack(() => {
-          if (
-            positionerElement() === positioner &&
-            contentElement() === content &&
-            positioner.isConnected &&
-            content.isConnected
-          ) {
-            const contentZIndex =
-              content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
-            if (contentZIndex && contentZIndex !== 'auto') {
-              positioner.style.zIndex = contentZIndex
-            }
-          }
-        })
-      })
-    }),
-  )
+  usePositionerZIndex(positionerElement, contentElement)
 
   createEffect(
     on(contentPresence.present, (present) => {

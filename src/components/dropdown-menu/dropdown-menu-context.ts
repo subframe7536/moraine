@@ -1,9 +1,8 @@
-import { createEffect, createSignal, mergeProps, on } from 'solid-js'
+import { createSignal, mergeProps } from 'solid-js'
 
-import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createId } from '../../shared/utils'
-import type { OverlayMenuFocusStrategy } from '../shared/overlay/menu'
+import { createOverlayMenuOpen } from '../shared/overlay/menu'
 
 import { dropdownMenuDataAttributes } from './dropdown-menu.recipe'
 import type { DropdownMenuProps } from './dropdown-menu.types'
@@ -11,13 +10,14 @@ import type { DropdownMenuProps } from './dropdown-menu.types'
 export function createDropdownMenu(props: DropdownMenuProps) {
   const resolvedId = createId(() => props.id, 'dropdownmenu')
   const contentId = () => `${resolvedId()}-content`
-  const [isOpen, setOpenState] = createControllableValue<boolean>({
-    value: () => props.open,
-    defaultValue: () => props.defaultOpen ?? false,
-    onChange: (open) => props.onOpenChange?.(open),
-  })
-  const [autoFocusStrategy, setAutoFocusStrategy] =
-    createSignal<OverlayMenuFocusStrategy>('content')
+  const { isOpen, commitOpen, openWithStrategy, autoFocusStrategy, setAutoFocusStrategy } =
+    createOverlayMenuOpen({
+      open: () => props.open,
+      defaultOpen: () => props.defaultOpen,
+      onOpenChange: (open) => props.onOpenChange?.(open),
+      disabled: () => Boolean(props.disabled),
+      defaultAutoFocusStrategy: 'content',
+    })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement>()
 
   const triggerDataAttrs = dropdownMenuDataAttributes.trigger({
@@ -36,38 +36,6 @@ export function createDropdownMenu(props: DropdownMenuProps) {
     },
     'data-slot': 'dropdown-menu-trigger',
   })
-
-  createEffect(
-    on(
-      () => Boolean(props.disabled) && isOpen(),
-      (shouldClose) => {
-        if (shouldClose) {
-          commitOpen(false)
-        }
-      },
-    ),
-  )
-
-  function commitOpen(open: boolean): void {
-    if (open === isOpen() || (open && props.disabled)) {
-      return
-    }
-
-    if (!open) {
-      setAutoFocusStrategy('none')
-    }
-
-    setOpenState(open)
-  }
-
-  function openWithStrategy(strategy: OverlayMenuFocusStrategy): void {
-    if (props.disabled) {
-      return
-    }
-
-    setAutoFocusStrategy(strategy)
-    commitOpen(true)
-  }
 
   return {
     get slotOverrides() {

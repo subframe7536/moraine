@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, Show, splitProps } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Portal, isServer } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
@@ -101,6 +101,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
           data-slot={state.slotName('positioner')}
           ref={setPositioner}
           class={BASE_SELECT_POSITIONER_CLASS}
+          style={isServer ? { visibility: 'hidden' } : undefined}
         >
           <div
             data-slot={state.slotName('content')}

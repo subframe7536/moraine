@@ -30,6 +30,10 @@ import { resolveFloatingPlacement } from '../shared/overlay/placement'
 import type { PopperContentContext } from '../shared/overlay/popper.types'
 import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
+import {
+  NAVIGATION_MENU_CONTROL_ATTR,
+  NAVIGATION_MENU_FOCUS_GUARD_ATTR,
+} from './navigation-menu.recipe'
 import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
 
 export interface NavigationMenuItemContextValue {
@@ -188,7 +192,7 @@ export function createNavigationMenuState(
     const root = rootElement()
     return root
       ? getFocusableElements(root).filter((element) =>
-          element.hasAttribute('data-moraine-navigation-menu-control'),
+          element.hasAttribute(NAVIGATION_MENU_CONTROL_ATTR),
         )
       : []
   }
@@ -240,7 +244,7 @@ export function createNavigationMenuState(
     const candidates = getFocusableElements(trigger.ownerDocument.body).filter(
       (element) =>
         !panelElement()?.contains(element) &&
-        !element.hasAttribute('data-moraine-navigation-menu-focus-guard'),
+        !element.hasAttribute(NAVIGATION_MENU_FOCUS_GUARD_ATTR),
     )
     const index = candidates.indexOf(trigger)
     const next = index >= 0 ? candidates[index + 1] : undefined

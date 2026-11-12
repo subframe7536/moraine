@@ -105,6 +105,10 @@ export interface OverlayInteractionOptions {
   onFocusInside?: (event: FocusEvent, context: OverlayInteractionContext) => void
   onFocusOutside?: (event: FocusEvent, context: OverlayInteractionContext) => void
   onPointerDownInside?: (event: PointerEvent, context: OverlayInteractionContext) => void
+  /**
+   * Called when an outside pointer interaction occurs.
+   * Invoked on outside `pointerdown` as well as outside `click` (e.g. for touch/synthetic interactions or cancelled pointer events).
+   */
   onPointerOutside?: (event: MouseEvent | PointerEvent, context: OverlayInteractionContext) => void
   requireContent?: boolean
   triggerElement?: Accessor<HTMLElement | undefined>

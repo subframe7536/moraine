@@ -30,7 +30,7 @@ export default function DropdownMenuPlayground() {
               {
                 type: 'group',
                 label: 'Account',
-                children: [
+                items: [
                   {
                     label: 'Profile',
                     description: 'Manage your public profile',
@@ -50,7 +50,7 @@ export default function DropdownMenuPlayground() {
               },
               {
                 type: 'group',
-                children: [
+                items: [
                   { type: 'separator' },
                   {
                     type: 'checkbox',

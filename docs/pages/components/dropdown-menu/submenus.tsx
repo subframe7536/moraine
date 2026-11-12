@@ -15,7 +15,7 @@ export function Submenus() {
               {
                 type: 'group',
                 label: 'Folders',
-                children: [
+                items: [
                   { label: 'Inbox', icon: 'i-lucide:inbox' },
                   { label: 'Archive', icon: 'i-lucide:archive' },
                 ],

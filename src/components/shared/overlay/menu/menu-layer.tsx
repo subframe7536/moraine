@@ -11,6 +11,7 @@ import {
   on,
   onCleanup,
 } from 'solid-js'
+import { isServer } from 'solid-js/web'
 
 import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'
@@ -20,7 +21,7 @@ import { callHandler, callRef } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
-import { useFloatingPosition } from '../floating'
+import { useFloatingPosition, usePositionerZIndex } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 
 import { createMenuItemRenderers } from './menu-item'
@@ -127,22 +128,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     return registerLayerBranch(positioner)
   })
 
-  createEffect(
-    on([positionerElement, layer.contentElement], ([positioner, content]) => {
-      if (!positioner || !content) {
-        return
-      }
-
-      queueMicrotask(() => {
-        if (positioner.isConnected && content.isConnected) {
-          const contentZIndex = content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
-          if (contentZIndex && contentZIndex !== 'auto') {
-            positioner.style.zIndex = contentZIndex
-          }
-        }
-      })
-    }),
-  )
+  usePositionerZIndex(positionerElement, layer.contentElement)
 
   createEffect(
     on(
@@ -169,7 +155,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       },
       true,
     )
-    createEventListener(content, 'keydown', onContentKeyDown)
     return release
   })
 
@@ -246,12 +231,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     closeParentKey,
     (direction) => props.closeOnTab?.(direction),
   )
-  const handledKeyDown = new WeakSet<Event>()
   const onContentKeyDown = (event: KeyboardEvent): void => {
-    if (handledKeyDown.has(event)) {
-      return
-    }
-    handledKeyDown.add(event)
     const { defaultPrevented } = callHandler(event, props.elementAttrs?.onKeyDown)
     if (!defaultPrevented) {
       dispatchLayerKeyDown(event)
@@ -342,6 +322,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       ref={setPositionerElement}
       data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
+      style={isServer ? { visibility: 'hidden' } : undefined}
     >
       <div
         data-slot={slotName('content')}
@@ -356,6 +337,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           layer.setContentElement(element)
           callRef(props.elementAttrs?.ref, element)
         }}
+        onKeyDown={onContentKeyDown}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerDown)
           if (!defaultPrevented) {

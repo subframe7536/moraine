@@ -7,7 +7,11 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
-import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
+import {
+  navigationMenuControlData,
+  navigationMenuDataAttributes,
+  navigationMenuRecipe,
+} from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
 export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Element {
@@ -75,7 +79,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         return local.active ? 'page' : rest['aria-current']
       },
       'data-slot': 'navigation-menu-link',
-      'data-moraine-navigation-menu-control': '',
+      ...navigationMenuControlData,
     },
     linkSlot,
   )

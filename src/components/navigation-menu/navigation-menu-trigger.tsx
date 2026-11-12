@@ -17,7 +17,9 @@ import {
 } from './navigation-menu-context'
 import {
   NAVIGATION_MENU_FOCUS_GUARD_CLASS,
+  navigationMenuControlData,
   navigationMenuDataAttributes,
+  navigationMenuFocusGuardData,
   navigationMenuRecipe,
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
@@ -114,7 +116,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
         id={triggerId()}
         disabled={disabled()}
         aria-haspopup={false}
-        data-moraine-navigation-menu-control=""
+        {...navigationMenuControlData}
         {...triggerSlot}
       >
         {local.children}
@@ -127,7 +129,7 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
       <Show when={expanded()}>
         <span
           tabIndex={0}
-          data-moraine-navigation-menu-focus-guard=""
+          {...navigationMenuFocusGuardData}
           aria-hidden="true"
           class={NAVIGATION_MENU_FOCUS_GUARD_CLASS}
           onFocus={context.onFocusGuard}
