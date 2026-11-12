@@ -21,6 +21,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useFormValue } from '../shared/form/use-form-value'
+import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 
 import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
@@ -425,7 +426,13 @@ export function FileUpload<Multiple extends boolean = false>(
   )
 
   const [dragging, setDragging] = createSignal(false)
-  const [nativeInvalid, setNativeInvalid] = createSignal(false)
+  const {
+    nativeInvalid,
+    resetNativeInvalid,
+    onInvalid: handleHiddenInputInvalid,
+  } = useHiddenInputValidation({
+    focusTarget: () => controlEl,
+  })
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
 
   const labelId = () => `${field.id()}-label`
@@ -469,7 +476,7 @@ export function FileUpload<Multiple extends boolean = false>(
   }
 
   function commitSelectedFiles(files: File[]): void {
-    setNativeInvalid(false)
+    resetNativeInvalid()
     const nextValue = resolveValue(files)
     setFormValue(nextValue)
   }
@@ -632,7 +639,7 @@ export function FileUpload<Multiple extends boolean = false>(
     () => hiddenInput()?.form,
     () => {
       setDragging(false)
-      setNativeInvalid(false)
+      resetNativeInvalid()
       resetFormValue()
     },
   )
@@ -790,11 +797,7 @@ export function FileUpload<Multiple extends boolean = false>(
           const files = Array.from(event.currentTarget.files ?? [])
           processIncomingFiles(files)
         }}
-        onInvalid={(event) => {
-          event.preventDefault()
-          setNativeInvalid(true)
-          controlEl?.focus()
-        }}
+        onInvalid={handleHiddenInputInvalid}
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
