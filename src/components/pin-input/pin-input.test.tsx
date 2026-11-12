@@ -882,6 +882,30 @@ describe('PinInput', () => {
     expect(hidden.tabIndex).toBe(-1)
   })
 
+  test('handles native invalid event on hidden input and focuses visible input', () => {
+    const screen = render(() => (
+      <PinInput name="code" length={4} validationType="number" required />
+    ))
+    const hidden = screen.container.querySelector<HTMLInputElement>('input[name="code"]')!
+    const root = screen.container.querySelector('[data-slot="pin-input"]')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    const invalidEvent = new Event('invalid', { cancelable: true })
+    const preventDefaultSpy = vi.spyOn(invalidEvent, 'preventDefault')
+    hidden.dispatchEvent(invalidEvent)
+
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1)
+    expect(document.activeElement).toBe(inputs[0])
+    expect(root.getAttribute('data-invalid')).toBe('')
+    expect(inputs[0]?.getAttribute('aria-invalid')).toBe('true')
+
+    fireEvent.input(inputs[0]!, { target: { value: '1' } })
+    expect(root.getAttribute('data-invalid')).toBeNull()
+    expect(inputs[0]?.getAttribute('aria-invalid')).toBeNull()
+  })
+
   test.each([
     ['disabled', { disabled: true }],
     ['readOnly', { readOnly: true }],

@@ -21,6 +21,7 @@ import type { KeyEvent } from '../../shared/keyboard'
 import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
+import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 
 import { defaultPinInputMessages } from './pin-input.messages'
 import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
@@ -263,7 +264,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   const fieldDataState = {
     disabled: field.disabled,
-    invalid: () => !field.disabled() && field.invalid(),
+    invalid: () => !field.disabled() && (field.invalid() || nativeInvalid()),
     readonly: field.readOnly,
     required: field.required,
   }
@@ -363,6 +364,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     update: string[] | ((prev: string[]) => string[]),
     completeOnUnchanged = false,
   ): void {
+    resetNativeInvalid()
     const current = chars()
     const next = typeof update === 'function' ? update(current) : update
     const nextJoined = next.join('')
@@ -432,6 +434,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   )
 
   function resetChars(): void {
+    resetNativeInvalid()
     if (local.value === undefined) {
       const resetValue = normalizeChars(local.defaultValue, length(), validationType(), normalize())
       setUncontrolledChars(() => resetValue)
@@ -485,6 +488,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
   function getValidTargetIndex(idx: number): number {
     return chars()[idx] !== '' ? idx : getTargetIndex()
   }
+
+  const {
+    nativeInvalid,
+    resetNativeInvalid,
+    onInvalid: handleHiddenInputInvalid,
+  } = useHiddenInputValidation({
+    focusTarget: () => inputEls[getTargetIndex()] ?? inputEls[0],
+  })
 
   function updateInputsRef(): void {
     if (!local.inputsRef) {
@@ -812,6 +823,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
           required={field.required()}
           tabIndex={-1}
           aria-hidden="true"
+          onInvalid={handleHiddenInputInvalid}
           ref={(element) => {
             hiddenInputEl = element
           }}
@@ -892,7 +904,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
                 required={field.required()}
                 value={chars()[idx] ?? ''}
                 aria-label={messages().input({ index: idx + 1, length: length() })}
-                aria-invalid={field.ariaAttrs()['aria-invalid']}
+                aria-invalid={
+                  field.ariaAttrs()['aria-invalid'] || (nativeInvalid() ? 'true' : undefined)
+                }
                 aria-describedby={field.ariaAttrs()['aria-describedby']}
                 onFocus={(event) => {
                   if (event.defaultPrevented || field.disabled()) {
