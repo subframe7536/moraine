@@ -25,7 +25,7 @@ export namespace SheetT {
   /**
    * Base props for the Sheet component.
    */
-  export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
+  export interface Base extends ModalT.Base {
     /** Localized message overrides for this sheet instance. */
     translations?: Translations
     /** Whether to render the overlay element.
