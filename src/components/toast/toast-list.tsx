@@ -142,6 +142,8 @@ export function ToastList(props: ToastListProps): JSX.Element {
           }
         }}
         onPointerUp={() => setIsInteracting(false)}
+        onPointerCancel={() => setIsInteracting(false)}
+        onLostPointerCapture={() => setIsInteracting(false)}
       >
         <For each={groupToasts()}>
           {(item) => {

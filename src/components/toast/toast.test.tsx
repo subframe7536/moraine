@@ -1357,4 +1357,44 @@ describe('Toast', () => {
     expect(bottomItem.textContent).toContain('Bottom Toast')
     expect(topItem.textContent).toContain('Top Toast')
   })
+
+  it('resets interaction pause on pointercancel and lostpointercapture', async () => {
+    vi.useFakeTimers()
+    render(() => <Toast />)
+
+    Toast.show({ title: 'Interacting Toast', duration: 1000 })
+    await vi.advanceTimersByTimeAsync(10)
+
+    const list = document.querySelector('[data-slot="toast-list"]')!
+    const item = screen.getByText('Interacting Toast')
+    expect(list).not.toBeNull()
+
+    // Start interaction
+    fireEvent.pointerDown(item)
+    // Advance time past normal duration while interacting
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(screen.queryByText('Interacting Toast')).not.toBeNull()
+
+    // Interrupt gesture via pointercancel
+    fireEvent.pointerCancel(item)
+    // Now timer should proceed and close the toast
+    await vi.advanceTimersByTimeAsync(1200)
+    await finishExitMotion()
+    expect(screen.queryByText('Interacting Toast')).toBeNull()
+  })
+
+  it('cleans up session onClose callback on removal', async () => {
+    render(() => <Toast />)
+    const onClose = vi.fn()
+    const handle = Toast.show({ title: 'Cleaned Toast', onClose })
+
+    await screen.findByText('Cleaned Toast')
+    handle.close()
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(screen.queryByText('Cleaned Toast')).toBeNull()
+    })
+    expect(onClose).toHaveBeenCalledWith('api')
+  })
 })

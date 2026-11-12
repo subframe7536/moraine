@@ -36,6 +36,7 @@ export interface ToastRecord {
   options: ToastT.Options
   render?: JSX.Element | Component<ToastT.ItemRenderProps>
   closed?: boolean
+  bump?: number
 }
 
 interface ToastSession {
@@ -178,6 +179,7 @@ export function createToastStore(): ToastStore {
         }
         found = true
         item.options = mergeDefined(item.options, options)
+        item.bump = (item.bump ?? 0) + 1
         const session = sessions.get(id)
         if (session && options.onClose) {
           session.onClose = options.onClose
@@ -190,6 +192,7 @@ export function createToastStore(): ToastStore {
   }
 
   const remove = (id: ToastT.Id): void => {
+    sessions.delete(id)
     setToasts(
       produce((draft) => {
         const index = draft.findIndex((item) => item.id === id)
@@ -283,6 +286,14 @@ export function createToastStore(): ToastStore {
         return resolved.placement === candidate.placement && resolved.align === candidate.align
       })
       if (front && isSameToastContent(resolveToastOptions(front.options, defaults), candidate)) {
+        setToasts(
+          produce((draft) => {
+            const item = draft.find((entry) => entry.id === front.id)
+            if (item) {
+              item.bump = (item.bump ?? 0) + 1
+            }
+          }),
+        )
         triggerBump(front.id)
         return sessions.get(front.id)!.handle
       }
