@@ -109,7 +109,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const timer = createToastTimer({
     toast: () => props.toast,
-    store: () => props.store,
     options,
     paused: () => Boolean(props.paused),
     swiping: swipe.swiping,
@@ -382,7 +381,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       onPointerDown={swipe.handlePointerDown}
       onPointerMove={swipe.handlePointerMove}
       onPointerUp={swipe.handlePointerUp}
-      onPointerCancel={swipe.handlePointerUp}
+      onPointerCancel={swipe.handlePointerCancel}
       onTransitionEnd={handleEndTransition}
       onAnimationEnd={handleEndTransition}
     >

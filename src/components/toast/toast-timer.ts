@@ -1,13 +1,12 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, onMount, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
-import type { ToastRecord, ToastStore } from './toast-store'
+import type { ToastRecord } from './toast-store'
 import type { ToastT } from './toast.types'
 import { DEFAULT_TOAST_DURATION } from './toast.types'
 
 export interface CreateToastTimerOptions {
   toast: () => ToastRecord
-  store: () => ToastStore
   options: Accessor<ToastT.Options>
   paused: Accessor<boolean>
   swiping: Accessor<boolean>
@@ -69,6 +68,8 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     setProgressEpoch((prev) => prev + 1)
   }
 
+  let disposed = false
+
   const handleBump = () => {
     if (bumpTimerId) {
       clearTimeout(bumpTimerId)
@@ -76,6 +77,9 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     setIsBumping(false)
     // oxlint-disable-next-line subf/solid-reactivity -- Bump animation reads the latest duration after this paint.
     queueMicrotask(() => {
+      if (disposed) {
+        return
+      }
       setIsBumping(true)
       resetCloseTimer()
       startTimer()
@@ -85,15 +89,6 @@ export function createToastTimer(options: CreateToastTimerOptions) {
       }, 240)
     })
   }
-
-  onMount(() => {
-    const unsubscribe = options.store().onBump((id) => {
-      if (id === options.toast().id) {
-        handleBump()
-      }
-    })
-    onCleanup(() => unsubscribe())
-  })
 
   createEffect(
     on(
@@ -134,6 +129,7 @@ export function createToastTimer(options: CreateToastTimerOptions) {
   )
 
   onCleanup(() => {
+    disposed = true
     clearTimeout(timerId)
     if (bumpTimerId) {
       clearTimeout(bumpTimerId)

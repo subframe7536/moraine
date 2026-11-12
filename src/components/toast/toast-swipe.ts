@@ -95,10 +95,7 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
     }
   }
 
-  function handlePointerUp(event: PointerEvent) {
-    if (!pointerStart || swipeOut()) {
-      return
-    }
+  function releaseCapture(event: PointerEvent) {
     const el = options.element()
     if (el?.hasPointerCapture?.(event.pointerId)) {
       try {
@@ -107,6 +104,28 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
         // The pointer may already have been released.
       }
     }
+  }
+
+  function resetSwipe() {
+    pointerStart = null
+    setSwiping(false)
+    dragAxis = null
+    setSwipeOffset({ x: 0, y: 0 })
+  }
+
+  function handlePointerCancel(event: PointerEvent) {
+    if (!pointerStart || swipeOut()) {
+      return
+    }
+    releaseCapture(event)
+    resetSwipe()
+  }
+
+  function handlePointerUp(event: PointerEvent) {
+    if (!pointerStart || swipeOut()) {
+      return
+    }
+    releaseCapture(event)
     const timeTaken = Math.max(Date.now() - dragStartTime, 1)
     const offset = swipeOffset()
     const movedX = offset.x
@@ -118,8 +137,8 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
       dragAxis !== null && isAwaySwipe(dragAxis, movedX, movedY, align, options.isTop())
     const distanceOk = primaryDistance >= SWIPE_THRESHOLD
     const velocityOk = velocity > SWIPE_VELOCITY && primaryDistance >= SWIPE_MIN_DISTANCE
-    pointerStart = null
     if (allowed && (distanceOk || velocityOk)) {
+      pointerStart = null
       if (dragAxis === 'x') {
         setSwipeOutDirection(movedX > 0 ? 'right' : 'left')
       } else {
@@ -128,9 +147,7 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
       options.onDismiss()
       return
     }
-    setSwiping(false)
-    dragAxis = null
-    setSwipeOffset({ x: 0, y: 0 })
+    resetSwipe()
   }
 
   return {
@@ -141,5 +158,6 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
+    handlePointerCancel,
   }
 }

@@ -143,19 +143,13 @@ export interface ToastStore {
   close: (id: ToastT.Id | undefined, reason?: FeedbackCloseReason) => void
   remove: (id: ToastT.Id) => void
   abandonHost: (hostId: string | undefined) => void
-  onBump: (listener: (id: ToastT.Id) => void) => () => void
 }
 
 export function createToastStore(): ToastStore {
   const registry = createHostRegistry<ToastHost>('Toast')
   const [toasts, setToasts] = createStore<ToastRecord[]>([])
   const sessions = new Map<ToastT.Id, ToastSession>()
-  const bumpListeners = new Set<(id: ToastT.Id) => void>()
   let counter = 1
-
-  const triggerBump = (id: ToastT.Id): void => {
-    bumpListeners.forEach((listener) => listener(id))
-  }
 
   const nextId = (): number => {
     let id = counter
@@ -170,14 +164,12 @@ export function createToastStore(): ToastStore {
     registry.entries().some((host) => host.id() === hostId)
 
   const update = (id: ToastT.Id, options: ToastT.UpdateOptions): void => {
-    let found = false
     setToasts(
       produce((draft) => {
         const item = draft.find((entry) => entry.id === id)
         if (!item || item.closed) {
           return
         }
-        found = true
         item.options = mergeDefined(item.options, options)
         item.bump = (item.bump ?? 0) + 1
         const session = sessions.get(id)
@@ -186,9 +178,6 @@ export function createToastStore(): ToastStore {
         }
       }),
     )
-    if (found) {
-      triggerBump(id)
-    }
   }
 
   const remove = (id: ToastT.Id): void => {
@@ -294,7 +283,6 @@ export function createToastStore(): ToastStore {
             }
           }),
         )
-        triggerBump(front.id)
         return sessions.get(front.id)!.handle
       }
     }
@@ -321,12 +309,6 @@ export function createToastStore(): ToastStore {
     close,
     remove,
     abandonHost,
-    onBump: (listener) => {
-      bumpListeners.add(listener)
-      return () => {
-        bumpListeners.delete(listener)
-      }
-    },
   }
 }
 
