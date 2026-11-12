@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -16,6 +16,11 @@ export namespace TabsT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
+  export interface ContentRenderProps {
+    value: string
+    selected: boolean
+  }
+
   /**
    * An individual tab in the tabs component.
    */
@@ -32,14 +37,13 @@ export namespace TabsT {
 
     /**
      * Unique value for the tab.
-     * @default index of the item
      */
-    value?: string
+    value: string
 
     /**
-     * Content to display when the tab is active.
+     * Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }.
      */
-    content?: JSX.Element
+    content?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Whether the tab is disabled.

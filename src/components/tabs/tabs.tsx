@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import {
+  DEV,
   For,
   Show,
   createEffect,
@@ -8,7 +9,6 @@ import {
   mergeProps,
   on,
   onCleanup,
-  onMount,
   splitProps,
 } from 'solid-js'
 
@@ -16,6 +16,7 @@ import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -26,15 +27,11 @@ import type { TabsProps, TabsT } from './tabs.types'
 
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
-  value: string
+  rawItem: TabsT.Item
 }
 
-function normalizeItemValue(value: string | undefined, index: number): string {
-  if (value === undefined) {
-    return String(index)
-  }
-
-  return value
+function sanitizeIdSegment(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, (char) => `_${char.codePointAt(0)!.toString(16)}_`)
 }
 
 /**
@@ -96,26 +93,57 @@ export function Tabs(props: TabsProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue,
   })
+  let previousCache = new Map<string, NormalizedTabItem>()
+  const warnedDuplicateValues = new Set<string>()
+
   const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
+    const nextCache = new Map<string, NormalizedTabItem>()
     const occurrences = new Map<string, number>()
 
-    return (merged.items ?? []).map((item, index) => {
-      const value = normalizeItemValue(item.value, index)
+    const result = (merged.items ?? []).map((item, index) => {
+      const value = item.value ?? ''
+      if (DEV) {
+        if (item.value === undefined || item.value === null) {
+          console.warn(`[moraine] Tabs item at index ${index} is missing a required "value".`)
+        } else if (occurrences.has(value) && !warnedDuplicateValues.has(value)) {
+          warnedDuplicateValues.add(value)
+          console.warn(`[moraine] Tabs received duplicate item value "${value}".`)
+        }
+      }
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
+      const instanceKey = `${sanitizeIdSegment(value)}-${occurrence}`
+
+      const cached = previousCache.get(instanceKey)
+      if (
+        cached &&
+        cached.rawItem === item &&
+        cached.disabled === item.disabled &&
+        cached.label === item.label &&
+        cached.icon === item.icon
+      ) {
+        nextCache.set(instanceKey, cached)
+        return cached
+      }
+
       const content = createLazyMemo(() => item.content)
 
-      return {
+      const normalized: NormalizedTabItem = {
+        rawItem: item,
+        value,
+        instanceKey,
+        label: item.label,
+        icon: item.icon,
+        disabled: item.disabled,
         get content() {
           return content()
         },
-        disabled: item.disabled,
-        icon: item.icon,
-        instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
-        label: item.label,
-        value,
       }
+      nextCache.set(instanceKey, normalized)
+      return normalized
     })
+    previousCache = nextCache
+    return result
   })
   const firstEnabledItem = createMemo(() => normalizedItems().find((item) => !item.disabled))
   const selectedItem = createMemo(() => {
@@ -245,10 +273,6 @@ export function Tabs(props: TabsProps): JSX.Element {
 
     setIndicatorStyle(nextStyle)
   }
-
-  onMount(() => {
-    computeIndicatorStyle(selectedKey(), merged.orientation)
-  })
 
   createEffect(
     on([normalizedItems, selectedKey, () => merged.orientation], ([, key, orientation]) => {
@@ -399,7 +423,14 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-slot="tabs-content"
                 {...contentSlot}
               >
-                {item.content}
+                {renderWithProps(item.content, {
+                  get value() {
+                    return item.value
+                  },
+                  get selected() {
+                    return selected()
+                  },
+                })}
               </div>
             </Show>
           )

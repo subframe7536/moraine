@@ -119,7 +119,7 @@ describe('Tabs', () => {
     const empty = screen.getByRole('tab', { name: 'Empty' })
 
     expect(empty.getAttribute('aria-selected')).toBe('true')
-    expect(empty.getAttribute('aria-controls')).toBe('empty-value-tabs--0-content')
+    expect(empty.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
     expect(screen.getByRole('tabpanel').textContent).toBe('Empty panel')
     expect(
       screen.container.querySelector('[data-slot="tabs-indicator"]')?.getAttribute('style'),
@@ -905,5 +905,50 @@ describe('Tabs', () => {
     expect(disabled.queryAllByRole('tab')).toHaveLength(2)
     expect(disabled.container.querySelectorAll('[role="tab"][tabindex="0"]')).toHaveLength(0)
     expect(disabled.queryAllByRole('tabpanel')).toHaveLength(0)
+  })
+
+  test('renders item.content as a component receiving { value, selected }', () => {
+    const CustomContent = (props: { value: string; selected: boolean }) => (
+      <div data-testid="custom-content">
+        Value: {props.value}, Selected: {String(props.selected)}
+      </div>
+    )
+
+    const screen = render(() => (
+      <Tabs
+        defaultValue="custom"
+        items={[
+          { label: 'Custom', value: 'custom', content: CustomContent },
+          { label: 'Static', value: 'static', content: 'Static Content' },
+        ]}
+      />
+    ))
+
+    const content = screen.getByTestId('custom-content')
+    expect(content.textContent).toBe('Value: custom, Selected: true')
+  })
+
+  test('warns in DEV on duplicate or missing value', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    render(() => (
+      <Tabs
+        items={[
+          { label: 'One', value: 'dup', content: 'Panel 1' },
+          { label: 'Two', value: 'dup', content: 'Panel 2' },
+          // @ts-expect-error missing value for testing DEV warning
+          { label: 'Three', content: 'Panel 3' },
+        ]}
+      />
+    ))
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Tabs received duplicate item value "dup"'),
+    )
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Tabs item at index 2 is missing a required "value"'),
+    )
+
+    warnSpy.mockRestore()
   })
 })
