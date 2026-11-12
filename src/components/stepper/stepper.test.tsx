@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../provider'
 
 import { Stepper } from './stepper'
+import type { StepperT } from './stepper.types'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
@@ -88,7 +89,7 @@ describe('Stepper', () => {
 
   test.each([0, ''])('mounts a panel for nullish-safe content %s', (content) => {
     const screen = render(() => (
-      <Stepper items={[{ title: 'Step', content, class: 'item-only' }]} />
+      <Stepper items={[{ value: 'step', title: 'Step', content, class: 'item-only' }]} />
     ))
     expect(screen.getByRole('tabpanel').textContent).toBe(String(content))
     expect(screen.getByRole('tabpanel').className).not.toContain('item-only')
@@ -129,7 +130,7 @@ describe('Stepper', () => {
     expect(reads).toEqual({ title: 1, description: 1, content: 1 })
   })
 
-  const ITEMS = [
+  const ITEMS: [StepperT.Item, StepperT.Item, StepperT.Item] = [
     {
       title: 'Address',
       description: 'Add your address here',
@@ -503,7 +504,7 @@ describe('Stepper', () => {
   })
 
   test('omits empty text wrappers and the connector for a single step', () => {
-    const screen = render(() => <Stepper items={[{}]} />)
+    const screen = render(() => <Stepper items={[{ value: 'single' }]} />)
     expect(screen.container.querySelector('[data-slot="stepper-wrapper"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="stepper-separator"]')).toBeNull()
     expect(screen.getByRole('tab').textContent).toBe('1')
@@ -519,6 +520,7 @@ describe('Stepper', () => {
       <Stepper
         items={[
           {
+            value: 'inbox',
             title: 'Inbox',
             icon: 'icon-inbox',
             content: 'Inbox content',
@@ -556,7 +558,7 @@ describe('Stepper', () => {
   })
 
   test('keeps the no-request fallback dynamic until the user selects a step', () => {
-    const [items, setItems] = createSignal([
+    const [items, setItems] = createSignal<StepperT.Item[]>([
       { ...ITEMS[0], disabled: true },
       { ...ITEMS[1] },
       { ...ITEMS[2] },
@@ -611,5 +613,82 @@ describe('Stepper', () => {
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')
     expect(content?.style.width).toBe('200px')
+  })
+
+  test('provides aria-owns on tablist and aria-current="step" on active tab', () => {
+    const screen = render(() => <Stepper items={ITEMS} value="shipping" />)
+    const tablist = screen.getByRole('tablist')
+    const tabs = screen.getAllByRole('tab')
+    const activeTab = screen.getByRole('tab', { name: 'Shipping' })
+
+    const expectedOwns = tabs.map((t) => t.id).join(' ')
+    expect(tablist.getAttribute('aria-owns')).toBe(expectedOwns)
+    expect(activeTab.getAttribute('aria-current')).toBe('step')
+
+    const inactiveTab = screen.getByRole('tab', { name: 'Address' })
+    expect(inactiveTab.getAttribute('aria-current')).toBeNull()
+  })
+
+  test('associates aria-labelledby when title is 0', () => {
+    const screen = render(() => (
+      <Stepper
+        items={[
+          { value: 'zero', title: 0, content: 'Zero panel' },
+          { value: 'one', title: 1, content: 'One panel' },
+        ]}
+      />
+    ))
+    const tab = screen.getByRole('tab', { name: '0' })
+    expect(tab.getAttribute('aria-labelledby')).not.toBeNull()
+  })
+
+  test('renders item.content as a component receiving { value, active, completed, index }', () => {
+    const CustomContent = (props: {
+      value: string
+      active: boolean
+      completed: boolean
+      index: number
+    }) => (
+      <div data-testid="custom-content">
+        Value: {props.value}, Active: {String(props.active)}, Index: {props.index}
+      </div>
+    )
+
+    const screen = render(() => (
+      <Stepper
+        value="custom"
+        items={[
+          { value: 'custom', title: 'Custom', content: CustomContent },
+          { value: 'other', title: 'Other', content: 'Other Content' },
+        ]}
+      />
+    ))
+
+    const content = screen.getByTestId('custom-content')
+    expect(content.textContent).toBe('Value: custom, Active: true, Index: 0')
+  })
+
+  test('warns in DEV on missing or duplicate item value', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    render(() => (
+      <Stepper
+        items={[
+          { value: 'dup', title: 'One' },
+          { value: 'dup', title: 'Two' },
+          // @ts-expect-error missing value for testing DEV warning
+          { title: 'Three' },
+        ]}
+      />
+    ))
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Stepper received duplicate item value "dup"'),
+    )
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Stepper item at index 2 is missing a required "value"'),
+    )
+
+    warnSpy.mockRestore()
   })
 })

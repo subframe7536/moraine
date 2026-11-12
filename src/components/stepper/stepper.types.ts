@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -17,15 +17,21 @@ export namespace StepperT {
 
   export type Value = string
 
+  export interface ContentRenderProps {
+    value: Value
+    active: boolean
+    completed: boolean
+    index: number
+  }
+
   /**
    * An individual step in the stepper.
    */
   export interface Item {
     /**
      * Unique value for the step.
-     * @default index of the item
      */
-    value?: Value
+    value: Value
 
     /**
      * Title of the step.
@@ -44,9 +50,9 @@ export namespace StepperT {
     icon?: IconT.Name
 
     /**
-     * Content to display when the step is active.
+     * Content to display when the step is active. Accepts static JSX or a component receiving { value, active, completed, index }.
      */
-    content?: JSX.Element
+    content?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Whether the step is disabled.

@@ -6,6 +6,7 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
 import { Icon } from '../icon/index'
@@ -87,12 +88,16 @@ export function Stepper(props: StepperProps): JSX.Element {
   const normalizedItems = createMemo<NormalizedStepperItem[]>(() => {
     const occurrences = new Map<StepperT.Value, number>()
     return (merged.items ?? []).map((item, index) => {
-      const value = item.value ?? String(index)
+      const value = item.value ?? ''
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
-      if (DEV && occurrence > 0 && !warnedDuplicateValues.has(value)) {
-        warnedDuplicateValues.add(value)
-        console.warn(`[moraine] Stepper received duplicate item value "${value}".`)
+      if (DEV) {
+        if (item.value === undefined || item.value === null) {
+          console.warn(`[moraine] Stepper item at index ${index} is missing a required "value".`)
+        } else if (occurrence > 0 && !warnedDuplicateValues.has(value)) {
+          warnedDuplicateValues.add(value)
+          console.warn(`[moraine] Stepper received duplicate item value "${value}".`)
+        }
       }
       const title = createLazyMemo(() => item.title)
       const description = createLazyMemo(() => item.description)
@@ -208,6 +213,12 @@ export function Stepper(props: StepperProps): JSX.Element {
     return `${id()}-${key}-content`
   }
 
+  const tabIds = createMemo(() =>
+    normalizedItems()
+      .map((entry) => getTriggerId(entry.instanceKey))
+      .join(' '),
+  )
+
   return (
     <div data-slot="stepper" {...rootSlot} {...rest} id={id()}>
       <div
@@ -215,6 +226,7 @@ export function Stepper(props: StepperProps): JSX.Element {
           headerRef = element
         }}
         role="tablist"
+        aria-owns={tabIds()}
         aria-label={local['aria-label']}
         aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
@@ -268,11 +280,14 @@ export function Stepper(props: StepperProps): JSX.Element {
                   tabIndex={selected() ? 0 : -1}
                   aria-controls={panelMounted() ? contentId() : undefined}
                   aria-selected={selected()}
+                  aria-current={selected() ? 'step' : undefined}
                   data-slot="stepper-trigger"
                   {...triggerSlot}
                   disabled={disabled()}
-                  aria-labelledby={entry.item.title ? titleId() : undefined}
-                  aria-describedby={entry.item.description ? descriptionId() : undefined}
+                  aria-labelledby={hasContent(entry.item.title) ? titleId() : undefined}
+                  aria-describedby={
+                    hasContent(entry.item.description) ? descriptionId() : undefined
+                  }
                   onClick={() => selectStep(entry.value)}
                   onKeyDown={(event) => {
                     onNavigationKeyDown(
@@ -332,7 +347,20 @@ export function Stepper(props: StepperProps): JSX.Element {
               data-slot="stepper-content"
               {...contentSlot}
             >
-              {entry.item.content}
+              {renderWithProps(entry.item.content, {
+                get value() {
+                  return entry.value
+                },
+                get active() {
+                  return selectedItem()?.instanceKey === entry.instanceKey
+                },
+                get completed() {
+                  return getItemState(entry.index) === 'completed'
+                },
+                get index() {
+                  return entry.index
+                },
+              })}
             </div>
           </Show>
         )}
