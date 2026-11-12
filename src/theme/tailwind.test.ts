@@ -95,7 +95,7 @@ describe('colors', () => {
   test('bg-primary resolves to var(--primary)', async () => {
     const css = await compileCSS(['bg-primary'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-primary {
         background-color: var(--primary);
       }
@@ -106,7 +106,7 @@ describe('colors', () => {
   test('text-foreground resolves to var(--foreground)', async () => {
     const css = await compileCSS(['text-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .text-foreground {
         color: var(--foreground);
       }
@@ -117,7 +117,7 @@ describe('colors', () => {
   test('bg-background resolves to var(--background)', async () => {
     const css = await compileCSS(['bg-background'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-background {
         background-color: var(--background);
       }
@@ -128,7 +128,7 @@ describe('colors', () => {
   test('primary-foreground color resolves', async () => {
     const css = await compileCSS(['text-primary-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .text-primary-foreground {
         color: var(--primary-foreground);
       }
@@ -139,7 +139,7 @@ describe('colors', () => {
   test('secondary colors resolve', async () => {
     const css = await compileCSS(['bg-secondary', 'text-secondary-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-secondary {
         background-color: var(--secondary);
       }
@@ -153,7 +153,7 @@ describe('colors', () => {
   test('card colors resolve', async () => {
     const css = await compileCSS(['bg-card', 'text-card-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-card {
         background-color: var(--card);
       }
@@ -167,7 +167,7 @@ describe('colors', () => {
   test('muted colors resolve', async () => {
     const css = await compileCSS(['bg-muted', 'text-muted-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-muted {
         background-color: var(--muted);
       }
@@ -181,7 +181,7 @@ describe('colors', () => {
   test('accent colors resolve', async () => {
     const css = await compileCSS(['bg-accent', 'text-accent-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-accent {
         background-color: var(--accent);
       }
@@ -195,7 +195,7 @@ describe('colors', () => {
   test('danger colors resolve', async () => {
     const css = await compileCSS(['bg-danger', 'text-danger-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .bg-danger {
         background-color: var(--danger);
       }
@@ -354,7 +354,7 @@ describe('border radius', () => {
   test('rounded-lg uses var(--radius)', async () => {
     const css = await compileCSS(['rounded-lg'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .rounded-lg {
         border-radius: var(--radius);
       }
@@ -365,7 +365,7 @@ describe('border radius', () => {
   test('rounded-xl uses calc(var(--radius) * 1.4)', async () => {
     const css = await compileCSS(['rounded-xl'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .rounded-xl {
         border-radius: calc(var(--radius) * 1.4);
       }
@@ -376,7 +376,7 @@ describe('border radius', () => {
   test('rounded-sm uses calc(var(--radius) * 0.6)', async () => {
     const css = await compileCSS(['rounded-sm'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .rounded-sm {
         border-radius: calc(var(--radius) * 0.6);
       }
@@ -387,7 +387,7 @@ describe('border radius', () => {
   test('rounded-xs uses calc(var(--radius) * 0.5)', async () => {
     const css = await compileCSS(['rounded-xs'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .rounded-xs {
         border-radius: calc(var(--radius) * 0.5);
       }
@@ -398,7 +398,7 @@ describe('border radius', () => {
   test('rounded-2xl through rounded-4xl resolve', async () => {
     const css = await compileCSS(['rounded-2xl', 'rounded-3xl', 'rounded-4xl'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .rounded-2xl {
         border-radius: calc(var(--radius) * 1.8);
       }
@@ -447,7 +447,7 @@ describe('z-index', () => {
     ])
 
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .z-base {
         z-index: 1;
       }
@@ -514,7 +514,7 @@ describe('animations', () => {
   test('animate-mo-enter uses CSS variable duration and easing', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
@@ -531,7 +531,7 @@ describe('animations', () => {
   test('animate-mo-exit uses CSS variable duration and easing', async () => {
     const css = await compileCSS(['animate-mo-exit'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
       }
@@ -548,7 +548,7 @@ describe('animations', () => {
   test('mo-enter keyframe uses CSS variable transforms', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
@@ -565,7 +565,7 @@ describe('animations', () => {
   test('mo-exit keyframe uses CSS variable transforms', async () => {
     const css = await compileCSS(['animate-mo-exit'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
       }
@@ -582,7 +582,7 @@ describe('animations', () => {
   test('looping animations use shared duration and easing', async () => {
     const css = await compileCSS(['animate-carousel', 'animate-swing', 'animate-elastic'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-carousel {
         animation: carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
       }
@@ -626,7 +626,7 @@ describe('animations', () => {
   test('spin animation uses shared duration and linear easing', async () => {
     const css = await compileCSS(['animate-spin'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-spin {
         animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
       }
@@ -655,7 +655,7 @@ describe('animations', () => {
       'transition-mo-exit',
     ])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       :root, :host {
         --default-transition-duration: 150ms;
         --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -792,7 +792,7 @@ describe('font families', () => {
   test('font-sans resolves to var(--font-sans)', async () => {
     const css = await compileCSS(['font-sans'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .font-sans {
         font-family: var(--font-sans);
       }
@@ -803,7 +803,7 @@ describe('font families', () => {
   test('font-mono resolves to var(--font-mono)', async () => {
     const css = await compileCSS(['font-mono'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .font-mono {
         font-family: var(--font-mono);
       }
@@ -814,7 +814,7 @@ describe('font families', () => {
   test('font-serif resolves to var(--font-serif)', async () => {
     const css = await compileCSS(['font-serif'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .font-serif {
         font-family: var(--font-serif);
       }
@@ -829,7 +829,7 @@ describe('attribute variants', () => {
   test('data-active variant transforms correctly', async () => {
     const css = await compileCSS(['data-active:bg-primary'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .data-active\\:bg-primary[data-active] {
         background-color: var(--primary);
       }
@@ -840,7 +840,7 @@ describe('attribute variants', () => {
   test('data-checked variant transforms correctly', async () => {
     const css = await compileCSS(['data-checked:text-foreground'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .data-checked\\:text-foreground[data-checked] {
         color: var(--foreground);
       }
@@ -856,7 +856,7 @@ describe('attribute variants', () => {
   test('data-disabled variant works with opacity', async () => {
     const css = await compileCSS(['data-disabled:opacity-50'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .data-disabled\\:opacity-50[data-disabled] {
         opacity: 50%;
       }
@@ -867,7 +867,7 @@ describe('attribute variants', () => {
   test('aria-busy variant transforms correctly', async () => {
     const css = await compileCSS(['aria-busy:opacity-80'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .aria-busy\\:opacity-80[aria-busy] {
         opacity: 80%;
       }
@@ -878,7 +878,7 @@ describe('attribute variants', () => {
   test('aria-checked variant works with moraine colors', async () => {
     const css = await compileCSS(['aria-checked:bg-accent'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .aria-checked\\:bg-accent[aria-checked] {
         background-color: var(--accent);
       }
@@ -889,7 +889,7 @@ describe('attribute variants', () => {
   test('aria-disabled variant works with pointer-events', async () => {
     const css = await compileCSS(['aria-disabled:pointer-events-none'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .aria-disabled\\:pointer-events-none[aria-disabled] {
         pointer-events: none;
       }
@@ -904,7 +904,7 @@ describe('attribute variants', () => {
     ])
 
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @layer properties;
       :root, :host {
         --default-transition-duration: 150ms;
@@ -935,7 +935,7 @@ describe('attribute variants', () => {
         initial-value: 0;
       }
       @layer properties {
-        @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+        @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
           *, ::before, ::after, ::backdrop {
             --tw-translate-x: 0;
             --tw-translate-y: 0;
@@ -950,7 +950,7 @@ describe('attribute variants', () => {
   test('data variants compose with hover', async () => {
     const css = await compileCSS(['hover:data-active:bg-primary'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @media (hover: hover) {
         .hover\\:data-active\\:bg-primary:hover[data-active] {
           background-color: var(--primary);
@@ -974,7 +974,7 @@ describe('full compilation', () => {
       'border-border',
     ])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @layer properties;
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
@@ -1067,7 +1067,7 @@ describe('full compilation', () => {
         }
       }
       @layer properties {
-        @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+        @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
           *, ::before, ::after, ::backdrop {
             --tw-shadow: 0 0 #0000;
             --tw-shadow-color: initial;
@@ -1093,7 +1093,7 @@ describe('full compilation', () => {
   test('hover variant works with moraine tokens', async () => {
     const css = await compileCSS(['hover:bg-primary'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @media (hover: hover) {
         .hover\\:bg-primary:hover {
           background-color: var(--primary);
@@ -1106,7 +1106,7 @@ describe('full compilation', () => {
   test('focus variant works with moraine tokens', async () => {
     const css = await compileCSS(['focus:ring-ring'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .focus\\:ring-ring:focus {
         --tw-ring-color: var(--ring);
       }
@@ -1117,7 +1117,7 @@ describe('full compilation', () => {
   test('responsive variants work with moraine tokens', async () => {
     const css = await compileCSS(['md:bg-secondary'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @media (width >= 48rem) {
         .md\\:bg-secondary {
           background-color: var(--secondary);
@@ -1134,7 +1134,7 @@ describe('with @iconify/tailwind (docs config)', () => {
   test('lucide icon utilities generate SVG CSS', async () => {
     const css = await compileCSSWithIconify(['lucide--arrow-down'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .lucide--arrow-down {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
       }
@@ -1145,7 +1145,7 @@ describe('with @iconify/tailwind (docs config)', () => {
   test('.iconify base class provides mask-image styles', async () => {
     const css = await compileCSSWithIconify(['iconify'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .iconify {
         display: inline-block;
         width: 1em;
@@ -1165,7 +1165,7 @@ describe('with @iconify/tailwind (docs config)', () => {
   test('iconify icons render with currentColor via mask', async () => {
     const css = await compileCSSWithIconify(['lucide--check'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .lucide--check {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
       }
@@ -1176,7 +1176,7 @@ describe('with @iconify/tailwind (docs config)', () => {
   test('moraine tokens still work alongside iconify', async () => {
     const css = await compileCSSWithIconify(['bg-primary', 'rounded-lg', 'animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
@@ -1234,7 +1234,7 @@ describe('with @iconify/tailwind (docs config)', () => {
   test('iconify icons work with variants', async () => {
     const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
     expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      "/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
       @media (hover: hover) {
         .hover\\:lucide--arrow-down:hover {
           --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");

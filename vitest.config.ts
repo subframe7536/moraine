@@ -47,6 +47,7 @@ export default defineConfig({
             'build/**/*.{test,spec}.?(c|m)[jt]s?(x)',
           ],
           exclude: [...VM_INCOMPATIBLE_TESTS, 'test/consumer-fixtures/**'],
+          setupFiles: ['./src/test-util/jsdom-exit-animation.ts'],
         },
       },
       {

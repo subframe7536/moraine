@@ -223,7 +223,7 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Callback when the formatted string value changes. Emits `''` when the input is cleared."
+          "description": "Callback when the canonical string value changes. Emits `''` when the input is cleared."
         },
         {
           "name": "orientation",
@@ -255,6 +255,16 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "repeat",
+          "optional": true,
+          "type": "boolean | RepeatOptions",
+          "description": "Configuration for press-and-hold repeat, or boolean to toggle.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {

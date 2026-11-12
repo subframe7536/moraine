@@ -114,7 +114,7 @@ describe('useFloatingPosition', () => {
       y: 30,
     })
     await waitFor(() =>
-      expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0)'),
+      expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)'),
     )
     pending[0]!({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
@@ -123,7 +123,7 @@ describe('useFloatingPosition', () => {
       y: 2,
     })
     await Promise.resolve()
-    expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0)')
+    expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)')
     setUnrelated(2)
     expect(pending).toHaveLength(2)
     expect(floatingMocks.cleanup).not.toHaveBeenCalled()
@@ -158,7 +158,7 @@ describe('useFloatingPosition', () => {
       y: 30,
     })
     await waitFor(() => {
-      expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0)')
+      expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)')
     })
 
     pending[0]!({
@@ -169,7 +169,7 @@ describe('useFloatingPosition', () => {
     })
     await Promise.resolve()
 
-    expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0)')
+    expect(screen.getByTestId('floating').style.transform).toBe('translate3d(20px, 30px, 0px)')
     expect(onPositionedChange.mock.calls).toEqual([[false], [true]])
   })
 
@@ -298,7 +298,7 @@ describe('useFloatingPosition', () => {
     vi.spyOn(floating, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 20, 0, 0))
     setReference(screen.getByRole('button'))
     await vi.advanceTimersByTimeAsync(0)
-    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0)')
+    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0px)')
     expect(floating.style.visibility).toBe('visible')
 
     floatingMocks.computePosition.mockResolvedValue({
@@ -309,18 +309,18 @@ describe('useFloatingPosition', () => {
     })
     floatingMocks.updates[0]!()
     await vi.advanceTimersByTimeAsync(0)
-    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0)')
+    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
-    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
     expect(frame).toHaveBeenCalledOnce()
 
     const replacement = document.createElement('button')
     floating.parentElement!.append(replacement)
     setReference(replacement)
     await vi.advanceTimersByTimeAsync(0)
-    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
-    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
   })
 
   test.each(['close', 'unmount'])('cancels the initial movement on %s', async (action) => {
@@ -346,14 +346,14 @@ describe('useFloatingPosition', () => {
     ))
     const floating = screen.getByTestId('floating')
     await vi.advanceTimersByTimeAsync(0)
-    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0)')
+    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0px)')
     if (action === 'close') {
       setOpen(false)
     } else {
       screen.unmount()
     }
     await vi.runAllTimersAsync()
-    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0)')
+    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0px)')
     expect(floating.style.visibility).toBe('hidden')
   })
 
@@ -398,7 +398,7 @@ describe('useFloatingPosition', () => {
     })
     await Promise.resolve()
     expect(first.style.transform).toBe('')
-    expect(second.style.transform).toBe('translate3d(3px, 4px, 0)')
+    expect(second.style.transform).toBe('translate3d(3px, 4px, 0px)')
     setReference(undefined)
     expect(floatingMocks.cleanup).toHaveBeenCalledTimes(2)
     expect(second.style.visibility).toBe('hidden')
@@ -508,7 +508,7 @@ describe('floating geometry and style ownership', () => {
     const floating = screen.getByTestId('floating')
     const round = (value: number) => Math.round(value * dpr) / dpr
     await waitFor(() =>
-      expect(floating.style.transform).toBe(`translate3d(${round(10.3)}px, ${round(44.3)}px, 0)`),
+      expect(floating.style.transform).toBe(`translate3d(${round(10.3)}px, ${round(44.3)}px, 0px)`),
     )
     expect(floating.style.getPropertyValue('--mo-popper-anchor-width')).toBe(`${round(40.3)}px`)
     expect(floating.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe('0% -4px')
@@ -545,7 +545,7 @@ describe('floating geometry and style ownership', () => {
         floatingMocks.updates[0]!()
         await waitFor(() =>
           expect(floating.style.transform).toBe(
-            `translate3d(${Math.round(baseX + sign * shift)}px, 44px, 0)`,
+            `translate3d(${Math.round(baseX + sign * shift)}px, 44px, 0px)`,
           ),
         )
       },

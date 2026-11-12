@@ -1068,13 +1068,13 @@ describe('Popper primitives', () => {
       '[data-slot="popover-positioner"]',
     ) as HTMLElement
     await waitFor(() => {
-      expect(positioner.style.transform).toBe('translate3d(10px, 20px, 0)')
+      expect(positioner.style.transform).toBe('translate3d(10px, 20px, 0px)')
     })
 
     setUseFirstTrigger(false)
 
     await waitFor(() => {
-      expect(positioner.style.transform).toBe('translate3d(110px, 50px, 0)')
+      expect(positioner.style.transform).toBe('translate3d(110px, 50px, 0px)')
     })
   })
 

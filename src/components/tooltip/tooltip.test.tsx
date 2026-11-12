@@ -667,7 +667,7 @@ describe('Tooltip', () => {
     const firstPositioner = document.body.querySelector<HTMLElement>(
       '[data-slot=tooltip-positioner]',
     )!
-    expect(firstPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
+    expect(firstPositioner.style.transform).toBe('translate3d(120px, 200px, 0px)')
     expect(firstPositioner.classList).not.toContain(
       'motion-safe:data-positioned:transition-transform',
     )
@@ -693,9 +693,9 @@ describe('Tooltip', () => {
     )!
     expect(secondPositioner.classList).toContain('motion-safe:data-positioned:transition-transform')
     expect(firstPositioner.isConnected).toBe(false)
-    expect(secondPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
+    expect(secondPositioner.style.transform).toBe('translate3d(120px, 200px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
-    expect(secondPositioner.style.transform).toBe('translate3d(220px, 200px, 0)')
+    expect(secondPositioner.style.transform).toBe('translate3d(220px, 200px, 0px)')
 
     // A third tooltip starts at the current visual position, even during the preceding transition.
     vi.spyOn(secondPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(160, 200, 0, 0))
@@ -707,9 +707,9 @@ describe('Tooltip', () => {
     )!
     expect(document.body.querySelectorAll('[role=tooltip]')).toHaveLength(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Third tooltip')
-    expect(thirdPositioner.style.transform).toBe('translate3d(160px, 200px, 0)')
+    expect(thirdPositioner.style.transform).toBe('translate3d(160px, 200px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
-    expect(thirdPositioner.style.transform).toBe('translate3d(320px, 200px, 0)')
+    expect(thirdPositioner.style.transform).toBe('translate3d(320px, 200px, 0px)')
   })
 
   test('positions directly when reopening within the skip-delay window after a normal close', async () => {
@@ -745,7 +745,7 @@ describe('Tooltip', () => {
       '[data-slot=tooltip-positioner]',
     )!
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
-    expect(secondPositioner.style.transform).not.toBe('translate3d(120px, 200px, 0)')
+    expect(secondPositioner.style.transform).not.toBe('translate3d(120px, 200px, 0px)')
     const target = secondPositioner.style.transform
     expect(target).not.toBe('')
     await vi.advanceTimersByTimeAsync(16)

@@ -87,6 +87,12 @@
           }
         },
         {
+          "name": "fileRender",
+          "optional": true,
+          "type": "Component<FileRenderProps>",
+          "description": "Custom renderer for individual file entries in the preview list."
+        },
+        {
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
@@ -107,6 +113,12 @@
           "optional": true,
           "type": "Ref<HTMLInputElement>",
           "description": "Native input element ref."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "Component<FileRenderProps>",
+          "description": "Alias for `fileRender`."
         },
         {
           "name": "label",

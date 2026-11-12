@@ -889,7 +889,7 @@ describe('Toast', () => {
       '[data-slot="toast-item"]',
     ) as HTMLElement
     await waitFor(() => {
-      expect(back.style.transform).toBe('translate3d(0, -20px, 0) scale(0.95)')
+      expect(back.style.transform).toBe('translate3d(0px, -20px, 0px) scale(0.95)')
     })
   })
 
@@ -942,7 +942,7 @@ describe('Toast', () => {
 
     // id1 should now immediately target the front position with offset 0
     await waitFor(() => {
-      expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+      expect(item1.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
     })
 
     // After exit animation completes and id2 unmounts:
@@ -950,7 +950,7 @@ describe('Toast', () => {
     expect(screen.queryByText('Toast 2')).toBeNull()
 
     // id1 should STILL remain at offset 0 (no extra drop after exit completes)
-    expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+    expect(item1.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
   })
 
   it('does not cause an extra drop for upper toasts when closing a toast in collapsed mode', async () => {
@@ -970,7 +970,7 @@ describe('Toast', () => {
     })
 
     // Initially id2 is front (index 0, 0px), id1 is behind (index 1, -14px)
-    expect(item1.style.transform).toBe('translate3d(0, -14px, 0) scale(0.95)')
+    expect(item1.style.transform).toBe('translate3d(0px, -14px, 0px) scale(0.95)')
 
     // Close front toast (id2)
     Toast.close(id2.id)
@@ -978,7 +978,7 @@ describe('Toast', () => {
 
     // id1 immediately becomes active front and targets 0px (scale 1)
     await waitFor(() => {
-      expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+      expect(item1.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
     })
 
     // After exit completes:
@@ -986,7 +986,7 @@ describe('Toast', () => {
     expect(screen.queryByText('Toast 2')).toBeNull()
 
     // id1 remains at 0px
-    expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+    expect(item1.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
   })
 
   it('fades a buried toast out in place when several toasts are open', async () => {
@@ -1004,8 +1004,8 @@ describe('Toast', () => {
     ) as HTMLElement
 
     await waitFor(() => {
-      expect(backEl.style.transform).toBe('translate3d(0, -28px, 0) scale(0.9)')
-      expect(frontEl.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+      expect(backEl.style.transform).toBe('translate3d(0px, -28px, 0px) scale(0.9)')
+      expect(frontEl.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
     })
 
     Toast.close(back.id)
@@ -1013,9 +1013,9 @@ describe('Toast', () => {
       expect(backEl.style.opacity).toBe('0')
     })
 
-    expect(backEl.style.transform).toBe('translate3d(0, -28px, 0) scale(0.9)')
+    expect(backEl.style.transform).toBe('translate3d(0px, -28px, 0px) scale(0.9)')
     expect(Number(backEl.style.zIndex)).toBeLessThan(Number(frontEl.style.zIndex))
-    expect(frontEl.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+    expect(frontEl.style.transform).toBe('translate3d(0px, 0px, 0px) scale(1)')
 
     backEl.dispatchEvent(new TransitionEvent('transitionend', { bubbles: true, elapsedTime: 0.4 }))
     expect(backEl.isConnected).toBe(true)

@@ -84,7 +84,7 @@ describe('BoldSlider', () => {
     )
 
     setValue(0)
-    expect(fill.style.getPropertyValue('clip-path')).toBe('inset(0 calc(100% - 0%) 0 0)')
+    expect(fill.style.getPropertyValue('clip-path')).toBe('inset(0px calc(100%) 0px 0px)')
     // Indicator stays visible at value=0, docked to the minimum-fill position.
     expect(indicators[0]!.style.display).not.toBe('none')
     expect(indicators[0]!.style.getPropertyValue('clip-path')).toContain('var(--bs-inset)')

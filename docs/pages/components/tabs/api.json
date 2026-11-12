@@ -63,7 +63,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value?: string;\n  /** Content to display when the tab is active. */\n  content?: JSX.Element;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
+          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value: string;\n  /** Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
           "description": "Array of tabs to display."
         },
         {
@@ -139,8 +139,8 @@
       {
         "name": "content",
         "optional": true,
-        "type": "JSX.Element",
-        "description": "Content to display when the tab is active."
+        "type": "JSX.Element | Component<ContentRenderProps>",
+        "description": "Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }."
       },
       {
         "name": "disabled",
@@ -166,13 +166,9 @@
       },
       {
         "name": "value",
-        "optional": true,
+        "optional": false,
         "type": "string",
-        "description": "Unique value for the tab.",
-        "default": {
-          "kind": "expression",
-          "text": "index of the item"
-        }
+        "description": "Unique value for the tab."
       }
     ]
   },

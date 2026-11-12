@@ -139,7 +139,7 @@
           "name": "onChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Native change event, after value synchronization and Field notification."
+          "description": "Callback when the pin input value changes, passing the joined string."
         },
         {
           "name": "onComplete",
@@ -157,7 +157,7 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
-          "description": "Callback when the pin input value changes."
+          "description": "Callback when the pin input value changes, passing the slot characters as an array."
         },
         {
           "name": "onValueInvalid",

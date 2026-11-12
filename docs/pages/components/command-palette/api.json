@@ -83,16 +83,6 @@
           }
         },
         {
-          "name": "disableFilter",
-          "optional": true,
-          "type": "boolean",
-          "description": "Disable built-in search filtering and render all provided items.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
