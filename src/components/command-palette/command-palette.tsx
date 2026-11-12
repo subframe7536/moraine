@@ -48,6 +48,22 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   items: NormalizedItem<TItem>[]
 }
 
+type ListRow<TItem extends CommandPaletteT.Item> =
+  | CommandPaletteT.VirtualEntry<TItem>
+  | NormalizedGroup<TItem>
+
+function asGroupRow<TItem extends CommandPaletteT.Item>(
+  row: ListRow<TItem>,
+): NormalizedGroup<TItem> | undefined {
+  return 'source' in row ? row : undefined
+}
+
+function asVirtualRow<TItem extends CommandPaletteT.Item>(
+  row: ListRow<TItem>,
+): CommandPaletteT.VirtualEntry<TItem> | undefined {
+  return 'source' in row ? undefined : row
+}
+
 function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
@@ -275,21 +291,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         groups: groups(),
         searchTerm: currentSearchTerm(),
       })
-      const groupMap = new Map(normalizedGroups().map((g) => [g.source, g]))
-      return filtered
-        .map((userGroup) => {
-          const normGroup =
-            groupMap.get(userGroup) ?? normalizedGroups().find((g) => g.source.id === userGroup.id)
-          if (!normGroup) {
-            return null
-          }
-          const itemSet = new Set(userGroup.items)
-          return Object.assign({}, normGroup, {
-            source: userGroup,
-            items: normGroup.items.filter((ni) => itemSet.has(ni.item)),
-          })
-        })
-        .filter((g): g is NormalizedGroup<TItem> => Boolean(g && g.items.length > 0))
+      return createNormalizedGroups<TItem>(
+        filtered,
+        merged.getItemSearchText,
+        warnDuplicateValue,
+      ).filter((group) => group.items.length > 0)
     }
 
     if (term === '') {
@@ -669,7 +675,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }),
   })
 
-  const listItems = createMemo<unknown[]>(() => {
+  const listItems = createMemo<ListRow<TItem>[]>(() => {
     if (!hasItems()) {
       return []
     }
@@ -729,13 +735,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     )
   }
 
-  function RowRender(context: ListT.ItemRenderProps<any>): JSX.Element {
+  function RowRender(context: ListT.ItemRenderProps<ListRow<TItem>>): JSX.Element {
     return (
       <Show
-        when={merged.virtualizer}
-        fallback={<GroupRow item={context.item} index={context.index} props={context.props} />}
+        when={asGroupRow(context.item)}
+        keyed
+        fallback={
+          <Show when={asVirtualRow(context.item)} keyed>
+            {(entry) => <VirtualRow item={entry} index={context.index} props={context.props} />}
+          </Show>
+        }
       >
-        <VirtualRow item={context.item} index={context.index} props={context.props} />
+        {(group) => <GroupRow item={group} index={context.index} props={context.props} />}
       </Show>
     )
   }
@@ -813,7 +824,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         as="div"
         items={listItems()}
         fallback={<EmptyState />}
-        virtualizer={merged.virtualizer as any}
+        virtualizer={merged.virtualizer as unknown as ListT.Virtualizer<ListRow<TItem>> | undefined}
         itemRender={RowRender}
         {...merged.listboxProps}
         id={listboxId()}

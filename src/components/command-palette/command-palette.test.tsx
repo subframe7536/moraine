@@ -1122,6 +1122,32 @@ describe('CommandPalette', () => {
     })
   })
 
+  test('filterItems output is authoritative for order and new items', async () => {
+    render(() => (
+      <CommandPalette
+        groups={GROUPS}
+        filterItems={() => [
+          {
+            id: 'ranked',
+            label: 'Ranked',
+            items: [
+              { value: 'z-last', label: 'Zeta' },
+              { value: 'a-first', label: 'Alpha' },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    await waitFor(() => {
+      const options = body().getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        expect.stringContaining('Zeta'),
+        expect.stringContaining('Alpha'),
+      ])
+    })
+  })
+
   test('skips built-in filtering when custom filterItems returns all groups', async () => {
     render(() => (
       <CommandPalette groups={GROUPS} searchTerm="missing" filterItems={({ groups }) => groups} />
