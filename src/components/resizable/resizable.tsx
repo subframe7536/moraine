@@ -5,6 +5,7 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
 import { callRef } from '../../shared/utils'
 import { pickSlotOverrides, useRecipe } from '../../theme/use-recipe'
+import { resolveDirection } from '../shared/overlay/direction'
 
 import {
   EPSILON,
@@ -444,6 +445,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const dispatchHandleKeyDown = createKeyDownHandler<HTMLElement, [number]>({
     keys: (event, precedingIndex) => {
       const horizontal = orientation() === 'horizontal'
+      const rtl =
+        horizontal &&
+        event.currentTarget instanceof Element &&
+        resolveDirection(event.currentTarget) === 'rtl'
       const delta = keyboardDelta() / 100
       const resize = (deltaPercentage: number) =>
         resizeHandleByPercentage(precedingIndex, deltaPercentage, event.altKey, event)
@@ -458,11 +463,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
       return {
         Enter: collapse,
-        [horizontal ? 'ArrowLeft' : 'ArrowUp']: {
+        [horizontal ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp']: {
           preventDefault: false,
           handle: () => resize(event.shiftKey ? -1 : -delta),
         },
-        [horizontal ? 'ArrowRight' : 'ArrowDown']: {
+        [horizontal ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown']: {
           preventDefault: false,
           handle: () => resize(event.shiftKey ? 1 : delta),
         },

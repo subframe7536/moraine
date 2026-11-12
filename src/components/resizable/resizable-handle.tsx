@@ -11,6 +11,7 @@ import {
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
+import { resolveDirection } from '../shared/overlay/direction'
 import { createSplitterHandle } from '../shared/splitter'
 
 import { fixToPrecision } from './hook'
@@ -112,7 +113,10 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
     orientation: ctx.orientation,
     disabled: handleDisabled,
     intersection: () => local.intersection,
-    onDrag: (deltaPx, altKey) => ctx.dragHandle(precedingIndex(), deltaPx, altKey),
+    onDrag: (deltaPx, altKey) => {
+      const rtl = ctx.orientation() === 'horizontal' && resolveDirection(element()) === 'rtl'
+      ctx.dragHandle(precedingIndex(), rtl ? -deltaPx : deltaPx, altKey)
+    },
     onDragEnd: ctx.endHandleDrag,
     onKeyDown: (event) => ctx.handleKeyDown(precedingIndex(), event),
   })

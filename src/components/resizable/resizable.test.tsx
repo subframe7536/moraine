@@ -338,6 +338,29 @@ describe('Resizable', () => {
     expect(() => render(() => <Outside />)).toThrow()
   })
 
+  test('rtl reverses arrow keys and drag direction', () => {
+    const screen = render(() => (
+      <div dir="rtl">
+        <TwoPanels defaultValue={{ a: 50, b: 50 }} />
+      </div>
+    ))
+    setPanelSizes(screen.container, 500)
+    const [handle] = handlesOf(screen.container)
+    const [a, b] = panelsOf(screen.container)
+
+    fireEvent.keyDown(handle!, { key: 'ArrowRight' })
+    expectPanelBasis(a, 40)
+    expectPanelBasis(b, 60)
+
+    fireEvent.keyDown(handle!, { key: 'ArrowLeft' })
+    expectPanelBasis(a, 50)
+
+    // The preceding panel is on the right, so dragging left grows it.
+    dragHandle(handle!, { x: 500, y: 0 }, { x: 400, y: 0 })
+    expectPanelBasis(a, 60)
+    expectPanelBasis(b, 40)
+  })
+
   test('keyboard arrows, shift, home, end resize the separator', () => {
     const onValueCommit = vi.fn()
     const screen = render(() => (
