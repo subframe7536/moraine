@@ -47,7 +47,7 @@ export namespace FileUploadT {
   export type Error = FileError
   export type Rejection = FileRejection
 
-  export interface FileRenderProps {
+  export interface ItemRenderProps {
     file: File
     index: number
     previewUrl?: string
@@ -84,16 +84,16 @@ export namespace FileUploadT {
     onValueChange?: (value: Value<Multiple>) => void
 
     /**
-     * Whether to enable drag and drop.
+     * Whether files can be dropped onto the control.
      * @default true
      */
     dropzone?: boolean
 
     /**
-     * Whether to show file previews.
+     * Whether to show the list of selected files, including image thumbnails.
      * @default true
      */
-    preview?: boolean
+    fileList?: boolean
 
     /** Label for the upload area. */
     label?: JSX.Element
@@ -113,8 +113,8 @@ export namespace FileUploadT {
      */
     fileIcon?: IconT.Name
 
-    /** Maximum number of files allowed. */
-    maxFiles?: number
+    /** Maximum number of files allowed. Only accepted when `multiple` is true; single mode always keeps one file. */
+    maxFiles?: Multiple extends true ? number : never
 
     /** Minimum accepted file size in bytes. */
     minSize?: number
@@ -122,11 +122,11 @@ export namespace FileUploadT {
     /** Maximum accepted file size in bytes. */
     maxSize?: number
 
-    /** Callback when files are rejected (e.g., due to type or count). */
-    onFileReject?: (files: Rejection[]) => void
+    /** Called with the files rejected by type, size, duplicate, or count rules. */
+    onReject?: (files: Rejection[]) => void
 
-    /** Custom renderer for individual file entries in the preview list. */
-    itemRender?: Component<FileRenderProps>
+    /** Custom renderer for individual file entries in the file list. */
+    itemRender?: Component<ItemRenderProps>
   }
 
   /** Props for the FileUpload component. */

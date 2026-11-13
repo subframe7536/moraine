@@ -38,7 +38,7 @@ export function MultipleMaxFiles() {
           setReceipts(val)
           setRejectWarning(null)
         }}
-        onFileReject={(rejected) => {
+        onReject={(rejected) => {
           setRejectWarning(
             `Rejected ${rejected.length} file(s) exceeding the 3 file limit or invalid format.`,
           )

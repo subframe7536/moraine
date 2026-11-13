@@ -9,10 +9,11 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
 
+export const FILE_UPLOAD_PREVIEW_IMAGE_CLASS = 'size-full object-cover'
+
 export const fileUploadDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
-  wrapper: /* @__PURE__ */ createDataAttributes('dropzone'),
-  control: /* @__PURE__ */ createDataAttributes('dragging', 'dropzone', 'invalid'),
+  control: /* @__PURE__ */ createDataAttributes('dragging', 'invalid'),
 } satisfies DataAttributeContract<keyof FileUploadStyleSlot>
 
 export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
@@ -21,9 +22,8 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
 >('fileUpload', {
   base: {
     root: 'flex flex-col min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',
-    control: `text-left outline-none border-2 border-input rounded-md bg-control inline-flex max-w-full cursor-pointer shadow-input transition-[background-color,border-color,box-shadow] items-center self-start justify-center relative active:bg-background-active hover:bg-background-hover ${FOCUS_VISIBLE_CLASS} data-dropzone:(text-center rounded-lg border-dashed w-full shadow-none self-stretch) data-dragging:(border-primary bg-muted) ${DATA_INVALID_CLASS} dark:active:bg-background-active dark:hover:bg-background-hover ${DARK_DATA_INVALID_CLASS} aria-readonly:(cursor-default active:bg-control hover:bg-control) dark:aria-readonly:hover:bg-control`,
-    wrapper:
-      'gap-x-2 grid grid-cols-[auto_minmax(0,1fr)] min-w-0 pointer-events-none items-center data-dropzone:(text-center flex flex-col justify-center)',
+    control: `outline-none border-2 border-input bg-control inline-flex max-w-full cursor-pointer transition-[background-color,border-color,box-shadow] items-center justify-center relative active:bg-background-active hover:bg-background-hover ${FOCUS_VISIBLE_CLASS} data-dragging:(border-primary bg-muted) ${DATA_INVALID_CLASS} dark:active:bg-background-active dark:hover:bg-background-hover ${DARK_DATA_INVALID_CLASS} aria-readonly:(cursor-default active:bg-control hover:bg-control) dark:aria-readonly:hover:bg-control`,
+    wrapper: 'min-w-0 pointer-events-none items-center',
     icon: 'text-muted-foreground shrink-0 row-span-2',
     label: 'text-foreground font-medium col-start-2 min-w-0 [overflow-wrap:anywhere]',
     description: 'text-muted-foreground col-start-2 min-w-0 [overflow-wrap:anywhere]',
@@ -38,13 +38,24 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
+    variant: 'area',
   },
   variants: {
+    variant: {
+      area: {
+        control: 'text-center rounded-lg border-dashed w-full shadow-none self-stretch',
+        wrapper: 'text-center flex flex-col justify-center',
+      },
+      button: {
+        control: 'text-left rounded-md shadow-input self-start',
+        wrapper: 'gap-x-2 grid grid-cols-[auto_minmax(0,1fr)]',
+      },
+    },
     size: {
       sm: {
         root: 'gap-2',
-        control: 'text-xs px-3 py-2 data-dropzone:(px-4 py-5 min-h-32)',
-        wrapper: 'gap-y-0.5 data-dropzone:gap-1',
+        control: 'text-xs px-3 py-2',
+        wrapper: 'gap-y-0.5',
         icon: 'text-base',
         label: 'text-xs',
         description: 'text-xs',
@@ -56,8 +67,8 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
       },
       md: {
         root: 'gap-3',
-        control: 'text-sm px-3 py-2 data-dropzone:(px-6 py-6 min-h-40)',
-        wrapper: 'gap-y-0.5 data-dropzone:gap-2',
+        control: 'text-sm px-3 py-2',
+        wrapper: 'gap-y-0.5',
         icon: 'text-xl',
         label: 'text-sm',
         description: 'text-xs',
@@ -69,8 +80,8 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
       },
       lg: {
         root: 'gap-3',
-        control: 'text-base px-4 py-2.5 data-dropzone:(px-8 py-8 min-h-48)',
-        wrapper: 'gap-x-3 gap-y-1 data-dropzone:gap-2',
+        control: 'text-base px-4 py-2.5',
+        wrapper: 'gap-x-3 gap-y-1',
         icon: 'text-2xl',
         label: 'text-base',
         description: 'text-sm',
@@ -82,4 +93,21 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
   },
+  compoundVariants: [
+    {
+      variants: { variant: 'area', size: 'sm' },
+      control: 'px-4 py-5 min-h-32',
+      wrapper: 'gap-1',
+    },
+    {
+      variants: { variant: 'area', size: 'md' },
+      control: 'px-6 py-6 min-h-40',
+      wrapper: 'gap-2',
+    },
+    {
+      variants: { variant: 'area', size: 'lg' },
+      control: 'px-8 py-8 min-h-48',
+      wrapper: 'gap-2',
+    },
+  ],
 })

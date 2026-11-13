@@ -15,7 +15,7 @@ describe('FileUpload SSR Hydration', () => {
       () => (
         <FileUpload
           dropzone={dropzone()}
-          preview={false}
+          fileList={false}
           label="Upload files"
           description="Description"
         />

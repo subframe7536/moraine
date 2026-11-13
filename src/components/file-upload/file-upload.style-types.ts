@@ -46,6 +46,10 @@ export interface FileUploadStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
+  /** Visual treatment of the control: a large dashed drop area, or a compact picker button.
+   * @default 'area'
+   */
+  variant?: 'area' | 'button'
 }
 
 export type FileUploadStyleConfig = ComponentStyleConfig<

@@ -4,6 +4,6 @@ import { FileUpload } from './file-upload'
 
 export function renderFileUploadFixture(): string {
   return renderToString(() => (
-    <FileUpload dropzone preview={false} label="Upload files" description="Description" />
+    <FileUpload dropzone fileList={false} label="Upload files" description="Description" />
   ))
 }

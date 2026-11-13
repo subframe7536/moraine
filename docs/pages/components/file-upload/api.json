@@ -70,7 +70,7 @@
           "name": "dropzone",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to enable drag and drop.",
+          "description": "Whether files can be dropped onto the control.",
           "default": {
             "kind": "literal",
             "value": true
@@ -84,6 +84,16 @@
           "default": {
             "kind": "literal",
             "value": "icon-file"
+          }
+        },
+        {
+          "name": "fileList",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show the list of selected files, including image thumbnails.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
@@ -111,8 +121,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "Component<FileRenderProps>",
-          "description": "Custom renderer for individual file entries in the preview list."
+          "type": "Component<ItemRenderProps>",
+          "description": "Custom renderer for individual file entries in the file list."
         },
         {
           "name": "label",
@@ -123,8 +133,8 @@
         {
           "name": "maxFiles",
           "optional": true,
-          "type": "number",
-          "description": "Maximum number of files allowed."
+          "type": "Multiple extends true ? number: never",
+          "description": "Maximum number of files allowed. Only accepted when `multiple` is true; single mode always keeps one file."
         },
         {
           "name": "maxSize",
@@ -155,26 +165,16 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onFileReject",
+          "name": "onReject",
           "optional": true,
           "type": "(files: Rejection[]) => void",
-          "description": "Callback when files are rejected (e.g., due to type or count)."
+          "description": "Called with the files rejected by type, size, duplicate, or count rules."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: Value<Multiple>) => void",
           "description": "Callback when the selected file(s) change."
-        },
-        {
-          "name": "preview",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show file previews.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         },
         {
           "name": "readOnly",
@@ -229,6 +229,16 @@
           "optional": true,
           "type": "Value<Multiple>",
           "description": "The current value of the input (controlled)."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'area' | 'button'",
+          "description": "Visual treatment of the control: a large dashed drop area, or a compact picker button.",
+          "default": {
+            "kind": "literal",
+            "value": "area"
+          }
         }
       ]
     }
@@ -259,16 +269,9 @@
       ]
     },
     {
-      "target": "wrapper",
-      "attributes": [
-        "data-dropzone"
-      ]
-    },
-    {
       "target": "control",
       "attributes": [
         "data-dragging",
-        "data-dropzone",
         "data-invalid"
       ]
     }

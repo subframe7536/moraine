@@ -5,7 +5,6 @@ const REJECTION_LABELS = {
   FILE_DUPLICATE: 'already selected',
   FILE_INVALID_TYPE: 'type is not accepted',
   FILE_TOO_LARGE: 'is larger than 1 MB',
-  FILE_TOO_MANY_FILES: 'exceeds the file limit',
   FILE_TOO_SMALL: 'is smaller than the minimum size',
   TOO_MANY_FILES: 'exceeds the file limit',
 } as const
@@ -22,7 +21,7 @@ export function Rejections() {
         maxSize={1024 * 1024}
         label="Upload images"
         description="PNG or JPEG, up to 1 MB each (maximum two files)"
-        onFileReject={(files) =>
+        onReject={(files) =>
           setRejections(
             files.map(({ file, errors }) => ({
               name: file.name,

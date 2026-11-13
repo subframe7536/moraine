@@ -221,7 +221,21 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenLastCalledWith([file])
   })
 
-  test('dropzone=false does not process drop files', async () => {
+  test('variant="button" still accepts dropped files', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <FileUpload multiple variant="button" onValueChange={onValueChange} />
+    ))
+    const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
+    const file = createFile('drop-button.txt')
+
+    await dropFiles(base, [file])
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith([file])
+  })
+
+  test('dropzone=false does not process drop files or mark dragging', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
       <FileUpload multiple dropzone={false} onValueChange={onValueChange} />
@@ -232,6 +246,8 @@ describe('FileUpload', () => {
     await dropFiles(base, [file])
 
     expect(onValueChange).not.toHaveBeenCalled()
+    expect(base.hasAttribute('data-dragging')).toBe(false)
+    expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
   })
 
   test('marks the dropzone as dragging while files are dragged over it', async () => {
@@ -321,13 +337,17 @@ describe('FileUpload', () => {
     }
   })
 
-  test('preview=false hides file list', async () => {
-    const screen = render(() => <FileUpload preview={false} />)
+  test('fileList=false hides the file list but keeps the selected value', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <FileUpload fileList={false} onValueChange={onValueChange} />)
     const input = getFileInput(screen.container)
+    const file = createFile('file.txt')
 
-    await setInputFiles(input, [createFile('file.txt')])
+    await setInputFiles(input, [file])
 
+    expect(onValueChange).toHaveBeenLastCalledWith(file)
     expect(screen.container.querySelector('[data-slot="file-upload-files"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
   })
 
   test('creates preview URLs only while previews are mounted and revokes each URL once', async () => {
@@ -335,19 +355,19 @@ describe('FileUpload', () => {
       .spyOn(URL, 'createObjectURL')
       .mockImplementation(() => 'blob:preview-image')
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
-    const [preview, setPreview] = createSignal(false)
+    const [fileList, setFileList] = createSignal(false)
 
     try {
-      const screen = render(() => <FileUpload preview={preview()} />)
+      const screen = render(() => <FileUpload fileList={fileList()} />)
       const image = createFile('image.png', 'image/png', 'img')
 
       await setInputFiles(getFileInput(screen.container), [image])
       expect(createObjectURL).not.toHaveBeenCalled()
 
-      setPreview(true)
+      setFileList(true)
       await waitFor(() => expect(createObjectURL).toHaveBeenCalledTimes(1))
 
-      setPreview(false)
+      setFileList(false)
       await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledTimes(1))
 
       screen.unmount()
@@ -509,21 +529,34 @@ describe('FileUpload', () => {
     expect(file?.style.width).toBe('200px')
   })
 
-  test('calls onFileReject when files are rejected', async () => {
-    const onFileReject = vi.fn()
-    const screen = render(() => <FileUpload multiple maxFiles={1} onFileReject={onFileReject} />)
+  test('accepts maxFiles only in multiple mode at the type level', () => {
+    void ((multiple: boolean) => (
+      <>
+        <FileUpload multiple maxFiles={2} />
+        <FileUpload multiple={multiple} maxFiles={2} />
+        {/* @ts-expect-error maxFiles requires multiple. */}
+        <FileUpload maxFiles={2} />
+        {/* @ts-expect-error maxFiles requires multiple. */}
+        <FileUpload multiple={false} maxFiles={2} />
+      </>
+    ))
+  })
+
+  test('calls onReject when files are rejected', async () => {
+    const onReject = vi.fn()
+    const screen = render(() => <FileUpload multiple maxFiles={1} onReject={onReject} />)
     const input = getFileInput(screen.container)
 
     await setInputFiles(input, [createFile('a.txt'), createFile('b.txt')])
 
-    expect(onFileReject).toHaveBeenCalledTimes(1)
+    expect(onReject).toHaveBeenCalledTimes(1)
   })
 
   test('rejects files smaller than minSize', async () => {
     const onValueChange = vi.fn()
-    const onFileReject = vi.fn()
+    const onReject = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple minSize={4} onValueChange={onValueChange} onFileReject={onFileReject} />
+      <FileUpload multiple minSize={4} onValueChange={onValueChange} onReject={onReject} />
     ))
     const input = getFileInput(screen.container)
     const small = createFile('small.txt', 'text/plain', 'abc')
@@ -533,14 +566,14 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
-    expect(onFileReject).toHaveBeenCalledWith([{ file: small, errors: ['FILE_TOO_SMALL'] }])
+    expect(onReject).toHaveBeenCalledWith([{ file: small, errors: ['FILE_TOO_SMALL'] }])
   })
 
   test('rejects files larger than maxSize', async () => {
     const onValueChange = vi.fn()
-    const onFileReject = vi.fn()
+    const onReject = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple maxSize={4} onValueChange={onValueChange} onFileReject={onFileReject} />
+      <FileUpload multiple maxSize={4} onValueChange={onValueChange} onReject={onReject} />
     ))
     const input = getFileInput(screen.container)
     const valid = createFile('valid.txt', 'text/plain', 'abcd')
@@ -550,14 +583,14 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
-    expect(onFileReject).toHaveBeenCalledWith([{ file: large, errors: ['FILE_TOO_LARGE'] }])
+    expect(onReject).toHaveBeenCalledWith([{ file: large, errors: ['FILE_TOO_LARGE'] }])
   })
 
   test('rejects duplicate files from the same batch and existing list', async () => {
     const onValueChange = vi.fn()
-    const onFileReject = vi.fn()
+    const onReject = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple onValueChange={onValueChange} onFileReject={onFileReject} />
+      <FileUpload multiple onValueChange={onValueChange} onReject={onReject} />
     ))
     const input = getFileInput(screen.container)
     const first = createFile('same.txt', 'text/plain', 'content', 100)
@@ -569,25 +602,25 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([first])
-    expect(onFileReject).toHaveBeenNthCalledWith(1, [
+    expect(onReject).toHaveBeenNthCalledWith(1, [
       { file: duplicateInBatch, errors: ['FILE_DUPLICATE'] },
     ])
-    expect(onFileReject).toHaveBeenNthCalledWith(2, [
+    expect(onReject).toHaveBeenNthCalledWith(2, [
       { file: duplicateExisting, errors: ['FILE_DUPLICATE'] },
     ])
   })
 
   test('keeps accepted type and maxFiles rejection behavior', async () => {
     const onValueChange = vi.fn()
-    const onFileReject = vi.fn()
+    const onReject = vi.fn()
     const screen = render(() => (
       <FileUpload
         multiple
-        preview={false}
+        fileList={false}
         accept="image/*"
         maxFiles={1}
         onValueChange={onValueChange}
-        onFileReject={onFileReject}
+        onReject={onReject}
       />
     ))
     const input = getFileInput(screen.container)
@@ -599,25 +632,28 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([image])
-    expect(onFileReject).toHaveBeenCalledWith([
+    expect(onReject).toHaveBeenCalledWith([
       { file: text, errors: ['FILE_INVALID_TYPE'] },
       { file: extra, errors: ['TOO_MANY_FILES'] },
     ])
   })
 
-  test('reports type and size errors together and honors maxFiles zero in single mode', async () => {
-    const onFileReject = vi.fn()
+  test('reports type and size errors together and keeps one file in single mode', async () => {
+    const onValueChange = vi.fn()
+    const onReject = vi.fn()
     const screen = render(() => (
-      <FileUpload accept="image/*" maxSize={2} maxFiles={0} onFileReject={onFileReject} />
+      <FileUpload accept="image/*" maxSize={2} onValueChange={onValueChange} onReject={onReject} />
     ))
     const invalid = createFile('note.txt', 'text/plain', 'large')
-    const validButDisallowed = createFile('image.png', 'image/png', 'ok')
+    const first = createFile('first.png', 'image/png', 'ok')
+    const second = createFile('second.png', 'image/png', 'ok')
 
-    await setInputFiles(getFileInput(screen.container), [invalid, validButDisallowed])
+    await setInputFiles(getFileInput(screen.container), [invalid, first, second])
 
-    expect(onFileReject).toHaveBeenCalledWith([
+    expect(onValueChange).toHaveBeenCalledWith(first)
+    expect(onReject).toHaveBeenCalledWith([
       { file: invalid, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
-      { file: validButDisallowed, errors: ['TOO_MANY_FILES'] },
+      { file: second, errors: ['TOO_MANY_FILES'] },
     ])
   })
 

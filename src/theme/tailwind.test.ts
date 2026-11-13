@@ -489,8 +489,7 @@ describe('attribute variants', () => {
   test('component attribute states compile into attribute selectors', async () => {
     const candidates = [
       "data-required:after:content-['*']",
-      'data-dropzone:border-dashed',
-      'data-dropzone:min-h-40',
+      'data-dragging:border-primary',
       'data-mobile:hidden',
       'data-placeholder:text-muted-foreground',
       'data-compact:px-1',
@@ -505,7 +504,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(candidates)
     for (const attribute of [
       'required',
-      'dropzone',
+      'dragging',
       'mobile',
       'placeholder',
       'compact',

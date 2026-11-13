@@ -1,6 +1,6 @@
 ---
 title: FileUpload
-description: Select and validate local files through a dropzone or trigger.
+description: Select and validate local files through a drop area or compact button.
 group: Form
 api:
   path: src/components/file-upload/file-upload
@@ -63,21 +63,22 @@ export function Example() {
 
 ### Selecting files
 
-Click anywhere in the visible dropzone, including its padding, icon, and text, or drop files onto
-it. File previews and removal actions are outside the picker hit area. Use the dropzone for pointer
-and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple`
-when the value can contain more than one `File`; `onValueChange` receives either a single file, an
-array, or `null`.
+`variant` sets the appearance: `area` (the default) shows a large dashed drop area, and `button`
+shows a compact picker button. Clicking anywhere in the visible control, including its padding, icon,
+and text, opens the file picker. `dropzone` (default `true`) only controls whether files can be
+dropped onto the control; it does not change how the control looks. File previews and removal
+actions are outside the picker hit area. Use `multiple` when the value can contain more than one
+`File`; `onValueChange` receives either a single file, an array, or `null`.
 
 ```tsx
 <FileUpload multiple label="Click anywhere or drop files" description="Choose documents and images." />
-<FileUpload dropzone={false} label="Attach files" />
+<FileUpload variant="button" label="Attach files" />
 ```
 
 ### Rejections and form behavior
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added.
-Handle `onFileReject` to present rejected files and their reason codes. `readOnly` prevents changes
+Handle `onReject` to present rejected files and their reason codes. `readOnly` prevents changes
 while preserving the selected list. It inherits an enclosing Field read-only state when omitted; an
 explicit `readOnly={false}` overrides that state. `disabled` also removes interaction.
 
@@ -87,7 +88,7 @@ explicit `readOnly={false}` overrides that state. `disabled` also removes intera
   accept="image/png,image/jpeg"
   maxFiles={2}
   maxSize={1024 * 1024}
-  onFileReject={(files) => setRejections(files)}
+  onReject={(files) => setRejections(files)}
 />
 <FileUpload disabled label="Disabled upload" />
 <FileUpload readOnly label="Read-only upload" />
@@ -98,30 +99,30 @@ explicit `readOnly={false}` overrides that state. `disabled` also removes intera
 | Key                                 | Description                                                                              |
 | ----------------------------------- | ---------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
-| <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
+| <kbd>Tab</kbd>                      | Navigates between the upload control and individual file removal buttons.                |
 
 ## Examples
 
 ### Attach expense receipts
 
-Set `multiple` and `maxFiles` when the field holds a short list. Handle `onFileReject` when a
-fourth file or a disallowed type is dropped.
+Set `multiple` and `maxFiles` when the field holds a short list. Handle `onReject` when a fourth
+file or a disallowed type is dropped.
 
 <Preview path="./multiple-max-files" />
 
 ### Show rejected images
 
-Map `onFileReject` reason codes to messages. Validation runs before the file is added to the
+Map `onReject` reason codes to messages. Validation runs before the file is added to the
 value.
 
 <Preview path="./rejections" />
 
-### Attach from a compact trigger
+### Attach from a compact button
 
-Set `dropzone={false}` for a picker button without a drop target. The selected file still comes
-from `onValueChange`.
+Set `variant="button"` for a compact picker button instead of the drop area. The selected file still
+comes from `onValueChange`.
 
-<Preview path="./trigger-mode-no-dropzone" />
+<Preview path="./button-variant" />
 
 ### Bind attachments to a form
 

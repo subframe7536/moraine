@@ -1,19 +1,9 @@
 import type { JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import { For, Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { bindElement } from '../../shared/element-binding'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -24,18 +14,20 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { useFormValue } from '../shared/form/use-form-value'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 
-import { useFilePreviews } from './create-file-previews'
-import {
-  constrainMultipleFiles,
-  constrainSingleFile,
-  filterAcceptedFiles,
-  formatFileSize,
-  isFileDragEvent,
-  syncNativeInputFiles,
-} from './file-upload-utils'
+import { createFileDropzone } from './create-file-dropzone'
+import { createFilePreviews } from './create-file-previews'
+import { createFileSelection } from './create-file-selection'
+import { FileUploadItem } from './file-upload-item'
 import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
+
+function isSameFileValue(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((file, i) => file === b[i])
+  }
+  return a === b
+}
 
 /** Drag-and-drop file upload component with progress tracking and file list management. */
 export function FileUpload<Multiple extends boolean = false>(
@@ -58,7 +50,7 @@ export function FileUpload<Multiple extends boolean = false>(
     'accept',
     'multiple',
     'dropzone',
-    'preview',
+    'fileList',
     'label',
     'description',
     'icon',
@@ -67,9 +59,10 @@ export function FileUpload<Multiple extends boolean = false>(
     'minSize',
     'maxSize',
     'onValueChange',
-    'onFileReject',
+    'onReject',
     'itemRender',
     'size',
+    'variant',
     'classes',
     'styles',
     'class',
@@ -100,16 +93,14 @@ export function FileUpload<Multiple extends boolean = false>(
     data: {
       root: fileUploadDataAttributes.root(() => ({
         disabled: field.disabled,
-        readonly: readOnly,
+        readonly: field.readOnly,
         required: field.required,
         invalid,
       })),
       control: fileUploadDataAttributes.control(() => ({
-        dropzone,
         dragging: () => (dropzone() ? dragging() : undefined),
         invalid,
       })),
-      wrapper: fileUploadDataAttributes.wrapper(() => ({ dropzone })),
     },
     context: () => ({ variants: { size: themeField?.size } }),
   })
@@ -119,7 +110,7 @@ export function FileUpload<Multiple extends boolean = false>(
       accept: '*',
       multiple: false,
       dropzone: true,
-      preview: true,
+      fileList: true,
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
@@ -128,7 +119,7 @@ export function FileUpload<Multiple extends boolean = false>(
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
   const dropzone = createMemo(() => merged.dropzone)
-  const preview = createMemo(() => merged.preview)
+  const fileList = createMemo(() => merged.fileList)
 
   const initialDefaultValue = untrack(() => {
     if (local.defaultValue !== undefined) {
@@ -167,60 +158,84 @@ export function FileUpload<Multiple extends boolean = false>(
     },
   )
 
-  const readOnly = field.readOnly
-
   const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<Multiple>>({
     value: () => local.value,
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
     field,
     fallback: initialDefaultValue,
-    isEqual: (a, b) => {
-      if (Array.isArray(a) && Array.isArray(b)) {
-        return a.length === b.length && a.every((file, i) => file === b[i])
-      }
-      return a === b
-    },
+    isEqual: isSameFileValue,
   })
 
   const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement>()
-  let controlEl: HTMLElement | undefined
+  const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
-  const selectedFiles = createMemo<File[]>(() => {
-    const val = formValue()
-    if (Array.isArray(val)) {
-      return val.filter(
-        (item): item is File => item !== null && item !== undefined && typeof item === 'object',
-      )
-    }
-    if (val !== null && val !== undefined && typeof val === 'object') {
-      return [val]
-    }
-    return []
+  bindElement(controlElement, (element) => {
+    field.setControlRef(element)
+    return () => field.setControlRef(undefined)
   })
 
-  createEffect(
-    on([hiddenInput, selectedFiles], ([input, files]) => {
-      syncNativeInputFiles(input, files)
-    }),
-  )
-
-  const [dragging, setDragging] = createSignal(false)
   const {
     nativeInvalid,
     resetNativeInvalid,
     onInvalid: handleHiddenInputInvalid,
   } = useHiddenInputValidation({
-    focusTarget: () => controlEl,
+    focusTarget: controlElement,
   })
-  const previewUrls = useFilePreviews({
-    files: () => selectedFiles(),
-    preview: () => preview(),
+
+  const { selectedFiles, interactive, addFiles, removeFileAt } = createFileSelection({
+    value: formValue,
+    multiple: () => merged.multiple,
+    accept: () => merged.accept,
+    maxFiles: () => merged.maxFiles,
+    minSize: () => merged.minSize,
+    maxSize: () => merged.maxSize,
+    disabled: field.disabled,
+    readOnly: field.readOnly,
+    input: hiddenInput,
+    commit: (value) => {
+      resetNativeInvalid()
+      setFormValue(value as FileUploadT.Value<Multiple>)
+    },
+    onReject: (rejected) => merged.onReject?.(rejected),
   })
+
+  const {
+    dragging,
+    resetDragging,
+    onDragOver: onDropzoneDragOver,
+    onDragLeave: onDropzoneDragLeave,
+    onDrop: onDropzoneDrop,
+  } = createFileDropzone({
+    dropzone,
+    interactive,
+    onDragOver: () => merged.onDragOver,
+    onDragLeave: () => merged.onDragLeave,
+    onDrop: () => merged.onDrop,
+    onFiles: addFiles,
+  })
+
+  const previewUrls = createFilePreviews({ files: selectedFiles, enabled: fileList })
+
+  useFormReset(
+    () => hiddenInput()?.form,
+    () => {
+      resetDragging()
+      resetNativeInvalid()
+      resetFormValue()
+    },
+  )
 
   const labelId = () => `${field.id()}-label`
   const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
   const invalid = createMemo(() => field.invalid() || nativeInvalid())
+  const labelling = createMemo<{ 'aria-labelledby'?: string; 'aria-label'?: string }>(() => {
+    const labelledBy = field.ariaAttrs()['aria-labelledby'] || (label() ? labelId() : undefined)
+
+    return labelledBy
+      ? { 'aria-labelledby': labelledBy }
+      : { 'aria-label': local['aria-label'] ?? messages().label }
+  })
   const controlAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
@@ -228,13 +243,7 @@ export function FileUpload<Multiple extends boolean = false>(
     if (describedBy) {
       attrs['aria-describedby'] = describedBy
     }
-    if (!attrs['aria-labelledby']) {
-      if (label()) {
-        attrs['aria-labelledby'] = labelId()
-      } else {
-        attrs['aria-label'] ??= local['aria-label'] ?? messages().label
-      }
-    }
+    Object.assign(attrs, labelling())
     if (invalid()) {
       attrs['aria-invalid'] = 'true'
     }
@@ -242,155 +251,20 @@ export function FileUpload<Multiple extends boolean = false>(
     return attrs
   })
 
-  const resolvedMaxFiles = createMemo(() => {
-    if (merged.maxFiles !== undefined) {
-      return merged.maxFiles
-    }
-
-    return merged.multiple ? Number.POSITIVE_INFINITY : 1
-  })
-
-  function resolveValue(files: File[]): FileUploadT.Value<Multiple> {
-    if (merged.multiple) {
-      return [...files] as FileUploadT.Value<Multiple>
-    }
-
-    return (files[0] ?? null) as FileUploadT.Value<Multiple>
-  }
-
-  function commitSelectedFiles(files: File[]): void {
-    resetNativeInvalid()
-    const nextValue = resolveValue(files)
-    setFormValue(nextValue)
-  }
-
-  function setControlElement(element: HTMLElement): void {
-    controlEl = element
-    field.setControlRef(element)
-    onCleanup(() => {
-      if (controlEl === element) {
-        controlEl = undefined
-        field.setControlRef(undefined)
-      }
-    })
+  const itemSlots = {
+    file: fileSlot,
+    filePreview: filePreviewSlot,
+    icon: iconSlot,
+    fileMeta: fileMetaSlot,
+    fileName: fileNameSlot,
+    fileSize: fileSizeSlot,
+    fileRemove: fileRemoveSlot,
   }
 
   function openFileDialog(): void {
-    if (field.disabled() || readOnly()) {
-      return
+    if (interactive()) {
+      hiddenInput()?.click()
     }
-
-    hiddenInput()?.click()
-  }
-
-  function processIncomingFiles(files: File[]): void {
-    if (files.length === 0) {
-      return
-    }
-
-    if (field.disabled() || readOnly()) {
-      syncNativeInputFiles(hiddenInput(), selectedFiles())
-      return
-    }
-
-    const currentFiles = selectedFiles()
-    const { accepted, rejected } = filterAcceptedFiles(files, {
-      accept: merged.accept,
-      existingFiles: currentFiles,
-      minSize: merged.minSize,
-      maxSize: merged.maxSize,
-    })
-
-    let nextFiles = currentFiles
-
-    if (merged.multiple) {
-      const bounded = constrainMultipleFiles(accepted, currentFiles.length, resolvedMaxFiles())
-      rejected.push(...bounded.rejected)
-
-      if (bounded.accepted.length > 0) {
-        nextFiles = [...currentFiles, ...bounded.accepted]
-      }
-    } else {
-      const bounded =
-        resolvedMaxFiles() < 1
-          ? constrainMultipleFiles(accepted, 0, 0)
-          : constrainSingleFile(accepted)
-      rejected.push(...bounded.rejected)
-
-      if (bounded.accepted.length > 0) {
-        nextFiles = [bounded.accepted[0]!]
-      }
-    }
-
-    if (nextFiles !== currentFiles) {
-      commitSelectedFiles(nextFiles)
-    } else {
-      syncNativeInputFiles(hiddenInput(), currentFiles)
-    }
-
-    if (rejected.length > 0) {
-      merged.onFileReject?.(rejected)
-    }
-  }
-
-  function removeFileAt(index: number): void {
-    if (field.disabled() || readOnly()) {
-      return
-    }
-
-    const currentFiles = selectedFiles()
-    if (!currentFiles[index]) {
-      return
-    }
-
-    const nextFiles = currentFiles.filter((_, fileIndex) => fileIndex !== index)
-    commitSelectedFiles(nextFiles)
-  }
-
-  function FileRemoveButton(buttonProps: { file: File; index: number }): JSX.Element {
-    return (
-      <button
-        type="button"
-        aria-label={messages().remove({ name: buttonProps.file.name })}
-        data-slot="file-upload-file-remove"
-        {...fileRemoveSlot}
-        disabled={field.disabled() || readOnly()}
-        onClick={() => {
-          removeFileAt(buttonProps.index)
-        }}
-      >
-        <Icon name="icon-close" />
-      </button>
-    )
-  }
-
-  useFormReset(
-    () => hiddenInput()?.form,
-    () => {
-      setDragging(false)
-      resetNativeInvalid()
-      resetFormValue()
-    },
-  )
-
-  function Content(): JSX.Element {
-    return (
-      <div data-slot="file-upload-wrapper" {...wrapperSlot}>
-        <Icon name={merged.icon} data-slot="file-upload-icon" {...iconSlot} />
-
-        <Show when={label()}>
-          <span id={labelId()} data-slot="file-upload-label" {...labelSlot}>
-            {label()}
-          </span>
-        </Show>
-
-        <Show when={description()}>
-          <span id={descriptionId()} data-slot="file-upload-description" {...descriptionSlot}>
-            {description()}
-          </span>
-        </Show>
-      </div>
-    )
   }
 
   const onControlClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (event) => {
@@ -401,57 +275,10 @@ export function FileUpload<Multiple extends boolean = false>(
     }
   }
 
-  const onControlKeyDown = createKeyDownHandler<HTMLButtonElement>({
-    onKeyDown: () => merged.onKeyDown as any,
+  const onControlKeyDown = createKeyDownHandler<HTMLDivElement>({
+    onKeyDown: () => merged.onKeyDown,
     keys: { Enter: openFileDialog, ' ': openFileDialog },
   })
-
-  const onDropzoneDragOver: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
-    callHandler(event, merged.onDragOver)
-
-    if (event.defaultPrevented || field.disabled() || readOnly() || !isFileDragEvent(event)) {
-      return
-    }
-
-    event.preventDefault()
-    try {
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'copy'
-      }
-    } catch {
-      // Some browser engines expose a read-only dropEffect.
-    }
-    setDragging(true)
-  }
-
-  const onDropzoneDragLeave: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
-    callHandler(event, merged.onDragLeave)
-
-    if (event.defaultPrevented) {
-      return
-    }
-
-    const relatedTarget = event.relatedTarget
-    if (relatedTarget instanceof Node && event.currentTarget.contains(relatedTarget)) {
-      return
-    }
-
-    setDragging(false)
-  }
-
-  const onDropzoneDrop: JSX.EventHandler<HTMLButtonElement, DragEvent> = (event) => {
-    callHandler(event, merged.onDrop)
-    setDragging(false)
-
-    if (event.defaultPrevented || field.disabled() || readOnly() || !isFileDragEvent(event)) {
-      return
-    }
-
-    event.preventDefault()
-    event.stopPropagation()
-    const files = Array.from(event.dataTransfer?.files ?? [])
-    processIncomingFiles(files)
-  }
 
   return (
     <div
@@ -460,12 +287,8 @@ export function FileUpload<Multiple extends boolean = false>(
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
-      aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={
-        field.ariaAttrs()['aria-labelledby'] || label()
-          ? undefined
-          : (local['aria-label'] ?? messages().label)
-      }
+      aria-labelledby={labelling()['aria-labelledby']}
+      aria-label={labelling()['aria-label']}
       aria-disabled={field.disabled() ? true : undefined}
     >
       <button
@@ -479,23 +302,25 @@ export function FileUpload<Multiple extends boolean = false>(
         onBlur={(event) => field.emit('blur', event)}
         onClick={onControlClick}
         onKeyDown={onControlKeyDown}
-        onDragOver={(event) => {
-          if (dropzone()) {
-            onDropzoneDragOver(event)
-          }
-        }}
-        onDragLeave={(event) => {
-          if (dropzone()) {
-            onDropzoneDragLeave(event)
-          }
-        }}
-        onDrop={(event) => {
-          if (dropzone()) {
-            onDropzoneDrop(event)
-          }
-        }}
+        onDragOver={onDropzoneDragOver}
+        onDragLeave={onDropzoneDragLeave}
+        onDrop={onDropzoneDrop}
       >
-        <Content />
+        <div data-slot="file-upload-wrapper" {...wrapperSlot}>
+          <Icon name={merged.icon} data-slot="file-upload-icon" {...iconSlot} />
+
+          <Show when={label()}>
+            <span id={labelId()} data-slot="file-upload-label" {...labelSlot}>
+              {label()}
+            </span>
+          </Show>
+
+          <Show when={description()}>
+            <span id={descriptionId()} data-slot="file-upload-description" {...descriptionSlot}>
+              {description()}
+            </span>
+          </Show>
+        </div>
       </button>
 
       <HiddenInput
@@ -510,48 +335,31 @@ export function FileUpload<Multiple extends boolean = false>(
         multiple={merged.multiple}
         required={field.required()}
         disabled={field.disabled()}
-        readonly={readOnly()}
+        readonly={field.readOnly()}
         tabIndex={-1}
         aria-hidden="true"
         onChange={(event) => {
-          const files = Array.from(event.currentTarget.files ?? [])
-          processIncomingFiles(files)
+          addFiles(Array.from(event.currentTarget.files ?? []))
         }}
         onInvalid={handleHiddenInputInvalid}
       />
 
-      <Show when={preview() && selectedFiles().length > 0}>
+      <Show when={fileList() && selectedFiles().length > 0}>
         <ul data-slot="file-upload-files" {...filesSlot}>
           <For each={selectedFiles()}>
             {(file, index) => (
               <Show
                 when={merged.itemRender}
                 fallback={
-                  <li data-slot="file-upload-file" {...fileSlot}>
-                    <span data-slot="file-upload-file-preview" {...filePreviewSlot}>
-                      <Show
-                        when={previewUrls().get(file)}
-                        fallback={
-                          <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...iconSlot} />
-                        }
-                      >
-                        {(url) => (
-                          <img class="size-full object-cover" src={url()} alt={file.name} />
-                        )}
-                      </Show>
-                    </span>
-
-                    <div data-slot="file-upload-file-meta" {...fileMetaSlot}>
-                      <span data-slot="file-upload-file-name" {...fileNameSlot}>
-                        {file.name}
-                      </span>
-                      <span data-slot="file-upload-file-size" {...fileSizeSlot}>
-                        {formatFileSize(file.size)}
-                      </span>
-                    </div>
-
-                    <FileRemoveButton file={file} index={index()} />
-                  </li>
+                  <FileUploadItem
+                    file={file}
+                    previewUrl={previewUrls().get(file)}
+                    fileIcon={merged.fileIcon}
+                    removeLabel={messages().remove({ name: file.name })}
+                    disabled={!interactive()}
+                    slots={itemSlots}
+                    onRemove={() => removeFileAt(index())}
+                  />
                 }
               >
                 {(renderer) =>
@@ -565,7 +373,7 @@ export function FileUpload<Multiple extends boolean = false>(
                     },
                     remove: () => removeFileAt(index()),
                     get disabled() {
-                      return field.disabled() || readOnly()
+                      return !interactive()
                     },
                   })
                 }

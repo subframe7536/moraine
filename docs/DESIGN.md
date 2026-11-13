@@ -93,7 +93,7 @@ both themes. Primitive references and custom alpha remain valid; verify foregrou
 focus, validation, and field identification against the rendered surface. Dark control and card
 share a value, so their boundary needs particular scrutiny; no blanket accessibility claim follows.
 
-FileUpload's entire visible dropzone is the action and focus target. Its default and readonly
+FileUpload's entire visible control, whether the drop area or the button variant, is the action and focus target. Its default and readonly
 backgrounds use control; hover/active retain the existing background state colors, and dragging
 retains muted fill. Border, focus, validation, and state selectors retain their existing behavior.
 Previews and removal actions remain outside the picker hit area.

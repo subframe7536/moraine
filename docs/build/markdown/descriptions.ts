@@ -17,7 +17,6 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-danger': 'Present when the action has danger semantics.',
   'data-disabled': 'Present when the component, slot, or item is disabled.',
   'data-dragging': 'Present while the related thumb or handle is being dragged.',
-  'data-dropzone': 'Present when the target is an active file dropzone.',
   'data-duplicate': 'Present when the entered value duplicates an existing value.',
   'data-editable': 'Present when the value can be edited as text.',
   'data-expanded': 'Present when the panel, accordion, or menu is expanded.',

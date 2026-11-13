@@ -2,7 +2,7 @@ import { FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal, Show } from 'solid-js'
 
-export function TriggerModeNoDropzone() {
+export function ButtonVariant() {
   const [attached, setAttached] = createSignal<FileUploadT.Value>(null)
 
   const fileName = () => {
@@ -16,7 +16,7 @@ export function TriggerModeNoDropzone() {
   return (
     <div class="max-w-md space-y-3">
       <FileUpload
-        dropzone={false}
+        variant="button"
         label="Attach files"
         description="Choose receipts or invoices from your computer."
         onValueChange={setAttached}
