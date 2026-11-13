@@ -167,7 +167,8 @@ than maintaining a second open state.
 
 Root `open`, `defaultOpen`, and `onOpenChange` drive whichever layout is active: the desktop panel or
 the mobile drawer. Uncontrolled desktop and mobile states are remembered separately. `defaultOpen`
-seeds both; when omitted, the desktop panel starts expanded and the drawer starts closed. Switching
+seeds both layouts, `defaultOpen="desktop-only"` seeds only the panel, and when omitted the desktop
+panel starts expanded and the drawer starts closed. Switching
 layouts never calls `onOpenChange` and never writes a controlled `open`. Leaving mobile closes an
 uncontrolled drawer, and returning to desktop restores the desktop state. The trigger, the rail, and
 Escape or overlay dismissal of the drawer all report through `onOpenChange`.

@@ -43,8 +43,8 @@
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": "boolean",
-          "description": "Initial open state for both layouts. When omitted, the desktop panel starts expanded and\nthe mobile drawer starts closed. Ignored while `open` is controlled."
+          "type": "boolean | 'desktop-only'",
+          "description": "Initial open state. `true` opens both layouts, `'desktop-only'` opens only the desktop\npanel, and `false` closes both. When omitted, the desktop panel starts expanded and the\nmobile drawer starts closed. Ignored while `open` is controlled."
         },
         {
           "name": "defaultWidth",

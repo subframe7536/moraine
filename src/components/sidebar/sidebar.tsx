@@ -81,9 +81,12 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
 
   // Uncontrolled state is remembered per layout. `defaultOpen` seeds both, because the media
-  // query resolves asynchronously and the active layout is unknown during setup.
-  const [desktopOpen, setDesktopOpen] = createSignal(untrack(() => local.defaultOpen ?? true))
-  const [mobileOpen, setMobileOpen] = createSignal(untrack(() => local.defaultOpen ?? false))
+  // query resolves asynchronously and the active layout is unknown during setup. The
+  // 'desktop-only' value seeds only the panel so a restored desktop state does not open the drawer.
+  const [desktopOpen, setDesktopOpen] = createSignal(
+    untrack(() => local.defaultOpen === 'desktop-only' || (local.defaultOpen ?? true)),
+  )
+  const [mobileOpen, setMobileOpen] = createSignal(untrack(() => local.defaultOpen === true))
 
   const [width, setWidth] = createControllableValue<number | undefined>({
     value: () => local.width,

@@ -1059,6 +1059,34 @@ describe('Sidebar open state', () => {
     ).toBe('true')
   })
 
+  test("defaultOpen='desktop-only' leaves the mobile drawer closed but expands the panel", async () => {
+    const [mobile, setMobile] = createSignal(true)
+    const screen = render(() => (
+      <Sidebar isMobile={mobile()} defaultOpen="desktop-only">
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Inset>
+          <Sidebar.Trigger>Toggle</Sidebar.Trigger>
+        </Sidebar.Inset>
+      </Sidebar>
+    ))
+    await finishExitMotion()
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+    expect(
+      screen.container
+        .querySelector('[data-slot="sidebar-trigger"]')
+        ?.getAttribute('aria-expanded'),
+    ).toBe('false')
+
+    setMobile(false)
+    await waitFor(() =>
+      expect(
+        screen.container
+          .querySelector('[data-slot="sidebar-panel"]')
+          ?.getAttribute('data-expanded'),
+      ).toBe(''),
+    )
+  })
+
   test('controlled mobile open drives the drawer and onOpenChange only requests changes', async () => {
     const [open, setOpen] = createSignal(false)
     const onOpenChange = vi.fn((next: boolean) => setOpen(next))

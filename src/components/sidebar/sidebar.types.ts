@@ -46,10 +46,11 @@ export namespace SidebarT {
      */
     open?: boolean
     /**
-     * Initial open state for both layouts. When omitted, the desktop panel starts expanded and
-     * the mobile drawer starts closed. Ignored while `open` is controlled.
+     * Initial open state. `true` opens both layouts, `'desktop-only'` opens only the desktop
+     * panel, and `false` closes both. When omitted, the desktop panel starts expanded and the
+     * mobile drawer starts closed. Ignored while `open` is controlled.
      */
-    defaultOpen?: boolean
+    defaultOpen?: boolean | 'desktop-only'
     /**
      * Called with the next open state for every user-driven change of the active layout: the
      * trigger, the rail, and Escape or overlay dismissal of the mobile drawer. Not called when
