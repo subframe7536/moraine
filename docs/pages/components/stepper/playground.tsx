@@ -60,8 +60,17 @@ export default function StepperPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'clickable', label: 'Clickable', defaultValue: true },
-        { kind: 'switch', prop: 'linear', label: 'Linear flow', defaultValue: false },
+        {
+          kind: 'select',
+          prop: 'navigation',
+          label: 'Navigation',
+          defaultValue: 'free',
+          options: [
+            { label: 'None', value: 'none' },
+            { label: 'Linear', value: 'linear' },
+            { label: 'Free', value: 'free' },
+          ],
+        },
       ]}
     >
       {(props) => (
@@ -71,8 +80,7 @@ export default function StepperPlayground() {
             items={ONBOARDING_STEPS}
             defaultValue="account"
             size={props.size}
-            clickable={props.clickable}
-            linear={props.linear}
+            navigation={props.navigation}
           />
         </div>
       )}

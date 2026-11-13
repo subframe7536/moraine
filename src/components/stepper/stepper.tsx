@@ -36,9 +36,8 @@ export function Stepper(props: StepperProps): JSX.Element {
     'orientation',
     'activationMode',
     'items',
-    'linear',
+    'navigation',
     'disabled',
-    'clickable',
     'loop',
     'size',
     'classes',
@@ -69,8 +68,7 @@ export function Stepper(props: StepperProps): JSX.Element {
         return variants.orientation
       },
 
-      linear: true,
-      clickable: false,
+      navigation: 'none',
       loop: false,
     },
     local,
@@ -104,6 +102,9 @@ export function Stepper(props: StepperProps): JSX.Element {
       const icon = createLazyMemo(() => item.icon)
       const content = createLazyMemo(() => item.content)
       const mergedItem = mergeProps(item, {
+        get disabled() {
+          return item.disabled || occurrence > 0
+        },
         get title() {
           return title()
         },
@@ -178,19 +179,15 @@ export function Stepper(props: StepperProps): JSX.Element {
 
     const activeIndex = currentIndex()
 
-    if (!merged.clickable) {
-      if (activeIndex < 0) {
-        return false
-      }
-
-      return entry.index !== activeIndex
+    if (merged.navigation === 'none') {
+      return activeIndex >= 0 && entry.index !== activeIndex
     }
 
-    if (!merged.linear || activeIndex < 0) {
-      return false
+    if (merged.navigation === 'linear') {
+      return activeIndex >= 0 && entry.index > activeIndex + 1
     }
 
-    return entry.index > activeIndex + 1
+    return false
   }
 
   function selectStep(nextValue: StepperT.Value): void {
@@ -200,7 +197,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
     setRequestedValue(nextValue)
 
-    if (merged.clickable) {
+    if (merged.navigation !== 'none') {
       merged.onValueChange?.(nextValue)
     }
   }
@@ -251,7 +248,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               data: stepperDataAttributes.trigger({
                 selected,
                 state,
-                clickable: () => merged.clickable,
+                clickable: () => merged.navigation !== 'none',
               }),
             })
             const indicatorSlot = slotWith('indicator', {

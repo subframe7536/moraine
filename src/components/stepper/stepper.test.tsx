@@ -151,9 +151,7 @@ describe('Stepper', () => {
   })
 
   test('renders tabpanel content for the selected step', () => {
-    const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="address" linear={false} clickable />
-    ))
+    const screen = render(() => <Stepper items={ITEMS} defaultValue="address" navigation="free" />)
 
     const getSelectedPanel = () =>
       screen.container.querySelector('[data-slot="stepper-content"][data-selected]')
@@ -174,8 +172,7 @@ describe('Stepper', () => {
           { value: 'empty', title: 'Empty' },
         ]}
         defaultValue="first"
-        linear={false}
-        clickable
+        navigation="free"
       />
     ))
     const first = screen.getByRole('tab', { name: 'First' })
@@ -232,7 +229,7 @@ describe('Stepper', () => {
     const onValueChange = vi.fn()
 
     const screen = render(() => (
-      <Stepper items={ITEMS} value="address" onValueChange={onValueChange} clickable />
+      <Stepper items={ITEMS} value="address" onValueChange={onValueChange} navigation="linear" />
     ))
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
@@ -253,10 +250,15 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
-  test('blocks skipping ahead when linear is enabled', () => {
+  test('blocks skipping ahead in linear navigation', () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="address" onValueChange={onValueChange} clickable />
+      <Stepper
+        items={ITEMS}
+        defaultValue="address"
+        onValueChange={onValueChange}
+        navigation="linear"
+      />
     ))
 
     const checkout = screen.getByRole('tab', { name: 'Checkout' })
@@ -267,15 +269,31 @@ describe('Stepper', () => {
     expect(screen.getByText('Address content')).not.toBeNull()
   })
 
-  test('allows jumping ahead when linear is disabled', () => {
+  test('allows returning to completed steps in linear navigation', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Stepper
+        items={ITEMS}
+        defaultValue="checkout"
+        onValueChange={onValueChange}
+        navigation="linear"
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Address' }))
+
+    expect(onValueChange).toHaveBeenCalledWith('address')
+    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('allows jumping ahead in free navigation', () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
         defaultValue="address"
-        linear={false}
+        navigation="free"
         onValueChange={onValueChange}
-        clickable
       />
     ))
 
@@ -284,15 +302,46 @@ describe('Stepper', () => {
     expect(onValueChange).toHaveBeenCalledWith('checkout')
   })
 
+  test('disables later duplicate items so they cannot be selected', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Stepper
+        navigation="free"
+        defaultValue="first"
+        onValueChange={onValueChange}
+        items={[
+          { value: 'first', title: 'First', content: 'First panel' },
+          { value: 'dup', title: 'Second', content: 'Second panel' },
+          { value: 'dup', title: 'Third', content: 'Third panel' },
+        ]}
+      />
+    ))
+
+    const second = screen.getByRole('tab', { name: 'Second' }) as HTMLButtonElement
+    const third = screen.getByRole('tab', { name: 'Third' }) as HTMLButtonElement
+    expect(second.disabled).toBe(false)
+    expect(third.disabled).toBe(true)
+
+    fireEvent.click(third)
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(third.getAttribute('aria-selected')).toBe('false')
+
+    fireEvent.click(second)
+    expect(onValueChange).toHaveBeenCalledWith('dup')
+    expect(second.getAttribute('aria-selected')).toBe('true')
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('duplicate item value "dup"'))
+    warn.mockRestore()
+  })
+
   test('does not wrap from the last step to the first on ArrowRight', () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
         defaultValue="checkout"
-        linear={false}
+        navigation="free"
         onValueChange={onValueChange}
-        clickable
       />
     ))
 
@@ -312,9 +361,8 @@ describe('Stepper', () => {
       <Stepper
         items={ITEMS}
         defaultValue="checkout"
-        linear={false}
+        navigation="free"
         loop
-        clickable
         onValueChange={onValueChange}
       />
     ))
@@ -338,8 +386,7 @@ describe('Stepper', () => {
           <Stepper
             items={ITEMS}
             defaultValue="shipping"
-            linear={false}
-            clickable
+            navigation="free"
             onValueChange={onValueChange}
           />
         </MoraineProvider>
@@ -359,14 +406,13 @@ describe('Stepper', () => {
     }
   })
 
-  test('supports Home and End keyboard navigation when clickable', () => {
+  test('supports Home and End keyboard navigation in free navigation', () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
         defaultValue="shipping"
-        linear={false}
-        clickable
+        navigation="free"
         onValueChange={onValueChange}
       />
     ))
@@ -391,8 +437,7 @@ describe('Stepper', () => {
       <Stepper
         items={ITEMS}
         defaultValue="address"
-        linear={false}
-        clickable
+        navigation="free"
         activationMode="manual"
         onValueChange={onValueChange}
       />
@@ -452,7 +497,7 @@ describe('Stepper', () => {
   })
 
   test('selects through the title and description and reports each step state', () => {
-    const screen = render(() => <Stepper items={ITEMS} clickable />)
+    const screen = render(() => <Stepper items={ITEMS} navigation="linear" />)
     const triggers = screen.getAllByRole('tab')
     const title = screen.getByText('Shipping')
     const description = screen.getByText('Confirm your order')
@@ -515,7 +560,7 @@ describe('Stepper', () => {
       <Stepper
         items={[{ ...ITEMS[0], disabled: true }, { ...ITEMS[1] }, { ...ITEMS[2] }]}
         value="missing"
-        clickable
+        navigation="linear"
       />
     ))
 
@@ -529,7 +574,7 @@ describe('Stepper', () => {
       { ...ITEMS[1] },
       { ...ITEMS[2] },
     ])
-    const screen = render(() => <Stepper items={items()} linear={false} clickable />)
+    const screen = render(() => <Stepper items={items()} navigation="free" />)
 
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
 
@@ -548,7 +593,7 @@ describe('Stepper', () => {
 
   test('restores preserved uncontrolled step state after controlled mode is removed', () => {
     const [value, setValue] = createSignal<string | undefined>()
-    const screen = render(() => <Stepper items={ITEMS} value={value()} linear={false} clickable />)
+    const screen = render(() => <Stepper items={ITEMS} value={value()} navigation="free" />)
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')

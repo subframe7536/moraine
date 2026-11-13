@@ -102,22 +102,17 @@ export namespace StepperT {
     items?: Item[]
 
     /**
-     * Whether to enforce linear navigation (must complete steps in order).
-     * @default true
+     * How users move between steps. `none` keeps only the active step enabled, `linear` also allows
+     * completed steps and the next step, and `free` allows every enabled step.
+     * @default 'none'
      */
-    linear?: boolean
+    navigation?: 'none' | 'linear' | 'free'
 
     /**
      * Whether the entire stepper is disabled.
      * @default false
      */
     disabled?: boolean
-
-    /**
-     * Whether steps are clickable for navigation.
-     * @default false
-     */
-    clickable?: boolean
 
     /**
      * Whether keyboard navigation loops around when reaching the ends.

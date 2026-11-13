@@ -24,12 +24,7 @@ export function ControlledNonLinear() {
 
   return (
     <div class="space-y-4">
-      <Stepper
-        items={RELEASE_STEPS()}
-        value={releaseStep()}
-        onValueChange={setReleaseStep}
-        linear={false}
-      />
+      <Stepper items={RELEASE_STEPS()} value={releaseStep()} onValueChange={setReleaseStep} />
       <div class="flex flex-wrap gap-2 items-center">
         <Button size="sm" variant="outline" onClick={() => setReleaseStep('draft')}>
           Go to draft

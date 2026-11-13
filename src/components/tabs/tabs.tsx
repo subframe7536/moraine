@@ -113,12 +113,13 @@ export function Tabs(props: TabsProps): JSX.Element {
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
       const instanceKey = `${sanitizeIdSegment(value)}-${occurrence}`
+      const disabled = item.disabled || occurrence > 0
 
       const cached = previousCache.get(instanceKey)
       if (
         cached &&
         cached.rawItem === item &&
-        cached.disabled === item.disabled &&
+        cached.disabled === disabled &&
         cached.label === item.label &&
         cached.icon === item.icon
       ) {
@@ -134,7 +135,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         instanceKey,
         label: item.label,
         icon: item.icon,
-        disabled: item.disabled,
+        disabled,
         get content() {
           return content()
         },

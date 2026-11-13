@@ -139,12 +139,18 @@ describe('Tabs', () => {
     expect(panel.textContent).toBe('First panel')
     expect(first.getAttribute('aria-controls')).toBe(panel.id)
     expect(second.getAttribute('aria-controls')).toBeNull()
+    expect((first as HTMLButtonElement).disabled).toBe(false)
+    expect((second as HTMLButtonElement).disabled).toBe(true)
     expectControlsResolve(screen.container)
 
     fireEvent.click(second)
     expect(first.getAttribute('aria-selected')).toBe('true')
     expect(second.getAttribute('aria-selected')).toBe('false')
     expect(onValueChange).not.toHaveBeenCalled()
+
+    first.focus()
+    fireEvent.keyDown(first, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Other' }))
   })
 
   test('only links controls to mounted panels as selection changes', () => {

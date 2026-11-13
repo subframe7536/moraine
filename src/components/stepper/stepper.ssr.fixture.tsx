@@ -6,8 +6,7 @@ export function StepperHydrationFixture(props: { onContentRead?: () => void; ver
   return (
     <Stepper
       id="ssr-stepper"
-      clickable
-      linear={false}
+      navigation="free"
       orientation={props.vertical ? 'vertical' : 'horizontal'}
       items={[
         {

@@ -51,8 +51,8 @@ The indicator, title, and description share one trigger; separators appear only 
 
 ## Usage
 
-Use Stepper to show progress through a fixed sequence of steps. Decide whether users may jump ahead
-before enabling clickable navigation. Use [Tabs](/components/tabs) for peer panels that are not a
+Use Stepper to show progress through a fixed sequence of steps. Decide how far users may jump ahead
+with `navigation`. Use [Tabs](/components/tabs) for peer panels that are not a
 sequence. Use [Pagination](/components/pagination) for a result set with a known page count.
 
 ```tsx
@@ -70,20 +70,25 @@ export function Example() {
 }
 ```
 
-### Linear and clickable steps
+### Navigation modes
 
-`linear` (default `true`) locks later steps until earlier ones are reached. `clickable` (default
-`false`) lets users activate a step from its trigger; `onValueChange` fires only on those trigger
-activations. To drive the flow from your own Previous and Next buttons, control `value` and update
-it in those handlers.
+`navigation` (default `'none'`) controls which steps users can activate from their triggers:
+
+- `none` enables only the active step, so the flow moves through your own controls.
+- `linear` enables completed steps and the next step, so later steps stay locked until earlier ones
+  are reached.
+- `free` enables every enabled step.
+
+`onValueChange` fires only on trigger activations in `linear` and `free`. To drive the flow from
+your own Previous and Next buttons, control `value` and update it in those handlers.
 
 ```tsx
-<Stepper items={STEPS} value={step()} onValueChange={setStep} linear clickable />
+<Stepper items={STEPS} value={step()} onValueChange={setStep} navigation="linear" />
 ```
 
 ### Panels and orientation
 
-Step labels and panels use tab-like relationships. Every item requires a unique `value`. Pass a
+Step labels and panels use tab-like relationships. Every item requires a unique `value`; a later item that repeats an earlier value renders disabled and logs a DEV warning. Pass a
 component as `item.content`; Stepper renders it with `{ value, active, completed, index }` only for
 the active step. Vertical orientation changes the layout and the arrow-key directions. Stepper marks every step before the
 active one as completed from its index; supply `item.icon` to replace the default step number.
@@ -101,7 +106,7 @@ active one as completed from its index; supply `item.icon` to replace the defaul
 
 ### Keyboard interaction
 
-`activationMode` controls whether keyboard focus selects a step immediately (`automatic`, the default navigation mode) or selection waits for activation (`manual`). Disabled or linear-locked steps are skipped.
+`activationMode` controls whether keyboard focus selects a step immediately (`automatic`, the default navigation mode) or selection waits for activation (`manual`). Disabled and navigation-locked steps are skipped.
 
 | Key                                          | Description                                              |
 | -------------------------------------------- | -------------------------------------------------------- |
@@ -125,12 +130,12 @@ Attach content to each step so only the active panel is shown.
 
 ### Jump around a release workflow
 
-Control Draft, Review, and Ship from page state with `linear={false}`.
+Control Draft, Review, and Ship from page state with the buttons below.
 
 <Preview path="./controlled-non-linear" />
 
-### Toggle checkout step rules
+### Compare navigation modes
 
-Switch `clickable` and `linear` to see which checkout steps can be activated.
+Choose a `navigation` mode to see which checkout steps can be activated.
 
-<Preview path="./clickable-and-linear" />
+<Preview path="./navigation-modes" />

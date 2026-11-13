@@ -1,9 +1,13 @@
-import { Stepper, Switch } from '@src'
-import { createSignal } from 'solid-js'
+import { Button, Stepper } from '@src'
+import type { StepperT } from '@src'
+import { For, createSignal } from 'solid-js'
 
-export function ClickableVsReadOnly() {
-  const [clickable, setClickable] = createSignal(false)
-  const [linear, setLinear] = createSignal(true)
+type Navigation = NonNullable<StepperT.Base['navigation']>
+
+const NAVIGATION_MODES: Navigation[] = ['none', 'linear', 'free']
+
+export function NavigationModes() {
+  const [navigation, setNavigation] = createSignal<Navigation>('linear')
   const checkoutSteps = [
     {
       title: 'Address',
@@ -30,17 +34,21 @@ export function ClickableVsReadOnly() {
 
   return (
     <div class="space-y-4">
-      <div class="flex flex-wrap gap-4">
-        <Switch checked={clickable()} label="Clickable" onCheckedChange={setClickable} />
-        <Switch checked={linear()} label="Linear" onCheckedChange={setLinear} />
+      <div class="flex flex-wrap gap-2">
+        <For each={NAVIGATION_MODES}>
+          {(mode) => (
+            <Button
+              size="xs"
+              variant={navigation() === mode ? 'solid' : 'outline'}
+              onClick={() => setNavigation(mode)}
+            >
+              {mode}
+            </Button>
+          )}
+        </For>
       </div>
 
-      <Stepper
-        items={checkoutSteps}
-        defaultValue="address"
-        clickable={clickable()}
-        linear={linear()}
-      />
+      <Stepper items={checkoutSteps} defaultValue="address" navigation={navigation()} />
     </div>
   )
 }

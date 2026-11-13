@@ -38,16 +38,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "clickable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether steps are clickable for navigation.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "defaultValue",
           "optional": true,
           "type": "Value",
@@ -77,16 +67,6 @@
           "description": "Array of steps to display."
         },
         {
-          "name": "linear",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to enforce linear navigation (must complete steps in order).",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "loop",
           "optional": true,
           "type": "boolean",
@@ -94,6 +74,16 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "navigation",
+          "optional": true,
+          "type": "'none' | 'linear' | 'free'",
+          "description": "How users move between steps. `none` keeps only the active step enabled, `linear` also allows\ncompleted steps and the next step, and `free` allows every enabled step.",
+          "default": {
+            "kind": "literal",
+            "value": "none"
           }
         },
         {
