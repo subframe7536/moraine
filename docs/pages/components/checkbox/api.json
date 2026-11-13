@@ -207,7 +207,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Native value submitted when the checkbox is checked. Defaults to `trueValue`, or `'on'` for\nthe default boolean."
+          "description": "Native value submitted when the checkbox is checked. Defaults to a string or number\n`trueValue`, otherwise `'on'`."
         },
         {
           "name": "variant",
