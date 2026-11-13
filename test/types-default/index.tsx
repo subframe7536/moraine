@@ -348,15 +348,11 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <Button>Paste</Button>
 </ButtonGroup>
 ;<CopyButton value="code snippet" />
-;<CopyButton
-  value="code snippet"
-  copiedDuration={1500}
-  leading="icon-copy"
-  copiedIcon="icon-check"
-/>
-;<CopyButton value="code snippet" trailing="icon-copy" />
-// @ts-expect-error CopyButton has no iconPosition; use leading or trailing.
+;<CopyButton value="code snippet" copiedDuration={1500} icon="icon-copy" copiedIcon="icon-check" />
+;<CopyButton value="code snippet" icon={false} />
 ;<CopyButton value="code snippet" iconPosition="trailing" />
+// @ts-expect-error CopyButton has no leading or trailing props.
+;<CopyButton value="code snippet" leading="icon-copy" />
 ;<CopyButton value="code snippet">{(state) => (state.isCopied ? 'Copied' : 'Copy')}</CopyButton>
 // @ts-expect-error value is required
 ;<CopyButton />
