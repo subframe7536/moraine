@@ -393,7 +393,89 @@ describe('Select', () => {
     setControlled('')
     expect(getInput(form)).toEqual({ choice: '' })
     setControlled(undefined)
-    expect(getInput(form)).toEqual({ choice: undefined })
+    expect(getInput(form)).toEqual({ choice: '' })
+  })
+
+  test('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select
+        items={ITEMS}
+        value={undefined}
+        defaultValue="banana"
+        defaultOpen
+        onValueChange={onChange}
+      />
+    ))
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
+
+    expect(displayed()).toBe('Banana')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(onChange).toHaveBeenLastCalledWith('apple')
+    expect(displayed()).toBe('Apple')
+  })
+
+  test('keeps a defined value authoritative over defaultValue and user selection', () => {
+    const [value, setValue] = createSignal<string | undefined>('apple')
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select
+        items={ITEMS}
+        value={value()}
+        defaultValue="banana"
+        defaultOpen
+        onValueChange={onChange}
+      />
+    ))
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
+
+    expect(displayed()).toBe('Apple')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(onChange).toHaveBeenLastCalledWith('banana')
+    expect(displayed()).toBe('Apple')
+    setValue('banana')
+    expect(displayed()).toBe('Banana')
+  })
+
+  test('hands back to the initial default when a defined value becomes undefined', () => {
+    const [value, setValue] = createSignal<string | undefined>('apple')
+    const screen = render(() => (
+      <Select items={ITEMS} value={value()} defaultValue="banana" defaultOpen />
+    ))
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
+
+    expect(displayed()).toBe('Apple')
+    setValue(undefined)
+    expect(displayed()).toBe('Banana')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(displayed()).toBe('Apple')
+  })
+
+  test('falls back to the Form.Field value while value is undefined', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.optional(v.string()) }),
+          initialInput: { choice: 'banana' },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Select items={ITEMS} value={undefined} defaultOpen />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Banana')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(getInput(form)).toEqual({ choice: 'apple' })
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
   })
 
   test('routes classes, styles, and class to their slots', () => {

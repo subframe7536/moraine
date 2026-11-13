@@ -123,7 +123,7 @@
           "description": "Anchor gap in pixels.",
           "default": {
             "kind": "literal",
-            "value": 0
+            "value": 4
           }
         },
         {

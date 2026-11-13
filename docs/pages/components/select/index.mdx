@@ -172,7 +172,9 @@ bottom. Drive `loading` from the in-flight request.
 ### Bind an empty select to a form
 
 For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the
-schema.
+schema. `required` is satisfied by any selected value, including one whose item is disabled. In that
+case the select passes constraint validation but submits no value, as a native `<select>` does with
+a disabled selected option.
 
 <Preview path="./form-integration" />
 

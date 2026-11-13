@@ -78,9 +78,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     () => source(),
     () => baseSelectProps.itemToLabelString,
   )
-  const selection = createMemo(() =>
-    'value' in props ? (local.value === undefined ? [] : [local.value]) : undefined,
-  )
+  const selection = createMemo(() => singleValueToSelection(local.value))
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {

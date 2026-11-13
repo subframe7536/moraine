@@ -58,9 +58,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
   )
-  const selection = createMemo(() =>
-    'value' in props ? (local.value === undefined ? [] : [local.value]) : undefined,
-  )
+  const selection = createMemo(() => singleValueToSelection(local.value))
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {

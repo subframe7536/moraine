@@ -208,7 +208,9 @@ slow.
 ### Bind a searchable field to a form
 
 Use `form.Field` from `createForm` when the selected value needs schema validation and error
-display.
+display. `required` is satisfied by any selected item, including a disabled one. In that case the
+combobox passes constraint validation but submits no value, as a native `<select>` does with a
+disabled selected option.
 
 <Preview path="./form-integration" />
 

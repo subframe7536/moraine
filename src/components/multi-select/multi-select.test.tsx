@@ -562,6 +562,95 @@ describe('MultiSelect', () => {
     ).toBe('Apple')
   })
 
+  test('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={ITEMS}
+        value={undefined}
+        defaultValue={['banana']}
+        defaultOpen
+        onValueChange={onChange}
+      />
+    ))
+    const tagLabels = () =>
+      Array.from(screen.container.querySelectorAll('[data-slot="multi-select-tag-label"]')).map(
+        (label) => label.textContent,
+      )
+
+    expect(tagLabels()).toEqual(['Banana'])
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(onChange).toHaveBeenLastCalledWith(['banana', 'apple'])
+    expect(tagLabels()).toEqual(['Banana', 'Apple'])
+  })
+
+  test('keeps a defined value authoritative over defaultValue and user selection', () => {
+    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={ITEMS}
+        value={value()}
+        defaultValue={['banana']}
+        defaultOpen
+        onValueChange={onChange}
+      />
+    ))
+    const tagLabels = () =>
+      Array.from(screen.container.querySelectorAll('[data-slot="multi-select-tag-label"]')).map(
+        (label) => label.textContent,
+      )
+
+    expect(tagLabels()).toEqual(['Apple'])
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(onChange).toHaveBeenLastCalledWith(['apple', 'banana'])
+    expect(tagLabels()).toEqual(['Apple'])
+    setValue(['apple', 'banana'])
+    expect(tagLabels()).toEqual(['Apple', 'Banana'])
+  })
+
+  test('hands back to the initial default when a defined value becomes undefined', () => {
+    const [value, setValue] = createSignal<string[] | undefined>(['apple'])
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} value={value()} defaultValue={['banana']} defaultOpen />
+    ))
+    const tagLabels = () =>
+      Array.from(screen.container.querySelectorAll('[data-slot="multi-select-tag-label"]')).map(
+        (label) => label.textContent,
+      )
+
+    expect(tagLabels()).toEqual(['Apple'])
+    setValue(undefined)
+    expect(tagLabels()).toEqual(['Banana'])
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(tagLabels()).toEqual(['Banana', 'Apple'])
+  })
+
+  test('falls back to the Form.Field value while value is undefined', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.optional(v.array(v.string())) }),
+          initialInput: { choices: ['banana'] },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choices" label="Choices">
+              <MultiSelect items={ITEMS} value={undefined} defaultOpen />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Banana')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(getInput(form)).toEqual({ choices: ['banana', 'apple'] })
+  })
+
   test('updates a collection array owned by Form.Field', () => {
     const { screen, value: form } = renderWithOwner(
       () =>

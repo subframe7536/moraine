@@ -116,6 +116,30 @@ type in the field to filter options.
 <MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} allowClear />
 ```
 
+`allowClear` does not empty a MultiSelect. Selected values whose items are disabled stay selected
+because the user cannot remove them, and values that do not resolve to any item are dropped. Every
+other selection is cleared. Select and Combobox clear to an empty value instead.
+
+### Search and item creation
+
+`search` and `createItem` decide whether the field is editable. Filtering follows editability, so
+the four combinations behave as follows:
+
+| `search` | `createItem` | Field                         | Filters options | Creates items | `openOnControlClick` default |
+| -------- | ------------ | ----------------------------- | --------------- | ------------- | ---------------------------- |
+| unset    | unset        | Trigger button, no text input | No              | No            | `true`                       |
+| `true`   | unset        | Editable input                | Yes             | No            | `false`                      |
+| unset    | set          | Editable input                | Yes             | Yes           | `false`                      |
+| `true`   | set          | Editable input                | Yes             | Yes           | `false`                      |
+
+`search` alone filters the collection as the user types. Providing `createItem` makes the input
+editable and enables creation. It also filters the list, so `search` adds nothing once `createItem`
+is set.
+
+`openOnControlClick` defaults to the opposite of editability. A non-editable control opens its panel
+on click. An editable control focuses its input on click and opens from typing, the chevron, or
+ArrowDown. Set `openOnControlClick` explicitly to change either default.
+
 ### Item creation and delimiters
 
 Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
@@ -206,6 +230,8 @@ Pass `createListVirtualizer` when opening or scrolling the full list is slow.
 ### Require a minimum number of tags
 
 Validate the selected array with `createForm`. Empty selections should fail a `minLength` schema
-rule.
+rule. `required` only checks that something is selected. A selection made only of disabled items
+passes constraint validation but submits no value to the native form, as a native `<select multiple>`
+does.
 
 <Preview path="./form-integration" />

@@ -6,6 +6,7 @@ import { describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
+import { scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 import { Field } from '../field/field'
 import { createForm } from '../index'
@@ -312,7 +313,76 @@ describe('Combobox', () => {
     setControlled('')
     expect(getInput(form)).toEqual({ choice: '' })
     setControlled(undefined)
-    expect(getInput(form)).toEqual({ choice: undefined })
+    expect(getInput(form)).toEqual({ choice: '' })
+  })
+
+  test('treats value undefined as uncontrolled and applies defaultValue', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Combobox items={ITEMS} value={undefined} defaultValue="banana" onValueChange={onChange} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    expect(input.value).toBe('Banana')
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(onChange).toHaveBeenLastCalledWith('apple')
+    expect(input.value).toBe('Apple')
+  })
+
+  test('keeps a defined value authoritative over defaultValue and user selection', () => {
+    const [value, setValue] = createSignal<string | undefined>('apple')
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Combobox items={ITEMS} value={value()} defaultValue="banana" onValueChange={onChange} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    expect(input.value).toBe('Apple')
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(onChange).toHaveBeenLastCalledWith('banana')
+    expect(input.value).toBe('Apple')
+    setValue('banana')
+    expect(input.value).toBe('Banana')
+  })
+
+  test('hands back to the initial default when a defined value becomes undefined', () => {
+    const [value, setValue] = createSignal<string | undefined>('apple')
+    const screen = render(() => <Combobox items={ITEMS} value={value()} defaultValue="banana" />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    expect(input.value).toBe('Apple')
+    setValue(undefined)
+    expect(input.value).toBe('Banana')
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(input.value).toBe('Apple')
+  })
+
+  test('falls back to the Form.Field value while value is undefined', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.optional(v.string()) }),
+          initialInput: { choice: 'banana' },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Combobox items={ITEMS} value={undefined} />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    expect(input.value).toBe('Banana')
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(getInput(form)).toEqual({ choice: 'apple' })
   })
 
   test('preserves empty-string Form.Field selection when search filtering removes the empty-string item', () => {
@@ -588,12 +658,15 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
     scrollHeight.mockRestore()
     clientHeight.mockRestore()
   })
-  const scrollToFn = vi.fn()
+  // jsdom has no `Element.scrollTo`, so the scroll the virtualizer requests is recorded here.
+  const scrollTo = vi.fn()
+  Object.defineProperty(Element.prototype, 'scrollTo', { configurable: true, value: scrollTo })
+  onTestFinished(() => {
+    Reflect.deleteProperty(Element.prototype, 'scrollTo')
+  })
   const virtualizer = createListVirtualizer<ComboboxT.Row<ComboboxT.Item<string>>>({
     estimateSize: () => 32,
-    observeElementRect: (_instance, callback) => callback({ width: 200, height: 160 }),
-    observeElementOffset: (_instance, callback) => callback(0, false),
-    scrollToFn,
+    ...scrollViewport(200, 160),
   })
   render(() => (
     <Combobox items={items} defaultValue="item-999" defaultOpen virtualizer={virtualizer} />
@@ -602,7 +675,7 @@ test('scrolls a distant initial selection into view once the virtualizer mounts'
   await Promise.resolve()
 
   // Row 999 ends at 32,000 px; aligning its end to a 160 px viewport gives 31,840.
-  expect(scrollToFn).toHaveBeenLastCalledWith(31840, expect.anything(), virtualizer.instance())
+  expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 31840 }))
 })
 
 test('custom emptyRender shows the selected value and its close action dismisses the popup', () => {
