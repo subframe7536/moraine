@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import {
+  DEV,
   For,
   Show,
   createEffect,
@@ -140,7 +141,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
-  const items = createMemo(() => merged.items ?? [])
+  const items = createMemo(() => {
+    const list = merged.items ?? []
+    if (DEV) {
+      const values = list.map((item) => item.value)
+      for (const value of new Set(values.filter((v, i) => values.indexOf(v) !== i))) {
+        console.warn(`[moraine] Accordion received duplicate item value "${value}".`)
+      }
+    }
+    return list
+  })
   const triggerRefs = new Map<string, HTMLButtonElement>()
   let lastFocusedIndex = -1
   let lastFocusedValue: string | undefined

@@ -243,6 +243,23 @@ describe('Accordion', () => {
     expect(triggers[1]?.getAttribute('aria-controls')).toBe(panels[1]?.id)
   })
 
+  test('warns in DEV on duplicate item values', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(() => (
+      <Accordion
+        items={[
+          { value: 'same', label: 'First', content: 'First content' },
+          { value: 'same', label: 'Second', content: 'Second content' },
+        ]}
+      />
+    ))
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Accordion received duplicate item value "same"'),
+    )
+    warnSpy.mockRestore()
+  })
+
   test('keeps business values out of DOM ids and closed shells in the DOM', () => {
     const screen = render(() => (
       <Accordion
