@@ -38,6 +38,13 @@ export namespace ModalT {
     onExitComplete?: () => void
 
     /**
+     * Whether enter and exit transition animations play. When `false`, the content and overlay
+     * mount and unmount without waiting for an animation to end.
+     * @default true
+     */
+    transition?: boolean
+
+    /**
      * Whether an outside pointer press on the overlay dismisses the shell.
      * `false` blocks the press and reports it through `onClosePrevent`.
      * @default true
@@ -131,7 +138,7 @@ export namespace ModalT {
      * A render function must declare its parameter, even when unused. A zero-argument
      * function is called as an accessor and is not mounted as a component.
      */
-    children: JSX.Element | Component<ContentRenderProps>
+    children?: JSX.Element | Component<ContentRenderProps>
   }
 
   export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<

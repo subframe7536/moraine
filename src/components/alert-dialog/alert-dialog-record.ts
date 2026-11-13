@@ -10,6 +10,7 @@ import type { AlertDialogT } from './alert-dialog.types'
 
 export interface AlertDialogHostDefaults {
   closable?: boolean
+  transition?: boolean
   closeOnEscape?: boolean
   closeOnOverlayClick?: boolean
   center?: AlertDialogT.Variants['center'] | null
@@ -102,6 +103,7 @@ export function createAlertDialogRecord(
       onClose: call.onClose,
       type: call.type ?? defaults.type ?? 'default',
       closable: pickDefined(call.closable, defaults.closable),
+      transition: pickDefined(call.transition, defaults.transition),
       closeOnEscape: pickDefined(call.closeOnEscape, defaults.closeOnEscape),
       closeOnOverlayClick: pickDefined(call.closeOnOverlayClick, defaults.closeOnOverlayClick),
       center: pickDefined(call.center, defaults.center),

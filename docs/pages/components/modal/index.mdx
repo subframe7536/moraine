@@ -117,7 +117,8 @@ Set root `portalMount` for a chosen container, including controlled surfaces wit
 ### State and exit lifecycle
 
 Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay
-and content exit animations to finish.
+and content exit animations to finish. Root `transition={false}` skips those animations, so the
+surfaces unmount as soon as the modal closes and `onExitComplete` runs at once.
 
 ```tsx
 <Modal open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>

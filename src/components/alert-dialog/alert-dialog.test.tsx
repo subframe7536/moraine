@@ -321,6 +321,32 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
+  test('host transition={false} unmounts dismissed dialogs without an exit animation', async () => {
+    render(() => <AlertDialog transition={false} />)
+    const closed = AlertDialog.info({ title: 'Instant' })
+    await waitForTitle('Instant')
+    expect(dialog().hasAttribute('data-transition')).toBe(false)
+
+    AlertDialog.close()
+    await expect(closed.result()).resolves.toBe('api')
+    await waitFor(() => {
+      expect(dialogs()).toHaveLength(0)
+    })
+  })
+
+  test('a call transition overrides the host and keeps the exit animation', async () => {
+    render(() => <AlertDialog transition={false} />)
+    const animated = AlertDialog.info({ title: 'Animated', transition: true })
+    await waitForTitle('Animated')
+    expect(dialog().hasAttribute('data-transition')).toBe(true)
+
+    animated.close()
+    await expect(animated.result()).resolves.toBe('api')
+    await Promise.resolve()
+    expect(dialogs()).toHaveLength(1)
+    await waitForDialogCount(0)
+  })
+
   test('uses localized button labels and an accessible name when there is no title', async () => {
     render(() => (
       <MoraineProvider messages={{ dialog: { ok: '确定', cancel: '取消' } }}>

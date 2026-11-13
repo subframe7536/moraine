@@ -32,6 +32,7 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
         overlayScroll: () => local.scrollable,
         expanded: context.open,
         closed: () => !context.open(),
+        transition: context.transition,
       }),
     },
     context: () => context.slotOverrides,

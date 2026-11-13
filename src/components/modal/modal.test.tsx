@@ -1016,6 +1016,73 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('unmounts content and overlay without waiting for an animation when transition is false', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Modal open={open()} transition={false}>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    expect(
+      document.body.querySelector('[data-slot="modal-content"]')?.hasAttribute('data-transition'),
+    ).toBe(false)
+    expect(
+      document.body.querySelector('[data-slot="modal-overlay"]')?.hasAttribute('data-transition'),
+    ).toBe(false)
+
+    setOpen(false)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
+    })
+    screen.unmount()
+  })
+
+  test('keeps content mounted through the exit animation when transition is enabled', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Modal open={open()}>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    expect(content.hasAttribute('data-transition')).toBe(true)
+
+    setOpen(false)
+    await Promise.resolve()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBe(content)
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    })
+    screen.unmount()
+  })
+
+  test('renders Modal.Content without children', () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content aria-label="Empty modal" />
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    expect(document.body.querySelector('[data-slot="modal-content"]')?.textContent).toBe('')
+    screen.unmount()
+  })
+
   test('does not render an overlay by default', () => {
     render(() => (
       <Modal defaultOpen>

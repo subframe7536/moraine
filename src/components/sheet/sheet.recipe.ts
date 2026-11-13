@@ -13,7 +13,7 @@ import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 export const sheetDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   overlay: modalDataAttributes.overlay,
-  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transition'),
+  content: modalDataAttributes.content,
   body: /* @__PURE__ */ createDataAttributes('header'),
 } satisfies DataAttributeContract<keyof SheetStyleSlot>
 

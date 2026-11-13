@@ -33,12 +33,6 @@ export namespace SheetT {
      */
     overlay?: boolean
 
-    /**
-     * Whether to enable transition animations.
-     * @default true
-     */
-    transition?: boolean
-
     /** Whether to show a close button.
      * @default true
      */

@@ -186,6 +186,9 @@ An outside pointer press dismisses the dialog when `closeOnOverlayClick` is set.
 it when `closeOnEscape` is left on, which is the default. The corner close button is shown when
 `closable` is set. Escape closes only the topmost alert dialog. All three settle with `'dismiss'`.
 
+`transition` on the host sets the default for every dialog on it, and the same option in a call
+overrides it. `transition: false` unmounts a dismissed dialog without its exit animation.
+
 ### Custom content
 
 `custom` is for a layout the built-in title, description, and actions cannot express. Call

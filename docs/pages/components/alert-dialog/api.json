@@ -99,6 +99,16 @@
           }
         },
         {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether enter and exit transition animations play for dialogs on this host.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "translations",
           "optional": true,
           "type": "DialogT.Translations",

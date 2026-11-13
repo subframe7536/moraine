@@ -40,7 +40,7 @@ export namespace DrawerT {
     overlay?: boolean
 
     /** Whether to show a close button.
-     * @default false
+     * @default true
      */
     closable?: boolean
 

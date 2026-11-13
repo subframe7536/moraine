@@ -99,6 +99,55 @@ describe('Dialog', () => {
     screen.unmount()
   })
 
+  test('unmounts content and overlay without waiting for an animation when transition is false', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Dialog open={open()} transition={false}>
+        <Dialog.Content title="Instant">
+          <Dialog.Body>Body</Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(
+      document.body.querySelector('[data-slot="dialog-overlay"]')?.hasAttribute('data-transition'),
+    ).toBe(false)
+
+    setOpen(false)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
+    })
+    screen.unmount()
+  })
+
+  test('keeps content mounted through the exit animation when transition is enabled', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Dialog open={open()}>
+        <Dialog.Content title="Animated">
+          <Dialog.Body>Body</Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    expect(content.hasAttribute('data-transition')).toBe(true)
+
+    setOpen(false)
+    await Promise.resolve()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    })
+    screen.unmount()
+  })
+
   test('renders a named dialog with title, description, body, footer and close button', () => {
     render(() => (
       <Dialog open>

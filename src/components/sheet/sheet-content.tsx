@@ -50,7 +50,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   const direction = useLocale().dir
   const family = useModalContext()
   const merged = mergeProps(
-    { overlay: true, transition: true, closable: true, closeIcon: 'icon-close' as const },
+    { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     sheet,
   )
   const isOverlay = () => merged.overlay !== false
@@ -64,12 +64,13 @@ export function SheetContent<T extends ValidComponent = 'div'>(
       content: sheetDataAttributes.content({
         closed: () => !family.open(),
         expanded: family.open,
-        transition: () => merged.transition,
+        transition: family.transition,
       }),
       overlay: sheetDataAttributes.overlay({
         overlayScroll: undefined,
         expanded: family.open,
         closed: () => !family.open(),
+        transition: family.transition,
       }),
     },
     context: () => ({ variants: { side: sheet.side, inset: sheet.inset }, ...sheet.slotOverrides }),

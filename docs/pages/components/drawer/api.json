@@ -31,7 +31,7 @@
           "description": "Whether to show a close button.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": true
           }
         },
         {
@@ -215,6 +215,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "translations",
@@ -651,7 +661,8 @@
       "attributes": [
         "data-closed",
         "data-expanded",
-        "data-swiping"
+        "data-swiping",
+        "data-transition"
       ]
     },
     {
@@ -662,7 +673,8 @@
         "data-handle",
         "data-nested-open",
         "data-nested-swiping",
-        "data-swiping"
+        "data-swiping",
+        "data-transition"
       ]
     },
     {

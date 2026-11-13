@@ -8,7 +8,6 @@ export interface SheetContextValue {
   side?: SheetT.Variants['side'] | null
   inset?: boolean | null
   overlay?: boolean
-  transition?: boolean
   closable?: boolean
   closeIcon?: SheetT.Base['closeIcon']
   translations?: SheetT.Translations

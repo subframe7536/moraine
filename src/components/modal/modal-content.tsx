@@ -36,6 +36,7 @@ export function ModalContent<T extends ValidComponent = 'div'>(
       content: modalDataAttributes.content({
         expanded: context.open,
         closed: () => !context.open(),
+        transition: context.transition,
       }),
     },
     context: () => context.slotOverrides,

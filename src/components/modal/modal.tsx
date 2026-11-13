@@ -47,6 +47,7 @@ export function Modal(props: ModalProps): JSX.Element {
   const closeOnEscape = () => props.closeOnEscape !== false
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
+  const transition = () => props.transition !== false
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
@@ -298,7 +299,14 @@ export function Modal(props: ModalProps): JSX.Element {
       return pickSlotOverrides(props)
     },
     open,
-    presence,
+    presence: {
+      dataAttrs: presence.dataAttrs,
+      present: presence.present,
+      // Untracked surfaces let the presence end on close without waiting for an animation.
+      registerElement: (element) =>
+        transition() ? presence.registerElement(element) : () => undefined,
+    },
+    transition,
     contentId,
     updateOpen,
     triggerElement,

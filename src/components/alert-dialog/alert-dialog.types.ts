@@ -53,6 +53,12 @@ export namespace AlertDialogT {
     closable?: boolean
 
     /**
+     * Whether enter and exit transition animations play for dialogs on this host.
+     * @default true
+     */
+    transition?: boolean
+
+    /**
      * Whether Escape dismisses the dialog.
      * @default true
      */
@@ -101,6 +107,8 @@ export namespace AlertDialogT {
     cancel?: Action | boolean
     /** Whether the corner close button is shown. */
     closable?: boolean
+    /** Whether enter and exit transition animations play for this dialog. */
+    transition?: boolean
     /** Called once when the dialog closes. */
     onClose?: (reason: CloseReason) => void
     class?: SlotClassValue

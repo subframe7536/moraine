@@ -127,6 +127,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -286,7 +296,7 @@
         },
         {
           "name": "children",
-          "optional": false,
+          "optional": true,
           "type": "JSX.Element | Component<ContentRenderProps>",
           "description": "Content or render function inside the modal content surface.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
         },
@@ -368,14 +378,16 @@
       "attributes": [
         "data-closed",
         "data-expanded",
-        "data-overlay-scroll"
+        "data-overlay-scroll",
+        "data-transition"
       ]
     },
     {
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded"
+        "data-expanded",
+        "data-transition"
       ]
     }
   ]

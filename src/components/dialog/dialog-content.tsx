@@ -68,11 +68,13 @@ export function DialogContent<T extends ValidComponent = 'div'>(
       content: dialogDataAttributes.content({
         expanded: family.open,
         closed: () => !family.open(),
+        transition: family.transition,
       }),
       overlay: dialogDataAttributes.overlay(() => ({
         overlayScroll,
         expanded: family.open,
         closed: () => !family.open(),
+        transition: family.transition,
       })),
     },
     context: () => ({

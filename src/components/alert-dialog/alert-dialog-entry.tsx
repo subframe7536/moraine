@@ -221,6 +221,7 @@ export function AlertDialogEntry(props: {
       open={props.record.open()}
       modal
       translations={options().translations}
+      transition={options().transition}
       closable={(options().closable ?? false) && idle()}
       closeOnOverlayClick={options().closeOnOverlayClick === true && idle()}
       closeOnEscape={options().closeOnEscape !== false && idle()}

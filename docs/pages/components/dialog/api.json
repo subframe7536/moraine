@@ -179,6 +179,16 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "translations",
           "optional": true,
           "type": "Translations",
@@ -612,14 +622,16 @@
       "attributes": [
         "data-closed",
         "data-expanded",
-        "data-overlay-scroll"
+        "data-overlay-scroll",
+        "data-transition"
       ]
     },
     {
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded"
+        "data-expanded",
+        "data-transition"
       ]
     },
     {

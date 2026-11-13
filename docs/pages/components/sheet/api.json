@@ -182,7 +182,7 @@
           "name": "transition",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to enable transition animations.",
+          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end.",
           "default": {
             "kind": "literal",
             "value": true
@@ -622,7 +622,8 @@
       "attributes": [
         "data-closed",
         "data-expanded",
-        "data-overlay-scroll"
+        "data-overlay-scroll",
+        "data-transition"
       ]
     },
     {

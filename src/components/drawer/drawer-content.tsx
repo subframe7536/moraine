@@ -59,7 +59,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   const direction = useLocale().dir
   const family = useModalContext()
   const merged = mergeProps(
-    { overlay: true, closable: false, closeIcon: 'icon-close' as const, handle: true },
+    { overlay: true, closable: true, closeIcon: 'icon-close' as const, handle: true },
     drawer,
   )
   const isOverlay = () => merged.overlay !== false
@@ -82,11 +82,13 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         nestedOpen: () => drawer.nested.openCount() > 0,
         nestedSwiping: drawer.nested.swiping,
         handle: () => hasHandle(),
+        transition: family.transition,
       }),
       overlay: drawerDataAttributes.overlay({
         closed: () => !family.open(),
         expanded: family.open,
         swiping: () => swipe.swiping(),
+        transition: family.transition,
       }),
     },
     context: () => ({ variants: { side: drawer.side }, ...drawer.slotOverrides }),

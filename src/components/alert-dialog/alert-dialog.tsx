@@ -29,6 +29,7 @@ const registry = createHostRegistry<AlertDialogController>('AlertDialog')
 function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
   return {
     closable: props.closable,
+    transition: props.transition,
     closeOnEscape: props.closeOnEscape,
     closeOnOverlayClick: props.closeOnOverlayClick,
     center: props.center,

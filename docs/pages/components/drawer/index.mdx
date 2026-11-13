@@ -98,7 +98,11 @@ Use Content `title` and `description` for simple cases, or compose `Drawer.Heade
 `Drawer.Description`, `Drawer.Body`, and `Drawer.Footer` for a custom layout — the same contract as
 [Sheet](/components/sheet#content-composition). An explicit `Drawer.Header` replaces the generated
 header. `Drawer.Close` is an explicit close control; root `closable` adds the automatic corner close
-button (off by default), and `closeIcon` replaces its icon.
+button (on by default; `closable={false}` hides it), and `closeIcon` replaces its icon. The button is
+named by the `drawer` message group (`close`), and a swipe that starts on it still dismisses.
+
+Root `transition={false}` turns off the enter and exit animations. Content and overlay then unmount as
+soon as the drawer closes instead of waiting for the animation to end.
 
 For `top` and `bottom` sides, Content renders a decorative `handle` grab bar along the edge
 facing the viewport. Set `handle={false}` to hide it.

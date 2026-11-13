@@ -22,7 +22,7 @@ export default function DrawerPlayground() {
           ],
         },
         { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
-        { kind: 'switch', prop: 'closable', label: 'Closable', defaultValue: false },
+        { kind: 'switch', prop: 'closable', label: 'Closable', defaultValue: true },
         { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
       ]}
     >

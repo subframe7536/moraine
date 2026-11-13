@@ -1022,7 +1022,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('supports transition={false} by omitting data-transition while maintaining expanded and closed state', async () => {
+  test('supports transition={false} by omitting data-transition and unmounting without an exit animation', async () => {
     const [open, setOpen] = createSignal(true)
     render(() => (
       <Sheet open={open()} transition={false}>
@@ -1038,13 +1038,6 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-closed')).toBe(false)
 
     setOpen(false)
-    await Promise.resolve()
-
-    expect(content.hasAttribute('data-transition')).toBe(false)
-    expect(content.hasAttribute('data-expanded')).toBe(false)
-    expect(content.hasAttribute('data-closed')).toBe(true)
-
-    await finishExitMotion()
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()

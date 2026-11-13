@@ -5,17 +5,22 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ModalStyleSlot } from './modal.style-types'
 
 export const modalDataAttributes = {
-  overlay: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'overlay-scroll'),
-  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
+  overlay: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'expanded',
+    'overlay-scroll',
+    'transition',
+  ),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transition'),
 } satisfies DataAttributeContract<keyof ModalStyleSlot>
 
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =
-  'bg-backdrop inset-0 fixed z-floating data-closed:(animate-mo-exit exit-opacity-0) data-expanded:(animate-mo-enter enter-opacity-0) motion-reduce:animate-none supports-[backdrop-filter]:backdrop-blur-[4px]'
+  'bg-backdrop inset-0 fixed z-floating motion-reduce:animate-none supports-[backdrop-filter]:backdrop-blur-[4px] data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0)'
 
 /** Default transition classes for custom modal content. */
 export const MODAL_CONTENT_CLASS =
-  'text-popover-foreground outline-none rounded-xl bg-popover w-full shadow-overlay z-floating data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none'
+  'text-popover-foreground outline-none rounded-xl bg-popover w-full shadow-overlay z-floating motion-reduce:animate-none data-transition:data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-transition:data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95)'
 
 export const MODAL_CONTENT_FRAME_CLASS =
   'border border-border flex flex-col max-w-lg w-[calc(100vw-2rem)]'

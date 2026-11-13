@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { createSignal, untrack } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -156,12 +156,124 @@ describe('Drawer', () => {
     const titleId = dialog.getAttribute('aria-labelledby')!
     expect(document.getElementById(titleId)?.textContent).toBe('Drawer title')
     expect(dialog.getAttribute('data-expanded')).not.toBeNull()
+    expect(dialog.hasAttribute('data-transition')).toBe(true)
 
     const handle = dialog.querySelector('[data-slot="drawer-handle"]')
     expect(handle).not.toBeNull()
     expect(handle?.getAttribute('aria-hidden')).toBe('true')
-    // No automatic close button by default.
-    expect(dialog.querySelector('[data-slot="drawer-content-close"]')).toBeNull()
+    // The corner close button is shown by default.
+    expect(dialog.querySelector('[data-slot="drawer-content-close"]')).not.toBeNull()
+  })
+
+  test('hides the corner close button when closable is false', async () => {
+    render(() => (
+      <Drawer defaultOpen closable={false}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    expect(content().querySelector('[data-slot="drawer-content-close"]')).toBeNull()
+  })
+
+  test('names the default close button with the drawer close message', async () => {
+    render(() => (
+      <Drawer defaultOpen>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+
+    expect(await screen.findByRole('button', { name: 'Close' })).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  test('labels the default close button with the translations override', async () => {
+    render(() => (
+      <Drawer defaultOpen translations={{ close: 'Fermer' }}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+
+    expect(await screen.findByRole('button', { name: 'Fermer' })).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  test('touch swipe dismisses from the default close button', async () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Drawer defaultOpen onOpenChange={onOpenChange}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    const closeButton = await screen.findByRole('button', { name: 'Close' })
+    fireEvent.touchStart(closeButton, {
+      touches: [{ identifier: 1, clientX: 0, clientY: 100 }],
+    })
+    fireEvent.touchMove(closeButton, {
+      touches: [{ identifier: 1, clientX: 0, clientY: 300 }],
+    })
+    fireEvent.touchMove(closeButton, {
+      touches: [{ identifier: 1, clientX: 0, clientY: 520 }],
+    })
+    fireEvent.touchEnd(closeButton, {
+      changedTouches: [{ identifier: 1, clientX: 0, clientY: 520 }],
+    })
+
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('waits for the exit animation before unmounting when transition is enabled', async () => {
+    render(() => (
+      <Drawer defaultOpen>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }))
+    await Promise.resolve()
+    expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
+
+    await finishExitMotion()
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
+    )
+  })
+
+  test('unmounts without waiting for an animation when transition is false', async () => {
+    render(() => (
+      <Drawer defaultOpen transition={false}>
+        <Drawer.Content>
+          <Drawer.Body>Body</Drawer.Body>
+        </Drawer.Content>
+      </Drawer>
+    ))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+    )
+    expect(content().hasAttribute('data-transition')).toBe(false)
+    expect(overlay()?.hasAttribute('data-transition')).toBe(false)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }))
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
+    )
   })
 
   test('renders no handle on the left side or with handle={false} and a close button when closable', async () => {

@@ -18,6 +18,7 @@ export interface ModalContext {
   setOverlayScroll: (enabled: boolean) => void
   isModal: Accessor<boolean>
   portalMount: Accessor<Node | undefined>
+  transition: Accessor<boolean>
 }
 
 export const [ModalProvider, useModalContext] =
@@ -29,6 +30,7 @@ export const MODAL_ROOT_KEYS = [
   'defaultOpen',
   'onOpenChange',
   'onExitComplete',
+  'transition',
   'closeOnOverlayClick',
   'closeOnEscape',
   'onClosePrevent',
