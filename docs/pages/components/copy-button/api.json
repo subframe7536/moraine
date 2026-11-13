@@ -64,7 +64,7 @@
           "name": "copiedIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon displayed when copied, in each icon position.",
+          "description": "Icon displayed when copied.",
           "default": {
             "kind": "literal",
             "value": "icon-check"
@@ -77,10 +77,24 @@
           "description": "Disabled state, including for non-button polymorphic roots."
         },
         {
-          "name": "leading",
+          "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon name, shown before the label in the idle state. Defaults to `'icon-copy'`\nwhen neither `leading` nor `trailing` is set."
+          "description": "Icon displayed in the idle state. Pass `false` to disable icon display.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-copy"
+          }
+        },
+        {
+          "name": "iconPosition",
+          "optional": true,
+          "type": "'leading' | 'trailing'",
+          "description": "Position of the copy indicator icon relative to the label.",
+          "default": {
+            "kind": "literal",
+            "value": "leading"
+          }
         },
         {
           "name": "onCopy",
@@ -141,12 +155,6 @@
             "kind": "literal",
             "value": "neutral"
           }
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": "IconT.Name",
-          "description": "Trailing icon name, shown after the label in the idle state."
         },
         {
           "name": "value",

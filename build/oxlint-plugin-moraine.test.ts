@@ -699,4 +699,108 @@ describe('oxlint-plugin-moraine', () => {
       expect(rule.create(fixtureCtx)).toEqual({})
     })
   })
+
+  describe('no-default-param-render-children', () => {
+    const rule = morainePlugin.rules['no-default-param-render-children']
+
+    function elementWithChild(expression: any) {
+      return {
+        children: [{ type: 'JSXExpressionContainer', expression }],
+      }
+    }
+
+    it('reports children functions whose parameters all have defaults', () => {
+      const ctx = createMockContext('/project/src/components/button/button.test.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXElement(
+        elementWithChild({
+          type: 'ArrowFunctionExpression',
+          params: [
+            {
+              type: 'AssignmentPattern',
+              left: { type: 'Identifier', name: 'props' },
+              right: { type: 'ObjectExpression' },
+            },
+          ],
+        }),
+      )
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('accessorCall')
+
+      visitor.JSXElement(
+        elementWithChild({
+          type: 'FunctionExpression',
+          params: [
+            { type: 'RestElement', argument: { type: 'Identifier', name: 'args' } },
+            { type: 'Identifier', name: 'trailing' },
+          ],
+        }),
+      )
+      expect(ctx.reports).toHaveLength(2)
+    })
+
+    it('reports a children attribute function whose first parameter has a default', () => {
+      const ctx = createMockContext('/project/docs/pages/index.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXAttribute({
+        name: { type: 'JSXIdentifier', name: 'children' },
+        value: {
+          type: 'JSXExpressionContainer',
+          expression: {
+            type: 'ArrowFunctionExpression',
+            params: [
+              {
+                type: 'AssignmentPattern',
+                left: { type: 'Identifier', name: 'props' },
+                right: { type: 'ObjectExpression' },
+              },
+              { type: 'Identifier', name: 'second' },
+            ],
+          },
+        },
+      })
+      expect(ctx.reports).toHaveLength(1)
+    })
+
+    it('allows required parameters, zero-parameter accessors, and non-function children', () => {
+      const ctx = createMockContext('/project/src/components/button/button.test.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.JSXElement(
+        elementWithChild({
+          type: 'ArrowFunctionExpression',
+          params: [
+            { type: 'Identifier', name: 'props' },
+            {
+              type: 'AssignmentPattern',
+              left: { type: 'Identifier', name: 'second' },
+              right: { type: 'Literal' },
+            },
+          ],
+        }),
+      )
+      visitor.JSXElement(elementWithChild({ type: 'ArrowFunctionExpression', params: [] }))
+      visitor.JSXElement(elementWithChild({ type: 'Identifier', name: 'content' }))
+      visitor.JSXElement({ children: [{ type: 'JSXText', value: 'text' }] })
+      visitor.JSXAttribute({
+        name: { type: 'JSXIdentifier', name: 'onClick' },
+        value: {
+          type: 'JSXExpressionContainer',
+          expression: {
+            type: 'ArrowFunctionExpression',
+            params: [
+              {
+                type: 'AssignmentPattern',
+                left: { type: 'Identifier', name: 'event' },
+                right: { type: 'ObjectExpression' },
+              },
+            ],
+          },
+        },
+      })
+      expect(ctx.reports).toHaveLength(0)
+    })
+  })
 })

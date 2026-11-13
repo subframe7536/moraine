@@ -840,5 +840,56 @@ export default {
         }
       },
     },
+
+    'no-default-param-render-children': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            'Warn when JSX children is a function whose parameters all have defaults or a rest element; it runs as an accessor and never receives render props.',
+        },
+        messages: {
+          accessorCall:
+            'A children function whose parameters all have defaults is invoked as an accessor with no arguments, so the defaults apply and render props are never passed. Declare a required parameter to mount it as a render-prop component.',
+        },
+      },
+      create(context: any): Record<string, any> {
+        function check(expression: any): void {
+          if (
+            expression?.type !== 'ArrowFunctionExpression' &&
+            expression?.type !== 'FunctionExpression'
+          ) {
+            return
+          }
+          const params = expression.params ?? []
+          const first = params[0]
+          if (
+            params.length > 0 &&
+            (first.type === 'AssignmentPattern' || first.type === 'RestElement')
+          ) {
+            context.report({ node: expression, messageId: 'accessorCall' })
+          }
+        }
+
+        return {
+          JSXElement(node: any) {
+            for (const child of node.children ?? []) {
+              if (child.type === 'JSXExpressionContainer') {
+                check(child.expression)
+              }
+            }
+          },
+          JSXAttribute(node: any) {
+            if (
+              node.name?.type === 'JSXIdentifier' &&
+              node.name.name === 'children' &&
+              node.value?.type === 'JSXExpressionContainer'
+            ) {
+              check(node.value.expression)
+            }
+          },
+        }
+      },
+    },
   },
 }

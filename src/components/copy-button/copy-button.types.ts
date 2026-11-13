@@ -85,21 +85,22 @@ export namespace CopyButtonT {
     slotName?: string
 
     /**
-     * Leading icon name, shown before the label in the idle state. Defaults to `'icon-copy'`
-     * when neither `leading` nor `trailing` is set.
+     * Icon displayed in the idle state. Pass `false` to disable icon display.
+     * @default 'icon-copy'
      */
-    leading?: IconT.Name
+    icon?: IconT.Name
 
     /**
-     * Trailing icon name, shown after the label in the idle state.
-     */
-    trailing?: IconT.Name
-
-    /**
-     * Icon displayed when copied, in each icon position.
+     * Icon displayed when copied.
      * @default 'icon-check'
      */
     copiedIcon?: IconT.Name
+
+    /**
+     * Position of the copy indicator icon relative to the label.
+     * @default 'leading'
+     */
+    iconPosition?: 'leading' | 'trailing'
 
     /**
      * Callback fired when copy succeeds.

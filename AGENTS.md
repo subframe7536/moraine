@@ -44,6 +44,7 @@ render props (such as `itemRender`) instead of component props.
   - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
   - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls; require JSX-returning functions to be PascalCase components)
   - `moraine/no-re-export` (disallow "export { x }", require inline exports and disallow component re-exports)
+  - `moraine/no-default-param-render-children` (children functions whose first parameter has a default or is a rest element run as accessors and never receive render props)
 - `pnpm run format` - Format code using oxfmt.
 - Run the fix-capable `lint` and `format` commands first; manually fix only issues they cannot resolve.
 - `pnpm run qa` - Run lint with fixes, format, and typecheck together. **Run this before every commit and review the resulting diff.**
