@@ -269,11 +269,6 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                         '--mo-popper-content-available-height',
                         `${height}px`,
                       )
-                      setStyleProperty(
-                        styleElement,
-                        '--mo-popper-content-overflow-padding',
-                        `${overflowPadding}px`,
-                      )
                       if (sameWidth) {
                         writeStyle(styleElement, 'width', `${referenceWidth}px`)
                       }

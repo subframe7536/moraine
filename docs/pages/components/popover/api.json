@@ -85,6 +85,16 @@
           }
         },
         {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap in pixels between the trigger and the content.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -94,7 +104,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route. Outside and\nEscape dismissal remain controlled by `dismissible`.",
+          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route, and a DEV\nwarning is logged. Outside and Escape dismissal remain controlled by `dismissible`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -136,6 +146,16 @@
           "default": {
             "kind": "literal",
             "value": 100
+          }
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Minimum padding in pixels between the content and the viewport edge.",
+          "default": {
+            "kind": "literal",
+            "value": 4
           }
         },
         {

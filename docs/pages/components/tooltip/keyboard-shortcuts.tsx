@@ -7,7 +7,7 @@ export function KeyboardShortcuts() {
         <Tooltip.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:save">
           Save
         </Tooltip.Trigger>
-        <Tooltip.Content text="Save changes" kbds={['⌘', 'S']} />
+        <Tooltip.Content kbds={['⌘', 'S']}>Save changes</Tooltip.Content>
       </Tooltip>
 
       <Tooltip>
@@ -18,7 +18,7 @@ export function KeyboardShortcuts() {
           leading="i-lucide:bold"
           aria-label="Bold"
         />
-        <Tooltip.Content text="Bold formatting" kbds={['⌘', 'B']} />
+        <Tooltip.Content kbds={['⌘', 'B']}>Bold formatting</Tooltip.Content>
       </Tooltip>
 
       <Tooltip>
@@ -29,7 +29,7 @@ export function KeyboardShortcuts() {
           leading="i-lucide:italic"
           aria-label="Italic"
         />
-        <Tooltip.Content text="Italic formatting" kbds={['⌘', 'I']} />
+        <Tooltip.Content kbds={['⌘', 'I']}>Italic formatting</Tooltip.Content>
       </Tooltip>
 
       <Tooltip>
@@ -40,7 +40,7 @@ export function KeyboardShortcuts() {
           leading="i-lucide:code"
           aria-label="Code"
         />
-        <Tooltip.Content text="Insert Code Block" kbds={['⌘', 'E']} />
+        <Tooltip.Content kbds={['⌘', 'E']}>Insert Code Block</Tooltip.Content>
       </Tooltip>
 
       <Tooltip>
@@ -51,7 +51,7 @@ export function KeyboardShortcuts() {
           leading="i-lucide:search"
           aria-label="Search"
         />
-        <Tooltip.Content text="Quick Search" kbds={['⌘', 'K']} />
+        <Tooltip.Content kbds={['⌘', 'K']}>Quick Search</Tooltip.Content>
       </Tooltip>
     </div>
   )

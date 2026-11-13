@@ -8,7 +8,9 @@ export function renderTooltipFixture(): string {
       <Tooltip.Trigger as="button" type="button">
         Trigger
       </Tooltip.Trigger>
-      <Tooltip.Content text={<span>Hydrated tooltip</span>} kbds={['Ctrl', 'K']} />
+      <Tooltip.Content kbds={['Ctrl', 'K']}>
+        <span>Hydrated tooltip</span>
+      </Tooltip.Content>
     </Tooltip>
   ))
 }

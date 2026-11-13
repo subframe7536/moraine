@@ -80,7 +80,7 @@
           "description": "Gap between anchor and popup.",
           "default": {
             "kind": "literal",
-            "value": 0
+            "value": 4
           }
         },
         {

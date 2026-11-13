@@ -75,6 +75,16 @@
           }
         },
         {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap in pixels between the trigger and the content.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -120,6 +130,16 @@
           "default": {
             "kind": "literal",
             "value": 600
+          }
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Minimum padding in pixels between the content and the viewport edge.",
+          "default": {
+            "kind": "literal",
+            "value": 4
           }
         },
         {
@@ -208,7 +228,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Text content when text is undefined."
+          "description": "Tooltip text or element to display."
         },
         {
           "name": "class",
@@ -220,7 +240,7 @@
           "name": "kbds",
           "optional": true,
           "type": "string[]",
-          "description": "Keyboard shortcuts to display next to the text."
+          "description": "Keyboard shortcuts to display next to the content."
         },
         {
           "name": "kbdVariant",
@@ -233,12 +253,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "text",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Primary text content or element to display."
         }
       ]
     }

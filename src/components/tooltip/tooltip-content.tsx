@@ -16,14 +16,7 @@ import {
 import type { TooltipT } from './tooltip.types'
 
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'text',
-    'kbds',
-    'kbdVariant',
-    'children',
-    'class',
-    'style',
-  ])
+  const [local, rest] = splitProps(props, ['kbds', 'kbdVariant', 'children', 'class', 'style'])
 
   const behavior = useTooltipContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -53,7 +46,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       placement={behavior.options.placement ?? 'top'}
       forceMount={behavior.options.forceMount}
       initialPosition={behavior.initialPosition()}
-      overflowPadding={4}
+      gutter={behavior.options.gutter}
+      overflowPadding={behavior.options.overflowPadding}
       role="tooltip"
       restoreFocusOnClose={false}
       positionerClass={
@@ -62,11 +56,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     >
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
-        const explicitText = createMemo(() => local.text)
-        const text = createMemo(() => {
-          const value = explicitText()
-          return value === undefined ? resolveChildren(() => local.children)() : value
-        })
+        const text = resolveChildren(() => local.children)
         const kbds = createMemo(() => local.kbds)
         const contentSlot = slotWith('content', {
           data: tooltipContentDataAttributes({

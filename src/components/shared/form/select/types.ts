@@ -96,7 +96,7 @@ export interface ContentProps<T extends BaseSelectT.Item> {
   scrollBottomThreshold?: number
   /**
    * Anchor gap in pixels.
-   * @default 0
+   * @default 4
    */
   gutter?: number
   /**

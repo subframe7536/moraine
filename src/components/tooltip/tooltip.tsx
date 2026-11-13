@@ -106,6 +106,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       openDelay: 600,
       closeDelay: 200,
       instantOpenDelay: 300,
+      gutter: 4,
+      overflowPadding: 4,
     },
     props,
   )

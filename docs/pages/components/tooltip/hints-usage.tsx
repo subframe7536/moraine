@@ -7,7 +7,7 @@ export function HintsUsage() {
         <Tooltip.Trigger as={Button} variant="outline">
           Deploy History
         </Tooltip.Trigger>
-        <Tooltip.Content text="View project deployment history and logs" />
+        <Tooltip.Content>View project deployment history and logs</Tooltip.Content>
       </Tooltip>
     </div>
   )

@@ -45,7 +45,7 @@ export default function TooltipPlayground() {
             <Tooltip.Trigger as={Button} variant="outline" leading="i-lucide:file-plus">
               Hover me
             </Tooltip.Trigger>
-            <Tooltip.Content text={props.text} kbds={['⌘', 'N']} />
+            <Tooltip.Content kbds={['⌘', 'N']}>{props.text}</Tooltip.Content>
           </Tooltip>
         </div>
       )}

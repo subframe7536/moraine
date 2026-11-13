@@ -198,7 +198,7 @@ export namespace BaseSelectT {
     onExitComplete?: () => void
     /**
      * Gap between anchor and popup.
-     * @default 0
+     * @default 4
      */
     gutter?: number
     /**

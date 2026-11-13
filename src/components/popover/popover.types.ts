@@ -40,11 +40,23 @@ export namespace PopoverT {
      * Whether the content traps focus, hides outside content from assistive technology, prevents
      * the native default action of outside pointer events, and locks body scroll.
      * This is enabled only when Popover.Content composes Popover.Close; otherwise the Popover
-     * remains non-modal so assistive-technology users retain a dismissal route. Outside and
-     * Escape dismissal remain controlled by `dismissible`.
+     * remains non-modal so assistive-technology users retain a dismissal route, and a DEV
+     * warning is logged. Outside and Escape dismissal remain controlled by `dismissible`.
      * @default false
      */
     modal?: boolean
+
+    /**
+     * Gap in pixels between the trigger and the content.
+     * @default 4
+     */
+    gutter?: number
+
+    /**
+     * Minimum padding in pixels between the content and the viewport edge.
+     * @default 4
+     */
+    overflowPadding?: number
 
     /**
      * Interaction mode for triggering the popover.

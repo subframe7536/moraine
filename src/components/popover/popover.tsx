@@ -17,6 +17,8 @@ export function Popover(props: PopoverProps): JSX.Element {
       mode: 'click' as const,
       openDelay: 100,
       closeDelay: 100,
+      gutter: 4,
+      overflowPadding: 4,
     },
     props,
   )

@@ -32,6 +32,18 @@ export namespace TooltipT {
     placement?: OverlayPlacement
 
     /**
+     * Gap in pixels between the trigger and the content.
+     * @default 4
+     */
+    gutter?: number
+
+    /**
+     * Minimum padding in pixels between the content and the viewport edge.
+     * @default 4
+     */
+    overflowPadding?: number
+
+    /**
      * Delay in milliseconds before opening on hover or focus.
      * @default 600
      */
@@ -59,19 +71,14 @@ export namespace TooltipT {
 
   export interface ContentBase {
     /**
-     * Primary text content or element to display.
-     */
-    text?: JSX.Element
-
-    /**
-     * Keyboard shortcuts to display next to the text.
+     * Keyboard shortcuts to display next to the content.
      */
     kbds?: string[]
 
     /** Visual variant for the shortcut keycaps. Overrides the variant inferred from invert. */
     kbdVariant?: KbdGroupT.Variants['variant']
 
-    /** Text content when text is undefined. */
+    /** Tooltip text or element to display. */
     children?: JSX.Element
   }
 

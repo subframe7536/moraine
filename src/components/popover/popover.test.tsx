@@ -4,7 +4,7 @@ import { Show, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
-import { finishExitMotion } from '../../test-util/overlay-test'
+import { finishExitMotion, stubViewportSize } from '../../test-util/overlay-test'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
 
@@ -618,6 +618,38 @@ describe('Popover', () => {
     )
   })
 
+  test.each([
+    ['the default gutter', undefined, 124],
+    ['a configured gutter', 12, 132],
+  ])('places content with %s', async (_, gutter, top) => {
+    const restoreViewport = stubViewportSize(1000)
+    try {
+      render(() => (
+        <Popover defaultOpen gutter={gutter} align="start">
+          <Popover.Trigger
+            ref={(element) =>
+              vi
+                .spyOn(element, 'getBoundingClientRect')
+                .mockReturnValue(new DOMRect(100, 100, 50, 20))
+            }
+          >
+            Trigger
+          </Popover.Trigger>
+          <Popover.Content>Gap content</Popover.Content>
+        </Popover>
+      ))
+      const positioner = document.body.querySelector<HTMLElement>(
+        '[data-slot="popover-positioner"]',
+      )!
+
+      await waitFor(() =>
+        expect(positioner.style.transform).toBe(`translate3d(100px, ${top}px, 0px)`),
+      )
+    } finally {
+      restoreViewport()
+    }
+  })
+
   test('defaults to the bottom side with centered alignment', () => {
     render(() => (
       <Popover open>
@@ -986,6 +1018,7 @@ describe('Popover', () => {
   })
 
   test('falls back to non-modal behavior when modal content has no Popover.Close', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -1003,6 +1036,45 @@ describe('Popover', () => {
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(screen.getByTestId('outside').getAttribute('aria-hidden')).toBeNull()
     expect(document.body.style.overflow).toBe('')
+    expect(warnSpy).toHaveBeenCalledExactlyOnceWith(
+      expect.stringContaining('Popover modal has no effect without Popover.Close'),
+    )
+    warnSpy.mockRestore()
+  })
+
+  test('warns in DEV each time modal content opens without Popover.Close', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const [open, setOpen] = createSignal(true)
+    render(() => (
+      <Popover open={open()} modal onOpenChange={setOpen}>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>Modal request without a close route</Popover.Content>
+      </Popover>
+    ))
+    await Promise.resolve()
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+
+    setOpen(false)
+    await finishExitMotion()
+    setOpen(true)
+    await waitFor(() => expect(warnSpy).toHaveBeenCalledTimes(2))
+    warnSpy.mockRestore()
+  })
+
+  test('does not warn when modal content composes Popover.Close', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(() => (
+      <Popover defaultOpen modal>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>
+          <Popover.Close>Close</Popover.Close>
+        </Popover.Content>
+      </Popover>
+    ))
+    await Promise.resolve()
+
+    expect(warnSpy).not.toHaveBeenCalled()
+    warnSpy.mockRestore()
   })
 
   test('keeps a parent modal popover open when a nested modal Popover.Close is used', async () => {

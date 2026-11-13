@@ -590,4 +590,60 @@ describe('floating geometry and style ownership', () => {
     expect(floating.style.transform).toBe(transform)
     screen.unmount()
   })
+
+  test('sets the reference distance from gutter alone and ignores overflowPadding for it', async () => {
+    await useGeometry()
+    const [gutter, setGutter] = createSignal(4)
+    const [padding, setPadding] = createSignal(24)
+    const screen = render(() => (
+      <FloatingFixture
+        open={() => true}
+        gutter={gutter}
+        onPositionedChange={() => {}}
+        options={{
+          flip: () => false,
+          overflowPadding: padding,
+          overlap: () => false,
+          slide: () => false,
+        }}
+      />
+    ))
+    const floating = screen.getByTestId('floating')
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 44px, 0px)'))
+
+    setPadding(0)
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 44px, 0px)'))
+
+    setGutter(12)
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 52px, 0px)'))
+    screen.unmount()
+  })
+
+  test('clamps to the viewport with overflowPadding alone and ignores gutter for it', async () => {
+    await useGeometry()
+    const [gutter, setGutter] = createSignal(4)
+    const [padding, setPadding] = createSignal(24)
+    const screen = render(() => (
+      <FloatingFixture
+        open={() => true}
+        gutter={gutter}
+        onPositionedChange={() => {}}
+        options={{
+          flip: () => false,
+          overflowPadding: padding,
+          overlap: () => false,
+          placement: () => 'bottom-start',
+        }}
+      />
+    ))
+    const floating = screen.getByTestId('floating')
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(24px, 44px, 0px)'))
+
+    setGutter(12)
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(24px, 52px, 0px)'))
+
+    setPadding(0)
+    await waitFor(() => expect(floating.style.transform).toBe('translate3d(10px, 52px, 0px)'))
+    screen.unmount()
+  })
 })

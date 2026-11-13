@@ -70,7 +70,6 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'peer-data-[focus-visible]:ring-3',
         '-translate-x-1/2',
         'data-transition:h-(--mo-collapsible-content-height)',
-        'data-[side=bottom]:mt-(--mo-popper-content-overflow-padding)',
         'data-[side=bottom]:-enter-translate-y-1',
         'data-[side=right]:-enter-translate-x-1',
       ]

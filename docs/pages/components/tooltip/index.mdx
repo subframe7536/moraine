@@ -68,13 +68,13 @@ export function Example() {
 
 ### Text and content
 
-Pass plain text through `text`, or pass JSX as children. String content renders in the `text` slot;
-JSX children render directly inside the content.
+Pass plain text or JSX as children. String children render in the `text` slot; other children render
+directly inside the content.
 
 ```tsx
 <Tooltip>
   <Tooltip.Trigger as={Button}>Deploy History</Tooltip.Trigger>
-  <Tooltip.Content text="View project deployment history and logs" />
+  <Tooltip.Content>View project deployment history and logs</Tooltip.Content>
 </Tooltip>
 ```
 
@@ -89,7 +89,9 @@ or `invert`. When omitted, keycaps follow the tooltip's `invert` setting.
   <Tooltip.Trigger as={Button} leading="i-lucide:save">
     Save
   </Tooltip.Trigger>
-  <Tooltip.Content text="Save changes" kbds={['command', 's']} kbdVariant="outline" />
+  <Tooltip.Content kbds={['command', 's']} kbdVariant="outline">
+    Save changes
+  </Tooltip.Content>
 </Tooltip>
 ```
 

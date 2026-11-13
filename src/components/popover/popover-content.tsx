@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
+import {
+  DEV,
+  Show,
+  children as resolveChildren,
+  createEffect,
+  mergeProps,
+  on,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -140,6 +149,21 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
+        if (DEV) {
+          // Runs after this content renders, so a composed Popover.Close has already registered.
+          createEffect(
+            on(
+              () => Boolean(behavior.options.modal) && !behavior.hasClose(),
+              (modalWithoutClose) => {
+                if (modalWithoutClose) {
+                  console.warn(
+                    '[moraine] Popover modal has no effect without Popover.Close in Popover.Content.',
+                  )
+                }
+              },
+            ),
+          )
+        }
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

@@ -87,7 +87,8 @@ name with `aria-label` when it has no visible label.
 
 `modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
 the content, outside content is hidden from assistive technology, and body scroll is locked.
-Without a Close, the popover stays non-modal so users retain a dismissal route.
+Without a Close, the popover stays non-modal so users retain a dismissal route, and development
+builds log a warning.
 
 `modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
 `preventScroll` can lock body scroll independently of `modal`.

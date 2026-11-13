@@ -49,6 +49,19 @@ export async function finishMenuExitMotion(): Promise<void> {
 }
 
 /**
+ * Gives jsdom a square viewport so floating placement does not flip, and returns the restore function.
+ */
+export function stubViewportSize(size: number): () => void {
+  const html = document.documentElement
+  Object.defineProperty(html, 'clientWidth', { configurable: true, value: size })
+  Object.defineProperty(html, 'clientHeight', { configurable: true, value: size })
+  return () => {
+    Reflect.deleteProperty(html, 'clientWidth')
+    Reflect.deleteProperty(html, 'clientHeight')
+  }
+}
+
+/**
  * Asserts that the element has no placement transition offset styles active.
  */
 export function expectNoPlacementMotion(element: HTMLElement | null | undefined): void {

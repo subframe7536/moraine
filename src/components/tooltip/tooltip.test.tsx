@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { stubViewportSize } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 import { isHTMLElement } from '../shared/overlay/dom'
 
@@ -46,7 +47,7 @@ describe('Tooltip', () => {
       () => (
         <Tooltip defaultOpen>
           <Tooltip.Trigger>First trigger</Tooltip.Trigger>
-          <Tooltip.Content text="First tooltip" />
+          <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>
       ),
       { container: firstHost },
@@ -55,7 +56,7 @@ describe('Tooltip', () => {
       () => (
         <Tooltip defaultOpen>
           <Tooltip.Trigger>Second trigger</Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       ),
       { container: secondHost },
@@ -90,7 +91,7 @@ describe('Tooltip', () => {
       () => (
         <Tooltip open={open()} instantOpenDelay={1000}>
           <Tooltip.Trigger>First</Tooltip.Trigger>
-          <Tooltip.Content text="First tooltip" />
+          <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>
       ),
       { container: firstHost },
@@ -99,7 +100,7 @@ describe('Tooltip', () => {
       () => (
         <Tooltip openDelay={600}>
           <Tooltip.Trigger>Second</Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       ),
       { container: secondHost },
@@ -128,7 +129,7 @@ describe('Tooltip', () => {
     const screen = render(() => (
       <Tooltip>
         <Tooltip.Trigger>Press target</Tooltip.Trigger>
-        <Tooltip.Content text="Press hint" />
+        <Tooltip.Content>Press hint</Tooltip.Content>
       </Tooltip>
     ))
     const trigger = screen.getByText('Press target')
@@ -158,7 +159,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -171,7 +172,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -187,7 +188,7 @@ describe('Tooltip', () => {
     render(() => (
       <Tooltip>
         <Tooltip.Trigger as="span">Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -200,7 +201,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" class="trigger-class" style={{ width: '200px' }} type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -236,7 +237,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} />
+        <Tooltip.Content kbds={['Ctrl', 'S']}>Save</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -255,7 +256,7 @@ describe('Tooltip', () => {
         styles={{ content: { width: '200px' } }}
       >
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Styled" kbds={['S']} />
+        <Tooltip.Content kbds={['S']}>Styled</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -304,7 +305,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -314,7 +315,7 @@ describe('Tooltip', () => {
   test('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Tooltip open>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -329,7 +330,7 @@ describe('Tooltip', () => {
     render(() => (
       <Tooltip open>
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -348,7 +349,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -373,7 +374,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -397,7 +398,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" />
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
       </Tooltip>
     ))
     const trigger = screen.getByRole('button')
@@ -422,7 +423,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Mouse tooltip" />
+        <Tooltip.Content>Mouse tooltip</Tooltip.Content>
       </Tooltip>
     ))
     const trigger = screen.getByRole('button')
@@ -446,7 +447,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Disabled tooltip" />
+        <Tooltip.Content>Disabled tooltip</Tooltip.Content>
       </Tooltip>
     ))
     const trigger = screen.getByRole('button')
@@ -479,7 +480,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Controlled tooltip" />
+        <Tooltip.Content>Controlled tooltip</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -499,13 +500,13 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             Rejected
           </Tooltip.Trigger>
-          <Tooltip.Content text="Rejected tooltip" />
+          <Tooltip.Content>Rejected tooltip</Tooltip.Content>
         </Tooltip>
         <Tooltip openDelay={100}>
           <Tooltip.Trigger as="button" type="button">
             Second
           </Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -530,7 +531,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           First
         </Tooltip.Trigger>
-        <Tooltip.Content text="First tooltip" />
+        <Tooltip.Content>First tooltip</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -543,7 +544,7 @@ describe('Tooltip', () => {
         <Tooltip.Trigger as="button" type="button">
           Second
         </Tooltip.Trigger>
-        <Tooltip.Content text="Second tooltip" />
+        <Tooltip.Content>Second tooltip</Tooltip.Content>
       </Tooltip>
     ))
     fireEvent.pointerEnter(second.getByRole('button'), { pointerType: 'mouse' })
@@ -559,13 +560,13 @@ describe('Tooltip', () => {
     const first = render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button">First</Tooltip.Trigger>
-        <Tooltip.Content text="First tooltip" />
+        <Tooltip.Content>First tooltip</Tooltip.Content>
       </Tooltip>
     ))
     const second = render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button">Second</Tooltip.Trigger>
-        <Tooltip.Content text="Second tooltip" />
+        <Tooltip.Content>Second tooltip</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -588,17 +589,17 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             First
           </Tooltip.Trigger>
-          <Tooltip.Content text="First tooltip" />
+          <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
             Second
           </Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger>Third</Tooltip.Trigger>
-          <Tooltip.Content text="Third tooltip" />
+          <Tooltip.Content>Third tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -636,14 +637,13 @@ describe('Tooltip', () => {
       <>
         <Tooltip closeDelay={0}>
           <Tooltip.Trigger>First</Tooltip.Trigger>
-          <Tooltip.Content
-            text="First tooltip"
-            style={{ 'animation-name': 'none', 'animation-duration': '0s' }}
-          />
+          <Tooltip.Content style={{ 'animation-name': 'none', 'animation-duration': '0s' }}>
+            First tooltip
+          </Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger>Second</Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       </>
     ))
@@ -667,13 +667,13 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             Always
           </Tooltip.Trigger>
-          <Tooltip.Content text="Always open" />
+          <Tooltip.Content>Always open</Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
             Other
           </Tooltip.Trigger>
-          <Tooltip.Content text="Other tooltip" />
+          <Tooltip.Content>Other tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -707,13 +707,13 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             Always
           </Tooltip.Trigger>
-          <Tooltip.Content text="Always open" />
+          <Tooltip.Content>Always open</Tooltip.Content>
         </Tooltip>
         <Tooltip openDelay={100}>
           <Tooltip.Trigger as="button" type="button">
             Delayed
           </Tooltip.Trigger>
-          <Tooltip.Content text="Delayed tooltip" />
+          <Tooltip.Content>Delayed tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -738,13 +738,13 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             First
           </Tooltip.Trigger>
-          <Tooltip.Content text="First tooltip" />
+          <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
             Second
           </Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -783,13 +783,13 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             First
           </Tooltip.Trigger>
-          <Tooltip.Content text="First tooltip" />
+          <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
             Second
           </Tooltip.Trigger>
-          <Tooltip.Content text="Second tooltip" />
+          <Tooltip.Content>Second tooltip</Tooltip.Content>
         </Tooltip>
       </div>
     ))
@@ -818,7 +818,7 @@ describe('Tooltip', () => {
     render(() => (
       <Tooltip open placement={placement} align={align}>
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Placed tooltip" />
+        <Tooltip.Content>Placed tooltip</Tooltip.Content>
       </Tooltip>
     ))
 
@@ -826,5 +826,71 @@ describe('Tooltip', () => {
 
     expect(content?.getAttribute('data-side')).toBe(placement)
     expect(content?.getAttribute('data-align')).toBe(align)
+  })
+
+  test.each([
+    ['the default gutter', undefined, 124],
+    ['a configured gutter', 12, 132],
+  ])('places content with %s', async (_, gutter, top) => {
+    const restoreViewport = stubViewportSize(1000)
+    try {
+      render(() => (
+        <Tooltip open placement="bottom" align="start" gutter={gutter}>
+          <Tooltip.Trigger
+            ref={(element) =>
+              vi
+                .spyOn(element, 'getBoundingClientRect')
+                .mockReturnValue(new DOMRect(100, 100, 50, 20))
+            }
+          >
+            Trigger
+          </Tooltip.Trigger>
+          <Tooltip.Content>Gap tooltip</Tooltip.Content>
+        </Tooltip>
+      ))
+      const positioner = document.body.querySelector<HTMLElement>(
+        '[data-slot="tooltip-content"]',
+      )!.parentElement!
+
+      await waitFor(() =>
+        expect(positioner.style.transform).toBe(`translate3d(100px, ${top}px, 0px)`),
+      )
+    } finally {
+      restoreViewport()
+    }
+  })
+
+  test.each([
+    ['the default overflow padding', undefined, 872],
+    ['a configured overflow padding', 20, 856],
+  ])('leaves %s between the content and the viewport edge', async (_, overflowPadding, height) => {
+    const restoreViewport = stubViewportSize(1000)
+    try {
+      render(() => (
+        <Tooltip open placement="bottom" overflowPadding={overflowPadding}>
+          <Tooltip.Trigger
+            ref={(element) =>
+              vi
+                .spyOn(element, 'getBoundingClientRect')
+                .mockReturnValue(new DOMRect(100, 100, 50, 20))
+            }
+          >
+            Trigger
+          </Tooltip.Trigger>
+          <Tooltip.Content>Padded tooltip</Tooltip.Content>
+        </Tooltip>
+      ))
+      const positioner = document.body.querySelector<HTMLElement>(
+        '[data-slot="tooltip-content"]',
+      )!.parentElement!
+
+      await waitFor(() =>
+        expect(positioner.style.getPropertyValue('--mo-popper-content-available-height')).toBe(
+          `${height}px`,
+        ),
+      )
+    } finally {
+      restoreViewport()
+    }
   })
 })

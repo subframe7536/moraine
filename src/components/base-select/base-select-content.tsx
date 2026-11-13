@@ -49,7 +49,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     contentElement: content,
     floatingElement: positioner,
     getReferenceElement: () => state.anchor() ?? state.focusOwner(),
-    gutter: () => state.gutter?.() ?? 0,
+    gutter: () => state.gutter?.() ?? 4,
     onPositionedChange: () => undefined,
     onPlacementChange: (placement) => setSide(placement.split('-')[0] ?? 'bottom'),
     open: presence.present,
