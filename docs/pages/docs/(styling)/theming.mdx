@@ -77,11 +77,13 @@ export function App(props) {
 
 ### Provider Nesting Behavior
 
-| `theme` prop           | Behavior                                                                      |
-| :--------------------- | :---------------------------------------------------------------------------- |
-| Omitted or `undefined` | Inherits the parent Provider's theme. At root, uses built-in recipe defaults. |
-| `defineTheme(...)`     | Applies specified theme overrides on top of built-in component recipes.       |
-| `theme={null}`         | Clears inherited theme overrides, resetting the subtree to Moraine defaults.  |
+| `theme` prop           | Behavior                                                                                                                                                |
+| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Omitted or `undefined` | Inherits the parent Provider's theme unchanged. At root, uses built-in recipe defaults.                                                                 |
+| `defineTheme(...)`     | Replaces the parent's theme for this subtree. Overrides apply on top of built-in component recipes; the object is not merged with the ancestor's theme. |
+| `theme={null}`         | Disables theming for this subtree: any inherited theme is dropped, and components use built-in recipe defaults.                                         |
+
+Omit the prop to keep the parent's theme, pass an object to replace it, and pass `null` to opt a subtree out of theming.
 
 `locale`, `dir`, and `messages` follow the same nesting rules. See [Localization](/docs/localization).
 
