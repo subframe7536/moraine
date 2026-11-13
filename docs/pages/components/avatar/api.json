@@ -50,10 +50,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "fallback",
+          "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon name to show as fallback."
+          "description": "Icon name shown in place of `text` while the image is unavailable."
         },
         {
           "name": "onStatusChange",

@@ -11,6 +11,7 @@ import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
+import type { IconT } from '../icon'
 import { Icon } from '../icon'
 
 import { defaultCopyButtonMessages } from './copy-button.messages'
@@ -39,9 +40,9 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'copiedDuration',
       'disabled',
       'slotName',
-      'icon',
+      'leading',
+      'trailing',
       'copiedIcon',
-      'iconPosition',
       'onCopy',
       'onError',
       'onStatusChange',
@@ -98,7 +99,12 @@ export function CopyButton<T extends ValidComponent = 'button'>(
     })
   })
 
-  const hasIcon = () => local.icon !== false && local.icon !== null
+  const leading = createMemo(
+    () => local.leading ?? (local.trailing === undefined ? 'icon-copy' : undefined),
+  )
+  const trailing = createMemo(() => local.trailing)
+  const iconOnly = () =>
+    !hasContent(resolvedChildren()) && Boolean(leading()) !== Boolean(trailing())
 
   const {
     slots: { root: rootSlot, icon: iconSlot, label: labelSlot },
@@ -114,12 +120,11 @@ export function CopyButton<T extends ValidComponent = 'button'>(
     },
     context: () => {
       const s = String(variantProps.size ?? group?.size ?? 'md')
-      const resolvedSize =
-        hasIcon() && !hasContent(resolvedChildren())
-          ? s.startsWith('icon-')
-            ? s
-            : `icon-${s}`
-          : s.replace(/^icon-/, '')
+      const resolvedSize = iconOnly()
+        ? s.startsWith('icon-')
+          ? s
+          : `icon-${s}`
+        : s.replace(/^icon-/, '')
 
       return {
         variants: {
@@ -159,13 +164,9 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 
   const binding = root.bind(interactionProps)
 
-  function Indicator(): JSX.Element {
+  function Indicator(props: { name: IconT.Name }): JSX.Element {
     const icon = createMemo(() =>
-      clipboard.isCopied()
-        ? (local.copiedIcon ?? 'icon-check')
-        : local.icon === true || local.icon === undefined
-          ? 'icon-copy'
-          : local.icon,
+      clipboard.isCopied() ? (local.copiedIcon ?? 'icon-check') : props.name,
     )
 
     return <Icon name={icon()} data-slot="copy-button-icon" {...iconSlot} />
@@ -182,9 +183,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
         local['aria-label'] ?? (clipboard.isCopied() ? messages().copied : messages().copy)
       }
     >
-      <Show when={hasIcon() && local.iconPosition !== 'trailing'}>
-        <Indicator />
-      </Show>
+      <Show when={leading()}>{(name) => <Indicator name={name()} />}</Show>
 
       <Show when={hasContent(resolvedChildren())}>
         <span data-slot="copy-button-label" {...labelSlot}>
@@ -192,9 +191,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
         </span>
       </Show>
 
-      <Show when={hasIcon() && local.iconPosition === 'trailing'}>
-        <Indicator />
-      </Show>
+      <Show when={trailing()}>{(name) => <Indicator name={name()} />}</Show>
     </Dynamic>
   )
 }

@@ -45,10 +45,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     return rawItems.map((rawItem) => {
       const occurrence = occurrences.get(rawItem) ?? 0
       occurrences.set(rawItem, occurrence + 1)
-      const rawKey =
-        typeof rawItem === 'string'
-          ? rawItem
-          : (rawItem.value ?? rawItem.label ?? JSON.stringify(rawItem))
+      const rawKey = typeof rawItem === 'string' ? rawItem : rawItem.value
       const key = `${rawKey}-${occurrence}`
       const existing = prevMap.get(key)
       if (existing && existing.item === rawItem) {

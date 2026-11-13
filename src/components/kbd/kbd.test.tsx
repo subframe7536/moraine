@@ -47,16 +47,12 @@ describe('Kbd', () => {
     expect(screen.getByLabelText(label).textContent).toBe(text)
   })
 
-  test('preserves unknown values and lets an explicit label override an alias label', () => {
-    const view = render(() => (
-      <div>
-        <Kbd value="F13" />
-        <Kbd value="meta" label="Primary modifier" />
-      </div>
-    ))
+  test('preserves unknown values without an invented accessible label', () => {
+    const view = render(() => <Kbd value="F13" />)
+    const root = view.container.querySelector('[data-slot="kbd"]')
 
-    expect(view.container.querySelector('[data-slot="kbd"]')?.textContent).toBe('F13')
-    expect(screen.getByLabelText('Primary modifier').textContent).toBe('⌘')
+    expect(root?.textContent).toBe('F13')
+    expect(root?.hasAttribute('aria-label')).toBe(false)
   })
 
   test('lets a native aria-label win over the alias label', () => {
@@ -77,6 +73,12 @@ describe('Kbd', () => {
     const view = render(() => <Kbd value="" />)
 
     expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
+  })
+
+  test('falls back to the default data-slot when slotName is empty', () => {
+    const view = render(() => <Kbd value="K" slotName="" />)
+
+    expect(view.container.querySelector('kbd')?.getAttribute('data-slot')).toBe('kbd')
   })
 
   test('supports a custom slot, class, and style overrides', () => {
@@ -145,10 +147,10 @@ describe('KbdGroup', () => {
     expect(view.container.querySelector('[data-slot="separator"]')).toBeNull()
   })
 
-  test('renders item objects with accessible labels', () => {
-    render(() => <KbdGroup items={[{ value: 'Cmd', label: 'Command key' }, 'K']} />)
+  test('renders item objects with translated alias labels', () => {
+    render(() => <KbdGroup items={[{ value: 'meta', translations: { meta: 'Command' } }, 'K']} />)
 
-    expect(screen.getByLabelText('Command key').textContent).toBe('Cmd')
+    expect(screen.getByLabelText('Command').textContent).toBe('⌘')
   })
 
   test('renders nothing for empty items and no separator for a single item', () => {

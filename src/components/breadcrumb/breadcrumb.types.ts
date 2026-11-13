@@ -36,11 +36,6 @@ export namespace BreadcrumbT {
     /**
      * The destination URL for this item.
      */
-    to?: string
-
-    /**
-     * The destination URL for this item.
-     */
     href?: string
 
     /**

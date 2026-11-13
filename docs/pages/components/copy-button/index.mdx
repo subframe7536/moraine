@@ -46,14 +46,15 @@ button at the matching icon size.
 
 ### Feedback duration and icons
 
-`copiedDuration` sets how long the copied state holds in milliseconds; it defaults to 2000. Set `icon`
-for the idle glyph and `copiedIcon` for the copied glyph.
+`copiedDuration` sets how long the copied state holds in milliseconds; it defaults to 2000. Set `leading`
+or `trailing` for the idle glyph and its side of the label; `copiedIcon` replaces it in the same
+position when copied.
 
 ```tsx
 <CopyButton
   value="https://example.com"
   copiedDuration={3000}
-  icon="i-lucide:clipboard"
+  leading="i-lucide:clipboard"
   copiedIcon="i-lucide:check-check"
 />
 ```
@@ -85,7 +86,7 @@ Pair a read-only `Input` with an icon-only CopyButton so the user can read and c
 
 ### Swap icons and hold the copied state longer
 
-Set `icon` and `copiedIcon` for the two states, and raise `copiedDuration` to keep the confirmation
+Set `leading` and `copiedIcon` for the two states, and raise `copiedDuration` to keep the confirmation
 visible.
 
 <Preview path="./custom-icons" />

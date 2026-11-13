@@ -13,7 +13,6 @@ import type { KbdProps } from './kbd.types'
 export function Kbd(props: KbdProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'value',
-    'label',
     'symbol',
     'slotName',
     'size',
@@ -43,12 +42,12 @@ export function Kbd(props: KbdProps): JSX.Element {
   })
   const label = () => {
     const key = aliasKey()
-    return local['aria-label'] ?? local.label ?? (key ? messages()[key] : undefined)
+    return local['aria-label'] ?? (key ? messages()[key] : undefined)
   }
 
   return (
     <Show when={text()}>
-      <kbd data-slot={local.slotName ?? 'kbd'} aria-label={label()} {...rootSlot} {...rest}>
+      <kbd data-slot={local.slotName || 'kbd'} aria-label={label()} {...rootSlot} {...rest}>
         {text()}
       </kbd>
     </Show>

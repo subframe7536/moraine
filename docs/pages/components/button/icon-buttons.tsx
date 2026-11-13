@@ -17,7 +17,7 @@ export function IconButtons() {
         >
           <Icon name={bookmarked() ? 'i-lucide:bookmark-check' : 'i-lucide:bookmark'} />
         </Tooltip.Trigger>
-        <Tooltip.Content text={bookmarked() ? 'Remove bookmark' : 'Bookmark checklist'} />
+        <Tooltip.Content>{bookmarked() ? 'Remove bookmark' : 'Bookmark checklist'}</Tooltip.Content>
       </Tooltip>
     </div>
   )

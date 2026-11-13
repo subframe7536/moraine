@@ -39,13 +39,14 @@ export function Example() {
 ### Key aliases
 
 Known aliases such as `meta`, `command`, `ctrl`, `shift`, `alt`, and `escape` resolve to symbols
-when `symbol` is true (the default). Pass `symbol={false}` to keep the textual label. Use `label` when
-assistive technology needs a name different from the visible keycap.
+when `symbol` is true (the default). Pass `symbol={false}` to keep the textual label. Use `aria-label`
+when assistive technology needs a name different from the visible keycap; it takes precedence over
+the alias name.
 
 ```tsx
 <Kbd value="meta" />
 <Kbd value="escape" symbol={false} />
-<Kbd value="K" label="Search" />
+<Kbd value="K" aria-label="Search" />
 ```
 
 ### Root styling

@@ -168,9 +168,9 @@ describe('Avatar', () => {
     }
   })
 
-  test('uses fallback icon on error state', async () => {
+  test('renders the icon fallback on error state', async () => {
     outcomesBySrc.set('/broken.png', 'error')
-    const screen = render(() => <Avatar src="/broken.png" fallback="i-lucide-user" />)
+    const screen = render(() => <Avatar src="/broken.png" icon="i-lucide-user" />)
 
     const root = screen.container.querySelector('[data-slot="avatar"]')
     const icon = screen.container.querySelector('[data-slot="avatar-fallback-content"]')
@@ -180,6 +180,14 @@ describe('Avatar', () => {
     })
 
     expect(icon?.className).toContain('i-lucide-user')
+  })
+
+  test('shows the icon in place of text when both are provided', () => {
+    const screen = render(() => <Avatar text="MR" icon="i-lucide-user" />)
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
+
+    expect(screen.container.querySelector('[data-slot="avatar-fallback-content"]')).not.toBeNull()
+    expect(fallback?.textContent).not.toContain('MR')
   })
 
   test('renders a badge in each corner position', () => {
@@ -306,9 +314,7 @@ describe('Avatar', () => {
 
   test('exposes exactly one accessible image across fallback and loaded states', async () => {
     outcomesBySrc.set('/profile.png', 'pending')
-    const screen = render(() => (
-      <Avatar src="/profile.png" alt="Jane Doe" fallback="i-lucide-user" />
-    ))
+    const screen = render(() => <Avatar src="/profile.png" alt="Jane Doe" icon="i-lucide-user" />)
 
     const fallback = screen.getByRole('img', { name: 'Jane Doe' })
     expect(fallback.tagName).toBe('SPAN')
@@ -450,7 +456,7 @@ describe('Avatar', () => {
           }}
         />
         <Avatar
-          fallback="i-lucide-user"
+          icon="i-lucide-user"
           badge="i-lucide-check"
           styles={{
             fallback: { width: '200px' },
@@ -503,7 +509,7 @@ describe('Avatar', () => {
   test('forwards group styles to Avatar-owned child slots', () => {
     const screen = render(() => (
       <AvatarGroup
-        items={[{ fallback: 'icon-check', badge: 'icon-check' }]}
+        items={[{ icon: 'icon-check', badge: 'icon-check' }]}
         classes={{ image: 'group-image', fallbackContent: 'group-content', badge: 'group-badge' }}
         styles={{
           image: { width: '21px' },

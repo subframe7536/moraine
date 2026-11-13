@@ -14,7 +14,7 @@ const REVIEWERS = [
   {
     alt: 'Elena Rostova',
     text: 'ER',
-    fallback: 'i-lucide:user',
+    icon: 'i-lucide:user',
   },
   {
     src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&fit=crop&q=80',

@@ -56,8 +56,6 @@ export namespace KbdT {
      * @default true
      */
     symbol?: boolean
-    /** Accessible label for assistive technology. */
-    label?: string
     /** Data slot used by the rendered keycap. */
     slotName?: string
   }

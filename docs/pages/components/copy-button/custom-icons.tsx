@@ -8,7 +8,7 @@ export function CustomIcons() {
       <Input value={token} readOnly type="password" class="font-mono" />
       <CopyButton
         value={token}
-        icon="i-lucide:clipboard"
+        leading="i-lucide:clipboard"
         copiedIcon="i-lucide:check-check"
         copiedDuration={3000}
         aria-label="Copy personal access token"

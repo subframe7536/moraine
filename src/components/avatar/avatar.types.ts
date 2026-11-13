@@ -30,8 +30,8 @@ export namespace AvatarT {
     /** Initial text to show if image fails or is missing. */
     text?: string
 
-    /** Icon name to show as fallback. */
-    fallback?: IconT.Name
+    /** Icon name shown in place of `text` while the image is unavailable. */
+    icon?: IconT.Name
 
     /**
      * Root `data-slot` name, also used as the prefix for child slot names.

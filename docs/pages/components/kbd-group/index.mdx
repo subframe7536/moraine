@@ -41,12 +41,12 @@ export function Example() {
 
 ### Key labels
 
-Items may be alias strings or objects with `value` and `label`. Use known aliases for symbol
-notation, or supply item labels when the displayed shortcut needs platform-specific wording.
+Items may be alias strings or objects with `value`. Known aliases resolve to symbol notation and
+spoken names. Pass `translations` on an item object to change those spoken names.
 
 ```tsx
 <KbdGroup items={['meta', 's']} />
-<KbdGroup items={[{ value: 'Ctrl', label: 'Control' }, 'K']} />
+<KbdGroup items={[{ value: 'meta', translations: { meta: 'Command' } }, 'K']} />
 ```
 
 ### Separator

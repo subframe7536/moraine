@@ -16,7 +16,7 @@ const MEMBERS = [
   {
     alt: 'Emily Davis',
     text: 'ED',
-    fallback: 'i-lucide:user',
+    icon: 'i-lucide:user',
   },
   {
     src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',

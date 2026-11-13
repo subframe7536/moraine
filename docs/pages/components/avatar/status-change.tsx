@@ -11,7 +11,7 @@ export function StatusChange() {
         src="/avatar-does-not-exist.png"
         alt="Taylor Kim"
         onStatusChange={setStatus}
-        fallback="i-lucide-user"
+        icon="i-lucide-user"
       />
       <p class="text-sm text-muted-foreground">Image status: {status()}</p>
     </div>

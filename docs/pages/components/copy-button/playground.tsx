@@ -50,7 +50,7 @@ export default function CopyButtonPlayground() {
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
         {
           kind: 'select',
-          prop: 'iconPosition',
+          prop: 'iconSide',
           label: 'Icon Position',
           defaultValue: 'leading',
           options: [
@@ -68,7 +68,8 @@ export default function CopyButtonPlayground() {
           tone={props.tone}
           size={props.size}
           disabled={props.disabled}
-          iconPosition={props.iconPosition}
+          leading={props.iconSide === 'leading' ? 'icon-copy' : undefined}
+          trailing={props.iconSide === 'trailing' ? 'icon-copy' : undefined}
         >
           <Show when={props.label}>Copy snippet</Show>
         </CopyButton>

@@ -28,12 +28,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "label",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible label for assistive technology."
-        },
-        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",

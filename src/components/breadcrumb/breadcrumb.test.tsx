@@ -309,7 +309,7 @@ describe('Breadcrumb', () => {
 
   test('supports itemRender with a custom link', () => {
     const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (
-      <a data-slot="breadcrumb-link" href={props.item.href ?? props.item.to ?? '#'}>
+      <a data-slot="breadcrumb-link" href={props.item.href ?? '#'}>
         {props.item.label}
       </a>
     ))

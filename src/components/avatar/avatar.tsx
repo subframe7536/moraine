@@ -42,7 +42,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     'badgePosition',
     'slotName',
     'text',
-    'fallback',
+    'icon',
     'onStatusChange',
     'class',
     'style',
@@ -70,7 +70,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
   const text = createMemo(() => local.text)
-  const fallback = createMemo(() => local.fallback)
+  const icon = createMemo(() => local.icon)
   const badge = createMemo(() => local.badge)
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
@@ -162,7 +162,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
       >
-        <Show when={fallback()} fallback={fallbackText()}>
+        <Show when={icon()} fallback={fallbackText()}>
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}

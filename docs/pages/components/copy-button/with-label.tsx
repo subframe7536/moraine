@@ -9,7 +9,7 @@ export function WithLabel() {
         {(state) => (state.isCopied ? 'Copied to clipboard!' : 'Copy curl command')}
       </CopyButton>
 
-      <CopyButton value={curlCommand} variant="outline" size="sm" iconPosition="trailing">
+      <CopyButton value={curlCommand} variant="outline" size="sm" trailing="i-lucide:copy">
         Copy snippet
       </CopyButton>
     </div>

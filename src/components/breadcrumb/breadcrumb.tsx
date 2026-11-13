@@ -92,7 +92,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         role={isDisabledLink() ? 'link' : undefined}
                         aria-disabled={isDisabledLink() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
-                        href={isInteractive() ? (item.to ?? item.href) : undefined}
+                        href={isInteractive() ? item.href : undefined}
                         target={isInteractive() ? item.target : undefined}
                         rel={isInteractive() ? item.rel : undefined}
                         onClick={isInteractive() ? item.onClick : undefined}

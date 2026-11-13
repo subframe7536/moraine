@@ -83,19 +83,77 @@ describe('CopyButton', () => {
     expect(label.textContent).toBe('Copy URL')
   })
 
-  test('supports iconPosition="trailing"', () => {
+  test('places a trailing icon after the label and swaps copiedIcon in that position', async () => {
     const screen = render(() => (
-      <CopyButton value="trailing" iconPosition="trailing">
+      <CopyButton
+        value="trailing"
+        trailing="i-lucide-arrow-right"
+        copiedIcon="i-lucide-check-check"
+      >
         <span>Trailing icon</span>
       </CopyButton>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    const children = Array.from(button.children)
-    const labelIdx = children.findIndex(
-      (el) => el.getAttribute('data-slot') === 'copy-button-label',
-    )
-    const iconIdx = children.findIndex((el) => el.getAttribute('data-slot') === 'copy-button-icon')
-    expect(labelIdx).toBeLessThan(iconIdx)
+    const slotOrder = () => Array.from(button.children).map((el) => el.getAttribute('data-slot'))
+    const icon = () => button.querySelector('[data-slot="copy-button-icon"]')!
+
+    expect(slotOrder()).toEqual(['copy-button-label', 'copy-button-icon'])
+    expect(icon().getAttribute('class')).toContain('i-lucide-arrow-right')
+
+    fireEvent.click(button)
+    await flushMicrotasks()
+
+    expect(slotOrder()).toEqual(['copy-button-label', 'copy-button-icon'])
+    expect(icon().getAttribute('class')).toContain('i-lucide-check-check')
+  })
+
+  test('places a custom leading icon before the label and swaps copiedIcon in that position', async () => {
+    const screen = render(() => (
+      <CopyButton value="leading" leading="i-lucide-clipboard" copiedIcon="i-lucide-check-check">
+        <span>Copy command</span>
+      </CopyButton>
+    ))
+    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+    const slotOrder = () => Array.from(button.children).map((el) => el.getAttribute('data-slot'))
+    const icon = () => button.querySelector('[data-slot="copy-button-icon"]')!
+
+    expect(slotOrder()).toEqual(['copy-button-icon', 'copy-button-label'])
+    expect(icon().getAttribute('class')).toContain('i-lucide-clipboard')
+
+    fireEvent.click(button)
+    await flushMicrotasks()
+
+    expect(slotOrder()).toEqual(['copy-button-icon', 'copy-button-label'])
+    expect(icon().getAttribute('class')).toContain('i-lucide-check-check')
+  })
+
+  test('renders the copy icon before the label by default', () => {
+    const screen = render(() => (
+      <CopyButton value="default-leading">
+        <span>Copy</span>
+      </CopyButton>
+    ))
+    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+
+    expect(Array.from(button.children).map((el) => el.getAttribute('data-slot'))).toEqual([
+      'copy-button-icon',
+      'copy-button-label',
+    ])
+  })
+
+  test('renders an icon on each side when leading and trailing are both set', () => {
+    const screen = render(() => (
+      <CopyButton value="both" leading="i-lucide-clipboard" trailing="i-lucide-arrow-right">
+        <span>Both sides</span>
+      </CopyButton>
+    ))
+    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+
+    expect(Array.from(button.children).map((el) => el.getAttribute('data-slot'))).toEqual([
+      'copy-button-icon',
+      'copy-button-label',
+      'copy-button-icon',
+    ])
   })
 
   test('sets aria-invalid on copy failure and clears it after the copied duration', async () => {
@@ -152,16 +210,5 @@ describe('CopyButton', () => {
       isCopied: false,
       state: 'idle',
     })
-  })
-
-  test('omits icon when icon={false}', () => {
-    const screen = render(() => (
-      <CopyButton value="no-icon" icon={false}>
-        <span>Text only</span>
-      </CopyButton>
-    ))
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    expect(button.querySelector('[data-slot="copy-button-icon"]')).toBeNull()
-    expect(button.querySelector('[data-slot="copy-button-label"]')).not.toBeNull()
   })
 })

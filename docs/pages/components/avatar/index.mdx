@@ -46,13 +46,13 @@ export function Example() {
 
 ### Image fallbacks
 
-`text` shows initials when the image is missing or fails. `fallback` is an icon name for a generic
-placeholder. Status is `loading`, `loaded`, or `error`. Avatar renders the real `<img src>` during
+`text` shows initials when the image is missing or fails. `icon` is an icon name that replaces the
+initials, for a generic placeholder. Status is `loading`, `loaded`, or `error`. Avatar renders the real `<img src>` during
 server rendering and uses native load and error events to switch between image and fallback.
 
 ```tsx
 <Avatar src="/alex.png" alt="Alex Rivera" text="AR" />
-<Avatar alt="Guest" fallback="i-lucide:user" />
+<Avatar alt="Guest" icon="i-lucide:user" />
 ```
 
 ### Loading status
