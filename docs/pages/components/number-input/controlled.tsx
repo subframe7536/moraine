@@ -20,7 +20,7 @@ export function Controlled() {
           <label class="text-xs text-muted-foreground font-medium">Quantity (Max 10)</label>
           <NumberInput
             value={quantity()}
-            onRawValueChange={(v) => {
+            onValueChange={(v) => {
               if (v !== undefined) {
                 setQuantity(v)
               }

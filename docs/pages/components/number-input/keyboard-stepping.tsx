@@ -8,12 +8,12 @@ export function KeyboardStepping() {
     <div class="max-w-sm space-y-3">
       <NumberInput
         aria-label="Retry delay in seconds"
-        rawValue={value()}
+        value={value()}
         minValue={0}
         maxValue={60}
         step={0.5}
         largeStep={5}
-        onRawValueChange={setValue}
+        onValueChange={setValue}
       />
       <p class="text-sm text-muted-foreground">Current delay: {value()} seconds</p>
       <p class="text-xs text-muted-foreground">

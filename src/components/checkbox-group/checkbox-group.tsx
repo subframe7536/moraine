@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import {
+  DEV,
   For,
   Show,
   createEffect,
@@ -13,7 +14,7 @@ import {
 
 import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
-import { Checkbox } from '../checkbox'
+import { CheckboxCore } from '../checkbox/checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -27,7 +28,7 @@ interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   label?: JSX.Element
   description?: JSX.Element
   disabled: boolean
-  indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
+  indeterminate?: boolean
   checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
   indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
 }
@@ -43,12 +44,6 @@ function isCheckboxGroupItemDisabled<TTrue = boolean, TFalse = boolean>(
   item: string | CheckboxGroupT.Item<TTrue, TFalse>,
 ): boolean {
   return typeof item !== 'string' && Boolean(item.disabled)
-}
-
-function isCheckboxGroupItemIndeterminate<TTrue = boolean, TFalse = boolean>(
-  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
-): boolean {
-  return typeof item !== 'string' && Boolean(item.indeterminate)
 }
 
 function normalizeCheckboxGroupItem<TTrue = boolean, TFalse = boolean>(
@@ -126,7 +121,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     local,
   )
   const legend = createMemo(() => merged.legend)
-  const items = createMemo(() => merged.items ?? [])
+  const items = createMemo(() => {
+    const list = merged.items ?? []
+    if (DEV) {
+      const values = list.map((item, index) => getCheckboxGroupItemValue(item, index))
+      for (const value of new Set(values.filter((v, i) => values.indexOf(v) !== i))) {
+        console.warn(`[moraine] CheckboxGroup received duplicate item value "${value}".`)
+      }
+    }
+    return list
+  })
   const initialDefaultValue = untrack(() =>
     Array.isArray(merged.defaultValue) ? merged.defaultValue.slice() : [],
   )
@@ -203,24 +207,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       )
     })
   })
-  const hasCheckedItem = createMemo(() => {
-    const values = selectedValues()
-
-    return items().some((sourceItem, index) => {
-      return (
-        !isCheckboxGroupItemIndeterminate(sourceItem) &&
-        values.includes(getCheckboxGroupItemValue(sourceItem, index))
-      )
-    })
-  })
-  const hasIndeterminateItem = createMemo(() =>
-    items().some((sourceItem) => isCheckboxGroupItemIndeterminate(sourceItem)),
-  )
-  const checkedIcon = createMemo(() => (hasCheckedItem() ? merged.checkedIcon : undefined))
-  const indeterminateIcon = createMemo(() =>
-    hasIndeterminateItem() ? merged.indeterminateIcon : undefined,
-  )
-
   function onItemCheckedChange(value: string, checked: boolean): void {
     const currentValues = selectedValues()
     const isSelected = currentValues.includes(value)
@@ -316,27 +302,28 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
             const item = createMemo(() => normalizeCheckboxGroupItem(sourceItem, index()))
 
             return (
-              <Checkbox
+              <CheckboxCore
                 data-slot="checkbox-group-item"
                 id={itemId()}
                 name={field.name()}
-                fieldBind={false}
-                checked={selectedValues().includes(item().value)}
+                bound={false}
+                checked={
+                  item().indeterminate ? 'indeterminate' : selectedValues().includes(item().value)
+                }
                 defaultChecked={initialDefaultValue.includes(item().value)}
                 value={item().value}
                 label={item().label}
                 description={item().description}
                 disabled={item().disabled || field.disabled()}
                 readOnly={merged.readOnly}
-                indeterminate={item().indeterminate}
                 required={
                   field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex()
                 }
                 size={variants.size}
                 variant={variants.variant === 'table' ? 'card' : variants.variant}
                 indicator={merged.indicator}
-                checkedIcon={item().checkedIcon ?? checkedIcon()}
-                indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
+                checkedIcon={item().checkedIcon ?? merged.checkedIcon}
+                indeterminateIcon={item().indeterminateIcon ?? merged.indeterminateIcon}
                 {...overrides({
                   root: 'item',
                   container: 'container',

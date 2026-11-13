@@ -436,6 +436,26 @@ describe('Form', () => {
     expect(firstFocus).not.toHaveBeenCalled()
   })
 
+  test('focuses an invalid control that is outside the tab order', async () => {
+    const schema = v.object({
+      code: v.pipe(v.string(), v.nonEmpty('Code is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { code: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code" label="Code">
+            <Input tabIndex={-1} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Code')))
+  })
+
   test('does not focus an invalid detached field when submitting a form root', async () => {
     const schema = v.object({
       outside: v.pipe(v.string(), v.nonEmpty('Outside is required.')),

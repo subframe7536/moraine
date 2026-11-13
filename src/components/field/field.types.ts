@@ -57,9 +57,7 @@ export namespace FieldT {
     /** Whether controls inherit a read-only state. */
     readOnly?: boolean
     /**
-     * Content or render function receiving the field state.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
+     * Content, or a render function that receives the field state as props.
      */
     children?: JSX.Element | Component<RenderProps>
   }

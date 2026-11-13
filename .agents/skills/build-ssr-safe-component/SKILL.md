@@ -110,7 +110,11 @@ Use each resolution for one job:
 | `resolveChildren` | Plain JSX children that are inspected, normalized, reused, or retained across a changing root | Render functions that still need props |
 | `createLazyMemo` | JSX props and item fields that must stay unread until the present branch reads them | Values that are rendered immediately |
 
-`Button`, `Field`, `BaseSelect.Trigger`, `Dialog` content, `Modal` content, `Popper` content, and `Sheet` content use the two stages.
+`Field` is the exception: it reads `local.children` in one memo, then calls a function value with
+its state inside a second memo, regardless of arity. The first memo keeps mounted components from
+being recreated; the tracked call in the second keeps client `Show` accessors reactive and matches
+the server, where `Show` returns the branch value.
+`Button`, `BaseSelect.Trigger`, `Dialog` content, `Modal` content, `Popper` content, and `Sheet` content use the two stages.
 `BaseSelect.Item` resolves children, substitutes its item label for `undefined`, then calls
 `renderWithProps`. `ToggleButton` resolves children and, when the value is still a function,
 returns a new render function that adds `pressed` before `Button` mounts it. `Resizable.Handle`

@@ -352,7 +352,7 @@ describe('Field', () => {
     expect(screen.getByTestId('rendered-error').textContent).toBe('Updated')
   })
 
-  test('re-renders a children function with the latest reactive reads', () => {
+  test('keeps reactive reads inside a zero-argument render function', () => {
     const [label, setLabel] = createSignal('first')
     const screen = render(() => (
       <Field label="Value">{() => <span data-testid="accessor-child">{label()}</span>}</Field>
@@ -365,7 +365,7 @@ describe('Field', () => {
     expect(screen.getByTestId('accessor-child').textContent).toBe('second')
   })
 
-  test('passes the latest field error to a one-parameter render function', () => {
+  test('passes the latest field error to a render function', () => {
     const [error, setError] = createSignal<string | undefined>('Missing')
     const screen = render(() => (
       <Field label="Value" error={error()}>

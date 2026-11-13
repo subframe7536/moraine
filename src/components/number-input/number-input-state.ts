@@ -57,8 +57,7 @@ export interface CreateNumberInputOptions {
   formatOptions: Accessor<Intl.NumberFormatOptions | undefined>
   disabled: Accessor<boolean>
   readOnly: Accessor<boolean>
-  onRawValueChange?: (value: number | undefined) => void
-  onValueChange?: (value: string) => void
+  onValueChange?: (value: number | undefined) => void
   setFormValue?: (value: number | undefined) => void
   resetNativeInvalid?: () => void
   emitChange?: () => void
@@ -86,6 +85,18 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     },
     defaultValue: () => options.initialDefaultValue,
   })
+
+  createEffect(
+    on(
+      options.explicitControlledValue,
+      (value) => {
+        if (value === undefined) {
+          setResolvedValue(undefined)
+        }
+      },
+      { defer: true },
+    ),
+  )
 
   const currentValue = createMemo(() => {
     const value = resolvedValue()
@@ -137,8 +148,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
 
     options.resetNativeInvalid?.()
-    options.onRawValueChange?.(committedValue)
-    options.onValueChange?.(String(committedValue))
+    options.onValueChange?.(committedValue)
 
     options.emitChange?.()
     options.emitInput?.()
@@ -156,8 +166,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     options.setFormValue?.(undefined)
 
     options.resetNativeInvalid?.()
-    options.onRawValueChange?.(undefined)
-    options.onValueChange?.('')
+    options.onValueChange?.(undefined)
 
     options.emitChange?.()
     options.emitInput?.()

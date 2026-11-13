@@ -1,10 +1,9 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, createSignal, Show, splitProps } from 'solid-js'
+import { createMemo, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
-import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 
@@ -178,14 +177,20 @@ export function Field<T extends ValidComponent = 'div'>(
   }
 
   function RenderFieldInternal(): JSX.Element {
-    const fieldChild = resolveChildren(() => local.children)
-    const fieldChildren = createMemo(() =>
-      renderWithProps(fieldChild(), {
+    // Read the children getter in its own memo so mounted components are created once, then call
+    // function values tracked so Solid control-flow accessors, such as `Show`, stay reactive.
+    const fieldChild = createMemo(() => local.children)
+    const fieldChildren = createMemo(() => {
+      const child = fieldChild()
+      if (typeof child !== 'function') {
+        return child
+      }
+      return child({
         get error() {
           return resolvedError()
         },
-      }),
-    )
+      })
+    })
 
     return (
       <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...rest}>

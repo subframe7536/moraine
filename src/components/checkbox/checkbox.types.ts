@@ -38,8 +38,8 @@ export namespace CheckboxT {
     onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
-     * Native value submitted when the checkbox is checked.
-     * @default 'on'
+     * Native value submitted when the checkbox is checked. Defaults to a string or number
+     * `trueValue`, otherwise `'on'`.
      */
     value?: string
 
@@ -70,20 +70,8 @@ export namespace CheckboxT {
     /** Description text for the checkbox. */
     description?: JSX.Element
 
-    /**
-     * Whether to bind the checkbox value to the parent Field.
-     * @default true
-     */
-    fieldBind?: boolean
-
     /** Callback when the checked state changes. */
     onCheckedChange?: (value: TTrue | TFalse) => void
-
-    /**
-     * Whether the checkbox is in an indeterminate state.
-     * @default false
-     */
-    indeterminate?: boolean
 
     /**
      * Icon to show when checked.

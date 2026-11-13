@@ -467,6 +467,26 @@ describe('PinInput', () => {
     expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
+  test('calls onFocusIn and onFocusOut for every move between slots', () => {
+    const onFocusIn = vi.fn()
+    const onFocusOut = vi.fn()
+    const screen = render(() => (
+      <PinInput length={3} onFocusIn={onFocusIn} onFocusOut={onFocusOut} />
+    ))
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="pin-input"]')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.focusIn(root, { relatedTarget: null })
+    fireEvent.focusOut(root, { relatedTarget: inputs[1] })
+    fireEvent.focusIn(root, { relatedTarget: inputs[0] })
+    fireEvent.focusOut(root, { relatedTarget: document.body })
+
+    expect(onFocusIn).toHaveBeenCalledTimes(2)
+    expect(onFocusOut).toHaveBeenCalledTimes(2)
+  })
+
   test('renders hidden input with form name', () => {
     const screen = render(() => (
       <PinInput name="verification_code" defaultValue={['1', '2', '3']} length={4} />
@@ -1238,5 +1258,32 @@ describe('PinInput', () => {
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(document.activeElement).toBe(inputs[3]))
+  })
+
+  test('moves invalid focus to the first empty slot when focus starts in a filled slot', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ code: v.pipe(v.string(), v.length(4, 'Enter 4 digits.')) }),
+          initialInput: { code: '12' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="code">
+            <PinInput length={4} defaultValue="12" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    inputs[0]!.focus()
+    expect(document.activeElement).toBe(inputs[0])
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(inputs[2]))
   })
 })

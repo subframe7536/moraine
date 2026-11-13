@@ -140,6 +140,18 @@ export namespace PinInputT {
     onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
+     * Native focusin event for every slot focus, including moves between slots.
+     * Calling `preventDefault` skips `onFocus`.
+     */
+    onFocusIn?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
+     * Native focusout event for every slot blur, including moves between slots.
+     * Calling `preventDefault` skips `onBlur`.
+     */
+    onFocusOut?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
      * Whether the first input should automatically receive focus on mount.
      * @default false
      */

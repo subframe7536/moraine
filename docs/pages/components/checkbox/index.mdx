@@ -58,12 +58,12 @@ export function Example() {
 ### State and form values
 
 Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
-Set `indeterminate` from aggregate selection state; it changes the mixed presentation without
-adding a third submitted value.
+Pass `checked="indeterminate"` from aggregate selection state; it shows the mixed presentation
+without adding a third submitted value.
 
 `trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
-forms. Native form submission uses the separate `value` prop only while checked; an unchecked
-checkbox contributes no entry.
+forms. Native form submission uses `value` while checked; without `value` it submits `trueValue`, or
+`'on'` for the default boolean. An unchecked checkbox contributes no entry.
 
 ```tsx
 <Checkbox
@@ -88,8 +88,8 @@ focusability while preventing changes.
 
 ### Complete a deployment checklist
 
-Drive a parent checkbox from child task state. Use `indeterminate` when some but not all tasks are
-done. Custom `checkedIcon` and `indeterminateIcon` replace the default marks.
+Drive a parent checkbox from child task state. Use `checked="indeterminate"` when some but not all
+tasks are done. Custom `checkedIcon` and `indeterminateIcon` replace the default marks.
 
 <Preview path="./indeterminate-custom-icons" />
 

@@ -109,7 +109,7 @@ describe('Checkbox', () => {
     expectCheckboxChecked(checkbox, true)
   })
 
-  test('forwards visual focus boundaries to a bound Field only when enabled', () => {
+  test('forwards visual focus boundaries to the bound Field', () => {
     const emit = vi.fn()
     const binding: FieldBinding = {
       emit,
@@ -131,18 +131,6 @@ describe('Checkbox', () => {
     const hiddenInput = getHiddenCheckbox(screen.container)
     fireEvent.focus(hiddenInput)
     fireEvent.blur(hiddenInput)
-
-    expect(emit).toHaveBeenCalledTimes(2)
-
-    const unbound = render(() => (
-      <FieldProvider value={{ binding }}>
-        <Checkbox fieldBind={false} label="Unbound checkbox" />
-      </FieldProvider>
-    ))
-    const unboundControl = unbound.getByRole('checkbox', { name: 'Unbound checkbox' })
-
-    fireEvent.focus(unboundControl)
-    fireEvent.blur(unboundControl)
 
     expect(emit).toHaveBeenCalledTimes(2)
   })
@@ -259,6 +247,31 @@ describe('Checkbox', () => {
     })
   })
 
+  test.each([
+    ['controlled', { checked: 'indeterminate' as const }, 'mixed'],
+    ['uncontrolled', { defaultChecked: 'indeterminate' as const }, true],
+  ])(
+    'emits the checked value when a %s indeterminate checkbox is clicked',
+    (_mode, state, aria) => {
+      const onChange = vi.fn()
+      const screen = render(() => (
+        <Checkbox
+          {...state}
+          label="Mixed"
+          trueValue="all"
+          falseValue="none"
+          onCheckedChange={onChange}
+        />
+      ))
+      const checkbox = screen.getByRole('checkbox', { name: 'Mixed' })
+
+      fireEvent.click(checkbox)
+
+      expect(onChange).toHaveBeenCalledExactlyOnceWith('all')
+      expect(checkbox.getAttribute('aria-checked')).toBe(String(aria))
+    },
+  )
+
   test('passes id, name, value and required attributes to input', () => {
     const screen = render(() => (
       <Checkbox id="terms-checkbox" name="terms" value="accepted" required label="Terms" />
@@ -368,6 +381,72 @@ describe('Checkbox', () => {
       expect(input.checked).toBe(true)
       expect(new FormData(form).get('agree')).toBe('yes')
     })
+  })
+
+  test('submits the native value from value, then trueValue, then on, and nothing when unchecked', () => {
+    const screen = render(() => (
+      <form>
+        <Checkbox name="boolean" defaultChecked label="Boolean" />
+        <Checkbox name="mapped" trueValue="pro" falseValue="free" defaultChecked label="Mapped" />
+        <Checkbox name="explicit" trueValue="pro" value="yes" defaultChecked label="Explicit" />
+        <Checkbox name="unchecked" trueValue="pro" label="Unchecked" />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    expect(new FormData(form).get('boolean')).toBe('on')
+    expect(new FormData(form).get('mapped')).toBe('pro')
+    expect(new FormData(form).get('explicit')).toBe('yes')
+    expect(new FormData(form).has('unchecked')).toBe(false)
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Mapped' }))
+
+    expect(new FormData(form).has('mapped')).toBe(false)
+  })
+
+  test('derives the native value from a string or number trueValue, otherwise on', () => {
+    const screen = render(() => (
+      <form>
+        <Checkbox name="count" trueValue={1} falseValue={0} label="Count" />
+        <Checkbox name="meta" trueValue={{ plan: 'pro' }} label="Meta" />
+      </form>
+    ))
+
+    const [count, meta] = Array.from(
+      screen.container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+    )
+
+    expect(count!.value).toBe('1')
+    expect(meta!.value).toBe('on')
+  })
+
+  test('form.Field checkbox submits its trueValue as the native value', async () => {
+    const onSubmit = vi.fn()
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ plan: v.picklist(['pro', 'free']) }),
+          initialInput: { plan: 'free' },
+        }),
+      (form) => (
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="plan" label="Pro plan">
+            <Checkbox trueValue="pro" falseValue="free" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const formElement = screen.container.querySelector('form') as HTMLFormElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Pro plan' })
+
+    expect(new FormData(formElement).has('plan')).toBe(false)
+
+    fireEvent.click(checkbox)
+
+    expect(new FormData(formElement).get('plan')).toBe('pro')
+    fireEvent.submit(formElement)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ plan: 'pro' })
   })
 
   test('form.Field checkbox submits a boolean and keeps its native input checked with its value', async () => {

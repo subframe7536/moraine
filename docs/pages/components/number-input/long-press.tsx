@@ -10,7 +10,7 @@ export function LongPress() {
       <div class="space-y-2">
         <NumberInput
           value={repeatValue()}
-          onRawValueChange={(value) => {
+          onValueChange={(value) => {
             if (value !== undefined) {
               setRepeatValue(value)
             }
@@ -30,7 +30,7 @@ export function LongPress() {
         <NumberInput
           value={singleStepValue()}
           repeat={false}
-          onRawValueChange={(value) => {
+          onValueChange={(value) => {
             if (value !== undefined) {
               setSingleStepValue(value)
             }

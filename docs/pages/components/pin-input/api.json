@@ -148,6 +148,18 @@
           "description": "Native focus event when focus enters the pin input group."
         },
         {
+          "name": "onFocusIn",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Native focusin event for every slot focus, including moves between slots.\nCalling `preventDefault` skips `onFocus`."
+        },
+        {
+          "name": "onFocusOut",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Native focusout event for every slot blur, including moves between slots.\nCalling `preventDefault` skips `onBlur`."
+        },
+        {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",

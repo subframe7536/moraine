@@ -335,54 +335,43 @@ describe('CheckboxGroup', () => {
     })
   })
 
-  test('gives duplicate values unique stable ids and serializes repeated entries in item order', async () => {
+  test('warns in DEV on duplicate item values and keeps item ids unique', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const first = { value: 'same', label: 'First' }
     const second = { value: 'same', label: 'Second' }
     const [items, setItems] = createSignal([first, second])
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form>
-        <CheckboxGroup name="choices" items={items()} onValueChange={onChange} />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const firstControl = screen.getByRole('checkbox', { name: 'First' })
-    const secondControl = screen.getByRole('checkbox', { name: 'Second' })
-    const firstId = firstControl.id
-    const secondId = secondControl.id
+    const screen = render(() => <CheckboxGroup items={items()} />)
+    const firstId = screen.getByRole('checkbox', { name: 'First' }).id
+    const secondId = screen.getByRole('checkbox', { name: 'Second' }).id
 
     expect(firstId).not.toBe(secondId)
     expect(screen.getByText('First').getAttribute('for')).toBe(firstId)
     expect(screen.getByText('Second').getAttribute('for')).toBe(secondId)
-
-    fireEvent.click(firstControl)
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenLastCalledWith(['same'])
-    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('CheckboxGroup received duplicate item value "same"'),
+    )
 
     setItems([second, first])
     expect(screen.getByRole('checkbox', { name: 'First' }).id).toBe(firstId)
     expect(screen.getByRole('checkbox', { name: 'Second' }).id).toBe(secondId)
-    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+
+    warnSpy.mockRestore()
   })
 
-  test('gives duplicate primitive empty values unique ids and preserves both form entries', async () => {
-    const screen = render(() => (
-      <form>
-        <CheckboxGroup name="choices" items={['', '']} />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
+  test('warns in DEV on duplicate primitive values and keeps item ids unique', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const screen = render(() => <CheckboxGroup items={['', '']} />)
     const controls = Array.from(
       screen.container.querySelectorAll<HTMLElement>('[data-slot="checkbox-control"]'),
     )
 
     expect(controls).toHaveLength(2)
     expect(controls[0]?.id).not.toBe(controls[1]?.id)
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('CheckboxGroup received duplicate item value ""'),
+    )
 
-    fireEvent.click(controls[0]!)
-
-    expect(new FormData(form).getAll('choices')).toEqual(['', ''])
+    warnSpy.mockRestore()
   })
 
   test('renders one checkbox per item', () => {
@@ -560,5 +549,33 @@ describe('CheckboxGroup', () => {
     expect(screen.getByRole('group', { name: 'Options' })).not.toBeNull()
     expect(screen.getByRole('checkbox', { name: 'Alpha' })).not.toBeNull()
     expect(screen.getByText('Mixed')).not.toBeNull()
+  })
+
+  test('renders the group checked icon only inside checked items', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        items={['A', 'B']}
+        defaultValue={['A']}
+        checkedIcon={<span data-testid="group-checked-icon">C</span>}
+      />
+    ))
+    const checkedIcons = screen.getAllByTestId('group-checked-icon')
+
+    expect(checkedIcons).toHaveLength(1)
+    expect(screen.getByRole('checkbox', { name: 'A' }).contains(checkedIcons[0]!)).toBe(true)
+  })
+
+  test('clicking an indeterminate item selects its value', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <CheckboxGroup
+        items={[{ value: 'a', label: 'Alpha', indeterminate: true }]}
+        onValueChange={onChange}
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Alpha' }))
+
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(['a'])
   })
 })

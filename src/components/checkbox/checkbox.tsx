@@ -15,14 +15,25 @@ import { useFormReset } from '../shared/form/use-form-reset'
 
 import { CHECKBOX_ICON_CLASS, checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
+
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
 ): JSX.Element {
-  type RootProps = CheckboxProps<TTrue, TFalse> & {
-    onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
-  }
-  const [local, rest] = splitProps(props as RootProps, [
+  return <CheckboxCore {...props} bound />
+}
+
+type CheckboxCoreProps<TTrue, TFalse> = CheckboxProps<TTrue, TFalse> & {
+  /** Whether the value binds to the closest Field; checkbox group items are unbound. */
+  bound: boolean
+  onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+}
+
+/** Checkbox implementation shared with CheckboxGroup, which renders unbound items. */
+export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
+  props: CheckboxCoreProps<TTrue, TFalse>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, [
     'id',
     'name',
     'disabled',
@@ -35,9 +46,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'falseValue',
     'label',
     'description',
-    'fieldBind',
+    'bound',
     'onCheckedChange',
-    'indeterminate',
     'form',
     'checkedIcon',
     'indeterminateIcon',
@@ -106,16 +116,19 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     {
       checkedIcon: 'icon-check' as const,
       indeterminateIcon: 'icon-minus' as const,
-      fieldBind: true,
       trueValue: true,
       falseValue: false,
-      value: 'on',
     },
 
     local,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
+  const nativeValue = () =>
+    merged.value ??
+    (typeof merged.trueValue === 'string' || typeof merged.trueValue === 'number'
+      ? String(merged.trueValue)
+      : 'on')
 
   const generatedId = createId(() => merged.id, 'checkbox')
   const fieldProps = mergeProps(merged, {
@@ -125,17 +138,17 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   })
   const field = useFormField(fieldProps, {
     get bind() {
-      return merged.fieldBind
+      return local.bound
     },
     get defaultId() {
       return generatedId()
     },
     get initialValue() {
-      return merged.fieldBind === false
-        ? undefined
-        : (normalizeFieldValue(
+      return local.bound
+        ? (normalizeFieldValue(
             merged.checked !== undefined ? merged.checked : merged.defaultChecked,
           ) ?? merged.falseValue)
+        : undefined
     },
   })
 
@@ -188,7 +201,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         return toCheckedState(merged.checked)
       }
 
-      if (merged.fieldBind !== false && field.value() !== undefined) {
+      if (local.bound && field.value() !== undefined) {
         return toCheckedState(field.value())
       }
 
@@ -203,24 +216,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     return value === 'indeterminate' ? false : value
   })
 
-  const indeterminate = createMemo<boolean>(() => {
-    if (merged.indeterminate !== undefined) {
-      return merged.indeterminate
-    }
-    return checked() === 'indeterminate'
-  })
+  const indeterminate = createMemo<boolean>(() => checked() === 'indeterminate')
 
   createEffect(
     on(
-      [
-        field.path,
-        () => merged.checked,
-        () => merged.fieldBind,
-        () => merged.trueValue,
-        () => merged.falseValue,
-      ],
-      ([, value, bind, trueValue, falseValue]) => {
-        if (bind !== false && value !== undefined) {
+      [field.path, () => merged.checked, () => merged.trueValue, () => merged.falseValue],
+      ([, value, trueValue, falseValue]) => {
+        if (local.bound && value !== undefined) {
           field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
         }
       },
@@ -232,7 +234,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
     setChecked(nextChecked)
 
-    if (merged.fieldBind === false) {
+    if (!local.bound) {
       merged.onCheckedChange?.(nextValue)
       return
     }
@@ -279,7 +281,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       if (!explicitlyControlled) {
         setChecked(nextChecked)
 
-        if (merged.fieldBind !== false) {
+        if (local.bound) {
           field.setFormValue(
             nextChecked === 'indeterminate'
               ? undefined
@@ -329,14 +331,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   function onControlFocus(event: FocusEvent): void {
-    if (merged.fieldBind !== false) {
+    if (local.bound) {
       field.emit('focus', event)
     }
   }
 
   function onControlBlur(event: FocusEvent): void {
     enterPressed = false
-    if (merged.fieldBind !== false) {
+    if (local.bound) {
       field.emit('blur', event)
     }
   }
@@ -390,7 +392,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           type="checkbox"
           name={field.name()}
           form={merged.form}
-          value={merged.value}
+          value={nativeValue()}
           checked={resolvedChecked()}
           required={field.required()}
           disabled={field.disabled()}

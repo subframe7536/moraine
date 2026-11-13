@@ -31,7 +31,8 @@ function isUsableControl(element: HTMLElement | undefined): element is HTMLEleme
   return Boolean(
     element &&
     element.isConnected &&
-    element.tabIndex >= 0 &&
+    // Roving tab stops use tabindex=-1; plain elements report -1 without the attribute.
+    (element.tabIndex >= 0 || element.hasAttribute('tabindex')) &&
     element.getAttribute('aria-hidden') !== 'true' &&
     !element.matches(':disabled') &&
     element.getAttribute('aria-disabled') !== 'true',

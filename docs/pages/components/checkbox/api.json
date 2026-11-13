@@ -90,16 +90,6 @@
           }
         },
         {
-          "name": "fieldBind",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to bind the checkbox value to the parent Field.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "form",
           "optional": true,
           "type": "string",
@@ -110,16 +100,6 @@
           "optional": true,
           "type": "string",
           "description": "The ID of the input element."
-        },
-        {
-          "name": "indeterminate",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the checkbox is in an indeterminate state.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         },
         {
           "name": "indeterminateIcon",
@@ -227,11 +207,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Native value submitted when the checkbox is checked.",
-          "default": {
-            "kind": "literal",
-            "value": "on"
-          }
+          "description": "Native value submitted when the checkbox is checked. Defaults to `trueValue`, or `'on'` for\nthe default boolean."
         },
         {
           "name": "variant",

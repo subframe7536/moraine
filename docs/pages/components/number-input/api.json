@@ -82,8 +82,8 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string | number",
-          "description": "Default displayed value for uncontrolled usage."
+          "type": "number | undefined",
+          "description": "Default numeric value for uncontrolled usage. `undefined` starts empty."
         },
         {
           "name": "disabled",
@@ -204,16 +204,10 @@
           "description": "Callback when the increment button is clicked."
         },
         {
-          "name": "onRawValueChange",
-          "optional": true,
-          "type": "(value: number | undefined) => void",
-          "description": "Callback when the numeric value changes. Emits `undefined` when the input is cleared."
-        },
-        {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string) => void",
-          "description": "Callback when the canonical string value changes. Emits `''` when the input is cleared."
+          "type": "(value: number | undefined) => void",
+          "description": "Callback when the committed value changes. Receives `undefined` when the input is cleared."
         },
         {
           "name": "orientation",
@@ -230,12 +224,6 @@
           "optional": true,
           "type": "string",
           "description": "Placeholder text for the input."
-        },
-        {
-          "name": "rawValue",
-          "optional": true,
-          "type": "number",
-          "description": "Controlled numeric value. Takes precedence over `value`."
         },
         {
           "name": "readOnly",
@@ -318,8 +306,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string | number",
-          "description": "Controlled displayed value."
+          "type": "number | undefined",
+          "description": "Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to\n`undefined` clears the displayed text."
         },
         {
           "name": "variant",

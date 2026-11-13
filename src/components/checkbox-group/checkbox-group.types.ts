@@ -36,7 +36,7 @@ export namespace CheckboxGroupT {
     /** Whether the item is disabled. */
     disabled?: boolean
     /** Whether the item is indeterminate. */
-    indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
+    indeterminate?: boolean
     /** Custom checked icon for this item. */
     checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
     /** Custom indeterminate icon for this item. */

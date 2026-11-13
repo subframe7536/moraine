@@ -288,8 +288,8 @@ export function DocsPlaygroundControlField(props: {
           <NumberInput
             id={props.controlId}
             size="sm"
-            value={props.value as InputT.Value}
-            onRawValueChange={(value) => {
+            value={props.value as number}
+            onValueChange={(value) => {
               if (value !== undefined) {
                 props.onChange(value)
               }

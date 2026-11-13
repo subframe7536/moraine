@@ -65,19 +65,15 @@ export namespace NumberInputT {
     form?: string
 
     /**
-     * Controlled displayed value.
+     * Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to
+     * `undefined` clears the displayed text.
      */
-    value?: string | number
+    value?: number | undefined
 
     /**
-     * Default displayed value for uncontrolled usage.
+     * Default numeric value for uncontrolled usage. `undefined` starts empty.
      */
-    defaultValue?: string | number
-
-    /**
-     * Controlled numeric value. Takes precedence over `value`.
-     */
-    rawValue?: number
+    defaultValue?: number | undefined
 
     /**
      * Minimum allowed numeric value.
@@ -120,14 +116,9 @@ export namespace NumberInputT {
     stepSnapping?: boolean
 
     /**
-     * Callback when the canonical string value changes. Emits `''` when the input is cleared.
+     * Callback when the committed value changes. Receives `undefined` when the input is cleared.
      */
-    onValueChange?: (value: string) => void
-
-    /**
-     * Callback when the numeric value changes. Emits `undefined` when the input is cleared.
-     */
-    onRawValueChange?: (value: number | undefined) => void
+    onValueChange?: (value: number | undefined) => void
 
     /**
      * Placeholder text for the input.

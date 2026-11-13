@@ -41,20 +41,13 @@ export function Example() {
 
 ### Values and boundaries
 
-Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and
-`onValueChange` expose the locale-formatted string. The component preserves partial typed input
-until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical
-floating-point display noise.
+`value`, `defaultValue`, and `onValueChange` all use `number | undefined`. Display text comes from
+`locale` and `formatOptions`, so the value stays a plain number. Clearing the input emits
+`undefined`. The component preserves partial typed input until commit, then applies `minValue` and
+`maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
 
 ```tsx
-<NumberInput
-  value={value()}
-  onRawValueChange={(next) => {
-    if (Number.isFinite(next)) setValue(next)
-  }}
-  minValue={0}
-  maxValue={10}
-/>
+<NumberInput value={value()} onValueChange={setValue} minValue={0} maxValue={10} locale="de-DE" />
 ```
 
 ### Stepping and repeat
@@ -86,7 +79,7 @@ Hold-to-repeat is enabled by default and can be tuned with the repeat timing pro
 
 ### Set a cart quantity
 
-Keep the count in local state with `onRawValueChange`. Clamp with `minValue` and `maxValue`.
+Keep the count in local state with `onValueChange`. Clamp with `minValue` and `maxValue`.
 
 <Preview path="./controlled" />
 

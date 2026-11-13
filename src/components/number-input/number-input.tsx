@@ -59,7 +59,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'form',
     'value',
     'defaultValue',
-    'rawValue',
     'minValue',
     'maxValue',
     'step',
@@ -68,7 +67,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'formatOptions',
     'stepSnapping',
     'onValueChange',
-    'onRawValueChange',
     'orientation',
     'placeholder',
     'increment',
@@ -138,20 +136,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   )
   const formatOptions = () => merged.formatOptions
 
-  const initialDefaultValue = untrack(() =>
-    toNumber(merged.defaultValue, 0, locale(), formatOptions()),
-  )
-  const initialValue = untrack(() => {
-    if (merged.rawValue !== undefined) {
-      return toNumber(merged.rawValue, 0)
-    }
-
-    if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, locale(), formatOptions())
-    }
-
-    return initialDefaultValue
-  })
+  const initialDefaultValue = untrack(() => merged.defaultValue)
+  const initialValue = untrack(() => merged.value ?? initialDefaultValue)
 
   const generatedId = createId(() => merged.id, 'number-input')
   const field = useFormField(merged, {
@@ -172,17 +158,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     focusTarget: () => inputEl,
   })
 
-  const explicitControlledValue = createMemo<number | undefined>(() => {
-    if (merged.rawValue !== undefined) {
-      return toNumber(merged.rawValue, 0)
-    }
-
-    if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, locale(), formatOptions())
-    }
-
-    return undefined
-  })
+  const explicitControlledValue = () => merged.value
 
   const minValue = () => merged.minValue ?? Number.MIN_SAFE_INTEGER
   const maxValue = () => merged.maxValue ?? Number.MAX_SAFE_INTEGER
@@ -207,7 +183,6 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     formatOptions,
     disabled: field.disabled,
     readOnly,
-    onRawValueChange: (value) => merged.onRawValueChange?.(value),
     onValueChange: (value) => merged.onValueChange?.(value),
     setFormValue: (value) => field.setFormValue(value),
     resetNativeInvalid,
@@ -228,7 +203,12 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         const boundedValue = clamp(value, min, max)
         if (
           !Object.is(
-            toNumber(formValue as string | number | undefined, 0, localeTag, formatOptions()),
+            toNumber(
+              formValue as string | number | undefined,
+              Number.NaN,
+              localeTag,
+              formatOptions(),
+            ),
             boundedValue,
           )
         ) {
