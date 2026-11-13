@@ -66,7 +66,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     },
   })
 
-  const slotName = () => local.slotName ?? 'avatar'
+  const slotName = () => local.slotName || 'avatar'
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
   const text = createMemo(() => local.text)

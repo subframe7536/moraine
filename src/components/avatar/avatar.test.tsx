@@ -107,6 +107,13 @@ describe('Avatar', () => {
     expect(screen.getByText('MR')).not.toBeNull()
   })
 
+  test('falls back to the default data-slot when slotName is empty', () => {
+    const view = render(() => <Avatar text="MR" slotName="" />)
+
+    expect(view.container.querySelector('[data-slot="avatar"]')).not.toBeNull()
+    expect(view.container.querySelector('[data-slot="avatar-fallback"]')).not.toBeNull()
+  })
+
   test('renders fallback first while image is loading', () => {
     outcomesBySrc.set('/loading.png', 'pending')
     const screen = render(() => <Avatar src="/loading.png" text="MR" />)
