@@ -87,7 +87,16 @@ export default defineConfig({
     client: {
       build: {
         rolldownOptions: {
+          // devtools: { mode: 'report' },
+          treeshake: {
+            // Route modules keep the page's MDX imports; without this every playground (and the
+            // components it demos) stays in the eagerly loaded route table.
+            moduleSideEffects: [{ test: /[\\/]docs[\\/]pages[\\/].*\.tsx$/, sideEffects: false }],
+          },
           output: {
+            // Do not group the other library modules: they read each other's recipe constants at
+            // load time, and manual chunks create import cycles that run a recipe before its
+            // dependency. Default splitting follows entry reachability, so it cannot cycle.
             codeSplitting: {
               groups: [
                 {
@@ -101,12 +110,6 @@ export default defineConfig({
                   test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
                   priority: 20,
                   includeDependenciesRecursively: true,
-                },
-                {
-                  name: 'moraine',
-                  test: /[\\/]src[\\/]/,
-                  maxSize: 250_000,
-                  includeDependenciesRecursively: false,
                 },
               ],
             },
