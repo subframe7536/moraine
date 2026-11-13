@@ -439,6 +439,29 @@ describe('Select', () => {
     expect(displayed()).toBe('Banana')
   })
 
+  test('treats value null as a controlled empty selection', () => {
+    const [value, setValue] = createSignal<string | null | undefined>('banana')
+    const onChange = vi.fn((next: string | null | undefined) => setValue(next))
+    const screen = render(() => (
+      <Select
+        items={ITEMS}
+        value={value()}
+        defaultValue="apple"
+        defaultOpen
+        onValueChange={onChange}
+      />
+    ))
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
+
+    expect(displayed()).toBe('Banana')
+    setValue(null)
+    expect(displayed()).toBe('')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(onChange).toHaveBeenLastCalledWith('apple')
+    expect(displayed()).toBe('Apple')
+  })
+
   test('hands back to the initial default when a defined value becomes undefined', () => {
     const [value, setValue] = createSignal<string | undefined>('apple')
     const screen = render(() => (
@@ -518,7 +541,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   expect(onChange).toHaveBeenLastCalledWith('Banana')
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
   fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
-  expect(onChange).toHaveBeenLastCalledWith(undefined)
+  expect(onChange).toHaveBeenLastCalledWith(null)
   form.reset()
   await Promise.resolve()
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])

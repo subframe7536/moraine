@@ -72,13 +72,18 @@ export namespace ComboboxT {
       BaseSelectResetProps,
       SearchProps<NormalizedItem<TItem>>,
       ContentProps<NormalizedItem<TItem>>,
-      FormValueOptions<NormalizedItem<TItem>['value']> {
+      Omit<FormValueOptions<NormalizedItem<TItem>['value']>, 'value'> {
     /** Localized message overrides for this combobox instance. */
     translations?: Translations
+    /**
+     * Controlled committed value. `undefined` keeps the selection uncontrolled; `null` keeps it
+     * controlled and empty.
+     */
+    value?: NormalizedItem<TItem>['value'] | null
     /** String shorthand or object items, optionally grouped. Item values must be unique. */
     items?: Entry<TItem>[]
-    /** Called when the committed selection changes. */
-    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | undefined) => void
+    /** Called when the committed selection changes; `null` when the selection is cleared. */
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | null) => void
     /** Content or render function for the filtered empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Placeholder shown when there is no selected value or query. */

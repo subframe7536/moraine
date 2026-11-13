@@ -1070,7 +1070,7 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
   items={[{ label: 'One', value: 1 }]}
   readOnly
   onValueChange={(value) => {
-    const selected: number | undefined = value
+    const selected: number | null = value
     void selected
   }}
 />

@@ -322,7 +322,7 @@ export function DocsPlaygroundControlField(props: {
                 items={[...selectControl.options]}
                 value={props.value as string | number}
                 onValueChange={(val) => {
-                  if (val !== undefined) {
+                  if (val != null) {
                     props.onChange(val)
                   }
                 }}

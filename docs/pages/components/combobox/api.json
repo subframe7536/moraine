@@ -236,8 +236,8 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: NoInfer<NormalizedItem<TItem>['value']> | undefined) => void",
-          "description": "Called when the committed selection changes."
+          "type": "(value: NoInfer<NormalizedItem<TItem>['value']> | null) => void",
+          "description": "Called when the committed selection changes; `null` when the selection is cleared."
         },
         {
           "name": "open",
@@ -354,8 +354,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "NormalizedItem<TItem>['value']",
-          "description": "The current value of the input (controlled)."
+          "type": "NormalizedItem<TItem>['value'] | null",
+          "description": "Controlled committed value. `undefined` keeps the selection uncontrolled; `null` keeps it\ncontrolled and empty."
         },
         {
           "name": "variant",

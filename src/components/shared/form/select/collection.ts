@@ -221,10 +221,13 @@ export function labelString<T extends BaseSelectT.Item>(
 
 /** Converts a public scalar selection into BaseSelect's internal selection array. */
 export function singleValueToSelection<T extends BaseSelectValue>(
-  value: T | undefined,
+  value: T | null | undefined,
 ): T[] | undefined {
   if (value === undefined) {
     return undefined
+  }
+  if (value === null) {
+    return []
   }
   return [value]
 }

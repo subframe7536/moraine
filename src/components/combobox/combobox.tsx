@@ -239,7 +239,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
-      onValueChange={(values) => local.onValueChange?.(values[0])}
+      onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
       onReset={() => {
         search.setValue('')
         local.onReset?.()

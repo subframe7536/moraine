@@ -60,13 +60,18 @@ export namespace SelectT {
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       Omit<ContentProps<NormalizedItem<TItem>>, 'virtualizer'>,
-      FormValueOptions<NormalizedItem<TItem>['value']> {
+      Omit<FormValueOptions<NormalizedItem<TItem>['value']>, 'value'> {
     /** Localized message overrides for this select instance. */
     translations?: Translations
+    /**
+     * Controlled selected value. `undefined` keeps the selection uncontrolled; `null` keeps it
+     * controlled and empty.
+     */
+    value?: NormalizedItem<TItem>['value'] | null
     /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
-    /** Called when the selection changes. */
-    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | undefined) => void
+    /** Called when the selection changes; `null` when the selection is cleared. */
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | null) => void
     /** Content or render function for the empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
