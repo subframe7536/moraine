@@ -1,5 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
+import { scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 
 import { List } from './list'
@@ -20,10 +21,7 @@ export function ListHydrationFixture(props: { items?: string[] }) {
 export function VirtualListHydrationFixture() {
   const virtualizer = createListVirtualizer<string>({
     estimateSize: () => 32,
-    observeElementRect: (_instance, callback) => {
-      callback({ width: 200, height: 96 })
-      return () => {}
-    },
+    ...scrollViewport(200, 96),
   })
   return (
     <List

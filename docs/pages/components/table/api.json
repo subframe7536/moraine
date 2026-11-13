@@ -34,12 +34,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "containerRef",
-          "optional": true,
-          "type": "Ref<HTMLDivElement>",
-          "description": "Ref forwarded to the scroll container element."
-        },
-        {
           "name": "hoverEffect",
           "optional": true,
           "type": "boolean",
@@ -90,6 +84,12 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "wrapperRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref forwarded to the wrapper element around the table."
         }
       ]
     },

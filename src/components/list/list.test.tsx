@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { measuredRows, scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 import type { VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
@@ -211,11 +212,8 @@ describe('List', () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
     const virtualRendering = createListVirtualizer<string>({
       estimateSize: () => 36,
-      measureElement: () => 36,
-      observeElementRect: (instance, callback) => {
-        expect(instance.scrollElement?.isConnected).toBe(true)
-        callback({ width: 320, height: 288 })
-      },
+      ...measuredRows(36),
+      ...scrollViewport(320, 288),
       overscan: 8,
     })
 
@@ -246,8 +244,7 @@ describe('List', () => {
         estimateSize: () => 20,
         horizontal: true,
         isRtl: true,
-        observeElementOffset: (_instance, callback) => callback(0, false),
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 24 }),
+        ...scrollViewport(100, 24),
         scrollMargin: 4,
       })
 
@@ -281,8 +278,8 @@ describe('List', () => {
       estimateSize: (item) => item.size,
       getItemKey: (item) => item.id,
       gap: 6,
-      observeElementRect: (_instance, callback) => callback({ width: 320, height: 120 }),
-      measureElement: (element) => Number(element.dataset.size),
+      ...scrollViewport(320, 120),
+      ...measuredRows((element) => Number(element.dataset.size)),
     })
     const screen = render(() => (
       <List

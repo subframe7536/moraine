@@ -23,20 +23,10 @@ import type {
   TableVirtualizer,
 } from './virtualizer.types'
 
-/**
- * Options of the horizontal column virtualizer. Scroll events are shared with the rows, so the row
- * options decide `useScrollendEvent` and `isScrollingResetDelay`.
- */
-export type TableVirtualizerColumnOptions<TColumn> = Omit<
-  VirtualizerAdapterOptions<TColumn, HTMLElement, HTMLTableCellElement>,
-  | 'horizontal'
-  | 'estimateSize'
-  | 'scrollMargin'
-  | 'scrollPaddingStart'
-  | 'scrollPaddingEnd'
-  | 'useScrollendEvent'
-  | 'isScrollingResetDelay'
-> & {
+/** Options of the horizontal column virtualizer. Scroll events are shared with the rows. */
+export type TableVirtualizerColumnOptions<TColumn> = {
+  /** Extra columns rendered before and after the visible range. */
+  overscan?: number
   /**
    * Width in px of a column. Defaults to the host's `columnSize` (DataTable passes each column's
    * TanStack size), then 150. Columns are never measured, so widths must be exact.
@@ -44,10 +34,7 @@ export type TableVirtualizerColumnOptions<TColumn> = Omit<
   estimateSize?: (column: TColumn, index: number) => number
 }
 
-export type TableVirtualizerOptions<TItem, TColumn = unknown> = Omit<
-  VirtualizerAdapterOptions<TItem, HTMLElement, HTMLTableRowElement>,
-  'horizontal'
-> & {
+export type TableVirtualizerOptions<TItem, TColumn = unknown> = VirtualizerAdapterOptions<TItem> & {
   /**
    * Virtualizes columns as well as rows. Only body cells of the `columns` passed to the render
    * component are virtualized; render header and footer cells, and cells outside `columns`

@@ -7,6 +7,8 @@ import { VirtualRows } from './virtual-rows'
 import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from './virtualizer.types'
 
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
+  /** Lays rows out side by side and scrolls horizontally. */
+  horizontal?: boolean
   /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */
   isRtl?: boolean
 }

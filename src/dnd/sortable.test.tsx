@@ -101,6 +101,8 @@ afterEach(() => {
 describe('createListSortable', () => {
   function renderList(options: {
     items: () => readonly string[]
+    /** Rows to render when they differ from the sortable's `items`. */
+    renderedItems?: () => readonly string[]
     onReorder: (event: ListReorderEvent<string>) => void
     canDrop?: (source: string, target: string, position: 'before' | 'after') => boolean
     isDisabled?: (item: string, index: number) => boolean
@@ -124,7 +126,7 @@ describe('createListSortable', () => {
     const screen = render(() => (
       <sortable.Provider>
         <ul>
-          <For each={options.items()}>
+          <For each={(options.renderedItems ?? options.items)()}>
             {(label, index) => <Row index={index()} label={label} />}
           </For>
         </ul>
@@ -199,6 +201,54 @@ describe('createListSortable', () => {
     expect(rows[2]!.getAttribute('data-drop-position')).toBeNull()
 
     fireEvent.pointerUp(document, { ...POINTER, clientX: 10, clientY: 230 })
+    await wait(50)
+    expect(onReorder).not.toHaveBeenCalled()
+  })
+
+  test('rejects a drop onto a row that the items no longer contain', async () => {
+    const [rendered] = createSignal(['a', 'b', 'c'])
+    const [items, setItems] = createSignal(['a', 'b', 'c'])
+    const onReorder = vi.fn()
+    const { rows, handles } = renderList({
+      items,
+      renderedItems: rendered,
+      onReorder,
+    })
+    setItems(['a'])
+
+    fireEvent.pointerDown(handles[0]!, { ...POINTER_DOWN, clientX: 10, clientY: 50 })
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 60 })
+    await waitFor(() => expect(rows[0]!.getAttribute('data-dragging')).not.toBeNull())
+
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 230 })
+    await wait(50)
+    expect(rows[2]!.getAttribute('data-drop-position')).toBeNull()
+
+    fireEvent.pointerUp(document, { ...POINTER, clientX: 10, clientY: 230 })
+    await wait(50)
+    expect(onReorder).not.toHaveBeenCalled()
+  })
+
+  test('rejects a drop of a row that the items no longer contain', async () => {
+    const [rendered] = createSignal(['a', 'b', 'c'])
+    const [items, setItems] = createSignal(['a', 'b', 'c'])
+    const onReorder = vi.fn()
+    const { rows, handles } = renderList({
+      items,
+      renderedItems: rendered,
+      onReorder,
+    })
+    setItems(['a'])
+
+    fireEvent.pointerDown(handles[2]!, { ...POINTER_DOWN, clientX: 10, clientY: 250 })
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 260 })
+    await waitFor(() => expect(rows[2]!.getAttribute('data-dragging')).not.toBeNull())
+
+    fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 30 })
+    await wait(50)
+    expect(rows[0]!.getAttribute('data-drop-position')).toBeNull()
+
+    fireEvent.pointerUp(document, { ...POINTER, clientX: 10, clientY: 30 })
     await wait(50)
     expect(onReorder).not.toHaveBeenCalled()
   })

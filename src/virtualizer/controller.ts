@@ -4,7 +4,7 @@ import {
   observeElementOffset,
   observeElementRect,
 } from '@tanstack/virtual-core'
-import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
+import type { Range as VirtualRange, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
 import {
   batch,
@@ -36,21 +36,24 @@ export function scrollElementWithRtl<
   elementScroll(offset, { adjustments, behavior }, instance)
 }
 
-export type VirtualizerAdapterOptions<
-  TItem,
-  TScrollElement extends HTMLElement = HTMLElement,
-  TItemElement extends HTMLElement = HTMLElement,
-> = Omit<
-  PartialKeys<
-    VirtualizerOptions<TScrollElement, TItemElement>,
-    'observeElementRect' | 'observeElementOffset' | 'scrollToFn'
-  >,
-  'count' | 'estimateSize' | 'getItemKey' | 'getScrollElement' | 'indexAttribute' | 'isRtl'
-> & {
-  /** Estimated row size before its element has been measured. */
+/** Options shared by the list and table virtualizers. Each maps to the TanStack option of its name. */
+export interface VirtualizerAdapterOptions<TItem> {
+  /** Estimated row size in px before its element has been measured. */
   estimateSize: (item: TItem, index: number) => number
   /** Stable row key. The item index is used by default. */
   getItemKey?: (item: TItem, index: number) => string | number | bigint
+  /** Space in px between adjacent rows. */
+  gap?: number
+  /** Extra rows rendered before and after the visible range. */
+  overscan?: number
+  /** Chooses the rendered indexes, such as a dragged row that stays mounted. */
+  rangeExtractor?: (range: VirtualRange) => number[]
+  /** Space in px before the first row, such as a header inside the scroll element. */
+  scrollMargin?: number
+  /** Space in px covered at the start edge while scrolling, such as a sticky header. */
+  scrollPaddingStart?: number
+  /** Space in px covered at the end edge while scrolling, such as a sticky footer. */
+  scrollPaddingEnd?: number
 }
 
 export interface VirtualizerState<
@@ -80,7 +83,7 @@ export function createVirtualizerController<
   TScrollElement extends HTMLElement = HTMLElement,
   TItemElement extends HTMLElement = HTMLElement,
 >(
-  options: VirtualizerAdapterOptions<TItem, TScrollElement, TItemElement>,
+  options: VirtualizerAdapterOptions<TItem> & { readonly isRtl?: boolean },
 ): {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>
@@ -162,15 +165,14 @@ export function createVirtualizerController<
             return options.scrollPaddingEnd ?? adapterProps.layout?.().scrollPaddingEnd
           },
           get isRtl() {
-            return (options as { isRtl?: boolean }).isRtl ?? adapterProps.layout?.().isRtl ?? false
+            return options.isRtl ?? adapterProps.layout?.().isRtl ?? false
           },
           getScrollElement: () => (mounted() ? (adapterProps.scrollElement() ?? null) : null),
           estimateSize: (index: number) => currentEstimates[index]!,
           getItemKey: (index: number) => currentKeys[index] ?? index,
           indexAttribute: 'data-index',
-          onChange: (source: Virtualizer<TScrollElement, TItemElement>, synchronous: boolean) => {
+          onChange: (source: Virtualizer<TScrollElement, TItemElement>) => {
             sync(source)
-            options.onChange?.(source, synchronous)
           },
         },
       ) satisfies VirtualizerOptions<TScrollElement, TItemElement>

@@ -108,16 +108,16 @@ export function InvoiceTable() {
 
 Each part renders one fixed element and forwards native attributes to it.
 
-| Part            | Element   | Own props                |
-| --------------- | --------- | ------------------------ |
-| `Table`         | `table`   | Variants, `containerRef` |
-| `Table.Caption` | `caption` | None                     |
-| `Table.Header`  | `thead`   | None                     |
-| `Table.Body`    | `tbody`   | None                     |
-| `Table.Footer`  | `tfoot`   | None                     |
-| `Table.Row`     | `tr`      | `selected`               |
-| `Table.Head`    | `th`      | `align`                  |
-| `Table.Cell`    | `td`      | `align`                  |
+| Part            | Element   | Own props              |
+| --------------- | --------- | ---------------------- |
+| `Table`         | `table`   | Variants, `wrapperRef` |
+| `Table.Caption` | `caption` | None                   |
+| `Table.Header`  | `thead`   | None                   |
+| `Table.Body`    | `tbody`   | None                   |
+| `Table.Footer`  | `tfoot`   | None                   |
+| `Table.Row`     | `tr`      | `selected`             |
+| `Table.Head`    | `th`      | `align`                |
+| `Table.Cell`    | `td`      | `align`                |
 
 Use native attributes for table semantics: `colSpan` and `rowSpan` on cells, and `scope="row"` on a
 `Table.Head` that labels a body row. Name the table with `Table.Caption`, or with `aria-label` when
@@ -131,7 +131,7 @@ a visible caption does not fit.
 </Table.Row>
 ```
 
-`ref` targets the `table`; `containerRef` targets the scroll container.
+`ref` targets the `table`; `wrapperRef` targets the element that wraps it.
 
 ### Density and borders
 

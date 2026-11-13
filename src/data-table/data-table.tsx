@@ -26,7 +26,7 @@ import type {
   TableVirtualRowProps,
 } from '../virtualizer/virtualizer.types'
 
-import { getDataTableConfig } from './create-data-table'
+import { DEFAULT_DATA_TABLE_PAGE_SIZES } from './create-data-table'
 import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'
 import { DataTableProvider } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
@@ -65,7 +65,7 @@ export function DataTable<TData extends RowData = RowData>(
   const [local, rest] = splitProps(props, [
     'table',
     'translations',
-    'containerRef',
+    'wrapperRef',
     'ref',
     'rowClass',
     'rowProps',
@@ -99,6 +99,8 @@ export function DataTable<TData extends RowData = RowData>(
 
   const table = () => local.table
   const virtual = () => Boolean(local.virtualizer)
+  const pagination = () => table().paginationSettings
+  const paginated = () => !virtual() && pagination()?.paginated === true
   // The virtualizer has a column window only when created with the `columns` option. It is read
   // after mount: the server renders every column, so hydration must start from the same markup.
   const [mounted, setMounted] = createSignal(false)
@@ -157,7 +159,7 @@ export function DataTable<TData extends RowData = RowData>(
             return []
           }
           const conflicts: VirtualConflict[] = []
-          if (getDataTableConfig(table()).paginated) {
+          if (pagination()?.paginated) {
             conflicts.push('pagination')
           }
           if (local.expandedRowRender) {
@@ -229,7 +231,7 @@ export function DataTable<TData extends RowData = RowData>(
         slotOverrides: pickSlotOverrides(local),
         messages,
         virtual,
-        paginated: () => !virtual() && getDataTableConfig(table()).paginated,
+        paginated,
         columnWindow,
         columnVirtual,
         columnIndex: (columnId) => columnIndexes().get(columnId),
@@ -249,7 +251,7 @@ export function DataTable<TData extends RowData = RowData>(
       }}
     >
       <div
-        ref={(el) => callRef(local.containerRef, el)}
+        ref={(el) => callRef(local.wrapperRef, el)}
         data-slot="data-table-container"
         {...containerSlot}
       >
@@ -359,7 +361,8 @@ export function DataTable<TData extends RowData = RowData>(
 
         <DataTablePagination
           table={table()}
-          when={!virtual() && getDataTableConfig(table()).paginated}
+          when={paginated()}
+          pageSizes={pagination()?.pageSizes ?? DEFAULT_DATA_TABLE_PAGE_SIZES}
           size={local.size}
         />
       </div>

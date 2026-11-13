@@ -33,12 +33,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "containerRef",
-          "optional": true,
-          "type": "Ref<HTMLDivElement>",
-          "description": "Ref forwarded to the outer container element."
-        },
-        {
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps>",
@@ -167,6 +161,12 @@
           "optional": true,
           "type": "Virtualizer<TData>",
           "description": "Renders only the visible rows, and the visible center columns when the virtualizer has the\n`columns` option. Disables pagination and `expandedRowRender`."
+        },
+        {
+          "name": "wrapperRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref forwarded to the wrapper element around the table."
         }
       ]
     }

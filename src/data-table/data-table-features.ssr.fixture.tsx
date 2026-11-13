@@ -1,6 +1,7 @@
 import type { SortingState } from '@tanstack/table-core'
 import { renderToString } from 'solid-js/web'
 
+import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 import { createTableVirtualizer } from '../virtualizer'
 
 import { createDataTable } from './create-data-table'
@@ -90,17 +91,11 @@ export function VirtualColumnsDataTableFixture() {
   const virtualizer = createTableVirtualizer<DataTableT.Row<WideRow>>({
     estimateSize: () => 30,
     // jsdom has no layout, so hydration tests use fixed row heights.
-    measureElement: () => 30,
-    observeElementRect: (_instance, callback) => {
-      callback({ width: 360, height: 90 })
-      return () => {}
-    },
+    ...measuredRows(30),
+    ...scrollViewport(360, 90),
     overscan: 0,
     columns: {
-      observeElementRect: (_instance, callback) => {
-        callback({ width: 360, height: 90 })
-        return () => {}
-      },
+      ...scrollViewport(360, 90),
       overscan: 0,
     },
   })
@@ -126,11 +121,8 @@ export function VirtualRowsDataTableFixture() {
   const virtualizer = createTableVirtualizer<DataTableT.Row<WideRow>>({
     estimateSize: () => 30,
     // jsdom has no layout, so hydration tests use fixed row heights.
-    measureElement: () => 30,
-    observeElementRect: (_instance, callback) => {
-      callback({ width: 360, height: 90 })
-      return () => {}
-    },
+    ...measuredRows(30),
+    ...scrollViewport(360, 90),
     overscan: 0,
   })
   const table = createDataTable({ data: WIDE_ROWS, columns: WIDE_COLUMNS })

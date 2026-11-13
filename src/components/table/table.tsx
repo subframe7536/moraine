@@ -21,7 +21,7 @@ export function Table(props: TableT.Props): JSX.Element {
     'striped',
     'hoverEffect',
     'showBorder',
-    'containerRef',
+    'wrapperRef',
     'classes',
     'styles',
     'class',
@@ -36,7 +36,7 @@ export function Table(props: TableT.Props): JSX.Element {
 
   return (
     <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(local) }}>
-      <div ref={local.containerRef} data-slot="table-container" {...containerSlot}>
+      <div ref={local.wrapperRef} data-slot="table-container" {...containerSlot}>
         <table data-slot="table" {...rootSlot} {...rest} ref={local.ref}>
           {local.children}
         </table>

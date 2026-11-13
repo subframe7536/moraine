@@ -1,11 +1,11 @@
-import { render } from '@solidjs/testing-library'
-import { observeElementOffset } from '@tanstack/virtual-core'
+import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Table } from '../components/table/table'
+import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 
 import { createTableVirtualizer } from './table-virtualizer'
 
@@ -39,9 +39,8 @@ describe('createTableVirtualizer', () => {
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
       overscan: 0,
     })
     const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
@@ -67,8 +66,7 @@ describe('createTableVirtualizer', () => {
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 40),
     })
 
     const screen = renderInTbody(virtualizer, [], { scrollElement })
@@ -92,9 +90,8 @@ describe('createTableVirtualizer', () => {
     const [entries, setEntries] = createSignal(['Alpha', 'Beta'])
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
     })
 
     const screen = render(() => (
@@ -123,8 +120,7 @@ describe('createTableVirtualizer', () => {
   test('defaults the scroll element to the host tbody', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 40),
     })
 
     const screen = renderInTbody(virtualizer, ['one'])
@@ -135,21 +131,12 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('releases observers and the instance on unmount', async () => {
+  test('clears the instance on unmount', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    const cleanupRect = vi.fn()
-    const cleanupOffset = vi.fn()
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => {
-        callback({ width: 100, height: 40 })
-        return cleanupRect
-      },
-      observeElementOffset: (_instance, callback) => {
-        callback(0, false)
-        return cleanupOffset
-      },
+      ...scrollViewport(100, 40),
     })
 
     const screen = renderInTbody(virtualizer, ['one'], { scrollElement })
@@ -159,8 +146,6 @@ describe('createTableVirtualizer', () => {
 
     screen.unmount()
 
-    expect(cleanupRect).toHaveBeenCalledOnce()
-    expect(cleanupOffset).toHaveBeenCalledOnce()
     expect(virtualizer.instance()).toBeUndefined()
     scrollElement.remove()
   })
@@ -171,8 +156,7 @@ describe('createTableVirtualizer', () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
       scrollMargin: 7,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 40),
     })
 
     const screen = renderInTbody(virtualizer, ['one'], { scrollElement })
@@ -185,17 +169,16 @@ describe('createTableVirtualizer', () => {
 
   test('scrolls to an index while mounted and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
+    const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
+      scrollTo: { configurable: true, value: scrollTo },
     })
     document.body.append(scrollElement)
-    const scrollToFn = vi.fn()
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
-      scrollToFn,
+      ...scrollViewport(100, 40),
     })
 
     const screen = renderInTbody(
@@ -204,19 +187,15 @@ describe('createTableVirtualizer', () => {
       { scrollElement },
     )
     await Promise.resolve()
-    scrollToFn.mockClear()
+    scrollTo.mockClear()
 
     virtualizer.scrollToIndex(3, { align: 'start' })
-    expect(scrollToFn).toHaveBeenCalledWith(
-      60,
-      expect.objectContaining({ behavior: 'auto' }),
-      virtualizer.instance(),
-    )
+    expect(scrollTo).toHaveBeenCalledWith({ behavior: 'auto', top: 60 })
 
     screen.unmount()
-    scrollToFn.mockClear()
+    scrollTo.mockClear()
     virtualizer.scrollToIndex(4)
-    expect(scrollToFn).not.toHaveBeenCalled()
+    expect(scrollTo).not.toHaveBeenCalled()
     scrollElement.remove()
   })
 
@@ -225,9 +204,8 @@ describe('createTableVirtualizer', () => {
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
       overscan: 0,
     })
 
@@ -265,8 +243,7 @@ describe('createTableVirtualizer', () => {
     document.body.append(scrollElement)
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 40),
     })
 
     const screen = render(() => (
@@ -294,9 +271,8 @@ describe('createTableVirtualizer', () => {
   test('measures spacer rows from the first row when scrollMargin is set', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 10,
-      measureElement: () => 10,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 70 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(10),
+      ...scrollViewport(100, 70),
       overscan: 0,
       scrollMargin: 40,
     })
@@ -317,9 +293,8 @@ describe('createTableVirtualizer', () => {
   test('skips rows past the end when entries shrink', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 10,
-      measureElement: () => 10,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(10),
+      ...scrollViewport(100, 100),
       overscan: 2,
     })
     const [entries, setEntries] = createSignal(
@@ -355,9 +330,8 @@ describe('createTableVirtualizer', () => {
   test('updates its own aria-rowcount when entries change', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
     })
     const [entries, setEntries] = createSignal(['a', 'b', 'c'])
 
@@ -390,9 +364,8 @@ describe('createTableVirtualizer', () => {
   test('updates row metadata when header and footer rows change without new entries', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
       overscan: 0,
     })
     const [grouped, setGrouped] = createSignal(false)
@@ -457,8 +430,7 @@ describe('createTableVirtualizer', () => {
   test('keeps a footer row index provided by the caller', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 40),
     })
 
     const screen = render(() => (
@@ -488,9 +460,8 @@ describe('createTableVirtualizer', () => {
   test('yields aria-rowcount to a caller value set after mount', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
     })
     const [entries, setEntries] = createSignal(['a', 'b'])
     const [rowCount, setRowCount] = createSignal<string>()
@@ -538,9 +509,8 @@ describe('createTableVirtualizer', () => {
       })
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 200),
     })
     let scrollElement: HTMLDivElement | undefined
 
@@ -590,8 +560,7 @@ describe('createTableVirtualizer', () => {
       })
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 200),
     })
     let scrollElement: HTMLDivElement | undefined
 
@@ -637,8 +606,7 @@ describe('createTableVirtualizer', () => {
       estimateSize: () => 20,
       scrollMargin: 5,
       scrollPaddingStart: 6,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...scrollViewport(100, 200),
     })
     let scrollElement: HTMLDivElement | undefined
 
@@ -677,9 +645,8 @@ describe('createTableVirtualizer', () => {
   test('composes with Table: the tbody becomes the scroll element and rows render inside the body', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
       overscan: 0,
     })
     const VirtualRender = virtualizer.virtualRender
@@ -728,15 +695,10 @@ describe('createTableVirtualizer', () => {
   })
 
   test('marks the last entry, which the trailing spacer row hides from :last-child', async () => {
-    let emitOffset: ((offset: number, isScrolling: boolean) => void) | undefined
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
-      measureElement: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => {
-        emitOffset = callback
-        callback(0, false)
-      },
+      ...measuredRows(20),
+      ...scrollViewport(100, 40),
       overscan: 0,
     })
     const entries = Array.from({ length: 10 }, (_, index) => `Item ${index}`)
@@ -768,7 +730,9 @@ describe('createTableVirtualizer', () => {
       ),
     ).toBe(false)
 
-    emitOffset?.(160, false)
+    const body = screen.container.querySelector('tbody')!
+    Object.defineProperty(body, 'scrollTop', { configurable: true, value: 160 })
+    fireEvent.scroll(body)
     expect(markers()).toEqual(['8', '9 last'])
     screen.unmount()
   })
@@ -781,24 +745,18 @@ describe('createTableVirtualizer', () => {
         Parameters<typeof createTableVirtualizer<string, string>>[0]['columns']
       > = {},
     ) {
-      let emitColumnOffset: ((offset: number, isScrolling: boolean) => void) | undefined
       const virtualizer = createTableVirtualizer<string, string>({
         estimateSize: () => 20,
-        measureElement: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...measuredRows(20),
+        ...scrollViewport(300, 40),
         overscan: 0,
         columns: {
-          observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
-          observeElementOffset: (_instance, callback) => {
-            emitColumnOffset = callback
-            callback(0, false)
-          },
+          ...scrollViewport(300, 40),
           overscan: 0,
           ...columnOptions,
         },
       })
-      return { virtualizer, scrollColumns: (offset: number) => emitColumnOffset?.(offset, false) }
+      return { virtualizer }
     }
 
     function renderColumns(
@@ -811,11 +769,17 @@ describe('createTableVirtualizer', () => {
       } = {},
     ) {
       const scrollElement = document.createElement('div')
+      const scrollTo = vi.fn()
       Object.defineProperties(scrollElement, {
         clientWidth: { configurable: true, value: 300 },
         scrollWidth: { configurable: true, value: 2000 },
+        scrollTo: { configurable: true, value: scrollTo },
       })
       document.body.append(scrollElement)
+      const scrollColumns = (offset: number) => {
+        Object.defineProperty(scrollElement, 'scrollLeft', { configurable: true, value: offset })
+        fireEvent.scroll(scrollElement)
+      }
       const screen = render(() => (
         <table {...props.tableProps}>
           <tbody>
@@ -837,6 +801,8 @@ describe('createTableVirtualizer', () => {
       ))
       return {
         screen,
+        scrollTo,
+        scrollColumns,
         cleanup: () => {
           screen.unmount()
           scrollElement.remove()
@@ -848,8 +814,8 @@ describe('createTableVirtualizer', () => {
       virtualizer.columnWindow()?.items.map((item) => item.index)
 
     test('lists the visible columns and the skipped counts on each side', async () => {
-      const { virtualizer, scrollColumns } = createColumnVirtualizer()
-      const { cleanup } = renderColumns(virtualizer)
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
 
       expect(indexes(virtualizer)).toEqual([0, 1, 2])
@@ -864,8 +830,8 @@ describe('createTableVirtualizer', () => {
     })
 
     test('widens the window by overscan', async () => {
-      const { virtualizer, scrollColumns } = createColumnVirtualizer({ overscan: 2 })
-      const { cleanup } = renderColumns(virtualizer)
+      const { virtualizer } = createColumnVirtualizer({ overscan: 2 })
+      const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
 
       scrollColumns(500)
@@ -921,8 +887,8 @@ describe('createTableVirtualizer', () => {
     })
 
     test('exposes the window while mounted and clears it on unmount', async () => {
-      const { virtualizer, scrollColumns } = createColumnVirtualizer()
-      const { cleanup } = renderColumns(virtualizer)
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup, scrollColumns } = renderColumns(virtualizer)
       await Promise.resolve()
 
       expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 0, skippedAfter: 17 })
@@ -935,18 +901,13 @@ describe('createTableVirtualizer', () => {
     })
 
     test('scrolls to a column', async () => {
-      const scrollToFn = vi.fn()
-      const { virtualizer } = createColumnVirtualizer({ scrollToFn })
-      const { cleanup } = renderColumns(virtualizer)
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup, scrollTo } = renderColumns(virtualizer)
       await Promise.resolve()
-      scrollToFn.mockClear()
+      scrollTo.mockClear()
 
       virtualizer.scrollToColumn(4, { align: 'start' })
-      expect(scrollToFn).toHaveBeenCalledWith(
-        400,
-        expect.objectContaining({ behavior: 'auto' }),
-        virtualizer.columnInstance(),
-      )
+      expect(scrollTo).toHaveBeenCalledWith({ behavior: 'auto', left: 400 })
       cleanup()
     })
 
@@ -977,8 +938,7 @@ describe('createTableVirtualizer', () => {
     test('stays inactive without the columns option', async () => {
       const virtualizer = createTableVirtualizer<string, string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(300, 40),
       })
       const { screen, cleanup } = renderColumns(virtualizer)
       await Promise.resolve()
@@ -989,47 +949,41 @@ describe('createTableVirtualizer', () => {
       cleanup()
     })
 
-    test('renders the rows at the mounted scroll position, like the stock observer', async () => {
-      const mount = async (offsetObserver?: typeof observeElementOffset) => {
-        const scrollElement = document.createElement('div')
-        let scrollTop = 900
-        Object.defineProperty(scrollElement, 'scrollTop', {
-          configurable: true,
-          get: () => scrollTop,
-          set: (value: number) => {
-            scrollTop = value
-          },
-        })
-        scrollElement.scrollTo = ((options: ScrollToOptions) => {
-          if (options.top !== undefined) {
-            scrollTop = options.top
-          }
-        }) as typeof scrollElement.scrollTo
-        document.body.append(scrollElement)
-        const virtualizer = createTableVirtualizer<string>({
-          estimateSize: () => 30,
-          measureElement: () => 30,
-          observeElementRect: (_instance, callback) => callback({ width: 100, height: 90 }),
-          ...(offsetObserver ? { observeElementOffset: offsetObserver } : {}),
-          overscan: 0,
-        })
-        const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
-        const screen = renderInTbody(virtualizer, entries, { scrollElement })
-        await Promise.resolve()
-        const rows = [...screen.container.querySelectorAll('tr[data-index]')].map((row) =>
-          row.getAttribute('data-index'),
-        )
-        screen.unmount()
-        scrollElement.remove()
-        return { scrollTop, rows }
-      }
+    test('renders the rows at the mounted scroll position', async () => {
+      const scrollElement = document.createElement('div')
+      let scrollTop = 900
+      Object.defineProperty(scrollElement, 'scrollTop', {
+        configurable: true,
+        get: () => scrollTop,
+        set: (value: number) => {
+          scrollTop = value
+        },
+      })
+      scrollElement.scrollTo = ((options: ScrollToOptions) => {
+        if (options.top !== undefined) {
+          scrollTop = options.top
+        }
+      }) as typeof scrollElement.scrollTo
+      document.body.append(scrollElement)
+      const virtualizer = createTableVirtualizer<string>({
+        estimateSize: () => 30,
+        ...measuredRows(30),
+        ...scrollViewport(100, 90),
+        overscan: 0,
+      })
+      const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
+      const screen = renderInTbody(virtualizer, entries, { scrollElement })
+      await Promise.resolve()
 
       // TanStack applies `initialOffset` on mount, so the rows always match the container.
-      const shared = await mount()
-      expect(shared).toEqual(await mount(observeElementOffset))
-      expect(shared.rows).toEqual(
-        Array.from({ length: 3 }, (_, index) => String(Math.floor(shared.scrollTop / 30) + index)),
+      const rows = [...screen.container.querySelectorAll('tr[data-index]')].map((row) =>
+        row.getAttribute('data-index'),
       )
+      expect(rows).toEqual(
+        Array.from({ length: 3 }, (_, index) => String(Math.floor(scrollTop / 30) + index)),
+      )
+      screen.unmount()
+      scrollElement.remove()
     })
 
     test('moves rows and visible columns together on one scroll event', async () => {
@@ -1043,11 +997,11 @@ describe('createTableVirtualizer', () => {
       document.body.append(scrollElement)
       const virtualizer = createTableVirtualizer<string, string>({
         estimateSize: () => 20,
-        measureElement: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+        ...measuredRows(20),
+        ...scrollViewport(300, 40),
         overscan: 0,
         columns: {
-          observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+          ...scrollViewport(300, 40),
           overscan: 0,
         },
       })

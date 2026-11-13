@@ -13,8 +13,8 @@ export namespace TableT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Base {
-    /** Ref forwarded to the scroll container element. */
-    containerRef?: Ref<HTMLDivElement>
+    /** Ref forwarded to the wrapper element around the table. */
+    wrapperRef?: Ref<HTMLDivElement>
     /** Table parts and direct content. */
     children?: JSX.Element
   }

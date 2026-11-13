@@ -76,7 +76,19 @@ export namespace DataTableT {
 
   export type Header<TData extends RowData = RowData> = TanStackHeader<Features, TData>
 
-  export type Instance<TData extends RowData = RowData> = Table<Features, TData>
+  /** Pagination settings `createDataTable` records on its instance for `DataTable`. */
+  export interface PaginationSettings {
+    readonly paginated: boolean
+    readonly pageSizes: readonly number[] | false
+  }
+
+  /**
+   * Table created with `createDataTable`. A table from `createTable` has no `paginationSettings`,
+   * so `DataTable` renders it without the pagination toolbar.
+   */
+  export type Instance<TData extends RowData = RowData> = Table<Features, TData> & {
+    readonly paginationSettings?: PaginationSettings
+  }
 
   export interface ColumnMeta {
     align?: 'left' | 'center' | 'right'
@@ -237,8 +249,8 @@ export namespace DataTableT {
     table: Instance<TData>
     /** Localized message overrides for this data table instance. */
     translations?: Translations
-    /** Ref forwarded to the outer container element. */
-    containerRef?: Ref<HTMLDivElement>
+    /** Ref forwarded to the wrapper element around the table. */
+    wrapperRef?: Ref<HTMLDivElement>
     /** Custom class or class getter applied to each row (`<tr>`). */
     rowClass?: SlotClassValue | ((row: Row<TData>) => SlotClassValue)
     /**

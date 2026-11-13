@@ -41,10 +41,10 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.tagName).toBe('TD')
   })
 
-  test('forwards containerRef to the outer wrapper element', () => {
+  test('forwards wrapperRef to the wrapper element around the table', () => {
     let refEl: HTMLDivElement | undefined
     render(() => (
-      <Table containerRef={(el) => (refEl = el)}>
+      <Table wrapperRef={(el) => (refEl = el)}>
         <Table.Body>
           <Table.Row>
             <Table.Cell>Cell</Table.Cell>

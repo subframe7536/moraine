@@ -3,12 +3,15 @@ import { createRoot, createSignal, mergeProps } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { MoraineProvider } from '../provider'
+import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 import { defineTheme } from '../theme'
 import { createTableVirtualizer } from '../virtualizer'
 
 import { createDataTable } from './create-data-table'
 import { DataTable } from './data-table'
+import { getDataTableFeatures } from './data-table-features'
 import type { DataTableT } from './data-table.types'
+import { createTable } from './solid-table'
 
 interface Person {
   id: string
@@ -199,6 +202,34 @@ describe('DataTable', () => {
 
     expect(screen.getByRole('navigation')).toBeDefined()
     expect(screen.getByRole('button', { name: /10 \/ page/i })).toBeDefined()
+  })
+
+  it('forwards wrapperRef to the wrapper element around the table', () => {
+    let wrapper: HTMLDivElement | undefined
+    render(() => {
+      const table = createPersonTable()
+      return <DataTable table={table} wrapperRef={(el) => (wrapper = el)} />
+    })
+
+    expect(wrapper?.getAttribute('data-slot')).toBe('data-table-container')
+    expect(wrapper?.querySelector('table')).not.toBeNull()
+  })
+
+  it('renders a createTable instance without the pagination toolbar or a warning', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { container } = render(() => {
+      const table = createTable({
+        features: getDataTableFeatures(),
+        columns: TEST_COLUMNS,
+        data: TEST_DATA,
+      })
+      return <DataTable table={table} />
+    })
+
+    expect(screen.getByText('Alice')).toBeDefined()
+    expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
+    expect(warnSpy).not.toHaveBeenCalled()
+    warnSpy.mockRestore()
   })
 
   it('hides page size dropdown when pagination.pageSizes is false', () => {
@@ -442,9 +473,8 @@ describe('DataTable', () => {
   it('renders only the visible rows of a virtualized table', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
-      measureElement: () => 30,
-      observeElementRect: (_instance, callback) => callback({ width: 300, height: 60 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(30),
+      ...scrollViewport(300, 60),
       overscan: 0,
     })
 
@@ -474,7 +504,7 @@ describe('DataTable', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
-      measureElement: () => 30,
+      ...measuredRows(30),
     })
 
     const { container } = render(() => {
@@ -491,9 +521,8 @@ describe('DataTable', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
-      measureElement: () => 30,
-      observeElementRect: (_instance, callback) => callback({ width: 300, height: 3000 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(30),
+      ...scrollViewport(300, 3000),
       overscan: 0,
     })
 
@@ -521,9 +550,8 @@ describe('DataTable', () => {
   it('keeps the visible rows in sync when filtering shrinks a virtualized table', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 10,
-      measureElement: () => 10,
-      observeElementRect: (_instance, callback) => callback({ width: 300, height: 100 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(10),
+      ...scrollViewport(300, 100),
       overscan: 2,
     })
     let table!: DataTableT.Instance<Person>
@@ -1440,9 +1468,8 @@ describe('DataTable', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
-      measureElement: () => 30,
-      observeElementRect: (_instance, callback) => callback({ width: 300, height: 300 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(30),
+      ...scrollViewport(300, 300),
     })
     let table!: DataTableT.Instance<Person>
 
@@ -1472,9 +1499,8 @@ describe('DataTable', () => {
   it('indexes header and footer rows around virtualized rows', async () => {
     const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
       estimateSize: () => 30,
-      measureElement: () => 30,
-      observeElementRect: (_instance, callback) => callback({ width: 300, height: 60 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
+      ...measuredRows(30),
+      ...scrollViewport(300, 60),
       overscan: 0,
     })
 
@@ -1662,27 +1688,24 @@ describe('DataTable', () => {
     )
 
     function createWideVirtualizer() {
-      let emitColumnOffset: ((offset: number, isScrolling: boolean) => void) | undefined
       const virtualizer = createTableVirtualizer<DataTableT.Row<Wide>>({
         estimateSize: () => 30,
-        measureElement: () => 30,
-        observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...measuredRows(30),
+        ...scrollViewport(440, 60),
         overscan: 0,
         columns: {
           // 440px viewport minus 60px start and 80px end pins leaves room for three columns.
-          observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
-          observeElementOffset: (_instance, callback) => {
-            emitColumnOffset = callback
-            callback(0, false)
-          },
+          ...scrollViewport(440, 60),
           overscan: 0,
         },
       })
-      return {
-        virtualizer,
-        scrollColumns: (offset: number) => emitColumnOffset?.(offset, false),
-      }
+      return { virtualizer }
+    }
+
+    function scrollColumns(container: HTMLElement, offset: number) {
+      const viewport = container.querySelector<HTMLElement>('[data-slot="data-table-scroll"]')!
+      Object.defineProperty(viewport, 'scrollLeft', { configurable: true, value: offset })
+      fireEvent.scroll(viewport)
     }
 
     function createWideTable(options: Partial<DataTableT.Options<Wide>> = {}) {
@@ -1712,7 +1735,7 @@ describe('DataTable', () => {
     }
 
     it('renders only the window of center cells between the pinned cells', async () => {
-      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
         return <DataTable table={table} virtualizer={virtualizer} />
@@ -1731,7 +1754,7 @@ describe('DataTable', () => {
       ])
 
       // The 60px start pin offsets the columns: columns 9 to 13 overlap the scrolled viewport.
-      scrollColumns(1000)
+      scrollColumns(container, 1000)
       expect(cellTexts(firstBodyRow(container))).toEqual([
         'r0',
         '<9>',
@@ -1746,7 +1769,7 @@ describe('DataTable', () => {
     })
 
     it('keeps the header complete and every body row spanning all columns', async () => {
-      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable({
           columns: [
@@ -1762,7 +1785,7 @@ describe('DataTable', () => {
         return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
-      scrollColumns(1000)
+      scrollColumns(container, 1000)
 
       const headerRows = [...container.querySelectorAll<HTMLTableRowElement>('thead tr')]
       expect(headerRows.map(spanSum)).toEqual([CENTER_COUNT + 2, CENTER_COUNT + 2])
@@ -1789,13 +1812,13 @@ describe('DataTable', () => {
     })
 
     it('announces the column count and the position of each rendered cell', async () => {
-      const { virtualizer, scrollColumns } = createWideVirtualizer()
+      const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
         return <DataTable table={table} virtualizer={virtualizer} />
       })
       await Promise.resolve()
-      scrollColumns(1000)
+      scrollColumns(container, 1000)
 
       expect(container.querySelector('table')!.getAttribute('aria-colcount')).toBe('22')
       const row = firstBodyRow(container)
@@ -1877,9 +1900,8 @@ describe('DataTable', () => {
     it('renders every column when the virtualizer has no columns option', async () => {
       const virtualizer = createTableVirtualizer<DataTableT.Row<Wide>>({
         estimateSize: () => 30,
-        measureElement: () => 30,
-        observeElementRect: (_instance, callback) => callback({ width: 440, height: 60 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...measuredRows(30),
+        ...scrollViewport(440, 60),
         overscan: 0,
       })
       const { container } = render(() => {
@@ -2192,9 +2214,8 @@ describe('DataTable', () => {
     it('indents virtualized sub-rows', async () => {
       const virtualizer = createTableVirtualizer<DataTableT.Row<TreeNode>>({
         estimateSize: () => 30,
-        measureElement: () => 30,
-        observeElementRect: (_instance, callback) => callback({ width: 300, height: 300 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...measuredRows(30),
+        ...scrollViewport(300, 300),
         overscan: 0,
       })
 

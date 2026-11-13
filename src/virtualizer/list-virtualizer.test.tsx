@@ -1,6 +1,8 @@
-import { render } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
+
+import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 
 import { createListVirtualizer } from './list-virtualizer'
 import type { VirtualRowProps as RowProps } from './virtualizer.types'
@@ -15,8 +17,7 @@ describe('createListVirtualizer', () => {
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -38,24 +39,15 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('releases core observers and the public instance on unmount', async () => {
+  test('clears the public instance on unmount', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    const cleanupRect = vi.fn()
-    const cleanupOffset = vi.fn()
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => {
-          callback({ width: 100, height: 40 })
-          return cleanupRect
-        },
-        observeElementOffset: (_instance, callback) => {
-          callback(0, false)
-          return cleanupOffset
-        },
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -71,8 +63,6 @@ describe('createListVirtualizer', () => {
 
     screen.unmount()
 
-    expect(cleanupRect).toHaveBeenCalledOnce()
-    expect(cleanupOffset).toHaveBeenCalledOnce()
     expect(virtualizer?.instance()).toBeUndefined()
     scrollElement.remove()
   })
@@ -83,8 +73,7 @@ describe('createListVirtualizer', () => {
     const screen = render(() => {
       const virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -121,8 +110,7 @@ describe('createListVirtualizer', () => {
       virtualizer = createListVirtualizer<{ id: string; label: string }>({
         estimateSize: () => 20,
         getItemKey: (item) => item.id,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -175,9 +163,8 @@ describe('createListVirtualizer', () => {
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => estimatedSize(),
-        measureElement: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...measuredRows(20),
+        ...scrollViewport(100, 20),
         overscan: 0,
       })
       const VirtualRender = virtualizer.virtualRender
@@ -213,8 +200,7 @@ describe('createListVirtualizer', () => {
       virtualizer = createListVirtualizer<{ id: string; size: number }>({
         estimateSize: (item) => item.size,
         getItemKey: (item) => item.id,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 100),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -244,25 +230,17 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
-  test('retargets delayed and replaced scroll elements without retaining observers', async () => {
+  test('renders rows in a scroll element that arrives after mount and follows replacements', async () => {
     const firstElement = document.createElement('div')
     const secondElement = document.createElement('div')
     document.body.append(firstElement, secondElement)
     const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
-    const observedElements: Array<HTMLElement | null> = []
-    const cleanups: Array<ReturnType<typeof vi.fn>> = []
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      const virtualizer = createListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (instance, callback) => {
-          observedElements.push(instance.scrollElement)
-          callback({ width: 100, height: 20 })
-          const cleanup = vi.fn()
-          cleanups.push(cleanup)
-          return cleanup
-        },
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 20),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -276,17 +254,16 @@ describe('createListVirtualizer', () => {
     })
 
     await Promise.resolve()
-    expect(observedElements).toEqual([])
+    expect(screen.queryByText('one')).toBeNull()
 
     setScrollElement(firstElement)
-    expect(observedElements).toEqual([firstElement])
+    await Promise.resolve()
+    expect(screen.getByText('one').isConnected).toBe(true)
+    expect(virtualizer?.instance()?.scrollElement).toBe(firstElement)
 
     setScrollElement(secondElement)
-    expect(cleanups[0]).toHaveBeenCalledOnce()
-    expect(observedElements).toEqual([firstElement, secondElement])
-
-    setScrollElement(undefined)
-    expect(cleanups[1]).toHaveBeenCalledOnce()
+    await Promise.resolve()
+    expect(virtualizer?.instance()?.scrollElement).toBe(secondElement)
     screen.unmount()
     firstElement.remove()
     secondElement.remove()
@@ -294,20 +271,19 @@ describe('createListVirtualizer', () => {
 
   test('forwards scrolling to the current instance and becomes inert after unmount', async () => {
     const scrollElement = document.createElement('div')
+    const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
+      scrollTo: { configurable: true, value: scrollTo },
     })
     document.body.append(scrollElement)
-    const scrollToFn = vi.fn()
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
-        scrollToFn,
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -319,35 +295,30 @@ describe('createListVirtualizer', () => {
     })
 
     await Promise.resolve()
-    scrollToFn.mockClear()
+    scrollTo.mockClear()
 
     virtualizer?.scrollToIndex(3, { align: 'start' })
-    expect(scrollToFn).toHaveBeenCalledWith(
-      60,
-      expect.objectContaining({ behavior: 'auto' }),
-      virtualizer?.instance(),
-    )
+    expect(scrollTo).toHaveBeenCalledWith({ behavior: 'auto', top: 60 })
 
     screen.unmount()
-    scrollToFn.mockClear()
+    scrollTo.mockClear()
     virtualizer?.scrollToIndex(4)
-    expect(scrollToFn).not.toHaveBeenCalled()
+    expect(scrollTo).not.toHaveBeenCalled()
     scrollElement.remove()
   })
 
   test('replays a scroll requested before the instance mounts', async () => {
     const scrollElement = document.createElement('div')
+    const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
       clientHeight: { configurable: true, value: 40 },
       scrollHeight: { configurable: true, value: 200 },
+      scrollTo: { configurable: true, value: scrollTo },
     })
     document.body.append(scrollElement)
-    const scrollToFn = vi.fn()
     const virtualizer = createListVirtualizer<string>({
       estimateSize: () => 20,
-      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-      observeElementOffset: (_instance, callback) => callback(0, false),
-      scrollToFn,
+      ...scrollViewport(100, 40),
     })
 
     // Nothing attached: the request is dropped instead of replayed on a later mount.
@@ -365,16 +336,12 @@ describe('createListVirtualizer', () => {
     })
 
     expect(virtualizer.instance()).toBeUndefined()
-    expect(scrollToFn).not.toHaveBeenCalled()
+    expect(scrollTo).not.toHaveBeenCalled()
 
     await Promise.resolve()
 
     // Mounting scrolls to the initial offset first; the queued request runs after it.
-    expect(scrollToFn).toHaveBeenLastCalledWith(
-      60,
-      expect.objectContaining({ behavior: 'auto' }),
-      virtualizer.instance(),
-    )
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'auto', top: 60 })
     screen.unmount()
     scrollElement.remove()
   })
@@ -389,8 +356,7 @@ describe('createListVirtualizer', () => {
       const virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
-        observeElementOffset: (_instance, callback) => callback(0, false),
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
+        ...scrollViewport(100, 20),
         scrollMargin: 4,
       })
       const VirtualRender = virtualizer.virtualRender
@@ -411,8 +377,7 @@ describe('createListVirtualizer', () => {
         estimateSize: (size) => size,
         horizontal: true,
         isRtl: true,
-        observeElementOffset: (_instance, callback) => callback(0, false),
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
+        ...scrollViewport(100, 20),
         scrollMargin: 4,
       })
       const VirtualRender = virtualizer.virtualRender
@@ -465,8 +430,7 @@ describe('createListVirtualizer', () => {
         estimateSize: (size) => size,
         horizontal: true,
         isRtl: true,
-        observeElementOffset: (_instance, callback) => callback(0, false),
-        observeElementRect: (_instance, callback) => callback({ width: 50, height: 20 }),
+        ...scrollViewport(50, 20),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -523,13 +487,12 @@ describe('createListVirtualizer', () => {
   test('cancels a deferred attachment when unmounted before the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    const observeElementRect = vi.fn()
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect,
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -543,7 +506,6 @@ describe('createListVirtualizer', () => {
     screen.unmount()
     await Promise.resolve()
 
-    expect(observeElementRect).not.toHaveBeenCalled()
     expect(virtualizer?.instance()).toBeUndefined()
     scrollElement.remove()
   })
@@ -551,18 +513,13 @@ describe('createListVirtualizer', () => {
   test('unobserves detached rows when the virtual window is replaced', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
-    let publishOffset: ((offset: number, isScrolling: boolean) => void) | undefined
     let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
       virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        measureElement: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => {
-          publishOffset = callback
-          callback(0, false)
-        },
+        ...measuredRows(20),
+        ...scrollViewport(100, 40),
         overscan: 0,
       })
       const VirtualRender = virtualizer.virtualRender
@@ -576,7 +533,8 @@ describe('createListVirtualizer', () => {
 
     await Promise.resolve()
     await Promise.resolve()
-    publishOffset?.(1000, false)
+    Object.defineProperty(scrollElement, 'scrollTop', { configurable: true, value: 1000 })
+    fireEvent.scroll(scrollElement)
     await Promise.resolve()
     await Promise.resolve()
 
@@ -604,8 +562,7 @@ describe('createListVirtualizer', () => {
     const screen = render(() => {
       const virtualizer = createListVirtualizer<{ id: string; text: string }>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 40),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -645,8 +602,7 @@ describe('createListVirtualizer', () => {
     const screen = render(() => {
       const virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 100),
       })
       const VirtualRender = virtualizer.virtualRender
 
@@ -689,8 +645,7 @@ describe('createListVirtualizer', () => {
       virtualizer = createListVirtualizer<{ id: string; label: string }>({
         estimateSize: () => 20,
         getItemKey: (item) => item.id,
-        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
-        observeElementOffset: (_instance, callback) => callback(0, false),
+        ...scrollViewport(100, 100),
       })
       const VirtualRender = virtualizer.virtualRender
 

@@ -116,8 +116,8 @@ export function createListSortable<TItem>(
       const source = items[target.sourceIndex]
       const over = items[target.targetIndex]
       return (
-        source === undefined ||
-        over === undefined ||
+        source !== undefined &&
+        over !== undefined &&
         (options.canDrop?.(source, over, target.position) ?? true)
       )
     },

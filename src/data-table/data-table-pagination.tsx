@@ -6,7 +6,6 @@ import { Button } from '../components/button'
 import { DropdownMenu } from '../components/dropdown-menu'
 import { Pagination } from '../components/pagination'
 
-import { getDataTableConfig } from './create-data-table'
 import { useDataTableContext } from './data-table-context'
 import {
   DATA_TABLE_PAGINATION_CONTROLS_CLASS,
@@ -19,10 +18,11 @@ export function DataTablePagination<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
   /** Whether the toolbar is shown. Virtual tables never paginate. */
   when: boolean
+  /** Page size choices, or `false` to hide the page-size menu. */
+  pageSizes: DataTableT.PaginationSettings['pageSizes']
   size: DataTableT.Props['size']
 }): JSX.Element {
   const ctx = useDataTableContext()
-  const config = () => getDataTableConfig(props.table)
 
   // Row-model reads stay in memos owned outside the toolbar's <Show>. The options that toggle
   // pagination also invalidate these row models; when the toolbar's own computations read them
@@ -35,7 +35,7 @@ export function DataTablePagination<TData extends RowData>(props: {
   const pageSize = () => pagination()?.pageSize ?? 10
 
   const pageSizeChoices = createMemo((): readonly number[] | false => {
-    const choices = config().pageSizes
+    const choices = props.pageSizes
     if (choices === false || choices.includes(pageSize())) {
       return choices
     }

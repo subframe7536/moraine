@@ -18,35 +18,6 @@ export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
 /** `maxSize` in px given to columns of a resizable table that set none. */
 export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
 
-export interface DataTableInternalConfig {
-  readonly paginated: boolean
-  readonly pageSizes: readonly number[] | false
-}
-
-const FALLBACK_CONFIG: DataTableInternalConfig = Object.freeze({
-  paginated: false,
-  pageSizes: DEFAULT_DATA_TABLE_PAGE_SIZES,
-})
-
-// DataTable-only settings (`pagination`) that TanStack table options cannot carry.
-const _tableConfigMap = new WeakMap<object, DataTableInternalConfig>()
-const _warnedTables = DEV ? new WeakSet<object>() : undefined
-
-/** Reads DataTable settings registered by `createDataTable` for `table`. */
-export function getDataTableConfig(table: object): DataTableInternalConfig {
-  const config = _tableConfigMap.get(table)
-  if (config) {
-    return config
-  }
-  if (DEV && !_warnedTables!.has(table)) {
-    _warnedTables!.add(table)
-    console.warn(
-      '[moraine] DataTable received a table that was not created with createDataTable. The pagination toolbar is disabled.',
-    )
-  }
-  return FALLBACK_CONFIG
-}
-
 /** Column id as TanStack resolves it: `id`, then `accessorKey` (dots become `_`), then a string `header`. */
 function resolveColumnId(column: object): string | undefined {
   const def = column as { id?: string; accessorKey?: string | number; header?: unknown }
@@ -270,7 +241,7 @@ export function createDataTable<TData extends RowData = RowData>(
 
   table = createTable(resolvedTableOptions)
 
-  const config: DataTableInternalConfig = {
+  const paginationSettings: DataTableT.PaginationSettings = {
     get paginated() {
       return paginationConfig().enabled
     },
@@ -278,7 +249,6 @@ export function createDataTable<TData extends RowData = RowData>(
       return paginationConfig().pageSizes
     },
   }
-  _tableConfigMap.set(table, config)
 
-  return table
+  return Object.assign(table, { paginationSettings })
 }
