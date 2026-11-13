@@ -8,7 +8,7 @@ import { createSelectableCollectionNavigation } from '../../../../shared/selecta
 import { createTypeahead } from '../../../../shared/typeahead'
 import { focusWithoutScrolling } from '../focus'
 
-import type { OverlayMenuItem } from './types'
+import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
 
 export function getOverlayMenuTextValue(item: {
   label?: JSX.Element
@@ -46,6 +46,7 @@ export interface OverlayMenuGroup<TItem = OverlayMenuItem> {
   label?: JSX.Element
   items: TItem[]
   separator?: boolean
+  radioGroup?: OverlayMenuRadioGroupItem
 }
 
 export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuItem>(
@@ -67,6 +68,19 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
       if (item.length > 0) {
         groups.push({ items: item, separator: groups.length > 0 })
       }
+      continue
+    }
+
+    if (item.type === 'radio-group') {
+      if (defaultGroup.length > 0) {
+        groups.push({ items: defaultGroup, separator: groups.length > 0 })
+        defaultGroup = []
+      }
+
+      if (item.items?.length) {
+        groups.push({ label: item.label, items: [], radioGroup: item })
+      }
+
       continue
     }
 

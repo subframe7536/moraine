@@ -14,20 +14,13 @@ export function CheckboxRadio() {
     },
     { type: 'separator' },
     {
-      type: 'radio',
-      label: 'Grid',
-      group: 'layout',
-      value: 'grid',
-      checked: layout() === 'grid',
+      type: 'radio-group',
+      value: layout(),
       onValueChange: setLayout,
-    },
-    {
-      type: 'radio',
-      label: 'List',
-      group: 'layout',
-      value: 'list',
-      checked: layout() === 'list',
-      onValueChange: setLayout,
+      items: [
+        { type: 'radio', label: 'Grid', value: 'grid' },
+        { type: 'radio', label: 'List', value: 'list' },
+      ],
     },
   ])
 

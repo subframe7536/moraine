@@ -266,7 +266,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
                 resolveDirection(triggerElement(), direction()) === 'rtl' ? 'left' : 'right'
               }
               align="start"
-              gutter={-2}
+              gutter={2}
               shift={-4}
               parentLayer={layer}
               present={contentPresence.present}

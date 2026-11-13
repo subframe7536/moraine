@@ -159,44 +159,80 @@ describe('DropdownMenu', () => {
       iframe.remove()
     }
   })
-  test.each(['checkbox', 'radio'] as const)(
-    'shows the indicator of a %s item only while it is checked',
-    async (type) => {
-      const [checked, setChecked] = createSignal(false)
-      render(() => (
-        <DropdownMenu defaultOpen>
-          <DropdownMenu.Trigger>Preferences</DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            items={[
-              {
-                type,
-                label: 'Show bookmarks bar',
-                description: 'Keep important links visible',
-                group: 'view',
-                value: 'bookmarks',
-                checked: checked(),
-                kbds: ['Ctrl', 'B'],
-              },
-            ]}
-          />
-        </DropdownMenu>
-      ))
-      const item = await waitFor(() => {
-        const element = document.body.querySelector(`[role="menuitem${type}"]`)
-        expect(element).not.toBeNull()
-        return element!
-      })
-      const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
-      expect(indicator.childElementCount).toBe(0)
-      setChecked(true)
-      await waitFor(() => {
-        expect(
-          document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
-            ?.childElementCount,
-        ).toBeGreaterThan(0)
-      })
-    },
-  )
+  test('shows the indicator of a checkbox item only while it is checked', async () => {
+    const [checked, setChecked] = createSignal(false)
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger>Preferences</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'checkbox',
+              label: 'Show bookmarks bar',
+              description: 'Keep important links visible',
+              checked: checked(),
+              kbds: ['Ctrl', 'B'],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+    const item = await waitFor(() => {
+      const element = document.body.querySelector('[role="menuitemcheckbox"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
+    expect(indicator.childElementCount).toBe(0)
+    setChecked(true)
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
+          ?.childElementCount,
+      ).toBeGreaterThan(0)
+    })
+  })
+
+  test('shows the indicator of a radio item only while its group selects it', async () => {
+    const [value, setValue] = createSignal<string | undefined>(undefined)
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger>Preferences</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio-group',
+              value: value(),
+              onValueChange: setValue,
+              items: [
+                {
+                  type: 'radio',
+                  label: 'Show bookmarks bar',
+                  description: 'Keep important links visible',
+                  value: 'bookmarks',
+                  kbds: ['Ctrl', 'B'],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+    const item = await waitFor(() => {
+      const element = document.body.querySelector('[role="menuitemradio"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
+    expect(indicator.childElementCount).toBe(0)
+    fireEvent.click(item)
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
+          ?.childElementCount,
+      ).toBeGreaterThan(0)
+    })
+  })
   test('applies preventScroll only when the menu opens', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
@@ -1325,9 +1361,9 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
-  test('supports radio items with grouped selection and disabled prevention', async () => {
+  test('supports uncontrolled radio groups with pointer and keyboard selection and disabled prevention', async () => {
     const onCompactSelect = vi.fn()
-    const onComfortableValueChange = vi.fn()
+    const onDensityChange = vi.fn()
     const onDisabledSelect = vi.fn()
 
     render(() => (
@@ -1338,27 +1374,20 @@ describe('DropdownMenu', () => {
         <DropdownMenu.Content
           items={[
             {
-              type: 'radio',
-              group: 'density',
-              value: 'compact',
-              label: 'Compact',
-              checked: true,
-              onSelect: onCompactSelect,
-            },
-            {
-              type: 'radio',
-              group: 'density',
-              value: 'comfortable',
-              label: 'Comfortable',
-              onValueChange: onComfortableValueChange,
-            },
-            {
-              type: 'radio',
-              group: 'density',
-              value: 'spacious',
-              label: 'Spacious',
-              disabled: true,
-              onSelect: onDisabledSelect,
+              type: 'radio-group',
+              defaultValue: 'compact',
+              onValueChange: onDensityChange,
+              items: [
+                { type: 'radio', value: 'compact', label: 'Compact', onSelect: onCompactSelect },
+                { type: 'radio', value: 'comfortable', label: 'Comfortable' },
+                {
+                  type: 'radio',
+                  value: 'spacious',
+                  label: 'Spacious',
+                  disabled: true,
+                  onSelect: onDisabledSelect,
+                },
+              ],
             },
           ]}
         />
@@ -1384,14 +1413,23 @@ describe('DropdownMenu', () => {
     expect(compactItem.hasAttribute('data-selected')).toBe(false)
     expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
     expect(comfortableItem.hasAttribute('data-selected')).toBe(true)
-    expect(onComfortableValueChange).toHaveBeenCalledWith('comfortable')
+    expect(onDensityChange).toHaveBeenCalledExactlyOnceWith('comfortable')
+
+    comfortableItem.focus()
+    fireEvent.keyDown(comfortableItem, { key: 'ArrowUp' })
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' })
+
+    expect(compactItem.getAttribute('aria-checked')).toBe('true')
+    expect(comfortableItem.getAttribute('aria-checked')).toBe('false')
+    expect(onCompactSelect).toHaveBeenCalledOnce()
+    expect(onDensityChange).toHaveBeenLastCalledWith('compact')
 
     fireEvent.click(disabledItem)
 
     expect(disabledItem.getAttribute('aria-checked')).toBe('false')
-    expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
+    expect(compactItem.getAttribute('aria-checked')).toBe('true')
     expect(onDisabledSelect).not.toHaveBeenCalled()
-    expect(onCompactSelect).not.toHaveBeenCalled()
+    expect(onDensityChange).toHaveBeenCalledTimes(2)
   })
 
   test('applies itemLeading classes to every leading icon host and renders component icons inside', async () => {
@@ -1442,11 +1480,9 @@ describe('DropdownMenu', () => {
             { label: 'Leaf', variant: 'danger' },
             { label: 'Checkbox', type: 'checkbox', variant: 'danger' },
             {
-              label: 'Radio',
-              type: 'radio',
-              group: 'choice',
-              value: 'radio',
-              variant: 'danger',
+              type: 'radio-group',
+              defaultValue: 'radio',
+              items: [{ label: 'Radio', type: 'radio', value: 'radio', variant: 'danger' }],
             },
             {
               label: 'Submenu',
@@ -2012,45 +2048,278 @@ describe('DropdownMenu', () => {
     }
   })
 
-  test('clears a controlled radio group when every item becomes unchecked', async () => {
-    const [value, setValue] = createSignal<'compact' | 'comfortable' | undefined>('compact')
-    const items = [
-      {
-        type: 'radio' as const,
-        group: 'density',
-        value: 'compact',
-        label: 'Compact',
-        get checked() {
-          return value() === 'compact'
-        },
-      },
-      {
-        type: 'radio' as const,
-        group: 'density',
-        value: 'comfortable',
-        label: 'Comfortable',
-        get checked() {
-          return value() === 'comfortable'
-        },
-      },
-    ]
+  test('follows a controlled radio group value and reports selections without updating it', async () => {
+    const [value, setValue] = createSignal('compact')
+    const onValueChange = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content items={items} />
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio-group',
+              value: value(),
+              onValueChange,
+              items: [
+                { type: 'radio', value: 'compact', label: 'Compact' },
+                { type: 'radio', value: 'comfortable', label: 'Comfortable' },
+              ],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
-    setValue(undefined)
-
-    await waitFor(() => {
-      const items = document.body.querySelectorAll('[role="menuitemradio"]')
-      expect(Array.from(items).every((item) => item.getAttribute('aria-checked') === 'false')).toBe(
-        true,
+    const checkedStates = () =>
+      Array.from(document.body.querySelectorAll('[role="menuitemradio"]')).map((item) =>
+        item.getAttribute('aria-checked'),
       )
+
+    expect(checkedStates()).toEqual(['true', 'false'])
+
+    fireEvent.click(document.body.querySelectorAll('[role="menuitemradio"]')[1]!)
+
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith('comfortable')
+    expect(checkedStates()).toEqual(['true', 'false'])
+
+    setValue('comfortable')
+
+    await waitFor(() => expect(checkedStates()).toEqual(['false', 'true']))
+  })
+
+  test('keeps independent radio groups in one menu and stays open after selecting a radio item', async () => {
+    const onLayoutChange = vi.fn()
+    const onSortChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          View
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio-group',
+              defaultValue: 'grid',
+              onValueChange: onLayoutChange,
+              items: [
+                { type: 'radio', value: 'grid', label: 'Grid' },
+                { type: 'radio', value: 'list', label: 'List' },
+              ],
+            },
+            {
+              type: 'radio-group',
+              defaultValue: 'name',
+              onValueChange: onSortChange,
+              items: [
+                { type: 'radio', value: 'name', label: 'Name' },
+                { type: 'radio', value: 'date', label: 'Date' },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const radios = () =>
+      Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitemradio"]'))
+    const [grid, list, name, date] = radios()
+
+    fireEvent.click(list!)
+
+    expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith('list')
+    expect(onSortChange).not.toHaveBeenCalled()
+    expect(radios().map((item) => item.getAttribute('aria-checked'))).toEqual([
+      'false',
+      'true',
+      'true',
+      'false',
+    ])
+
+    fireEvent.click(date!)
+
+    expect(onSortChange).toHaveBeenCalledExactlyOnceWith('date')
+    expect(grid!.getAttribute('aria-checked')).toBe('false')
+    expect(name!.getAttribute('aria-checked')).toBe('false')
+    expect(date!.getAttribute('aria-checked')).toBe('true')
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+  })
+
+  test('selects a radio group nested inside an array section', () => {
+    const onValueChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            [{ label: 'Cut' }, { label: 'Copy' }],
+            [
+              {
+                type: 'radio-group',
+                defaultValue: 'grid',
+                onValueChange,
+                items: [
+                  { type: 'radio', value: 'grid', label: 'Grid' },
+                  { type: 'radio', value: 'list', label: 'List' },
+                ],
+              },
+            ],
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const radios = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitemradio"]'))
+    expect(radios).toHaveLength(2)
+    expect(radios[0]!.getAttribute('aria-checked')).toBe('true')
+    expect(radios[1]!.getAttribute('aria-checked')).toBe('false')
+
+    fireEvent.click(radios[1]!)
+
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith('list')
+    expect(radios[0]!.getAttribute('aria-checked')).toBe('false')
+    expect(radios[1]!.getAttribute('aria-checked')).toBe('true')
+  })
+
+  test('selects a radio group nested inside a group item', () => {
+    const onValueChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'group',
+              label: 'Density',
+              items: [
+                { label: 'Reset' },
+                {
+                  type: 'radio-group',
+                  defaultValue: 'compact',
+                  onValueChange,
+                  items: [
+                    { type: 'radio', value: 'compact', label: 'Compact' },
+                    { type: 'radio', value: 'comfortable', label: 'Comfortable' },
+                  ],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-group-label"]')?.textContent,
+    ).toBe('Density')
+
+    const radios = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitemradio"]'))
+    expect(radios).toHaveLength(2)
+    expect(radios[0]!.getAttribute('aria-checked')).toBe('true')
+
+    fireEvent.click(radios[1]!)
+
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith('comfortable')
+    expect(radios[0]!.getAttribute('aria-checked')).toBe('false')
+    expect(radios[1]!.getAttribute('aria-checked')).toBe('true')
+  })
+
+  test('links nested radio groups to distinct label elements', () => {
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            [
+              {
+                type: 'radio-group',
+                label: 'Layout',
+                defaultValue: 'grid',
+                items: [
+                  { type: 'radio', value: 'grid', label: 'Grid' },
+                  { type: 'radio', value: 'list', label: 'List' },
+                ],
+              },
+              {
+                type: 'radio-group',
+                label: 'Sort',
+                defaultValue: 'name',
+                items: [
+                  { type: 'radio', value: 'name', label: 'Name' },
+                  { type: 'radio', value: 'date', label: 'Date' },
+                ],
+              },
+            ],
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const groups = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[role="group"][aria-labelledby]'),
+    )
+    expect(groups).toHaveLength(2)
+
+    const labelIds = groups.map((group) => group.getAttribute('aria-labelledby'))
+    expect(labelIds[0]).not.toBe(labelIds[1])
+
+    const labels = labelIds.map((id) => document.getElementById(id!))
+    expect(labels.map((label) => label?.textContent)).toEqual(['Layout', 'Sort'])
+  })
+
+  test('selects radio items inside a submenu', async () => {
+    const onThemeChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'Theme',
+              children: [
+                {
+                  type: 'radio-group',
+                  defaultValue: 'system',
+                  onValueChange: onThemeChange,
+                  items: [
+                    { type: 'radio', value: 'light', label: 'Light' },
+                    { type: 'radio', value: 'system', label: 'System' },
+                  ],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const subTrigger = await waitFor(() => {
+      const element = document.body.querySelector<HTMLElement>('[role="menuitem"]')
+      expect(element).not.toBeNull()
+      return element!
     })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    const light = await waitFor(() => {
+      const element = document.body.querySelector<HTMLElement>('[role="menuitemradio"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    expect(light.getAttribute('aria-checked')).toBe('false')
+
+    fireEvent.click(light)
+
+    expect(onThemeChange).toHaveBeenCalledExactlyOnceWith('light')
+    expect(light.getAttribute('aria-checked')).toBe('true')
   })
 
   test('links menu groups to their labels and gives interactive items stable ids', async () => {

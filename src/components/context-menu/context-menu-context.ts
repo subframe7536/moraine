@@ -52,6 +52,7 @@ export function createContextMenu(props: ContextMenuProps) {
     {
       placement: 'right' as const,
       align: 'start' as const,
+      gutter: 4,
       shift: 4,
     },
     props,

@@ -108,8 +108,10 @@ without adding application state.
 
 ### Stateful and nested items
 
-Checkbox and radio items receive their checked or selected state from your application through
-their callbacks. Nested children create submenus. Disabled items remain visible but cannot be
+Checkbox items receive their checked state from your application through `checked` and
+`onCheckedChange`. A `radio-group` item owns the selected value for its radio items: pass `value` and
+`onValueChange` (or `defaultValue` for uncontrolled state) once on the group, and give each radio item
+only its `value`. Nested children create submenus. Disabled items remain visible but cannot be
 activated.
 
 A parent item with `children` can take `open` and `onOpenChange` to control its submenu. `onOpenChange`
@@ -129,12 +131,10 @@ reports every open or close request from pointer, keyboard, or click interaction
       label: 'Theme',
       children: [
         {
-          type: 'radio',
-          group: 'theme',
-          label: 'System',
-          value: 'system',
-          checked: theme() === 'system',
+          type: 'radio-group',
+          value: theme(),
           onValueChange: setTheme,
+          items: [{ type: 'radio', label: 'System', value: 'system' }],
         },
       ],
     },

@@ -19,7 +19,13 @@ export interface OverlayMenuContentSlotProps {
   sub: boolean
 }
 
-export type OverlayMenuItemType = 'item' | 'separator' | 'checkbox' | 'radio' | 'group'
+export type OverlayMenuItemType =
+  | 'item'
+  | 'separator'
+  | 'checkbox'
+  | 'radio-group'
+  | 'radio'
+  | 'group'
 
 export interface OverlayMenuBaseItem {
   /**
@@ -122,39 +128,38 @@ export interface OverlayMenuRadioItem extends OverlayMenuBaseItem {
   type: 'radio'
 
   /**
-   * Radio group identifier. Radio items with the same group are mutually exclusive.
+   * Value this item selects in its parent radio group.
    */
-  group?: string
-
-  /**
-   * Radio item value reported by onValueChange and used for grouped selection.
-   */
-  value?: string
-
-  /**
-   * Controlled checked state for radio items.
-   */
-  checked?: boolean
-
-  /**
-   * Initial checked state for uncontrolled radio items.
-   */
-  defaultChecked?: boolean
-
-  /**
-   * Event handler called when a radio item is selected.
-   */
-  onValueChange?: (value: string) => void
-
-  /**
-   * Event handler called when a radio item's checked state changes.
-   */
-  onCheckedChange?: (checked: boolean) => void
+  value: string
 
   /**
    * Event handler called when the item is activated.
    */
   onSelect?: () => void
+}
+
+export interface OverlayMenuRadioGroupItem extends OverlayMenuBaseItem {
+  type: 'radio-group'
+
+  /**
+   * Radio items in this group. Selecting one unchecks the others.
+   */
+  items?: OverlayMenuRadioItem[]
+
+  /**
+   * Controlled selected value, matched against each radio item's `value`.
+   */
+  value?: string
+
+  /**
+   * Initial selected value for uncontrolled radio groups.
+   */
+  defaultValue?: string
+
+  /**
+   * Event handler called with the value of the selected radio item.
+   */
+  onValueChange?: (value: string) => void
 }
 
 export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
@@ -173,7 +178,7 @@ export interface OverlayMenuSeparatorItem extends OverlayMenuBaseItem {
 export type OverlayMenuItem =
   | OverlayMenuActionItem
   | OverlayMenuCheckboxItem
-  | OverlayMenuRadioItem
+  | OverlayMenuRadioGroupItem
   | OverlayMenuGroupItem
   | OverlayMenuSeparatorItem
 
@@ -184,7 +189,7 @@ export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => Com
  * Props provided to custom menu item render components.
  */
 export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
-  item: TItem
+  item: TItem | OverlayMenuRadioItem
   depth: number
   isCheckbox: boolean
   isRadio: boolean
@@ -232,7 +237,7 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
 
   /**
    * Gap between the anchor and the content.
-   * @default 0
+   * @default 4
    */
   gutter?: number
 

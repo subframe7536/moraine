@@ -1576,26 +1576,20 @@ describe('ContextMenu', () => {
         <ContextMenu.Content
           items={[
             {
-              type: 'radio',
-              group: 'sort',
-              value: 'name',
-              label: 'Name',
-              defaultChecked: true,
-            },
-            {
-              type: 'radio',
-              group: 'sort',
-              value: 'date',
-              label: 'Date',
+              type: 'radio-group',
+              defaultValue: 'name',
               onValueChange,
-            },
-            {
-              type: 'radio',
-              group: 'sort',
-              value: 'size',
-              label: 'Size',
-              disabled: true,
-              onSelect: onDisabledSelect,
+              items: [
+                { type: 'radio', value: 'name', label: 'Name' },
+                { type: 'radio', value: 'date', label: 'Date' },
+                {
+                  type: 'radio',
+                  value: 'size',
+                  label: 'Size',
+                  disabled: true,
+                  onSelect: onDisabledSelect,
+                },
+              ],
             },
           ]}
         />

@@ -17,7 +17,7 @@ import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'
 import { createEventListener } from '../../../../shared/event-listener'
 import { renderWithProps } from '../../../../shared/render-with-props'
-import { callHandler, callRef } from '../../../../shared/utils'
+import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
@@ -25,7 +25,7 @@ import { useFloatingPosition, usePositionerZIndex } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 
 import { createMenuItemRenderers } from './menu-item'
-import { createMenuRadioState } from './menu-radio'
+import { createMenuRadioGroupState } from './menu-radio'
 import { createSubmenuItemRenderer } from './menu-submenu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import {
@@ -36,7 +36,12 @@ import {
   useOverlayMenuLayerState,
 } from './menu.utils'
 import type { OverlayMenuGroup } from './menu.utils'
-import type { OverlayMenuItem, OverlayMenuLayerProps, OverlayMenuSharedSlots } from './types'
+import type {
+  OverlayMenuItem,
+  OverlayMenuLayerProps,
+  OverlayMenuRadioGroupItem,
+  OverlayMenuSharedSlots,
+} from './types'
 
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuLayerProps<TItem>,
@@ -69,7 +74,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   )
   const [isPositioned, setIsPositioned] = createSignal(false)
   const groups = createMemo(() => resolveMenuGroups(props.items))
-  const { radioGroupValues, setRadioGroupValues } = createMenuRadioState({ groups })
   const subtreeBranches = new Set<HTMLElement>()
 
   /**
@@ -97,7 +101,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     deferPositioned: true,
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
-    gutter: () => props.gutter ?? 0,
+    gutter: () => props.gutter ?? 4,
     shift: () => props.shift ?? 0,
     onPositionedChange: setIsPositioned,
     onPlacementChange: layer.setCurrentPlacement,
@@ -203,8 +207,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       props,
       layer,
       closeRoot: (options) => props.closeRoot(options),
-      radioGroupValues,
-      setRadioGroupValues,
       resolveSlot,
       slotName,
       cn,
@@ -263,8 +265,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   function MenuGroup(groupProps: { group: OverlayMenuGroup<TItem> }): JSX.Element {
     const groupLabel = createMemo(() => groupProps.group.label)
-    const groupLabelId = () =>
-      groupLabel() ? `${props.id}-group-${groups().indexOf(groupProps.group)}-label` : undefined
+    const groupId = createId(undefined, `${props.id}-group`)
+    const groupLabelId = () => (groupLabel() ? `${groupId()}-label` : undefined)
+    const radioGroup = createMenuRadioGroupState(() => groupProps.group.radioGroup)
 
     return (
       <div
@@ -303,8 +306,14 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
                 <CheckboxMenuItem item={item} />
               </Match>
 
-              <Match when={item.type === 'radio'}>
-                <RadioMenuItem item={item} />
+              <Match when={item.type === 'radio-group'}>
+                <MenuGroup
+                  group={{
+                    label: item.label,
+                    items: [],
+                    radioGroup: item as OverlayMenuRadioGroupItem,
+                  }}
+                />
               </Match>
 
               <Match when={hasOverlayMenuChildren(item)}>
@@ -312,6 +321,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
               </Match>
             </Switch>
           )}
+        </For>
+
+        <For each={groupProps.group.radioGroup?.items}>
+          {(item) => <RadioMenuItem item={item} radioGroup={radioGroup} />}
         </For>
       </div>
     )

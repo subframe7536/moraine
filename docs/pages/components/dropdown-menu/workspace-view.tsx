@@ -44,20 +44,13 @@ export function WorkspaceView() {
       icon: 'i-lucide:arrow-down-wide-narrow',
       children: [
         {
-          type: 'radio',
-          group: 'sort',
-          label: 'Recently updated',
-          value: 'updated',
-          checked: sort() === 'updated',
+          type: 'radio-group',
+          value: sort(),
           onValueChange: setSort,
-        },
-        {
-          type: 'radio',
-          group: 'sort',
-          label: 'Name',
-          value: 'name',
-          checked: sort() === 'name',
-          onValueChange: setSort,
+          items: [
+            { type: 'radio', label: 'Recently updated', value: 'updated' },
+            { type: 'radio', label: 'Name', value: 'name' },
+          ],
         },
       ],
     },

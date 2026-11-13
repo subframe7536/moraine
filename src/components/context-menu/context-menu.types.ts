@@ -49,7 +49,7 @@ export namespace ContextMenuT {
     placement?: OverlayPlacement
     /** Alignment along the cross axis. @default 'start' */
     align?: OverlayAlign
-    /** Gap between the anchor and the content. @default 0 */
+    /** Gap between the anchor and the content. @default 4 */
     gutter?: number
     /** Cross-axis or alignment offset relative to the anchor. @default 4 */
     shift?: number

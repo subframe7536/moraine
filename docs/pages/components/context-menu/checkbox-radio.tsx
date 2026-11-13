@@ -9,28 +9,14 @@ export function CheckboxRadio() {
     { type: 'checkbox', label: 'Pin item', checked: pinned(), onCheckedChange: setPinned },
     { type: 'separator' },
     {
-      type: 'radio',
-      label: 'Low priority',
-      group: 'priority',
-      value: 'low',
-      checked: priority() === 'low',
+      type: 'radio-group',
+      value: priority(),
       onValueChange: setPriority,
-    },
-    {
-      type: 'radio',
-      label: 'Normal priority',
-      group: 'priority',
-      value: 'normal',
-      checked: priority() === 'normal',
-      onValueChange: setPriority,
-    },
-    {
-      type: 'radio',
-      label: 'High priority',
-      group: 'priority',
-      value: 'high',
-      checked: priority() === 'high',
-      onValueChange: setPriority,
+      items: [
+        { type: 'radio', label: 'Low priority', value: 'low' },
+        { type: 'radio', label: 'Normal priority', value: 'normal' },
+        { type: 'radio', label: 'High priority', value: 'high' },
+      ],
     },
   ])
 

@@ -30,6 +30,7 @@ export type {
   OverlayMenuActionItem,
   OverlayMenuCheckboxItem,
   OverlayMenuRadioItem,
+  OverlayMenuRadioGroupItem,
   OverlayMenuGroupItem,
   OverlayMenuSeparatorItem,
   OverlayMenuItem,

@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
-import type { Accessor, Component, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
+import { Show, createSignal, onCleanup, onMount } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -17,10 +17,17 @@ import { Icon } from '../../../icon'
 import type { IconT } from '../../../icon'
 import { KbdGroup } from '../../../kbd-group'
 
+import type { MenuRadioGroupState } from './menu-radio'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import { focusElement, getOverlayMenuTextValue } from './menu.utils'
 import type { OverlayMenuCloseOptions, OverlayMenuLayerState } from './menu.utils'
-import type { OverlayMenuItem, OverlayMenuItemRenderProps, OverlayMenuSharedSlots } from './types'
+import type {
+  OverlayMenuBaseItem,
+  OverlayMenuItem,
+  OverlayMenuItemRenderProps,
+  OverlayMenuRadioItem,
+  OverlayMenuSharedSlots,
+} from './types'
 
 export function createSelectableItemHandlers(
   layer: OverlayMenuLayerState,
@@ -149,17 +156,20 @@ export function bindSelectableItemHandlers(
 interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
   LeafItem: (props: { item: TItem }) => JSX.Element
   CheckboxMenuItem: (props: { item: TItem }) => JSX.Element
-  RadioMenuItem: (props: { item: TItem }) => JSX.Element
+  RadioMenuItem: (props: {
+    item: OverlayMenuRadioItem
+    radioGroup: MenuRadioGroupState
+  }) => JSX.Element
   RenderItemContent: (props: {
     checked?: Accessor<boolean>
     hasChildren: boolean
     isCheckbox: boolean
     isRadio: boolean
-    item: TItem
+    item: TItem | OverlayMenuRadioItem
   }) => JSX.Element
   getItemSlot: (item: MenuItemSlotOptions) => SlotBinding
   getItemRenderProps: (
-    item: TItem,
+    item: TItem | OverlayMenuRadioItem,
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
@@ -182,28 +192,17 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }
   layer: OverlayMenuLayerState
   closeRoot: (options?: OverlayMenuCloseOptions) => void
-  radioGroupValues: Accessor<Record<string, string | undefined>>
-  setRadioGroupValues: Setter<Record<string, string | undefined>>
   resolveSlot: (slot: keyof OverlayMenuSharedSlots) => SlotBinding
   slotName: (slot: string) => string
   cn: Cn
 }): MenuItemRenderers<TItem> {
-  const {
-    props,
-    layer,
-    closeRoot,
-    radioGroupValues,
-    setRadioGroupValues,
-    resolveSlot,
-    slotName,
-    cn,
-  } = options
+  const { props, layer, closeRoot, resolveSlot, slotName, cn } = options
 
   const getItemSlot = (item: MenuItemSlotOptions): SlotBinding =>
     mergeSlotBindingData(resolveSlot('item'), item.data, item, cn)
 
   function getItemRenderProps(
-    item: TItem,
+    item: TItem | OverlayMenuRadioItem,
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
@@ -222,7 +221,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     hasChildren: boolean
     isCheckbox: boolean
     isRadio: boolean
-    item: TItem
+    item: TItem | OverlayMenuRadioItem
   }): JSX.Element {
     const itemRender = createLazyMemo(() => props.itemRender)
     const label = createLazyMemo(() => contentProps.item.label)
@@ -313,7 +312,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }
 
   function useItemRegistration(
-    item: Accessor<TItem>,
+    item: Accessor<OverlayMenuBaseItem>,
     element: Accessor<HTMLDivElement | undefined>,
     itemId: Accessor<string>,
   ): void {
@@ -468,26 +467,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     )
   }
 
-  function RadioMenuItem(itemProps: { item: TItem }): JSX.Element {
+  function RadioMenuItem(itemProps: {
+    item: OverlayMenuRadioItem
+    radioGroup: MenuRadioGroupState
+  }): JSX.Element {
     const itemId = createId(undefined, `${props.id}-radio`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [checkedState, setCheckedState] = createControllableValue<boolean>({
-      value: () => ('checked' in itemProps.item ? itemProps.item.checked : undefined),
-      defaultValue: () =>
-        'defaultChecked' in itemProps.item ? (itemProps.item.defaultChecked ?? false) : false,
-    })
-    const checked = createMemo(() => {
-      if (
-        'group' in itemProps.item &&
-        itemProps.item.group &&
-        'value' in itemProps.item &&
-        itemProps.item.value !== undefined
-      ) {
-        return radioGroupValues()[itemProps.item.group] === itemProps.item.value
-      }
-
-      return checkedState()
-    })
+    const checked = () => itemProps.radioGroup.value() === itemProps.item.value
 
     useItemRegistration(() => itemProps.item, element, itemId)
 
@@ -496,31 +482,8 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return
       }
 
-      const itemChecked = 'checked' in itemProps.item ? itemProps.item.checked : undefined
-      if (!checked() && itemChecked === undefined) {
-        setCheckedState(true)
-      }
-
-      const group = 'group' in itemProps.item ? itemProps.item.group : undefined
-      const value = 'value' in itemProps.item ? itemProps.item.value : undefined
-      if (group && value !== undefined) {
-        setRadioGroupValues((values) => ({
-          ...values,
-          [group]: value,
-        }))
-      }
-
-      if ('onCheckedChange' in itemProps.item) {
-        itemProps.item.onCheckedChange?.(true)
-      }
-
-      if (value !== undefined && 'onValueChange' in itemProps.item) {
-        itemProps.item.onValueChange?.(value)
-      }
-
-      if ('onSelect' in itemProps.item) {
-        itemProps.item.onSelect?.()
-      }
+      itemProps.radioGroup.select(itemProps.item.value)
+      itemProps.item.onSelect?.()
     }
 
     const handlers = createSelectableItemHandlers(layer, {
