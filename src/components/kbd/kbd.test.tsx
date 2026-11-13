@@ -153,6 +153,12 @@ describe('KbdGroup', () => {
     expect(screen.getByLabelText('Command').textContent).toBe('⌘')
   })
 
+  test('names non-alias item keys through their aria-label', () => {
+    render(() => <KbdGroup items={[{ value: 'fn', 'aria-label': 'Function key' }, 'K']} />)
+
+    expect(screen.getByLabelText('Function key').textContent).toBe('fn')
+  })
+
   test('renders nothing for empty items and no separator for a single item', () => {
     const empty = render(() => <KbdGroup items={[]} />)
     const single = render(() => <KbdGroup items={['K']} separatorRender="/" />)

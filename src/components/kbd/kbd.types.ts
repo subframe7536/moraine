@@ -56,6 +56,8 @@ export namespace KbdT {
      * @default true
      */
     symbol?: boolean
+    /** Accessible label for assistive technology. Overrides the resolved key alias message. */
+    'aria-label'?: string
     /** Data slot used by the rendered keycap. */
     slotName?: string
   }

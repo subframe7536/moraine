@@ -16,6 +16,12 @@
       "defaultElement": "kbd",
       "props": [
         {
+          "name": "aria-label",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible label for assistive technology. Overrides the resolved key alias message."
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
