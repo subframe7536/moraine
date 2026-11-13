@@ -228,7 +228,7 @@ export default function SidebarPlayground() {
                     >
                       <Avatar
                         alt={data.user.name}
-                        fallback="i-lucide:user"
+                        icon="i-lucide:user"
                         text="CN"
                         size="md"
                         class="shrink-0"
@@ -251,7 +251,7 @@ export default function SidebarPlayground() {
                         <div class="p-2 border-b border-border/50 flex gap-2 items-center">
                           <Avatar
                             alt={data.user.name}
-                            fallback="i-lucide:user"
+                            icon="i-lucide:user"
                             text="CN"
                             size="md"
                             class="shrink-0"

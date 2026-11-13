@@ -165,8 +165,12 @@ than maintaining a second open state.
 </Sidebar.Trigger>
 ```
 
-Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` /
-`onOpenChange` for desktop. Mobile drawer state stays internal and resets when returning to desktop.
+Root `open`, `defaultOpen`, and `onOpenChange` drive whichever layout is active: the desktop panel or
+the mobile drawer. Uncontrolled desktop and mobile states are remembered separately. `defaultOpen`
+seeds both; when omitted, the desktop panel starts expanded and the drawer starts closed. Switching
+layouts never calls `onOpenChange` and never writes a controlled `open`. Leaving mobile closes an
+uncontrolled drawer, and returning to desktop restores the desktop state. The trigger, the rail, and
+Escape or overlay dismissal of the drawer all report through `onOpenChange`.
 Menu buttons with `href` close the mobile drawer on activate; set `closeOnSelect={false}` on a
 button to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
 `(max-width: ${breakpoint}px)` via `matchMedia`. Pass `isMobile` to force either layout.

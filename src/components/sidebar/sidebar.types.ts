@@ -40,14 +40,21 @@ export namespace SidebarT {
   export interface Base {
     /** Localized message overrides for this sidebar instance. */
     translations?: Translations
-    /** Controlled open state on desktop. */
+    /**
+     * Controlled open state of the active layout: the desktop panel, or the mobile drawer when
+     * the sidebar is mobile. Switching layouts does not write this value.
+     */
     open?: boolean
     /**
-     * Default open state on desktop.
-     * @default true
+     * Initial open state for both layouts. When omitted, the desktop panel starts expanded and
+     * the mobile drawer starts closed. Ignored while `open` is controlled.
      */
     defaultOpen?: boolean
-    /** Callback invoked when desktop open state changes. */
+    /**
+     * Called with the next open state for every user-driven change of the active layout: the
+     * trigger, the rail, and Escape or overlay dismissal of the mobile drawer. Not called when
+     * the layout switches.
+     */
     onOpenChange?: (open: boolean) => void
     /** Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`. */
     isMobile?: boolean
@@ -299,10 +306,11 @@ export namespace SidebarT {
      */
     transition?: boolean
     /**
-     * Whether to unmount the content when collapsed.
-     * @default true
+     * Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and
+     * unmounts it once it closes; `keep-mounted` mounts it even before the first open.
+     * @default 'unmount-on-hide'
      */
-    unmountOnHide?: boolean
+    mountMode?: 'unmount-on-hide' | 'keep-mounted'
   }
 
   export type MenuSubProps = BaseProps<'div', MenuSubBase, never, never, never>

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, splitProps } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -80,12 +80,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   )
   const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
 
-  const [desktopOpen, setControlledDesktopOpen] = createControllableValue<boolean>({
-    value: () => local.open,
-    defaultValue: () => local.defaultOpen ?? true,
-    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
-  })
-  const [mobileOpen, setMobileOpen] = createSignal(false)
+  // Uncontrolled state is remembered per layout. `defaultOpen` seeds both, because the media
+  // query resolves asynchronously and the active layout is unknown during setup.
+  const [desktopOpen, setDesktopOpen] = createSignal(untrack(() => local.defaultOpen ?? true))
+  const [mobileOpen, setMobileOpen] = createSignal(untrack(() => local.defaultOpen ?? false))
 
   const [width, setWidth] = createControllableValue<number | undefined>({
     value: () => local.width,
@@ -109,25 +107,27 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     }),
   )
 
-  const state = createMemo<SidebarT.State>(() => (desktopOpen() ? 'expanded' : 'collapsed'))
-
   const isOpen = createMemo(() => {
-    if (isMobile()) {
-      return mobileOpen()
+    if (local.open !== undefined) {
+      return local.open
     }
-    return desktopOpen()
+    return isMobile() ? mobileOpen() : desktopOpen()
   })
 
+  const state = createMemo<SidebarT.State>(() => (isOpen() ? 'expanded' : 'collapsed'))
+
   function setOpen(nextOpen: boolean): void {
-    const current = isMobile() ? mobileOpen() : desktopOpen()
-    if (nextOpen === current) {
+    if (nextOpen === isOpen()) {
       return
     }
-    if (isMobile()) {
-      setMobileOpen(nextOpen)
-      return
+    if (local.open === undefined) {
+      if (isMobile()) {
+        setMobileOpen(nextOpen)
+      } else {
+        setDesktopOpen(nextOpen)
+      }
     }
-    setControlledDesktopOpen(nextOpen)
+    local.onOpenChange?.(nextOpen)
   }
 
   const context = {

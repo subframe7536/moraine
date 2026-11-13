@@ -44,11 +44,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Default open state on desktop.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
+          "description": "Initial open state for both layouts. When omitted, the desktop panel starts expanded and\nthe mobile drawer starts closed. Ignored while `open` is controlled."
         },
         {
           "name": "defaultWidth",
@@ -86,7 +82,7 @@
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Callback invoked when desktop open state changes."
+          "description": "Called with the next open state for every user-driven change of the active layout: the\ntrigger, the rail, and Escape or overlay dismissal of the mobile drawer. Not called when\nthe layout switches."
         },
         {
           "name": "onWidthChange",
@@ -104,7 +100,7 @@
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state on desktop."
+          "description": "Controlled open state of the active layout: the desktop panel, or the mobile drawer when\nthe sidebar is mobile. Switching layouts does not write this value."
         },
         {
           "name": "panelId",
@@ -841,6 +837,16 @@
           }
         },
         {
+          "name": "mountMode",
+          "optional": true,
+          "type": "'unmount-on-hide' | 'keep-mounted'",
+          "description": "Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and\nunmounts it once it closes; `keep-mounted` mounts it even before the first open.",
+          "default": {
+            "kind": "literal",
+            "value": "unmount-on-hide"
+          }
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -866,16 +872,6 @@
           "default": {
             "kind": "literal",
             "value": false
-          }
-        },
-        {
-          "name": "unmountOnHide",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to unmount the content when collapsed.",
-          "default": {
-            "kind": "literal",
-            "value": true
           }
         }
       ]
