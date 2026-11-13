@@ -130,7 +130,7 @@ describe('generateApiDoc', () => {
     expect(keyboardItems?.typeDetails).toContain('string & {}')
     expect(keyboardItems?.typeDetails).toContain('value: Key;')
     expect(keyboardItems?.typeDetails).toContain('symbol?: boolean;')
-    expect(keyboardItems?.typeDetails).toContain('label?: string;')
+    expect(keyboardItems?.typeDetails).toContain('translations?: Translations;')
     expect(keyboardItems?.typeDetails).toContain('Whether to resolve known key aliases to symbols.')
     expect(keyboardItems?.typeDetails).toMatch(/\)\[\]$/)
 

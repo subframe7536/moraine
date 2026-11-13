@@ -115,7 +115,7 @@ describe('composite family presentation', () => {
         </Popover>
         <Tooltip defaultOpen classes={{ trigger: 'tooltip-trigger', content: 'tooltip-content' }}>
           <Tooltip.Trigger data-testid="tooltip-trigger">Tooltip trigger</Tooltip.Trigger>
-          <Tooltip.Content data-testid="tooltip-content" text="Tooltip" />
+          <Tooltip.Content data-testid="tooltip-content">Tooltip</Tooltip.Content>
         </Tooltip>
         <DropdownMenu
           defaultOpen

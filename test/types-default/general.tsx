@@ -29,6 +29,7 @@ import type { AccordionT } from 'moraine'
 />
 ;<Accordion items={[{ value: 'a' }]} value={['a']} />
 ;<Accordion multiple collapsible items={[{ value: 'a' }]} />
+// @ts-expect-error Accordion items require a value.
 const missingValue: AccordionT.Item = { label: 'Missing' }
 void missingValue
 

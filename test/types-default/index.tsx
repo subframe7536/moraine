@@ -202,6 +202,21 @@ const invalidMenuItemVariant: DropdownMenuT.Item = {
 }
 void invalidMenuItemVariant
 
+const radioGroupMenuItem: DropdownMenuT.Item = {
+  type: 'radio-group',
+  value: 'list',
+  items: [{ type: 'radio', label: 'List', value: 'list' }],
+}
+void radioGroupMenuItem
+
+const looseRadioMenuItem: DropdownMenuT.Item = {
+  // @ts-expect-error Radio items are declared inside a radio-group item and cannot appear at the top level.
+  type: 'radio',
+  label: 'List',
+  value: 'list',
+}
+void looseRadioMenuItem
+
 export type SlotContracts = [
   Assert<'root' extends keyof ButtonT.Slot ? true : false>,
   // @ts-expect-error SlotName aliases are not part of the component namespace contract.
@@ -309,7 +324,8 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Badge href="/docs" />
 
 ;<Avatar text="MR" />
-;<AvatarGroup items={[{ text: 'MR' }]} />
+;<Avatar text="MR" icon="icon-user" />
+;<AvatarGroup items={[{ text: 'MR', icon: 'icon-user' }]} />
 ;<Button
   activeEffect="zoom-in"
   onClick={(event) => {
@@ -332,7 +348,15 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <Button>Paste</Button>
 </ButtonGroup>
 ;<CopyButton value="code snippet" />
-;<CopyButton value="code snippet" copiedDuration={1500} icon="icon-copy" copiedIcon="icon-check" />
+;<CopyButton
+  value="code snippet"
+  copiedDuration={1500}
+  leading="icon-copy"
+  copiedIcon="icon-check"
+/>
+;<CopyButton value="code snippet" trailing="icon-copy" />
+// @ts-expect-error CopyButton has no iconPosition; use leading or trailing.
+;<CopyButton value="code snippet" iconPosition="trailing" />
 ;<CopyButton value="code snippet">{(state) => (state.isCopied ? 'Copied' : 'Copy')}</CopyButton>
 // @ts-expect-error value is required
 ;<CopyButton />
@@ -661,12 +685,14 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 // @ts-expect-error Icon uses a data-slot attribute instead of slotName
 ;<Icon name="i-lucide-search" slotName="custom-icon" />
 
-;<Kbd value="K" class="px-2" style={{ color: 'red' }} />
+// @ts-expect-error Kbd has no label prop; use aria-label.
+;<Kbd value="K" label="Search" />
+;<Kbd value="K" aria-label="Search" class="px-2" style={{ color: 'red' }} />
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />
 
 ;<KbdGroup items={['meta', 'k']} />
 ;<KbdGroup
-  items={[{ value: 'meta', label: 'Command' }, 'k']}
+  items={[{ value: 'meta', translations: { meta: 'Command' } }, 'k']}
   separatorRender="/"
   size="sm"
   variant="outline"
@@ -1161,6 +1187,11 @@ export type DefaultTagAssertions = [
 // Separate public floating dimensions accept sides and alignment independently.
 ;<Popover placement="bottom" align="start" />
 ;<Tooltip placement="top" align="end" />
+// Popover and Tooltip expose the gap and viewport padding as root options.
+;<Popover gutter={8} overflowPadding={12} />
+;<Tooltip gutter={8} overflowPadding={12} />
+// @ts-expect-error Tooltip.Content takes its text as children, not a text prop.
+;<Tooltip.Content text="Removed" />
 ;<DropdownMenu placement="bottom" align="end" />
 ;<ContextMenu placement="right" align="start" />
 // @ts-expect-error left is a side, not an alignment

@@ -239,11 +239,11 @@ describe('localized component text', () => {
     await waitFor(() => expect(form.errors).toEqual(['Erreur inconnue']))
   })
 
-  test('uses kbd messages and lets label win', () => {
+  test('uses kbd messages and lets aria-label win', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ kbd: { meta: 'Commande' } }}>
         <Kbd value="meta" />
-        <Kbd value="meta" label="Primary" />
+        <Kbd value="meta" aria-label="Primary" />
       </MoraineProvider>
     ))
 
