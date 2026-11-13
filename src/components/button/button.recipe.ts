@@ -41,11 +41,11 @@ export const BUTTON_SIZE = {
   md: { root: 'text-sm px-2.5 rounded-md h-8' },
   lg: { root: 'text-base px-3 rounded-lg h-9' },
   xl: { root: 'text-lg px-4 rounded-lg h-10' },
-  'icon-xs': { root: 'text-tiny rounded-xs size-6' },
-  'icon-sm': { root: 'text-xs rounded-sm size-7' },
-  'icon-md': { root: 'text-sm rounded-md size-8' },
-  'icon-lg': { root: 'text-base rounded-lg size-9' },
-  'icon-xl': { root: 'text-lg rounded-lg size-10' },
+  'icon-xs': { root: 'text-xs rounded-xs size-6' },
+  'icon-sm': { root: 'text-sm rounded-sm size-7' },
+  'icon-md': { root: 'text-base rounded-md size-8' },
+  'icon-lg': { root: 'text-lg rounded-lg size-9' },
+  'icon-xl': { root: 'text-xl rounded-xl size-10' },
 } as const
 
 export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariants>(

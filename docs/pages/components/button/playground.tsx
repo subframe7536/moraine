@@ -1,4 +1,4 @@
-import { Button } from '@src'
+import { Button, Icon } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -63,18 +63,30 @@ export default function ButtonPlayground() {
       ]}
     >
       {(props) => (
-        <Button
-          variant={props.variant}
-          tone={props.tone}
-          size={props.size}
-          disabled={props.disabled}
-          loading={props.loading}
-          activeEffect={props.activeEffect}
-          leading="i-lucide:rocket"
-          trailing="icon-arrow-right"
-        >
-          Deploy Project
-        </Button>
+        <div class="flex flex-row gap-2">
+          <Button
+            variant={props.variant}
+            tone={props.tone}
+            size={props.size}
+            disabled={props.disabled}
+            loading={props.loading}
+            activeEffect={props.activeEffect}
+            leading="i-lucide:rocket"
+            trailing="icon-arrow-right"
+          >
+            Deploy Project
+          </Button>
+          <Button
+            variant={props.variant}
+            tone={props.tone}
+            size={`icon-${props.size}`}
+            disabled={props.disabled}
+            loading={props.loading}
+            activeEffect={props.activeEffect}
+          >
+            <Icon name="icon-menu" />
+          </Button>
+        </div>
       )}
     </DocsPlayground>
   )
