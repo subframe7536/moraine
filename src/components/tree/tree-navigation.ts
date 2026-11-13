@@ -173,13 +173,15 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     if (!node || node.disabled) {
       return
     }
-    const item = deps.getItem(key)
-    if (item && deps.options.onAction) {
-      deps.options.onAction(item)
-    } else if ((deps.options.selectionMode ?? 'single') !== 'none') {
+    if ((deps.options.selectionMode ?? 'single') !== 'none') {
       deps.selectOnly(key)
     } else if (node.hasChildren) {
       deps.toggle(key)
+    }
+
+    const item = deps.getItem(key)
+    if (item) {
+      deps.options.onAction?.(item)
     }
   }
 

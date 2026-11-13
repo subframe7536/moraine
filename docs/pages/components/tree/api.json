@@ -65,6 +65,16 @@
           }
         },
         {
+          "name": "mountMode",
+          "optional": true,
+          "type": "'unmount-on-hide' | 'keep-mounted'",
+          "description": "Whether collapsed branches keep their children mounted. `unmount-on-hide` mounts children on\nfirst expansion and unmounts them once the branch collapses; `keep-mounted` mounts them even\nbefore the first expansion.",
+          "default": {
+            "kind": "literal",
+            "value": "unmount-on-hide"
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -104,16 +114,6 @@
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"
-          }
-        },
-        {
-          "name": "unmountOnHide",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether collapsed branches unmount their children.",
-          "default": {
-            "kind": "literal",
-            "value": true
           }
         },
         {

@@ -141,7 +141,10 @@ export namespace TreeT {
      */
     typeahead?: boolean
 
-    /** Called when an item is activated with `Enter`. Without it, `Enter` selects the item. */
+    /**
+     * Called when an item is activated with `Enter`, after `Enter` performs its normal selection
+     * (or toggles the branch when `selectionMode` is `'none'`).
+     */
     onAction?: (item: ItemInstance<T>) => void
   }
 
@@ -258,10 +261,12 @@ export namespace TreeT {
     loadingIcon?: IconT.Name
 
     /**
-     * Whether collapsed branches unmount their children.
-     * @default true
+     * Whether collapsed branches keep their children mounted. `unmount-on-hide` mounts children on
+     * first expansion and unmounts them once the branch collapses; `keep-mounted` mounts them even
+     * before the first expansion.
+     * @default 'unmount-on-hide'
      */
-    unmountOnHide?: boolean
+    mountMode?: 'unmount-on-hide' | 'keep-mounted'
   }
 
   export type Props<T = unknown> = BaseProps<'ul', Base<T>, Variants, Classes, Styles>

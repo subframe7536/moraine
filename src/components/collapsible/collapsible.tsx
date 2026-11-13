@@ -22,8 +22,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'onOpenChange',
     'disabled',
     'transition',
-    'unmountOnHide',
-    'forceMount',
+    'mountMode',
     'classes',
     'styles',
     'class',
@@ -41,8 +40,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     open,
     disabled: () => Boolean(local.disabled),
     transition: () => Boolean(local.transition),
-    unmountOnHide: () => local.unmountOnHide,
-    forceMount: () => Boolean(local.forceMount),
+    mountMode: () => local.mountMode,
     onBeforeMatch: () => {
       if (!open()) {
         toggleContent()

@@ -18,7 +18,7 @@ describe('Collapsible SSR Hydration', () => {
     expect(server.querySelector('[data-slot="collapsible-content"][data-transition]')).toBeNull()
 
     const { container } = hydrateFixture(fixture, 'renderOpenCollapsibleFixture', () => (
-      <Collapsible defaultOpen transition unmountOnHide={false}>
+      <Collapsible defaultOpen transition mountMode="keep-mounted">
         <Collapsible.Trigger>Details</Collapsible.Trigger>
         <Collapsible.Content as="section">Content</Collapsible.Content>
       </Collapsible>

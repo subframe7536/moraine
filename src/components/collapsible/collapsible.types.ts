@@ -54,16 +54,11 @@ export namespace CollapsibleT {
     transition?: boolean
 
     /**
-     * Whether to unmount collapsible content when closed.
-     * @default true
+     * Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and
+     * unmounts it once it closes; `keep-mounted` mounts it even before the first open.
+     * @default 'unmount-on-hide'
      */
-    unmountOnHide?: boolean
-
-    /**
-     * Force mounting the content in the DOM even when closed.
-     * @default false
-     */
-    forceMount?: boolean
+    mountMode?: 'unmount-on-hide' | 'keep-mounted'
 
     /**
      * Content to render inside the collapsible.

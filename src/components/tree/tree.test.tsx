@@ -387,7 +387,7 @@ describe('createTree', () => {
       const { container } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['docs'] }}
-          treeProps={{ unmountOnHide: false, transition: false }}
+          treeProps={{ mountMode: 'keep-mounted', transition: false }}
         />
       ))
 
@@ -690,7 +690,7 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(src)
     })
 
-    test('selects with Enter and calls onAction instead when provided', () => {
+    test('selects with Enter and also calls onAction when provided', () => {
       const onAction = vi.fn()
       const { container, unmount } = setup()
       const readme = item(container, 'README.md')
@@ -705,7 +705,7 @@ describe('createTree', () => {
       press(index, 'Enter')
       expect(onAction).toHaveBeenCalledTimes(1)
       expect(onAction.mock.calls[0]?.[0].key).toBe('index')
-      expect(item(second.container, 'index.ts').getAttribute('aria-selected')).toBe('false')
+      expect(item(second.container, 'index.ts').getAttribute('aria-selected')).toBe('true')
     })
 
     test('ignores keys from nested items and interactive descendants', () => {

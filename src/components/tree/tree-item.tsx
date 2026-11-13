@@ -61,7 +61,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition,
-    unmountOnHide: () => context.props.unmountOnHide ?? true,
+    mountMode: () => context.props.mountMode,
   })
   const allowHeightMotion = () => transition() && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0

@@ -99,7 +99,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'onValueChange',
     'items',
     'disabled',
-    'unmountOnHide',
+    'mountMode',
     'trailing',
     'headingLevel',
     'classes',
@@ -126,7 +126,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       multiple: false,
       collapsible: true,
       loop: true,
-      unmountOnHide: true,
+      mountMode: 'unmount-on-hide' as const,
       trailing: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
@@ -142,7 +142,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
   })
   const items = createMemo(() => merged.items ?? [])
   const triggerRefs = new Map<string, HTMLButtonElement>()
-  const itemKeyMap = new WeakMap<AccordionT.Item, string>()
   let lastFocusedIndex = -1
   let lastFocusedValue: string | undefined
   let focusRecoveryVersion = 0
@@ -153,11 +152,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
     }
     const result: Array<{ item: AccordionT.Item; key: string }> = []
     for (const item of items()) {
-      if (!item.disabled) {
-        const key = item.value ?? itemKeyMap.get(item)
-        if (key && triggerRefs.has(key)) {
-          result.push({ item, key })
-        }
+      if (!item.disabled && triggerRefs.has(item.value)) {
+        result.push({ item, key: item.value })
       }
     }
     return result
@@ -274,9 +270,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       <For each={items()}>
         {(item) => {
           const itemIdSegment = createId(undefined, 'accordion-item')
-          const initialKey = item.value ?? itemIdSegment()
-          itemKeyMap.set(item, initialKey)
-          const itemValue = createMemo(() => item.value ?? itemIdSegment())
+          const itemValue = () => item.value
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
           const leading = createMemo(() => item.leading)
@@ -285,7 +279,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const disclosure = createDisclosureState({
             open: expanded,
             disabled,
-            unmountOnHide: () => merged.unmountOnHide,
+            mountMode: () => merged.mountMode,
             onBeforeMatch: () => {
               if (!disabled() && !expanded()) {
                 toggleValue(itemValue())

@@ -144,9 +144,9 @@ describe('Accordion', () => {
     expect(onValueChange).toHaveBeenCalledTimes(2)
   })
 
-  test('keeps generated item values and focused triggers stable through reorder', async () => {
-    const first: AccordionT.Item = { label: 'First', content: 'First content' }
-    const second: AccordionT.Item = { label: 'Second', content: 'Second content' }
+  test('keeps focused triggers stable through reorder', async () => {
+    const first: AccordionT.Item = { value: 'first', label: 'First', content: 'First content' }
+    const second: AccordionT.Item = { value: 'second', label: 'Second', content: 'Second content' }
     const [items, setItems] = createSignal([first, second])
     const screen = render(() => <Accordion items={items()} multiple />)
 
@@ -542,15 +542,15 @@ describe('Accordion', () => {
     expect(onValueChange).toHaveBeenCalledWith(['one'])
   })
 
-  test('respects unmountOnHide=true/false', () => {
+  test('respects mountMode', () => {
     const unmountScreen = render(() => (
-      <Accordion items={BASE_ITEMS} defaultValue={undefined} unmountOnHide />
+      <Accordion items={BASE_ITEMS} defaultValue={undefined} mountMode="unmount-on-hide" />
     ))
 
     expect(unmountScreen.queryByText('Content one')).toBeNull()
 
     const keepMountedScreen = render(() => (
-      <Accordion items={BASE_ITEMS} defaultValue={undefined} unmountOnHide={false} />
+      <Accordion items={BASE_ITEMS} defaultValue={undefined} mountMode="keep-mounted" />
     ))
 
     expect(keepMountedScreen.queryByText('Content one')).not.toBeNull()
@@ -571,7 +571,7 @@ describe('Accordion', () => {
             ),
           },
         ]}
-        unmountOnHide={false}
+        mountMode="keep-mounted"
       />
     ))
     const trigger = screen.getByRole('button', { name: 'One' })
@@ -610,7 +610,7 @@ describe('Accordion', () => {
   test('kept-mounted closed panels use hidden="until-found" and expand on beforematch', async () => {
     const screen = render(() => (
       <Accordion
-        unmountOnHide={false}
+        mountMode="keep-mounted"
         items={[
           { value: 'one', label: 'One', content: 'Panel one' },
           { value: 'two', label: 'Two', content: 'Panel two', disabled: true },
@@ -638,7 +638,7 @@ describe('Accordion', () => {
   test('keeps hidden="until-found" when a controlled panel refuses to open', async () => {
     const screen = render(() => (
       <Accordion
-        unmountOnHide={false}
+        mountMode="keep-mounted"
         value={[]}
         items={[{ value: 'one', label: 'One', content: 'Panel one' }]}
       />
@@ -679,7 +679,7 @@ describe('Accordion', () => {
           ]}
           value={value()}
           onValueChange={setControlledValue}
-          unmountOnHide={false}
+          mountMode="keep-mounted"
         />
       )
     }
@@ -862,7 +862,12 @@ describe('Accordion', () => {
 
   test('keeps content mounted until the close transition ends', async () => {
     const screen = render(() => (
-      <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} unmountOnHide />
+      <Accordion
+        id="settings"
+        items={BASE_ITEMS}
+        defaultValue={['one']}
+        mountMode="unmount-on-hide"
+      />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -975,15 +980,11 @@ describe('Accordion', () => {
         items={[
           { value: 'settings', ariaLabel: 'Settings section', leading: 'icon-close' },
           { value: 'profile', leading: 'icon-close' },
-          { leading: 'icon-close' },
         ]}
       />
     ))
     expect(screen.getByRole('button', { name: 'Settings section' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'profile' })).toBeTruthy()
-    // When value and label are omitted, aria-label should not fall back to internal generated id
-    const buttons = screen.getAllByRole('button')
-    expect(buttons[2]?.getAttribute('aria-label')).toBeNull()
   })
 
   test('supports configurable headingLevel', () => {

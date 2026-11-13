@@ -116,19 +116,24 @@ describe('createDisclosureState', () => {
     }).not.toThrow()
   })
 
-  test('calculates shouldMount based on open state, unmountOnHide, and overrides', () => {
+  test('calculates shouldMount from the open state and mount mode', () => {
     createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
+      const [mountMode, setMountMode] = createSignal<'unmount-on-hide' | 'keep-mounted'>(
+        'unmount-on-hide',
+      )
       const state = createDisclosureState({
         open,
-        unmountOnHide: true,
+        mountMode,
         transition: false,
       })
 
       expect(state.shouldMount()).toBe(false)
-      expect(state.shouldMount({ forceMount: true })).toBe(true)
-      expect(state.shouldMount({ unmountOnHide: false })).toBe(true)
 
+      setMountMode('keep-mounted')
+      expect(state.shouldMount()).toBe(true)
+
+      setMountMode('unmount-on-hide')
       setOpen(true)
       expect(state.shouldMount()).toBe(true)
 

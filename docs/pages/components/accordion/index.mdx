@@ -85,11 +85,11 @@ const [open, setOpen] = createSignal<string[]>(['shipping'])
 ### Content lifetime
 
 The content shell stays mounted so each trigger's `aria-controls` always points to a real element.
-`unmountOnHide` controls only the user content inside that shell. Keep content mounted when hidden
-fields must preserve local state.
+`mountMode` controls only the user content inside that shell. Use `keep-mounted` when hidden fields
+must preserve local state.
 
 ```tsx
-<Accordion unmountOnHide={false} defaultValue={['notes']} items={items} />
+<Accordion mountMode="keep-mounted" defaultValue={['notes']} items={items} />
 ```
 
 ### Keyboard interaction
@@ -125,7 +125,7 @@ when the answer is more than a paragraph.
 
 ### Keep draft notes while a section closes
 
-Set `unmountOnHide={false}` so inputs inside a panel keep their values across toggles.
+Set `mountMode="keep-mounted"` so inputs inside a panel keep their values across toggles.
 
 <Preview path="./content-lifetime" />
 

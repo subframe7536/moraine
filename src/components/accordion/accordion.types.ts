@@ -35,9 +35,9 @@ export namespace AccordionT {
     ariaLabel?: string
 
     /**
-     * Unique value for the accordion item.
+     * Unique value for the accordion item, used in `value` and `onValueChange`.
      */
-    value?: string
+    value: string
 
     /**
      * Whether the accordion item is disabled.
@@ -102,10 +102,11 @@ export namespace AccordionT {
     disabled?: boolean
 
     /**
-     * Whether to unmount accordion content when hidden.
-     * @default true
+     * Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and
+     * unmounts it once it closes; `keep-mounted` mounts it even before the first open.
+     * @default 'unmount-on-hide'
      */
-    unmountOnHide?: boolean
+    mountMode?: 'unmount-on-hide' | 'keep-mounted'
 
     /**
      * Trailing icon name for all accordion items.

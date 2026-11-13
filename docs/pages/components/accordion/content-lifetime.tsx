@@ -5,6 +5,7 @@ export function ContentLifetime() {
     <div class="max-w-md w-full">
       <Accordion
         collapsible
+        mountMode="keep-mounted"
         defaultValue={['settings']}
         items={[
           {

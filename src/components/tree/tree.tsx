@@ -29,7 +29,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'triggerIcon',
     'loadingIcon',
     'transition',
-    'unmountOnHide',
+    'mountMode',
     'size',
     'variant',
     'indentGuide',

@@ -14,6 +14,8 @@ import { attachEventListener, attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
 
+export type DisclosureMountMode = 'unmount-on-hide' | 'keep-mounted'
+
 export interface CreateDisclosureStateOptions {
   /** Reactive open state accessor */
   open: Accessor<boolean>
@@ -21,10 +23,8 @@ export interface CreateDisclosureStateOptions {
   disabled?: Accessor<boolean>
   /** Whether transition animations are enabled (defaults to true) */
   transition?: Accessor<boolean> | boolean
-  /** Whether content unmounts when closed (defaults to true) */
-  unmountOnHide?: Accessor<boolean | undefined> | boolean
-  /** Force mounting the content in the DOM even when closed (defaults to false) */
-  forceMount?: Accessor<boolean | undefined> | boolean
+  /** Whether content stays mounted when closed (defaults to 'unmount-on-hide') */
+  mountMode?: Accessor<DisclosureMountMode | undefined> | DisclosureMountMode
   /** Callback when exit transition completes */
   onExitComplete?: () => void
   /**
@@ -36,18 +36,12 @@ export interface CreateDisclosureStateOptions {
   onBeforeMatch?: () => void
 }
 
-export interface ShouldMountOptions {
-  forceMount?: boolean
-  unmountOnHide?: boolean
-}
-
 export interface DisclosureState {
   open: Accessor<boolean>
   initialOpen: Accessor<boolean>
   disabled: Accessor<boolean>
   transition: Accessor<boolean>
-  unmountOnHide: Accessor<boolean>
-  forceMount: Accessor<boolean>
+  mountMode: Accessor<DisclosureMountMode>
 
   contentHeight: Accessor<number>
   dataAttrs: {
@@ -64,7 +58,7 @@ export interface DisclosureState {
   inert: Accessor<true | undefined>
   ariaHidden: Accessor<true | undefined>
 
-  shouldMount: (options?: ShouldMountOptions) => boolean
+  shouldMount: () => boolean
 
   presence: TransitionPresenceState
 
@@ -91,17 +85,11 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const transition = createMemo(() =>
     typeof options.transition === 'function' ? options.transition() : (options.transition ?? true),
   )
-  const unmountOnHide = createMemo(() => {
-    if (typeof options.unmountOnHide === 'function') {
-      return options.unmountOnHide() ?? true
+  const mountMode = createMemo<DisclosureMountMode>(() => {
+    if (typeof options.mountMode === 'function') {
+      return options.mountMode() ?? 'unmount-on-hide'
     }
-    return options.unmountOnHide ?? true
-  })
-  const forceMount = createMemo(() => {
-    if (typeof options.forceMount === 'function') {
-      return Boolean(options.forceMount())
-    }
-    return Boolean(options.forceMount)
+    return options.mountMode ?? 'unmount-on-hide'
   })
 
   const presence = createTransitionPresence({
@@ -152,12 +140,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
 
   const initialOpen = createMemo(() => options.open() && !hasToggled())
 
-  function shouldMount(opts?: ShouldMountOptions): boolean {
-    if (opts?.forceMount ?? forceMount()) {
-      return true
-    }
-    const shouldUnmount = opts?.unmountOnHide ?? unmountOnHide()
-    if (!shouldUnmount) {
+  function shouldMount(): boolean {
+    if (mountMode() === 'keep-mounted') {
       return true
     }
     return options.open() || (transition() && presence.present())
@@ -332,8 +316,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     initialOpen,
     disabled,
     transition,
-    unmountOnHide,
-    forceMount,
+    mountMode,
     contentHeight,
     dataAttrs,
     closed,

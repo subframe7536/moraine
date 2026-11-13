@@ -70,11 +70,12 @@ blocks the trigger. `transition` keeps content mounted until the height animatio
 ### Content lifetime
 
 The content shell stays mounted so the trigger's `aria-controls` points to a real element even while
-closed. `unmountOnHide` controls the user content inside it. Keep user content mounted when it holds
-state that should survive closing.
+closed. `mountMode` controls the user content inside it. The default `unmount-on-hide` mounts content on
+first open and unmounts it after it closes. Use `keep-mounted` when content holds state that should
+survive closing; it mounts the content even before the first open.
 
 ```tsx
-<Collapsible unmountOnHide={false} defaultOpen>
+<Collapsible mountMode="keep-mounted" defaultOpen>
   <Collapsible.Trigger>Filters</Collapsible.Trigger>
   <Collapsible.Content>
     <Input defaultValue="tag:moraine" />
@@ -135,6 +136,6 @@ Pass `open` and `onOpenChange` so a second control can show or hide the same reg
 
 ### Keep filter text while the panel is closed
 
-Set `unmountOnHide={false}` so fields inside Content keep their values.
+Set `mountMode="keep-mounted"` so fields inside Content keep their values.
 
 <Preview path="./content-lifetime" />

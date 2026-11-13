@@ -124,11 +124,11 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 | Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                         |
 | Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                      |
 
-| Concern      | `tree.Tree` props                                                                    |
-| ------------ | ------------------------------------------------------------------------------------ |
-| Rendering    | `itemRender`, `actionRender`, `virtualizer`                                          |
-| Icons        | `triggerIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)             |
-| Presentation | `size`, `variant`, `indentGuide`, `transition`, `unmountOnHide`, `classes`, `styles` |
+| Concern      | `tree.Tree` props                                                                |
+| ------------ | -------------------------------------------------------------------------------- |
+| Rendering    | `itemRender`, `actionRender`, `virtualizer`                                      |
+| Icons        | `triggerIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)         |
+| Presentation | `size`, `variant`, `indentGuide`, `transition`, `mountMode`, `classes`, `styles` |
 
 `createTree` reads options reactively. Pass changing or controlled values as getters, for example
 `get selectedKeys() { return selected() }`; a plain value is read once.
@@ -193,7 +193,7 @@ so row clicks only select. Set `trigger: false` to render no chevron; rows then 
 whatever `expandOnClick` says.
 
 Branch height animates by default; set `transition={false}` on `tree.Tree` to turn it off.
-Collapsed branches unmount their children unless `unmountOnHide={false}`. Neither prop applies
+Collapsed branches unmount their children unless `mountMode="keep-mounted"`. Neither prop applies
 with `virtualizer`, which has no nested groups.
 
 ### Selection
@@ -437,7 +437,7 @@ disabled ones. In right-to-left layouts, <kbd>ArrowLeft</kbd> and <kbd>ArrowRigh
 | <kbd>ArrowRight</kbd>                                      | Expands a collapsed branch; on an expanded branch, moves focus to its first child.                                     |
 | <kbd>ArrowLeft</kbd>                                       | Collapses an expanded branch; otherwise moves focus to the parent.                                                     |
 | <kbd>Home</kbd> / <kbd>End</kbd>                           | Moves focus to the first or last visible item.                                                                         |
-| <kbd>Enter</kbd>                                           | Calls `onAction`. Without it, selects the item, or toggles the branch when `selectionMode` is `'none'`.                |
+| <kbd>Enter</kbd>                                           | Selects the item, or toggles the branch when `selectionMode` is `'none'`. Then calls `onAction` when provided.         |
 | <kbd>Space</kbd>                                           | Toggles the check state when `checkable`; toggles selection in `'multiple'` mode; selects the item in `'single'` mode. |
 | <kbd>Shift</kbd> + arrows, <kbd>Home</kbd>, <kbd>End</kbd> | Moves focus and extends the selection in `'multiple'` mode.                                                            |
 | <kbd>Ctrl</kbd>+<kbd>A</kbd> / <kbd>Cmd</kbd>+<kbd>A</kbd> | Selects every enabled item in `'multiple'` mode.                                                                       |
