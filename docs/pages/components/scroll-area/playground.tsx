@@ -15,10 +15,24 @@ export default function ScrollAreaPlayground() {
           options: [
             { label: 'Vertical', value: 'vertical' },
             { label: 'Horizontal', value: 'horizontal' },
+            { label: 'Both', value: 'both' },
+          ],
+        },
+        {
+          kind: 'select',
+          prop: 'scrollbar',
+          label: 'Scrollbar',
+          defaultValue: 'auto',
+          options: [
+            { label: 'Auto', value: 'auto' },
+            { label: 'Always', value: 'always' },
+            { label: 'Hover', value: 'hover' },
+            { label: 'Scroll', value: 'scroll' },
+            { label: 'Native', value: 'native' },
+            { label: 'Hidden', value: 'hidden' },
           ],
         },
         { kind: 'switch', prop: 'shadow', label: 'Edge shadows', defaultValue: true },
-        { kind: 'switch', prop: 'hideScrollbar', label: 'Hide scrollbar', defaultValue: false },
         {
           kind: 'input',
           prop: 'shadowSize',
@@ -28,8 +42,8 @@ export default function ScrollAreaPlayground() {
         },
         {
           kind: 'input',
-          prop: 'offset',
-          label: 'Edge offset (px)',
+          prop: 'edgeThreshold',
+          label: 'Edge threshold (px)',
           defaultValue: 0,
           inputType: 'number',
         },
@@ -38,17 +52,22 @@ export default function ScrollAreaPlayground() {
       {(props) => (
         <ScrollArea
           orientation={props.orientation}
+          scrollbar={props.scrollbar}
           shadow={props.shadow}
-          hideScrollbar={props.hideScrollbar}
           shadowSize={props.shadowSize}
-          offset={props.offset}
-          class={`flex h-48 max-w-lg w-full ${props.orientation === 'horizontal' ? 'items-start gap-3 pb-2' : 'flex-col gap-1 pr-3'}`}
+          edgeThreshold={props.edgeThreshold}
+          class="h-48 max-w-lg w-full"
+          classes={{
+            content: `flex gap-3 ${props.orientation === 'vertical' ? 'flex-col pe-3' : 'items-start pb-3'}`,
+          }}
           role="region"
           aria-label="Activity playground"
         >
           <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
             {(entry) => (
-              <div class={`py-1.5 shrink-0 ${props.orientation === 'horizontal' ? 'w-40' : ''}`}>
+              <div
+                class={`py-1.5 shrink-0 ${props.orientation === 'vertical' ? '' : 'w-40'}  ${props.orientation === 'both' ? 'h-64' : ''}`}
+              >
                 <p class="text-sm font-medium">Activity entry {entry}</p>
                 <p class="text-xs text-muted-foreground">Project updates and decisions.</p>
               </div>

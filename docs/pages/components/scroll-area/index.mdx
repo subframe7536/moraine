@@ -1,11 +1,11 @@
 ---
 title: ScrollArea
-description: Scroll native content with optional fades at overflowing edges.
+description: Scroll native content with styled scrollbars, edge shadows, and optional virtualization.
 group: Layout
 api:
   path: src/components/scroll-area/scroll-area
 search:
-  tags: [scroll, overflow, shadow, fade, horizontal, vertical, scrollbar, rtl]
+  tags: [scroll, overflow, scrollbar, shadow, fade, horizontal, vertical, virtual, infinite, rtl]
 ---
 
 import Playground from './playground'
@@ -14,12 +14,22 @@ import Playground from './playground'
 
 ## Anatomy
 
-<Anatomy value={{ root: { slot: 'root', element: 'div' } }} />
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'viewport', children: [{ slot: 'content' }] },
+      { slot: 'scrollbar', children: [{ slot: 'thumb' }] },
+      { slot: 'corner' },
+    ],
+  }}
+/>
 
 ## Usage
 
-Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to
-fade the edges that have more content beyond the viewport.
+Use ScrollArea to constrain overflowing content. Scrolling stays native: wheel, touch, keyboard,
+and scroll anchoring behave as in any scroll container. ScrollArea hides the native scrollbar and
+draws its own scrollbar over the content.
 
 ```tsx
 import { For } from 'solid-js'
@@ -27,7 +37,7 @@ import { ScrollArea } from 'moraine'
 
 export function Example() {
   return (
-    <ScrollArea class="h-48 w-full" shadow role="region" aria-label="Recent activity">
+    <ScrollArea class="h-48 w-full" role="region" aria-label="Recent activity">
       <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
         {(entry) => <p class="py-2 text-sm">Activity entry {entry}</p>}
       </For>
@@ -36,106 +46,164 @@ export function Example() {
 }
 ```
 
-### Native scrolling and sizing
+### Structure and sizing
 
-Set a height or maximum height for vertical scrolling and a width for horizontal scrolling.
-ScrollArea is one `<div>` root that renders its children directly. Use `class`, `classes.root`,
-`style`, or `styles.root` for instance styling, such as `flex` and `gap` on the root.
+Set a height or maximum height on the root for vertical scrolling and a width for horizontal
+scrolling. The root positions the scrollbars; the `viewport` scrolls; the `content` wraps the
+children. Put content layout such as `flex` and `gap` on `classes.content`, not on the root.
 
-The root joins the tab order when its content overflows (`tabIndex={0}`) and leaves it when the
-content fits. Add `role="region"` and an accessible label when the content forms a named region, or
-`tabIndex={-1}` to keep it out of the tab order. Native scroll events and refs reach the root.
+`class`, `style`, `ref`, and other attributes such as `role` and `aria-label` go to the root.
+`onScroll` and `tabIndex` go to the viewport, and `viewportRef` receives it. The viewport joins
+the tab order while its content overflows and leaves it when the content fits; pass `tabIndex` to
+override this.
 
-### Optional shadows
+### Orientation
 
-Shadows are disabled by default. Set `shadow` to enable CSS mask fades at overflowing edges. A
-container at the start shows a trailing fade; between the edges it shows both fades; at the end it
-shows a leading fade. Content that fits has no automatic fade.
-
-The mask fades content into the background behind the container. Scroll position, content changes,
-and size changes update the visible edges.
+`orientation` selects the scrollable axes: `vertical` (default), `horizontal`, or `both`. With
+`both`, the two scrollbars meet at the `corner`. Horizontal and two-axis content grows to its
+natural width.
 
 ```tsx
-<ScrollArea shadow class="h-48" role="region" aria-label="Activity">
-  {entries}
-</ScrollArea>
-```
-
-### Horizontal scrolling and RTL
-
-Set `orientation="horizontal"` and make the content wider than the viewport. Use `hideScrollbar` to
-hide the native scrollbar while retaining wheel, touch, and keyboard scrolling. Horizontal edge
-detection also supports `dir="rtl"`; `left` and `right` refer to physical edges.
-
-```tsx
-<ScrollArea orientation="horizontal" shadow hideScrollbar dir="rtl" class="flex gap-3 max-w-lg">
+<ScrollArea orientation="horizontal" class="max-w-lg" classes={{ content: 'flex gap-3' }}>
   {milestones}
 </ScrollArea>
 ```
 
-### Shadow size and visibility
+### Scrollbars
 
-The default fade size is `40px`. Pass `shadowSize` to set its length in pixels. `offset` adds a
-margin near each edge within which that edge's automatic fade remains hidden.
+`scrollbar` selects how scrollbars appear:
 
-`visibility="auto"` follows measured overflow. Choose `top`, `bottom`, or `both` for vertical
-scrolling, and `left`, `right`, or `both` for horizontal scrolling to force visible edges. `none`
-suppresses every fade. Manual visibility still requires `shadow`.
+| Value    | Behavior                                                            |
+| -------- | ------------------------------------------------------------------- |
+| `auto`   | Custom scrollbars while an axis overflows. This is the default.     |
+| `always` | Custom scrollbars at all times, even when content fits.             |
+| `hover`  | Custom scrollbars while the pointer is over the area or it scrolls. |
+| `scroll` | Custom scrollbars while the area scrolls.                           |
+| `native` | Browser scrollbars.                                                 |
+| `hidden` | No scrollbars; wheel, touch, and keyboard scrolling still work.     |
 
-`onVisibilityChange` reports measured overflow changes while shadows are enabled, including when
-visibility is forced. It receives `top`, `bottom`, `left`, `right`, `both`, or `none`.
+`hover` and `scroll` scrollbars stay visible for `scrollHideDelay` milliseconds (default `600`)
+after activity ends. Drag the thumb to scroll, or press the track to jump to that position.
+Scrollbars are hidden from assistive technology; keyboard scrolling goes through the focusable
+viewport.
+
+### Edge shadows
+
+Set `shadow` to fade content out at edges that have more content beyond them. The shadow grows with
+the remaining distance up to `shadowSize` pixels (default `40`), so it appears gradually instead of
+switching on. The mask fades content into the background behind the container.
 
 ```tsx
-<ScrollArea
-  shadow
-  shadowSize={24}
-  offset={8}
-  visibility="auto"
-  onVisibilityChange={setOverflow}
-  class="h-48"
-  role="region"
-  aria-label="Notifications"
->
-  {items}
+<ScrollArea shadow shadowSize={24} class="h-48" role="region" aria-label="Activity">
+  {entries}
 </ScrollArea>
 ```
+
+### Overflow state
+
+`onOverflowChange` receives `{ x: { start, end }, y: { start, end } }` whenever the edges with
+more content beyond them change. `start` and `end` are logical: in RTL content, the `x` start
+edge is on the right. `edgeThreshold` sets how close to an edge, in pixels, scrolling counts as
+reaching it.
+
+`onReachStart` and `onReachEnd` receive the axis when scrolling reaches an edge of an overflowing
+axis. Combine `onReachEnd` with `edgeThreshold` to load more content before the end.
+
+`controllerRef` receives a controller with the reactive `overflow` state and
+`scrollToEdge(axis, edge, options)`.
+
+```tsx
+let controller: ScrollAreaT.Controller | undefined
+
+;<ScrollArea
+  edgeThreshold={48}
+  onReachEnd={(axis) => axis === 'y' && loadMore()}
+  controllerRef={(value) => (controller = value)}
+>
+  {messages}
+</ScrollArea>
+
+controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })
+```
+
+### Virtualization
+
+Pass `items` and an `itemRender` component to render a collection. Add a `virtualizer` from
+`createListVirtualizer()` to render only the visible items; the viewport is its scroll container.
+Spread `props.props` on each row. Create the virtualizer with `horizontal` for
+`orientation="horizontal"`. `itemRender` takes the place of `children`.
+
+```tsx
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+const virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })
+
+<ScrollArea
+  class="h-80"
+  items={lines}
+  virtualizer={virtualizer}
+  itemRender={(props) => <div {...props.props}>{props.item}</div>}
+/>
+```
+
+### Data attributes and CSS variables
+
+The root carries `data-orientation`, `data-overflow-x` and `data-overflow-y` while an axis
+overflows, `data-overflow-{x,y}-{start,end}` for each overflowing edge, `data-scrolling`, and
+`data-hovering`. Each scrollbar carries `data-orientation`, `data-visible`, `data-dragging`, and
+`data-corner` while the corner is shown; the corner carries `data-visible`.
+
+The root also exposes the remaining scroll distance of each edge in pixels as
+`--scroll-area-overflow-x-start`, `--scroll-area-overflow-x-end`,
+`--scroll-area-overflow-y-start`, and `--scroll-area-overflow-y-end`. Use them for custom
+edge effects.
 
 ### Theme and instance overrides
 
-Set `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The recipe
-exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start` and
-`--scroll-area-shadow-end`. A single-edge mask uses one stop list; the double-edge mask combines
-both. Express size-dependent stops with `var(--scroll-area-shadow-size)` so `shadowSize` keeps
-affecting them.
+Set `scrollArea.defaultVariants` to choose the scrollbar mode or enable shadows across a provider;
+`scrollbar: 'native'` restores browser scrollbars everywhere. The recipe exposes
+`--scroll-area-shadow-size` and the mask layers `--scroll-area-shadow-y` and
+`--scroll-area-shadow-x`.
 
-The size variable resolves in this order, highest first: root `style`, `styles.root`, an explicit
-`shadowSize`, then recipe and Theme defaults. Omitting `shadowSize` keeps the Theme value. Recipe
-variables are written on the root, so an ancestor's same-named variable does not replace the local
-default.
-
-```tsx
-<ScrollArea shadow shadowSize={12} class="h-48" role="region" aria-label="Updates">
-  {updates}
-</ScrollArea>
-```
+The shadow size resolves in this order, highest first: root `style`, `styles.root`, an explicit
+`shadowSize`, then recipe and Theme defaults.
 
 ## Examples
 
-### Fade overflowing activity
+### Shadow overflowing activity
 
 Enable `shadow` on a vertical activity feed so clipped updates are visible at the edge.
 
-<Preview path="./shadows" />
+<Preview path="./shadow" />
 
 ### Scroll project milestones
 
-Set `orientation="horizontal"` for a timeline. `hideScrollbar` keeps native scrolling without a
-visible bar. `dir="rtl"` still reports physical left and right edges.
+Set `orientation="horizontal"` for a timeline. `dir="rtl"` scrolls from the right edge, and the
+shadows follow the logical edges.
 
 <Preview path="./horizontal" />
 
-### Detect whether a notification list can scroll
+### Scroll a wide table
 
-Read `onVisibilityChange` when surrounding UI must know which edges overflow.
+Set `orientation="both"` for content that overflows in both directions.
 
-<Preview path="./visibility" />
+<Preview path="./both-axes" />
+
+### Jump to the latest notification
+
+Read `onOverflowChange` to show whether more notifications are hidden, and call
+`scrollToEdge` from the controller.
+
+<Preview path="./overflow" />
+
+### Load more at the end
+
+`onReachEnd` with `edgeThreshold` requests the next page shortly before the end.
+
+<Preview path="./infinite" />
+
+### Virtualize a long log
+
+`items`, `itemRender`, and `virtualizer` render 10,000 lines while mounting only the visible ones.
+
+<Preview path="./virtualized" />

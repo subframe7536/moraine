@@ -1,232 +1,411 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import type { Component } from 'solid-js'
+import { For, createEffect, createRoot, createSignal, on } from 'solid-js'
+import { afterEach, describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
+import type { ListVirtualizer, VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { ScrollArea } from './scroll-area'
 import type { ScrollAreaT } from './scroll-area.types'
 
-function setDimensions(
-  element: HTMLElement,
-  dimensions: Partial<
-    Record<'clientHeight' | 'scrollHeight' | 'clientWidth' | 'scrollWidth', number>
-  >,
-): void {
-  for (const [name, value] of Object.entries(dimensions)) {
+type Dimension = 'clientHeight' | 'scrollHeight' | 'clientWidth' | 'scrollWidth'
+
+function define(element: HTMLElement, values: Record<string, unknown>): void {
+  for (const [name, value] of Object.entries(values)) {
     Object.defineProperty(element, name, { configurable: true, value })
   }
 }
 
-function expectEdges(element: HTMLElement, start: boolean, end: boolean): void {
-  expect(element.hasAttribute('data-shadow-start')).toBe(start)
-  expect(element.hasAttribute('data-shadow-end')).toBe(end)
+function setDimensions(element: HTMLElement, dimensions: Partial<Record<Dimension, number>>): void {
+  define(element, dimensions)
 }
 
-afterEach(() => vi.unstubAllGlobals())
+function parts(container: HTMLElement) {
+  const root = container.querySelector<HTMLElement>('[data-slot="scroll-area"]')!
+  return {
+    root,
+    viewport: root.querySelector<HTMLElement>('[data-slot="scroll-area-viewport"]')!,
+    content: root.querySelector<HTMLElement>('[data-slot="scroll-area-content"]')!,
+    scrollbar: (orientation: 'vertical' | 'horizontal') =>
+      root.querySelector<HTMLElement>(
+        `[data-slot="scroll-area-scrollbar"][data-orientation="${orientation}"]`,
+      ),
+  }
+}
+
+function edges(root: HTMLElement, axis: ScrollAreaT.Axis): [boolean, boolean] {
+  return [
+    root.hasAttribute(`data-overflow-${axis}-start`),
+    root.hasAttribute(`data-overflow-${axis}-end`),
+  ]
+}
+
+/** Replaces ResizeObserver; the returned function notifies every observer. */
+function stubResizeObserver() {
+  const callbacks = new Set<ResizeObserverCallback>()
+  const observe = vi.fn()
+  const disconnect = vi.fn()
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: ResizeObserverCallback) {
+        callbacks.add(callback)
+      }
+      observe = observe
+      disconnect = disconnect
+    },
+  )
+  return {
+    observe,
+    disconnect,
+    resize: () => {
+      for (const callback of callbacks) {
+        callback([], {} as ResizeObserver)
+      }
+    },
+  }
+}
+
+function pointer(type: string, init: MouseEventInit & { pointerId?: number }): Event {
+  const EventCtor = globalThis.PointerEvent ?? MouseEvent
+  return new EventCtor(type, { bubbles: true, cancelable: true, button: 0, ...init })
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.useRealTimers()
+})
 
 describe('ScrollArea', () => {
-  test('renders native, keyboard-focusable scrolling without shadows by default', () => {
+  test('renders a focusable viewport inside the root and forwards refs and scroll events', () => {
     const onScroll = vi.fn()
     const ref = vi.fn()
+    const viewportRef = vi.fn()
     const screen = render(() => (
-      <ScrollArea ref={ref} onScroll={onScroll} role="region" aria-label="Activity">
+      <ScrollArea
+        ref={ref}
+        viewportRef={viewportRef}
+        onScroll={onScroll}
+        role="region"
+        aria-label="Activity"
+      >
         <button>Open activity</button>
       </ScrollArea>
     ))
     const root = screen.getByRole('region', { name: 'Activity' })
-    expect(root.tabIndex).toBe(0)
-    expect(root.children).toHaveLength(1)
-    expect(root.contains(screen.getByRole('button'))).toBe(true)
+    const { viewport, content, scrollbar } = parts(screen.container)
     expect(ref).toHaveBeenCalledWith(root)
-    setDimensions(root, { clientHeight: 100, scrollHeight: 300 })
-    root.scrollTop = 50
-    fireEvent.scroll(root)
+    expect(viewportRef).toHaveBeenCalledWith(viewport)
+    expect(viewport.tabIndex).toBe(0)
+    expect(content.contains(screen.getByRole('button'))).toBe(true)
+    expect(scrollbar('vertical')?.getAttribute('aria-hidden')).toBe('true')
+    expect(scrollbar('horizontal')).toBeNull()
+
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    viewport.scrollTop = 50
+    fireEvent.scroll(viewport)
     expect(onScroll).toHaveBeenCalledTimes(1)
-    expectEdges(root, false, false)
+    expect(root.hasAttribute('data-overflow-y')).toBe(true)
   })
 
   test('leaves the tab order when content fits and restores it when content overflows', async () => {
-    const screen = render(() => (
-      <ScrollArea role="region" aria-label="Activity">
-        Content
-      </ScrollArea>
-    ))
-    const root = screen.getByRole('region', { name: 'Activity' })
-    setDimensions(root, { clientHeight: 100, scrollHeight: 100 })
-    fireEvent(window, new Event('resize'))
-    await waitFor(() => expect(root.tabIndex).toBe(-1))
+    const { resize } = stubResizeObserver()
+    const screen = render(() => <ScrollArea>Content</ScrollArea>)
+    const { viewport } = parts(screen.container)
+    expect(viewport.tabIndex).toBe(0)
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 100 })
+    await waitFor(() => expect(viewport.tabIndex).toBe(-1))
 
-    setDimensions(root, { scrollHeight: 300 })
-    fireEvent(window, new Event('resize'))
-    await waitFor(() => expect(root.tabIndex).toBe(0))
+    setDimensions(viewport, { scrollHeight: 300 })
+    resize()
+    expect(viewport.tabIndex).toBe(0)
   })
 
-  test('tracks vertical boundaries, suppresses duplicate notifications, and clears fitting content', async () => {
-    const onVisibilityChange = vi.fn()
-    const screen = render(() => <ScrollArea shadow onVisibilityChange={onVisibilityChange} />)
-    const root = screen.container.firstElementChild as HTMLElement
-    setDimensions(root, { clientHeight: 100, scrollHeight: 300 })
-    await waitFor(() => expectEdges(root, false, true))
-    expect(onVisibilityChange).toHaveBeenLastCalledWith('bottom')
+  test('measures a viewport that binds before it joins the document', async () => {
+    const element = createRoot((dispose) => {
+      onTestFinished(dispose)
+      return <ScrollArea />
+    }) as HTMLElement
+    document.body.append(element)
+    onTestFinished(() => element.remove())
+    const { root, viewport } = parts(document.body)
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    await waitFor(() => expect(edges(root, 'y')).toEqual([false, true]))
+    viewport.scrollTop = 200
+    fireEvent.scroll(viewport)
+    expect(edges(root, 'y')).toEqual([true, false])
+  })
 
-    root.scrollTop = 50
-    fireEvent.scroll(root)
-    expectEdges(root, true, true)
-    expect(onVisibilityChange).toHaveBeenLastCalledWith('both')
-    fireEvent.scroll(root)
-    expect(onVisibilityChange).toHaveBeenCalledTimes(2)
+  test('reports overflowing edges, distances, and reached edges without shadows', async () => {
+    const onOverflowChange = vi.fn()
+    const onReachStart = vi.fn()
+    const onReachEnd = vi.fn()
+    const screen = render(() => (
+      <ScrollArea
+        edgeThreshold={10}
+        onOverflowChange={onOverflowChange}
+        onReachStart={onReachStart}
+        onReachEnd={onReachEnd}
+      />
+    ))
+    const { root, viewport } = parts(screen.container)
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    await waitFor(() => expect(edges(root, 'y')).toEqual([false, true]))
+    expect(onOverflowChange).toHaveBeenLastCalledWith({
+      x: { start: false, end: false },
+      y: { start: false, end: true },
+    })
+    expect(root.style.getPropertyValue('--scroll-area-overflow-y-end')).toBe('200px')
 
-    root.scrollTop = 199.5
-    fireEvent.scroll(root)
-    expectEdges(root, true, false)
-    expect(onVisibilityChange).toHaveBeenLastCalledWith('top')
+    viewport.scrollTop = 5
+    fireEvent.scroll(viewport)
+    expect(edges(root, 'y')).toEqual([false, true])
+    expect(root.style.getPropertyValue('--scroll-area-overflow-y-start')).toBe('5px')
 
-    root.scrollTop = 0
-    setDimensions(root, { scrollHeight: 100 })
-    fireEvent.scroll(root)
-    expectEdges(root, false, false)
-    expect(onVisibilityChange).toHaveBeenLastCalledWith('none')
+    viewport.scrollTop = 50
+    fireEvent.scroll(viewport)
+    fireEvent.scroll(viewport)
+    expect(edges(root, 'y')).toEqual([true, true])
+    expect(onOverflowChange).toHaveBeenCalledTimes(2)
+
+    viewport.scrollTop = 195
+    fireEvent.scroll(viewport)
+    expect(edges(root, 'y')).toEqual([true, false])
+    expect(onReachEnd).toHaveBeenCalledExactlyOnceWith('y')
+
+    viewport.scrollTop = 0
+    fireEvent.scroll(viewport)
+    expect(onReachStart).toHaveBeenCalledExactlyOnceWith('y')
+
+    // Content that stops overflowing does not count as reaching an edge.
+    setDimensions(viewport, { scrollHeight: 100 })
+    fireEvent.scroll(viewport)
+    expect(edges(root, 'y')).toEqual([false, false])
+    expect(root.hasAttribute('data-overflow-y')).toBe(false)
+    expect(onReachEnd).toHaveBeenCalledTimes(1)
   })
 
   test.each(['ltr', 'rtl'] as const)(
-    'tracks physical horizontal edges in %s content',
+    'tracks logical horizontal edges in %s content',
     async (direction) => {
       const screen = render(() => (
-        <ScrollArea shadow orientation="horizontal" style={{ direction }} />
+        <ScrollArea orientation="horizontal" styles={{ viewport: { direction } }} />
       ))
-      const root = screen.container.firstElementChild as HTMLElement
-      setDimensions(root, { clientWidth: 100, scrollWidth: 300 })
-      await waitFor(() => expectEdges(root, direction === 'rtl', direction === 'ltr'))
+      const { root, viewport } = parts(screen.container)
+      setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 })
+      await waitFor(() => expect(edges(root, 'x')).toEqual([false, true]))
+      expect(root.style.getPropertyValue('--scroll-area-shadow-x-direction')).toBe(
+        direction === 'rtl' ? 'to left' : 'to right',
+      )
 
-      root.scrollLeft = direction === 'rtl' ? -100 : 100
-      fireEvent.scroll(root)
-      expectEdges(root, true, true)
+      viewport.scrollLeft = direction === 'rtl' ? -100 : 100
+      fireEvent.scroll(viewport)
+      expect(edges(root, 'x')).toEqual([true, true])
 
-      root.scrollLeft = direction === 'rtl' ? -200 : 200
-      fireEvent.scroll(root)
-      expectEdges(root, direction === 'ltr', direction === 'rtl')
-
-      root.scrollLeft = direction === 'rtl' ? -250 : -50
-      fireEvent.scroll(root)
-      expectEdges(root, false, true)
+      viewport.scrollLeft = direction === 'rtl' ? -250 : 250
+      fireEvent.scroll(viewport)
+      expect(edges(root, 'x')).toEqual([true, false])
+      expect(edges(root, 'y')).toEqual([false, false])
     },
   )
 
-  test('updates axis, offset, shadow size, visibility, and shadow opt-out without replacing children', async () => {
-    const [shadow, setShadow] = createSignal(true)
-    const [orientation, setOrientation] = createSignal<'vertical' | 'horizontal'>('vertical')
-    const [offset, setOffset] = createSignal(10)
-    const [shadowSize, setShadowSize] = createSignal(40)
-    const [visibility, setVisibility] = createSignal<ScrollAreaT.Visibility>('auto')
+  test('scrolls both axes with two scrollbars and a corner', async () => {
+    const screen = render(() => <ScrollArea orientation="both" />)
+    const { root, viewport, scrollbar } = parts(screen.container)
+    const corner = root.querySelector<HTMLElement>('[data-slot="scroll-area-corner"]')!
+    setDimensions(viewport, {
+      clientHeight: 100,
+      scrollHeight: 400,
+      clientWidth: 100,
+      scrollWidth: 200,
+    })
+    await waitFor(() => expect(corner.hasAttribute('data-visible')).toBe(true))
+    expect(scrollbar('vertical')?.hasAttribute('data-corner')).toBe(true)
+    expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(true)
+
+    const thumb = scrollbar('vertical')!.firstElementChild as HTMLElement
+    expect(thumb.style.height).toBe('max(20px, 25%)')
+    viewport.scrollTop = 150
+    fireEvent.scroll(viewport)
+    expect(thumb.style.top).toBe('calc(0.5 * (100% - max(20px, 25%)))')
+
+    setDimensions(viewport, { scrollWidth: 100 })
+    fireEvent.scroll(viewport)
+    expect(corner.hasAttribute('data-visible')).toBe(false)
+    expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(false)
+  })
+
+  test('shows scrollbars according to the scrollbar mode', async () => {
+    vi.useFakeTimers()
+    const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbar']>('hover')
+    const screen = render(() => <ScrollArea scrollbar={mode()} scrollHideDelay={300} />)
+    const { root, viewport, scrollbar } = parts(screen.container)
+    const visible = () => scrollbar('vertical')?.hasAttribute('data-visible')
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(visible()).toBe(false)
+
+    fireEvent.pointerEnter(root)
+    expect(visible()).toBe(true)
+    expect(root.hasAttribute('data-hovering')).toBe(true)
+    fireEvent.pointerLeave(root)
+    expect(visible()).toBe(true)
+    vi.advanceTimersByTime(300)
+    expect(visible()).toBe(false)
+
+    setMode('scroll')
+    fireEvent.pointerEnter(root)
+    expect(visible()).toBe(false)
+    fireEvent.scroll(viewport)
+    expect(visible()).toBe(true)
+    expect(root.hasAttribute('data-scrolling')).toBe(true)
+    vi.advanceTimersByTime(300)
+    expect(visible()).toBe(false)
+
+    setMode('auto')
+    expect(visible()).toBe(true)
+    setDimensions(viewport, { scrollHeight: 100 })
+    fireEvent.scroll(viewport)
+    expect(visible()).toBe(false)
+    setMode('always')
+    expect(visible()).toBe(true)
+
+    setMode('native')
+    expect(scrollbar('vertical')).toBeNull()
+    setMode('hidden')
+    expect(scrollbar('vertical')).toBeNull()
+  })
+
+  test('drags the thumb and jumps to track presses', async () => {
+    const screen = render(() => <ScrollArea />)
+    const { viewport, scrollbar } = parts(screen.container)
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    const track = scrollbar('vertical')!
+    const thumb = track.firstElementChild as HTMLElement
+    define(track, {
+      clientHeight: 100,
+      clientTop: 0,
+      getBoundingClientRect: () => ({ top: 0, left: 0 }) as DOMRect,
+    })
+    define(thumb, { offsetHeight: 20, offsetTop: 0 })
+    await waitFor(() => expect(track.hasAttribute('data-visible')).toBe(true))
+
+    fireEvent(thumb, pointer('pointerdown', { clientY: 10 }))
+    expect(track.hasAttribute('data-dragging')).toBe(true)
+    fireEvent(track, pointer('pointermove', { clientY: 50 }))
+    expect(viewport.scrollTop).toBe(100)
+    fireEvent(track, pointer('pointermove', { clientY: 500 }))
+    expect(viewport.scrollTop).toBe(200)
+    fireEvent(track, pointer('pointerup', { clientY: 500 }))
+    expect(track.hasAttribute('data-dragging')).toBe(false)
+    fireEvent(track, pointer('pointermove', { clientY: 10 }))
+    expect(viewport.scrollTop).toBe(200)
+
+    fireEvent(track, pointer('pointerdown', { clientY: 10 }))
+    expect(viewport.scrollTop).toBe(0)
+    fireEvent(track, pointer('pointerup', { clientY: 10 }))
+    fireEvent(track, pointer('pointerdown', { clientY: 50, button: 2 }))
+    expect(viewport.scrollTop).toBe(0)
+  })
+
+  test('scrolls to logical edges through the controller', async () => {
+    const scrollTo = vi.fn()
+    let controller: ScrollAreaT.Controller | undefined
     const screen = render(() => (
       <ScrollArea
-        shadow={shadow()}
-        orientation={orientation()}
-        offset={offset()}
-        shadowSize={shadowSize()}
-        visibility={visibility()}
-        hideScrollbar
-      >
-        <input aria-label="Draft" />
-      </ScrollArea>
+        orientation="both"
+        styles={{ viewport: { direction: 'rtl' } }}
+        controllerRef={(value) => (controller = value)}
+      />
     ))
-    const root = screen.container.firstElementChild as HTMLElement
-    const input = screen.getByRole('textbox') as HTMLInputElement
-    input.value = 'Retained draft'
-    setDimensions(root, {
+    const { viewport } = parts(screen.container)
+    define(viewport, { scrollTo })
+    setDimensions(viewport, {
       clientHeight: 100,
       scrollHeight: 300,
       clientWidth: 100,
       scrollWidth: 300,
     })
-    root.scrollTop = 5
-    await waitFor(() => expectEdges(root, false, true))
-    setOffset(0)
-    await waitFor(() => expectEdges(root, true, true))
+    await waitFor(() => expect(controller?.overflow.y.end).toBe(true))
+    expect(controller?.overflow.x).toEqual({ start: false, end: true })
 
-    setOrientation('horizontal')
-    await waitFor(() => expectEdges(root, false, true))
-    setShadowSize(24)
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('24px')
-
-    setVisibility('both')
-    expectEdges(root, true, true)
-    setVisibility('left')
-    expectEdges(root, true, false)
-    setVisibility('none')
-    expectEdges(root, false, false)
-    setVisibility('both')
-    setShadow(false)
-    expectEdges(root, false, false)
-    setVisibility('auto')
-    setShadow(true)
-    await waitFor(() => expectEdges(root, false, true))
-    expect(screen.getByRole('textbox')).toBe(input)
-    expect(input.value).toBe('Retained draft')
+    controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 300, behavior: 'smooth' })
+    controller?.scrollToEdge('x', 'end')
+    expect(scrollTo).toHaveBeenLastCalledWith({ left: -300 })
+    controller?.scrollToEdge('x', 'start')
+    expect(scrollTo).toHaveBeenLastCalledWith({ left: 0 })
   })
 
-  test('remeasures on content and viewport changes and releases observers on unmount', async () => {
-    let resize: ResizeObserverCallback | undefined
-    const disconnect = vi.fn()
-    const observe = vi.fn()
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        constructor(callback: ResizeObserverCallback) {
-          resize = callback
-        }
-        observe = observe
-        disconnect = disconnect
-      },
+  test('renders items with itemRender and mounts a virtualizer on the viewport', () => {
+    const ItemRender: Component<ScrollAreaT.ItemRenderProps<string>> = (props) => (
+      <p data-virtual={props.props ? '' : undefined}>
+        {props.index}:{props.item}
+      </p>
     )
-    const [text, setText] = createSignal('Short content')
-    const onVisibilityChange = vi.fn()
+    let scrollElement: HTMLElement | undefined
+    const virtualizer: ListVirtualizer<string> = {
+      virtualRender: (props: VirtualRenderProps<string>) => {
+        createEffect(
+          on(
+            () => props.scrollElement,
+            (element) => (scrollElement = element),
+          ),
+        )
+        return (
+          <For each={props.entries}>
+            {(entry, index) => <>{props.render(entry, index(), {})}</>}
+          </For>
+        )
+      },
+      scrollToIndex: vi.fn(),
+    }
+    const [virtual, setVirtual] = createSignal<ListVirtualizer<string>>()
     const screen = render(() => (
-      <ScrollArea shadow onVisibilityChange={onVisibilityChange}>
-        <p>{text()}</p>
+      <ScrollArea items={['a', 'b']} itemRender={ItemRender} virtualizer={virtual()}>
+        <span>Ignored</span>
       </ScrollArea>
     ))
-    const root = screen.container.firstElementChild as HTMLElement
-    setDimensions(root, { clientHeight: 100, scrollHeight: 100 })
-    await Promise.resolve()
-    expectEdges(root, false, false)
-    expect(observe).toHaveBeenCalledWith(root)
-    expect(observe).toHaveBeenCalledWith(screen.getByText('Short content'))
+    expect(screen.getByText('0:a').hasAttribute('data-virtual')).toBe(false)
+    expect(screen.queryByText('Ignored')).toBeNull()
 
-    setDimensions(root, { scrollHeight: 300 })
-    setText('Long content')
-    await waitFor(() => expectEdges(root, false, true))
+    setVirtual(() => virtualizer)
+    expect(screen.getByText('1:b').hasAttribute('data-virtual')).toBe(true)
+    expect(scrollElement).toBe(parts(screen.container).viewport)
+  })
 
-    setDimensions(root, { clientHeight: 300 })
-    resize?.([], {} as ResizeObserver)
-    expectEdges(root, false, false)
-    setDimensions(root, { clientHeight: 100 })
-    fireEvent(window, new Event('resize'))
-    expectEdges(root, false, true)
+  test('releases observers and listeners on unmount', () => {
+    const { observe, disconnect, resize } = stubResizeObserver()
+    const onOverflowChange = vi.fn()
+    const screen = render(() => (
+      <ScrollArea onOverflowChange={onOverflowChange}>
+        <p>Content</p>
+      </ScrollArea>
+    ))
+    const { root, viewport, content } = parts(screen.container)
+    expect(observe).toHaveBeenCalledWith(viewport)
+    expect(observe).toHaveBeenCalledWith(content)
+
+    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    resize()
+    expect(edges(root, 'y')).toEqual([false, true])
 
     screen.unmount()
-    onVisibilityChange.mockClear()
-    setDimensions(root, { scrollHeight: 100 })
-    resize?.([], {} as ResizeObserver)
-    fireEvent.scroll(root)
-    fireEvent(window, new Event('resize'))
-    expect(onVisibilityChange).not.toHaveBeenCalled()
+    onOverflowChange.mockClear()
+    setDimensions(viewport, { scrollHeight: 100 })
+    resize()
+    fireEvent.scroll(viewport)
+    expect(onOverflowChange).not.toHaveBeenCalled()
     expect(disconnect).toHaveBeenCalled()
   })
 
-  test('uses theme defaults and root overrides without ResizeObserver support', async () => {
-    vi.stubGlobal('ResizeObserver', undefined)
+  test('uses theme defaults and resolves the shadow size from theme, prop, and overrides', () => {
     const theme = defineTheme({
       scrollArea: {
-        defaultVariants: { shadow: true },
-        base: {
-          root: 'theme-scroll-root',
-          '--scroll-area-shadow-size': '18px',
-          '--scroll-area-shadow-start': 'transparent, black 12px',
-          '--scroll-area-shadow-end': 'black calc(100% - 12px), transparent',
-        },
+        defaultVariants: { shadow: true, scrollbar: 'native' },
+        base: { root: 'theme-scroll-root', '--scroll-area-shadow-size': '18px' },
       },
     })
     const [shadowSize, setShadowSize] = createSignal<number>()
@@ -238,40 +417,34 @@ describe('ScrollArea', () => {
           shadowSize={shadowSize()}
           tabIndex={-1}
           class="custom-root"
+          classes={{ viewport: 'custom-viewport' }}
           styles={styles()}
           style={style()}
         />
       </MoraineProvider>
     ))
-    const root = screen.container.firstElementChild as HTMLElement
-    setDimensions(root, { clientHeight: 100, scrollHeight: 300 })
-    await waitFor(() => expectEdges(root, false, true))
-    expect(root.tabIndex).toBe(-1)
+    const { root, viewport, scrollbar } = parts(screen.container)
+    const size = () => root.style.getPropertyValue('--scroll-area-shadow-size')
+    expect(scrollbar('vertical')).toBeNull()
+    expect(viewport.tabIndex).toBe(-1)
+    expect(viewport.className).toContain('custom-viewport')
+    expect(viewport.className).toContain('mask-image')
     expect(root.className).toContain('theme-scroll-root')
     expect(root.className).toContain('custom-root')
     expect(root.style.height).toBe('100px')
     expect(root.style.width).toBe('200px')
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('18px')
-    expect(root.style.getPropertyValue('--scroll-area-direction')).toBe('to bottom')
-    expect(root.style.getPropertyValue('--scroll-area-shadow-start')).toBe(
-      'transparent, black 12px',
-    )
-    expect(root.style.getPropertyValue('--scroll-area-shadow-end')).toBe(
-      'black calc(100% - 12px), transparent',
-    )
+    expect(size()).toBe('18px')
+
     setShadowSize(24)
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('24px')
+    expect(size()).toBe('24px')
     setStyles({ root: { height: '100px', '--scroll-area-shadow-size': '30px' } })
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('30px')
+    expect(size()).toBe('30px')
     setStyle({ width: '200px', '--scroll-area-shadow-size': '36px' })
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('36px')
-    setShadowSize(16)
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('36px')
+    expect(size()).toBe('36px')
     setStyle({ width: '200px' })
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('30px')
     setStyles({ root: { height: '100px' } })
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('16px')
+    expect(size()).toBe('24px')
     setShadowSize(undefined)
-    expect(root.style.getPropertyValue('--scroll-area-shadow-size')).toBe('18px')
+    expect(size()).toBe('18px')
   })
 })

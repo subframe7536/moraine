@@ -12,9 +12,15 @@ const entries = [
   'Prepared the next release.',
 ]
 
-export function Shadows() {
+export function Shadow() {
   return (
-    <ScrollArea shadow class="pr-3 h-48 space-y-1" role="region" aria-label="Project activity">
+    <ScrollArea
+      shadow
+      class="h-48"
+      classes={{ content: 'pe-3 space-y-1' }}
+      role="region"
+      aria-label="Project activity"
+    >
       <For each={entries}>
         {(entry, index) => (
           <div class="py-1.5 flex gap-2 items-baseline">

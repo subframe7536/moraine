@@ -11,13 +11,19 @@
         "kind": "export",
         "name": "ScrollArea"
       },
+      "generics": [
+        {
+          "name": "TItem",
+          "default": "unknown"
+        }
+      ],
       "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Content rendered directly inside the scroll container."
+          "description": "Content rendered inside the viewport. Ignored when `itemRender` is set."
         },
         {
           "name": "class",
@@ -32,46 +38,86 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "hideScrollbar",
+          "name": "controllerRef",
           "optional": true,
-          "type": "boolean",
-          "description": "Hide the native scrollbar while retaining scrolling.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
+          "type": "(controller: Controller) => void",
+          "description": "Receives the imperative controller once, during setup."
         },
         {
-          "name": "offset",
+          "name": "edgeThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance from an edge within which its shadow stays hidden.",
+          "description": "Distance in pixels from an edge within which it counts as reached.",
           "default": {
             "kind": "literal",
             "value": 0
           }
         },
         {
-          "name": "onVisibilityChange",
+          "name": "itemRender",
           "optional": true,
-          "type": "(visibility: Exclude<Visibility, 'auto'>) => void",
-          "description": "Called when measured overflow edges change while shadow is enabled."
+          "type": "Component<ItemRenderProps<TItem>>",
+          "description": "Renders one collection item. Takes the place of `children`."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "readonly TItem[]",
+          "description": "Reactive collection rendered with `itemRender`."
+        },
+        {
+          "name": "onOverflowChange",
+          "optional": true,
+          "type": "(overflow: Overflow) => void",
+          "description": "Called when the overflowing edges change."
+        },
+        {
+          "name": "onReachEnd",
+          "optional": true,
+          "type": "(axis: Axis) => void",
+          "description": "Called when scrolling reaches the end edge of an overflowing axis."
+        },
+        {
+          "name": "onReachStart",
+          "optional": true,
+          "type": "(axis: Axis) => void",
+          "description": "Called when scrolling reaches the start edge of an overflowing axis."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": "'horizontal' | 'vertical'",
-          "description": "Scroll axis.",
+          "type": "'vertical' | 'horizontal' | 'both'",
+          "description": "Scrollable axes.",
           "default": {
             "kind": "literal",
             "value": "vertical"
           }
         },
         {
+          "name": "scrollbar",
+          "optional": true,
+          "type": "'auto' | 'always' | 'hover' | 'scroll' | 'native' | 'hidden'",
+          "description": "Scrollbar presentation. `auto` shows custom scrollbars while an axis overflows, `always` keeps\nthem visible, `hover` shows them while the pointer is over the area or it scrolls, `scroll`\nshows them while it scrolls, `native` keeps browser scrollbars, and `hidden` hides every\nscrollbar while retaining scrolling.",
+          "default": {
+            "kind": "literal",
+            "value": "auto"
+          }
+        },
+        {
+          "name": "scrollHideDelay",
+          "optional": true,
+          "type": "number",
+          "description": "Milliseconds `hover` and `scroll` scrollbars stay visible after activity ends.",
+          "default": {
+            "kind": "literal",
+            "value": 600
+          }
+        },
+        {
           "name": "shadow",
           "optional": true,
           "type": "boolean",
-          "description": "Whether overflowing edges fade out.",
+          "description": "Whether edges with more content beyond them fade out as a shadow.",
           "default": {
             "kind": "literal",
             "value": false
@@ -81,7 +127,7 @@
           "name": "shadowSize",
           "optional": true,
           "type": "number",
-          "description": "Edge fade size in pixels.",
+          "description": "Shadow length in pixels while `shadow` is enabled.",
           "default": {
             "kind": "literal",
             "value": 40
@@ -100,28 +146,56 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "visibility",
+          "name": "viewportRef",
           "optional": true,
-          "type": "Visibility",
-          "description": "Visible shadow edges. Manual visibility still requires shadow.",
-          "default": {
-            "kind": "literal",
-            "value": "auto"
-          }
+          "type": "Ref<HTMLDivElement>",
+          "description": "Receives the native scroll container."
+        },
+        {
+          "name": "virtualizer",
+          "optional": true,
+          "type": "Virtualizer<TItem>",
+          "description": "Renders only the visible `items`. The viewport is the scroll container; create the\nvirtualizer with `horizontal` for `orientation=\"horizontal\"`."
         }
       ]
     }
   ],
   "slots": [
-    "root"
+    "root",
+    "viewport",
+    "content",
+    "scrollbar",
+    "thumb",
+    "corner"
   ],
   "dataAttributes": [
     {
       "target": "root",
       "attributes": [
+        "data-hovering",
         "data-orientation",
-        "data-shadow-end",
-        "data-shadow-start"
+        "data-overflow-x",
+        "data-overflow-x-end",
+        "data-overflow-x-start",
+        "data-overflow-y",
+        "data-overflow-y-end",
+        "data-overflow-y-start",
+        "data-scrolling"
+      ]
+    },
+    {
+      "target": "scrollbar",
+      "attributes": [
+        "data-corner",
+        "data-dragging",
+        "data-orientation",
+        "data-visible"
+      ]
+    },
+    {
+      "target": "corner",
+      "attributes": [
+        "data-visible"
       ]
     }
   ]

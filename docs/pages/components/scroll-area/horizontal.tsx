@@ -15,9 +15,9 @@ export function Horizontal() {
             <ScrollArea
               orientation="horizontal"
               shadow
-              hideScrollbar
               dir={direction}
-              class="pb-2 flex gap-3 max-w-lg w-full"
+              class="max-w-lg w-full"
+              classes={{ content: 'pb-3 flex gap-3' }}
               role="region"
               aria-label={`${direction.toUpperCase()} project milestones`}
             >
