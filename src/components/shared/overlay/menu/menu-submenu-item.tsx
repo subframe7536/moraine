@@ -1,5 +1,5 @@
 import type { Accessor, Component, JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, onMount, Show, untrack } from 'solid-js'
+import { createSignal, onCleanup, onMount, Show, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { useLocale } from '../../../../provider/locale/locale-context'
@@ -114,16 +114,6 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       setAutoFocusStrategy(strategy)
       setOpenState(true)
     }
-
-    createEffect(
-      on(contentPresence.present, (present) => {
-        if (present) {
-          return
-        }
-
-        submenuLayerState = undefined
-      }),
-    )
 
     const onPointerMove = (): void => {
       if (itemProps.item.disabled) {
