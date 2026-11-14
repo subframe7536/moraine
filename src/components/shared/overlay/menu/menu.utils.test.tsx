@@ -393,4 +393,41 @@ describe('resolveMenuGroups', () => {
     expect(groups[1]?.items).toEqual([{ label: 'Item 2' }])
     expect(groups[1]?.separator).toBe(true)
   })
+
+  test('lifts radio-group entries out of array sub-groups into their own groups', () => {
+    const before = { label: 'Copy' }
+    const after = { label: 'Delete' }
+    const radioGroup = {
+      type: 'radio-group' as const,
+      label: 'Density',
+      items: [
+        { type: 'radio' as const, value: 'compact', label: 'Compact' },
+        { type: 'radio' as const, value: 'comfortable', label: 'Comfortable' },
+      ],
+    }
+    const groups = resolveMenuGroups([[before, radioGroup, after]])
+
+    expect(groups).toHaveLength(3)
+    expect(groups[0]).toEqual({ items: [before], separator: false })
+    expect(groups[1]).toEqual({ label: 'Density', items: [], radioGroup })
+    expect(groups[2]).toEqual({ items: [after] })
+  })
+
+  test('lifts radio-group entries out of group items and keeps the label on the first chunk', () => {
+    const before = { label: 'Profile' }
+    const after = { label: 'Sign out' }
+    const radioGroup = {
+      type: 'radio-group' as const,
+      label: 'Density',
+      items: [{ type: 'radio' as const, value: 'compact', label: 'Compact' }],
+    }
+    const groups = resolveMenuGroups([
+      { type: 'group' as const, label: 'Account', items: [before, radioGroup, after] },
+    ])
+
+    expect(groups).toHaveLength(3)
+    expect(groups[0]).toEqual({ label: 'Account', items: [before] })
+    expect(groups[1]).toEqual({ label: 'Density', items: [], radioGroup })
+    expect(groups[2]).toEqual({ items: [after] })
+  })
 })

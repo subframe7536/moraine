@@ -59,23 +59,57 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
   const groups: OverlayMenuGroup<TItem>[] = []
   let defaultGroup: TItem[] = []
 
+  const flushDefaultGroup = (): void => {
+    if (defaultGroup.length > 0) {
+      groups.push({ items: defaultGroup, separator: groups.length > 0 })
+      defaultGroup = []
+    }
+  }
+
+  const pushNestedItems = (list: TItem[], label?: JSX.Element, withSeparator = false): void => {
+    let chunk: TItem[] = []
+    let first = true
+    const push = (entry: OverlayMenuGroup<TItem>): void => {
+      if (first && withSeparator) {
+        entry.separator = groups.length > 0
+      }
+      groups.push(entry)
+      first = false
+    }
+    const flush = (): void => {
+      if (chunk.length === 0) {
+        return
+      }
+      push({ label: first ? label : undefined, items: chunk })
+      chunk = []
+    }
+
+    for (const child of list) {
+      if (child.type === 'radio-group') {
+        flush()
+        if (child.items?.length) {
+          push({
+            label: first ? (label ?? child.label) : child.label,
+            items: [],
+            radioGroup: child,
+          })
+        }
+        continue
+      }
+      chunk.push(child)
+    }
+    flush()
+  }
+
   for (const item of items) {
     if (Array.isArray(item)) {
-      if (defaultGroup.length > 0) {
-        groups.push({ items: defaultGroup, separator: groups.length > 0 })
-        defaultGroup = []
-      }
-      if (item.length > 0) {
-        groups.push({ items: item, separator: groups.length > 0 })
-      }
+      flushDefaultGroup()
+      pushNestedItems(item, undefined, true)
       continue
     }
 
     if (item.type === 'radio-group') {
-      if (defaultGroup.length > 0) {
-        groups.push({ items: defaultGroup, separator: groups.length > 0 })
-        defaultGroup = []
-      }
+      flushDefaultGroup()
 
       if (item.items?.length) {
         groups.push({ label: item.label, items: [], radioGroup: item })
@@ -85,17 +119,11 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     }
 
     if (item.type === 'group') {
-      if (defaultGroup.length > 0) {
-        groups.push({ items: defaultGroup, separator: groups.length > 0 })
-        defaultGroup = []
-      }
+      flushDefaultGroup()
 
       const groupItems = item.items as TItem[] | undefined
       if (groupItems?.length) {
-        groups.push({
-          label: item.label,
-          items: groupItems,
-        })
+        pushNestedItems(groupItems, item.label)
       }
 
       continue
@@ -104,9 +132,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     defaultGroup.push(item)
   }
 
-  if (defaultGroup.length > 0) {
-    groups.push({ items: defaultGroup, separator: groups.length > 0 })
-  }
+  flushDefaultGroup()
 
   return groups
 }

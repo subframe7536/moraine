@@ -1432,6 +1432,53 @@ describe('DropdownMenu', () => {
     expect(onDensityChange).toHaveBeenCalledTimes(2)
   })
 
+  test('lifts radio groups nested in group items into sibling groups without nested group roles', () => {
+    const onDensityChange = vi.fn()
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'group',
+              label: 'Account',
+              items: [
+                { label: 'Profile' },
+                {
+                  type: 'radio-group',
+                  label: 'Density',
+                  defaultValue: 'compact',
+                  onValueChange: onDensityChange,
+                  items: [
+                    { type: 'radio', value: 'compact', label: 'Compact' },
+                    { type: 'radio', value: 'comfortable', label: 'Comfortable' },
+                  ],
+                },
+                { label: 'Sign out' },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const menuGroups = document.body.querySelectorAll('[role="menu"] [role="group"]')
+    expect(menuGroups).toHaveLength(3)
+    for (const group of menuGroups) {
+      expect(group.querySelector('[role="group"]')).toBeNull()
+    }
+    expect(menuGroups[0]!.textContent).toContain('Account')
+
+    const comfortableItem = document.body.querySelectorAll('[role="menuitemradio"]')[1]!
+    fireEvent.click(comfortableItem)
+
+    expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
+    expect(onDensityChange).toHaveBeenCalledExactlyOnceWith('comfortable')
+  })
+
   test('applies itemLeading classes to every leading icon host and renders component icons inside', async () => {
     const Glyph = () => <svg data-testid="glyph" />
     render(() => (

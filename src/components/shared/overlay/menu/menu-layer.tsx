@@ -36,12 +36,7 @@ import {
   useOverlayMenuLayerState,
 } from './menu.utils'
 import type { OverlayMenuGroup } from './menu.utils'
-import type {
-  OverlayMenuItem,
-  OverlayMenuLayerProps,
-  OverlayMenuRadioGroupItem,
-  OverlayMenuSharedSlots,
-} from './types'
+import type { OverlayMenuItem, OverlayMenuLayerProps, OverlayMenuSharedSlots } from './types'
 
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuLayerProps<TItem>,
@@ -304,16 +299,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
               <Match when={item.type === 'checkbox'}>
                 <CheckboxMenuItem item={item} />
-              </Match>
-
-              <Match when={item.type === 'radio-group'}>
-                <MenuGroup
-                  group={{
-                    label: item.label,
-                    items: [],
-                    radioGroup: item as OverlayMenuRadioGroupItem,
-                  }}
-                />
               </Match>
 
               <Match when={hasOverlayMenuChildren(item)}>
