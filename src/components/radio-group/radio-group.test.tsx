@@ -97,6 +97,28 @@ describe('RadioGroup', () => {
     }
   })
 
+  test('resets selection when the associated external form resets', async () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <RadioGroup form="external-form" name="plan" defaultValue="A" items={['A', 'B']} />
+      </>
+    ))
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+    fireEvent.click(radioB)
+    expect(new FormData(externalForm).getAll('plan')).toEqual(['B'])
+
+    externalForm.reset()
+    await Promise.resolve()
+
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+    expect(new FormData(externalForm).getAll('plan')).toEqual(['A'])
+  })
+
   test('supports uncontrolled selection changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (

@@ -274,7 +274,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   })
 
   useFormReset(
-    () => groupEl?.closest('form'),
+    () => inputRefs.values().next().value?.form ?? groupEl?.closest('form'),
     () => {
       resetSelectedValue()
       syncInputCheckedState()
