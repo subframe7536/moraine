@@ -53,7 +53,7 @@ export namespace AccordionT {
     /**
      * Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }.
      */
-    content?: JSX.Element | Component<ContentRenderProps>
+    contentRender?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Optional class applied to the item element.

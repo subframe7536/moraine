@@ -52,7 +52,7 @@ export namespace StepperT {
     /**
      * Content to display when the step is active. Accepts static JSX or a component receiving { value, active, completed, index }.
      */
-    content?: JSX.Element | Component<ContentRenderProps>
+    contentRender?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Whether the step is disabled.

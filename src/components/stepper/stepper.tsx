@@ -100,7 +100,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       const title = createLazyMemo(() => item.title)
       const description = createLazyMemo(() => item.description)
       const icon = createLazyMemo(() => item.icon)
-      const content = createLazyMemo(() => item.content)
+      const contentRender = createLazyMemo(() => item.contentRender)
       const mergedItem = mergeProps(item, {
         get disabled() {
           return item.disabled || occurrence > 0
@@ -114,8 +114,8 @@ export function Stepper(props: StepperProps): JSX.Element {
         get icon() {
           return icon()
         },
-        get content() {
-          return content()
+        get contentRender() {
+          return contentRender()
         },
       })
       return {
@@ -239,7 +239,9 @@ export function Stepper(props: StepperProps): JSX.Element {
             const titleId = () => `${contentId()}-step-${entry.index}-title`
             const descriptionId = () => `${contentId()}-step-${entry.index}-description`
             const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
-            const panelMounted = createMemo(() => selected() && entry.item.content !== undefined)
+            const panelMounted = createMemo(
+              () => selected() && entry.item.contentRender !== undefined,
+            )
             const itemSlot = slotWith('item', {
               own: () => ({ class: entry.item.class }),
               data: stepperDataAttributes.item({ state, disabled }),
@@ -333,7 +335,8 @@ export function Stepper(props: StepperProps): JSX.Element {
         {(entry) => (
           <Show
             when={
-              selectedItem()?.instanceKey === entry.instanceKey && entry.item.content !== undefined
+              selectedItem()?.instanceKey === entry.instanceKey &&
+              entry.item.contentRender !== undefined
             }
           >
             <div
@@ -344,7 +347,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               data-slot="stepper-content"
               {...contentSlot}
             >
-              {renderWithProps(entry.item.content, {
+              {renderWithProps(entry.item.contentRender, {
                 get value() {
                   return entry.value
                 },

@@ -14,11 +14,11 @@ export function AccordionHydrationFixture(props: { onMount?: () => void; onClean
         </svg>
       }
       items={[
-        { value: 'first', label: <span>First</span>, content: <p>First panel</p> },
+        { value: 'first', label: <span>First</span>, contentRender: <p>First panel</p> },
         {
           value: 'second',
           label: <span>Second</span>,
-          get content() {
+          get contentRender() {
             props.onMount?.()
             onCleanup(() => props.onCleanup?.())
             return <p>Second panel</p>

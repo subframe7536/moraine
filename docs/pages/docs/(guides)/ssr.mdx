@@ -64,7 +64,7 @@ export function UserDialog() {
 ## Conditional JSX and item content
 
 Create JSX inside the branch that renders it. For collection items with optional panels, use a
-`content` getter so an inactive panel does not consume hydration IDs before it mounts:
+`contentRender` getter so an inactive panel does not consume hydration IDs before it mounts:
 
 ```tsx
 import { Tabs } from 'moraine'
@@ -76,14 +76,14 @@ export function SettingsTabs() {
         {
           value: 'account',
           label: 'Account',
-          get content() {
+          get contentRender() {
             return <p>Account settings</p>
           },
         },
         {
           value: 'notifications',
           label: 'Notifications',
-          get content() {
+          get contentRender() {
             return <p>Notification settings</p>
           },
         },

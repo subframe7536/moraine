@@ -50,21 +50,27 @@ import { Accordion } from 'moraine'
 
 export function Example() {
   return (
-    <Accordion items={[{ value: 'shipping', label: 'Shipping', content: 'Ships in two days.' }]} />
+    <Accordion
+      items={[{ value: 'shipping', label: 'Shipping', contentRender: 'Ships in two days.' }]}
+    />
   )
 }
 ```
 
 ### Content
 
-`content` accepts text or JSX, or a component that receives `{ value, expanded, closed, disabled }`.
+`contentRender` accepts text or JSX, or a component that receives `{ value, expanded, closed, disabled }`.
 Use the component form to build heavy panels only when they are needed. `headingLevel` sets the
 heading level wrapping each trigger.
 
 ```tsx
 <Accordion
   items={[
-    { value: 'billing', label: 'Billing', content: (props) => <Invoices open={props.expanded} /> },
+    {
+      value: 'billing',
+      label: 'Billing',
+      contentRender: (props) => <Invoices open={props.expanded} />,
+    },
   ]}
 />
 ```
@@ -118,7 +124,7 @@ Set `multiple` when operators need billing, security, and general settings open 
 
 ### Complete a setup checklist with a locked step
 
-Use item `disabled` for sections the current plan cannot open. Put lists or callouts in `content`
+Use item `disabled` for sections the current plan cannot open. Put lists or callouts in `contentRender`
 when the answer is more than a paragraph.
 
 <Preview path="./disabled-custom-content" />

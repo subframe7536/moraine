@@ -63,7 +63,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value: string;\n  /** Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
+          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value: string;\n  /** Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }. */\n  contentRender?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
           "description": "Array of tabs to display."
         },
         {
@@ -137,7 +137,7 @@
     "description": "An individual tab in the tabs component.",
     "props": [
       {
-        "name": "content",
+        "name": "contentRender",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
         "description": "Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }."

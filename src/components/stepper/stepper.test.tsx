@@ -28,8 +28,8 @@ describe('Stepper', () => {
         aria-labelledby="checkout-heading"
         value="billing address"
         items={[
-          { value: 'billing address', title: 'First', content: 'First panel' },
-          { value: 'billing address', title: 'Second', content: 'Second panel' },
+          { value: 'billing address', title: 'First', contentRender: 'First panel' },
+          { value: 'billing address', title: 'Second', contentRender: 'Second panel' },
         ]}
       />
     ))
@@ -56,8 +56,13 @@ describe('Stepper', () => {
       <Stepper
         value="shipping"
         items={[
-          { value: 'address', title: 'Address', content: 'Address panel' },
-          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+          { value: 'address', title: 'Address', contentRender: 'Address panel' },
+          {
+            value: 'shipping',
+            title: 'Shipping',
+            disabled: disabled(),
+            contentRender: 'Shipping panel',
+          },
         ]}
       />
     ))
@@ -77,8 +82,13 @@ describe('Stepper', () => {
       <Stepper
         defaultValue="shipping"
         items={[
-          { value: 'address', title: 'Address', content: 'Address panel' },
-          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+          { value: 'address', title: 'Address', contentRender: 'Address panel' },
+          {
+            value: 'shipping',
+            title: 'Shipping',
+            disabled: disabled(),
+            contentRender: 'Shipping panel',
+          },
         ]}
       />
     ))
@@ -89,7 +99,9 @@ describe('Stepper', () => {
 
   test.each([0, ''])('mounts a panel for falsy content %s', (content) => {
     const screen = render(() => (
-      <Stepper items={[{ value: 'step', title: 'Step', content, class: 'item-only' }]} />
+      <Stepper
+        items={[{ value: 'step', title: 'Step', contentRender: content, class: 'item-only' }]}
+      />
     ))
     expect(screen.getByRole('tabpanel').textContent).toBe(String(content))
     expect(screen.getByRole('tabpanel').className).not.toContain('item-only')
@@ -109,7 +121,7 @@ describe('Stepper', () => {
             value: 'second',
             title: <span>Second</span>,
             description: <span>Description</span>,
-            content: <span>Panel</span>,
+            contentRender: <span>Panel</span>,
           },
         ]}
       />
@@ -125,19 +137,19 @@ describe('Stepper', () => {
       title: 'Address',
       description: 'Add your address here',
       value: 'address',
-      content: 'Address content',
+      contentRender: 'Address content',
     },
     {
       title: 'Shipping',
       description: 'Set your preferred shipping method',
       value: 'shipping',
-      content: 'Shipping content',
+      contentRender: 'Shipping content',
     },
     {
       title: 'Checkout',
       description: 'Confirm your order',
       value: 'checkout',
-      content: 'Checkout content',
+      contentRender: 'Checkout content',
     },
   ]
 
@@ -167,8 +179,8 @@ describe('Stepper', () => {
     const screen = render(() => (
       <Stepper
         items={[
-          { value: 'first', title: 'First', content: 'First content' },
-          { value: 'second', title: 'Second', content: 'Second content' },
+          { value: 'first', title: 'First', contentRender: 'First content' },
+          { value: 'second', title: 'Second', contentRender: 'Second content' },
           { value: 'empty', title: 'Empty' },
         ]}
         defaultValue="first"
@@ -204,7 +216,7 @@ describe('Stepper', () => {
     const [content, setContent] = createSignal<JSX.Element>()
     const screen = render(() => (
       <Stepper
-        items={[{ value: 'dynamic', title: 'Dynamic', content: content() }]}
+        items={[{ value: 'dynamic', title: 'Dynamic', contentRender: content() }]}
         defaultValue="dynamic"
       />
     ))
@@ -311,9 +323,9 @@ describe('Stepper', () => {
         defaultValue="first"
         onValueChange={onValueChange}
         items={[
-          { value: 'first', title: 'First', content: 'First panel' },
-          { value: 'dup', title: 'Second', content: 'Second panel' },
-          { value: 'dup', title: 'Third', content: 'Third panel' },
+          { value: 'first', title: 'First', contentRender: 'First panel' },
+          { value: 'dup', title: 'Second', contentRender: 'Second panel' },
+          { value: 'dup', title: 'Third', contentRender: 'Third panel' },
         ]}
       />
     ))
@@ -534,7 +546,7 @@ describe('Stepper', () => {
             value: 'inbox',
             title: 'Inbox',
             icon: 'icon-inbox',
-            content: 'Inbox content',
+            contentRender: 'Inbox content',
           },
         ]}
       />
@@ -583,7 +595,7 @@ describe('Stepper', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     setItems([
-      { title: 'Account', value: 'account', content: 'Account content' },
+      { title: 'Account', value: 'account', contentRender: 'Account content' },
       { ...ITEMS[0] },
       { ...ITEMS[1] },
       { ...ITEMS[2] },
@@ -644,8 +656,8 @@ describe('Stepper', () => {
     const screen = render(() => (
       <Stepper
         items={[
-          { value: 'zero', title: 0, content: 'Zero panel' },
-          { value: 'one', title: 1, content: 'One panel' },
+          { value: 'zero', title: 0, contentRender: 'Zero panel' },
+          { value: 'one', title: 1, contentRender: 'One panel' },
         ]}
       />
     ))
@@ -653,7 +665,7 @@ describe('Stepper', () => {
     expect(tab.getAttribute('aria-labelledby')).not.toBeNull()
   })
 
-  test('renders item.content as a component receiving { value, active, completed, index }', () => {
+  test('renders item.contentRender as a component receiving { value, active, completed, index }', () => {
     const CustomContent = (props: {
       value: string
       active: boolean
@@ -669,8 +681,8 @@ describe('Stepper', () => {
       <Stepper
         value="custom"
         items={[
-          { value: 'custom', title: 'Custom', content: CustomContent },
-          { value: 'other', title: 'Other', content: 'Other Content' },
+          { value: 'custom', title: 'Custom', contentRender: CustomContent },
+          { value: 'other', title: 'Other', contentRender: 'Other Content' },
         ]}
       />
     ))

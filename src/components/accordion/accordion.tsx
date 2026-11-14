@@ -318,7 +318,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
           function Content(): JSX.Element {
             // Create this memo only after the expanded branch mounts so closed content is not evaluated and hydration creates nodes in the same order.
-            const content = createMemo(() => item.content)
+            const content = createMemo(() => item.contentRender)
 
             return (
               <Show when={content()}>

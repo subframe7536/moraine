@@ -11,7 +11,7 @@ export function ContentLifetime() {
           {
             value: 'settings',
             label: 'Persistent form state',
-            content: (
+            contentRender: (
               <div class="py-2 space-y-2">
                 <p class="text-xs text-muted-foreground">
                   Inputs retain their state across open/close toggles.

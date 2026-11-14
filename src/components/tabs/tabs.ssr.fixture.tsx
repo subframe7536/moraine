@@ -7,14 +7,14 @@ export function createTabItems() {
     {
       label: 0,
       value: '',
-      get content() {
+      get contentRender() {
         return <span data-testid="empty-panel">Empty panel</span>
       },
     },
     {
       label: 'Other',
       value: 'other',
-      get content() {
+      get contentRender() {
         return <span data-testid="other-panel">Other panel</span>
       },
     },
@@ -29,14 +29,14 @@ export function renderLazyTabsFixture(): string {
         {
           label: 'First',
           value: 'first',
-          get content() {
+          get contentRender() {
             return <Dynamic component="p">First lazy panel</Dynamic>
           },
         },
         {
           label: 'Second',
           value: 'second',
-          get content() {
+          get contentRender() {
             return <Dynamic component="p">Second lazy panel</Dynamic>
           },
         },

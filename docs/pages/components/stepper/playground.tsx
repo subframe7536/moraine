@@ -9,7 +9,7 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     title: 'Account',
     description: 'Create credentials',
     icon: 'i-lucide:user',
-    get content() {
+    get contentRender() {
       return (
         <p class="text-xs text-muted-foreground p-3">
           Step 1: Set up your profile and login credentials.
@@ -22,7 +22,7 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     title: 'Workspace',
     description: 'Team settings',
     icon: 'i-lucide:building-2',
-    get content() {
+    get contentRender() {
       return (
         <p class="text-xs text-muted-foreground p-3">
           Step 2: Define your organization name and invite collaborators.
@@ -35,7 +35,7 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
     title: 'Confirm',
     description: 'Launch project',
     icon: 'i-lucide:check-circle',
-    get content() {
+    get contentRender() {
       return (
         <p class="text-xs text-muted-foreground p-3">
           Step 3: Review settings and provision your instance.

@@ -12,17 +12,17 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
     value: 'one',
     label: 'One',
     leading: 'icon-house',
-    content: <span>Content one</span>,
+    contentRender: <span>Content one</span>,
   },
   {
     value: 'two',
     label: 'Two',
-    content: <span>Content two</span>,
+    contentRender: <span>Content two</span>,
   },
   {
     value: 'three',
     label: 'Three',
-    content: <span>Content three</span>,
+    contentRender: <span>Content three</span>,
   },
 ]
 
@@ -145,8 +145,16 @@ describe('Accordion', () => {
   })
 
   test('keeps focused triggers stable through reorder', async () => {
-    const first: AccordionT.Item = { value: 'first', label: 'First', content: 'First content' }
-    const second: AccordionT.Item = { value: 'second', label: 'Second', content: 'Second content' }
+    const first: AccordionT.Item = {
+      value: 'first',
+      label: 'First',
+      contentRender: 'First content',
+    }
+    const second: AccordionT.Item = {
+      value: 'second',
+      label: 'Second',
+      contentRender: 'Second content',
+    }
     const [items, setItems] = createSignal([first, second])
     const screen = render(() => <Accordion items={items()} multiple />)
 
@@ -176,7 +184,7 @@ describe('Accordion', () => {
     const second: AccordionT.Item = {
       value: 'second',
       label: 'Second',
-      content: 'Second content',
+      contentRender: 'Second content',
       get disabled() {
         return secondDisabled()
       },
@@ -209,7 +217,7 @@ describe('Accordion', () => {
       {
         value: 'outer-one',
         label: 'Outer one',
-        get content() {
+        get contentRender() {
           return <Accordion items={[{ value: 'inner', label: 'Inner' }]} />
         },
       },
@@ -230,8 +238,8 @@ describe('Accordion', () => {
         id="duplicate"
         defaultValue={['same']}
         items={[
-          { value: 'same', label: 'First', content: 'First content' },
-          { value: 'same', label: 'Second', content: 'Second content' },
+          { value: 'same', label: 'First', contentRender: 'First content' },
+          { value: 'same', label: 'Second', contentRender: 'Second content' },
         ]}
       />
     ))
@@ -248,8 +256,8 @@ describe('Accordion', () => {
     render(() => (
       <Accordion
         items={[
-          { value: 'same', label: 'First', content: 'First content' },
-          { value: 'same', label: 'Second', content: 'Second content' },
+          { value: 'same', label: 'First', contentRender: 'First content' },
+          { value: 'same', label: 'Second', contentRender: 'Second content' },
         ]}
       />
     ))
@@ -265,8 +273,8 @@ describe('Accordion', () => {
       <Accordion
         id="faq"
         items={[
-          { value: 'billing plan / 中文?', label: 'Billing', content: 'Details' },
-          { value: '⚙️ settings!', label: 'Settings', content: 'Other details' },
+          { value: 'billing plan / 中文?', label: 'Billing', contentRender: 'Details' },
+          { value: '⚙️ settings!', label: 'Settings', contentRender: 'Other details' },
         ]}
       />
     ))
@@ -287,7 +295,7 @@ describe('Accordion', () => {
           {
             value: 'one',
             label: <span>One</span>,
-            content: <span>Content one</span>,
+            contentRender: <span>Content one</span>,
           },
         ]}
       />
@@ -580,7 +588,7 @@ describe('Accordion', () => {
           {
             value: 'one',
             label: 'One',
-            content: (
+            contentRender: (
               <>
                 <input aria-label="Panel input" />
                 <a href="#panel-link">Panel link</a>
@@ -629,8 +637,8 @@ describe('Accordion', () => {
       <Accordion
         mountMode="keep-mounted"
         items={[
-          { value: 'one', label: 'One', content: 'Panel one' },
-          { value: 'two', label: 'Two', content: 'Panel two', disabled: true },
+          { value: 'one', label: 'One', contentRender: 'Panel one' },
+          { value: 'two', label: 'Two', contentRender: 'Panel two', disabled: true },
         ]}
       />
     ))
@@ -657,7 +665,7 @@ describe('Accordion', () => {
       <Accordion
         mountMode="keep-mounted"
         value={[]}
-        items={[{ value: 'one', label: 'One', content: 'Panel one' }]}
+        items={[{ value: 'one', label: 'One', contentRender: 'Panel one' }]}
       />
     ))
     const content = screen.container.querySelector('[data-slot="accordion-content"]')!
@@ -691,7 +699,7 @@ describe('Accordion', () => {
             {
               value: 'one',
               label: 'One',
-              content: <input aria-label="Panel input" />,
+              contentRender: <input aria-label="Panel input" />,
             },
           ]}
           value={value()}
@@ -750,7 +758,7 @@ describe('Accordion', () => {
             {
               value: 'one',
               label: 'One',
-              get content() {
+              get contentRender() {
                 return visible() ? 'Resizable content' : undefined
               },
             },
@@ -1008,7 +1016,7 @@ describe('Accordion', () => {
     const screen = render(() => (
       <Accordion
         headingLevel={2}
-        items={[{ value: 'h2-item', label: 'H2 Item', content: 'H2 Content' }]}
+        items={[{ value: 'h2-item', label: 'H2 Item', contentRender: 'H2 Content' }]}
       />
     ))
     expect(screen.getByRole('heading', { level: 2 })).not.toBeNull()
@@ -1024,7 +1032,7 @@ describe('Accordion', () => {
     const screen = render(() => (
       <Accordion
         defaultValue={['custom']}
-        items={[{ value: 'custom', label: 'Custom', content: CustomContent }]}
+        items={[{ value: 'custom', label: 'Custom', contentRender: CustomContent }]}
       />
     ))
 

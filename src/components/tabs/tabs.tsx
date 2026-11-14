@@ -133,8 +133,8 @@ export function Tabs(props: TabsProps): JSX.Element {
         label: item.label,
         icon: item.icon,
         disabled,
-        get content() {
-          return item.content
+        get contentRender() {
+          return item.contentRender
         },
       }
       nextCache.set(instanceKey, normalized)
@@ -421,7 +421,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-slot="tabs-content"
                 {...contentSlot}
               >
-                {renderWithProps(item.content, {
+                {renderWithProps(item.contentRender, {
                   get value() {
                     return item.value
                   },

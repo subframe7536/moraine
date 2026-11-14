@@ -6,7 +6,7 @@ const SETTINGS_TABS: TabsT.Item[] = [
     label: 'General',
     value: 'general',
     icon: 'i-lucide:sliders',
-    content: (
+    contentRender: (
       <div class="p-3 space-y-1">
         <h4 class="text-sm font-semibold">Workspace defaults</h4>
         <p class="text-xs text-muted-foreground">
@@ -19,7 +19,7 @@ const SETTINGS_TABS: TabsT.Item[] = [
     label: 'Deployments',
     value: 'deployments',
     icon: 'i-lucide:rocket',
-    content: (
+    contentRender: (
       <div class="p-3 space-y-1">
         <h4 class="text-sm font-semibold">Deployment gates</h4>
         <p class="text-xs text-muted-foreground">
@@ -33,7 +33,7 @@ const SETTINGS_TABS: TabsT.Item[] = [
     label: 'Notifications',
     value: 'notifications',
     icon: 'i-lucide:bell',
-    content: (
+    contentRender: (
       <div class="p-3 space-y-1">
         <h4 class="text-sm font-semibold">Alert rules</h4>
         <p class="text-xs text-muted-foreground">Configure webhook dispatch channels.</p>

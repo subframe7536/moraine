@@ -98,7 +98,7 @@ export function ComponentRadar() {
                 {
                   label: 'Preferences',
                   value: 'preferences',
-                  content: (
+                  contentRender: (
                     <div class="pt-4">
                       <p class="text-sm font-medium">Workspace preferences</p>
                       <p class="text-sm text-muted-foreground mt-1">
@@ -120,7 +120,7 @@ export function ComponentRadar() {
                 {
                   label: 'Access',
                   value: 'access',
-                  content: (
+                  contentRender: (
                     <div class="pt-4">
                       <p class="text-sm font-medium">Workspace access</p>
                       <p class="text-sm text-muted-foreground mt-1">
@@ -266,19 +266,19 @@ export function ComponentRadar() {
               {
                 value: 'keyboard',
                 label: 'Keyboard support',
-                content:
+                contentRender:
                   'Move between triggers with the arrow keys and activate one with Enter or Space.',
               },
               {
                 value: 'focus',
                 label: 'Focus management',
-                content:
+                contentRender:
                   'Each trigger keeps a visible focus state while its panel opens or closes.',
               },
               {
                 value: 'content',
                 label: 'Flexible content',
-                content: 'Place text, links, or a richer layout inside any panel.',
+                contentRender: 'Place text, links, or a richer layout inside any panel.',
               },
             ]}
             classes={{

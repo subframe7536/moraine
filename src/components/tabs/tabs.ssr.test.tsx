@@ -20,14 +20,14 @@ describe('Tabs SSR Hydration', () => {
             {
               label: 'First',
               value: 'first',
-              get content() {
+              get contentRender() {
                 return <Dynamic component="p">First lazy panel</Dynamic>
               },
             },
             {
               label: 'Second',
               value: 'second',
-              get content() {
+              get contentRender() {
                 return <Dynamic component="p">Second lazy panel</Dynamic>
               },
             },
