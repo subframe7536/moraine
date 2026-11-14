@@ -10,21 +10,20 @@ export function Multiple() {
           value: 'general',
           label: 'General Workspace Information',
           leading: 'i-lucide:settings',
-          contentRender:
-            'Configure your organization name, slug, avatar, and default language settings.',
+          content: 'Configure your organization name, slug, avatar, and default language settings.',
         },
         {
           value: 'security',
           label: 'Security & Access Control',
           leading: 'i-lucide:shield-alert',
-          contentRender:
+          content:
             'Manage SSO providers, enforce two-factor authentication, and review active sessions.',
         },
         {
           value: 'billing',
           label: 'Subscription & Invoices',
           leading: 'i-lucide:credit-card',
-          contentRender:
+          content:
             'View current plan usage, payment methods, and download historical invoice receipts.',
         },
       ]}

@@ -63,7 +63,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Unique value for the step. */\n  value: Value;\n  /** Title of the step. */\n  title?: JSX.Element;\n  /** Secondary description of the step. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator. */\n  icon?: IconT.Name;\n  /** Content to display when the step is active. Accepts static JSX or a component receiving { value, index }. */\n  contentRender?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for the step item. */\n  class?: string;\n})[]",
+          "typeDetails": "({\n  /** Unique value for the step. */\n  value: Value;\n  /** Title of the step. */\n  title?: JSX.Element;\n  /** Secondary description of the step. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator. */\n  icon?: IconT.Name;\n  /** Content to display when the step is active. Accepts static JSX or a component receiving { value, index }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for the step item. */\n  class?: string;\n})[]",
           "description": "Array of steps to display."
         },
         {
@@ -143,7 +143,7 @@
         "description": "Additional class name for the step item."
       },
       {
-        "name": "contentRender",
+        "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
         "description": "Content to display when the step is active. Accepts static JSX or a component receiving { value, index }."

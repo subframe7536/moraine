@@ -5,12 +5,12 @@ const FAQ_ITEMS = [
   {
     value: 'q1',
     label: 'Is Moraine SSR-compatible?',
-    contentRender: 'Yes, Moraine is designed for full SolidStart SSR and SSG hydration safety.',
+    content: 'Yes, Moraine is designed for full SolidStart SSR and SSG hydration safety.',
   },
   {
     value: 'q2',
     label: 'How does styling work?',
-    contentRender:
+    content:
       'Moraine uses atomic class styling with official presets and plugins for UnoCSS and Tailwind CSS.',
   },
 ]

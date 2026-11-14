@@ -46,9 +46,7 @@ expandable panels.
 import { Tabs } from 'moraine'
 
 export function Example() {
-  return (
-    <Tabs items={[{ value: 'account', label: 'Account', contentRender: 'Profile settings' }]} />
-  )
+  return <Tabs items={[{ value: 'account', label: 'Account', content: 'Profile settings' }]} />
 }
 ```
 
@@ -57,7 +55,7 @@ export function Example() {
 Use `value` with `onValueChange` for controlled tabs, or `defaultValue` for an initial local selection.
 Disabled items are skipped during selection and keyboard navigation.
 
-Every item requires a unique `value`. For JSX panel content, pass a component as `contentRender`. Tabs
+Every item requires a unique `value`. For JSX panel content, pass a component as `content`. Tabs
 renders it with `{ value }` only while its tab is selected, so an unselected panel is never
 built. This matters in SSR and MDX, where building a panel eagerly can emit markup the hydrated tree
 does not expect.
@@ -67,11 +65,11 @@ does not expect.
   value={tab()}
   onValueChange={setTab}
   items={[
-    { value: 'overview', label: 'Overview', contentRender: () => <OverviewPanel /> },
+    { value: 'overview', label: 'Overview', content: () => <OverviewPanel /> },
     {
       value: 'billing',
       label: 'Billing',
-      contentRender: (props) => <Billing value={props.value} />,
+      content: (props) => <Billing value={props.value} />,
     },
   ]}
 />

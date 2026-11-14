@@ -5,21 +5,21 @@ const TABS: TabsT.Item[] = [
   {
     value: 'overview',
     label: 'Overview',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground p-3">System status and resource metrics.</div>
     ),
   },
   {
     value: 'analytics',
     label: 'Analytics',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground p-3">Traffic breakdowns and request volume.</div>
     ),
   },
   {
     value: 'logs',
     label: 'Logs',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground p-3">Real-time application execution stream.</div>
     ),
   },

@@ -7,7 +7,7 @@ const TAB_ITEMS: TabsT.Item[] = [
     value: 'account',
     label: 'Account',
     icon: 'i-lucide:user',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground mt-2 p-3 b-1 b-border rounded-lg bg-card/40">
         Manage your account preferences, profile details, and email notifications.
       </div>
@@ -17,7 +17,7 @@ const TAB_ITEMS: TabsT.Item[] = [
     value: 'security',
     label: 'Security',
     icon: 'i-lucide:shield',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground mt-2 p-3 b-1 b-border rounded-lg bg-card/40">
         Configure two-factor authentication, active sessions, and API tokens.
       </div>
@@ -27,7 +27,7 @@ const TAB_ITEMS: TabsT.Item[] = [
     value: 'billing',
     label: 'Billing',
     icon: 'i-lucide:credit-card',
-    contentRender: (
+    content: (
       <div class="text-xs text-muted-foreground mt-2 p-3 b-1 b-border rounded-lg bg-card/40">
         View past invoices, payment methods, and current subscription usage.
       </div>

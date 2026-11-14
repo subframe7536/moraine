@@ -13,12 +13,12 @@ export function StepperHydrationFixture(props: { onContentRead?: () => void; ver
           value: 'first',
           title: <span>First step</span>,
           description: <span>Start here</span>,
-          contentRender: <p>First panel</p>,
+          content: <p>First panel</p>,
         },
         {
           value: 'second',
           title: <span>Second step</span>,
-          get contentRender() {
+          get content() {
             props.onContentRead?.()
             return <p>Second panel</p>
           },
@@ -42,8 +42,8 @@ export function DuplicateStepperFixture() {
       id="ssr-duplicate-stepper"
       value="billing address"
       items={[
-        { value: 'billing address', title: 'First', contentRender: 'First panel' },
-        { value: 'billing address', title: 'Second', contentRender: 'Second panel' },
+        { value: 'billing address', title: 'First', content: 'First panel' },
+        { value: 'billing address', title: 'Second', content: 'Second panel' },
       ]}
     />
   )

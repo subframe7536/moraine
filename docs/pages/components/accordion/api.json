@@ -77,7 +77,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item, used in `value` and `onValueChange`. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }. */\n  contentRender?: JSX.Element | Component<ContentRenderProps>;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
+          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item, used in `value` and `onValueChange`. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
           "description": "Array of accordion items to render."
         },
         {
@@ -162,7 +162,7 @@
         "description": "Optional class applied to the item element."
       },
       {
-        "name": "contentRender",
+        "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
         "description": "Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }."

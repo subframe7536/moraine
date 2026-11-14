@@ -42,7 +42,7 @@ export namespace TabsT {
     /**
      * Content to display when the tab is active. Accepts static JSX or a component receiving { value }.
      */
-    contentRender?: JSX.Element | Component<ContentRenderProps>
+    content?: JSX.Element | Component<ContentRenderProps>
 
     /**
      * Whether the tab is disabled.

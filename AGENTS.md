@@ -195,7 +195,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
 - **Props:**
-  - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`).
+  - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`). This rule applies to component props only; keys inside `items` collection objects are exempt (`content` on Tabs, Stepper, and Accordion items).
   - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `topRender` and `bottomRender`, not `contentTopRender` and `contentBottomRender`).
 
 ### Public Type Exports

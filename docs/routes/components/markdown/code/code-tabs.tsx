@@ -141,7 +141,7 @@ export function CodeTabs(props: CodeTabsProps) {
         return {
           label,
           value: val,
-          get contentRender() {
+          get content() {
             return (
               <CodeBlock
                 variant="tabs"

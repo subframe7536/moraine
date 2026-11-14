@@ -7,21 +7,21 @@ const FAQ_ITEMS = [
     value: 'install',
     label: 'How do I install Moraine?',
     leading: 'i-lucide:download',
-    contentRender:
+    content:
       'Install moraine and configure either UnoCSS or Tailwind CSS before rendering components.',
   },
   {
     value: 'ssr',
     label: 'Is server-side rendering supported?',
     leading: 'i-lucide:server',
-    contentRender:
+    content:
       'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
   },
   {
     value: 'customize',
     label: 'Can I customize component styles?',
     leading: 'i-lucide:palette',
-    contentRender:
+    content:
       'Components expose root class/style props and named slot classes/styles where applicable.',
   },
 ]

@@ -25,7 +25,7 @@ describe('Tabs', () => {
       <Tabs
         aria-label="Settings"
         aria-labelledby="settings-heading"
-        items={[{ label: 'Account', value: 'account', contentRender: 'Account panel' }]}
+        items={[{ label: 'Account', value: 'account', content: 'Account panel' }]}
       />
     ))
     expect(screen.getByRole('tablist').getAttribute('aria-label')).toBe('Settings')
@@ -53,8 +53,8 @@ describe('Tabs', () => {
       <Tabs
         value={value()}
         items={[
-          { value: 'first', label: 'First', contentRender: 'First panel' },
-          { value: 'second', label: 'Second', contentRender: <span>Second panel</span> },
+          { value: 'first', label: 'First', content: 'First panel' },
+          { value: 'second', label: 'Second', content: <span>Second panel</span> },
         ]}
       />
     ))
@@ -64,8 +64,8 @@ describe('Tabs', () => {
   })
 
   const ITEMS = [
-    { label: 'Overview', value: 'overview', contentRender: 'Overview content' },
-    { label: 'Settings', value: 'settings', contentRender: 'Settings content' },
+    { label: 'Overview', value: 'overview', content: 'Overview content' },
+    { label: 'Settings', value: 'settings', content: 'Settings content' },
   ]
 
   test('renders triggers and tab content', () => {
@@ -84,8 +84,8 @@ describe('Tabs', () => {
         value="one"
         onValueChange={onValueChange}
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
         ]}
       />
     ))
@@ -104,8 +104,8 @@ describe('Tabs', () => {
         id="empty-value-tabs"
         defaultValue=""
         items={[
-          { label: 'Empty', value: '', contentRender: 'Empty panel' },
-          { label: 'Other', value: 'other', contentRender: 'Other panel' },
+          { label: 'Empty', value: '', content: 'Empty panel' },
+          { label: 'Other', value: 'other', content: 'Other panel' },
         ]}
       />
     ))
@@ -124,9 +124,9 @@ describe('Tabs', () => {
         defaultValue="duplicate"
         onValueChange={onValueChange}
         items={[
-          { label: 'First duplicate', value: 'duplicate', contentRender: 'First panel' },
-          { label: 'Second duplicate', value: 'duplicate', contentRender: 'Second panel' },
-          { label: 'Other', value: 'other', contentRender: 'Other panel' },
+          { label: 'First duplicate', value: 'duplicate', content: 'First panel' },
+          { label: 'Second duplicate', value: 'duplicate', content: 'Second panel' },
+          { label: 'Other', value: 'other', content: 'Other panel' },
         ]}
       />
     ))
@@ -177,8 +177,8 @@ describe('Tabs', () => {
       <Tabs
         value={value()}
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
         ]}
       />
     ))
@@ -201,7 +201,7 @@ describe('Tabs', () => {
       <Tabs
         defaultValue="empty"
         items={[
-          { label: 'Content', value: 'content', contentRender: 'Content panel' },
+          { label: 'Content', value: 'content', content: 'Content panel' },
           { label: 'Empty', value: 'empty' },
         ]}
       />
@@ -221,9 +221,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -250,9 +250,9 @@ describe('Tabs', () => {
       <Tabs
         orientation="vertical"
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -274,9 +274,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -302,9 +302,9 @@ describe('Tabs', () => {
         defaultValue="one"
         onValueChange={onValueChange}
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
       />
     ))
@@ -335,9 +335,9 @@ describe('Tabs', () => {
       <Tabs
         loop={false}
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
         defaultValue="three"
       />
@@ -445,9 +445,9 @@ describe('Tabs', () => {
       <div dir="rtl">
         <Tabs
           items={[
-            { label: 'One', value: 'one', contentRender: 'Panel one' },
-            { label: 'Two', value: 'two', contentRender: 'Panel two' },
-            { label: 'Three', value: 'three', contentRender: 'Panel three' },
+            { label: 'One', value: 'one', content: 'Panel one' },
+            { label: 'Two', value: 'two', content: 'Panel two' },
+            { label: 'Three', value: 'three', content: 'Panel three' },
           ]}
           defaultValue="two"
         />
@@ -480,9 +480,9 @@ describe('Tabs', () => {
         <MoraineProvider dir="rtl">
           <Tabs
             items={[
-              { label: 'One', value: 'one', contentRender: 'Panel one' },
-              { label: 'Two', value: 'two', contentRender: 'Panel two' },
-              { label: 'Three', value: 'three', contentRender: 'Panel three' },
+              { label: 'One', value: 'one', content: 'Panel one' },
+              { label: 'Two', value: 'two', content: 'Panel two' },
+              { label: 'Three', value: 'three', content: 'Panel three' },
             ]}
             defaultValue="two"
           />
@@ -508,9 +508,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two', disabled: true },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: true },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -536,9 +536,9 @@ describe('Tabs', () => {
         activationMode="manual"
         defaultValue="one"
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two' },
-          { label: 'Three', value: 'three', contentRender: 'Panel three' },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
         ]}
       />
     ))
@@ -569,9 +569,9 @@ describe('Tabs', () => {
 
   test('recovers selection and focus when the focused selected tab is removed', async () => {
     const [items, setItems] = createSignal([
-      { label: 'One', value: 'one', contentRender: 'Panel one' },
-      { label: 'Two', value: 'two', contentRender: 'Panel two' },
-      { label: 'Three', value: 'three', contentRender: 'Panel three' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+      { label: 'Three', value: 'three', content: 'Panel three' },
     ])
     const screen = render(() => <Tabs defaultValue="two" items={items()} />)
     const two = screen.getByRole('tab', { name: 'Two' })
@@ -589,8 +589,8 @@ describe('Tabs', () => {
 
   test('does not take focus back after a removed tab moves focus elsewhere', async () => {
     const [items, setItems] = createSignal([
-      { label: 'One', value: 'one', contentRender: 'One panel' },
-      { label: 'Two', value: 'two', contentRender: 'Two panel' },
+      { label: 'One', value: 'one', content: 'One panel' },
+      { label: 'Two', value: 'two', content: 'Two panel' },
     ])
     const screen = render(() => (
       <>
@@ -602,7 +602,7 @@ describe('Tabs', () => {
     const outside = screen.getByRole('button', { name: 'Outside' })
 
     focusedTab.focus()
-    setItems([{ label: 'One', value: 'one', contentRender: 'One panel' }])
+    setItems([{ label: 'One', value: 'one', content: 'One panel' }])
     outside.focus()
     await Promise.resolve()
 
@@ -729,8 +729,8 @@ describe('Tabs', () => {
         defaultValue="two"
         onValueChange={onValueChange}
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one' },
-          { label: 'Two', value: 'two', contentRender: 'Panel two', disabled: disabled() },
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: disabled() },
         ]}
       />
     ))
@@ -752,9 +752,9 @@ describe('Tabs', () => {
 
   test('keeps manual focus on the same tab across reordering', async () => {
     const initialItems = [
-      { label: 'One', value: 'one', contentRender: 'Panel one' },
-      { label: 'Two', value: 'two', contentRender: 'Panel two' },
-      { label: 'Three', value: 'three', contentRender: 'Panel three' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+      { label: 'Three', value: 'three', content: 'Panel three' },
     ]
     const [items, setItems] = createSignal(initialItems)
     const onValueChange = vi.fn()
@@ -792,8 +792,8 @@ describe('Tabs', () => {
           value={value()}
           onValueChange={onValueChange}
           items={[
-            { label: 'One', value: 'one', contentRender: 'Panel one' },
-            { label: 'Two', value: 'two', contentRender: 'Panel two' },
+            { label: 'One', value: 'one', content: 'Panel one' },
+            { label: 'Two', value: 'two', content: 'Panel two' },
           ]}
         />
       </>
@@ -817,7 +817,7 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         defaultValue="zero"
-        items={[{ value: 'zero', label: 0, contentRender: <span>Zero panel</span> }]}
+        items={[{ value: 'zero', label: 0, content: <span>Zero panel</span> }]}
       />
     ))
 
@@ -827,25 +827,25 @@ describe('Tabs', () => {
 
   test('keeps the no-request fallback dynamic until the user selects a tab', async () => {
     const [items, setItems] = createSignal([
-      { label: 'One', value: 'one', contentRender: 'Panel one', disabled: true },
-      { label: 'Two', value: 'two', contentRender: 'Panel two' },
+      { label: 'One', value: 'one', content: 'Panel one', disabled: true },
+      { label: 'Two', value: 'two', content: 'Panel two' },
     ])
     const screen = render(() => <Tabs items={items()} />)
 
     expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
 
     setItems([
-      { label: 'One', value: 'one', contentRender: 'Panel one' },
-      { label: 'Two', value: 'two', contentRender: 'Panel two' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
     ])
     await Promise.resolve()
     expect(screen.getByRole('tab', { name: 'One' }).getAttribute('aria-selected')).toBe('true')
 
     fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
     setItems([
-      { label: 'Zero', value: 'zero', contentRender: 'Panel zero' },
-      { label: 'One', value: 'one', contentRender: 'Panel one' },
-      { label: 'Two', value: 'two', contentRender: 'Panel two' },
+      { label: 'Zero', value: 'zero', content: 'Panel zero' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
     ])
     await Promise.resolve()
     expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
@@ -874,8 +874,8 @@ describe('Tabs', () => {
       <Tabs
         defaultValue="missing"
         items={[
-          { label: 'One', value: 'one', contentRender: 'Panel one', disabled: true },
-          { label: 'Two', value: 'two', contentRender: 'Panel two', disabled: true },
+          { label: 'One', value: 'one', content: 'Panel one', disabled: true },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: true },
         ]}
       />
     ))
@@ -885,7 +885,7 @@ describe('Tabs', () => {
     expect(disabled.queryAllByRole('tabpanel')).toHaveLength(0)
   })
 
-  test('renders item.contentRender as a component receiving { value }', () => {
+  test('renders item.content as a component receiving { value }', () => {
     const CustomContent = (props: { value: string }) => (
       <div data-testid="custom-content">Value: {props.value}</div>
     )
@@ -894,8 +894,8 @@ describe('Tabs', () => {
       <Tabs
         defaultValue="custom"
         items={[
-          { label: 'Custom', value: 'custom', contentRender: CustomContent },
-          { label: 'Static', value: 'static', contentRender: 'Static Content' },
+          { label: 'Custom', value: 'custom', content: CustomContent },
+          { label: 'Static', value: 'static', content: 'Static Content' },
         ]}
       />
     ))
@@ -909,7 +909,7 @@ describe('Tabs', () => {
     const panel = {
       value: 'account',
       label: 'Account',
-      get contentRender() {
+      get content() {
         return show() ? 'Shown' : 'Hidden'
       },
     }
@@ -919,7 +919,7 @@ describe('Tabs', () => {
     expect(screen.getByRole('tabpanel').textContent).toBe('Shown')
     setItems((previous) => [
       ...previous,
-      { value: 'settings', label: 'Settings', contentRender: 'Settings panel' },
+      { value: 'settings', label: 'Settings', content: 'Settings panel' },
     ])
     setShow(false)
     expect(screen.getByRole('tabpanel').textContent).toBe('Hidden')
@@ -931,10 +931,10 @@ describe('Tabs', () => {
     render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'dup', contentRender: 'Panel 1' },
-          { label: 'Two', value: 'dup', contentRender: 'Panel 2' },
+          { label: 'One', value: 'dup', content: 'Panel 1' },
+          { label: 'Two', value: 'dup', content: 'Panel 2' },
           // @ts-expect-error missing value for testing DEV warning
-          { label: 'Three', contentRender: 'Panel 3' },
+          { label: 'Three', content: 'Panel 3' },
         ]}
       />
     ))

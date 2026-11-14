@@ -8,7 +8,7 @@ const ITEMS: TabsT.Item[] = [
     label: 'Overview',
     value: 'overview',
     icon: 'i-lucide:layout-dashboard',
-    get contentRender() {
+    get content() {
       return (
         <p class="text-xs text-muted-foreground leading-relaxed pt-3">
           High-level metrics and system activity overview.
@@ -20,7 +20,7 @@ const ITEMS: TabsT.Item[] = [
     label: 'Deployments',
     value: 'deployments',
     icon: 'i-lucide:rocket',
-    get contentRender() {
+    get content() {
       return (
         <p class="text-xs text-muted-foreground leading-relaxed pt-3">
           Production pipelines, recent builds, and rollout health.
@@ -32,7 +32,7 @@ const ITEMS: TabsT.Item[] = [
     label: 'Settings',
     value: 'settings',
     icon: 'i-lucide:settings',
-    get contentRender() {
+    get content() {
       return (
         <p class="text-xs text-muted-foreground leading-relaxed pt-3">
           Environment variables, security secrets, and domain management.
