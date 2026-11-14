@@ -351,12 +351,6 @@ export function Stepper(props: StepperProps): JSX.Element {
                 get value() {
                   return entry.value
                 },
-                get active() {
-                  return selectedItem()?.instanceKey === entry.instanceKey
-                },
-                get completed() {
-                  return getItemState(entry.index) === 'completed'
-                },
                 get index() {
                   return entry.index
                 },

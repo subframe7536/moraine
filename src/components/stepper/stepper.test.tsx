@@ -665,15 +665,10 @@ describe('Stepper', () => {
     expect(tab.getAttribute('aria-labelledby')).not.toBeNull()
   })
 
-  test('renders item.contentRender as a component receiving { value, active, completed, index }', () => {
-    const CustomContent = (props: {
-      value: string
-      active: boolean
-      completed: boolean
-      index: number
-    }) => (
+  test('renders item.contentRender as a component receiving { value, index }', () => {
+    const CustomContent = (props: { value: string; index: number }) => (
       <div data-testid="custom-content">
-        Value: {props.value}, Active: {String(props.active)}, Index: {props.index}
+        Value: {props.value}, Index: {props.index}
       </div>
     )
 
@@ -688,7 +683,7 @@ describe('Stepper', () => {
     ))
 
     const content = screen.getByTestId('custom-content')
-    expect(content.textContent).toBe('Value: custom, Active: true, Index: 0')
+    expect(content.textContent).toBe('Value: custom, Index: 0')
   })
 
   test('warns in DEV on missing or duplicate item value', () => {

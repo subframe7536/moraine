@@ -58,7 +58,7 @@ Use `value` with `onValueChange` for controlled tabs, or `defaultValue` for an i
 Disabled items are skipped during selection and keyboard navigation.
 
 Every item requires a unique `value`. For JSX panel content, pass a component as `contentRender`. Tabs
-renders it with `{ value, selected }` only while its tab is selected, so an unselected panel is never
+renders it with `{ value }` only while its tab is selected, so an unselected panel is never
 built. This matters in SSR and MDX, where building a panel eagerly can emit markup the hydrated tree
 does not expect.
 
@@ -71,7 +71,7 @@ does not expect.
     {
       value: 'billing',
       label: 'Billing',
-      contentRender: (props) => <Billing active={props.selected} />,
+      contentRender: (props) => <Billing value={props.value} />,
     },
   ]}
 />

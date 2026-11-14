@@ -18,7 +18,6 @@ export namespace TabsT {
 
   export interface ContentRenderProps {
     value: string
-    selected: boolean
   }
 
   /**
@@ -41,7 +40,7 @@ export namespace TabsT {
     value: string
 
     /**
-     * Content to display when the tab is active. Accepts static JSX or a component receiving { value, selected }.
+     * Content to display when the tab is active. Accepts static JSX or a component receiving { value }.
      */
     contentRender?: JSX.Element | Component<ContentRenderProps>
 

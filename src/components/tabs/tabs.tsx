@@ -425,9 +425,6 @@ export function Tabs(props: TabsProps): JSX.Element {
                   get value() {
                     return item.value
                   },
-                  get selected() {
-                    return selected()
-                  },
                 })}
               </div>
             </Show>

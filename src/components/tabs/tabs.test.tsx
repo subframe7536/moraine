@@ -868,11 +868,9 @@ describe('Tabs', () => {
     expect(disabled.queryAllByRole('tabpanel')).toHaveLength(0)
   })
 
-  test('renders item.contentRender as a component receiving { value, selected }', () => {
-    const CustomContent = (props: { value: string; selected: boolean }) => (
-      <div data-testid="custom-content">
-        Value: {props.value}, Selected: {String(props.selected)}
-      </div>
+  test('renders item.contentRender as a component receiving { value }', () => {
+    const CustomContent = (props: { value: string }) => (
+      <div data-testid="custom-content">Value: {props.value}</div>
     )
 
     const screen = render(() => (
@@ -886,7 +884,7 @@ describe('Tabs', () => {
     ))
 
     const content = screen.getByTestId('custom-content')
-    expect(content.textContent).toBe('Value: custom, Selected: true')
+    expect(content.textContent).toBe('Value: custom')
   })
 
   test('keeps item content getters live after the items array is replaced', () => {

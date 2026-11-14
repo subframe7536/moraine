@@ -19,8 +19,6 @@ export namespace StepperT {
 
   export interface ContentRenderProps {
     value: Value
-    active: boolean
-    completed: boolean
     index: number
   }
 
@@ -50,7 +48,7 @@ export namespace StepperT {
     icon?: IconT.Name
 
     /**
-     * Content to display when the step is active. Accepts static JSX or a component receiving { value, active, completed, index }.
+     * Content to display when the step is active. Accepts static JSX or a component receiving { value, index }.
      */
     contentRender?: JSX.Element | Component<ContentRenderProps>
 
