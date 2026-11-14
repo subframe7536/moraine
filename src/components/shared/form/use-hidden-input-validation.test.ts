@@ -33,40 +33,18 @@ describe('useHiddenInputValidation', () => {
     })
   })
 
-  test('supports function syntax for focus target', () => {
+  test('resetNativeInvalid restores nativeInvalid to false', () => {
     createRoot((dispose) => {
-      const focus = vi.fn()
-      const dummyTarget = { focus } as unknown as HTMLElement
-
-      const { nativeInvalid, onInvalid, resetNativeInvalid } = useHiddenInputValidation(
-        () => dummyTarget,
-      )
+      const { nativeInvalid, onInvalid, resetNativeInvalid } = useHiddenInputValidation()
 
       const event = new Event('invalid', { cancelable: true })
       // @ts-expect-error test event call
       onInvalid(event)
 
       expect(nativeInvalid()).toBe(true)
-      expect(focus).toHaveBeenCalledTimes(1)
 
       resetNativeInvalid()
       expect(nativeInvalid()).toBe(false)
-      dispose()
-    })
-  })
-
-  test('invokes custom onInvalid callback if provided', () => {
-    createRoot((dispose) => {
-      const customOnInvalid = vi.fn()
-      const { onInvalid } = useHiddenInputValidation({
-        onInvalid: customOnInvalid,
-      })
-
-      const event = new Event('invalid', { cancelable: true })
-      // @ts-expect-error test event call
-      onInvalid(event)
-
-      expect(customOnInvalid).toHaveBeenCalledWith(event)
       dispose()
     })
   })
