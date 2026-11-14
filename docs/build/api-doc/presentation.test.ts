@@ -165,7 +165,7 @@ describe('createApiReferenceModel', () => {
     ).toBe("boolean | 'indeterminate'")
     expect(
       formatSummaryPropType({
-        name: 'repeatPointerTypes',
+        name: 'pointerTypes',
         optional: true,
         type: "'all' | PointerType",
       }),
