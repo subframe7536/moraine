@@ -4,7 +4,8 @@ import { dirname, join, resolve } from 'node:path'
 import { describe, expect, test } from 'vitest'
 
 const DIST = resolve(__dirname, '../dist')
-const IMPORT_PATTERN = /(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?['"]([^'"]+)['"]/g
+const IMPORT_PATTERN =
+  /(?:(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?|\bimport\s*\(\s*)['"]([^'"]+)['"]/g
 
 // Optional peers must only be reachable from their dedicated subpath entries.
 const OPTIONAL_PEERS = ['@dnd-kit/dom', '@tanstack/table-core', '@tanstack/virtual-core']
