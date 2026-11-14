@@ -205,6 +205,7 @@ export function Modal(props: ModalProps): JSX.Element {
     triggerElement,
     // Initial activation capture when the overlay opens and enters the stack.
     onActivate: (context) => {
+      restoreFocusOnDeactivate = false
       syncModalRestoreFocus(isModal(), context.entry.ownerDocument!)
       lastFocusedElement = undefined
     },

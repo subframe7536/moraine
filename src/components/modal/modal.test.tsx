@@ -1706,6 +1706,45 @@ describe('Modal primitives', () => {
     previous.remove()
   })
 
+  test('recaptures the restore target on each activation of a controlled modal', async () => {
+    const [open, setOpen] = createSignal(false)
+    const buttonA = document.createElement('button')
+    const buttonB = document.createElement('button')
+    document.body.append(buttonA, buttonB)
+    const screen = render(() => (
+      <Modal open={open()}>
+        <Modal.Portal>
+          <Modal.Content>Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    buttonA.focus()
+    setOpen(true)
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+    )
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(document.activeElement).toBe(buttonA)
+    })
+
+    buttonB.focus()
+    setOpen(true)
+    await waitFor(() =>
+      expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+    )
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(document.activeElement).toBe(buttonB)
+    })
+    screen.unmount()
+    buttonA.remove()
+    buttonB.remove()
+  })
+
   test('restores nested modal focus in stack order', async () => {
     const screen = render(() => (
       <Modal>
