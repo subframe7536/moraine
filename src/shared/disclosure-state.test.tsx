@@ -247,4 +247,70 @@ describe('createDisclosureState', () => {
     disposeRoot()
     iframe.remove()
   })
+
+  test('measures the latest registration and falls back when it is released', () => {
+    const lifecycle = createRoot((dispose) => ({
+      dispose,
+      state: createDisclosureState({ open: () => true }),
+    }))
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    setScrollHeight(first, () => 10)
+    setScrollHeight(second, () => 20)
+    document.body.append(first, second)
+
+    const releaseFirst = lifecycle.state.registerMeasureElement(first)
+    const releaseSecond = lifecycle.state.registerMeasureElement(second)
+    expect(lifecycle.state.contentHeight()).toBe(20)
+
+    releaseSecond()
+    expect(lifecycle.state.contentHeight()).toBe(10)
+
+    releaseFirst()
+    expect(lifecycle.state.contentHeight()).toBe(0)
+    first.remove()
+    second.remove()
+    lifecycle.dispose()
+  })
+
+  test('keeps measuring the newest registration when an older duplicate is released', () => {
+    const lifecycle = createRoot((dispose) => ({
+      dispose,
+      state: createDisclosureState({ open: () => true }),
+    }))
+    const shell = document.createElement('div')
+    const body = document.createElement('div')
+    setScrollHeight(shell, () => 30)
+    setScrollHeight(body, () => 10)
+    document.body.append(shell, body)
+
+    const releaseFirstShell = lifecycle.state.registerMeasureElement(shell)
+    lifecycle.state.registerMeasureElement(body)
+    lifecycle.state.registerMeasureElement(shell)
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    releaseFirstShell()
+    expect(lifecycle.state.contentHeight()).toBe(30)
+
+    shell.remove()
+    body.remove()
+    lifecycle.dispose()
+  })
+
+  test('keeps the newer content element when a superseded one is released', () => {
+    createRoot((dispose) => {
+      const state = createDisclosureState({ open: () => true })
+      const first = document.createElement('div')
+      const second = document.createElement('div')
+      setScrollHeight(first, () => 40)
+
+      const releaseFirst = state.registerContentElement(first)
+      expect(state.contentHeight()).toBe(0)
+      state.registerContentElement(second)
+      releaseFirst()
+
+      expect(state.contentElement()).toBe(second)
+      dispose()
+    })
+  })
 })
