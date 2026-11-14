@@ -310,6 +310,55 @@ describe('ScrollArea', () => {
     expect(viewport.scrollTop).toBe(0)
   })
 
+  test('forwards wheel input over scrollbars to the viewport only while it can scroll', () => {
+    const screen = render(() => <ScrollArea orientation="both" />)
+    const { viewport, scrollbar } = parts(screen.container)
+    setDimensions(viewport, {
+      clientHeight: 100,
+      scrollHeight: 300,
+      clientWidth: 100,
+      scrollWidth: 300,
+    })
+    const track = scrollbar('vertical')!
+
+    viewport.scrollTop = 100
+    const mid = new WheelEvent('wheel', { deltaY: 24, cancelable: true })
+    fireEvent(track, mid)
+    expect(mid.defaultPrevented).toBe(true)
+    expect(viewport.scrollTop).toBe(124)
+
+    viewport.scrollTop = 200
+    const atEnd = new WheelEvent('wheel', { deltaY: 24, cancelable: true })
+    fireEvent(track, atEnd)
+    expect(atEnd.defaultPrevented).toBe(false)
+    expect(viewport.scrollTop).toBe(200)
+  })
+
+  test('translates page-mode wheel deltas per axis', () => {
+    const screen = render(() => <ScrollArea orientation="both" />)
+    const { viewport, scrollbar } = parts(screen.container)
+    setDimensions(viewport, {
+      clientHeight: 100,
+      scrollHeight: 300,
+      clientWidth: 100,
+      scrollWidth: 300,
+    })
+    const track = scrollbar('horizontal')!
+
+    viewport.scrollLeft = 10
+    const pageX = new WheelEvent('wheel', { deltaX: 1, deltaMode: 2, cancelable: true })
+    fireEvent(track, pageX)
+    expect(pageX.defaultPrevented).toBe(true)
+    expect(viewport.scrollLeft).toBe(110)
+
+    const vertical = scrollbar('vertical')!
+    viewport.scrollTop = 10
+    const pageY = new WheelEvent('wheel', { deltaY: 1, deltaMode: 2, cancelable: true })
+    fireEvent(vertical, pageY)
+    expect(pageY.defaultPrevented).toBe(true)
+    expect(viewport.scrollTop).toBe(110)
+  })
+
   test('scrolls to logical edges through the controller', async () => {
     const scrollTo = vi.fn()
     let controller: ScrollAreaT.Controller | undefined

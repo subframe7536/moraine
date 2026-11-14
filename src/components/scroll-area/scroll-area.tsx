@@ -370,10 +370,24 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
                     return
                   }
                   // Scrollbars sit outside the viewport, so wheel input over them is forwarded.
-                  const unit =
+                  const unitY =
                     event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientHeight : 1
-                  element.scrollTop += event.deltaY * unit
-                  element.scrollLeft += event.deltaX * unit
+                  const unitX =
+                    event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientWidth : 1
+                  const deltaY = event.deltaY * unitY
+                  const deltaX = event.deltaX * unitX
+                  const canScroll =
+                    (deltaY < 0 && element.scrollTop > 0) ||
+                    (deltaY > 0 &&
+                      element.scrollTop + element.clientHeight < element.scrollHeight) ||
+                    (deltaX < 0 && element.scrollLeft > 0) ||
+                    (deltaX > 0 && element.scrollLeft + element.clientWidth < element.scrollWidth)
+                  if (!canScroll) {
+                    return
+                  }
+                  event.preventDefault()
+                  element.scrollTop += deltaY
+                  element.scrollLeft += deltaX
                 }}
               >
                 <div data-slot="scroll-area-thumb" {...thumbSlot} />
