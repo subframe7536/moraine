@@ -48,22 +48,6 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   items: NormalizedItem<TItem>[]
 }
 
-type ListRow<TItem extends CommandPaletteT.Item> =
-  | CommandPaletteT.VirtualEntry<TItem>
-  | NormalizedGroup<TItem>
-
-function asGroupRow<TItem extends CommandPaletteT.Item>(
-  row: ListRow<TItem>,
-): NormalizedGroup<TItem> | undefined {
-  return 'source' in row ? row : undefined
-}
-
-function asVirtualRow<TItem extends CommandPaletteT.Item>(
-  row: ListRow<TItem>,
-): CommandPaletteT.VirtualEntry<TItem> | undefined {
-  return 'source' in row ? undefined : row
-}
-
 function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
@@ -675,13 +659,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }),
   })
 
-  const listItems = createMemo<ListRow<TItem>[]>(() => {
-    if (!hasItems()) {
-      return []
-    }
-    return merged.virtualizer ? virtualEntries() : visibleGroups()
-  })
-
   function VirtualRow(
     props: ListT.ItemRenderProps<CommandPaletteT.VirtualEntry<TItem>>,
   ): JSX.Element {
@@ -732,22 +709,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
         <For each={props.item.items}>{(item) => <VisibleItem item={item} />}</For>
       </div>
-    )
-  }
-
-  function RowRender(context: ListT.ItemRenderProps<ListRow<TItem>>): JSX.Element {
-    return (
-      <Show
-        when={asGroupRow(context.item)}
-        keyed
-        fallback={
-          <Show when={asVirtualRow(context.item)} keyed>
-            {(entry) => <VirtualRow item={entry} index={context.index} props={context.props} />}
-          </Show>
-        }
-      >
-        {(group) => <GroupRow item={group} index={context.index} props={context.props} />}
-      </Show>
     )
   }
 
@@ -820,19 +781,39 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         </Show>
       </div>
 
-      <List
-        as="div"
-        items={listItems()}
-        emptyRender={<EmptyState />}
-        virtualizer={merged.virtualizer as unknown as ListT.Virtualizer<ListRow<TItem>> | undefined}
-        itemRender={RowRender}
-        {...merged.listboxProps}
-        id={listboxId()}
-        role="listbox"
-        data-slot="command-palette-listbox"
-        ref={handleListboxRef}
-        {...listboxSlot}
-      />
+      <Show
+        when={merged.virtualizer}
+        fallback={
+          <List
+            as="div"
+            items={hasItems() ? visibleGroups() : []}
+            emptyRender={<EmptyState />}
+            itemRender={GroupRow}
+            {...merged.listboxProps}
+            id={listboxId()}
+            role="listbox"
+            data-slot="command-palette-listbox"
+            ref={handleListboxRef}
+            {...listboxSlot}
+          />
+        }
+      >
+        {(virtualizer) => (
+          <List
+            as="div"
+            items={hasItems() ? virtualEntries() : []}
+            emptyRender={<EmptyState />}
+            virtualizer={virtualizer()}
+            itemRender={VirtualRow}
+            {...merged.listboxProps}
+            id={listboxId()}
+            role="listbox"
+            data-slot="command-palette-listbox"
+            ref={handleListboxRef}
+            {...listboxSlot}
+          />
+        )}
+      </Show>
 
       <Show when={merged.footerRender !== undefined}>
         <div data-slot="command-palette-footer" {...footerSlot}>
