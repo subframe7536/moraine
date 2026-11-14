@@ -48,8 +48,8 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Content rendered inside the list when the collection is empty."
+          "type": "JSX.Element | Component<EmptyRenderProps>",
+          "description": "Content or render function rendered inside the list when the collection is empty."
         },
         {
           "name": "itemRender",

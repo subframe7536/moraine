@@ -3,6 +3,7 @@ import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
@@ -44,7 +45,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       }}
     >
       <Show
-        when={'emptyRender' in props && !local.items?.length}
+        when={local.emptyRender !== undefined && !local.items?.length}
         fallback={
           <VirtualContent<TItem>
             virtualizer={local.virtualizer}
@@ -65,7 +66,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
           />
         }
       >
-        {(_empty) => local.emptyRender}
+        {renderWithProps(local.emptyRender!, {})}
       </Show>
     </Dynamic>
   )

@@ -31,9 +31,12 @@ export namespace ListT {
   /** Virtualizer accepted by the `virtualizer` prop, such as `createListVirtualizer()`. */
   export type Virtualizer<TItem> = ListVirtualizer<TItem>
 
+  /** Render props for the empty state content. */
+  export interface EmptyRenderProps {}
+
   export type Base<TItem> = {
-    /** Content rendered inside the list when the collection is empty. */
-    emptyRender?: JSX.Element
+    /** Content or render function rendered inside the list when the collection is empty. */
+    emptyRender?: JSX.Element | Component<EmptyRenderProps>
     /** Reactive collection rendered by the list. */
     items?: readonly TItem[]
     /** Renders one collection item. */
