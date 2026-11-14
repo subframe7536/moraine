@@ -117,33 +117,32 @@ export function pickSlotOverrides<S extends string>(props: SlotOverrides<S>): Sl
 /**
  * Merges slot binding class, style, and data-* attributes with optional per-item class/style additions.
  */
+export function mergeSlotBindingData(binding: SlotBinding, data?: DataAttributeBag): SlotBinding
+export function mergeSlotBindingData(
+  binding: SlotBinding,
+  data: DataAttributeBag | undefined,
+  extra: { class?: ClassValue; style?: JSX.CSSProperties },
+  cn: Cn,
+): SlotBinding
 export function mergeSlotBindingData(
   binding: SlotBinding,
   data?: DataAttributeBag,
-  extra?: { class?: ClassValue; style?: JSX.CSSProperties | string },
+  extra?: { class?: ClassValue; style?: JSX.CSSProperties },
   cn?: Cn,
 ): SlotBinding {
   const merged = mergeProps(
     {
       get class() {
-        if (!extra?.class) {
+        if (!extra?.class || !cn) {
           return binding.class
         }
-        if (cn) {
-          return cn(binding.class, extra.class)
-        }
-        if (typeof extra.class === 'string') {
-          return `${binding.class ?? ''} ${extra.class}`.trim()
-        }
-        return binding.class
+        return cn(binding.class, extra.class)
       },
       get style() {
         if (!extra?.style) {
           return binding.style
         }
-        return typeof extra.style === 'object'
-          ? { ...(binding.style as object), ...extra.style }
-          : binding.style
+        return { ...(binding.style as object), ...extra.style }
       },
     },
     data,
