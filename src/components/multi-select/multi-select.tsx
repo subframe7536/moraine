@@ -117,13 +117,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       if (!normalized) {
         return false
       }
-      let item = resolveInputItem(normalized)
-      if (item && state.value().some((value) => sameValue(value, item!.value))) {
+      const resolved = resolveInputItem(normalized)
+      if (resolved && state.value().some((value) => sameValue(value, resolved.value))) {
         return false
       }
-      if (atMax() || (item && state.itemDisabled(item))) {
+      if (atMax() || (resolved && state.itemDisabled(resolved))) {
         return false
       }
+      let item = resolved
       if (!item) {
         if (!local.createItem) {
           return false
@@ -151,9 +152,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         }
         item = createdItem
       }
-      if (!state.value().some((value) => sameValue(value, item.value))) {
-        state.change([...state.value(), item.value])
-      }
+      state.change([...state.value(), item.value])
       return true
     }
 
