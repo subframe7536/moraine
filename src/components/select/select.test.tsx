@@ -360,7 +360,7 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Empty' }))
     expect(getInput(form)).toEqual({ choice: '' })
     fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
-    expect(getInput(form)).toEqual({ choice: undefined })
+    expect(getInput(form)).toEqual({ choice: null })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Zero' }))
     expect(getInput(form)).toEqual({ choice: 0 })
     screen.container.querySelector('form')!.reset()

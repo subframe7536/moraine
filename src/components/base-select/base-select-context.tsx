@@ -38,8 +38,8 @@ import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-selec
 function selectionToFormValue<T extends BaseSelectValue>(
   values: readonly T[],
   multiple: boolean,
-): T[] | T | undefined {
-  return multiple ? [...values] : values[0]
+): T[] | T | null {
+  return multiple ? [...values] : (values[0] ?? null)
 }
 
 export function createSelectState<T extends BaseSelectT.Item>(
@@ -57,7 +57,8 @@ export function createSelectState<T extends BaseSelectT.Item>(
       return id()
     },
     get initialValue() {
-      return selectionToFormValue(initial, props.multiple === true)
+      // An empty initial single selection stays undefined so the mount write is a no-op.
+      return props.multiple === true ? selectionToFormValue(initial, true) : initial[0]
     },
   })
   const [mounted, setMounted] = createSignal(false)
