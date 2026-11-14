@@ -8,7 +8,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId } from '../../shared/utils'
+import { createId, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon/index'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -122,7 +122,7 @@ export function Stepper(props: StepperProps): JSX.Element {
         item: mergedItem,
         index,
         value,
-        instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
+        instanceKey: `${toIdSegment(value)}-${occurrence}`,
       }
     })
   })

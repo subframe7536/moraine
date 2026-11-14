@@ -154,6 +154,23 @@ describe('Tabs', () => {
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Other' }))
   })
 
+  test('gives distinct ids to values that escape to the same segment', () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          { label: 'Spaced', value: 'a b' },
+          { label: 'Literal', value: 'a_20_b' },
+        ]}
+      />
+    ))
+    const spaced = screen.getByRole('tab', { name: 'Spaced' })
+    const literal = screen.getByRole('tab', { name: 'Literal' })
+
+    expect(spaced.id).not.toBe(literal.id)
+    expect(spaced.id).toContain('a_20_b')
+    expect(literal.id).toContain('a_5f_20_5f_b')
+  })
+
   test('only links controls to mounted panels as selection changes', () => {
     const [value, setValue] = createSignal('one')
     const screen = render(() => (

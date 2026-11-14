@@ -16,7 +16,7 @@ test('hydrates encoded duplicate step IDs without changing their relationships',
   const tabs = container.querySelectorAll('[role="tab"]')
   const panel = container.querySelector('[role="tabpanel"]')
   expect(new Set(ids).size).toBe(ids.length)
-  expect(tabs[0]?.id).toContain('billing%20address-0')
+  expect(tabs[0]?.id).toContain('billing_20_address-0')
   expect(tabs[0]?.getAttribute('aria-controls')).toBe(panel?.id)
   expect(panel?.getAttribute('aria-labelledby')).toBe(tabs[0]?.id)
   expect(tabs[1]?.getAttribute('aria-selected')).toBe('false')

@@ -17,7 +17,7 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId } from '../../shared/utils'
+import { createId, toIdSegment } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -27,10 +27,6 @@ import type { TabsProps, TabsT } from './tabs.types'
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
   rawItem: TabsT.Item
-}
-
-function sanitizeIdSegment(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]/g, (char) => `_${char.codePointAt(0)!.toString(16)}_`)
 }
 
 /**
@@ -111,7 +107,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       }
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
-      const instanceKey = `${sanitizeIdSegment(value)}-${occurrence}`
+      const instanceKey = `${toIdSegment(value)}-${occurrence}`
       const disabled = item.disabled || occurrence > 0
 
       const cached = previousCache.get(instanceKey)

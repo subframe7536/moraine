@@ -74,6 +74,15 @@ export function isAndroidUserAgent(): boolean {
   return /android/i.test(globalThis.navigator?.userAgent ?? '')
 }
 
+/**
+ * Escapes a value into a DOM id segment. Every character outside `[a-zA-Z0-9-]`
+ * (including `_`) is encoded as `_<hex>_`, so distinct values never produce the
+ * same segment.
+ */
+export function toIdSegment(value: string): string {
+  return value.replace(/[^a-zA-Z0-9-]/g, (char) => `_${char.codePointAt(0)!.toString(16)}_`)
+}
+
 /** Assigns a composed DOM ref without introducing React-style ref objects. */
 export function callRef<T>(ref: unknown, element: T): void {
   if (typeof ref === 'function') {
