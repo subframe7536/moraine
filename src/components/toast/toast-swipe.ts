@@ -1,14 +1,14 @@
 import type { Accessor } from 'solid-js'
 import { createSignal } from 'solid-js'
 
-export const SWIPE_THRESHOLD = 45
-export const SWIPE_VELOCITY = 0.11
-export const SWIPE_MIN_DISTANCE = 12
+const SWIPE_THRESHOLD = 45
+const SWIPE_VELOCITY = 0.11
+const SWIPE_MIN_DISTANCE = 12
 export const TOAST_SWIPE_EXIT_MS = 200
 
 export type SwipeDirection = 'left' | 'right' | 'up' | 'down'
 
-export function isAwaySwipe(
+function isAwaySwipe(
   axis: 'x' | 'y',
   x: number,
   y: number,

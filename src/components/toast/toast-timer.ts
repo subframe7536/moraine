@@ -141,9 +141,5 @@ export function createToastTimer(options: CreateToastTimerOptions) {
     progressEpoch,
     initialDuration,
     isPaused,
-    startTimer,
-    stopTimer,
-    resetCloseTimer,
-    handleBump,
   }
 }

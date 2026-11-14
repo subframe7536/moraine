@@ -237,7 +237,6 @@ export function createToastStore(): ToastStore {
       if (session?.settle('api')) {
         session.onClose?.('api')
       }
-      sessions.delete(id)
       remove(id)
     }
   }
@@ -260,7 +259,6 @@ export function createToastStore(): ToastStore {
           return session.handle
         }
         remove(id)
-        sessions.delete(id)
       }
     }
 
