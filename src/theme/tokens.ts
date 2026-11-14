@@ -99,8 +99,8 @@ function toneForeground(tone: Tone): string {
 }
 
 export const DEFAULT_MIX_PERCENT = {
-  hover: 8,
-  active: 12,
+  hover: 6,
+  active: 10,
   ink: 25,
   soft: 12,
   border: 20,

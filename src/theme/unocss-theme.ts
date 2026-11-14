@@ -1,4 +1,4 @@
-import { DEFAULT_THEME_COLORS } from './defaults.ts'
+import { DEFAULT_THEME_COLORS, DEFAULT_THEME_SHADOWS } from './defaults.ts'
 import type { MorainePresetTheme, PresetMoraineOptions } from './theme-types.ts'
 import {
   MORAINE_COLORS,
@@ -7,12 +7,6 @@ import {
   THEME_COLOR_ROLES,
   createGatedColorDeclarations,
 } from './tokens.ts'
-
-const DEFAULT_THEME_SHADOWS = {
-  surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-  overlay: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-  input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-} satisfies MorainePresetTheme['shadows']
 
 function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): MorainePresetTheme {
   const colors = { ...base.colors } as Record<string, unknown>

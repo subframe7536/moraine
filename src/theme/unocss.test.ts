@@ -525,7 +525,7 @@ describe('presetMoraine', () => {
       expect(css).not.toContain('--sidebar-width:')
       expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
       expect(css).toContain(
-        '--mo-background-hover: color-mix(in oklch, var(--background), var(--foreground) var(--mo-mix-hover, 8%));',
+        '--mo-background-hover: color-mix(in oklch, var(--background), var(--foreground) var(--mo-mix-hover, 6%));',
       )
       expect(css).toContain(
         '--mo-primary-ink: color-mix(in oklch, var(--primary), var(--foreground) var(--mo-mix-ink, 25%));',

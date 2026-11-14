@@ -184,7 +184,7 @@ describe('colors', () => {
     const css = await compileCSS(['bg-accent-hover'], true)
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
-      '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
+      '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 6%));',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })

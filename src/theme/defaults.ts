@@ -1,4 +1,4 @@
-import type { MoraineThemeColors } from './theme-types.ts'
+import type { MoraineThemeColors, MorainePresetTheme } from './theme-types.ts'
 
 export const DEFAULT_THEME_COLORS = {
   light: {
@@ -10,7 +10,7 @@ export const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(51, 65, 85)', foreground: 'rgb(248, 250, 252)' },
     neutral: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
-    accent: { base: 'rgb(230, 230, 230)', foreground: 'rgb(23, 23, 23)' },
+    accent: { base: 'rgb(235, 235, 235)', foreground: 'rgb(23, 23, 23)' },
     danger: { base: 'rgb(197, 60, 32)' },
     info: { base: 'rgb(37, 119, 211)' },
     success: { base: 'rgb(51, 134, 68)' },
@@ -42,3 +42,9 @@ export const DEFAULT_THEME_COLORS = {
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>
+
+export const DEFAULT_THEME_SHADOWS = {
+  surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  overlay: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+} satisfies MorainePresetTheme['shadows']
