@@ -10,12 +10,12 @@ export function AvatarHydrationFixture(props: { max?: number }) {
       <Avatar
         src="/avatar.png"
         alt="Ada Lovelace"
-        icon={<span>AL</span>}
+        icon="i-lucide-user"
         badge={<span>Online</span>}
       />
       <AvatarGroup
         max={props.max ?? 1}
-        items={[{ alt: 'Grace Hopper', icon: <span>GH</span> }, { alt: 'Alan Turing' }]}
+        items={[{ alt: 'Grace Hopper', icon: 'i-lucide-user' }, { alt: 'Alan Turing' }]}
       />
     </>
   )
