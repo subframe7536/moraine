@@ -302,6 +302,27 @@ describe('Field', () => {
     expect(item.getAttribute('aria-checked')).toBe('true')
   })
 
+  test('lets an explicit Switch disabled={false} override the Field disabled', () => {
+    const screen = render(() => (
+      <>
+        <Field disabled label="Alerts">
+          <Switch />
+        </Field>
+        <Field disabled label="Reports">
+          <Switch disabled={false} />
+        </Field>
+      </>
+    ))
+
+    const inherited = screen.getByRole<HTMLButtonElement>('switch', { name: 'Alerts' })
+    expect(inherited.disabled).toBe(true)
+
+    const toggle = screen.getByRole<HTMLButtonElement>('switch', { name: 'Reports' })
+    expect(toggle.disabled).toBe(false)
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-checked')).toBe('true')
+  })
+
   test('targets the last registered bound control while bind:false stays non-primary', () => {
     const screen = render(() => (
       <Field label="Values">

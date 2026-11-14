@@ -116,10 +116,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const generatedId = createId(() => merged.id, 'switch')
   const fieldProps = mergeProps(merged, {
     get disabled() {
-      return merged.disabled || merged.loading
-    },
-    get readOnly() {
-      return merged.readOnly
+      return merged.loading ? true : merged.disabled
     },
   })
   const field = useFormField(fieldProps, {
