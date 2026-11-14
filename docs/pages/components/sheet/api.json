@@ -182,7 +182,7 @@
           "name": "transition",
           "optional": true,
           "type": "boolean",
-          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end.",
+          "description": "Whether enter and exit transition animations play. When `false`, the content and overlay\nmount and unmount without waiting for an animation to end. The value is read when content\nregisters, so changes take effect the next time content mounts.",
           "default": {
             "kind": "literal",
             "value": true

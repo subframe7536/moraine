@@ -102,7 +102,7 @@
           "name": "transition",
           "optional": true,
           "type": "boolean",
-          "description": "Whether enter and exit transition animations play for dialogs on this host.",
+          "description": "Whether enter and exit transition animations play for dialogs on this host.\nChanges take effect the next time a dialog's content mounts.",
           "default": {
             "kind": "literal",
             "value": true

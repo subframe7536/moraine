@@ -54,6 +54,7 @@ export namespace AlertDialogT {
 
     /**
      * Whether enter and exit transition animations play for dialogs on this host.
+     * Changes take effect the next time a dialog's content mounts.
      * @default true
      */
     transition?: boolean
@@ -107,7 +108,10 @@ export namespace AlertDialogT {
     cancel?: Action | boolean
     /** Whether the corner close button is shown. */
     closable?: boolean
-    /** Whether enter and exit transition animations play for this dialog. */
+    /**
+     * Whether enter and exit transition animations play for this dialog.
+     * Changes take effect the next time the dialog's content mounts.
+     */
     transition?: boolean
     /** Called once when the dialog closes. */
     onClose?: (reason: CloseReason) => void

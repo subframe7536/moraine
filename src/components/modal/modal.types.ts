@@ -39,7 +39,8 @@ export namespace ModalT {
 
     /**
      * Whether enter and exit transition animations play. When `false`, the content and overlay
-     * mount and unmount without waiting for an animation to end.
+     * mount and unmount without waiting for an animation to end. The value is read when content
+     * registers, so changes take effect the next time content mounts.
      * @default true
      */
     transition?: boolean
