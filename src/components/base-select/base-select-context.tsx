@@ -9,6 +9,7 @@ import {
   createSignal,
   on,
   onCleanup,
+  onMount,
   untrack,
 } from 'solid-js'
 
@@ -59,6 +60,8 @@ export function createSelectState<T extends BaseSelectT.Item>(
       return selectionToFormValue(initial, props.multiple === true)
     },
   })
+  const [mounted, setMounted] = createSignal(false)
+  onMount(() => setMounted(true))
   const items = () => props.items ?? []
   const itemByValue = createMemo(() => {
     const byValue = new Map<T['value'], T>()
@@ -87,23 +90,28 @@ export function createSelectState<T extends BaseSelectT.Item>(
       if (props.value !== undefined) {
         return props.value
       }
-      const value = field.value()
-      if (props.multiple && Array.isArray(value)) {
-        return value
+      if (!field.bound()) {
+        return undefined
       }
-      if (
-        !props.multiple &&
-        (value === null || (field.path() !== undefined && value === undefined))
-      ) {
+      const value = field.value()
+      if (value === undefined) {
+        // Before mount (and on SSR) the binding has no input yet: stay
+        // uncontrolled so defaultValue shows and hydration stays identical.
+        return mounted() ? [] : undefined
+      }
+      if (value === null) {
         return []
       }
-      if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
+      if (props.multiple) {
+        return Array.isArray(value) ? value : []
+      }
+      if (typeof value === 'string' || typeof value === 'number') {
         if (value === '' && !getCanonicalItem(value)) {
           return []
         }
         return [value]
       }
-      return undefined
+      return []
     },
     defaultValue: () => initial,
   })

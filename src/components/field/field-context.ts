@@ -62,6 +62,7 @@ export interface UseFormFieldReturn {
   path: Accessor<FieldPath | undefined>
   id: Accessor<string>
   name: Accessor<string | undefined>
+  bound: Accessor<boolean>
   value: Accessor<unknown>
   size: Accessor<ComponentSize | null | undefined>
   disabled: Accessor<boolean>
@@ -114,6 +115,7 @@ export function useFormField(
     }
     return typeof fieldContext?.name === 'string' ? fieldContext.name : undefined
   })
+  const bound = createMemo(() => fieldContext?.binding !== undefined)
   const value = createMemo(() => fieldContext?.binding?.value)
   const size = createMemo(() => (props?.size !== undefined ? props.size : fieldContext?.size))
   const disabled = createMemo(() => props?.disabled ?? fieldContext?.disabled ?? false)
@@ -184,6 +186,7 @@ export function useFormField(
     path,
     id,
     name,
+    bound,
     value,
     size,
     disabled,

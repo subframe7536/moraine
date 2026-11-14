@@ -20,6 +20,7 @@ function createMockField(): UseFormFieldReturn {
     setFormValue: vi.fn((val: unknown) => setValue(val)),
     emit: vi.fn(),
     path: () => ['test-field'],
+    bound: () => true,
     value,
     runtimeState: () => ({
       touched: false,

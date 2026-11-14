@@ -1,4 +1,4 @@
-import { getInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, For, untrack } from 'solid-js'
 import * as v from 'valibot'
@@ -649,6 +649,34 @@ describe('MultiSelect', () => {
     ).toBe('Banana')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(getInput(form)).toEqual({ choices: ['banana', 'apple'] })
+  })
+
+  test('clears the selection when the Form.Field value is reset to null or undefined', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.nullish(v.array(v.string())) }),
+          initialInput: { choices: ['apple'] },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choices" label="Choices">
+              <MultiSelect items={ITEMS} />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+    const tags = () => screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
+
+    expect(tags()).toHaveLength(1)
+    setInput(form, { path: ['choices'], input: null })
+    expect(tags()).toHaveLength(0)
+    setInput(form, { path: ['choices'], input: ['banana'] })
+    expect(tags()).toHaveLength(1)
+    setInput(form, { path: ['choices'], input: undefined })
+    expect(tags()).toHaveLength(0)
   })
 
   test('updates a collection array owned by Form.Field', () => {

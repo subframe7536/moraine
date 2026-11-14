@@ -2,7 +2,7 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Select } from './select'
 import type { SelectT } from './select.types'
@@ -88,4 +88,14 @@ test('hydrates string and grouped shorthand without replacing server elements', 
   const control = container.querySelector<HTMLElement>('[role="combobox"]')!
   fireEvent.keyDown(control, { key: 'ArrowDown' })
   expect(control.getAttribute('aria-expanded')).toBe('true')
+})
+
+test('renders a standalone Field default selection in SSR markup', () => {
+  const markup = renderSsrFixture(
+    '/src/components/select/select.ssr.fixture.tsx',
+    'renderSelectFieldDefaultFixture',
+  )
+  expect(markup).toContain('Apple')
+  expect(markup).toContain('name="role"')
+  expect(markup).toContain('value="apple"')
 })

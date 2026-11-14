@@ -1,5 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
+import { Field } from '../field'
+
 import { Select } from './select'
 
 export function renderSelectFixture(): string {
@@ -42,5 +44,19 @@ export function renderStringItemsFixture(): string {
       items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
       defaultValue="Banana"
     />
+  ))
+}
+
+export function renderSelectFieldDefaultFixture(): string {
+  return renderToString(() => (
+    <Field name="role" label="Role">
+      <Select
+        items={[
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+        ]}
+        defaultValue="apple"
+      />
+    </Field>
   ))
 }

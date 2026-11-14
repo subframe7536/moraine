@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { renderWithOwner } from '../../test-util/owner-render'
+import { Field } from '../field'
 import { createForm } from '../index'
 
 import { Select } from './select'
@@ -460,6 +461,46 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(onChange).toHaveBeenLastCalledWith('apple')
     expect(displayed()).toBe('Apple')
+  })
+
+  test('stays uncontrolled with defaultValue inside a standalone Field without a binding', () => {
+    const screen = render(() => (
+      <Field name="role" label="Role">
+        <Select items={ITEMS} defaultValue="apple" defaultOpen />
+      </Field>
+    ))
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
+
+    expect(displayed()).toBe('Apple')
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(displayed()).toBe('Banana')
+    expect(screen.container.querySelector<HTMLInputElement>('input[name="role"]')?.value).toBe(
+      'banana',
+    )
+  })
+
+  test('shows defaultValue inside Form.Field before the binding writes the initial value', async () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.optional(v.string()) }),
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Select items={ITEMS} defaultValue="apple" />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
+    await Promise.resolve()
+    expect(getInput(form)).toEqual({ choice: 'apple' })
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
   })
 
   test('hands back to the initial default when a defined value becomes undefined', () => {
