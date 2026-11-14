@@ -97,7 +97,9 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
   })
 
   const panelContext: ResizableT.PanelContext = {
-    id: panelId(),
+    get id() {
+      return panelId()
+    },
     size: () => size() ?? 0,
     collapsed,
     collapse: () => ctx.collapsePanel(panelId()),
