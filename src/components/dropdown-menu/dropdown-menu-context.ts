@@ -67,7 +67,7 @@ export function createDropdownMenu(props: DropdownMenuProps) {
         return props.align
       },
       get gutter() {
-        return props.gutter ?? 4
+        return props.gutter
       },
       get shift() {
         return props.shift
