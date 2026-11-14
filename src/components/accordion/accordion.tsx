@@ -27,7 +27,7 @@ import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
 import type { AccordionStyleSlot } from './accordion.style-types'
-import type { AccordionProps, AccordionT } from './accordion.types'
+import type { AccordionProps } from './accordion.types'
 
 function AccordionItemPanel(props: {
   disclosure: DisclosureState
@@ -141,12 +141,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
+  const warnedDuplicateValues = new Set<string>()
   const items = createMemo(() => {
     const list = merged.items ?? []
     if (DEV) {
       const values = list.map((item) => item.value)
       for (const value of new Set(values.filter((v, i) => values.indexOf(v) !== i))) {
-        console.warn(`[moraine] Accordion received duplicate item value "${value}".`)
+        if (!warnedDuplicateValues.has(value)) {
+          warnedDuplicateValues.add(value)
+          console.warn(`[moraine] Accordion received duplicate item value "${value}".`)
+        }
       }
     }
     return list
@@ -156,14 +160,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
   let lastFocusedValue: string | undefined
   let focusRecoveryVersion = 0
 
-  function getEnabledItems(): Array<{ item: AccordionT.Item; key: string }> {
+  function getEnabledItems(): string[] {
     if (merged.disabled) {
       return []
     }
-    const result: Array<{ item: AccordionT.Item; key: string }> = []
+    const result: string[] = []
     for (const item of items()) {
       if (!item.disabled && triggerRefs.has(item.value)) {
-        result.push({ item, key: item.value })
+        result.push(item.value)
       }
     }
     return result
@@ -199,7 +203,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function focusTriggerByOffset(currentKey: string, offset: number): void {
     const enabled = getEnabledItems()
-    const currentIndex = enabled.findIndex((entry) => entry.key === currentKey)
+    const currentIndex = enabled.findIndex((key) => key === currentKey)
 
     if (currentIndex === -1) {
       return
@@ -212,16 +216,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
     }
 
     const target = enabled[(nextIndex + enabled.length) % enabled.length]
-    if (target) {
-      triggerRefs.get(target.key)?.focus()
+    if (target !== undefined) {
+      triggerRefs.get(target)?.focus()
     }
   }
 
   function focusTriggerBoundary(last = false): void {
     const enabled = getEnabledItems()
     const target = enabled[last ? enabled.length - 1 : 0]
-    if (target) {
-      triggerRefs.get(target.key)?.focus()
+    if (target !== undefined) {
+      triggerRefs.get(target)?.focus()
     }
   }
 
@@ -255,8 +259,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const enabled = getEnabledItems()
           const targetIndex = Math.min(lastFocusedIndex, enabled.length - 1)
           const target = enabled[Math.max(0, targetIndex)]
-          if (target) {
-            triggerRefs.get(target.key)?.focus()
+          if (target !== undefined) {
+            triggerRefs.get(target)?.focus()
           }
         })
       })
@@ -390,9 +394,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
           const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement>()
           bindElement(triggerEl, (element) => {
-            const key = untrack(itemValue)
             disclosure.setTriggerElement(element)
+            let key = untrack(itemValue)
             triggerRefs.set(key, element)
+            createEffect(
+              on(
+                itemValue,
+                (nextKey) => {
+                  triggerRefs.delete(key)
+                  key = nextKey
+                  triggerRefs.set(key, element)
+                },
+                { defer: true },
+              ),
+            )
             return () => {
               triggerRefs.delete(key)
             }

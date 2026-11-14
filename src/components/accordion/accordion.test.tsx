@@ -346,6 +346,36 @@ describe('Accordion', () => {
     expect(document.activeElement).toBe(triggerThree)
   })
 
+  test('keeps arrow-key navigation reaching an item whose value changes', () => {
+    const [valueB, setValueB] = createSignal('two')
+    const screen = render(() => (
+      <Accordion
+        items={[
+          { value: 'one', label: 'One' },
+          {
+            get value() {
+              return valueB()
+            },
+            label: 'Two',
+          },
+          { value: 'three', label: 'Three' },
+        ]}
+      />
+    ))
+
+    const triggerOne = screen.getByRole('button', { name: 'One' })
+    const triggerTwo = screen.getByRole('button', { name: 'Two' })
+
+    setValueB('two-renamed')
+
+    triggerOne.focus()
+    fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(triggerTwo)
+
+    fireEvent.keyDown(triggerTwo, { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(triggerOne)
+  })
+
   test('does not wrap trigger focus when loop=false', async () => {
     const screen = render(() => <Accordion items={BASE_ITEMS} loop={false} />)
 
