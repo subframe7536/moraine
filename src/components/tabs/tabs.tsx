@@ -15,7 +15,6 @@ import {
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
@@ -127,8 +126,6 @@ export function Tabs(props: TabsProps): JSX.Element {
         return cached
       }
 
-      const content = createLazyMemo(() => item.content)
-
       const normalized: NormalizedTabItem = {
         rawItem: item,
         value,
@@ -137,7 +134,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         icon: item.icon,
         disabled,
         get content() {
-          return content()
+          return item.content
         },
       }
       nextCache.set(instanceKey, normalized)

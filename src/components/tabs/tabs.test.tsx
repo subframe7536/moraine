@@ -888,6 +888,27 @@ describe('Tabs', () => {
     expect(content.textContent).toBe('Value: custom, Selected: true')
   })
 
+  test('keeps item content getters live after the items array is replaced', () => {
+    const [show, setShow] = createSignal(true)
+    const panel = {
+      value: 'account',
+      label: 'Account',
+      get content() {
+        return show() ? 'Shown' : 'Hidden'
+      },
+    }
+    const [items, setItems] = createSignal([panel])
+    const screen = render(() => <Tabs items={items()} value="account" />)
+
+    expect(screen.getByRole('tabpanel').textContent).toBe('Shown')
+    setItems((previous) => [
+      ...previous,
+      { value: 'settings', label: 'Settings', content: 'Settings panel' },
+    ])
+    setShow(false)
+    expect(screen.getByRole('tabpanel').textContent).toBe('Hidden')
+  })
+
   test('warns in DEV on duplicate or missing value', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
