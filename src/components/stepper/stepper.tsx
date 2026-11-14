@@ -196,10 +196,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     }
 
     setRequestedValue(nextValue)
-
-    if (merged.navigation !== 'none') {
-      merged.onValueChange?.(nextValue)
-    }
+    merged.onValueChange?.(nextValue)
   }
 
   function getTriggerId(key: string): string {
