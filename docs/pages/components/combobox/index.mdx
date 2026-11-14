@@ -109,7 +109,9 @@ occurrence, including collisions between strings and objects.
 ### Value and query
 
 Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
-uncontrolled choice. `null` means no selection; an empty string is a valid item value.
+uncontrolled choice. `value={undefined}` keeps the selection uncontrolled; `value={null}` keeps it
+controlled and empty, and `onValueChange` emits `null` when the selection is cleared. Inside a form
+field, clearing writes `null`. An empty string is a valid item value.
 
 While open, the input displays the query; while closed, it displays the selected item label.
 Arbitrary query text is never committed as a value. Use `value` / `onValueChange` for selection and

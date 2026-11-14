@@ -123,7 +123,9 @@ The value slot shows the selected label or `String(value)` for an unresolved val
 pointer-only action inside the trigger that clears selection without toggling the popup.
 
 Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
-uncontrolled choice. `null` means no selection; an empty string is a valid item value. Use unique
+uncontrolled choice. `value={undefined}` keeps the selection uncontrolled; `value={null}` keeps it
+controlled and empty, and `onValueChange` emits `null` when the selection is cleared. Inside a form
+field, clearing writes `null`. An empty string is a valid item value. Use unique
 item values so each selection identifies one option.
 
 ```tsx
