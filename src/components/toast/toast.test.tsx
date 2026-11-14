@@ -1020,6 +1020,22 @@ describe('Toast', () => {
     })
   })
 
+  it('clears data-swiping after a successful swipe-out', async () => {
+    render(() => <Toast />)
+
+    Toast.show({ title: 'Clear swiping state' })
+    const toastItem = await screen.findByText('Clear swiping state')
+    const itemEl = toastItem.closest('[data-slot="toast-item"]') as HTMLElement
+    expect(itemEl).not.toBeNull()
+
+    fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
+    fireEvent.pointerMove(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+    expect(itemEl.hasAttribute('data-swiping')).toBe(true)
+    fireEvent.pointerUp(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+
+    expect(itemEl.hasAttribute('data-swiping')).toBe(false)
+  })
+
   it('does not close on a small-distance swipe even with high velocity', async () => {
     render(() => <Toast />)
 

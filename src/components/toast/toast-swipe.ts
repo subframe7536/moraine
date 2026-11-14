@@ -139,6 +139,7 @@ export function createToastSwipe(options: CreateToastSwipeOptions) {
     const velocityOk = velocity > SWIPE_VELOCITY && primaryDistance >= SWIPE_MIN_DISTANCE
     if (allowed && (distanceOk || velocityOk)) {
       pointerStart = null
+      setSwiping(false)
       if (dragAxis === 'x') {
         setSwipeOutDirection(movedX > 0 ? 'right' : 'left')
       } else {
