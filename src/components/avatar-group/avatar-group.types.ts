@@ -14,7 +14,7 @@ export namespace AvatarGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Item = AvatarT.Base & AvatarT.Variants
+  export type Item = Omit<AvatarT.Base, 'slotName'> & AvatarT.Variants
 
   /** Base props for the AvatarGroup component. */
   export interface Base {
