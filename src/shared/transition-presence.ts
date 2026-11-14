@@ -53,8 +53,8 @@ function getAnimationEntries(element: HTMLElement): Array<AnimationEntry> {
     return []
   }
 
-  // JSDOM cannot resolve stylesheet animations and reports `auto` here.
-  // Keep the element mounted until an animation event in that environment.
+  // JSDOM cannot resolve stylesheet animations and reports `0s` here; `auto` covers
+  // engines that report it instead. Keep the element mounted until an animation event.
   if (style.animationDuration === 'auto') {
     return [{ name: '*', duration: undefined }]
   }
