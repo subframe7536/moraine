@@ -23,7 +23,7 @@ const FOCUSABLE_SELECTOR_PARTS = [
   '[tabindex]',
 ] as const
 
-export const FOCUSABLE_SELECTOR = /* @__PURE__ */ FOCUSABLE_SELECTOR_PARTS.join(',')
+const FOCUSABLE_SELECTOR = /* @__PURE__ */ FOCUSABLE_SELECTOR_PARTS.join(',')
 
 export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   const candidates = getComposedElementDescendants(container).filter(

@@ -76,7 +76,7 @@ export function isInsideOverlayLayer(entry: OverlayStackEntry, target: Node): bo
  * the stack AFTER the supplied entry. Used so that an outer overlay treats
  * its descendant overlays as "inside" interactions.
  */
-export function isInsideDescendantOverlay(entry: OverlayStackEntry, target: Node): boolean {
+function isInsideDescendantOverlay(entry: OverlayStackEntry, target: Node): boolean {
   const overlayStack = getOverlayStack(entry)
   const index = overlayStack.indexOf(entry)
 
