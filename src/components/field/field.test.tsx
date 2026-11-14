@@ -4,7 +4,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme/create-theme'
+import { Checkbox } from '../checkbox'
+import { CheckboxGroup } from '../checkbox-group'
 import { Input } from '../input'
+import { RadioGroup } from '../radio-group'
+import { Slider } from '../slider'
+import { Switch } from '../switch'
 
 import { Field } from './field'
 import type { FieldBinding } from './field-context'
@@ -199,6 +204,102 @@ describe('Field', () => {
     expect(input.required).toBe(false)
     expect(input.disabled).toBe(false)
     expect(input.readOnly).toBe(false)
+  })
+
+  test('applies readOnly to embedded choice controls and blocks interaction', () => {
+    const onCheckedChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <Field readOnly label="Accept">
+          <Checkbox onCheckedChange={onCheckedChange} />
+        </Field>
+        <Field readOnly label="Alerts">
+          <Switch />
+        </Field>
+        <Field readOnly label="Plan">
+          <RadioGroup items={['A', 'B']} />
+        </Field>
+        <Field readOnly label="Volume">
+          <Slider defaultValue={40} />
+        </Field>
+        <Field readOnly label="Toppings">
+          <CheckboxGroup items={['X', 'Y']} />
+        </Field>
+      </>
+    ))
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Accept' })
+    expect(checkbox.getAttribute('aria-readonly')).toBe('true')
+    fireEvent.click(checkbox)
+    expect(checkbox.getAttribute('aria-checked')).toBe('false')
+    expect(onCheckedChange).not.toHaveBeenCalled()
+
+    const toggle = screen.getByRole('switch', { name: 'Alerts' })
+    expect(toggle.getAttribute('aria-readonly')).toBe('true')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-checked')).toBe('false')
+
+    const radio = screen.getByRole('radio', { name: 'B' })
+    expect(radio.getAttribute('aria-readonly')).toBe('true')
+    fireEvent.click(radio)
+    expect((radio as HTMLInputElement).checked).toBe(false)
+
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="slider-thumb"]')!
+    expect(thumb.getAttribute('aria-readonly')).toBe('true')
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(thumb.getAttribute('aria-valuenow')).toBe('40')
+
+    const group = screen.container.querySelector('[data-slot="checkbox-group"]')!
+    expect(group.hasAttribute('data-readonly')).toBe(true)
+    const item = group.querySelectorAll<HTMLElement>('[data-slot="checkbox-control"]')[1]!
+    expect(item.getAttribute('aria-readonly')).toBe('true')
+    fireEvent.click(item)
+    expect(item.getAttribute('aria-checked')).toBe('false')
+  })
+
+  test('lets an explicit control readOnly={false} override the Field readOnly', () => {
+    const screen = render(() => (
+      <>
+        <Field readOnly label="Accept">
+          <Checkbox readOnly={false} />
+        </Field>
+        <Field readOnly label="Alerts">
+          <Switch readOnly={false} />
+        </Field>
+        <Field readOnly label="Plan">
+          <RadioGroup readOnly={false} items={['A', 'B']} />
+        </Field>
+        <Field readOnly label="Volume">
+          <Slider readOnly={false} defaultValue={40} />
+        </Field>
+        <Field readOnly label="Toppings">
+          <CheckboxGroup readOnly={false} items={['X', 'Y']} />
+        </Field>
+      </>
+    ))
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Accept' })
+    expect(checkbox.getAttribute('aria-readonly')).toBeNull()
+    fireEvent.click(checkbox)
+    expect(checkbox.getAttribute('aria-checked')).toBe('true')
+
+    const toggle = screen.getByRole('switch', { name: 'Alerts' })
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-checked')).toBe('true')
+
+    const radio = screen.getByRole('radio', { name: 'B' })
+    fireEvent.click(radio)
+    expect((radio as HTMLInputElement).checked).toBe(true)
+
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="slider-thumb"]')!
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(thumb.getAttribute('aria-valuenow')).toBe('41')
+
+    const item = screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="checkbox-group"] [data-slot="checkbox-control"]',
+    )[1]!
+    fireEvent.click(item)
+    expect(item.getAttribute('aria-checked')).toBe('true')
   })
 
   test('targets the last registered bound control while bind:false stays non-primary', () => {

@@ -119,7 +119,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       return merged.disabled || merged.loading
     },
     get readOnly() {
-      return Boolean(merged.readOnly)
+      return merged.readOnly
     },
   })
   const field = useFormField(fieldProps, {

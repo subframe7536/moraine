@@ -71,7 +71,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         dragging: slider.dragging,
         disabled: field.disabled,
         invalid: field.invalid,
-        readonly: () => merged.readOnly,
+        readonly: field.readOnly,
         required: field.required,
         inverted: () => merged.inverted,
         multiple: isMultiple,
@@ -112,19 +112,19 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   )
 
   const generatedId = createId(() => merged.id, 'slider')
-  const fieldProps = mergeProps(merged, {
-    get readOnly() {
-      return Boolean(merged.readOnly)
-    },
-  })
-  const field = useFormField(fieldProps, {
+  const field = useFormField(merged, {
     get defaultId() {
       return generatedId()
     },
   })
   const inputEls: HTMLInputElement[] = []
 
-  slider = createSlider<TValue>(merged, {
+  const sliderProps = mergeProps(merged, {
+    get readOnly() {
+      return field.readOnly()
+    },
+  })
+  slider = createSlider<TValue>(sliderProps, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)
@@ -251,7 +251,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               focusVisible: () => slider.focusVisibleThumbIndex() === thumbIndex,
               disabled: field.disabled,
               invalid: field.invalid,
-              readonly: () => merged.readOnly,
+              readonly: field.readOnly,
               required: field.required,
             }),
           })
@@ -319,7 +319,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 value={slider.currentValues()[thumbIndex] ?? merged.min}
                 required={field.required()}
                 disabled={field.disabled()}
-                readonly={merged.readOnly}
+                readonly={field.readOnly()}
                 tabIndex={field.disabled() ? undefined : -1}
                 aria-valuetext={slider.getThumbValueText(thumbIndex)}
                 aria-orientation={merged.orientation ?? undefined}

@@ -104,7 +104,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     data: {
       root: checkboxGroupDataAttributes.root(() => ({
         disabled: field.disabled,
-        readonly: () => merged.readOnly,
+        readonly: field.readOnly,
         required: field.required,
         invalid: field.invalid,
       })),
@@ -148,6 +148,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       },
       get disabled() {
         return merged.disabled
+      },
+      get readOnly() {
+        return merged.readOnly
       },
       get required() {
         return local.required
@@ -315,7 +318,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 label={item().label}
                 description={item().description}
                 disabled={item().disabled || field.disabled()}
-                readOnly={merged.readOnly}
+                readOnly={field.readOnly()}
                 required={
                   field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex()
                 }

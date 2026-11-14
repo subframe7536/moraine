@@ -104,12 +104,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
 
   const groupId = createId(() => merged.id, 'radio-group')
-  const fieldProps = mergeProps(merged, {
-    get readOnly() {
-      return Boolean(merged.readOnly)
-    },
-  })
-  const field = useFormField(fieldProps, {
+  const field = useFormField(merged, {
     bind: false,
     focus: true,
     get defaultId() {

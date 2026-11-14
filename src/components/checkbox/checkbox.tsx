@@ -131,12 +131,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
       : 'on')
 
   const generatedId = createId(() => merged.id, 'checkbox')
-  const fieldProps = mergeProps(merged, {
-    get readOnly() {
-      return Boolean(merged.readOnly)
-    },
-  })
-  const field = useFormField(fieldProps, {
+  const field = useFormField(merged, {
     get bind() {
       return local.bound
     },
