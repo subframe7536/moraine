@@ -225,6 +225,39 @@ describe('Resizable', () => {
     expectPanelBasis(panels[2], 37.5)
   })
 
+  test('does not fire collapse callbacks when a same-id panel remounts', async () => {
+    const onCollapse = vi.fn()
+    const onExpand = vi.fn()
+    const [showB, setShowB] = createSignal(true)
+    const [layout, setLayout] = createSignal({ a: 100, b: 0 })
+    render(() => (
+      <Resizable value={layout()}>
+        <Resizable.Panel id="a">A</Resizable.Panel>
+        <Resizable.Handle />
+        <Show when={showB()}>
+          <Resizable.Panel id="b" min={20} collapsible onCollapse={onCollapse} onExpand={onExpand}>
+            B
+          </Resizable.Panel>
+        </Show>
+      </Resizable>
+    ))
+    await waitForLayout()
+    expect(onCollapse).not.toHaveBeenCalled()
+    expect(onExpand).not.toHaveBeenCalled()
+
+    setShowB(false)
+    setLayout({ a: 50, b: 50 })
+    await waitForLayout()
+
+    setShowB(true)
+    await waitForLayout()
+
+    // The remounted panel reports its fresh collapsed state, not a transition
+    // from the stale entry left by the previous registration.
+    expect(onCollapse).not.toHaveBeenCalled()
+    expect(onExpand).not.toHaveBeenCalled()
+  })
+
   test('drag updates layout live, emits change per move and one commit on release', () => {
     const onValueChange = vi.fn()
     const onValueCommit = vi.fn()

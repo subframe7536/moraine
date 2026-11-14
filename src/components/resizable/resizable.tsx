@@ -589,6 +589,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
     setItems((previous) => [...previous, stored])
     return () => {
       setItems((previous) => previous.filter((entry) => entry !== stored))
+      if (stored.kind === 'panel') {
+        previousCollapsed.delete(stored.panel.id())
+        lastExpandedSizes.delete(stored.panel.id())
+      }
     }
   }
 
