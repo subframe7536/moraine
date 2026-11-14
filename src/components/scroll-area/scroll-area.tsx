@@ -29,6 +29,45 @@ type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbar']>
 
 const AXES = { vertical: ['y'], horizontal: ['x'], both: ['y', 'x'] } as const
 
+const AXIS_CONFIG = {
+  y: {
+    clientSize: (el: HTMLElement) => el.clientHeight,
+    scrollSize: (el: HTMLElement) => el.scrollHeight,
+    getScroll: (el: HTMLElement) => el.scrollTop,
+    setScroll: (el: HTMLElement, val: number) => {
+      el.scrollTop = val
+    },
+    thumbOffset: (thumb: HTMLElement) => thumb.offsetTop,
+    thumbSize: (thumb: HTMLElement) => thumb.offsetHeight,
+    trackOffset: (track: HTMLElement, event: PointerEvent) =>
+      event.clientY - track.getBoundingClientRect().top - track.clientTop,
+    thumbStyle: (offset: string, size: string): JSX.CSSProperties => ({
+      top: offset,
+      height: size,
+      left: '0',
+      right: '0',
+    }),
+  },
+  x: {
+    clientSize: (el: HTMLElement) => el.clientWidth,
+    scrollSize: (el: HTMLElement) => el.scrollWidth,
+    getScroll: (el: HTMLElement) => el.scrollLeft,
+    setScroll: (el: HTMLElement, val: number) => {
+      el.scrollLeft = val
+    },
+    thumbOffset: (thumb: HTMLElement) => thumb.offsetLeft,
+    thumbSize: (thumb: HTMLElement) => thumb.offsetWidth,
+    trackOffset: (track: HTMLElement, event: PointerEvent) =>
+      event.clientX - track.getBoundingClientRect().left - track.clientLeft,
+    thumbStyle: (offset: string, size: string): JSX.CSSProperties => ({
+      left: offset,
+      width: size,
+      top: '0',
+      bottom: '0',
+    }),
+  },
+} as const
+
 function sameOverflow(a: ScrollAreaT.Overflow, b: ScrollAreaT.Overflow): boolean {
   return (
     a.x.start === b.x.start && a.x.end === b.x.end && a.y.start === b.y.start && a.y.end === b.y.end
@@ -231,19 +270,10 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     const physical = axis === 'x' && metrics().rtl ? 1 - progress : progress
     const size = `max(${SCROLL_AREA_THUMB_MIN_SIZE}px, ${ratio * 100}%)`
     const offset = `calc((100% - ${size}) * ${physical})`
-    return axis === 'y'
-      ? { top: offset, height: size, left: '0', right: '0' }
-      : { left: offset, width: size, top: '0', bottom: '0' }
+    return AXIS_CONFIG[axis].thumbStyle(offset, size)
   }
 
   let drag: { pointer: number; thumb: number } | undefined
-
-  function trackOffset(axis: ScrollAreaT.Axis, track: HTMLElement, event: PointerEvent): number {
-    const rect = track.getBoundingClientRect()
-    return axis === 'y'
-      ? event.clientY - rect.top - track.clientTop
-      : event.clientX - rect.left - track.clientLeft
-  }
 
   /** Scrolls so the thumb starts `thumbOffset` px into its track. */
   function scrollToThumb(axis: ScrollAreaT.Axis, track: HTMLElement, thumbOffset: number): void {
@@ -252,15 +282,12 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     if (!element || !thumb) {
       return
     }
-    const room =
-      axis === 'y' ? track.clientHeight - thumb.offsetHeight : track.clientWidth - thumb.offsetWidth
+    const config = AXIS_CONFIG[axis]
+    const room = config.clientSize(track) - config.thumbSize(thumb)
     const progress = room > 0 ? Math.max(0, Math.min(thumbOffset / room, 1)) : 0
-    if (axis === 'y') {
-      element.scrollTop = progress * (element.scrollHeight - element.clientHeight)
-      return
-    }
-    const extent = element.scrollWidth - element.clientWidth
-    element.scrollLeft = metrics().rtl ? (progress - 1) * extent : progress * extent
+    const extent = config.scrollSize(element) - config.clientSize(element)
+    const target = axis === 'x' && metrics().rtl ? (progress - 1) * extent : progress * extent
+    config.setScroll(element, target)
   }
 
   function endDrag(): void {
@@ -341,11 +368,12 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
                     return
                   }
                   event.preventDefault()
-                  const pointer = trackOffset(axis, track, event)
-                  let start = axis === 'y' ? thumb.offsetTop : thumb.offsetLeft
+                  const config = AXIS_CONFIG[axis]
+                  const pointer = config.trackOffset(track, event)
+                  let start = config.thumbOffset(thumb)
                   if (!thumb.contains(event.target)) {
                     // Track presses center the thumb on the pointer, then continue as a drag.
-                    start = pointer - (axis === 'y' ? thumb.offsetHeight : thumb.offsetWidth) / 2
+                    start = pointer - config.thumbSize(thumb) / 2
                     scrollToThumb(axis, track, start)
                   }
                   drag = { pointer, thumb: start }
@@ -358,7 +386,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
                     scrollToThumb(
                       axis,
                       track,
-                      drag.thumb + trackOffset(axis, track, event) - drag.pointer,
+                      drag.thumb + AXIS_CONFIG[axis].trackOffset(track, event) - drag.pointer,
                     )
                   }
                 }}
