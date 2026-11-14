@@ -8,7 +8,6 @@ export interface UseFormValueOptions<T> {
   defaultValue?: Accessor<T | undefined>
   onValueChange?: (value: T) => void
   field?: UseFormFieldReturn
-  fallback?: T
   isEqual?: (a: T, b: T) => boolean
 }
 
@@ -22,7 +21,7 @@ export function useFormValue<T>(
   setValue: (update: T | ((previous: T) => T)) => void,
   reset: () => void,
 ] {
-  const initialDefaultValue = untrack(() => options.defaultValue?.() ?? options.fallback) as T
+  const initialDefaultValue = untrack(() => options.defaultValue?.()) as T
   const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(initialDefaultValue)
 
   const controlledValue = createMemo(() => {
@@ -70,13 +69,6 @@ export function useFormValue<T>(
     }
 
     options.onValueChange?.(nextValue)
-
-    if (options.value?.() !== undefined) {
-      const controlled = options.value()
-      if (controlled !== undefined) {
-        options.field?.setFormValue(controlled)
-      }
-    }
 
     options.field?.emit('change')
     options.field?.emit('input')

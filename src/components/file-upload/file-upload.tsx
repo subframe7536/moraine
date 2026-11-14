@@ -163,7 +163,6 @@ export function FileUpload<Multiple extends boolean = false>(
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
     field,
-    fallback: initialDefaultValue,
     isEqual: isSameFileValue,
   })
 
