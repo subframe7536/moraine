@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onMount, splitProps } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onMount, splitProps } from 'solid-js'
+import { isServer } from 'solid-js/web'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
@@ -59,6 +60,14 @@ function collapsedSizeFraction(panel: ResizablePanelRegistration): number {
   return panel.collapsedSize() / 100
 }
 
+function createServerSafeMemo<T>(fn: () => T): () => T {
+  if (isServer) {
+    return fn
+  }
+  const memo = createMemo(fn)
+  return memo
+}
+
 export function Resizable(props: ResizableProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
@@ -103,9 +112,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   onMount(() => setSettled(true))
 
-  // Accessors (not memos): the server evaluates createMemo eagerly at
-  // creation — before children register — so these must read live state.
-  const orderedItems = (): ResizableItem[] => {
+  // The server evaluates createMemo eagerly before children register,
+  // so SSR uses plain accessors while the client memoizes to avoid sorting
+  // and layout recalculation on every panel read during drag sessions.
+  const rawOrderedItems = (): ResizableItem[] => {
     const list = items()
     if (!settled() || list.length < 2) {
       return list
@@ -123,8 +133,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
     })
   }
 
-  const orderedPanels = (): ResizablePanelRegistration[] =>
+  const rawOrderedPanels = (): ResizablePanelRegistration[] =>
     orderedItems().flatMap((item) => (item.kind === 'panel' ? [item.panel] : []))
+
+  const orderedItems = createServerSafeMemo(rawOrderedItems)
+  const orderedPanels = createServerSafeMemo(rawOrderedPanels)
 
   const sourceLayout = () => local.value ?? uncontrolledLayout()
 
@@ -182,7 +195,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
   }
 
   /** Resolved panel sizes as fractions (0..1), aligned with `orderedPanels()`. */
-  const resolved = (): number[] => resolveLayoutFractions(orderedPanels(), sourceLayout())
+  const rawResolved = (): number[] => resolveLayoutFractions(orderedPanels(), sourceLayout())
+  const resolved = createServerSafeMemo(rawResolved)
 
   /** Panel constraints for the resize algorithms; `collapsedFloor` lowers every collapsible min to collapsedSize. */
   function panelSpecs(collapsedFloor = false): ResizableResolvedPanel[] {
