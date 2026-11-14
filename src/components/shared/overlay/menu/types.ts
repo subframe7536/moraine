@@ -324,7 +324,7 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
 
 export interface OverlayMenuLayerProps<
   TItem extends OverlayMenuItem = OverlayMenuItem,
-> extends OverlayMenuProps<TItem> {
+> extends Omit<OverlayMenuProps<TItem>, 'onClose'> {
   ariaLabelledBy?: string
   close: (options?: OverlayMenuCloseOptions) => void
   closeOnTab: (direction: 'forward' | 'backward') => void

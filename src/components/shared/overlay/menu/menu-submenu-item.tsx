@@ -260,7 +260,6 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
               items={
                 'children' in itemProps.item ? (itemProps.item.children as TItem[]) : undefined
               }
-              onClose={closeSubmenu}
               getReferenceElement={() => triggerElement()}
               placement={
                 resolveDirection(triggerElement(), direction()) === 'rtl' ? 'left' : 'right'
