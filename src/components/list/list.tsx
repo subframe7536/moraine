@@ -45,7 +45,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       }}
     >
       <Show
-        when={local.emptyRender !== undefined && !local.items?.length}
+        when={'emptyRender' in props && !local.items?.length}
         fallback={
           <VirtualContent<TItem>
             virtualizer={local.virtualizer}
