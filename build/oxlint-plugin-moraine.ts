@@ -873,6 +873,13 @@ export default {
 
         return {
           JSXElement(node: any) {
+            const tagName = node.openingElement?.name
+            if (
+              tagName?.type === 'JSXIdentifier' &&
+              (tagName.name === 'For' || tagName.name === 'Index')
+            ) {
+              return
+            }
             for (const child of node.children ?? []) {
               if (child.type === 'JSXExpressionContainer') {
                 check(child.expression)

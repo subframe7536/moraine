@@ -802,5 +802,32 @@ describe('oxlint-plugin-moraine', () => {
       })
       expect(ctx.reports).toHaveLength(0)
     })
+
+    it('skips For and Index children invoked with (item, index)', () => {
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
+      const visitor = rule.create(ctx)
+
+      for (const tag of ['For', 'Index']) {
+        visitor.JSXElement({
+          openingElement: { name: { type: 'JSXIdentifier', name: tag } },
+          children: [
+            {
+              type: 'JSXExpressionContainer',
+              expression: {
+                type: 'ArrowFunctionExpression',
+                params: [
+                  {
+                    type: 'AssignmentPattern',
+                    left: { type: 'Identifier', name: 'item' },
+                    right: { type: 'ObjectExpression' },
+                  },
+                ],
+              },
+            },
+          ],
+        })
+      }
+      expect(ctx.reports).toHaveLength(0)
+    })
   })
 })
