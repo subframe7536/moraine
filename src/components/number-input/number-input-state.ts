@@ -162,8 +162,8 @@ export function createNumberInput(options: CreateNumberInputOptions) {
 
     if (options.explicitControlledValue() === undefined) {
       setResolvedValue(undefined)
+      options.setFormValue?.(undefined)
     }
-    options.setFormValue?.(undefined)
 
     options.resetNativeInvalid?.()
     options.onValueChange?.(undefined)

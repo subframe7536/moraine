@@ -1808,6 +1808,31 @@ describe('NumberInput', () => {
       expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
     })
 
+    test('does not write the form store when a controlled value is cleared', () => {
+      const onValueChange = vi.fn()
+      const { screen, value: form } = renderWithOwner(
+        () =>
+          createForm({
+            schema: v.object({ quantity: v.number() }),
+            initialInput: { quantity: 5 },
+          }),
+        (form) => (
+          <form.Form>
+            <form.Field name="quantity" label="Quantity">
+              <NumberInput value={5} onValueChange={onValueChange} />
+            </form.Field>
+          </form.Form>
+        ),
+      )
+      const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
+
+      fireEvent.input(spinbutton, { target: { value: '' } })
+      fireEvent.blur(spinbutton)
+
+      expect(onValueChange).toHaveBeenLastCalledWith(undefined)
+      expect(getInput(form)).toEqual({ quantity: 5 })
+    })
+
     test('typing a new value after clearing commits normally', () => {
       const onValueChange = vi.fn()
       const screen = render(() => <NumberInput defaultValue={5} onValueChange={onValueChange} />)
