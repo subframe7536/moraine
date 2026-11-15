@@ -1,4 +1,5 @@
 import { Button, createForm, Select } from '@src'
+import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -8,7 +9,7 @@ const COUNTRIES = [
   { label: 'Japan', value: 'jp' },
   { label: 'United Kingdom', value: 'uk' },
   { label: 'Canada', value: 'ca' },
-]
+] satisfies SelectT.Item[]
 
 export function FormIntegration() {
   const [submittedCountry, setSubmittedCountry] = createSignal<string | null>(null)

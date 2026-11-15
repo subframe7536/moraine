@@ -39,10 +39,14 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "closeIcon",
+          "name": "clearIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon used by the clear affordance."
+          "description": "Icon used by the clear affordance.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
+          }
         },
         {
           "name": "closeOnSelect",
@@ -130,7 +134,7 @@
           "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
-          "name": "leadingIcon",
+          "name": "leading",
           "optional": true,
           "type": "IconT.Name",
           "description": "Icon shown before the input/value area."
@@ -272,7 +276,7 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "trailingIcon",
+          "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
           "description": "Icon for the dropdown trigger.",

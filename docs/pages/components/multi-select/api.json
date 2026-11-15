@@ -53,10 +53,14 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "closeIcon",
+          "name": "clearIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon used when the action button clears the selection.\nTag remove buttons keep using this icon as well."
+          "description": "Icon used when the action button clears the selection.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
+          }
         },
         {
           "name": "createItem",
@@ -170,7 +174,7 @@
           "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
-          "name": "leadingIcon",
+          "name": "leading",
           "optional": true,
           "type": "IconT.Name",
           "description": "Icon shown before the input/value area."
@@ -240,7 +244,7 @@
           "description": "Called once when scrolling reaches the bottom."
         },
         {
-          "name": "onSearch",
+          "name": "onSearchValueChange",
           "optional": true,
           "type": "(value: string) => void",
           "description": "Called when search text changes."
@@ -291,6 +295,16 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "removeIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon used by tag remove buttons.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
           }
         },
         {
@@ -380,7 +394,7 @@
           }
         },
         {
-          "name": "trailingIcon",
+          "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
           "description": "Icon used when the action button opens the dropdown.",

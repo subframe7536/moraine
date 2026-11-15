@@ -107,17 +107,17 @@ export namespace ComboboxT {
      */
     loadingIcon?: IconT.Name
     /** Leading icon. */
-    leadingIcon?: IconT.Name
+    leading?: IconT.Name
     /**
      * Popup toggle icon.
      * @default 'icon-chevron-down'
      */
-    trailingIcon?: IconT.Name
+    trailing?: IconT.Name
     /**
      * Clear icon.
      * @default 'icon-close'
      */
-    closeIcon?: IconT.Name
+    clearIcon?: IconT.Name
   }
   export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',

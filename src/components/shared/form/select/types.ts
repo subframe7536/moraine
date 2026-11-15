@@ -55,7 +55,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
    */
   defaultSearchValue?: string
   /** Called when search text changes. */
-  onSearch?: (value: string) => void
+  onSearchValueChange?: (value: string) => void
   /** Maximum committed search length. */
   searchMaxLength?: number
   /**

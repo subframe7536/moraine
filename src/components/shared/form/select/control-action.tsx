@@ -50,7 +50,7 @@ export function useControlPress<TElement extends HTMLElement = HTMLDivElement>(
 
 export interface ClearButtonProps {
   ariaLabel?: string
-  closeIcon?: IconT.Name
+  clearIcon?: IconT.Name
   dataSlot?: string
   disabled?: boolean
   slot?: SlotBinding
@@ -78,7 +78,7 @@ export function ClearButton(props: ClearButtonProps): JSX.Element {
         props.onClear()
       }}
     >
-      <Icon name={props.closeIcon ?? 'icon-close'} />
+      <Icon name={props.clearIcon ?? 'icon-close'} />
     </button>
   )
 }
@@ -92,7 +92,7 @@ export interface ToggleTriggerProps {
   loading?: boolean
   loadingIcon?: IconT.Name
   slot?: SlotBinding
-  trailingIcon?: IconT.Name
+  trailing?: IconT.Name
   onClick?: () => void
   onFocusOwner?: () => void
 }
@@ -123,7 +123,7 @@ export function ToggleTrigger(props: ToggleTriggerProps): JSX.Element {
         name={
           props.loading
             ? (props.loadingIcon ?? 'icon-loading')
-            : (props.trailingIcon ?? 'icon-chevron-down')
+            : (props.trailing ?? 'icon-chevron-down')
         }
         {...selectLoadingData(props.loading)}
         class={SELECT_LOADING_ICON_CLASS}

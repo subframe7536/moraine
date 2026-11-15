@@ -40,11 +40,11 @@ export function AsyncSearch() {
       <Combobox
         items={items()}
         searchValue={query()}
-        onSearch={handleSearch}
+        onSearchValueChange={handleSearch}
         loading={loading()}
         filterItem={false}
         placeholder="Type to search repositories..."
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         openOnControlClick
         allowClear
       />

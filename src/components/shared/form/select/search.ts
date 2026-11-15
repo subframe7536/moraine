@@ -29,7 +29,7 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
       return props.defaultSearchValue
     },
     get onValueChange() {
-      return props.onSearch
+      return props.onSearchValueChange
     },
     get maxLength() {
       return props.searchMaxLength

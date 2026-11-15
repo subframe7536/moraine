@@ -91,14 +91,17 @@ export namespace SelectT {
      */
     loadingIcon?: IconT.Name
     /** Icon shown before the input/value area. */
-    leadingIcon?: IconT.Name
+    leading?: IconT.Name
     /**
      * Icon for the dropdown trigger.
      * @default 'icon-chevron-down'
      */
-    trailingIcon?: IconT.Name
-    /** Icon used by the clear affordance. */
-    closeIcon?: IconT.Name
+    trailing?: IconT.Name
+    /**
+     * Icon used by the clear affordance.
+     * @default 'icon-close'
+     */
+    clearIcon?: IconT.Name
   }
 
   export type Props<TItem extends string | Item = string | Item> = BaseProps<

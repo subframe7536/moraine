@@ -173,7 +173,7 @@ describe('generateApiDoc', () => {
             'virtualizer',
             'searchValue',
             'defaultSearchValue',
-            'onSearch',
+            'onSearchValueChange',
             'filterItem',
             'searchMaxLength',
           ]),

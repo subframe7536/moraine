@@ -176,7 +176,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       locked: state.locked,
       slot: (slot) => slots[slot],
       slotName: state.slotName,
-      closeIcon: () => local.closeIcon,
+      removeIcon: () => local.removeIcon,
       translations: () =>
         local.translations?.remove ? { remove: local.translations.remove } : undefined,
       resolve: (value) => {
@@ -358,7 +358,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           {...controlPress}
           ref={(element) => callRef(local.ref, element)}
         >
-          <Show when={local.leadingIcon}>
+          <Show when={local.leading}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
           </Show>
           <div data-slot="multi-select-tags-container" {...tagsContainerSlot}>
@@ -434,7 +434,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              closeIcon={local.closeIcon}
+              clearIcon={local.clearIcon}
               onFocusOwner={focusControl}
               onClear={clear}
             />
@@ -461,7 +461,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   name={
                     local.loading
                       ? (local.loadingIcon ?? 'icon-loading')
-                      : (local.trailingIcon ?? 'icon-chevron-down')
+                      : (local.trailing ?? 'icon-chevron-down')
                   }
                   {...selectLoadingData(local.loading)}
                   class={SELECT_LOADING_ICON_CLASS}
@@ -477,7 +477,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               loading={local.loading}
               loadingIcon={local.loadingIcon}
               slot={triggerSlot}
-              trailingIcon={local.trailingIcon}
+              trailing={local.trailing}
               disabled={state.field.disabled()}
               onFocusOwner={focusControl}
               onClick={() => state.setOpen(!state.open())}

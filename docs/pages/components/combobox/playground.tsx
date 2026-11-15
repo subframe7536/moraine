@@ -76,7 +76,7 @@ export default function ComboboxPlayground() {
         <Combobox
           items={props.empty ? [] : FRAMEWORK_ITEMS}
           defaultValue="solid"
-          leadingIcon="i-lucide:code"
+          leading="i-lucide:code"
           placeholder="Search frameworks..."
           variant={props.variant}
           size={props.size}

@@ -69,7 +69,7 @@ export default function SelectPlayground() {
         <Select
           items={ITEMS}
           defaultValue="solid"
-          leadingIcon="i-lucide:code"
+          leading="i-lucide:code"
           placeholder="Select a framework..."
           variant={props.variant}
           size={props.size}

@@ -91,7 +91,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               clear,
             })}
           >
-            <Show when={local.leadingIcon}>
+            <Show when={local.leading}>
               {(icon) => <Icon name={icon()} data-slot="select-leading" {...leadingSlot} />}
             </Show>
             <span data-slot="select-value" {...valueSlot}>
@@ -105,7 +105,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               name={
                 local.loading
                   ? (local.loadingIcon ?? 'icon-loading')
-                  : (local.trailingIcon ?? 'icon-chevron-down')
+                  : (local.trailing ?? 'icon-chevron-down')
               }
               {...trailingSlot}
             />
@@ -116,7 +116,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              closeIcon={local.closeIcon}
+              clearIcon={local.clearIcon}
               onFocusOwner={() => state.focusOwner()?.focus()}
               onClear={clear}
             />

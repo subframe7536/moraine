@@ -35,7 +35,7 @@ export function UserPicker() {
       <Combobox
         items={USERS}
         placeholder="Assign to teammate..."
-        leadingIcon="i-lucide:user-plus"
+        leading="i-lucide:user-plus"
         openOnControlClick
         allowClear
       />

@@ -162,14 +162,14 @@ describe('Combobox', () => {
   })
 
   test('keeps query and committed value independent with exit-safe cleanup', async () => {
-    const onSearch = vi.fn()
+    const onSearchValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
       <Combobox
         items={ITEMS}
         defaultValue="apple"
         defaultOpen
-        onSearch={onSearch}
+        onSearchValueChange={onSearchValueChange}
         onValueChange={onChange}
       />
     ))
@@ -179,9 +179,9 @@ describe('Combobox', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true }))
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(input.value).toBe('Banana')
-    expect(onSearch).toHaveBeenLastCalledWith('ba')
+    expect(onSearchValueChange).toHaveBeenLastCalledWith('ba')
     await finishExit()
-    await waitFor(() => expect(onSearch).toHaveBeenLastCalledWith(''))
+    await waitFor(() => expect(onSearchValueChange).toHaveBeenLastCalledWith(''))
   })
 
   test('supports controlled query and external filtering', () => {
@@ -190,7 +190,7 @@ describe('Combobox', () => {
       <Combobox
         items={ITEMS}
         searchValue={query()}
-        onSearch={setQuery}
+        onSearchValueChange={setQuery}
         filterItem={false}
         defaultOpen
       />
@@ -200,11 +200,16 @@ describe('Combobox', () => {
     expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(3)
   })
 
-  test('keeps a controlled query until the parent applies onSearch', () => {
+  test('keeps a controlled query until the parent applies onSearchValueChange', () => {
     const [query, setQuery] = createSignal('ap')
-    const onSearch = vi.fn()
+    const onSearchValueChange = vi.fn()
     const screen = render(() => (
-      <Combobox items={ITEMS} searchValue={query()} onSearch={onSearch} defaultOpen />
+      <Combobox
+        items={ITEMS}
+        searchValue={query()}
+        onSearchValueChange={onSearchValueChange}
+        defaultOpen
+      />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
     const options = () => within(document.body).getAllByRole('option', { hidden: true })
@@ -213,11 +218,11 @@ describe('Combobox', () => {
     expect(options().map((option) => option.textContent)).toEqual(['Apple'])
 
     fireEvent.input(input, { target: { value: 'ap' } })
-    expect(onSearch).not.toHaveBeenCalled()
+    expect(onSearchValueChange).not.toHaveBeenCalled()
     expect(untrack(query)).toBe('ap')
 
     fireEvent.input(input, { target: { value: 'ba' } })
-    expect(onSearch).toHaveBeenCalledExactlyOnceWith('ba')
+    expect(onSearchValueChange).toHaveBeenCalledExactlyOnceWith('ba')
     expect(untrack(query)).toBe('ap')
     expect(options().map((option) => option.textContent)).toEqual(['Apple'])
 
@@ -227,14 +232,16 @@ describe('Combobox', () => {
   })
 
   test('does not publish partial IME composition', () => {
-    const onSearch = vi.fn()
-    const screen = render(() => <Combobox items={ITEMS} onSearch={onSearch} />)
+    const onSearchValueChange = vi.fn()
+    const screen = render(() => (
+      <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
+    ))
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
     fireEvent.input(input, { target: { value: 'ば' }, isComposing: true })
-    expect(onSearch).not.toHaveBeenCalled()
+    expect(onSearchValueChange).not.toHaveBeenCalled()
     fireEvent.compositionEnd(input, { data: 'ば' })
-    expect(onSearch).toHaveBeenLastCalledWith('ば')
+    expect(onSearchValueChange).toHaveBeenLastCalledWith('ば')
   })
 
   test('serializes and resets the committed value, not the query', () => {
@@ -618,13 +625,15 @@ test('commits Android composition input immediately', () => {
   const userAgent = vi
     .spyOn(navigator, 'userAgent', 'get')
     .mockReturnValue('Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36')
-  const onSearch = vi.fn()
+  const onSearchValueChange = vi.fn()
   try {
-    const screen = render(() => <Combobox items={ITEMS} onSearch={onSearch} />)
+    const screen = render(() => (
+      <Combobox items={ITEMS} onSearchValueChange={onSearchValueChange} />
+    ))
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
     fireEvent.input(input, { target: { value: 'ば' }, isComposing: true })
-    expect(onSearch).toHaveBeenCalledWith('ば')
+    expect(onSearchValueChange).toHaveBeenCalledWith('ば')
   } finally {
     userAgent.mockRestore()
   }

@@ -64,10 +64,10 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'allowClear',
   'onClear',
   'loading',
-  'leadingIcon',
+  'leading',
   'loadingIcon',
-  'trailingIcon',
-  'closeIcon',
+  'trailing',
+  'clearIcon',
   'ref',
   'translations',
 ] as const
@@ -78,7 +78,7 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
   'virtualizer',
   'searchValue',
   'defaultSearchValue',
-  'onSearch',
+  'onSearchValueChange',
   'searchMaxLength',
   'autocomplete',
   'filterItem',
@@ -95,6 +95,7 @@ export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   'createItem',
   'maxCount',
   'maxTagCount',
+  'removeIcon',
   'tokenSeparators',
 ] as const
 

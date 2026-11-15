@@ -33,7 +33,7 @@ export interface TagsFieldOptions<TValue> {
   locked: Accessor<boolean>
   slot: (name: TagSlot) => SlotBinding
   slotName: (name: TagSlot) => string
-  closeIcon: Accessor<IconT.Name | undefined>
+  removeIcon: Accessor<IconT.Name | undefined>
   translations?: Accessor<Partial<ComponentMessages<typeof defaultTagsFieldMessages>> | undefined>
 }
 
@@ -256,7 +256,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
             remove(tagProps.index)
           }}
         >
-          <Icon name={options.closeIcon() ?? 'icon-close'} />
+          <Icon name={options.removeIcon() ?? 'icon-close'} />
         </button>
       </span>
     )

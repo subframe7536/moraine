@@ -159,16 +159,22 @@ describe('MultiSelect', () => {
   })
 
   test('normal selection stays open and clears query', () => {
-    const onSearch = vi.fn()
+    const onSearchValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={ITEMS} defaultOpen onSearch={onSearch} onValueChange={onChange} />
+      <MultiSelect
+        search
+        items={ITEMS}
+        defaultOpen
+        onSearchValueChange={onSearchValueChange}
+        onValueChange={onChange}
+      />
     ))
     const input = screen.getByRole('combobox') as HTMLInputElement
     fireEvent.input(input, { target: { value: 'ba' } })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true }))
     expect(onChange).toHaveBeenLastCalledWith(['banana'])
-    expect(onSearch).toHaveBeenLastCalledWith('')
+    expect(onSearchValueChange).toHaveBeenLastCalledWith('')
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
@@ -470,7 +476,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
         searchValue={query()}
-        onSearch={setQuery}
+        onSearchValueChange={setQuery}
       />
     ))
     const controlledInput = controlled.getByRole('combobox') as HTMLInputElement

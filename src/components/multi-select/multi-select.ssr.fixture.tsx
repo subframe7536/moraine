@@ -13,9 +13,9 @@ export function renderMultiSelectFixture(): string {
         { value: 'apple', label: 'Apple', description: 'Crisp' },
         { value: 'banana', label: 'Banana', description: 'Sweet' },
       ]}
-      leadingIcon="icon-search"
-      trailingIcon="icon-chevron-down"
-      closeIcon="icon-close"
+      leading="icon-search"
+      trailing="icon-chevron-down"
+      clearIcon="icon-close"
     />
   ))
 }

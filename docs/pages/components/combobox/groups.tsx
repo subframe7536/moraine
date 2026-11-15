@@ -38,7 +38,7 @@ export function Groups() {
       <Combobox
         items={TECH_GROUPS}
         placeholder="Filter technologies..."
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         openOnControlClick
         emptyRender={(ctx) => (
           <div class="text-xs text-muted-foreground p-3 text-center">

@@ -21,9 +21,9 @@ export function UsageQuery() {
         value={selected()}
         onValueChange={setSelected}
         searchValue={query()}
-        onSearch={setQuery}
+        onSearchValueChange={setQuery}
         placeholder="Search framework..."
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         allowClear
       />
       <div class="text-xs text-muted-foreground space-y-1">

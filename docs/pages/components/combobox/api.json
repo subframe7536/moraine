@@ -49,7 +49,7 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "closeIcon",
+          "name": "clearIcon",
           "optional": true,
           "type": "IconT.Name",
           "description": "Clear icon.",
@@ -170,7 +170,7 @@
           "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
-          "name": "leadingIcon",
+          "name": "leading",
           "optional": true,
           "type": "IconT.Name",
           "description": "Leading icon."
@@ -228,7 +228,7 @@
           "description": "Called once when scrolling reaches the bottom."
         },
         {
-          "name": "onSearch",
+          "name": "onSearchValueChange",
           "optional": true,
           "type": "(value: string) => void",
           "description": "Called when search text changes."
@@ -336,7 +336,7 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "trailingIcon",
+          "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
           "description": "Popup toggle icon.",

@@ -71,7 +71,7 @@ export default function MultiSelectPlayground() {
         <MultiSelect
           items={props.empty ? [] : TOPICS}
           defaultValue={['design', 'dev']}
-          leadingIcon="i-lucide:tags"
+          leading="i-lucide:tags"
           allowClear
           maxTagCount={1}
           placeholder="Select topics..."

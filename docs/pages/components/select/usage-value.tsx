@@ -17,7 +17,7 @@ export function UsageValue() {
     <div class="max-w-xs w-full space-y-3">
       <Select
         placeholder="Select a country..."
-        leadingIcon="i-lucide:globe"
+        leading="i-lucide:globe"
         items={COUNTRIES}
         value={selected()}
         onValueChange={setSelected}

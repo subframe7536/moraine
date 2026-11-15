@@ -38,7 +38,7 @@ export function FilterStrategies() {
         items={CITIES}
         filterItem={strategy()}
         placeholder={`Search cities (${strategy()})...`}
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         openOnControlClick
       />
     </div>

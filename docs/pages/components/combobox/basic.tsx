@@ -17,7 +17,7 @@ export function Basic() {
       <Combobox
         items={FRAMEWORKS}
         placeholder="Search framework..."
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         allowClear
       />
     </div>

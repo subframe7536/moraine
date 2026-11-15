@@ -19,7 +19,7 @@ export function Virtualization() {
       <Combobox
         items={ITEMS}
         placeholder="Search 10,000 options..."
-        leadingIcon="i-lucide:search"
+        leading="i-lucide:search"
         openOnControlClick
         virtualizer={virtualizer}
         classes={{ listbox: 'h-80 max-h-80' }}

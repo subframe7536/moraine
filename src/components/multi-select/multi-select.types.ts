@@ -144,17 +144,22 @@ export namespace MultiSelectT {
      */
     loadingIcon?: IconT.Name
     /** Icon shown before the input/value area. */
-    leadingIcon?: IconT.Name
+    leading?: IconT.Name
     /**
      * Icon used when the action button opens the dropdown.
      * @default 'icon-chevron-down'
      */
-    trailingIcon?: IconT.Name
+    trailing?: IconT.Name
     /**
      * Icon used when the action button clears the selection.
-     * Tag remove buttons keep using this icon as well.
+     * @default 'icon-close'
      */
-    closeIcon?: IconT.Name
+    clearIcon?: IconT.Name
+    /**
+     * Icon used by tag remove buttons.
+     * @default 'icon-close'
+     */
+    removeIcon?: IconT.Name
     /**
      * Whether ordinary control/input pointer clicks open the popup.
      * Defaults to `false` when editable (`search` or `createItem` enabled),

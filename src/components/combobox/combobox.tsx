@@ -164,7 +164,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...controlPress}
           ref={(element) => callRef(local.ref, element)}
         >
-          <Show when={local.leadingIcon}>
+          <Show when={local.leading}>
             {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
           </Show>
           <input
@@ -185,7 +185,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
               ariaLabel={messages().clear}
               slot={clearSlot}
               disabled={state.locked()}
-              closeIcon={local.closeIcon}
+              clearIcon={local.clearIcon}
               onFocusOwner={focusInput}
               onClear={clear}
             />
@@ -198,7 +198,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             loading={local.loading}
             loadingIcon={local.loadingIcon}
             slot={triggerSlot}
-            trailingIcon={local.trailingIcon}
+            trailing={local.trailing}
             disabled={state.field.disabled()}
             onFocusOwner={focusInput}
             onClick={() => state.setOpen(!state.open())}

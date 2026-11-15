@@ -115,7 +115,7 @@ field, clearing writes `null`. An empty string is a valid item value.
 
 While open, the input displays the query; while closed, it displays the selected item label.
 Arbitrary query text is never committed as a value. Use `value` / `onValueChange` for selection and
-`searchValue` / `onSearch` for query text.
+`searchValue` / `onSearchValueChange` for query text.
 
 ```tsx
 <Combobox
@@ -123,7 +123,7 @@ Arbitrary query text is never committed as a value. Use `value` / `onValueChange
   value={selected()}
   onValueChange={setSelected}
   searchValue={query()}
-  onSearch={setQuery}
+  onSearchValueChange={setQuery}
 />
 ```
 
@@ -188,7 +188,7 @@ anywhere in the label or only at the start.
 
 ### Search remote repositories
 
-Drive `searchValue`, `onSearch`, and `loading` from a debounced request. Set `filterItem={false}`
+Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set `filterItem={false}`
 when the server already returns the matched items.
 
 <Preview path="./async-search" />

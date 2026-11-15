@@ -21,9 +21,9 @@ test('hydrates Select Control/Trigger/Value anatomy in place', () => {
           { value: 'apple', label: 'Apple', description: 'Crisp' },
           { value: 'banana', label: 'Banana', description: 'Sweet' },
         ],
-        leadingIcon: 'icon-search',
-        trailingIcon: 'icon-chevron-down',
-        closeIcon: 'icon-close',
+        leading: 'icon-search',
+        trailing: 'icon-chevron-down',
+        clearIcon: 'icon-close',
       }),
   )
   const control = container.querySelector('[data-slot="select-control"]')!
