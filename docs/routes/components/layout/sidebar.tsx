@@ -71,7 +71,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
     <Sidebar.MenuItem>
       <Sidebar.MenuButton
         href={page.path}
-        isActive={props.activePage() === page.path}
+        active={props.activePage() === page.path}
         class={DOCS_FOCUS_RING_OFFSET_CLASS}
       >
         <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>

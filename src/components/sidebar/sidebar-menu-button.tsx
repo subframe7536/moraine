@@ -49,7 +49,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     'closeOnSelect',
     'disabled',
     'href',
-    'isActive',
+    'active',
     'leading',
     'ref',
     'style',
@@ -76,7 +76,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   const disabled = () => Boolean(local.disabled)
   const menuButtonSlot = slotWith('menuButton', {
     data: sidebarDataAttributes.menuButton({
-      active: () => Boolean(local.isActive),
+      active: () => Boolean(local.active),
       disabled,
       mobile: context.isMobile,
     }),
@@ -128,7 +128,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
       return (rest as { title?: string }).title
     },
     get 'aria-current'() {
-      if ((resolvedTag() === 'a' || local.href !== undefined) && local.isActive) {
+      if ((resolvedTag() === 'a' || local.href !== undefined) && local.active) {
         return (rest as { 'aria-current'?: string })['aria-current'] ?? 'page'
       }
       return (rest as { 'aria-current'?: string })['aria-current']

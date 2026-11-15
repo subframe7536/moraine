@@ -1,4 +1,5 @@
 import { Avatar, Breadcrumb, Button, DropdownMenu, Icon, Separator, Sidebar } from '@src'
+import type { DropdownMenuT } from '@src'
 import { For, createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
@@ -69,14 +70,14 @@ const userMenuItems = [
   { label: 'Notifications', icon: 'i-lucide:bell' },
   { type: 'separator' as const },
   { label: 'Log out', icon: 'i-lucide:log-out', variant: 'danger' as const },
-]
+] satisfies DropdownMenuT.Item[]
 
 const projectMenuItems = [
   { label: 'View Project', icon: 'i-lucide:folder' },
   { label: 'Share Project', icon: 'i-lucide:forward' },
   { type: 'separator' as const },
   { label: 'Delete Project', icon: 'i-lucide:trash-2', variant: 'danger' as const },
-]
+] satisfies DropdownMenuT.Item[]
 
 export default function SidebarPlayground() {
   return (
@@ -121,7 +122,7 @@ export default function SidebarPlayground() {
 
         return (
           <div class="border border-border rounded-xl bg-card h-[520px] max-w-4xl w-full shadow-xs overflow-hidden">
-            <Sidebar variant={props.variant} side={props.side} isMobile={false}>
+            <Sidebar variant={props.variant} side={props.side} mobile={false}>
               <Sidebar.Panel class="w-60">
                 <Sidebar.Header>
                   <DropdownMenu placement="bottom" align="start">

@@ -202,10 +202,10 @@ describe('localized component text', () => {
 
     render(() => (
       <MoraineProvider messages={{ sidebar: { label: 'Navigation laterale' } }}>
-        <Sidebar isMobile>
+        <Sidebar mobile>
           <OpenSidebar />
         </Sidebar>
-        <Sidebar isMobile>
+        <Sidebar mobile>
           <OpenSidebar label="Primary" />
         </Sidebar>
       </MoraineProvider>

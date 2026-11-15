@@ -58,7 +58,7 @@ export namespace SidebarT {
      */
     onOpenChange?: (open: boolean) => void
     /** Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`. */
-    isMobile?: boolean
+    mobile?: boolean
     /**
      * Controlled desktop panel width in pixels. When `undefined` the
      * `--mo-sidebar-width` custom property is left unset and the recipe
@@ -81,7 +81,7 @@ export namespace SidebarT {
     maxWidth?: number
     /**
      * Max viewport width in pixels that counts as mobile.
-     * Used as `(max-width: ${breakpoint}px)` when `isMobile` is omitted.
+     * Used as `(max-width: ${breakpoint}px)` when `mobile` is omitted.
      * @default 768
      */
     breakpoint?: number
@@ -247,7 +247,7 @@ export namespace SidebarT {
   export type MenuButtonBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     href?: string
-    isActive?: boolean
+    active?: boolean
     leading?: IconT.Name
     trailing?: IconT.Name
     /**
@@ -307,11 +307,11 @@ export namespace SidebarT {
      */
     transition?: boolean
     /**
-     * Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and
-     * unmounts it once it closes; `keep-mounted` mounts it even before the first open.
-     * @default 'unmount-on-hide'
+     * Whether closed content stays mounted. When `false`, content mounts on first open and
+     * unmounts once it closes; when `true`, content mounts even before the first open.
+     * @default false
      */
-    mountMode?: 'unmount-on-hide' | 'keep-mounted'
+    forceMount?: boolean
   }
 
   export type MenuSubProps = BaseProps<'div', MenuSubBase, never, never, never>

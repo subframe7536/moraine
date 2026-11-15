@@ -135,7 +135,7 @@ export function Example() {
             <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
             <Sidebar.Menu>
               <Sidebar.MenuItem>
-                <Sidebar.MenuButton leading="i-lucide:home" isActive>
+                <Sidebar.MenuButton leading="i-lucide:home" active>
                   Home
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
@@ -173,8 +173,8 @@ layouts never calls `onOpenChange` and never writes a controlled `open`. Leaving
 uncontrolled drawer, and returning to desktop restores the desktop state. The trigger, the rail, and
 Escape or overlay dismissal of the drawer all report through `onOpenChange`.
 Menu buttons with `href` close the mobile drawer on activate; set `closeOnSelect={false}` on a
-button to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
-`(max-width: ${breakpoint}px)` via `matchMedia`. Pass `isMobile` to force either layout.
+button to keep it open. When `mobile` is omitted, `breakpoint` (default `768`) drives
+`(max-width: ${breakpoint}px)` via `matchMedia`. Pass `mobile` to force either layout.
 
 Root `classes` and `styles` set defaults for the panel, region, group, menu, menu item, and sub-menu slots.
 On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
@@ -225,7 +225,7 @@ Build labeled navigation with these parts:
 - `Sidebar.MenuItem`: `<li>` that holds one `MenuButton` with an optional `MenuAction`, or a
   `MenuSub`
 - `Sidebar.MenuButton`: polymorphic button (`button`, `a`, or a custom link) with `leading`,
-  `trailing`, and `isActive`. It owns the hover, active, focus, and disabled styles. `leading` and
+  `trailing`, and `active`. It owns the hover, active, focus, and disabled styles. `leading` and
   `trailing` accept icon names
 - `Sidebar.MenuAction`: controls placed over the end of the item's first row, such as a dropdown
   menu trigger. The button stays highlighted while the pointer is over the action. The button does
@@ -299,6 +299,6 @@ moves into the mobile Drawer with no rail.
 
 ### Force the mobile drawer
 
-Set `isMobile` to demonstrate a touch-first layout with a slide-over navigation drawer.
+Set `mobile` to demonstrate a touch-first layout with a slide-over navigation drawer.
 
 <Preview path="./forced-mobile" />

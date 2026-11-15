@@ -1,4 +1,5 @@
 import { Avatar, Badge, Button, DropdownMenu, Icon, Sidebar } from '@src'
+import type { DropdownMenuT } from '@src'
 import { For, createSignal } from 'solid-js'
 
 export function HeaderFooterSlots() {
@@ -27,7 +28,7 @@ export function HeaderFooterSlots() {
       icon: 'i-lucide:plus',
       onSelect: () => {},
     },
-  ]
+  ] satisfies DropdownMenuT.Item[]
 
   const userItems = [
     { label: 'Account Settings', icon: 'i-lucide:settings' },
@@ -35,7 +36,7 @@ export function HeaderFooterSlots() {
     { label: 'Notifications', icon: 'i-lucide:bell' },
     { type: 'separator' as const },
     { label: 'Log out', icon: 'i-lucide:log-out', variant: 'danger' as const },
-  ]
+  ] satisfies DropdownMenuT.Item[]
 
   const projects = [
     { name: 'Core Engine v2', role: 'Architecture Lead', icon: 'i-lucide:cpu', branch: 'main' },
@@ -61,7 +62,7 @@ export function HeaderFooterSlots() {
 
   return (
     <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-60">
           {/* Header slot: Team Switcher Dropdown */}
           <Sidebar.Header class="border-b border-border/60 h-12">
@@ -105,7 +106,7 @@ export function HeaderFooterSlots() {
                     <Sidebar.MenuItem>
                       <Sidebar.MenuButton
                         leading={proj.icon}
-                        isActive={currentProject() === proj.name}
+                        active={currentProject() === proj.name}
                         onClick={() => setCurrentProject(proj.name)}
                       >
                         {proj.name}

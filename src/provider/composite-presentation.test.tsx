@@ -185,9 +185,9 @@ describe('composite family presentation', () => {
             <Collapsible.Trigger data-testid="collapsible-inner">Inner</Collapsible.Trigger>
           </Collapsible>
         </Collapsible>
-        <Sidebar isMobile={false} classes={{ inset: 'sidebar-outer' }}>
+        <Sidebar mobile={false} classes={{ inset: 'sidebar-outer' }}>
           <Sidebar.Inset data-testid="sidebar-outer">
-            <Sidebar isMobile={false} classes={{ inset: 'sidebar-inner' }}>
+            <Sidebar mobile={false} classes={{ inset: 'sidebar-inner' }}>
               <Sidebar.Inset data-testid="sidebar-inner" />
             </Sidebar>
           </Sidebar.Inset>
@@ -233,7 +233,7 @@ describe('composite family presentation', () => {
     })
     render(() => (
       <MoraineProvider theme={outer}>
-        <Sidebar isMobile={false} classes={{ inset: 'sidebar-instance' }}>
+        <Sidebar mobile={false} classes={{ inset: 'sidebar-instance' }}>
           <MoraineProvider theme={inner}>
             <Sidebar.Inset data-testid="scoped-sidebar" />
           </MoraineProvider>

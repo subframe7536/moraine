@@ -36,7 +36,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'classes',
     'class',
     'defaultOpen',
-    'isMobile',
+    'mobile',
     'onOpenChange',
     'open',
     'panelId',
@@ -78,7 +78,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     () => `(max-width: ${local.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
     false,
   )
-  const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
+  const isMobile = createMemo(() => local.mobile ?? mediaMatches())
 
   // Uncontrolled state is remembered per layout. `defaultOpen` seeds both, because the media
   // query resolves asynchronously and the active layout is unknown during setup. The

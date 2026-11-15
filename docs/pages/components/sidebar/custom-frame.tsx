@@ -49,7 +49,7 @@ export function FrameRender() {
       </header>
 
       {/* Embedded Sidebar taking remaining height */}
-      <Sidebar isMobile={false} class="flex-1 h-auto min-h-0">
+      <Sidebar mobile={false} class="flex-1 h-auto min-h-0">
         <Sidebar.Panel class="border-r border-border/60 bg-card/30 w-56">
           <Sidebar.Content>
             <Sidebar.Group>
@@ -60,7 +60,7 @@ export function FrameRender() {
                 <For each={cloudNav}>
                   {(item) => (
                     <Sidebar.MenuItem>
-                      <Sidebar.MenuButton href="#" leading={item.icon} isActive={item.active}>
+                      <Sidebar.MenuButton href="#" leading={item.icon} active={item.active}>
                         {item.label}
                       </Sidebar.MenuButton>
                     </Sidebar.MenuItem>

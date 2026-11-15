@@ -184,7 +184,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <Sidebar isMobile={isMobile()} class="flex-col h-dvh max-h-dvh">
+      <Sidebar mobile={isMobile()} class="flex-col h-dvh max-h-dvh">
         <DocsShell />
       </Sidebar>
     </>

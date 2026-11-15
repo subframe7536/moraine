@@ -19,7 +19,7 @@ export function ForcedMobile() {
 
   return (
     <div class="mx-auto b b-border flex flex-col h-150 max-w-xs w-full overflow-hidden">
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel class="bg-card">
           <Sidebar.Header class="px-4 py-3 border-b border-border/60 justify-between">
             <div class="text-sm font-bold flex gap-2 items-center">

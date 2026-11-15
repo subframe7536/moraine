@@ -43,8 +43,8 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
       />
       <Stepper
         items={[
-          { value: 'a', title: 'First' },
-          { value: 'b', title: 'Second' },
+          { value: 'a', label: 'First' },
+          { value: 'b', label: 'Second' },
         ]}
       />
       <RadioGroup items={['Basic', 'Pro']} />
@@ -53,7 +53,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
         <Resizable.Handle />
         <Resizable.Panel>Right</Resizable.Panel>
       </Resizable>
-      <Sidebar data-testid="sidebar" isMobile={false} />
+      <Sidebar data-testid="sidebar" mobile={false} />
     </MoraineProvider>
   ))
   expect(screen.getByTestId('separator').getAttribute('aria-orientation')).toBe('vertical')
@@ -140,7 +140,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   const [theme, setTheme] = createSignal<MoraineTheme>(customBaseTheme)
   const screen = render(() => (
     <MoraineProvider theme={theme()}>
-      <Sidebar isMobile={true}>
+      <Sidebar mobile={true}>
         <Sidebar.Panel>Sidebar Content</Sidebar.Panel>
         <Sidebar.Inset>
           <FrameToggle />

@@ -1,4 +1,5 @@
 import { Avatar, Badge, Breadcrumb, Button, Icon, Kbd, Separator, Sidebar } from '@src'
+import type { BreadcrumbT } from '@src'
 import { For, Show } from 'solid-js'
 
 export function ResponsiveUsage() {
@@ -6,7 +7,7 @@ export function ResponsiveUsage() {
     { label: 'Acme Cloud', href: '#' },
     { label: 'Platform', href: '#' },
     { label: 'Deployments' },
-  ]
+  ] satisfies BreadcrumbT.Item[]
 
   const navPlatform = [
     { label: 'Dashboard', icon: 'i-lucide:layout-dashboard', href: '#' },
@@ -66,11 +67,7 @@ export function ResponsiveUsage() {
                 <For each={navPlatform}>
                   {(item) => (
                     <Sidebar.MenuItem>
-                      <Sidebar.MenuButton
-                        href={item.href}
-                        leading={item.icon}
-                        isActive={item.active}
-                      >
+                      <Sidebar.MenuButton href={item.href} leading={item.icon} active={item.active}>
                         <span class="flex-1 truncate">{item.label}</span>
                         <Show when={item.badge}>
                           <Badge size="sm" variant="soft" class="ml-auto shrink-0">

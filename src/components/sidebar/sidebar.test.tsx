@@ -24,7 +24,7 @@ test.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
       return <span data-testid="persistent-child">{value()}</span>
     }
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         {createComponent(Sidebar[part], {
           get children() {
             return <Child />
@@ -92,7 +92,7 @@ describe('Sidebar', () => {
       return <span data-testid="sidebar-child">Navigation</span>
     }
     const screen = render(() => (
-      <Sidebar isMobile={mobile()} panelId="unique-sidebar">
+      <Sidebar mobile={mobile()} panelId="unique-sidebar">
         <Sidebar.Panel ref={ref}>
           <Child />
         </Sidebar.Panel>
@@ -128,7 +128,7 @@ describe('Sidebar', () => {
 
   test('shows header, navigation, and footer inside the desktop panel', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <FrameContent />
       </Sidebar>
     ))
@@ -155,7 +155,7 @@ describe('Sidebar', () => {
     const [mobile, setMobile] = createSignal(false)
     let input: HTMLInputElement | undefined
     const screen = render(() => (
-      <Sidebar isMobile={mobile()}>
+      <Sidebar mobile={mobile()}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <input ref={(element) => (input = element)} aria-label="Persistent input" />
@@ -188,7 +188,7 @@ describe('Sidebar', () => {
     'names the mobile drawer by the panel label when it %s',
     async (_case, props, name) => {
       const screen = render(() => (
-        <Sidebar isMobile>
+        <Sidebar mobile>
           <Sidebar.Panel {...props}>Navigation</Sidebar.Panel>
           <Sidebar.Inset>
             <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -206,7 +206,7 @@ describe('Sidebar', () => {
     },
   )
 
-  test('switches to drawer mode from the media query when isMobile is omitted', async () => {
+  test('switches to drawer mode from the media query when mobile is omitted', async () => {
     window.matchMedia = createMatchMediaMock(true)
     const screen = render(() => (
       <Sidebar>
@@ -236,10 +236,10 @@ describe('Sidebar', () => {
     await waitFor(() => expect(matchMedia).toHaveBeenCalledWith('(max-width: 1024px)'))
   })
 
-  test('ignores matchMedia updates when isMobile is controlled', async () => {
+  test('ignores matchMedia updates when mobile is controlled', async () => {
     window.matchMedia = createMatchMediaMock(true)
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <FrameContent />
       </Sidebar>
     ))
@@ -252,7 +252,7 @@ describe('Sidebar', () => {
   test('closes the drawer when the sidebar returns to desktop', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
-      <Sidebar isMobile={mobile()}>
+      <Sidebar mobile={mobile()}>
         <Sidebar.Panel aria-label="Account navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -275,7 +275,7 @@ describe('Sidebar', () => {
 
   test('hides and inerts the desktop panel while collapsed', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <FrameContent />
       </Sidebar>
     ))
@@ -291,7 +291,7 @@ describe('Sidebar', () => {
 
   test('applies the width prop as the panel width variable', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} width={288}>
+      <Sidebar mobile={false} width={288}>
         <FrameContent />
       </Sidebar>
     ))
@@ -304,7 +304,7 @@ describe('Sidebar', () => {
 
   test('offsets the collapsed floating panel by its outer gap', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} variant="floating">
+      <Sidebar mobile={false} variant="floating">
         <FrameContent />
       </Sidebar>
     ))
@@ -319,7 +319,7 @@ describe('Sidebar', () => {
     const onScroll = vi.fn()
     let mainRef: HTMLElement | undefined
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel data-testid="sidebar" class="custom-sidebar w-48" />
         <Sidebar.Inset
           ref={(element) => (mainRef = element)}
@@ -344,7 +344,7 @@ describe('Sidebar', () => {
 describe('Sidebar.Trigger', () => {
   test('is a button that reports its expanded state', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -364,7 +364,7 @@ describe('Sidebar.Trigger', () => {
 
   test('reflects initial closed state when mobile', () => {
     const screen = render(() => (
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -380,7 +380,7 @@ describe('Sidebar.Trigger', () => {
 
   test('toggles desktop visibility, aria-expanded, and state attributes on click', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -409,7 +409,7 @@ describe('Sidebar.Trigger', () => {
 
   test('opens mobile drawer on trigger click', async () => {
     const screen = render(() => (
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -439,7 +439,7 @@ describe('Sidebar.Trigger', () => {
         }
       })
       const screen = render(() => (
-        <Sidebar isMobile={false}>
+        <Sidebar mobile={false}>
           <Sidebar.Panel>Sidebar</Sidebar.Panel>
           <Sidebar.Inset>
             <Sidebar.Trigger onClick={onClick}>Toggle</Sidebar.Trigger>
@@ -457,7 +457,7 @@ describe('Sidebar.Trigger', () => {
 
   test('does not toggle when disabled and exposes data-disabled', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger disabled>Toggle</Sidebar.Trigger>
@@ -475,7 +475,7 @@ describe('Sidebar.Trigger', () => {
 
   test('toggles a non-button trigger with Enter and Space', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger as="div">Toggle</Sidebar.Trigger>
@@ -498,7 +498,7 @@ describe('Sidebar.Trigger', () => {
 
   test('ignores Enter on a disabled non-button trigger', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Sidebar</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger as="div" disabled>
@@ -730,10 +730,10 @@ describe('Sidebar.MenuButton', () => {
   test('marks active links and buttons with data-active, and only links with aria-current="page"', () => {
     const screen = render(() => (
       <Sidebar>
-        <Sidebar.MenuButton href="/docs" isActive>
+        <Sidebar.MenuButton href="/docs" active>
           Link
         </Sidebar.MenuButton>
-        <Sidebar.MenuButton isActive>Button</Sidebar.MenuButton>
+        <Sidebar.MenuButton active>Button</Sidebar.MenuButton>
       </Sidebar>
     ))
     const link = screen.getByRole('link', { name: 'Link' })
@@ -764,7 +764,7 @@ describe('Sidebar.MenuButton', () => {
 
   test('marks menu buttons with data-mobile on mobile', () => {
     const screen = render(() => (
-      <Sidebar isMobile={true}>
+      <Sidebar mobile={true}>
         <Sidebar.MenuButton>Mobile Item</Sidebar.MenuButton>
       </Sidebar>
     ))
@@ -952,7 +952,7 @@ describe('Sidebar open state', () => {
   test('preserves desktop open state across mobile breakpoint changes', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
-      <Sidebar isMobile={mobile()}>
+      <Sidebar mobile={mobile()}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -988,7 +988,7 @@ describe('Sidebar open state', () => {
     const [open, setOpen] = createSignal(true)
     const onOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
-      <Sidebar isMobile={false} open={open()} onOpenChange={onOpenChange}>
+      <Sidebar mobile={false} open={open()} onOpenChange={onOpenChange}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1006,7 +1006,7 @@ describe('Sidebar open state', () => {
   test('uncontrolled desktop starts from defaultOpen and reports each toggle', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar isMobile={false} defaultOpen={false} onOpenChange={onOpenChange}>
+      <Sidebar mobile={false} defaultOpen={false} onOpenChange={onOpenChange}>
         <FrameContent />
       </Sidebar>
     ))
@@ -1021,7 +1021,7 @@ describe('Sidebar open state', () => {
   test('uncontrolled mobile drawer starts closed and reports trigger and Escape dismissal', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar isMobile onOpenChange={onOpenChange}>
+      <Sidebar mobile onOpenChange={onOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1044,7 +1044,7 @@ describe('Sidebar open state', () => {
 
   test('defaultOpen opens the uncontrolled mobile drawer on mount', async () => {
     const screen = render(() => (
-      <Sidebar isMobile defaultOpen>
+      <Sidebar mobile defaultOpen>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1062,7 +1062,7 @@ describe('Sidebar open state', () => {
   test("defaultOpen='desktop-only' leaves the mobile drawer closed but expands the panel", async () => {
     const [mobile, setMobile] = createSignal(true)
     const screen = render(() => (
-      <Sidebar isMobile={mobile()} defaultOpen="desktop-only">
+      <Sidebar mobile={mobile()} defaultOpen="desktop-only">
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1091,7 +1091,7 @@ describe('Sidebar open state', () => {
     const [open, setOpen] = createSignal(false)
     const onOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
-      <Sidebar isMobile open={open()} onOpenChange={onOpenChange}>
+      <Sidebar mobile open={open()} onOpenChange={onOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1115,7 +1115,7 @@ describe('Sidebar open state', () => {
   test('controlled mobile open that the consumer ignores keeps the drawer closed', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar isMobile open={false} onOpenChange={onOpenChange}>
+      <Sidebar mobile open={false} onOpenChange={onOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1135,7 +1135,7 @@ describe('Sidebar open state', () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar isMobile={mobile()} open onOpenChange={onOpenChange}>
+      <Sidebar mobile={mobile()} open onOpenChange={onOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1160,7 +1160,7 @@ describe('Sidebar open state', () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar isMobile={mobile()} onOpenChange={onOpenChange}>
+      <Sidebar mobile={mobile()} onOpenChange={onOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1187,7 +1187,7 @@ describe('Sidebar open state', () => {
   test('an expanded desktop panel does not open the drawer when entering mobile', async () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
-      <Sidebar isMobile={mobile()}>
+      <Sidebar mobile={mobile()}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1206,7 +1206,7 @@ describe('Sidebar open state', () => {
 
   test('exposes side and variant as root data attributes', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} side="right" variant="inset">
+      <Sidebar mobile={false} side="right" variant="inset">
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1223,7 +1223,7 @@ describe('Sidebar open state', () => {
 describe('Sidebar closeOnSelect', () => {
   test('closes the mobile drawer after activating an item with href', async () => {
     const screen = render(() => (
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel>
           <Sidebar.MenuButton href="/docs">Docs</Sidebar.MenuButton>
         </Sidebar.Panel>
@@ -1243,7 +1243,7 @@ describe('Sidebar closeOnSelect', () => {
 
   test('does not close the mobile drawer for items without href', async () => {
     const screen = render(() => (
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel>
           <Sidebar.MenuButton>Action</Sidebar.MenuButton>
         </Sidebar.Panel>
@@ -1264,7 +1264,7 @@ describe('Sidebar closeOnSelect', () => {
 
   test('keeps the mobile drawer open when closeOnSelect is false', async () => {
     const screen = render(() => (
-      <Sidebar isMobile>
+      <Sidebar mobile>
         <Sidebar.Panel>
           <Sidebar.MenuButton href="/docs" closeOnSelect={false}>
             Docs
@@ -1287,7 +1287,7 @@ describe('Sidebar closeOnSelect', () => {
 describe('Sidebar landmarks', () => {
   test('Panel defaults to aside and Inset defaults to main', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>Content</Sidebar.Inset>
       </Sidebar>
@@ -1298,7 +1298,7 @@ describe('Sidebar landmarks', () => {
 
   test('Trigger aria-controls matches the panel id', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} panelId="app-sidebar">
+      <Sidebar mobile={false} panelId="app-sidebar">
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1313,7 +1313,7 @@ describe('Sidebar landmarks', () => {
 
   test('Trigger aria-controls still resolves when a consumer passes a panel id', () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} panelId="app-sidebar">
+      <Sidebar mobile={false} panelId="app-sidebar">
         <Sidebar.Panel id="consumer-id">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1416,7 +1416,7 @@ interface RailFrameProps {
 function RailFrame(props: RailFrameProps): JSX.Element {
   return (
     <Sidebar
-      isMobile={false}
+      mobile={false}
       side={props.side}
       width={props.width}
       defaultWidth={props.defaultWidth}
@@ -1491,7 +1491,7 @@ describe('Sidebar.Rail', () => {
   test('a user ref on Panel receives the element without breaking rail measurement', () => {
     let userPanel: HTMLElement | undefined
     const screen = render(() => (
-      <Sidebar isMobile={false} side="right" defaultWidth={240}>
+      <Sidebar mobile={false} side="right" defaultWidth={240}>
         <Sidebar.Panel
           ref={(element: HTMLElement) => {
             userPanel = element
@@ -1614,7 +1614,7 @@ describe('Sidebar.Rail', () => {
 
   test('renders nothing on mobile', () => {
     const screen = render(() => (
-      <Sidebar isMobile={true}>
+      <Sidebar mobile={true}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Rail />
         <Sidebar.Inset>Content</Sidebar.Inset>
@@ -1651,7 +1651,7 @@ describe('Sidebar.Rail', () => {
 
   test('cross-drags a nested resizable handle and the rail together', async () => {
     const screen = render(() => (
-      <Sidebar isMobile={false} defaultWidth={240}>
+      <Sidebar mobile={false} defaultWidth={240}>
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Rail />
         <Sidebar.Inset>

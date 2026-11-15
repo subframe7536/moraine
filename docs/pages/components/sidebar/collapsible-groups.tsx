@@ -12,7 +12,7 @@ export function CollapsibleGroups() {
 
   return (
     <div class="border border-border rounded-xl bg-background h-[420px] w-full shadow-xs overflow-hidden">
-      <Sidebar isMobile={false}>
+      <Sidebar mobile={false}>
         <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-64">
           <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="text-xs font-bold flex gap-2 items-center">
@@ -35,7 +35,7 @@ export function CollapsibleGroups() {
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton
                     leading="i-lucide:compass"
-                    isActive={activePage() === 'Getting Started'}
+                    active={activePage() === 'Getting Started'}
                     onClick={() => setActivePage('Getting Started')}
                   >
                     Getting Started
@@ -44,7 +44,7 @@ export function CollapsibleGroups() {
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton
                     leading="i-lucide:rocket"
-                    isActive={activePage() === 'Quickstart'}
+                    active={activePage() === 'Quickstart'}
                     onClick={() => setActivePage('Quickstart')}
                   >
                     Quickstart
@@ -68,7 +68,7 @@ export function CollapsibleGroups() {
                         {(item) => (
                           <Sidebar.MenuItem>
                             <Sidebar.MenuButton
-                              isActive={activePage() === item}
+                              active={activePage() === item}
                               onClick={() => setActivePage(item)}
                             >
                               {item}
@@ -92,7 +92,7 @@ export function CollapsibleGroups() {
                         {(item) => (
                           <Sidebar.MenuItem>
                             <Sidebar.MenuButton
-                              isActive={activePage() === item}
+                              active={activePage() === item}
                               onClick={() => setActivePage(item)}
                             >
                               {item}

@@ -832,7 +832,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   <Sidebar.Inset />
 </Sidebar>
 
-;<Sidebar isMobile={false}>
+;<Sidebar mobile={false}>
   <Sidebar.Panel aria-label="Sidebar navigation">
     <Sidebar.Header>Header</Sidebar.Header>
     <Sidebar.Content>
@@ -840,7 +840,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
         <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
         <Sidebar.Menu>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton href="/home" leading="i-lucide-house" isActive>
+            <Sidebar.MenuButton href="/home" leading="i-lucide-house" active>
               Home
             </Sidebar.MenuButton>
           </Sidebar.MenuItem>
