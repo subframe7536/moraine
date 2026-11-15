@@ -82,7 +82,7 @@ visibility.
 
 ### Dismissal and accessibility
 
-Escape and outside interaction close a dismissible popover. Give `Popover.Content` an accessible
+Escape and outside interaction close a popover. Give `Popover.Content` an accessible
 name with `aria-label` when it has no visible label.
 
 `modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
@@ -90,15 +90,16 @@ the content, outside content is hidden from assistive technology, and body scrol
 Without a Close, the popover stays non-modal so users retain a dismissal route, and development
 builds log a warning.
 
-`modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
-`preventScroll` can lock body scroll independently of `modal`.
+`modal={false}` does not disable Escape or outside dismissal; `closeOnEscape` and
+`closeOnOutsideClick` control them independently. `preventScroll` can lock body scroll
+independently of `modal`.
 
 ```tsx
 <Popover>
   <Popover.Trigger as={Button}>Filter</Popover.Trigger>
   <Popover.Content aria-label="Filter settings">Press Escape or click outside.</Popover.Content>
 </Popover>
-<Popover dismissible={false} onClosePrevent={onBlocked}>
+<Popover closeOnEscape={false} closeOnOutsideClick={false} onClosePrevent={onBlocked}>
   <Popover.Trigger as={Button}>Keep open</Popover.Trigger>
   <Popover.Content>Outside click and Escape are blocked.</Popover.Content>
 </Popover>
@@ -107,7 +108,7 @@ builds log a warning.
 ### Keyboard interaction
 
 Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
-dismissal when the popover is dismissible; focusable controls inside non-modal content participate
+dismissal when `closeOnEscape` allows it; focusable controls inside non-modal content participate
 in normal document focus order. Modal content contains focus.
 
 ## Examples
@@ -120,8 +121,8 @@ Click keeps a filter panel open during selection. Hover mode opens an author pre
 
 ### Label filter settings for dismissal
 
-Give content an accessible name when it has no visible title. Escape or an outside click closes a
-dismissible popover.
+Give content an accessible name when it has no visible title. Escape or an outside click closes the
+popover.
 
 <Preview path="./dismissal-usage" />
 
@@ -133,6 +134,7 @@ Hover or focus the trigger to follow an author. Open and close delays keep the c
 
 ### Keep a popover open until an explicit close
 
-`dismissible={false}` blocks Escape and outside clicks. `onClosePrevent` counts blocked attempts.
+`closeOnEscape={false}` and `closeOnOutsideClick={false}` block Escape and outside clicks.
+`onClosePrevent` counts blocked attempts.
 
 <Preview path="./dismiss-control" />

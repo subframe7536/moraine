@@ -30,7 +30,18 @@ export default function PopoverPlayground() {
           ],
         },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-        { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+        {
+          kind: 'switch',
+          prop: 'closeOnEscape',
+          label: 'Close on Escape',
+          defaultValue: true,
+        },
+        {
+          kind: 'switch',
+          prop: 'closeOnOutsideClick',
+          label: 'Close on outside click',
+          defaultValue: true,
+        },
       ]}
     >
       {(props) => (
@@ -38,7 +49,8 @@ export default function PopoverPlayground() {
           placement={props.placement}
           align={props.align}
           disabled={props.disabled}
-          dismissible={props.dismissible}
+          closeOnEscape={props.closeOnEscape}
+          closeOnOutsideClick={props.closeOnOutsideClick}
         >
           <Popover.Trigger as={Button} variant="outline" size="sm">
             Adjust dimensions

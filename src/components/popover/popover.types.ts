@@ -32,7 +32,8 @@ export namespace PopoverT {
     | 'align'
     | 'forceMount'
     | 'preventScroll'
-    | 'dismissible'
+    | 'closeOnEscape'
+    | 'closeOnOutsideClick'
     | 'onClosePrevent'
     | 'restoreFocusOnClose'
   > {
@@ -41,7 +42,8 @@ export namespace PopoverT {
      * the native default action of outside pointer events, and locks body scroll.
      * This is enabled only when Popover.Content composes Popover.Close; otherwise the Popover
      * remains non-modal so assistive-technology users retain a dismissal route, and a DEV
-     * warning is logged. Outside and Escape dismissal remain controlled by `dismissible`.
+     * warning is logged. Outside and Escape dismissal remain controlled by `closeOnOutsideClick`
+     * and `closeOnEscape`.
      * @default false
      */
     modal?: boolean

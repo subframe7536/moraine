@@ -8,7 +8,8 @@ export function DismissControl() {
     <div class="flex flex-wrap gap-3 items-center">
       <Popover
         defaultOpen
-        dismissible={false}
+        closeOnEscape={false}
+        closeOnOutsideClick={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
       >
         <Popover.Trigger as={Button} variant="soft" tone="neutral">

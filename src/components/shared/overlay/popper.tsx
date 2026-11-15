@@ -208,7 +208,8 @@ export function PopperContent(
     {
       closeOnOutsideFocus: true,
       detachedPadding: 0,
-      dismissible: true,
+      closeOnEscape: true,
+      closeOnOutsideClick: true,
       fitViewport: false,
       flip: true,
       forceMount: false,
@@ -360,7 +361,7 @@ export function PopperContent(
         return
       }
 
-      if (options.dismissible) {
+      if (options.closeOnOutsideClick) {
         if (!options.modal) {
           restoreFocusAfterClose = false
         }
@@ -385,7 +386,7 @@ export function PopperContent(
         return
       }
 
-      if (options.closeOnOutsideFocus && options.dismissible) {
+      if (options.closeOnOutsideFocus && options.closeOnOutsideClick) {
         if (!options.modal) {
           restoreFocusAfterClose = false
         }
@@ -393,7 +394,7 @@ export function PopperContent(
         return
       }
 
-      if (!options.dismissible) {
+      if (!options.closeOnOutsideClick) {
         options.onClosePrevent?.()
 
         if (options.modal) {
@@ -412,7 +413,7 @@ export function PopperContent(
         return
       }
 
-      if (options.dismissible) {
+      if (options.closeOnEscape) {
         event.preventDefault()
         setOpen(false)
         return

@@ -45,6 +45,26 @@
           }
         },
         {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the content.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOutsideClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether outside interaction, pointer or focus, dismisses the content.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
@@ -62,16 +82,6 @@
           "default": {
             "kind": "literal",
             "value": false
-          }
-        },
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether outside interaction and Escape dismiss the content.",
-          "default": {
-            "kind": "literal",
-            "value": true
           }
         },
         {
@@ -104,7 +114,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route, and a DEV\nwarning is logged. Outside and Escape dismissal remain controlled by `dismissible`.",
+          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route, and a DEV\nwarning is logged. Outside and Escape dismissal remain controlled by `closeOnOutsideClick`\nand `closeOnEscape`.",
           "default": {
             "kind": "literal",
             "value": false

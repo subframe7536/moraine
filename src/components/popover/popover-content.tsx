@@ -113,7 +113,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
       role="dialog"
       onPointerDownOutside={(event) => {
-        if (behavior.options.dismissible ?? true) {
+        if (behavior.options.closeOnOutsideClick ?? true) {
           return
         }
 
@@ -127,7 +127,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         behavior.options.onClosePrevent?.()
       }}
       onInteractOutside={(event) => {
-        if ((behavior.options.dismissible ?? true) || event.defaultPrevented) {
+        if ((behavior.options.closeOnOutsideClick ?? true) || event.defaultPrevented) {
           return
         }
 
@@ -138,7 +138,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         }
       }}
       onEscapeKeyDown={(event) => {
-        if (behavior.options.dismissible ?? true) {
+        if (behavior.options.closeOnEscape ?? true) {
           return
         }
 

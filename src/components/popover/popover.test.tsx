@@ -749,11 +749,11 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-body"]')).toBeNull()
   })
 
-  test('keeps popover open and emits onClosePrevent when dismissible=false', async () => {
+  test('keeps popover open and emits onClosePrevent when closeOnEscape=false', async () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Popover defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+      <Popover defaultOpen closeOnEscape={false} onClosePrevent={onClosePrevent}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -771,6 +771,90 @@ describe('Popover', () => {
     })
   })
 
+  test('blocks only outside dismissal when closeOnOutsideClick=false', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Popover
+          defaultOpen
+          closeOnOutsideClick={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Popover.Trigger as="button" type="button">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Content>{'Persistent'}</Popover.Content>
+        </Popover>
+      </>
+    ))
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="popover-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+    })
+  })
+
+  test('blocks only Escape when closeOnEscape=false and still closes on outside click', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Popover
+          defaultOpen
+          closeOnEscape={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Popover.Trigger as="button" type="button">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Content>{'Persistent'}</Popover.Content>
+        </Popover>
+      </>
+    ))
+
+    const content = document.body.querySelector('[data-slot="popover-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+    })
+  })
+
   test('emits onClosePrevent once for blocked outside pointer interaction', async () => {
     const onClosePrevent = vi.fn()
 
@@ -779,7 +863,12 @@ describe('Popover', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Popover defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Popover
+          defaultOpen
+          closeOnEscape={false}
+          closeOnOutsideClick={false}
+          onClosePrevent={onClosePrevent}
+        >
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
@@ -811,7 +900,12 @@ describe('Popover', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Popover defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Popover
+          defaultOpen
+          closeOnEscape={false}
+          closeOnOutsideClick={false}
+          onClosePrevent={onClosePrevent}
+        >
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
@@ -832,12 +926,17 @@ describe('Popover', () => {
     })
   })
 
-  test('closes popover on escape when dismissible=true', async () => {
+  test('closes popover on escape when closeOnEscape=true', async () => {
     const onClosePrevent = vi.fn()
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Popover defaultOpen dismissible onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+      <Popover
+        defaultOpen
+        closeOnEscape
+        onClosePrevent={onClosePrevent}
+        onOpenChange={onOpenChange}
+      >
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>

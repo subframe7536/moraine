@@ -92,10 +92,16 @@ export interface PopperContentOptions {
   detachedPadding?: number
 
   /**
-   * Whether outside interaction and Escape dismiss the content.
+   * Whether Escape dismisses the content.
    * @default true
    */
-  dismissible?: boolean
+  closeOnEscape?: boolean
+
+  /**
+   * Whether outside interaction, pointer or focus, dismisses the content.
+   * @default true
+   */
+  closeOnOutsideClick?: boolean
 
   /**
    * Whether content dimensions should be constrained to the available viewport.
@@ -130,7 +136,7 @@ export interface PopperContentOptions {
   /**
    * Whether the content traps focus, hides outside content from assistive technology, prevents
    * the native default action of outside pointer events, and locks body scroll.
-   * Outside and Escape dismissal remain controlled by `dismissible`.
+   * Outside and Escape dismissal remain controlled by `closeOnOutsideClick` and `closeOnEscape`.
    * @default false
    */
   modal?: boolean
