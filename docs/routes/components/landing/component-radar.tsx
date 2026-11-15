@@ -224,7 +224,7 @@ export function ComponentRadar() {
           description="Drop-in composite stepper with strict boundaries and increment controls."
           href="/components/number-input"
         >
-          <NumberInput aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
+          <NumberInput aria-label="Item count" defaultValue={3} min={1} max={10} />
         </SamplerItem>
 
         <SamplerItem

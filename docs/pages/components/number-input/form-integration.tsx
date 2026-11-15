@@ -25,7 +25,7 @@ export function FormIntegration() {
           description="Specify between 1 and 10 units."
           required
         >
-          <NumberInput minValue={1} maxValue={10} />
+          <NumberInput min={1} max={10} />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="soft" tone="neutral" size="sm">

@@ -25,8 +25,8 @@ export function Controlled() {
                 setQuantity(v)
               }
             }}
-            minValue={1}
-            maxValue={10}
+            min={1}
+            max={10}
             step={1}
             variant="outline"
           />

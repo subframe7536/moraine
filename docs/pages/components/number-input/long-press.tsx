@@ -15,8 +15,8 @@ export function LongPress() {
               setRepeatValue(value)
             }
           }}
-          minValue={0}
-          maxValue={99}
+          min={0}
+          max={99}
           step={1}
           variant="subtle"
         />
@@ -35,8 +35,8 @@ export function LongPress() {
               setSingleStepValue(value)
             }
           }}
-          minValue={0}
-          maxValue={99}
+          min={0}
+          max={99}
           step={1}
           variant="subtle"
         />

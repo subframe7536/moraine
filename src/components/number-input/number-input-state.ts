@@ -46,10 +46,10 @@ export interface CreateNumberInputOptions {
   explicitControlledValue: Accessor<number | undefined>
   fieldValue: Accessor<unknown>
   initialDefaultValue: number | undefined
-  minValue: Accessor<number>
-  maxValue: Accessor<number>
-  rawMinValue?: Accessor<number | undefined>
-  rawMaxValue?: Accessor<number | undefined>
+  min: Accessor<number>
+  max: Accessor<number>
+  rawMin?: Accessor<number | undefined>
+  rawMax?: Accessor<number | undefined>
   step: Accessor<number>
   largeStep: Accessor<number>
   stepSnapping: Accessor<boolean>
@@ -100,7 +100,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
 
   const currentValue = createMemo(() => {
     const value = resolvedValue()
-    return value === undefined ? undefined : clamp(value, options.minValue(), options.maxValue())
+    return value === undefined ? undefined : clamp(value, options.min(), options.max())
   })
 
   const formattedValue = createMemo(() => {
@@ -119,10 +119,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
       const draft = draftText()
       if (draft !== undefined) {
         const parsed = parseLocaleNumber(draft, localeTag, options.formatOptions())
-        if (
-          parsed !== undefined &&
-          Object.is(clamp(parsed, options.minValue(), options.maxValue()), value)
-        ) {
+        if (parsed !== undefined && Object.is(clamp(parsed, options.min(), options.max()), value)) {
           return
         }
         setDraftText(undefined)
@@ -135,7 +132,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
       return false
     }
 
-    const committedValue = clamp(nextValue, options.minValue(), options.maxValue())
+    const committedValue = clamp(nextValue, options.min(), options.max())
     if (Object.is(committedValue, currentValue())) {
       return false
     }
@@ -191,8 +188,8 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
 
     const step = Math.abs(amount)
-    const min = options.rawMinValue?.() ?? Number.NaN
-    const max = options.rawMaxValue?.() ?? Number.NaN
+    const min = options.rawMin?.() ?? Number.NaN
+    const max = options.rawMax?.() ?? Number.NaN
 
     let nextValue = snapValueToStep(rawValue, min, max, step)
     const movedInDirection = amount > 0 ? nextValue > rawValue : nextValue < rawValue
@@ -206,7 +203,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   function stepBy(amount: number): boolean {
     const wasDirty = draftText() !== undefined
     const nextValue = getSteppedValue(getStepBase(), amount)
-    const boundedValue = clamp(nextValue, options.minValue(), options.maxValue())
+    const boundedValue = clamp(nextValue, options.min(), options.max())
     const changed = commitValue(nextValue)
 
     if (changed && Object.is(currentValue(), boundedValue)) {
@@ -287,7 +284,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     const nextValue =
       controlledValue === undefined
         ? initialResetValue
-        : clamp(controlledValue, options.minValue(), options.maxValue())
+        : clamp(controlledValue, options.min(), options.max())
 
     if (controlledValue === undefined) {
       setResolvedValue(nextValue)

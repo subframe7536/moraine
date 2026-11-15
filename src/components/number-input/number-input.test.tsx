@@ -36,7 +36,7 @@ describe('NumberInput', () => {
     try {
       const negative = render(() => <NumberInput />)
       expect(negative.getByRole('spinbutton').getAttribute('inputmode')).toBe('text')
-      const nonNegative = render(() => <NumberInput minValue={0} />)
+      const nonNegative = render(() => <NumberInput min={0} />)
       expect(nonNegative.getByRole('spinbutton').getAttribute('inputmode')).toBe('decimal')
     } finally {
       userAgent.mockRestore()
@@ -54,8 +54,8 @@ describe('NumberInput', () => {
     const screen = render(() => (
       <NumberInput
         defaultValue={1}
-        minValue={0}
-        maxValue={10}
+        min={0}
+        max={10}
         placeholder="Qty"
         onIncrementClick={[onIncrementClick, 'increment-payload']}
       />
@@ -176,7 +176,7 @@ describe('NumberInput', () => {
   })
 
   test('disables steppers at min and max boundaries', async () => {
-    const maxScreen = render(() => <NumberInput defaultValue={10} minValue={0} maxValue={10} />)
+    const maxScreen = render(() => <NumberInput defaultValue={10} min={0} max={10} />)
     const maxSpinbutton = maxScreen.getByRole<HTMLInputElement>('spinbutton')
     const maxIncrement = maxScreen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
     const maxDecrement = maxScreen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
@@ -189,7 +189,7 @@ describe('NumberInput', () => {
 
     maxScreen.unmount()
 
-    const minScreen = render(() => <NumberInput defaultValue={0} minValue={0} maxValue={10} />)
+    const minScreen = render(() => <NumberInput defaultValue={0} min={0} max={10} />)
     const minSpinbutton = minScreen.getByRole<HTMLInputElement>('spinbutton')
     const minIncrement = minScreen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
     const minDecrement = minScreen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
@@ -202,7 +202,7 @@ describe('NumberInput', () => {
   })
 
   test('reactively disables steppers after reaching a boundary', async () => {
-    const screen = render(() => <NumberInput defaultValue={9} minValue={0} maxValue={10} />)
+    const screen = render(() => <NumberInput defaultValue={9} min={0} max={10} />)
     const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
     const decrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
 
@@ -274,7 +274,7 @@ describe('NumberInput', () => {
   test('does not emit changes for keyboard or wheel boundary no-ops', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
-      <NumberInput defaultValue={10} maxValue={10} wheel onValueChange={onValueChange} />
+      <NumberInput defaultValue={10} max={10} wheel onValueChange={onValueChange} />
     ))
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -306,7 +306,7 @@ describe('NumberInput', () => {
   })
 
   test('supports Home and End keyboard shortcuts for min and max', async () => {
-    const screen = render(() => <NumberInput defaultValue={20} minValue={-100} maxValue={100} />)
+    const screen = render(() => <NumberInput defaultValue={20} min={-100} max={100} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
@@ -352,7 +352,7 @@ describe('NumberInput', () => {
     (key) => {
       const onValueChange = vi.fn()
       const screen = render(() => (
-        <NumberInput defaultValue={5} minValue={0} maxValue={10} onValueChange={onValueChange} />
+        <NumberInput defaultValue={5} min={0} max={10} onValueChange={onValueChange} />
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key })
@@ -1500,10 +1500,10 @@ describe('NumberInput', () => {
   })
 
   describe('boundary clamping on commit', () => {
-    test('clamps a partial typed value to maxValue on blur', () => {
+    test('clamps a partial typed value to max on blur', () => {
       const onValueChange = vi.fn()
       const screen = render(() => (
-        <NumberInput defaultValue={5} maxValue={10} onValueChange={onValueChange} />
+        <NumberInput defaultValue={5} max={10} onValueChange={onValueChange} />
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -1648,7 +1648,7 @@ describe('NumberInput', () => {
         (form) => (
           <form.Form>
             <form.Field name="quantity" label="Quantity">
-              <NumberInput locale="fa-IR" maxValue={10} />
+              <NumberInput locale="fa-IR" max={10} />
             </form.Field>
           </form.Form>
         ),
@@ -1736,8 +1736,8 @@ describe('NumberInput', () => {
       expect(spinbutton.value).toBe('8')
     })
 
-    test('anchors the step grid at minValue', () => {
-      const screen = render(() => <NumberInput defaultValue={4} minValue={1} step={2} />)
+    test('anchors the step grid at min', () => {
+      const screen = render(() => <NumberInput defaultValue={4} min={1} step={2} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
@@ -1773,7 +1773,7 @@ describe('NumberInput', () => {
     })
 
     test('steps from an empty value onto the min-anchored grid', () => {
-      const screen = render(() => <NumberInput defaultValue={5} minValue={1} step={2} />)
+      const screen = render(() => <NumberInput defaultValue={5} min={1} step={2} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       fireEvent.input(spinbutton, { target: { value: '' } })

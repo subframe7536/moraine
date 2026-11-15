@@ -52,8 +52,8 @@ export default function NumberInputPlayground() {
             disabled={props.disabled}
             increment={props.increment}
             defaultValue={24}
-            minValue={0}
-            maxValue={100}
+            min={0}
+            max={100}
           />
         </div>
       )}

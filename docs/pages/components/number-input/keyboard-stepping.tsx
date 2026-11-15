@@ -9,8 +9,8 @@ export function KeyboardStepping() {
       <NumberInput
         aria-label="Retry delay in seconds"
         value={value()}
-        minValue={0}
-        maxValue={60}
+        min={0}
+        max={60}
         step={0.5}
         largeStep={5}
         onValueChange={setValue}

@@ -78,12 +78,12 @@ export namespace NumberInputT {
     /**
      * Minimum allowed numeric value.
      */
-    minValue?: number
+    min?: number
 
     /**
      * Maximum allowed numeric value.
      */
-    maxValue?: number
+    max?: number
 
     /**
      * The increment/decrement step size.
@@ -110,7 +110,7 @@ export namespace NumberInputT {
     formatOptions?: Intl.NumberFormatOptions
 
     /**
-     * Whether committed values snap to the nearest step grid anchored at `minValue`.
+     * Whether committed values snap to the nearest step grid anchored at `min`.
      * @default true
      */
     stepSnapping?: boolean

@@ -33,7 +33,7 @@ import { Field, NumberInput } from 'moraine'
 export function Example() {
   return (
     <Field label="Quantity">
-      <NumberInput minValue={0} maxValue={10} defaultValue={1} />
+      <NumberInput min={0} max={10} defaultValue={1} />
     </Field>
   )
 }
@@ -43,11 +43,11 @@ export function Example() {
 
 `value`, `defaultValue`, and `onValueChange` all use `number | undefined`. Display text comes from
 `locale` and `formatOptions`, so the value stays a plain number. Clearing the input emits
-`undefined`. The component preserves partial typed input until commit, then applies `minValue` and
-`maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
+`undefined`. The component preserves partial typed input until commit, then applies `min` and
+`max`. Decimal steps are calculated to avoid typical floating-point display noise.
 
 ```tsx
-<NumberInput value={value()} onValueChange={setValue} minValue={0} maxValue={10} locale="de-DE" />
+<NumberInput value={value()} onValueChange={setValue} min={0} max={10} locale="de-DE" />
 ```
 
 ### Stepping and repeat
@@ -60,26 +60,26 @@ Hold-to-repeat is enabled by default and can be tuned with `repeat={{ delay, int
 
 ```tsx
 <NumberInput defaultValue={100} step={5} largeStep={25} />
-<NumberInput defaultValue={0.5} step={0.1} minValue={0} maxValue={1} />
+<NumberInput defaultValue={0.5} step={0.1} min={0} max={1} />
 ```
 
 ### Keyboard interaction
 
-| Key                  | Description                                             |
-| -------------------- | ------------------------------------------------------- |
-| <kbd>ArrowUp</kbd>   | Increments the value by `step`.                         |
-| <kbd>ArrowDown</kbd> | Decrements the value by `step`.                         |
-| <kbd>PageUp</kbd>    | Increments by `largeStep` (defaults to `step * 10`).    |
-| <kbd>PageDown</kbd>  | Decrements by `largeStep` (defaults to `step * 10`).    |
-| <kbd>Home</kbd>      | Sets the value to `minValue` when a minimum is defined. |
-| <kbd>End</kbd>       | Sets the value to `maxValue` when a maximum is defined. |
-| <kbd>Enter</kbd>     | Commits the current text input as a numeric value.      |
+| Key                  | Description                                          |
+| -------------------- | ---------------------------------------------------- |
+| <kbd>ArrowUp</kbd>   | Increments the value by `step`.                      |
+| <kbd>ArrowDown</kbd> | Decrements the value by `step`.                      |
+| <kbd>PageUp</kbd>    | Increments by `largeStep` (defaults to `step * 10`). |
+| <kbd>PageDown</kbd>  | Decrements by `largeStep` (defaults to `step * 10`). |
+| <kbd>Home</kbd>      | Sets the value to `min` when a minimum is defined.   |
+| <kbd>End</kbd>       | Sets the value to `max` when a maximum is defined.   |
+| <kbd>Enter</kbd>     | Commits the current text input as a numeric value.   |
 
 ## Examples
 
 ### Set a cart quantity
 
-Keep the count in local state with `onValueChange`. Clamp with `minValue` and `maxValue`.
+Keep the count in local state with `onValueChange`. Clamp with `min` and `max`.
 
 <Preview path="./controlled" />
 

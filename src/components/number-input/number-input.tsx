@@ -59,8 +59,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'form',
     'value',
     'defaultValue',
-    'minValue',
-    'maxValue',
+    'min',
+    'max',
     'step',
     'largeStep',
     'locale',
@@ -160,8 +160,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   const explicitControlledValue = () => merged.value
 
-  const minValue = () => merged.minValue ?? Number.MIN_SAFE_INTEGER
-  const maxValue = () => merged.maxValue ?? Number.MAX_SAFE_INTEGER
+  const min = () => merged.min ?? Number.MIN_SAFE_INTEGER
+  const max = () => merged.max ?? Number.MAX_SAFE_INTEGER
   const stepValue = () => (typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1)
   const largeStepValue = () =>
     typeof merged.largeStep === 'number'
@@ -172,10 +172,10 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     explicitControlledValue,
     fieldValue: field.value,
     initialDefaultValue,
-    minValue,
-    maxValue,
-    rawMinValue: () => merged.minValue,
-    rawMaxValue: () => merged.maxValue,
+    min,
+    max,
+    rawMin: () => merged.min,
+    rawMax: () => merged.max,
     step: stepValue,
     largeStep: largeStepValue,
     stepSnapping: () => merged.stepSnapping !== false,
@@ -195,7 +195,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
-      [explicitControlledValue, minValue, maxValue, field.value, locale],
+      [explicitControlledValue, min, max, field.value, locale],
       ([value, min, max, formValue, localeTag]) => {
         if (value === undefined) {
           return
@@ -252,8 +252,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       !readOnly() &&
       (isIncrement ? showIncrement() : showDecrement()) &&
       !(isIncrement
-        ? Boolean(merged.incrementDisabled) || (value !== undefined && value >= maxValue())
-        : Boolean(merged.decrementDisabled) || (value !== undefined && value <= minValue()))
+        ? Boolean(merged.incrementDisabled) || (value !== undefined && value >= max())
+        : Boolean(merged.decrementDisabled) || (value !== undefined && value <= min()))
     )
   }
 
@@ -409,16 +409,16 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       PageUp: () => state.incrementValue(largeStepValue()),
       PageDown: () => state.decrementValue(largeStepValue()),
       Home: {
-        when: () => merged.minValue !== undefined,
+        when: () => merged.min !== undefined,
         handle: () => {
-          state.commitValue(minValue())
+          state.commitValue(min())
           state.setDraftText(undefined)
         },
       },
       End: {
-        when: () => merged.maxValue !== undefined,
+        when: () => merged.max !== undefined,
         handle: () => {
-          state.commitValue(maxValue())
+          state.commitValue(max())
           state.setDraftText(undefined)
         },
       },
@@ -464,7 +464,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       <input
         data-slot="number-input-input"
         type="text"
-        inputMode={isIOS() && minValue() < 0 ? 'text' : 'decimal'}
+        inputMode={isIOS() && min() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         placeholder={merged.placeholder}
         {...inputSlot}
@@ -479,8 +479,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
-        aria-valuemin={merged.minValue}
-        aria-valuemax={merged.maxValue}
+        aria-valuemin={merged.min}
+        aria-valuemax={merged.max}
         aria-valuenow={state.currentValue()}
         aria-valuetext={state.formattedValue()}
         onInput={(event) => {

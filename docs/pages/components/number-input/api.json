@@ -162,13 +162,13 @@
           "description": "Locale for number formatting and parsing as a BCP 47 tag such as `en-US`.\nFalls back to the provider locale, then `en-US`."
         },
         {
-          "name": "maxValue",
+          "name": "max",
           "optional": true,
           "type": "number",
           "description": "Maximum allowed numeric value."
         },
         {
-          "name": "minValue",
+          "name": "min",
           "optional": true,
           "type": "number",
           "description": "Minimum allowed numeric value."
@@ -279,7 +279,7 @@
           "name": "stepSnapping",
           "optional": true,
           "type": "boolean",
-          "description": "Whether committed values snap to the nearest step grid anchored at `minValue`.",
+          "description": "Whether committed values snap to the nearest step grid anchored at `min`.",
           "default": {
             "kind": "literal",
             "value": true
