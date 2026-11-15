@@ -394,7 +394,7 @@ export function TanStackTable() {
           class="justify-end"
           size="sm"
           page={pagination().pageIndex + 1}
-          itemsPerPage={pagination().pageSize}
+          pageSize={pagination().pageSize}
           total={table.getFilteredRowModel().rows.length}
           onPageChange={(page) => table.setPageIndex(page - 1)}
         />

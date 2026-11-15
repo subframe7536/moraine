@@ -29,9 +29,9 @@ describe('Pagination SSR Hydration', () => {
           page={page()}
           onPageChange={setPage}
           total={100}
-          itemsPerPage={10}
+          pageSize={10}
           siblingCount={1}
-          to={(target) => `#page-${target}`}
+          href={(target) => `#page-${target}`}
         />
       ),
     )

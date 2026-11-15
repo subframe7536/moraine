@@ -88,7 +88,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'page',
     'defaultPage',
     'onPageChange',
-    'itemsPerPage',
+    'pageSize',
     'total',
     'siblingCount',
     'showControls',
@@ -103,7 +103,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'nextIcon',
     'nextText',
     'ellipsisIcon',
-    'to',
+    'href',
     'itemAs',
     'controlAs',
     'classes',
@@ -144,7 +144,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   const merged = mergeProps(
     {
       role: 'navigation' as const,
-      itemsPerPage: 10,
+      pageSize: 10,
       total: 0,
       siblingCount: 2,
       showControls: true,
@@ -167,9 +167,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
   })
 
   const pageCount = createMemo(() => {
-    const safeItemsPerPage = normalizeInteger(merged.itemsPerPage, 10, 1, Number.MAX_SAFE_INTEGER)
+    const safePageSize = normalizeInteger(merged.pageSize, 10, 1, Number.MAX_SAFE_INTEGER)
     const safeTotal = normalizeInteger(merged.total, 0, 0, Number.MAX_SAFE_INTEGER)
-    return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
+    return Math.max(1, Math.ceil(safeTotal / safePageSize))
   })
 
   const currentPage = createMemo(() => clampPage(page(), pageCount()))
@@ -196,7 +196,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     }
 
     const isCurrent = target === currentPage()
-    const href = isCurrent ? undefined : merged.to?.(target)
+    const href = isCurrent ? undefined : merged.href?.(target)
     if (merged.itemAs) {
       return href ? { as: merged.itemAs, href } : { as: merged.itemAs }
     }
@@ -208,7 +208,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return { as: 'button', type: 'button', disabled: true }
     }
 
-    const href = merged.to?.(target)
+    const href = merged.href?.(target)
     if (merged.controlAs) {
       return href ? { as: merged.controlAs, href, rel } : { as: merged.controlAs }
     }

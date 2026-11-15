@@ -55,7 +55,7 @@ export function DataTablePagination<TData extends RowData>(props: {
             size={props.size}
             page={pageIndex() + 1}
             total={rowCount()}
-            itemsPerPage={pageSize()}
+            pageSize={pageSize()}
             onPageChange={(page) => props.table.setPageIndex(page - 1)}
           />
           <Show when={pageSizeChoices()}>

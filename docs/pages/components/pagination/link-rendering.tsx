@@ -14,10 +14,10 @@ export function LinkRendering() {
         itemAs={A}
         controlAs={A}
         total={50}
-        itemsPerPage={10}
+        pageSize={10}
         page={page()}
         siblingCount={1}
-        to={(page) => `/pagination?page=${page}`}
+        href={(page) => `/pagination?page=${page}`}
       />
     </div>
   )

@@ -3,7 +3,7 @@ import { createMemo, createSignal, For } from 'solid-js'
 
 export function Controlled() {
   const [page, setPage] = createSignal(1)
-  const itemsPerPage = 3
+  const pageSize = 3
 
   const ALL_CUSTOMERS = [
     { id: 1, name: 'Stripe Inc.', plan: 'Enterprise', status: 'Active', mrr: '$2,400' },
@@ -17,8 +17,8 @@ export function Controlled() {
   ]
 
   const currentRecords = createMemo(() => {
-    const start = (page() - 1) * itemsPerPage
-    return ALL_CUSTOMERS.slice(start, start + itemsPerPage)
+    const start = (page() - 1) * pageSize
+    return ALL_CUSTOMERS.slice(start, start + pageSize)
   })
 
   return (
@@ -26,8 +26,8 @@ export function Controlled() {
       <div class="flex items-center justify-between">
         <h4 class="text-sm font-semibold">Active Customers</h4>
         <span class="text-xs text-muted-foreground">
-          Showing {(page() - 1) * itemsPerPage + 1}–
-          {Math.min(page() * itemsPerPage, ALL_CUSTOMERS.length)} of {ALL_CUSTOMERS.length} records
+          Showing {(page() - 1) * pageSize + 1}–{Math.min(page() * pageSize, ALL_CUSTOMERS.length)}{' '}
+          of {ALL_CUSTOMERS.length} records
         </span>
       </div>
 
@@ -55,7 +55,7 @@ export function Controlled() {
           page={page()}
           onPageChange={setPage}
           total={ALL_CUSTOMERS.length}
-          itemsPerPage={itemsPerPage}
+          pageSize={pageSize}
           siblingCount={1}
           prevText="Previous"
           nextText="Next"

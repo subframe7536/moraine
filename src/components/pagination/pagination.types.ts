@@ -51,7 +51,7 @@ export namespace PaginationT {
      * Number of items to display per page.
      * @default 10
      */
-    itemsPerPage?: number
+    pageSize?: number
 
     /**
      * Total number of items across all pages.
@@ -109,7 +109,7 @@ export namespace PaginationT {
      * Function to generate a destination URL for a given page number.
      * Without a custom component, enabled pagination controls with a destination render as anchors.
      */
-    to?: (page: number) => string | undefined
+    href?: (page: number) => string | undefined
 
     /** Component used to render numbered page items. */
     itemAs?: ValidComponent

@@ -51,7 +51,7 @@ export function PageSize() {
       </ul>
       <Pagination
         total={RESULTS.length}
-        itemsPerPage={pageSize()}
+        pageSize={pageSize()}
         page={page()}
         onPageChange={setPage}
       />

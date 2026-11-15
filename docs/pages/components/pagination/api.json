@@ -80,20 +80,16 @@
           }
         },
         {
+          "name": "href",
+          "optional": true,
+          "type": "(page: number) => string | undefined",
+          "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
+        },
+        {
           "name": "itemAs",
           "optional": true,
           "type": "ValidComponent",
           "description": "Component used to render numbered page items."
-        },
-        {
-          "name": "itemsPerPage",
-          "optional": true,
-          "type": "number",
-          "description": "Number of items to display per page.",
-          "default": {
-            "kind": "literal",
-            "value": 10
-          }
         },
         {
           "name": "nextIcon",
@@ -122,6 +118,16 @@
           "optional": true,
           "type": "number",
           "description": "Controlled current page number (1-indexed)."
+        },
+        {
+          "name": "pageSize",
+          "optional": true,
+          "type": "number",
+          "description": "Number of items to display per page.",
+          "default": {
+            "kind": "literal",
+            "value": 10
+          }
         },
         {
           "name": "prevIcon",
@@ -186,12 +192,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "to",
-          "optional": true,
-          "type": "(page: number) => string | undefined",
-          "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
         },
         {
           "name": "tone",

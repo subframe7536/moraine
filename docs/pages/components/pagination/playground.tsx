@@ -63,7 +63,7 @@ export default function PaginationPlayground() {
         },
         {
           kind: 'input',
-          prop: 'itemsPerPage',
+          prop: 'pageSize',
           label: 'Items per page',
           defaultValue: 10,
           inputType: 'number',
@@ -72,9 +72,9 @@ export default function PaginationPlayground() {
       ]}
     >
       {(props) => {
-        const itemsPerPage = () =>
-          Number.isFinite(props.itemsPerPage) ? Math.max(1, Math.trunc(props.itemsPerPage)) : 10
-        const pageCount = () => Math.ceil(100 / itemsPerPage())
+        const pageSize = () =>
+          Number.isFinite(props.pageSize) ? Math.max(1, Math.trunc(props.pageSize)) : 10
+        const pageCount = () => Math.ceil(100 / pageSize())
         const currentPage = () => Math.min(page(), pageCount())
         return (
           <div class="flex flex-col gap-3 items-center">
@@ -82,7 +82,7 @@ export default function PaginationPlayground() {
               total={100}
               page={currentPage()}
               onPageChange={setPage}
-              itemsPerPage={itemsPerPage()}
+              pageSize={pageSize()}
               size={props.size}
               variant={props.variant}
               activeVariant={props.activeVariant}

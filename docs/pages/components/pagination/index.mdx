@@ -53,24 +53,24 @@ mapping from page numbers to URLs or controlled state. Do not use Pagination for
 import { Pagination } from 'moraine'
 
 export function Example() {
-  return <Pagination total={100} itemsPerPage={10} defaultPage={1} />
+  return <Pagination total={100} pageSize={10} defaultPage={1} />
 }
 ```
 
 ### Current page
 
 Use `page` with `onPageChange` for controlled navigation. `total` is the number of records, not the
-page count; the component derives the page count from `itemsPerPage`. Keep the requested page inside
-the new page count when `itemsPerPage` changes.
+page count; the component derives the page count from `pageSize`. Keep the requested page inside
+the new page count when `pageSize` changes.
 
 ```tsx
-<Pagination total={100} itemsPerPage={10} page={page()} onPageChange={setPage} />
+<Pagination total={100} pageSize={10} page={page()} onPageChange={setPage} />
 ```
 
 ### Rendering links
 
-Use `to(page)` by itself to render enabled page controls as anchors. For router integration, use
-`itemAs` for numbered items and `controlAs` for Previous/Next; these props are independent and `to`
+Use `href(page)` by itself to render enabled page controls as anchors. For router integration, use
+`itemAs` for numbered items and `controlAs` for Previous/Next; these props are independent and `href`
 still only generates the destination. Boundary Previous/Next controls remain native disabled buttons
 even when `controlAs` is set.
 
@@ -79,9 +79,9 @@ even when `controlAs` is set.
   itemAs={A}
   controlAs={A}
   total={50}
-  itemsPerPage={10}
+  pageSize={10}
   page={page()}
-  to={(page) => `/results?page=${page}`}
+  href={(page) => `/results?page=${page}`}
 />
 ```
 

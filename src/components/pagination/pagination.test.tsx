@@ -16,21 +16,21 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 describe('Pagination', () => {
   test('forwards ref to root nav element', () => {
     let navRef: HTMLElement | undefined
-    render(() => <Pagination ref={(el) => (navRef = el)} total={30} itemsPerPage={10} />)
+    render(() => <Pagination ref={(el) => (navRef = el)} total={30} pageSize={10} />)
     expect(navRef).toBeInstanceOf(HTMLElement)
     expect(navRef?.tagName).toBe('NAV')
   })
   test('renders semantic root attributes by default', () => {
-    const screen = render(() => <Pagination total={30} itemsPerPage={10} />)
+    const screen = render(() => <Pagination total={30} pageSize={10} />)
     const root = screen.container.querySelector('[data-slot="pagination"]')
 
     expect(root?.getAttribute('aria-label')).toBe('Pagination')
     expect(root?.getAttribute('role')).toBe('navigation')
   })
 
-  test('derives page count from total and itemsPerPage', () => {
+  test('derives page count from total and pageSize', () => {
     const screen = render(() => (
-      <Pagination total={42} itemsPerPage={10} siblingCount={1} showControls={false} />
+      <Pagination total={42} pageSize={10} siblingCount={1} showControls={false} />
     ))
 
     expect(screen.getByText('1')).not.toBeNull()
@@ -41,7 +41,7 @@ describe('Pagination', () => {
     const screen = render(() => (
       <Pagination
         total={Number.POSITIVE_INFINITY}
-        itemsPerPage={Number.NaN}
+        pageSize={Number.NaN}
         siblingCount={Number.NEGATIVE_INFINITY}
         page={Number.POSITIVE_INFINITY}
       />
@@ -55,9 +55,9 @@ describe('Pagination', () => {
 
   test.each([
     [{ total: -5 }, 'Page 1 of 1'],
-    [{ total: 42.9, itemsPerPage: 10.9, page: 3.9 }, 'Page 3 of 5'],
-    [{ total: 3, itemsPerPage: 0, defaultPage: -4 }, 'Page 1 of 3'],
-    [{ total: 30, itemsPerPage: Number.POSITIVE_INFINITY }, 'Page 1 of 3'],
+    [{ total: 42.9, pageSize: 10.9, page: 3.9 }, 'Page 3 of 5'],
+    [{ total: 3, pageSize: 0, defaultPage: -4 }, 'Page 1 of 3'],
+    [{ total: 30, pageSize: Number.POSITIVE_INFINITY }, 'Page 1 of 3'],
   ] as const)('normalizes fractional and out-of-range inputs %#', (input, expected) => {
     const screen = render(() => <Pagination {...input} />)
     const status = screen.container.querySelector('[data-slot="pagination-status"]')
@@ -69,7 +69,7 @@ describe('Pagination', () => {
     const screen = render(() => (
       <Pagination
         total={Number.MAX_SAFE_INTEGER}
-        itemsPerPage={1}
+        pageSize={1}
         page={4_000_000_000}
         siblingCount={Number.MAX_SAFE_INTEGER}
         showControls={false}
@@ -88,7 +88,7 @@ describe('Pagination', () => {
     const [total, setTotal] = createSignal(100)
     const onPageChange = vi.fn()
     const screen = render(() => (
-      <Pagination defaultPage={8} total={total()} itemsPerPage={10} onPageChange={onPageChange} />
+      <Pagination defaultPage={8} total={total()} pageSize={10} onPageChange={onPageChange} />
     ))
     const status = () =>
       screen.container
@@ -108,7 +108,7 @@ describe('Pagination', () => {
     const [total, setTotal] = createSignal(20)
     const onPageChange = vi.fn()
     const screen = render(() => (
-      <Pagination page={8} total={total()} itemsPerPage={10} onPageChange={onPageChange} />
+      <Pagination page={8} total={total()} pageSize={10} onPageChange={onPageChange} />
     ))
     const status = () =>
       screen.container
@@ -130,7 +130,7 @@ describe('Pagination', () => {
         page={2}
         onPageChange={onPageChange}
         total={50}
-        itemsPerPage={10}
+        pageSize={10}
         showControls={false}
       />
     ))
@@ -153,7 +153,7 @@ describe('Pagination', () => {
         onPageChange={onPageChange}
         {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
         total={50}
-        itemsPerPage={10}
+        pageSize={10}
         showControls={false}
       />
     ))
@@ -165,13 +165,13 @@ describe('Pagination', () => {
   })
 
   test('toggles controls visibility', () => {
-    const withControls = render(() => <Pagination total={30} itemsPerPage={10} showControls />)
+    const withControls = render(() => <Pagination total={30} pageSize={10} showControls />)
 
     expect(withControls.container.querySelector('[data-slot="pagination-prev"]')).not.toBeNull()
     expect(withControls.container.querySelector('[data-slot="pagination-next"]')).not.toBeNull()
 
     const withoutControls = render(() => (
-      <Pagination total={30} itemsPerPage={10} showControls={false} />
+      <Pagination total={30} pageSize={10} showControls={false} />
     ))
 
     expect(withoutControls.container.querySelector('[data-slot="pagination-prev"]')).toBeNull()
@@ -179,7 +179,7 @@ describe('Pagination', () => {
   })
 
   test('renders icon-only controls with icons in Button children', () => {
-    const screen = render(() => <Pagination total={30} itemsPerPage={10} showControls />)
+    const screen = render(() => <Pagination total={30} pageSize={10} showControls />)
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
@@ -191,7 +191,7 @@ describe('Pagination', () => {
 
   test('renders text controls with icons in their leading and trailing slots', () => {
     const screen = render(() => (
-      <Pagination total={30} itemsPerPage={10} prevText="Previous" nextText="Next" showControls />
+      <Pagination total={30} pageSize={10} prevText="Previous" nextText="Next" showControls />
     ))
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
@@ -223,9 +223,9 @@ describe('Pagination', () => {
     }
   })
 
-  test('renders page items and controls as links when `to` is provided', () => {
+  test('renders page items and controls as links when `href` is provided', () => {
     const screen = render(() => (
-      <Pagination page={2} total={30} itemsPerPage={10} to={(page) => `/page/${page}`} />
+      <Pagination page={2} total={30} pageSize={10} href={(page) => `/page/${page}`} />
     ))
 
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
@@ -247,10 +247,10 @@ describe('Pagination', () => {
       <Pagination
         page={2}
         total={30}
-        itemsPerPage={10}
+        pageSize={10}
         itemAs={ItemLink}
         controlAs={ControlLink}
-        to={(page) => `/page/${page}`}
+        href={(page) => `/page/${page}`}
       />
     ))
 
@@ -272,7 +272,7 @@ describe('Pagination', () => {
 
   test('honors explicit itemAs without a destination', () => {
     const screen = render(() => (
-      <Pagination total={30} itemsPerPage={10} itemAs={ItemLink} showControls={false} />
+      <Pagination total={30} pageSize={10} itemAs={ItemLink} showControls={false} />
     ))
 
     const items = screen.container.querySelectorAll('[data-slot="pagination-item"]')
@@ -289,9 +289,9 @@ describe('Pagination', () => {
       <Pagination
         page={1}
         total={30}
-        itemsPerPage={10}
+        pageSize={10}
         controlAs={ControlLink}
-        to={(page) => `/page/${page}`}
+        href={(page) => `/page/${page}`}
       />
     ))
     const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
@@ -305,9 +305,9 @@ describe('Pagination', () => {
       <Pagination
         page={3}
         total={30}
-        itemsPerPage={10}
+        pageSize={10}
         controlAs={ControlLink}
-        to={(page) => `/page/${page}`}
+        href={(page) => `/page/${page}`}
       />
     ))
     const nextAtEnd = lastPage.container.querySelector('[data-slot="pagination-next"]')
@@ -319,9 +319,9 @@ describe('Pagination', () => {
       <Pagination
         page={2}
         total={30}
-        itemsPerPage={10}
+        pageSize={10}
         controlAs={ControlLink}
-        to={(page) => `/page/${page}`}
+        href={(page) => `/page/${page}`}
         disabled
       />
     ))
@@ -334,14 +334,14 @@ describe('Pagination', () => {
   })
 
   test('keeps current-page activation a no-op when destinations are provided', async () => {
-    const to = vi.fn((page: number) => `/page/${page}`)
+    const href = vi.fn((page: number) => `/page/${page}`)
     const onPageChange = vi.fn()
     const screen = render(() => (
       <Pagination
         page={2}
         total={30}
-        itemsPerPage={10}
-        to={to}
+        pageSize={10}
+        href={href}
         onPageChange={onPageChange}
         {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
       />
@@ -356,15 +356,9 @@ describe('Pagination', () => {
     expect(screen.getByLabelText('Go to page 3 of 3').getAttribute('href')).toBe('/page/3')
   })
 
-  test('uses disabled buttons when boundary is reached or `to` is absent', () => {
+  test('uses disabled buttons when boundary is reached or `href` is absent', () => {
     const firstPage = render(() => (
-      <Pagination
-        page={1}
-        total={30}
-        itemsPerPage={10}
-        to={(page) => `/page/${page}`}
-        showControls
-      />
+      <Pagination page={1} total={30} pageSize={10} href={(page) => `/page/${page}`} showControls />
     ))
 
     const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
@@ -376,7 +370,7 @@ describe('Pagination', () => {
     expect(nextAtStart?.getAttribute('href')).toBe('/page/2')
 
     const withoutTo = render(() => (
-      <Pagination page={2} total={30} itemsPerPage={10} showControls={false} />
+      <Pagination page={2} total={30} pageSize={10} showControls={false} />
     ))
 
     const pageControl = withoutTo.getByText('3').closest('[data-slot="pagination-item"]')
@@ -386,13 +380,7 @@ describe('Pagination', () => {
   test('keeps focus on a page that stays visible when the current page changes', () => {
     const [page, setPage] = createSignal(5)
     const screen = render(() => (
-      <Pagination
-        page={page()}
-        total={100}
-        itemsPerPage={10}
-        siblingCount={1}
-        showControls={false}
-      />
+      <Pagination page={page()} total={100} pageSize={10} siblingCount={1} showControls={false} />
     ))
     const first = screen.getByLabelText('Go to page 1 of 10') as HTMLElement
 
@@ -406,7 +394,7 @@ describe('Pagination', () => {
   test('releases focus when a reactive boundary link becomes a disabled button', () => {
     const [page, setPage] = createSignal(2)
     const screen = render(() => (
-      <Pagination page={page()} total={30} itemsPerPage={10} to={(target) => `/page/${target}`} />
+      <Pagination page={page()} total={30} pageSize={10} href={(target) => `/page/${target}`} />
     ))
     const nextLink = screen.container.querySelector('[data-slot="pagination-next"]') as HTMLElement
 
@@ -424,7 +412,7 @@ describe('Pagination', () => {
 
   test('applies current-page aria attributes and labels', () => {
     const screen = render(() => (
-      <Pagination page={5} total={100} itemsPerPage={10} siblingCount={1} showControls />
+      <Pagination page={5} total={100} pageSize={10} siblingCount={1} showControls />
     ))
 
     const currentPage = screen.getByLabelText('Page 5 of 10, current page')
@@ -436,7 +424,7 @@ describe('Pagination', () => {
 
   test('renders ellipsis in `li[data-slot=list-item][aria-hidden]`', () => {
     const screen = render(() => (
-      <Pagination page={5} total={100} itemsPerPage={10} siblingCount={1} showControls={false} />
+      <Pagination page={5} total={100} pageSize={10} siblingCount={1} showControls={false} />
     ))
 
     const ellipsisNodes = screen.container.querySelectorAll(
@@ -454,7 +442,7 @@ describe('Pagination', () => {
         page={page()}
         onPageChange={setPage}
         total={50}
-        itemsPerPage={10}
+        pageSize={10}
         showControls={false}
       />
     ))
@@ -472,17 +460,17 @@ describe('Pagination', () => {
   })
 
   test('exposes target page in previous and next labels', () => {
-    const middle = render(() => <Pagination page={3} total={50} itemsPerPage={10} showControls />)
+    const middle = render(() => <Pagination page={3} total={50} pageSize={10} showControls />)
 
     expect(middle.getByLabelText('Go to previous page, page 2')).not.toBeNull()
     expect(middle.getByLabelText('Go to next page, page 4')).not.toBeNull()
 
-    const start = render(() => <Pagination page={1} total={50} itemsPerPage={10} showControls />)
+    const start = render(() => <Pagination page={1} total={50} pageSize={10} showControls />)
 
     expect(start.getByLabelText('Go to previous page')).not.toBeNull()
     expect(start.getByLabelText('Go to next page, page 2')).not.toBeNull()
 
-    const end = render(() => <Pagination page={5} total={50} itemsPerPage={10} showControls />)
+    const end = render(() => <Pagination page={5} total={50} pageSize={10} showControls />)
 
     expect(end.getByLabelText('Go to previous page, page 4')).not.toBeNull()
     expect(end.getByLabelText('Go to next page')).not.toBeNull()
@@ -493,7 +481,7 @@ describe('Pagination', () => {
       <Pagination
         page={5}
         total={100}
-        itemsPerPage={10}
+        pageSize={10}
         siblingCount={0}
         classes={{
           root: 'root-override',

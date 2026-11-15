@@ -7,13 +7,13 @@ export function renderPaginationFixture(): string {
     <Pagination
       page={5}
       total={100}
-      itemsPerPage={10}
+      pageSize={10}
       siblingCount={1}
-      to={(page) => `#page-${page}`}
+      href={(page) => `#page-${page}`}
     />
   ))
 }
 
 export function renderSinglePagePaginationFixture(): string {
-  return renderToString(() => <Pagination total={0} itemsPerPage={10} />)
+  return renderToString(() => <Pagination total={0} pageSize={10} />)
 }
