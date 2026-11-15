@@ -1,6 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import type { InputModifiers, ModifierValue } from '../../shared/input-modifiers'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -27,7 +27,7 @@ export namespace TextareaT {
   /**
    * Base props for the Textarea component.
    */
-  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
+  export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
     extends
       FormIdentityOptions,
       FormValueOptions<Value>,
@@ -83,7 +83,7 @@ export namespace TextareaT {
     /**
      * Modifiers for input processing (e.g., lazy, trim, number).
      */
-    modelModifiers?: M
+    modifiers?: M
 
     /**
      * Ref for the native textarea element.
@@ -119,7 +119,7 @@ export namespace TextareaT {
   /**
    * Props for the Textarea component.
    */
-  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
+  export type Props<M extends InputModifiers | undefined = InputModifiers | undefined> = BaseProps<
     'textarea',
     Base<M>,
     Variants,
@@ -131,5 +131,5 @@ export namespace TextareaT {
 /**
  * Props for the Textarea component.
  */
-export type TextareaProps<M extends ModelModifiers | undefined = ModelModifiers | undefined> =
+export type TextareaProps<M extends InputModifiers | undefined = InputModifiers | undefined> =
   TextareaT.Props<M>

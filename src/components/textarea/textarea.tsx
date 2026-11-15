@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import type { ModelModifiers } from '../../shared/input-modifiers'
+import type { InputModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
@@ -30,7 +30,7 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 }
 
 /** Multi-line text input with autoresize support and form field integration. */
-export function Textarea<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
+export function Textarea<M extends InputModifiers | undefined = InputModifiers | undefined>(
   props: TextareaProps<M>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -50,7 +50,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'autoResizeDelay',
     'rows',
     'maxRows',
-    'modelModifiers',
+    'modifiers',
     'onValueChange',
     'onChange',
     'onInput',
@@ -98,7 +98,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
     local,
   )
-  const modelModifiers = () => merged.modelModifiers
+  const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'textarea')
   const field = useFormField(merged, {
     get defaultId() {
@@ -116,7 +116,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     getElement: () => textareaEl,
     getFormValue: field.value,
     getFormPath: field.path,
-    modelModifiers,
+    modifiers,
     onValueChange: () => merged.onValueChange,
     setFormValue: field.setFormValue,
     value: () => merged.value,
@@ -199,7 +199,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       field.emit('input')
     }
 
-    if (modelModifiers()?.trim) {
+    if (modifiers()?.trim) {
       event.currentTarget.value = value.trim()
     }
 

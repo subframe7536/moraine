@@ -1,6 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import type { InputModifiers, ModifierValue } from '../../shared/input-modifiers'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -26,7 +26,7 @@ export namespace InputT {
   /**
    * Base props for the Input component.
    */
-  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
+  export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
     extends
       FormIdentityOptions,
       FormValueOptions<Value>,
@@ -70,7 +70,7 @@ export namespace InputT {
     /**
      * Modifiers for the input value (e.g., trim, lazy, number).
      */
-    modelModifiers?: M
+    modifiers?: M
 
     /**
      * Ref for the native input element.
@@ -106,7 +106,7 @@ export namespace InputT {
   /**
    * Props for the Input component.
    */
-  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
+  export type Props<M extends InputModifiers | undefined = InputModifiers | undefined> = BaseProps<
     'input',
     Base<M>,
     Variants,
@@ -118,5 +118,5 @@ export namespace InputT {
 /**
  * Props for the Input component.
  */
-export type InputProps<M extends ModelModifiers | undefined = ModelModifiers | undefined> =
+export type InputProps<M extends InputModifiers | undefined = InputModifiers | undefined> =
   InputT.Props<M>

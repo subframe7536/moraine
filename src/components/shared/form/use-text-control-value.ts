@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../../shared/input-modifiers'
+import type { InputModifiers, ModifierValue } from '../../../shared/input-modifiers'
 import { applyInputModifiers } from '../../../shared/input-modifiers'
 
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
@@ -9,13 +9,13 @@ type TextControlValue = string | number | undefined
 
 export interface UseTextControlValueOptions<
   TValue extends TextControlValue,
-  M extends ModelModifiers | undefined,
+  M extends InputModifiers | undefined,
 > {
   defaultValue: Accessor<TValue>
   getElement: Accessor<TextControlElement | undefined>
   getFormValue: Accessor<unknown>
   getFormPath?: Accessor<readonly (string | number)[] | undefined>
-  modelModifiers: Accessor<M | undefined>
+  modifiers: Accessor<M | undefined>
   onValueChange: Accessor<((value: ModifierValue<M>) => void) | undefined>
   setFormValue: (value: unknown) => void
   shouldRestoreValue?: Accessor<boolean>
@@ -25,10 +25,10 @@ export interface UseTextControlValueOptions<
 /** Shares controlled and uncontrolled value synchronization for native text controls. */
 export function useTextControlValue<
   TValue extends TextControlValue,
-  M extends ModelModifiers | undefined,
+  M extends InputModifiers | undefined,
 >(options: UseTextControlValueOptions<TValue, M>) {
   const initialDefaultValue = untrack(options.defaultValue)
-  const isLazy = createMemo(() => Boolean(options.modelModifiers()?.lazy))
+  const isLazy = createMemo(() => Boolean(options.modifiers()?.lazy))
   const [composing, setComposing] = createSignal(false)
   let compositionVersion = 0
   let preserveLazyCompositionDraft = false
@@ -69,7 +69,7 @@ export function useTextControlValue<
   })
 
   function applyValue(value: string): ModifierValue<M> {
-    return applyInputModifiers<ModifierValue<M>>(value, options.modelModifiers())
+    return applyInputModifiers<ModifierValue<M>>(value, options.modifiers())
   }
 
   function updateValue(value: string): void {

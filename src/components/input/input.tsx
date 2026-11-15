@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import type { ModelModifiers } from '../../shared/input-modifiers'
+import type { InputModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
@@ -13,7 +13,7 @@ import { useTextControlValue } from '../shared/form/use-text-control-value'
 import { inputDataAttributes, inputRecipe } from './input.recipe'
 import type { InputProps, InputT } from './input.types'
 /** Native text input with value modifiers and form field integration. */
-export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
+export function Input<M extends InputModifiers | undefined = InputModifiers | undefined>(
   props: InputProps<M>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -30,7 +30,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'autocomplete',
     'autofocus',
     'autofocusDelay',
-    'modelModifiers',
+    'modifiers',
     'onValueChange',
     'onChange',
     'onInput',
@@ -75,7 +75,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
     local,
   )
-  const modelModifiers = () => merged.modelModifiers
+  const modifiers = () => merged.modifiers
   const generatedId = createId(() => merged.id, 'input')
   const field = useFormField(merged, {
     get defaultId() {
@@ -93,7 +93,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     getElement: () => inputEl,
     getFormValue: field.value,
     getFormPath: field.path,
-    modelModifiers,
+    modifiers,
     onValueChange: () => merged.onValueChange,
     setFormValue: field.setFormValue,
     shouldRestoreValue: () => merged.type !== 'file',
@@ -119,7 +119,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       field.emit('input')
     }
 
-    if (modelModifiers()?.trim) {
+    if (modifiers()?.trim) {
       event.currentTarget.value = value.trim()
     }
 

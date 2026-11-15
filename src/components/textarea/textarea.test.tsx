@@ -64,11 +64,11 @@ describe('Textarea', () => {
 
     const screen = render(() => (
       <>
-        <Textarea onValueChange={onTrim} modelModifiers={{ trim: true }} />
-        <Textarea onValueChange={onLazy} modelModifiers={{ lazy: true }} />
+        <Textarea onValueChange={onTrim} modifiers={{ trim: true }} />
+        <Textarea onValueChange={onLazy} modifiers={{ lazy: true }} />
         <Textarea onValueChange={onPreserve} />
-        <Textarea onValueChange={onNullable} modelModifiers={{ empty: 'null' }} />
-        <Textarea onValueChange={onOptional} modelModifiers={{ empty: 'undefined' }} />
+        <Textarea onValueChange={onNullable} modifiers={{ empty: 'null' }} />
+        <Textarea onValueChange={onOptional} modifiers={{ empty: 'undefined' }} />
       </>
     ))
     const [trimInput, lazyInput, preserveInput, nullableInput, optionalInput] =
@@ -111,7 +111,7 @@ describe('Textarea', () => {
   })
 
   test('syncs trimmed DOM value on change', async () => {
-    const screen = render(() => <Textarea modelModifiers={{ trim: true, lazy: true }} />)
+    const screen = render(() => <Textarea modifiers={{ trim: true, lazy: true }} />)
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
 
     fireEvent.change(textarea, {
@@ -265,7 +265,7 @@ describe('Textarea', () => {
     const [value, setValue] = createSignal('')
     const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
     const screen = render(() => (
-      <Textarea value={value()} modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+      <Textarea value={value()} modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
 
@@ -301,7 +301,7 @@ describe('Textarea', () => {
       (form) => (
         <form.Form>
           <form.Field name="value" label="Value">
-            <Textarea modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+            <Textarea modifiers={{ lazy: true }} onValueChange={onValueChange} />
           </form.Field>
         </form.Form>
       ),

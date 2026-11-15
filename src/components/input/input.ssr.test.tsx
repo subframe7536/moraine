@@ -13,7 +13,7 @@ describe('Input SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/input/input.ssr.fixture.tsx',
       'renderInputFixture',
-      () => <Input value={value()} modelModifiers={{ trim: true }} onValueChange={onValueChange} />,
+      () => <Input value={value()} modifiers={{ trim: true }} onValueChange={onValueChange} />,
     )
     const input = container.firstElementChild as HTMLInputElement
     expect(input.tagName).toBe('INPUT')

@@ -63,9 +63,7 @@ describe('Input', () => {
 
   test('applies trim modifier', async () => {
     const onValueChange = vi.fn()
-    const screen = render(() => (
-      <Input onValueChange={onValueChange} modelModifiers={{ trim: true }} />
-    ))
+    const screen = render(() => <Input onValueChange={onValueChange} modifiers={{ trim: true }} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
     fireEvent.input(input, {
@@ -84,10 +82,10 @@ describe('Input', () => {
 
     const screen = render(() => (
       <>
-        <Input onValueChange={lazyChange} modelModifiers={{ lazy: true }} />
+        <Input onValueChange={lazyChange} modifiers={{ lazy: true }} />
         <Input onValueChange={preserveChange} />
-        <Input onValueChange={nullableChange} modelModifiers={{ empty: 'null' }} />
-        <Input onValueChange={optionalChange} modelModifiers={{ empty: 'undefined' }} />
+        <Input onValueChange={nullableChange} modifiers={{ empty: 'null' }} />
+        <Input onValueChange={optionalChange} modifiers={{ empty: 'undefined' }} />
       </>
     ))
     const [lazyInput, preserveInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
@@ -123,7 +121,7 @@ describe('Input', () => {
   })
 
   test('syncs trimmed DOM value on change', async () => {
-    const screen = render(() => <Input modelModifiers={{ trim: true, lazy: true }} />)
+    const screen = render(() => <Input modifiers={{ trim: true, lazy: true }} />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
     fireEvent.change(input, {
@@ -269,7 +267,7 @@ describe('Input', () => {
   test('allows lazy controlled edits until change then restores the authoritative value', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
-      <Input value="Locked" modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+      <Input value="Locked" modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -292,7 +290,7 @@ describe('Input', () => {
     const [value, setValue] = createSignal('')
     const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
     const screen = render(() => (
-      <Input value={value()} modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+      <Input value={value()} modifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
@@ -322,7 +320,7 @@ describe('Input', () => {
       (form) => (
         <form.Form>
           <form.Field name="value" label="Value">
-            <Input modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+            <Input modifiers={{ lazy: true }} onValueChange={onValueChange} />
           </form.Field>
         </form.Form>
       ),
@@ -346,7 +344,7 @@ describe('Input', () => {
 
   test('applies real external updates over a retained lazy composition draft', async () => {
     const [value, setValue] = createSignal('Initial')
-    const controlled = render(() => <Input value={value()} modelModifiers={{ lazy: true }} />)
+    const controlled = render(() => <Input value={value()} modifiers={{ lazy: true }} />)
     const controlledInput = controlled.getByRole<HTMLInputElement>('textbox')
 
     fireEvent.compositionStart(controlledInput)
@@ -368,7 +366,7 @@ describe('Input', () => {
       (form) => (
         <form.Form>
           <form.Field name="value" label="Value">
-            <Input modelModifiers={{ lazy: true }} />
+            <Input modifiers={{ lazy: true }} />
           </form.Field>
         </form.Form>
       ),
@@ -552,7 +550,7 @@ describe('Input', () => {
     const [number, setNumber] = createSignal(false)
     const onValueChange = vi.fn()
     const screen = render(() => (
-      <Input modelModifiers={{ number: number() }} onValueChange={onValueChange} />
+      <Input modifiers={{ number: number() }} onValueChange={onValueChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('textbox')
 

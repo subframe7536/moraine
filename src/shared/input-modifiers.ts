@@ -1,6 +1,6 @@
 export type EmptyValueMode = 'preserve' | 'null' | 'undefined'
 
-export interface ModelModifiers {
+export interface InputModifiers {
   trim?: boolean
   lazy?: boolean
   empty?: EmptyValueMode
@@ -8,31 +8,31 @@ export interface ModelModifiers {
 }
 
 /**
- * Resolves the output value type based on modelModifiers config.
+ * Resolves the output value type based on modifiers config.
  * - `number: true`       → base type is `number`, otherwise `string`
  * - `empty: 'null'`      → adds `null` to the union
  * - `empty: 'undefined'` → adds `undefined` to the union
  */
-export type ModifierValue<M extends ModelModifiers | undefined> =
+export type ModifierValue<M extends InputModifiers | undefined> =
   | (M extends { number: true }
       ? number | (M extends { empty: 'null' } ? null : undefined)
       : string)
   | (M extends { empty: 'null' } ? null : never)
   | (M extends { empty: 'undefined' } ? undefined : never)
 
-export function applyInputModifiers<T>(value: string, modelModifiers?: ModelModifiers): T {
+export function applyInputModifiers<T>(value: string, modifiers?: InputModifiers): T {
   let nextValue: string | number | null | undefined = value
 
-  if (modelModifiers?.trim) {
+  if (modifiers?.trim) {
     nextValue = nextValue.trim()
   }
 
   const trimmed = typeof nextValue === 'string' ? nextValue.trim() : ''
   const isEmpty = trimmed === ''
 
-  if (modelModifiers?.number) {
+  if (modifiers?.number) {
     if (isEmpty) {
-      if (modelModifiers.empty === 'null') {
+      if (modifiers.empty === 'null') {
         return null as T
       }
       return undefined as T
@@ -47,10 +47,10 @@ export function applyInputModifiers<T>(value: string, modelModifiers?: ModelModi
   }
 
   if (isEmpty) {
-    if (modelModifiers?.empty === 'null') {
+    if (modifiers?.empty === 'null') {
       return null as T
     }
-    if (modelModifiers?.empty === 'undefined') {
+    if (modifiers?.empty === 'undefined') {
       return undefined as T
     }
   }
