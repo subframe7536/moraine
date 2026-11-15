@@ -44,16 +44,6 @@
           "description": "Receives the imperative controller once, during setup."
         },
         {
-          "name": "edgeThreshold",
-          "optional": true,
-          "type": "number",
-          "description": "Distance in pixels from an edge within which it counts as reached.",
-          "default": {
-            "kind": "literal",
-            "value": 0
-          }
-        },
-        {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<TItem>>",
@@ -72,16 +62,28 @@
           "description": "Called when the overflowing edges change."
         },
         {
-          "name": "onReachEnd",
+          "name": "onScrollBottom",
           "optional": true,
-          "type": "(axis: Axis) => void",
-          "description": "Called when scrolling reaches the end edge of an overflowing axis."
+          "type": "() => void",
+          "description": "Called once when scrolling reaches the bottom edge of an overflowing axis."
         },
         {
-          "name": "onReachStart",
+          "name": "onScrollLeft",
           "optional": true,
-          "type": "(axis: Axis) => void",
-          "description": "Called when scrolling reaches the start edge of an overflowing axis."
+          "type": "() => void",
+          "description": "Called once when scrolling reaches the left edge of an overflowing axis."
+        },
+        {
+          "name": "onScrollRight",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once when scrolling reaches the right edge of an overflowing axis."
+        },
+        {
+          "name": "onScrollTop",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once when scrolling reaches the top edge of an overflowing axis."
         },
         {
           "name": "orientation",
@@ -111,6 +113,16 @@
           "default": {
             "kind": "literal",
             "value": 600
+          }
+        },
+        {
+          "name": "scrollThreshold",
+          "optional": true,
+          "type": "number",
+          "description": "Distance in pixels from an edge within which it counts as reached.",
+          "default": {
+            "kind": "literal",
+            "value": 0
           }
         },
         {

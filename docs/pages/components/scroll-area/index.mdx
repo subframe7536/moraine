@@ -103,11 +103,13 @@ switching on. The mask fades content into the background behind the container.
 
 `onOverflowChange` receives `{ x: { start, end }, y: { start, end } }` whenever the edges with
 more content beyond them change. `start` and `end` are logical: in RTL content, the `x` start
-edge is on the right. `edgeThreshold` sets how close to an edge, in pixels, scrolling counts as
+edge is on the right. `scrollThreshold` sets how close to an edge, in pixels, scrolling counts as
 reaching it.
 
-`onReachStart` and `onReachEnd` receive the axis when scrolling reaches an edge of an overflowing
-axis. Combine `onReachEnd` with `edgeThreshold` to load more content before the end.
+`onScrollTop`, `onScrollBottom`, `onScrollLeft`, and `onScrollRight` fire once when scrolling
+reaches a physical edge of an overflowing axis; in RTL content `onScrollLeft` and `onScrollRight`
+follow the physical edges, not the logical `start`/`end`. Combine `onScrollBottom` with
+`scrollThreshold` to load more content before the end.
 
 `controllerRef` receives a controller with the reactive `overflow` state and
 `scrollToEdge(axis, edge, options)`.
@@ -116,8 +118,8 @@ axis. Combine `onReachEnd` with `edgeThreshold` to load more content before the 
 let controller: ScrollAreaT.Controller | undefined
 
 ;<ScrollArea
-  edgeThreshold={48}
-  onReachEnd={(axis) => axis === 'y' && loadMore()}
+  scrollThreshold={48}
+  onScrollBottom={loadMore}
   controllerRef={(value) => (controller = value)}
 >
   {messages}
@@ -198,7 +200,7 @@ Read `onOverflowChange` to show whether more notifications are hidden, and call
 
 ### Load more at the end
 
-`onReachEnd` with `edgeThreshold` requests the next page shortly before the end.
+`onScrollBottom` with `scrollThreshold` requests the next page shortly before the end.
 
 <Preview path="./infinite" />
 

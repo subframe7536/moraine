@@ -75,7 +75,7 @@ export namespace ScrollAreaT {
     /** Shadow length in pixels while `shadow` is enabled. @default 40 */
     shadowSize?: number
     /** Distance in pixels from an edge within which it counts as reached. @default 0 */
-    edgeThreshold?: number
+    scrollThreshold?: number
     /** Milliseconds `hover` and `scroll` scrollbars stay visible after activity ends. @default 600 */
     scrollHideDelay?: number
     /** Receives the native scroll container. */
@@ -84,10 +84,14 @@ export namespace ScrollAreaT {
     controllerRef?: (controller: Controller) => void
     /** Called when the overflowing edges change. */
     onOverflowChange?: (overflow: Overflow) => void
-    /** Called when scrolling reaches the start edge of an overflowing axis. */
-    onReachStart?: (axis: Axis) => void
-    /** Called when scrolling reaches the end edge of an overflowing axis. */
-    onReachEnd?: (axis: Axis) => void
+    /** Called once when scrolling reaches the top edge of an overflowing axis. */
+    onScrollTop?: () => void
+    /** Called once when scrolling reaches the bottom edge of an overflowing axis. */
+    onScrollBottom?: () => void
+    /** Called once when scrolling reaches the left edge of an overflowing axis. */
+    onScrollLeft?: () => void
+    /** Called once when scrolling reaches the right edge of an overflowing axis. */
+    onScrollRight?: () => void
   }
 
   export type Props<TItem = unknown> = BaseProps<'div', Base<TItem>, Variants, Classes, Styles>

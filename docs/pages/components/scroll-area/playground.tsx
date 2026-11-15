@@ -42,8 +42,8 @@ export default function ScrollAreaPlayground() {
         },
         {
           kind: 'input',
-          prop: 'edgeThreshold',
-          label: 'Edge threshold (px)',
+          prop: 'scrollThreshold',
+          label: 'Scroll threshold (px)',
           defaultValue: 0,
           inputType: 'number',
         },
@@ -55,7 +55,7 @@ export default function ScrollAreaPlayground() {
           scrollbar={props.scrollbar}
           shadow={props.shadow}
           shadowSize={props.shadowSize}
-          edgeThreshold={props.edgeThreshold}
+          scrollThreshold={props.scrollThreshold}
           class="h-48 max-w-lg w-full"
           classes={{
             content: `flex gap-3 ${props.orientation === 'vertical' ? 'flex-col pe-3' : 'items-start pb-3'}`,

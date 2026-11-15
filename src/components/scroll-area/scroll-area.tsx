@@ -106,11 +106,13 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     'scrollbar',
     'shadow',
     'shadowSize',
-    'edgeThreshold',
+    'scrollThreshold',
     'scrollHideDelay',
     'onOverflowChange',
-    'onReachStart',
-    'onReachEnd',
+    'onScrollTop',
+    'onScrollBottom',
+    'onScrollLeft',
+    'onScrollRight',
     'onScroll',
     'onPointerEnter',
     'onPointerLeave',
@@ -181,7 +183,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
 
   const overflow = createMemo(
     (): ScrollAreaT.Overflow => {
-      const threshold = Math.max(0, local.edgeThreshold ?? 0)
+      const threshold = Math.max(0, local.scrollThreshold ?? 0)
       const edges = (axis: ScrollAreaT.Axis): ScrollAreaT.AxisOverflow => {
         const { extent, position } = axisMetrics(axis)
         // Scroll positions may be fractional while client and scroll sizes are integers.
@@ -229,11 +231,24 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
           if (axisMetrics(axis).extent <= 0) {
             continue
           }
-          if (previous[axis].start && !current[axis].start) {
-            local.onReachStart?.(axis)
-          }
-          if (previous[axis].end && !current[axis].end) {
-            local.onReachEnd?.(axis)
+          const reachedStart = previous[axis].start && !current[axis].start
+          const reachedEnd = previous[axis].end && !current[axis].end
+          if (axis === 'y') {
+            if (reachedStart) {
+              local.onScrollTop?.()
+            }
+            if (reachedEnd) {
+              local.onScrollBottom?.()
+            }
+          } else {
+            // `start`/`end` are logical: in RTL they sit at the right and left edges.
+            const rtl = metrics().rtl
+            if (reachedStart) {
+              ;(rtl ? local.onScrollRight : local.onScrollLeft)?.()
+            }
+            if (reachedEnd) {
+              ;(rtl ? local.onScrollLeft : local.onScrollRight)?.()
+            }
           }
         }
       },

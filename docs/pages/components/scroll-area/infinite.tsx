@@ -21,8 +21,8 @@ export function Infinite() {
 
   return (
     <ScrollArea
-      edgeThreshold={48}
-      onReachEnd={(axis) => axis === 'y' && loadMore()}
+      scrollThreshold={48}
+      onScrollBottom={loadMore}
       class="h-64 max-w-sm w-full"
       classes={{ content: 'pe-3' }}
       role="region"

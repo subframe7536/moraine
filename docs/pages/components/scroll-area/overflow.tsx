@@ -11,7 +11,7 @@ export function Overflow() {
       <ScrollArea
         shadow
         shadowSize={24}
-        edgeThreshold={8}
+        scrollThreshold={8}
         onOverflowChange={setOverflow}
         controllerRef={(value) => (controller = value)}
         class="h-48 w-full"
