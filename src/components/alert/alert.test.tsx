@@ -5,23 +5,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { Alert } from './alert'
 
 describe('Alert', () => {
-  it('renders primary alert with title and no icon by default', () => {
-    const screen = render(() => <Alert title="Primary announcement" />)
+  it('renders default alert with title and no icon by default', () => {
+    const screen = render(() => <Alert title="Default announcement" />)
     const alert = screen.getByRole('status')
     expect(alert).toBeDefined()
     expect(alert.getAttribute('data-slot')).toBe('alert')
-    expect(alert.getAttribute('data-type')).toBe('primary')
-    expect(screen.getByText('Primary announcement')).toBeDefined()
-    expect(alert.querySelector('[data-slot="alert-icon"]')).toBeNull()
-  })
-
-  it('renders secondary alert with title and no icon', () => {
-    const screen = render(() => <Alert type="secondary" title="Secondary announcement" />)
-    const alert = screen.getByRole('status')
-    expect(alert).toBeDefined()
-    expect(alert.getAttribute('data-slot')).toBe('alert')
-    expect(alert.getAttribute('data-type')).toBe('secondary')
-    expect(screen.getByText('Secondary announcement')).toBeDefined()
+    expect(alert.getAttribute('data-type')).toBe('default')
+    expect(screen.getByText('Default announcement')).toBeDefined()
     expect(alert.querySelector('[data-slot="alert-icon"]')).toBeNull()
   })
 
@@ -62,7 +52,7 @@ describe('Alert', () => {
   })
 
   it('supports custom icon names and custom JSX elements', () => {
-    const view1 = render(() => <Alert type="primary" title="With custom icon" icon="icon-tip" />)
+    const view1 = render(() => <Alert type="default" title="With custom icon" icon="icon-tip" />)
     const alert = view1.getByRole('status')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-tip')
     view1.unmount()

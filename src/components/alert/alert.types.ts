@@ -39,7 +39,7 @@ export namespace AlertT {
 
     /**
      * Leading icon displayed in the alert.
-     * - `undefined` (default): automatically resolves to semantic icon for status types, or none for `primary` / `secondary`.
+     * - `undefined` (default): automatically resolves to semantic icon for status types, or none for `default`.
      * - `false` or `null`: hides the icon.
      * - `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element.
      */

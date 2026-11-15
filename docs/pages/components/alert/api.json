@@ -103,16 +103,10 @@
           }
         },
         {
-          "name": "hasDescription",
-          "optional": true,
-          "type": "boolean",
-          "description": "Context variant indicating whether multi-line description is present.\nControls compact single-line vs multi-line layout and icon scale."
-        },
-        {
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to semantic icon for status types, or none for `primary` / `secondary`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to semantic icon for status types, or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
         },
         {
           "name": "onExitComplete",
@@ -159,11 +153,11 @@
         {
           "name": "type",
           "optional": true,
-          "type": "'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'",
+          "type": "'default' | 'info' | 'success' | 'warning' | 'error'",
           "description": "Semantic intent of the alert.",
           "default": {
             "kind": "literal",
-            "value": "primary"
+            "value": "default"
           }
         },
         {

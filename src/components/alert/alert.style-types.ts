@@ -23,12 +23,12 @@ export interface AlertStyleSlot<T = unknown> {
   close?: T
 }
 
-export type AlertType = 'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'
+export type AlertType = 'default' | 'info' | 'success' | 'warning' | 'error'
 
 export interface AlertStyleVariants {
   /**
    * Semantic intent of the alert.
-   * @default 'primary'
+   * @default 'default'
    */
   type?: AlertType
 
@@ -43,12 +43,14 @@ export interface AlertStyleVariants {
    * @default false
    */
   fullWidth?: boolean
+}
 
+export interface AlertRecipeVariant extends AlertStyleVariants {
   /**
-   * Context variant indicating whether multi-line description is present.
+   * Internal context variant indicating whether multi-line description is present.
    * Controls compact single-line vs multi-line layout and icon scale.
    */
   hasDescription?: boolean
 }
 
-export type AlertStyleConfig = ComponentStyleConfig<AlertStyleSlot, AlertStyleVariants>
+export type AlertStyleConfig = ComponentStyleConfig<AlertStyleSlot, AlertRecipeVariant>

@@ -3,7 +3,7 @@ import { FOCUS_VISIBLE_RING_CLASS, TONE_CLASS } from '../../theme/recipe-common.
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
-import type { AlertStyleSlot, AlertStyleVariants } from './alert.style-types'
+import type { AlertRecipeVariant, AlertStyleSlot } from './alert.style-types'
 
 export const alertDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
@@ -16,7 +16,7 @@ export const alertDataAttributes = {
   ),
 } satisfies DataAttributeContract<keyof AlertStyleSlot>
 
-export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertStyleVariants>(
+export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertRecipeVariant>(
   'alert',
   {
     base: {
@@ -29,14 +29,13 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
       close: `text-muted-foreground rounded-sm inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`,
     },
     defaultVariants: {
-      type: 'primary',
+      type: 'default',
       variant: 'subtle',
       fullWidth: false,
     },
     variants: {
       type: {
-        primary: TONE_CLASS.primary,
-        secondary: TONE_CLASS.secondary,
+        default: TONE_CLASS.primary,
         info: {
           ...TONE_CLASS.info,
           icon: 'text-info',

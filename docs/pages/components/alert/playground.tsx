@@ -12,8 +12,7 @@ export default function AlertPlayground() {
           label: 'Type',
           defaultValue: 'info',
           options: [
-            { label: 'Primary', value: 'primary' },
-            { label: 'Secondary', value: 'secondary' },
+            { label: 'Default', value: 'default' },
             { label: 'Info', value: 'info' },
             { label: 'Success', value: 'success' },
             { label: 'Warning', value: 'warning' },

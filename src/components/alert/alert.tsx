@@ -69,7 +69,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const hasDescription = () => hasContent(description())
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.closable)
-  const resolvedType = () => local.type ?? 'primary'
+  const resolvedType = () => local.type ?? 'default'
 
   const resolvedIcon = createMemo(() => {
     const custom = local.icon
