@@ -58,6 +58,16 @@
           }
         },
         {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether closed content stays mounted. When `false`, content mounts on first open and\nunmounts once it closes; when `true`, content mounts even before the first open.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "headingLevel",
           "optional": true,
           "type": "1 | 2 | 3 | 4 | 5 | 6",
@@ -77,7 +87,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item, used in `value` and `onValueChange`. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
+          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item, used in `value` and `onValueChange`. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  icon?: IconT.Name;\n  /** Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
           "description": "Array of accordion items to render."
         },
         {
@@ -88,16 +98,6 @@
           "default": {
             "kind": "literal",
             "value": true
-          }
-        },
-        {
-          "name": "mountMode",
-          "optional": true,
-          "type": "'unmount-on-hide' | 'keep-mounted'",
-          "description": "Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and\nunmounts it once it closes; `keep-mounted` mounts it even before the first open.",
-          "default": {
-            "kind": "literal",
-            "value": "unmount-on-hide"
           }
         },
         {
@@ -178,16 +178,16 @@
         }
       },
       {
+        "name": "icon",
+        "optional": true,
+        "type": "IconT.Name",
+        "description": "Leading icon name for the accordion item."
+      },
+      {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
         "description": "Header label for the accordion item."
-      },
-      {
-        "name": "leading",
-        "optional": true,
-        "type": "IconT.Name",
-        "description": "Leading icon name for the accordion item."
       },
       {
         "name": "value",

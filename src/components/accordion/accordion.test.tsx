@@ -11,7 +11,7 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
     value: 'one',
     label: 'One',
-    leading: 'icon-house',
+    icon: 'icon-house',
     content: <span>Content one</span>,
   },
   {
@@ -589,15 +589,15 @@ describe('Accordion', () => {
     expect(onValueChange).toHaveBeenCalledWith(['one'])
   })
 
-  test('respects mountMode', () => {
+  test('respects forceMount', () => {
     const unmountScreen = render(() => (
-      <Accordion items={BASE_ITEMS} defaultValue={undefined} mountMode="unmount-on-hide" />
+      <Accordion items={BASE_ITEMS} defaultValue={undefined} forceMount={false} />
     ))
 
     expect(unmountScreen.queryByText('Content one')).toBeNull()
 
     const keepMountedScreen = render(() => (
-      <Accordion items={BASE_ITEMS} defaultValue={undefined} mountMode="keep-mounted" />
+      <Accordion items={BASE_ITEMS} defaultValue={undefined} forceMount />
     ))
 
     expect(keepMountedScreen.queryByText('Content one')).not.toBeNull()
@@ -618,7 +618,7 @@ describe('Accordion', () => {
             ),
           },
         ]}
-        mountMode="keep-mounted"
+        forceMount
       />
     ))
     const trigger = screen.getByRole('button', { name: 'One' })
@@ -657,7 +657,7 @@ describe('Accordion', () => {
   test('kept-mounted closed panels use hidden="until-found" and expand on beforematch', async () => {
     const screen = render(() => (
       <Accordion
-        mountMode="keep-mounted"
+        forceMount
         items={[
           { value: 'one', label: 'One', content: 'Panel one' },
           { value: 'two', label: 'Two', content: 'Panel two', disabled: true },
@@ -685,7 +685,7 @@ describe('Accordion', () => {
   test('keeps hidden="until-found" when a controlled panel refuses to open', async () => {
     const screen = render(() => (
       <Accordion
-        mountMode="keep-mounted"
+        forceMount
         value={[]}
         items={[{ value: 'one', label: 'One', content: 'Panel one' }]}
       />
@@ -726,7 +726,7 @@ describe('Accordion', () => {
           ]}
           value={value()}
           onValueChange={setControlledValue}
-          mountMode="keep-mounted"
+          forceMount
         />
       )
     }
@@ -909,12 +909,7 @@ describe('Accordion', () => {
 
   test('keeps content mounted until the close transition ends', async () => {
     const screen = render(() => (
-      <Accordion
-        id="settings"
-        items={BASE_ITEMS}
-        defaultValue={['one']}
-        mountMode="unmount-on-hide"
-      />
+      <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} forceMount={false} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -1025,8 +1020,8 @@ describe('Accordion', () => {
     const screen = render(() => (
       <Accordion
         items={[
-          { value: 'settings', ariaLabel: 'Settings section', leading: 'icon-close' },
-          { value: 'profile', leading: 'icon-close' },
+          { value: 'settings', ariaLabel: 'Settings section', icon: 'icon-close' },
+          { value: 'profile', icon: 'icon-close' },
         ]}
       />
     ))

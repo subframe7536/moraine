@@ -100,7 +100,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'onValueChange',
     'items',
     'disabled',
-    'mountMode',
+    'forceMount',
     'trailing',
     'headingLevel',
     'classes',
@@ -127,7 +127,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       multiple: false,
       collapsible: true,
       loop: true,
-      mountMode: 'unmount-on-hide' as const,
+      forceMount: false,
       trailing: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
@@ -287,13 +287,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const itemValue = () => item.value
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
-          const leading = createMemo(() => item.leading)
+          const icon = createMemo(() => item.icon)
           const label = createMemo(() => item.label)
           const expanded = createMemo(() => selectedValues().includes(itemValue()))
           const disclosure = createDisclosureState({
             open: expanded,
             disabled,
-            mountMode: () => merged.mountMode,
+            forceMount: () => merged.forceMount,
             onBeforeMatch: () => {
               if (!disabled() && !expanded()) {
                 toggleValue(itemValue())
@@ -437,7 +437,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     lastFocusedValue = itemValue()
                   }}
                 >
-                  <Show when={leading()}>
+                  <Show when={icon()}>
                     {(value) => (
                       <Icon name={value()} data-slot="accordion-leading" {...leadingSlot} />
                     )}

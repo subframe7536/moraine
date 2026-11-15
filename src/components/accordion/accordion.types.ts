@@ -48,7 +48,7 @@ export namespace AccordionT {
     /**
      * Leading icon name for the accordion item.
      */
-    leading?: IconT.Name
+    icon?: IconT.Name
 
     /**
      * Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }.
@@ -102,11 +102,11 @@ export namespace AccordionT {
     disabled?: boolean
 
     /**
-     * Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and
-     * unmounts it once it closes; `keep-mounted` mounts it even before the first open.
-     * @default 'unmount-on-hide'
+     * Whether closed content stays mounted. When `false`, content mounts on first open and
+     * unmounts once it closes; when `true`, content mounts even before the first open.
+     * @default false
      */
-    mountMode?: 'unmount-on-hide' | 'keep-mounted'
+    forceMount?: boolean
 
     /**
      * Trailing icon name for all accordion items.

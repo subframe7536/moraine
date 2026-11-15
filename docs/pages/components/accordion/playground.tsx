@@ -1,4 +1,5 @@
 import { Accordion } from '@src'
+import type { AccordionT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -6,25 +7,25 @@ const FAQ_ITEMS = [
   {
     value: 'install',
     label: 'How do I install Moraine?',
-    leading: 'i-lucide:download',
+    icon: 'i-lucide:download',
     content:
       'Install moraine and configure either UnoCSS or Tailwind CSS before rendering components.',
   },
   {
     value: 'ssr',
     label: 'Is server-side rendering supported?',
-    leading: 'i-lucide:server',
+    icon: 'i-lucide:server',
     content:
       'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
   },
   {
     value: 'customize',
     label: 'Can I customize component styles?',
-    leading: 'i-lucide:palette',
+    icon: 'i-lucide:palette',
     content:
       'Components expose root class/style props and named slot classes/styles where applicable.',
   },
-]
+] satisfies AccordionT.Item[]
 
 export default function AccordionPlayground() {
   return (

@@ -1,4 +1,5 @@
 import { Accordion } from '@src'
+import type { AccordionT } from '@src'
 import { createSignal } from 'solid-js'
 
 const FAQ_ITEMS = [
@@ -13,7 +14,7 @@ const FAQ_ITEMS = [
     content:
       'Moraine uses atomic class styling with official presets and plugins for UnoCSS and Tailwind CSS.',
   },
-]
+] satisfies AccordionT.Item[]
 
 export function OpenItems() {
   const [active, setActive] = createSignal<string[]>(['q1'])
