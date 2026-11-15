@@ -1,4 +1,5 @@
 import { Breadcrumb } from '@src'
+import type { BreadcrumbT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -7,7 +8,7 @@ const TRAIL_ITEMS = [
   { label: 'Projects', href: '#' },
   { label: 'Design System', href: '#' },
   { label: 'Components' },
-]
+] satisfies BreadcrumbT.Item[]
 
 export default function BreadcrumbPlayground() {
   return (

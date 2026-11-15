@@ -1,10 +1,11 @@
 import { ContextMenu } from '@src'
+import type { ContextMenuT } from '@src'
 
 const MENU_ITEMS = [
-  { label: 'Back', leading: 'i-lucide:arrow-left' },
-  { label: 'Forward', leading: 'i-lucide:arrow-right', disabled: true },
-  { label: 'Reload', leading: 'i-lucide:rotate-cw' },
-]
+  { label: 'Back', icon: 'i-lucide:arrow-left' },
+  { label: 'Forward', icon: 'i-lucide:arrow-right', disabled: true },
+  { label: 'Reload', icon: 'i-lucide:rotate-cw' },
+] satisfies ContextMenuT.Item[]
 
 export function TriggerUsage() {
   return (

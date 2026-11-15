@@ -1,4 +1,5 @@
 import { AvatarGroup } from '@src'
+import type { AvatarGroupT } from '@src'
 
 const REVIEWERS = [
   {
@@ -26,7 +27,7 @@ const REVIEWERS = [
     alt: 'Jane Wilson',
     text: 'JW',
   },
-]
+] satisfies AvatarGroupT.Item[]
 
 export function OverflowCount() {
   return (

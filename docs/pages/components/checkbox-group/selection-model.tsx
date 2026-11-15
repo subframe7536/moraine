@@ -1,4 +1,5 @@
 import { CheckboxGroup } from '@src'
+import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
 
 const NOTIFICATION_OPTIONS = [
@@ -13,7 +14,7 @@ const NOTIFICATION_OPTIONS = [
     description: 'Summary of team activity and metric trends.',
   },
   { label: 'SMS updates', value: 'sms', description: 'Urgent security and billing alerts only.' },
-]
+] satisfies CheckboxGroupT.Item[]
 
 export function SelectionModel() {
   const [selected, setSelected] = createSignal<string[]>(['email', 'digest'])

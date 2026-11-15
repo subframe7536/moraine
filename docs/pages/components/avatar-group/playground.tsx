@@ -1,4 +1,5 @@
 import { AvatarGroup } from '@src'
+import type { AvatarGroupT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -28,7 +29,7 @@ const MEMBERS = [
     alt: 'Jane Wilson',
     text: 'JW',
   },
-]
+] satisfies AvatarGroupT.Item[]
 
 export default function AvatarGroupPlayground() {
   return (

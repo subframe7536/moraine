@@ -1,10 +1,11 @@
 import { Breadcrumb } from '@src'
+import type { BreadcrumbT } from '@src'
 
 const TRAIL = [
   { label: 'Documentation', href: '/docs' },
   { label: 'Components', href: '/components' },
   { label: 'Breadcrumb' },
-]
+] satisfies BreadcrumbT.Item[]
 
 export function CustomItemRender() {
   return (

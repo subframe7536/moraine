@@ -1,4 +1,5 @@
 import { CheckboxGroup } from '@src'
+import type { CheckboxGroupT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -10,7 +11,7 @@ const NOTIFICATION_OPTIONS = [
     description: 'Instant alerts on mobile and desktop',
   },
   { label: 'SMS updates', value: 'sms', description: 'Security and login codes' },
-]
+] satisfies CheckboxGroupT.Item[]
 
 export default function CheckboxGroupPlayground() {
   return (

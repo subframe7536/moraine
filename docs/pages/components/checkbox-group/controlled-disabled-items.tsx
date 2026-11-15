@@ -1,4 +1,5 @@
 import { CheckboxGroup } from '@src'
+import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ControlledDisabledItems() {
@@ -12,7 +13,7 @@ export function ControlledDisabledItems() {
       description: 'Primary organization administrator',
       disabled: true,
     },
-  ]
+  ] satisfies CheckboxGroupT.Item[]
 
   const [value, setValue] = createSignal<string[]>(['developer', 'owner'])
 
