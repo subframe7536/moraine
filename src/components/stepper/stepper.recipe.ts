@@ -26,7 +26,7 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
       separator:
         'rounded-full bg-border transition-colors data-[state=completed]:bg-primary data-disabled:opacity-75',
       wrapper: 'flex flex-col min-w-0',
-      title: 'text-foreground leading-snug font-medium',
+      label: 'text-foreground leading-snug font-medium',
       description: 'text-muted-foreground leading-normal text-wrap',
       content: 'min-w-0 w-full',
     },
@@ -54,19 +54,19 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
         sm: {
           trigger: 'gap-2',
           indicator: 'text-xs size-8',
-          title: 'text-xs',
+          label: 'text-xs',
           description: 'text-xs',
         },
         md: {
           trigger: 'gap-2.5',
           indicator: 'text-sm size-9',
-          title: 'text-sm',
+          label: 'text-sm',
           description: 'text-sm',
         },
         lg: {
           trigger: 'gap-3',
           indicator: 'text-base size-10',
-          title: 'text-base',
+          label: 'text-base',
           description: 'text-base',
         },
       },

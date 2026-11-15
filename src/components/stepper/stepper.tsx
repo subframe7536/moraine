@@ -52,7 +52,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       root: rootSlot,
       header: headerSlot,
       wrapper: wrapperSlot,
-      title: titleSlot,
+      label: labelSlot,
       description: descriptionSlot,
       content: contentSlot,
     },
@@ -97,7 +97,7 @@ export function Stepper(props: StepperProps): JSX.Element {
           console.warn(`[moraine] Stepper received duplicate item value "${value}".`)
         }
       }
-      const title = createLazyMemo(() => item.title)
+      const label = createLazyMemo(() => item.label)
       const description = createLazyMemo(() => item.description)
       const icon = createLazyMemo(() => item.icon)
       const content = createLazyMemo(() => item.content)
@@ -105,8 +105,8 @@ export function Stepper(props: StepperProps): JSX.Element {
         get disabled() {
           return item.disabled || occurrence > 0
         },
-        get title() {
-          return title()
+        get label() {
+          return label()
         },
         get description() {
           return description()
@@ -233,7 +233,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             const disabled = createMemo(() => isItemDisabled(entry))
             const triggerId = () => getTriggerId(entry.instanceKey)
             const contentId = () => getContentId(entry.instanceKey)
-            const titleId = () => `${contentId()}-step-${entry.index}-title`
+            const labelId = () => `${contentId()}-step-${entry.index}-label`
             const descriptionId = () => `${contentId()}-step-${entry.index}-description`
             const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
             const panelMounted = createMemo(() => selected() && entry.item.content !== undefined)
@@ -278,7 +278,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   data-slot="stepper-trigger"
                   {...triggerSlot}
                   disabled={disabled()}
-                  aria-labelledby={hasContent(entry.item.title) ? titleId() : undefined}
+                  aria-labelledby={hasContent(entry.item.label) ? labelId() : undefined}
                   aria-describedby={
                     hasContent(entry.item.description) ? descriptionId() : undefined
                   }
@@ -297,11 +297,11 @@ export function Stepper(props: StepperProps): JSX.Element {
                     </Show>
                   </span>
 
-                  <Show when={hasContent(entry.item.title) || hasContent(entry.item.description)}>
+                  <Show when={hasContent(entry.item.label) || hasContent(entry.item.description)}>
                     <span data-slot="stepper-wrapper" {...wrapperSlot}>
-                      <Show when={hasContent(entry.item.title)}>
-                        <span data-slot="stepper-title" id={titleId()} {...titleSlot}>
-                          {entry.item.title}
+                      <Show when={hasContent(entry.item.label)}>
+                        <span data-slot="stepper-label" id={labelId()} {...labelSlot}>
+                          {entry.item.label}
                         </span>
                       </Show>
 

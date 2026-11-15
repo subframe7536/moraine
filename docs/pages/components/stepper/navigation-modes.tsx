@@ -10,27 +10,27 @@ export function NavigationModes() {
   const [navigation, setNavigation] = createSignal<Navigation>('linear')
   const checkoutSteps = [
     {
-      title: 'Address',
+      label: 'Address',
       description: 'Where should we send the order?',
       icon: 'i-lucide:map-pinned',
       value: 'address',
       content: <p class="text-sm text-foreground">Collect shipping address details.</p>,
     },
     {
-      title: 'Shipping',
+      label: 'Shipping',
       description: 'Choose a delivery method.',
       icon: 'i-lucide:truck',
       value: 'shipping',
       content: <p class="text-sm text-foreground">Pick standard, express, or local pickup.</p>,
     },
     {
-      title: 'Payment',
+      label: 'Payment',
       description: 'Confirm billing and payment.',
       icon: 'i-lucide:credit-card',
       value: 'payment',
       content: <p class="text-sm text-foreground">Review billing details and submit payment.</p>,
     },
-  ]
+  ] satisfies StepperT.Item[]
 
   return (
     <div class="space-y-4">

@@ -21,11 +21,11 @@ export interface StepperStyleSlot<T = unknown> {
   /** Connector line between adjacent steps. */
   separator?: T
 
-  /** Optional title and description column inside the trigger. */
+  /** Optional label and description column inside the trigger. */
   wrapper?: T
 
-  /** Primary title text for a step. */
-  title?: T
+  /** Primary label text for a step. */
+  label?: T
 
   /** Supporting description for a step. */
   description?: T

@@ -6,7 +6,7 @@ import { DocsPlayground } from '../../../routes/components/markdown/playground'
 const ONBOARDING_STEPS: StepperT.Item[] = [
   {
     value: 'account',
-    title: 'Account',
+    label: 'Account',
     description: 'Create credentials',
     icon: 'i-lucide:user',
     get content() {
@@ -19,7 +19,7 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
   },
   {
     value: 'workspace',
-    title: 'Workspace',
+    label: 'Workspace',
     description: 'Team settings',
     icon: 'i-lucide:building-2',
     get content() {
@@ -32,7 +32,7 @@ const ONBOARDING_STEPS: StepperT.Item[] = [
   },
   {
     value: 'confirm',
-    title: 'Confirm',
+    label: 'Confirm',
     description: 'Launch project',
     icon: 'i-lucide:check-circle',
     get content() {

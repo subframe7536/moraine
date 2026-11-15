@@ -32,9 +32,9 @@ export namespace StepperT {
     value: Value
 
     /**
-     * Title of the step.
+     * Label of the step.
      */
-    title?: JSX.Element
+    label?: JSX.Element
 
     /**
      * Secondary description of the step.

@@ -28,8 +28,8 @@ describe('Stepper', () => {
         aria-labelledby="checkout-heading"
         value="billing address"
         items={[
-          { value: 'billing address', title: 'First', content: 'First panel' },
-          { value: 'billing address', title: 'Second', content: 'Second panel' },
+          { value: 'billing address', label: 'First', content: 'First panel' },
+          { value: 'billing address', label: 'Second', content: 'Second panel' },
         ]}
       />
     ))
@@ -56,8 +56,8 @@ describe('Stepper', () => {
       <Stepper
         value="shipping"
         items={[
-          { value: 'address', title: 'Address', content: 'Address panel' },
-          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+          { value: 'address', label: 'Address', content: 'Address panel' },
+          { value: 'shipping', label: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
         ]}
       />
     ))
@@ -77,8 +77,8 @@ describe('Stepper', () => {
       <Stepper
         defaultValue="shipping"
         items={[
-          { value: 'address', title: 'Address', content: 'Address panel' },
-          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+          { value: 'address', label: 'Address', content: 'Address panel' },
+          { value: 'shipping', label: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
         ]}
       />
     ))
@@ -89,7 +89,7 @@ describe('Stepper', () => {
 
   test.each([0, ''])('mounts a panel for falsy content %s', (content) => {
     const screen = render(() => (
-      <Stepper items={[{ value: 'step', title: 'Step', content, class: 'item-only' }]} />
+      <Stepper items={[{ value: 'step', label: 'Step', content, class: 'item-only' }]} />
     ))
     expect(screen.getByRole('tabpanel').textContent).toBe(String(content))
     expect(screen.getByRole('tabpanel').className).not.toContain('item-only')
@@ -104,10 +104,10 @@ describe('Stepper', () => {
       <Stepper
         value={value()}
         items={[
-          { value: 'first', title: 'First' },
+          { value: 'first', label: 'First' },
           {
             value: 'second',
-            title: <span>Second</span>,
+            label: <span>Second</span>,
             description: <span>Description</span>,
             content: <span>Panel</span>,
           },
@@ -122,19 +122,19 @@ describe('Stepper', () => {
 
   const ITEMS: [StepperT.Item, StepperT.Item, StepperT.Item] = [
     {
-      title: 'Address',
+      label: 'Address',
       description: 'Add your address here',
       value: 'address',
       content: 'Address content',
     },
     {
-      title: 'Shipping',
+      label: 'Shipping',
       description: 'Set your preferred shipping method',
       value: 'shipping',
       content: 'Shipping content',
     },
     {
-      title: 'Checkout',
+      label: 'Checkout',
       description: 'Confirm your order',
       value: 'checkout',
       content: 'Checkout content',
@@ -167,9 +167,9 @@ describe('Stepper', () => {
     const screen = render(() => (
       <Stepper
         items={[
-          { value: 'first', title: 'First', content: 'First content' },
-          { value: 'second', title: 'Second', content: 'Second content' },
-          { value: 'empty', title: 'Empty' },
+          { value: 'first', label: 'First', content: 'First content' },
+          { value: 'second', label: 'Second', content: 'Second content' },
+          { value: 'empty', label: 'Empty' },
         ]}
         defaultValue="first"
         navigation="free"
@@ -204,7 +204,7 @@ describe('Stepper', () => {
     const [content, setContent] = createSignal<JSX.Element>()
     const screen = render(() => (
       <Stepper
-        items={[{ value: 'dynamic', title: 'Dynamic', content: content() }]}
+        items={[{ value: 'dynamic', label: 'Dynamic', content: content() }]}
         defaultValue="dynamic"
       />
     ))
@@ -311,9 +311,9 @@ describe('Stepper', () => {
         defaultValue="first"
         onValueChange={onValueChange}
         items={[
-          { value: 'first', title: 'First', content: 'First panel' },
-          { value: 'dup', title: 'Second', content: 'Second panel' },
-          { value: 'dup', title: 'Third', content: 'Third panel' },
+          { value: 'first', label: 'First', content: 'First panel' },
+          { value: 'dup', label: 'Second', content: 'Second panel' },
+          { value: 'dup', label: 'Third', content: 'Third panel' },
         ]}
       />
     ))
@@ -496,14 +496,14 @@ describe('Stepper', () => {
     expect(screen.container.querySelector('[data-slot="stepper-indicator"]')).toBe(indicator)
   })
 
-  test('selects through the title and description and reports each step state', () => {
+  test('selects through the label and description and reports each step state', () => {
     const screen = render(() => <Stepper items={ITEMS} navigation="linear" />)
     const triggers = screen.getAllByRole('tab')
-    const title = screen.getByText('Shipping')
+    const label = screen.getByText('Shipping')
     const description = screen.getByText('Confirm your order')
-    expect(triggers[1]!.contains(title)).toBe(true)
+    expect(triggers[1]!.contains(label)).toBe(true)
     expect(triggers[2]!.contains(description)).toBe(true)
-    fireEvent.click(title)
+    fireEvent.click(label)
     expect(triggers[1]!.getAttribute('aria-selected')).toBe('true')
     fireEvent.click(description)
     expect(triggers[2]!.getAttribute('aria-selected')).toBe('true')
@@ -532,7 +532,7 @@ describe('Stepper', () => {
         items={[
           {
             value: 'inbox',
-            title: 'Inbox',
+            label: 'Inbox',
             icon: 'icon-inbox',
             content: 'Inbox content',
           },
@@ -583,7 +583,7 @@ describe('Stepper', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     setItems([
-      { title: 'Account', value: 'account', content: 'Account content' },
+      { label: 'Account', value: 'account', content: 'Account content' },
       { ...ITEMS[0] },
       { ...ITEMS[1] },
       { ...ITEMS[2] },
@@ -644,8 +644,8 @@ describe('Stepper', () => {
     const screen = render(() => (
       <Stepper
         items={[
-          { value: 'zero', title: 0, content: 'Zero panel' },
-          { value: 'one', title: 1, content: 'One panel' },
+          { value: 'zero', label: 0, content: 'Zero panel' },
+          { value: 'one', label: 1, content: 'One panel' },
         ]}
       />
     ))
@@ -664,8 +664,8 @@ describe('Stepper', () => {
       <Stepper
         value="custom"
         items={[
-          { value: 'custom', title: 'Custom', content: CustomContent },
-          { value: 'other', title: 'Other', content: 'Other Content' },
+          { value: 'custom', label: 'Custom', content: CustomContent },
+          { value: 'other', label: 'Other', content: 'Other Content' },
         ]}
       />
     ))
@@ -680,10 +680,10 @@ describe('Stepper', () => {
     render(() => (
       <Stepper
         items={[
-          { value: 'dup', title: 'One' },
-          { value: 'dup', title: 'Two' },
+          { value: 'dup', label: 'One' },
+          { value: 'dup', label: 'Two' },
           // @ts-expect-error missing value for testing DEV warning
-          { title: 'Three' },
+          { label: 'Three' },
         ]}
       />
     ))

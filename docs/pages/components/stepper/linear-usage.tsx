@@ -1,11 +1,12 @@
 import { Button, Stepper } from '@src'
+import type { StepperT } from '@src'
 import { createSignal } from 'solid-js'
 
 const STEPS = [
-  { value: 'account', title: 'Account', description: 'User credentials' },
-  { value: 'profile', title: 'Profile', description: 'Personal details' },
-  { value: 'review', title: 'Review', description: 'Confirmation' },
-]
+  { value: 'account', label: 'Account', description: 'User credentials' },
+  { value: 'profile', label: 'Profile', description: 'Personal details' },
+  { value: 'review', label: 'Review', description: 'Confirmation' },
+] satisfies StepperT.Item[]
 
 export function LinearUsage() {
   const [step, setStep] = createSignal('account')

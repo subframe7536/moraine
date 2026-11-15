@@ -4,17 +4,17 @@ import { createSignal } from 'solid-js'
 export function ControlledNonLinear() {
   const RELEASE_STEPS = () => [
     {
-      title: 'Draft',
+      label: 'Draft',
       value: 'draft',
       content: <p class="text-sm text-foreground">Prepare release notes.</p>,
     },
     {
-      title: 'Review',
+      label: 'Review',
       value: 'review',
       content: <p class="text-sm text-foreground">Collect team approvals.</p>,
     },
     {
-      title: 'Ship',
+      label: 'Ship',
       value: 'ship',
       content: <p class="text-sm text-foreground">Deploy to production.</p>,
     },
