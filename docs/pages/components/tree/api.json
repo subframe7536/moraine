@@ -39,6 +39,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether collapsed branches keep their children mounted. When `false`, children mount on\nfirst expansion and unmount once the branch collapses; when `true`, children mount even\nbefore the first expansion.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "indentGuide",
           "optional": true,
           "type": "boolean",
@@ -62,16 +72,6 @@
           "default": {
             "kind": "literal",
             "value": "icon-loading"
-          }
-        },
-        {
-          "name": "mountMode",
-          "optional": true,
-          "type": "'unmount-on-hide' | 'keep-mounted'",
-          "description": "Whether collapsed branches keep their children mounted. `unmount-on-hide` mounts children on\nfirst expansion and unmounts them once the branch collapses; `keep-mounted` mounts them even\nbefore the first expansion.",
-          "default": {
-            "kind": "literal",
-            "value": "unmount-on-hide"
           }
         },
         {

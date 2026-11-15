@@ -14,8 +14,6 @@ import { attachEventListener, attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
 
-export type DisclosureMountMode = 'unmount-on-hide' | 'keep-mounted'
-
 export interface CreateDisclosureStateOptions {
   /** Reactive open state accessor */
   open: Accessor<boolean>
@@ -23,8 +21,8 @@ export interface CreateDisclosureStateOptions {
   disabled?: Accessor<boolean>
   /** Whether transition animations are enabled (defaults to true) */
   transition?: Accessor<boolean> | boolean
-  /** Whether content stays mounted when closed (defaults to 'unmount-on-hide') */
-  mountMode?: Accessor<DisclosureMountMode | undefined> | DisclosureMountMode
+  /** Whether content stays mounted when closed (defaults to false) */
+  forceMount?: Accessor<boolean | undefined> | boolean
   /** Callback when exit transition completes */
   onExitComplete?: () => void
   /**
@@ -41,7 +39,7 @@ export interface DisclosureState {
   initialOpen: Accessor<boolean>
   disabled: Accessor<boolean>
   transition: Accessor<boolean>
-  mountMode: Accessor<DisclosureMountMode>
+  forceMount: Accessor<boolean>
 
   contentHeight: Accessor<number>
   dataAttrs: {
@@ -85,12 +83,11 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const transition = createMemo(() =>
     typeof options.transition === 'function' ? options.transition() : (options.transition ?? true),
   )
-  const mountMode = createMemo<DisclosureMountMode>(() => {
-    if (typeof options.mountMode === 'function') {
-      return options.mountMode() ?? 'unmount-on-hide'
-    }
-    return options.mountMode ?? 'unmount-on-hide'
-  })
+  const forceMount = createMemo(() =>
+    typeof options.forceMount === 'function'
+      ? Boolean(options.forceMount())
+      : Boolean(options.forceMount),
+  )
 
   const presence = createTransitionPresence({
     open: options.open,
@@ -141,7 +138,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const initialOpen = createMemo(() => options.open() && !hasToggled())
 
   function shouldMount(): boolean {
-    if (mountMode() === 'keep-mounted') {
+    if (forceMount()) {
       return true
     }
     return options.open() || (transition() && presence.present())
@@ -316,7 +313,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     initialOpen,
     disabled,
     transition,
-    mountMode,
+    forceMount,
     contentHeight,
     dataAttrs,
     closed,

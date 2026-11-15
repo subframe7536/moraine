@@ -363,29 +363,29 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('keyboard-content')).toBeNull()
   })
 
-  test('keep-mounted keeps content mounted in DOM when closed', async () => {
+  test('forceMount keeps content mounted in DOM when closed', async () => {
     const screen = render(() => (
-      <Collapsible defaultOpen={false} mountMode="keep-mounted">
+      <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Keep Mounted Trigger</Collapsible.Trigger>
         <Collapsible.Content>
-          <div data-testid="keep-mounted-content">Always Mounted</div>
+          <div data-testid="force-mount-content">Always Mounted</div>
         </Collapsible.Content>
       </Collapsible>
     ))
 
     const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')!
-    expect(screen.getByTestId('keep-mounted-content')).not.toBeNull()
+    expect(screen.getByTestId('force-mount-content')).not.toBeNull()
     expect(wrapper.firstElementChild?.getAttribute('data-closed')).toBe('')
 
     const trigger = screen.getByRole('button', { name: 'Keep Mounted Trigger' })
     fireEvent.click(trigger)
     expect(wrapper.firstElementChild?.getAttribute('data-expanded')).toBe('')
-    expect(screen.getByTestId('keep-mounted-content')).not.toBeNull()
+    expect(screen.getByTestId('force-mount-content')).not.toBeNull()
   })
 
   test('kept-mounted closed content uses hidden="until-found" and expands on beforematch', async () => {
     const screen = render(() => (
-      <Collapsible defaultOpen={false} mountMode="keep-mounted">
+      <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Find Trigger</Collapsible.Trigger>
         <Collapsible.Content>
           <a href="/details">Findable details</a>
@@ -408,7 +408,7 @@ describe('Collapsible', () => {
 
   test('hides retained closed content from visual, keyboard, and accessibility trees', () => {
     const screen = render(() => (
-      <Collapsible defaultOpen={false} mountMode="keep-mounted">
+      <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Keep Mounted Trigger</Collapsible.Trigger>
         <Collapsible.Content>
           <a href="/details">Retained details</a>
@@ -436,7 +436,7 @@ describe('Collapsible', () => {
 
   test('keeps retained content inaccessible during and after an exit transition', async () => {
     const screen = render(() => (
-      <Collapsible defaultOpen transition mountMode="keep-mounted">
+      <Collapsible defaultOpen transition forceMount>
         <Collapsible.Trigger>Retained transition trigger</Collapsible.Trigger>
         <Collapsible.Content>
           <a href="/details">Retained transition details</a>

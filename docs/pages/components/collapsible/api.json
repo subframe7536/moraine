@@ -54,20 +54,20 @@
           }
         },
         {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether closed content stays mounted. When `false`, content mounts on first open and\nunmounts once it closes; when `true`, content mounts even before the first open.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
           "description": "Unique identifier for the collapsible root element."
-        },
-        {
-          "name": "mountMode",
-          "optional": true,
-          "type": "'unmount-on-hide' | 'keep-mounted'",
-          "description": "Whether closed content stays mounted. `unmount-on-hide` mounts content on first open and\nunmounts it once it closes; `keep-mounted` mounts it even before the first open.",
-          "default": {
-            "kind": "literal",
-            "value": "unmount-on-hide"
-          }
         },
         {
           "name": "onOpenChange",

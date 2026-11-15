@@ -387,7 +387,7 @@ describe('createTree', () => {
       const { container } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['docs'] }}
-          treeProps={{ mountMode: 'keep-mounted', transition: false }}
+          treeProps={{ forceMount: true, transition: false }}
         />
       ))
 

@@ -15,7 +15,7 @@ export function renderCollapsibleFixture(): string {
 
 export function renderOpenCollapsibleFixture(): string {
   return renderToString(() => (
-    <Collapsible defaultOpen transition mountMode="keep-mounted">
+    <Collapsible defaultOpen transition forceMount>
       <Collapsible.Trigger>Details</Collapsible.Trigger>
       <Collapsible.Content as="section">Content</Collapsible.Content>
     </Collapsible>

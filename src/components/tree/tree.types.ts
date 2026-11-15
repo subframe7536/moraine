@@ -261,12 +261,12 @@ export namespace TreeT {
     loadingIcon?: IconT.Name
 
     /**
-     * Whether collapsed branches keep their children mounted. `unmount-on-hide` mounts children on
-     * first expansion and unmounts them once the branch collapses; `keep-mounted` mounts them even
+     * Whether collapsed branches keep their children mounted. When `false`, children mount on
+     * first expansion and unmount once the branch collapses; when `true`, children mount even
      * before the first expansion.
-     * @default 'unmount-on-hide'
+     * @default false
      */
-    mountMode?: 'unmount-on-hide' | 'keep-mounted'
+    forceMount?: boolean
   }
 
   export type Props<T = unknown> = BaseProps<'ul', Base<T>, Variants, Classes, Styles>
