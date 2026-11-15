@@ -121,12 +121,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'inputRef',
     'groups',
     'placeholder',
-    'searchTerm',
-    'onSearchTermChange',
+    'searchValue',
+    'defaultSearchValue',
+    'onSearchValueChange',
     'onSelect',
     'searchMaxLength',
     'autofocus',
-    'leadingIcon',
+    'leading',
     'loadingIcon',
     'closeIcon',
     'closable',
@@ -186,7 +187,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       autofocus: true,
       closable: false,
       closeOnSelect: true,
-      leadingIcon: 'icon-search',
+      leading: 'icon-search',
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
@@ -194,9 +195,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     local,
   )
 
-  const [currentSearchTerm, setSearchTerm] = createControllableValue<string>({
-    value: () => merged.searchTerm,
-    defaultValue: () => '',
+  const [currentSearchValue, setSearchValue] = createControllableValue<string>({
+    value: () => merged.searchValue,
+    defaultValue: () => merged.defaultSearchValue ?? '',
   })
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const isActive = createSelector(activeKey)
@@ -245,8 +246,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function applySearchValue(value: string): void {
-    setSearchTerm(value)
-    merged.onSearchTermChange?.(value)
+    setSearchValue(value)
+    merged.onSearchValueChange?.(value)
   }
 
   createEffect(
@@ -269,11 +270,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
-    const term = currentSearchTerm().trim()
+    const term = currentSearchValue().trim()
     if (merged.filterItems) {
       const filtered = merged.filterItems({
         groups: groups(),
-        searchTerm: currentSearchTerm(),
+        searchValue: currentSearchValue(),
       })
       return createNormalizedGroups<TItem>(
         filtered,
@@ -432,8 +433,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   function getContext() {
     return {
-      get searchTerm() {
-        return currentSearchTerm()
+      get searchValue() {
+        return currentSearchValue()
       },
       get loading() {
         return Boolean(merged.loading)
@@ -538,8 +539,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }): JSX.Element {
     const context = getContext()
     const itemContext: CommandPaletteT.ItemRenderProps<TItem> = {
-      get searchTerm() {
-        return context.searchTerm
+      get searchValue() {
+        return context.searchValue
       },
       get loading() {
         return context.loading
@@ -716,7 +717,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     <div data-slot="command-palette" {...rootSlot} {...rest} ref={(el) => callRef(local.ref, el)}>
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
         <Icon
-          name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
+          name={merged.loading ? merged.loadingIcon : merged.leading}
           data-slot="command-palette-input-leading"
           aria-busy={merged.loading || undefined}
           {...inputLeadingSlot}
@@ -743,7 +744,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           aria-activedescendant={activeDescendantId()}
           placeholder={merged.placeholder}
           maxLength={merged.searchMaxLength}
-          value={compositionQuery() ?? currentSearchTerm()}
+          value={compositionQuery() ?? currentSearchValue()}
           onInput={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput)
             if (defaultPrevented) {

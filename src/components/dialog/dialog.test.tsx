@@ -552,7 +552,7 @@ describe('Dialog', () => {
 
   test('keeps a CommandPalette input value until the Dialog exits', async () => {
     const [open, setOpen] = createSignal(false)
-    const [searchTerm, setSearchTerm] = createSignal('')
+    const [searchValue, setSearchValue] = createSignal('')
     const onExitComplete = vi.fn()
 
     const screen = render(() => (
@@ -560,7 +560,7 @@ describe('Dialog', () => {
         open={open()}
         onOpenChange={setOpen}
         onExitComplete={() => {
-          setSearchTerm('')
+          setSearchValue('')
           onExitComplete()
         }}
         closable={false}
@@ -572,8 +572,8 @@ describe('Dialog', () => {
           <Dialog.Body>
             <CommandPalette
               groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
-              searchTerm={searchTerm()}
-              onSearchTermChange={setSearchTerm}
+              searchValue={searchValue()}
+              onSearchValueChange={setSearchValue}
             />
           </Dialog.Body>
         </Dialog.Content>

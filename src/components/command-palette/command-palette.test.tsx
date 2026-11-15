@@ -229,14 +229,14 @@ describe('CommandPalette', () => {
   })
 
   test('filters as the user types, reports the term, and shows the empty state without matches', () => {
-    const onSearchTermChange = vi.fn()
+    const onSearchValueChange = vi.fn()
     render(() => (
-      <CommandPalette groups={GROUPS} autofocus={false} onSearchTermChange={onSearchTermChange} />
+      <CommandPalette groups={GROUPS} autofocus={false} onSearchValueChange={onSearchValueChange} />
     ))
     const input = body().getByRole('combobox')
 
     fireEvent.input(input, { target: { value: 'settings' } })
-    expect(onSearchTermChange).toHaveBeenLastCalledWith('settings')
+    expect(onSearchValueChange).toHaveBeenLastCalledWith('settings')
     expect(
       body()
         .getAllByRole('option')
@@ -249,9 +249,9 @@ describe('CommandPalette', () => {
     expect(body().getByText('No results.')).toBeTruthy()
   })
 
-  test('keeps a controlled searchTerm until the parent updates it', () => {
+  test('keeps a controlled searchValue until the parent updates it', () => {
     const [term, setTerm] = createSignal('settings')
-    render(() => <CommandPalette groups={GROUPS} autofocus={false} searchTerm={term()} />)
+    render(() => <CommandPalette groups={GROUPS} autofocus={false} searchValue={term()} />)
     const input = body().getByRole('combobox') as HTMLInputElement
 
     expect(input.value).toBe('settings')
@@ -501,17 +501,17 @@ describe('CommandPalette', () => {
   })
 
   test('does not filter on partial IME composition', () => {
-    const onSearchTermChange = vi.fn()
+    const onSearchValueChange = vi.fn()
     const screen = render(() => (
-      <CommandPalette groups={GROUPS} onSearchTermChange={onSearchTermChange} />
+      <CommandPalette groups={GROUPS} onSearchValueChange={onSearchValueChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
     fireEvent.input(input, { target: { value: 'zzzz' } })
-    expect(onSearchTermChange).not.toHaveBeenCalled()
+    expect(onSearchValueChange).not.toHaveBeenCalled()
     expect(body().getByRole('option', { name: /New File/ })).not.toBeNull()
     fireEvent.compositionEnd(input)
-    expect(onSearchTermChange).toHaveBeenCalledWith('zzzz')
+    expect(onSearchValueChange).toHaveBeenCalledWith('zzzz')
     expect(body().queryByRole('option', { name: /New File/ })).toBeNull()
   })
 
@@ -536,7 +536,7 @@ describe('CommandPalette', () => {
       <CommandPalette
         autofocus={false}
         closable
-        leadingIcon="icon-hash"
+        leading="icon-hash"
         loadingIcon="icon-reload"
         closeIcon="icon-minus"
         loading={loading()}
@@ -713,8 +713,8 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         groups={[]}
-        searchTerm="missing"
-        emptyRender={(ctx) => <span>Empty {ctx.searchTerm}</span>}
+        searchValue="missing"
+        emptyRender={(ctx) => <span>Empty {ctx.searchValue}</span>}
         footerRender={(ctx) => <span>Groups {ctx.groups.length}</span>}
       />
     ))
@@ -741,7 +741,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        searchTerm="Settings"
+        searchValue="Settings"
         footerRender={(ctx) => (
           <span>Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}</span>
         )}
@@ -757,10 +757,10 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        searchTerm="missing"
+        searchValue="missing"
         emptyRender={(ctx) => (
           <span>
-            Empty {ctx.searchTerm}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+            Empty {ctx.searchValue}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
           </span>
         )}
       />
@@ -792,7 +792,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        searchTerm="Settings"
+        searchValue="Settings"
         itemRender={(ctx) => (
           <span data-testid="visible-groups">
             {ctx.item.value}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
@@ -875,7 +875,7 @@ describe('CommandPalette', () => {
   test('passes runtime state to leadingRender and trailingRender', async () => {
     render(() => (
       <CommandPalette
-        searchTerm="run"
+        searchValue="run"
         groups={[
           {
             id: 'g',
@@ -891,7 +891,7 @@ describe('CommandPalette', () => {
                 ),
                 trailingRender: (ctx) => (
                   <span data-testid="trailing-state">
-                    {ctx.searchTerm}:{ctx.highlighted ? 'highlighted' : 'idle'}
+                    {ctx.searchValue}:{ctx.highlighted ? 'highlighted' : 'idle'}
                   </span>
                 ),
               },
@@ -999,7 +999,7 @@ describe('CommandPalette', () => {
   test('matches item keywords in built-in search', async () => {
     render(() => (
       <CommandPalette
-        searchTerm="alias"
+        searchValue="alias"
         groups={[
           {
             id: 'g',
@@ -1021,7 +1021,7 @@ describe('CommandPalette', () => {
   test('matches item descriptions in built-in search', async () => {
     render(() => (
       <CommandPalette
-        searchTerm="description"
+        searchValue="description"
         groups={[
           {
             id: 'g',
@@ -1043,7 +1043,7 @@ describe('CommandPalette', () => {
   test('supports getItemSearchText override', async () => {
     render(() => (
       <CommandPalette
-        searchTerm="custom-hit"
+        searchValue="custom-hit"
         getItemSearchText={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
         groups={[
           {
@@ -1066,7 +1066,7 @@ describe('CommandPalette', () => {
   test('supports filterItems override and keeps visibleGroups in sync', async () => {
     render(() => (
       <CommandPalette
-        searchTerm="ignored"
+        searchValue="ignored"
         groups={GROUPS}
         filterItems={({ groups }) => groups.filter((group) => group.id === 'navigation')}
         footerRender={(ctx) => <span>Visible {ctx.visibleGroups.length}</span>}
@@ -1108,7 +1108,7 @@ describe('CommandPalette', () => {
 
   test('skips built-in filtering when custom filterItems returns all groups', async () => {
     render(() => (
-      <CommandPalette groups={GROUPS} searchTerm="missing" filterItems={({ groups }) => groups} />
+      <CommandPalette groups={GROUPS} searchValue="missing" filterItems={({ groups }) => groups} />
     ))
 
     await waitFor(() => {

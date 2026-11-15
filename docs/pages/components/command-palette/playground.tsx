@@ -1,4 +1,5 @@
 import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
+import type { CommandPaletteT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
@@ -48,7 +49,7 @@ const GROUPS = [
       },
     ],
   },
-]
+] satisfies CommandPaletteT.Group[]
 
 export default function CommandPalettePlayground() {
   return (

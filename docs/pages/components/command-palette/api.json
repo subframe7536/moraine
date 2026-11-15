@@ -73,6 +73,16 @@
           }
         },
         {
+          "name": "defaultSearchValue",
+          "optional": true,
+          "type": "string",
+          "description": "Initial search value.",
+          "default": {
+            "kind": "literal",
+            "value": ""
+          }
+        },
+        {
           "name": "descriptionPosition",
           "optional": true,
           "type": "'bottom' | 'trailing'",
@@ -91,7 +101,7 @@
         {
           "name": "filterItems",
           "optional": true,
-          "type": "(args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]",
+          "type": "(args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]",
           "description": "Custom filter function that fully controls which groups and items are visible."
         },
         {
@@ -142,7 +152,7 @@
           "description": "Renderer for each command row."
         },
         {
-          "name": "leadingIcon",
+          "name": "leading",
           "optional": true,
           "type": "IconT.Name",
           "description": "Icon name of input's leading icon.",
@@ -184,10 +194,10 @@
           "description": "Callback triggered when the close button is clicked or selection requests closing."
         },
         {
-          "name": "onSearchTermChange",
+          "name": "onSearchValueChange",
           "optional": true,
-          "type": "(term: string) => void",
-          "description": "Callback triggered when the search term changes."
+          "type": "(value: string) => void",
+          "description": "Callback triggered when the search value changes."
         },
         {
           "name": "onSelect",
@@ -214,10 +224,10 @@
           "description": "Maximum allowed length for the search text."
         },
         {
-          "name": "searchTerm",
+          "name": "searchValue",
           "optional": true,
           "type": "string",
-          "description": "Controlled search term."
+          "description": "Controlled search value."
         },
         {
           "name": "style",

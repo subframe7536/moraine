@@ -167,7 +167,7 @@ export function DocsSearchTrigger(
 }
 
 export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element {
-  const [searchTerm, setSearchTerm] = createSignal('')
+  const [searchValue, setSearchValue] = createSignal('')
   const navigate = useNavigate()
 
   const onSelect = (item: DocsCommandItem) => {
@@ -179,7 +179,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
     props.setOpen(false)
   }
 
-  const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchTerm().trim())))
+  const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchValue().trim())))
 
   onMount(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -211,7 +211,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       onOpenChange={(next) => {
         props.setOpen(next)
       }}
-      onExitComplete={() => setSearchTerm('')}
+      onExitComplete={() => setSearchValue('')}
       closable={false}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
@@ -221,8 +221,8 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
             class="border-0 rounded-none bg-transparent shadow-none"
             groups={items()}
             placeholder="Search components, hooks, and pages..."
-            searchTerm={searchTerm()}
-            onSearchTermChange={setSearchTerm}
+            searchValue={searchValue()}
+            onSearchValueChange={setSearchValue}
             onSelect={onSelect}
             itemRender={(context) =>
               createDocsCommandItem(
@@ -241,7 +241,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                 <Icon name="i-lucide:search-x" class="text-2xl text-muted-foreground/60" />
                 <span class="text-sm text-muted-foreground">
                   No pages found for{' '}
-                  <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>
+                  <span class="text-foreground font-medium">“{ctx.searchValue}”</span>
                 </span>
               </div>
             )}

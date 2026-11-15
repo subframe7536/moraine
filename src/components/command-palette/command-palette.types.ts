@@ -13,7 +13,7 @@ import type {
 } from './command-palette.style-types'
 
 interface CommandPaletteBaseRenderProps<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
-  searchTerm: string
+  searchValue: string
   loading: boolean
   hasItems: boolean
   groups: CommandPaletteT.Group<TItem>[]
@@ -122,10 +122,15 @@ export namespace CommandPaletteT {
      * Localized via MoraineProvider messages. English default is `Search...`.
      */
     placeholder?: string
-    /** Controlled search term. */
-    searchTerm?: string
-    /** Callback triggered when the search term changes. */
-    onSearchTermChange?: (term: string) => void
+    /** Controlled search value. */
+    searchValue?: string
+    /**
+     * Initial search value.
+     * @default ''
+     */
+    defaultSearchValue?: string
+    /** Callback triggered when the search value changes. */
+    onSearchValueChange?: (value: string) => void
     /** Callback triggered when an enabled item is selected. */
     onSelect?: (item: TItem) => void
     /** Maximum allowed length for the search text. */
@@ -139,7 +144,7 @@ export namespace CommandPaletteT {
      * Icon name of input's leading icon.
      * @default 'icon-search'
      */
-    leadingIcon?: IconT.Name
+    leading?: IconT.Name
     /**
      * Icon name of input's leading icon for the loading state.
      * @default 'icon-loading'
@@ -170,7 +175,7 @@ export namespace CommandPaletteT {
     /** Custom search text builder for built-in filtering. */
     getItemSearchText?: (item: TItem, group: Group<TItem>) => string
     /** Custom filter function that fully controls which groups and items are visible. */
-    filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
+    filterItems?: (args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]
     /** Content or render function for the empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Content or render function for the footer. */
