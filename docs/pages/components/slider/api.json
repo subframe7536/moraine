@@ -84,16 +84,6 @@
           "description": "Optional inner input element ref."
         },
         {
-          "name": "inverted",
-          "optional": true,
-          "type": "boolean",
-          "description": "Reverses value movement along the track.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "marker",
           "optional": true,
           "type": "boolean | number",
@@ -182,6 +172,16 @@
           }
         },
         {
+          "name": "reversed",
+          "optional": true,
+          "type": "boolean",
+          "description": "Reverses value movement along the track.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -248,10 +248,10 @@
         "data-disabled",
         "data-dragging",
         "data-invalid",
-        "data-inverted",
         "data-multiple",
         "data-readonly",
         "data-required",
+        "data-reversed",
         "data-swipe-ignore"
       ]
     },
@@ -259,8 +259,8 @@
       "target": "range",
       "attributes": [
         "data-empty",
-        "data-inverted",
-        "data-multiple"
+        "data-multiple",
+        "data-reversed"
       ]
     },
     {
@@ -276,9 +276,9 @@
         "data-dragging",
         "data-focus-visible",
         "data-invalid",
-        "data-inverted",
         "data-readonly",
-        "data-required"
+        "data-required",
+        "data-reversed"
       ]
     }
   ]

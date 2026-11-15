@@ -60,7 +60,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // The track gets a transparent border as wide as the minimum fill on the fill's start side.
   // Slider positions the range and markers in the track's padding box and maps the pointer onto
   // it, so values spread over the rest of the track while the range reaches back over the border.
-  const insetSide = () => (props.inverted ? 'end' : 'start')
+  const insetSide = () => (props.reversed ? 'end' : 'start')
   const {
     slots: { content: contentSlot },
     variants,

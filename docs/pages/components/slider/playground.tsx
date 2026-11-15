@@ -22,7 +22,7 @@ export default function SliderPlayground() {
         { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
         { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-        { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+        { kind: 'switch', prop: 'reversed', label: 'Inverted', defaultValue: false },
       ]}
     >
       {(props) => {
@@ -53,7 +53,7 @@ export default function SliderPlayground() {
               step={props.step ? 10 : undefined}
               marker={props.marker ? 10 : false}
               disabled={props.disabled}
-              inverted={props.inverted}
+              reversed={props.reversed}
             />
           </div>
         )

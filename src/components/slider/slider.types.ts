@@ -36,7 +36,7 @@ export namespace SliderT {
     percentages: number[]
     /** Whether a pointer drag is in progress. */
     dragging: boolean
-    /** Physical edge where the filled range starts, after `orientation`, `inverted`, and direction. */
+    /** Physical edge where the filled range starts, after `orientation`, `reversed`, and direction. */
     startEdge: 'left' | 'right' | 'top' | 'bottom'
   }
 
@@ -62,7 +62,7 @@ export namespace SliderT {
      * Reverses value movement along the track.
      * @default false
      */
-    inverted?: boolean
+    reversed?: boolean
 
     /**
      * Minimum value of the slider.

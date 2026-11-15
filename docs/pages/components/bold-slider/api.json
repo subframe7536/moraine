@@ -68,16 +68,6 @@
           "description": "Optional inner input element ref."
         },
         {
-          "name": "inverted",
-          "optional": true,
-          "type": "boolean",
-          "description": "Reverses value movement along the track.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "label",
           "optional": true,
           "type": "string",
@@ -146,6 +136,16 @@
           "optional": true,
           "type": "boolean",
           "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "reversed",
+          "optional": true,
+          "type": "boolean",
+          "description": "Reverses value movement along the track.",
           "default": {
             "kind": "literal",
             "value": false

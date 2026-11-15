@@ -153,16 +153,16 @@ export function normalizeSliderValues(
 
 export function resolveSliderEdges(
   orientation: Orientation,
-  inverted: boolean,
+  reversed: boolean,
   isRtl: boolean,
 ): { startEdge: SliderEdge; endEdge: SliderEdge } {
   if (orientation === 'vertical') {
-    return inverted
+    return reversed
       ? { startEdge: 'top', endEdge: 'bottom' }
       : { startEdge: 'bottom', endEdge: 'top' }
   }
 
-  return isRtl === inverted
+  return isRtl === reversed
     ? { startEdge: 'left', endEdge: 'right' }
     : { startEdge: 'right', endEdge: 'left' }
 }

@@ -130,7 +130,7 @@ describe('Slider', () => {
         required
         disabled
         readOnly
-        inverted
+        reversed
       />
     ))
 
@@ -207,16 +207,16 @@ describe('Slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(44)
 
-    const invertedChange = vi.fn()
-    const invertedScreen = render(() => (
-      <Slider orientation="vertical" inverted defaultValue={45} onValueChange={invertedChange} />
+    const reversedChange = vi.fn()
+    const reversedScreen = render(() => (
+      <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
-    const invertedThumb = getThumbs(invertedScreen.container)[0]
+    const reversedThumb = getThumbs(reversedScreen.container)[0]
 
-    fireEvent.focus(invertedThumb as HTMLElement)
-    fireEvent.keyDown(invertedThumb as HTMLElement, { key: 'ArrowDown' })
+    fireEvent.focus(reversedThumb as HTMLElement)
+    fireEvent.keyDown(reversedThumb as HTMLElement, { key: 'ArrowDown' })
 
-    expect(invertedChange).toHaveBeenLastCalledWith(46)
+    expect(reversedChange).toHaveBeenLastCalledWith(46)
   })
 
   test('vertical max thumb stays centered on the top edge', () => {
@@ -286,23 +286,23 @@ describe('Slider', () => {
 
     expect(verticalChange).toHaveBeenLastCalledWith(100)
 
-    const invertedChange = vi.fn()
-    const invertedScreen = render(() => (
-      <Slider orientation="vertical" inverted defaultValue={45} onValueChange={invertedChange} />
+    const reversedChange = vi.fn()
+    const reversedScreen = render(() => (
+      <Slider orientation="vertical" reversed defaultValue={45} onValueChange={reversedChange} />
     ))
-    const invertedTrack = invertedScreen.container.querySelector(
+    const reversedTrack = reversedScreen.container.querySelector(
       '[data-slot="slider-track"]',
     ) as HTMLElement
-    mockPointerCapture(invertedTrack)
-    mockTrackRect(invertedTrack)
+    mockPointerCapture(reversedTrack)
+    mockTrackRect(reversedTrack)
 
-    fireEvent.pointerDown(invertedTrack, {
+    fireEvent.pointerDown(reversedTrack, {
       button: 0,
       clientY: 0,
       pointerId: 1,
     })
 
-    expect(invertedChange).toHaveBeenLastCalledWith(0)
+    expect(reversedChange).toHaveBeenLastCalledWith(0)
   })
 
   test('horizontal arrow keys follow RTL direction', async () => {
@@ -993,7 +993,7 @@ describe('Slider', () => {
         minStepsBetweenThumbs: 0,
         allowThumbCrossing: true,
         orientation: 'horizontal',
-        inverted: false,
+        reversed: false,
       })
       return <div>{sliderResult.markerIndexes().join(',')}</div>
     })
@@ -1458,7 +1458,7 @@ describe('Slider', () => {
 
   test.each([
     ['equal bounds', 10, 10],
-    ['inverted bounds', 10, 0],
+    ['reversed bounds', 10, 0],
     ['non-finite minimum', Number.NaN, 10],
     ['non-finite maximum', 0, Number.POSITIVE_INFINITY],
   ])('rejects %s', (_name, min, max) => {

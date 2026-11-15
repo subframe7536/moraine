@@ -35,7 +35,7 @@ const POINTER_FOCUS_OPTIONS: FocusOptions = { focusVisible: false }
 export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
-  inverted?: boolean
+  reversed?: boolean
   marker?: boolean | number
   max?: number
   min?: number
@@ -102,7 +102,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
-      inverted: false,
+      reversed: false,
     },
     rawProps,
   )
@@ -205,7 +205,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   )
 
   const getSliderEdges = createMemo(() =>
-    resolveSliderEdges(merged.orientation, merged.inverted, direction() === 'rtl'),
+    resolveSliderEdges(merged.orientation, merged.reversed, direction() === 'rtl'),
   )
   const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
   const interactionValues = () => pendingValues ?? currentValues()
@@ -385,7 +385,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
     let output: [number, number] =
       orientation === 'vertical'
-        ? merged.inverted
+        ? merged.reversed
           ? [merged.min, merged.max]
           : [merged.max, merged.min]
         : getSliderEdges().startEdge === 'left'
@@ -646,7 +646,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function upDownStep(up: boolean): number {
-    return merged.orientation === 'vertical' ? (up === merged.inverted ? -1 : 1) : rtlStep(up)
+    return merged.orientation === 'vertical' ? (up === merged.reversed ? -1 : 1) : rtlStep(up)
   }
 
   function moveThumbByStep(index: number, movementDirection: number, largeStep: boolean): void {

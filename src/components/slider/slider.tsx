@@ -48,7 +48,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'onValueChange',
     'onValueCommit',
     'orientation',
-    'inverted',
+    'reversed',
     'size',
     'classes',
     'styles',
@@ -73,7 +73,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         invalid: field.invalid,
         readonly: field.readOnly,
         required: field.required,
-        inverted: () => merged.inverted,
+        reversed: () => merged.reversed,
         multiple: isMultiple,
         // The slider owns drags on its own axis, so a swipe-to-dismiss drawer
         // arbitrates touches that start on it like a native scroller.
@@ -89,7 +89,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           return slider.getValuePercent(val) === 0
         },
         multiple: isMultiple,
-        inverted: () => merged.inverted,
+        reversed: () => merged.reversed,
       })),
     },
     context: () => ({ variants: { size: themeField?.size } }),
@@ -101,7 +101,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       max: 100,
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
-      inverted: false,
+      reversed: false,
     },
     local,
     {
@@ -246,7 +246,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               },
             }),
             data: sliderDataAttributes.thumb({
-              inverted: () => merged.inverted,
+              reversed: () => merged.reversed,
               dragging: () => slider.dragging() && slider.activeThumbIndexState() === thumbIndex,
               focusVisible: () => slider.focusVisibleThumbIndex() === thumbIndex,
               disabled: field.disabled,
