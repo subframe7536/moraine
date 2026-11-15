@@ -16,8 +16,8 @@
       "generics": [
         {
           "name": "M",
-          "constraint": "ModelModifiers | unknown",
-          "default": "ModelModifiers | unknown"
+          "constraint": "InputModifiers | unknown",
+          "default": "InputModifiers | unknown"
         }
       ],
       "defaultElement": "input",
@@ -93,7 +93,7 @@
           "description": "The maximum number of characters allowed in the input."
         },
         {
-          "name": "modelModifiers",
+          "name": "modifiers",
           "optional": true,
           "type": "M",
           "description": "Modifiers for the input value (e.g., trim, lazy, number)."

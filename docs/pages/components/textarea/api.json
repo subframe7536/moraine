@@ -16,8 +16,8 @@
       "generics": [
         {
           "name": "M",
-          "constraint": "ModelModifiers | unknown",
-          "default": "ModelModifiers | unknown"
+          "constraint": "InputModifiers | unknown",
+          "default": "InputModifiers | unknown"
         }
       ],
       "defaultElement": "textarea",
@@ -113,7 +113,7 @@
           }
         },
         {
-          "name": "modelModifiers",
+          "name": "modifiers",
           "optional": true,
           "type": "M",
           "description": "Modifiers for input processing (e.g., lazy, trim, number)."
