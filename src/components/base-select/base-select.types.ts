@@ -44,7 +44,7 @@ export interface BaseSelectDisclosureProps {
  */
 export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
   /** Machine-readable text for matching; does not change visual labels. */
-  itemToLabelString?: (item: TItem) => string
+  getItemLabel?: (item: TItem) => string
 
   /** Additional disabled policy evaluated against the current selection. */
   isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean

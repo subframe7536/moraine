@@ -67,7 +67,7 @@ export type SelectFamilyPropAliases = [
     const numbers: number[] = value
     void numbers
   }}
-  itemToLabelString={(item) => item.email}
+  getItemLabel={(item) => item.email}
 />
 ;<BaseSelect<UserItem>
   items={items}
@@ -134,7 +134,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<Combobox
   items={items}
   itemRender={(state) => state.item.label}
-  filterItem={(_, item) => item.value === 1}
+  filterMethod={(_, item) => item.value === 1}
 />
 ;<MultiSelect items={items} />
 ;<Select items={items} ref={divRef} />
@@ -165,8 +165,8 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   value={1}
   itemRender={({ item }) => item.email}
   itemProps={({ item }) => ({ title: item.email })}
-  filterItem={(query, item) => item.email.includes(query)}
-  itemToLabelString={(item) => item.email}
+  filterMethod={(query, item) => item.email.includes(query)}
+  getItemLabel={(item) => item.email}
   virtualizer={{
     scrollToIndex: (index) => {
       const number: number = index
@@ -194,8 +194,8 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   tokenSeparators={[',', '::']}
   createItem={(input) => ({ value: input.length, label: input, email: input })}
   itemRender={({ item }) => item.email}
-  filterItem={(query, item) => item.email.includes(query)}
-  itemToLabelString={(item) => item.email}
+  filterMethod={(query, item) => item.email.includes(query)}
+  getItemLabel={(item) => item.email}
   virtualizer={{
     scrollToIndex: (index) => {
       const number: number = index
@@ -261,7 +261,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 />
 ;<Combobox
   items={stringItems}
-  filterItem={(query, item) => item.value.includes(query)}
+  filterMethod={(query, item) => item.value.includes(query)}
   onValueChange={(value) => {
     const text: string | null = value
     void text

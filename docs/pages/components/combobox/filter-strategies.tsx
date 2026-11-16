@@ -36,7 +36,7 @@ export function FilterStrategies() {
 
       <Combobox
         items={CITIES}
-        filterItem={strategy()}
+        filterMethod={strategy()}
         placeholder={`Search cities (${strategy()})...`}
         leading="i-lucide:search"
         openOnControlClick

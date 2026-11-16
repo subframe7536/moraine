@@ -22,10 +22,7 @@ const FRAMEWORKS = GROUPS.flatMap((group) => group.items)
 
 export default function Example() {
   return (
-    <BaseSelect
-      items={FRAMEWORKS}
-      itemToLabelString={(item) => `${item.value} ${item.description}`}
-    >
+    <BaseSelect items={FRAMEWORKS} getItemLabel={(item) => `${item.value} ${item.description}`}>
       <BaseSelect.Control>
         <BaseSelect.Trigger
           as={Button}

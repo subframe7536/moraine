@@ -546,7 +546,7 @@ describe('BaseSelect composition', () => {
   test('typeahead uses the raw label resolver', () => {
     const change = vi.fn()
     const screen = render(() => (
-      <BaseSelect items={items} itemToLabelString={(item) => item.extra} onValueChange={change}>
+      <BaseSelect items={items} getItemLabel={(item) => item.extra} onValueChange={change}>
         <Parts />
       </BaseSelect>
     ))

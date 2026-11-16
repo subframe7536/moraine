@@ -191,7 +191,7 @@ describe('Combobox', () => {
         items={ITEMS}
         searchValue={query()}
         onSearchValueChange={setQuery}
-        filterItem={false}
+        filterMethod={false}
         defaultOpen
       />
     ))
@@ -559,7 +559,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
 })
 
 test('filters normalized string items and commits a keyboard selection', () => {
-  const filterItem = vi.fn((query: string, item: { value: string; label: string }) =>
+  const filterMethod = vi.fn((query: string, item: { value: string; label: string }) =>
     item.label.toLowerCase().includes(query.toLowerCase()),
   )
   const onChange = vi.fn()
@@ -567,14 +567,14 @@ test('filters normalized string items and commits a keyboard selection', () => {
     <Combobox
       items={['Apple', 'Banana']}
       defaultOpen
-      filterItem={filterItem}
+      filterMethod={filterMethod}
       onValueChange={onChange}
     />
   ))
   const input = screen.getByRole('combobox')
   fireEvent.input(input, { target: { value: 'ban' } })
   expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
-  expect(filterItem).toHaveBeenCalledWith('ban', { value: 'Banana', label: 'Banana' })
+  expect(filterMethod).toHaveBeenCalledWith('ban', { value: 'Banana', label: 'Banana' })
   fireEvent.keyDown(input, { key: 'ArrowDown' })
   fireEvent.keyDown(input, { key: 'Enter' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')

@@ -76,7 +76,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     local,
     () => true,
     () => source(),
-    () => baseSelectProps.itemToLabelString,
+    () => baseSelectProps.getItemLabel,
   )
   const selection = createMemo(() => singleValueToSelection(local.value))
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
@@ -87,7 +87,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     const selectedLabel = () => {
       const item = selectedItem()
       return item
-        ? labelString(item, baseSelectProps.itemToLabelString)
+        ? labelString(item, baseSelectProps.getItemLabel)
         : state.value().length
           ? String(state.value()[0])
           : ''

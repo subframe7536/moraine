@@ -42,7 +42,7 @@ export function AsyncSearch() {
         searchValue={query()}
         onSearchValueChange={handleSearch}
         loading={loading()}
-        filterItem={false}
+        filterMethod={false}
         placeholder="Type to search repositories..."
         leading="i-lucide:search"
         openOnControlClick

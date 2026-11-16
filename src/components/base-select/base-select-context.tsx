@@ -231,7 +231,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
       items().findIndex((item) =>
         open() ? sameValue(item.value, highlightedValue()) : value().includes(item.value),
       ),
-    getText: (item) => labelString(item, props.itemToLabelString),
+    getText: (item) => labelString(item, props.getItemLabel),
     isDisabled: (item) => itemDisabled(item),
     onMatch: (item) => (open() ? setHighlightedValue(item.value) : select(item)),
   })
@@ -510,7 +510,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
               const serializedValue = props.serializeValue
                 ? props.serializeValue(item.value)
                 : String(item.value)
-              const label = labelString(item, props.itemToLabelString)
+              const label = labelString(item, props.getItemLabel)
               return (
                 (serializedValue !== undefined &&
                   serializedValue.toLowerCase() === nextValueLower) ||

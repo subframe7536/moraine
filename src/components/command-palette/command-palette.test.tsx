@@ -426,7 +426,7 @@ describe('CommandPalette', () => {
     const screen = render(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
-        filterItems={({ groups }) => groups}
+        filterGroups={({ groups }) => groups}
         onSelect={onSelect}
         onClose={onClose}
         inputProps={{ onCompositionStart, onCompositionEnd }}
@@ -1063,12 +1063,12 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('supports filterItems override and keeps visibleGroups in sync', async () => {
+  test('supports filterGroups override and keeps visibleGroups in sync', async () => {
     render(() => (
       <CommandPalette
         searchValue="ignored"
         groups={GROUPS}
-        filterItems={({ groups }) => groups.filter((group) => group.id === 'navigation')}
+        filterGroups={({ groups }) => groups.filter((group) => group.id === 'navigation')}
         footerRender={(ctx) => <span>Visible {ctx.visibleGroups.length}</span>}
       />
     ))
@@ -1080,11 +1080,11 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('renders the items returned by filterItems in the order it returns them', async () => {
+  test('renders the items returned by filterGroups in the order it returns them', async () => {
     render(() => (
       <CommandPalette
         groups={GROUPS}
-        filterItems={() => [
+        filterGroups={() => [
           {
             id: 'ranked',
             label: 'Ranked',
@@ -1106,9 +1106,9 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('skips built-in filtering when custom filterItems returns all groups', async () => {
+  test('skips built-in filtering when custom filterGroups returns all groups', async () => {
     render(() => (
-      <CommandPalette groups={GROUPS} searchValue="missing" filterItems={({ groups }) => groups} />
+      <CommandPalette groups={GROUPS} searchValue="missing" filterGroups={({ groups }) => groups} />
     ))
 
     await waitFor(() => {

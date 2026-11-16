@@ -62,7 +62,7 @@ export default function Example() {
     <BaseSelect
       items={items()}
       getItemByValue={(value) => FRAMEWORKS.find((item) => item.value === value)}
-      itemToLabelString={(item) => `${item.label} ${item.description}`}
+      getItemLabel={(item) => `${item.label} ${item.description}`}
       onExitComplete={() => setSearchValue('')}
     >
       <SearchControl searchValue={searchValue} setSearchValue={setSearchValue} />

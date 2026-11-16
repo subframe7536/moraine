@@ -135,7 +135,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'closeOnSelect',
     'loading',
     'getItemSearchText',
-    'filterItems',
+    'filterGroups',
     'descriptionPosition',
     'emptyRender',
     'footerRender',
@@ -271,8 +271,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   )
   const visibleGroups = createMemo(() => {
     const term = currentSearchValue().trim()
-    if (merged.filterItems) {
-      const filtered = merged.filterItems({
+    if (merged.filterGroups) {
+      const filtered = merged.filterGroups({
         groups: groups(),
         searchValue: currentSearchValue(),
       })

@@ -175,7 +175,7 @@ export namespace CommandPaletteT {
     /** Custom search text builder for built-in filtering. */
     getItemSearchText?: (item: TItem, group: Group<TItem>) => string
     /** Custom filter function that fully controls which groups and items are visible. */
-    filterItems?: (args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]
+    filterGroups?: (args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]
     /** Content or render function for the empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Content or render function for the footer. */

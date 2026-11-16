@@ -87,7 +87,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     local,
     editable,
     () => source(),
-    () => baseSelectProps.itemToLabelString,
+    () => baseSelectProps.getItemLabel,
   )
 
   function Control(): JSX.Element {
@@ -101,7 +101,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       }
       const collator = createSearchCollator(locale())
       return source().items.find((candidate) => {
-        const label = labelString(candidate, baseSelectProps.itemToLabelString)
+        const label = labelString(candidate, baseSelectProps.getItemLabel)
         return (
           collatorEquals(collator, label, normalized) ||
           collatorEquals(collator, String(candidate.value), normalized)
@@ -187,8 +187,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           item,
           label,
           title:
-            item && baseSelectProps.itemToLabelString
-              ? baseSelectProps.itemToLabelString(item)
+            item && baseSelectProps.getItemLabel
+              ? baseSelectProps.getItemLabel(item)
               : typeof label === 'string'
                 ? label
                 : String(value),

@@ -5,7 +5,7 @@ import type { BaseSelectT } from '../../../base-select/base-select.types'
 
 type SharedBaseSelectForwardProp = keyof Pick<
   BaseSelectT.Base,
-  | 'itemToLabelString'
+  | 'getItemLabel'
   | 'id'
   | 'name'
   | 'required'
@@ -21,7 +21,7 @@ type SharedBaseSelectForwardProp = keyof Pick<
 
 /** BaseSelect ownership shared by the Select-family visual wrappers. */
 export const BASE_SELECT_FORWARD_PROP_KEYS = [
-  'itemToLabelString',
+  'getItemLabel',
   'id',
   'name',
   'required',
@@ -81,7 +81,7 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
   'onSearchValueChange',
   'searchMaxLength',
   'autocomplete',
-  'filterItem',
+  'filterMethod',
   'openOnControlClick',
   'inputRef',
 ] as const

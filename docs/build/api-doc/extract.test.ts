@@ -174,7 +174,7 @@ describe('generateApiDoc', () => {
             'searchValue',
             'defaultSearchValue',
             'onSearchValueChange',
-            'filterItem',
+            'filterMethod',
             'searchMaxLength',
           ]),
         )

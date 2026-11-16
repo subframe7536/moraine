@@ -181,14 +181,14 @@ list immediately.
 
 ### Match by contains or prefix
 
-Set `filterItem="contains"` (default) or `filterItem="startsWith"` when the query should match
+Set `filterMethod="contains"` (default) or `filterMethod="startsWith"` when the query should match
 anywhere in the label or only at the start.
 
 <Preview path="./filter-strategies" />
 
 ### Search remote repositories
 
-Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set `filterItem={false}`
+Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set `filterMethod={false}`
 when the server already returns the matched items.
 
 <Preview path="./async-search" />

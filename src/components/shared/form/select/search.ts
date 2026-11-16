@@ -37,19 +37,19 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
   })
   const view = createMemo(() => {
     const query = search.value()
-    if (!enabled() || props.filterItem === false || !query) {
+    if (!enabled() || props.filterMethod === false || !query) {
       return source()
     }
     const collator = createSearchCollator(locale())
     return filterView(source(), (item) => {
-      if (typeof props.filterItem === 'function') {
-        return props.filterItem(query, item)
+      if (typeof props.filterMethod === 'function') {
+        return props.filterMethod(query, item)
       }
       const text = labelString(item, resolve())
-      if (props.filterItem === 'startsWith') {
+      if (props.filterMethod === 'startsWith') {
         return collatorStartsWith(collator, text, query)
       }
-      if (props.filterItem === 'endsWith') {
+      if (props.filterMethod === 'endsWith') {
         return collatorEndsWith(collator, text, query)
       }
       return collatorIncludes(collator, text, query)

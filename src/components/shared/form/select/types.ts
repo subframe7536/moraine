@@ -64,14 +64,14 @@ export interface SearchProps<T extends BaseSelectT.Item> {
    */
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   /**
-   * Filtering strategy or predicate receiving the raw item.
-   * @default true
+   * Filtering strategy or predicate receiving the raw item. `false` disables filtering.
+   * @default 'contains'
    */
-  filterItem?:
-    | boolean
+  filterMethod?:
+    | false
+    | 'contains'
     | 'startsWith'
     | 'endsWith'
-    | 'contains'
     | ((query: string, item: T) => boolean)
 }
 export interface ContentProps<T extends BaseSelectT.Item> {
