@@ -176,7 +176,7 @@ export namespace PinInputT {
     /**
      * Ref collection for the individual input elements.
      */
-    inputsRef?: Ref<HTMLInputElement[]>
+    inputRefs?: Ref<HTMLInputElement[]>
   }
 
   /**

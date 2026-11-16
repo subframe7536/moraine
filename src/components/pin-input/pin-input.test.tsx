@@ -18,7 +18,7 @@ describe('PinInput', () => {
     render(() => (
       <PinInput
         ref={(el) => (rootEl = el)}
-        inputsRef={(els) => (inputs = els)}
+        inputRefs={(els) => (inputs = els)}
         length={4}
         placeholder="○"
       />
