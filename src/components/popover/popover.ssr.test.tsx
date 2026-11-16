@@ -13,7 +13,7 @@ describe('Popover SSR Hydration', () => {
         '/src/components/popover/popover.ssr.fixture.tsx',
         'renderPopoverFixture',
         () => (
-          <Popover mode="hover" openDelay={50}>
+          <Popover openOnHover openDelay={50}>
             <Popover.Trigger as="button" type="button">
               Trigger
             </Popover.Trigger>

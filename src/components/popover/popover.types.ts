@@ -16,8 +16,6 @@ export namespace PopoverT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Mode = 'click' | 'hover'
-
   /**
    * Base props for the Popover component.
    */
@@ -61,19 +59,19 @@ export namespace PopoverT {
     overflowPadding?: number
 
     /**
-     * Interaction mode for triggering the popover.
-     * @default 'click'
+     * Opens on hover and focus instead of click.
+     * @default false
      */
-    mode?: Mode
+    openOnHover?: boolean
 
     /**
-     * Delay in milliseconds before opening in hover mode.
+     * Delay in milliseconds before opening on hover.
      * @default 100
      */
     openDelay?: number
 
     /**
-     * Delay in milliseconds before closing in hover mode.
+     * Delay in milliseconds before closing on hover.
      * @default 100
      */
     closeDelay?: number

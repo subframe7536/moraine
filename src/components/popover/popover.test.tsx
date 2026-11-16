@@ -151,7 +151,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
+      <Popover openOnHover openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
         <Popover.Trigger>Hover target</Popover.Trigger>
         <Popover.Content>{'Hover content'}</Popover.Content>
       </Popover>
@@ -307,7 +307,7 @@ describe('Popover', () => {
   test('opens hover mode only for mouse pointers', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
-      <Popover mode="hover" openDelay={50}>
+      <Popover openOnHover openDelay={50}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -330,7 +330,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
+      <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -361,7 +361,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
+      <Popover openOnHover openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -421,7 +421,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" open={false} openDelay={50} onOpenChange={onOpenChange}>
+      <Popover openOnHover open={false} openDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -446,7 +446,7 @@ describe('Popover', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
-        <Popover mode="hover" openDelay={0} closeDelay={50} onOpenChange={onOpenChange}>
+        <Popover openOnHover openDelay={0} closeDelay={50} onOpenChange={onOpenChange}>
           <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Content>
             <button type="button" data-testid="popover-action">
@@ -509,7 +509,7 @@ describe('Popover', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
-        <Popover mode="hover" open={false} openDelay={0} onOpenChange={onOpenChange}>
+        <Popover openOnHover open={false} openDelay={0} onOpenChange={onOpenChange}>
           <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Content>
             <button type="button">Action</button>
@@ -531,13 +531,18 @@ describe('Popover', () => {
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
-  test('cancels hover timers when mode or disabled changes', async () => {
+  test('cancels hover timers when openOnHover or disabled changes', async () => {
     vi.useFakeTimers()
-    const [mode, setMode] = createSignal<'click' | 'hover'>('hover')
+    const [openOnHover, setOpenOnHover] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode={mode()} disabled={disabled()} openDelay={50} onOpenChange={onOpenChange}>
+      <Popover
+        openOnHover={openOnHover()}
+        disabled={disabled()}
+        openDelay={50}
+        onOpenChange={onOpenChange}
+      >
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -547,11 +552,11 @@ describe('Popover', () => {
     const trigger = screen.getByRole('button')
 
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setMode('click')
+    setOpenOnHover(false)
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    setMode('hover')
+    setOpenOnHover(true)
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     setDisabled(true)
     setDisabled(false)
@@ -563,7 +568,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
+      <Popover openOnHover open={false} openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -585,7 +590,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover mode="hover" open closeDelay={50} onOpenChange={onOpenChange}>
+      <Popover openOnHover open closeDelay={50} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -749,11 +754,11 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-body"]')).toBeNull()
   })
 
-  test('keeps popover open and emits onClosePrevent when closeOnEscape=false', async () => {
-    const onClosePrevent = vi.fn()
+  test('keeps popover open and emits onClosePrevented when closeOnEscape=false', async () => {
+    const onClosePrevented = vi.fn()
 
     render(() => (
-      <Popover defaultOpen closeOnEscape={false} onClosePrevent={onClosePrevent}>
+      <Popover defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -766,13 +771,13 @@ describe('Popover', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
   test('blocks only outside dismissal when closeOnOutsideClick=false', async () => {
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
@@ -783,7 +788,7 @@ describe('Popover', () => {
         <Popover
           defaultOpen
           closeOnOutsideClick={false}
-          onClosePrevent={onClosePrevent}
+          onClosePrevented={onClosePrevented}
           onOpenChange={onOpenChange}
         >
           <Popover.Trigger as="button" type="button">
@@ -798,7 +803,7 @@ describe('Popover', () => {
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
 
@@ -814,7 +819,7 @@ describe('Popover', () => {
   })
 
   test('blocks only Escape when closeOnEscape=false and still closes on outside click', async () => {
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
@@ -825,7 +830,7 @@ describe('Popover', () => {
         <Popover
           defaultOpen
           closeOnEscape={false}
-          onClosePrevent={onClosePrevent}
+          onClosePrevented={onClosePrevented}
           onOpenChange={onOpenChange}
         >
           <Popover.Trigger as="button" type="button">
@@ -841,7 +846,7 @@ describe('Popover', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
 
@@ -855,8 +860,8 @@ describe('Popover', () => {
     })
   })
 
-  test('emits onClosePrevent once for blocked outside pointer interaction', async () => {
-    const onClosePrevent = vi.fn()
+  test('emits onClosePrevented once for blocked outside pointer interaction', async () => {
+    const onClosePrevented = vi.fn()
 
     const screen = render(() => (
       <>
@@ -867,7 +872,7 @@ describe('Popover', () => {
           defaultOpen
           closeOnEscape={false}
           closeOnOutsideClick={false}
-          onClosePrevent={onClosePrevent}
+          onClosePrevented={onClosePrevented}
         >
           <Popover.Trigger as="button" type="button">
             Trigger
@@ -887,13 +892,13 @@ describe('Popover', () => {
 
     expect(event.defaultPrevented).toBe(false)
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
   test('does not double count pointer attempt followed by outside focus', async () => {
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
 
     const screen = render(() => (
       <>
@@ -904,7 +909,7 @@ describe('Popover', () => {
           defaultOpen
           closeOnEscape={false}
           closeOnOutsideClick={false}
-          onClosePrevent={onClosePrevent}
+          onClosePrevented={onClosePrevented}
         >
           <Popover.Trigger as="button" type="button">
             Trigger
@@ -921,20 +926,20 @@ describe('Popover', () => {
     fireEvent.focusIn(outside)
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
   test('closes popover on escape when closeOnEscape=true', async () => {
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
     const onOpenChange = vi.fn()
 
     render(() => (
       <Popover
         defaultOpen
         closeOnEscape
-        onClosePrevent={onClosePrevent}
+        onClosePrevented={onClosePrevented}
         onOpenChange={onOpenChange}
       >
         <Popover.Trigger as="button" type="button">
@@ -953,7 +958,7 @@ describe('Popover', () => {
     await finishExitMotion()
 
     await waitFor(() => {
-      expect(onClosePrevent).not.toHaveBeenCalled()
+      expect(onClosePrevented).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
       expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
 

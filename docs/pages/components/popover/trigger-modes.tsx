@@ -28,7 +28,7 @@ export function TriggerModes() {
         </Popover.Content>
       </Popover>
 
-      <Popover mode="hover" openDelay={150} closeDelay={100}>
+      <Popover openOnHover openDelay={150} closeDelay={100}>
         <Popover.Trigger as={Button} variant="ghost" leading="i-lucide:user">
           Hover for Profile
         </Popover.Trigger>

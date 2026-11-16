@@ -65,7 +65,7 @@ export function Example() {
 
 ### Trigger modes and state
 
-Click mode is the default. Hover mode also opens on focus and closes on blur, and accepts
+Click is the default. `openOnHover` also opens on focus and closes on blur, and accepts
 `openDelay` and `closeDelay`. Use controlled `open` state when the application coordinates
 visibility.
 
@@ -74,7 +74,7 @@ visibility.
   <Popover.Trigger as={Button}>Filter</Popover.Trigger>
   <Popover.Content>Click stays open while you choose filters.</Popover.Content>
 </Popover>
-<Popover mode="hover" openDelay={150} closeDelay={100}>
+<Popover openOnHover openDelay={150} closeDelay={100}>
   <Popover.Trigger as={Button}>Profile</Popover.Trigger>
   <Popover.Content>Hover or focus to preview.</Popover.Content>
 </Popover>
@@ -115,7 +115,7 @@ in normal document focus order. Modal content contains focus.
 
 ### Filter deployments or preview a profile
 
-Click keeps a filter panel open during selection. Hover mode opens an author preview after a delay.
+Click keeps a filter panel open during selection. `openOnHover` opens an author preview after a delay.
 
 <Preview path="./trigger-modes" />
 

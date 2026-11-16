@@ -960,7 +960,7 @@ describe('Popper native event composition', () => {
     const changes = vi.fn()
     const events: MouseEvent[] = []
     const screen = render(() => (
-      <Popover mode="hover" onOpenChange={changes}>
+      <Popover openOnHover onOpenChange={changes}>
         <Popover.Trigger
           onClick={[
             (blocked, event) => {
@@ -1096,7 +1096,7 @@ describe('Floating component context isolation', () => {
         const changes = vi.fn()
         const screen = render(() =>
           kind === 'popover' ? (
-            <Popover id="pending-popover" mode="hover" openDelay={50} onOpenChange={changes}>
+            <Popover id="pending-popover" openOnHover openDelay={50} onOpenChange={changes}>
               <Popover.Trigger>Trigger</Popover.Trigger>
               <Popover.Content>Content</Popover.Content>
             </Popover>

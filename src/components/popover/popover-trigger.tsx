@@ -26,7 +26,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
     mergePopperElementProps<HTMLElement>(
       {
         onClick: () => {
-          if (context.options.mode === 'hover') {
+          if (context.options.openOnHover) {
             context.invalidateHoverTimers()
             if (!popper.isOpen()) {
               popper.setOpen(true)
@@ -39,7 +39,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
           keys: {
             Tab: {
               when: (event) => {
-                if (context.options.mode !== 'hover' || event.shiftKey || !popper.isOpen()) {
+                if (!context.options.openOnHover || event.shiftKey || !popper.isOpen()) {
                   return false
                 }
                 const content = popper.contentElement()
@@ -73,7 +73,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
     {
       context: popper,
       get toggleOnClick() {
-        return context.options.mode === 'click'
+        return !context.options.openOnHover
       },
     },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }

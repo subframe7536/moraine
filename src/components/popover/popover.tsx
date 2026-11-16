@@ -14,7 +14,7 @@ import type { PopoverProps } from './popover.types'
 export function Popover(props: PopoverProps): JSX.Element {
   const merged = mergeProps(
     {
-      mode: 'click' as const,
+      openOnHover: false,
       openDelay: 100,
       closeDelay: 100,
       gutter: 4,
@@ -50,7 +50,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   function scheduleOpen(): void {
-    if (merged.mode !== 'hover' || merged.disabled) {
+    if (!merged.openOnHover || merged.disabled) {
       return
     }
 
@@ -58,12 +58,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     clearOpenTimer()
     const version = ++hoverTimerVersion
     openTimer = setTimeout(() => {
-      if (
-        !ownerAlive ||
-        version !== hoverTimerVersion ||
-        merged.mode !== 'hover' ||
-        merged.disabled
-      ) {
+      if (!ownerAlive || version !== hoverTimerVersion || !merged.openOnHover || merged.disabled) {
         return
       }
 
@@ -73,7 +68,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   function scheduleClose(): void {
-    if (merged.mode !== 'hover' || merged.disabled) {
+    if (!merged.openOnHover || merged.disabled) {
       return
     }
 
@@ -81,12 +76,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     clearCloseTimer()
     const version = ++hoverTimerVersion
     closeTimer = setTimeout(() => {
-      if (
-        !ownerAlive ||
-        version !== hoverTimerVersion ||
-        merged.mode !== 'hover' ||
-        merged.disabled
-      ) {
+      if (!ownerAlive || version !== hoverTimerVersion || !merged.openOnHover || merged.disabled) {
         return
       }
 
@@ -119,7 +109,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   createEffect(
-    on([() => merged.mode, () => merged.disabled], () => {
+    on([() => merged.openOnHover, () => merged.disabled], () => {
       invalidateHoverTimers()
     }),
   )

@@ -3,7 +3,7 @@ import { Avatar, Badge, Button, Popover } from '@src'
 export function HoverMode() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Popover mode="hover" openDelay={180} closeDelay={120}>
+      <Popover openOnHover openDelay={180} closeDelay={120}>
         <Popover.Trigger as={Button} variant="outline" leading="i-lucide:user">
           Hover for Author Card
         </Popover.Trigger>

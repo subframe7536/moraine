@@ -4,7 +4,7 @@ import { Popover } from './popover'
 
 export function renderPopoverFixture(): string {
   return renderToString(() => (
-    <Popover mode="hover" openDelay={50}>
+    <Popover openOnHover openDelay={50}>
       <Popover.Trigger as="button" type="button">
         Trigger
       </Popover.Trigger>

@@ -29,13 +29,13 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const behavior = usePopoverContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onFocus: () => {
-      if (behavior.options.mode === 'hover') {
+      if (behavior.options.openOnHover) {
         behavior.clearCloseTimer()
       }
     },
     onBlur: behavior.scheduleClose,
     onKeyDown: createKeyDownHandler<HTMLDivElement>({
-      disabled: () => behavior.options.mode !== 'hover',
+      disabled: () => !behavior.options.openOnHover,
       keys: {
         Tab: {
           preventDefault: false,
@@ -84,7 +84,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       },
     }),
     onPointerEnter: (event) => {
-      if (behavior.options.mode === 'hover' && event.pointerType === 'mouse') {
+      if (behavior.options.openOnHover && event.pointerType === 'mouse') {
         behavior.clearCloseTimer()
       }
     },
@@ -106,10 +106,8 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     <PopperContent
       dir={rest.dir}
       context={behavior.popper}
-      closeOnOutsideFocus={behavior.options.mode === 'click'}
-      restoreFocusOnClose={
-        behavior.options.restoreFocusOnClose ?? behavior.options.mode === 'click'
-      }
+      closeOnOutsideFocus={!behavior.options.openOnHover}
+      restoreFocusOnClose={behavior.options.restoreFocusOnClose ?? !behavior.options.openOnHover}
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
       role="dialog"
       onPointerDownOutside={(event) => {
@@ -124,7 +122,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
           hasPreventedPointerAttempt = false
           resetTimeout = undefined
         }, 0)
-        behavior.options.onClosePrevent?.()
+        behavior.options.onClosePrevented?.()
       }}
       onInteractOutside={(event) => {
         if ((behavior.options.closeOnOutsideClick ?? true) || event.defaultPrevented) {
@@ -134,7 +132,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         event.preventDefault()
 
         if (!hasPreventedPointerAttempt) {
-          behavior.options.onClosePrevent?.()
+          behavior.options.onClosePrevented?.()
         }
       }}
       onEscapeKeyDown={(event) => {
@@ -143,7 +141,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         }
 
         event.preventDefault()
-        behavior.options.onClosePrevent?.()
+        behavior.options.onClosePrevented?.()
       }}
     >
       {(context) => {
