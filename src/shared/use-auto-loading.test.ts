@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useLoadingAutoClick } from './use-loading-auto'
+import { useAutoLoadingClick } from './use-auto-loading'
 
 function deferred(): {
   promise: Promise<void>
@@ -29,15 +29,15 @@ function createClickEvent(): MouseEvent & { currentTarget: HTMLButtonElement; ta
   }
 }
 
-describe('useLoadingAutoClick', () => {
+describe('useAutoLoadingClick', () => {
   test('stays loading until every overlapping action settles', async () => {
     const first = deferred()
     const second = deferred()
     const onClick = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick,
       }),
     }))
@@ -66,8 +66,8 @@ describe('useLoadingAutoClick', () => {
     const error = new Error('failed')
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick: () => task.promise,
       }),
     }))
@@ -88,8 +88,8 @@ describe('useLoadingAutoClick', () => {
     const task = deferred()
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick: () => task.promise,
       }),
     }))
@@ -115,8 +115,8 @@ describe('useLoadingAutoClick', () => {
       })
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick,
       }),
     }))
@@ -139,8 +139,8 @@ describe('useLoadingAutoClick', () => {
     } as PromiseLike<void>
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick: () => thenable,
       }),
     }))
@@ -161,8 +161,8 @@ describe('useLoadingAutoClick', () => {
     const task = deferred()
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useLoadingAutoClick<HTMLButtonElement>({
-        loadingAuto: () => true,
+      state: useAutoLoadingClick<HTMLButtonElement>({
+        autoLoading: () => true,
         onClick: (event) => {
           event.preventDefault()
           return task.promise
@@ -183,9 +183,9 @@ describe('useLoadingAutoClick', () => {
       return {
         dispose,
         setLoading,
-        state: useLoadingAutoClick<HTMLButtonElement>({
+        state: useAutoLoadingClick<HTMLButtonElement>({
           loading,
-          loadingAuto: () => true,
+          autoLoading: () => true,
           onClick: () => task.promise,
         }),
       }

@@ -118,7 +118,7 @@ describe('ToggleButton', () => {
   })
 
   test.each(['resolve', 'reject'] as const)(
-    'preserves async clicks through loadingAuto on %s',
+    'preserves async clicks through autoLoading on %s',
     async (outcome) => {
       let resolve!: () => void
       let reject!: (error: Error) => void
@@ -130,7 +130,7 @@ describe('ToggleButton', () => {
       const onPressedChange = vi.fn()
       const screen = render(() => (
         <ToggleButton
-          loadingAuto
+          autoLoading
           onClick={onClick}
           onPressedChange={onPressedChange}
           aria-label="Bookmark"

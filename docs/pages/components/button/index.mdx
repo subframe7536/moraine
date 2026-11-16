@@ -52,14 +52,14 @@ from the rendered element.
 
 ### Loading
 
-Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: a promise
+Use `loading` when application state owns the pending operation. `autoLoading` is opt-in: a promise
 returned by `onClick` drives the visual loading state. Loading suppresses additional activation
 without applying native `disabled`, so a focused button keeps its keyboard position. Explicit
 `disabled` still uses native disabled semantics where available.
 
 ```tsx
 <Button loading={saving()}>Save</Button>
-<Button loadingAuto onClick={() => submit()}>
+<Button autoLoading onClick={() => submit()}>
   Save
 </Button>
 ```
@@ -97,7 +97,7 @@ Keep an icon-only control labeled. Pair it with a tooltip when the action is oth
 
 ### Pending save
 
-Drive loading from local state when the request is owned by the page. Use `loadingAuto` when the
+Drive loading from local state when the request is owned by the page. Use `autoLoading` when the
 click handler returns a promise.
 
 <Preview path="./loading-usage" />

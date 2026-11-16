@@ -85,13 +85,13 @@ style the content from the pressed state without remounting the button's childre
 
 ### Async actions
 
-`loadingAuto` follows a Promise returned by `onClick` and blocks repeated activation until it
+`autoLoading` follows a Promise returned by `onClick` and blocks repeated activation until it
 settles. The state changes immediately after an uncancelled click, including when the Promise later
 rejects; it is not automatically rolled back. Handle request errors in your async handler. To update
 only after success, use controlled `pressed` and update it after the request completes.
 
 ```tsx
-<ToggleButton loadingAuto onClick={() => bookmark()} leading="i-lucide:bookmark">
+<ToggleButton autoLoading onClick={() => bookmark()} leading="i-lucide:bookmark">
   Bookmark
 </ToggleButton>
 ```

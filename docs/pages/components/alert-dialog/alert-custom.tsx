@@ -27,7 +27,7 @@ export function AlertCustom() {
                 variant="solid"
                 tone="danger"
                 disabled={name() !== 'moraine'}
-                loadingAuto
+                autoLoading
                 onClick={(event) => props.action(event)}
               >
                 Delete

@@ -486,7 +486,7 @@ describe('Button', () => {
     const deferred = createDeferred()
     const onclick = vi.fn(() => deferred.promise)
     const screen = render(() => (
-      <Button loadingAuto onClick={onclick}>
+      <Button autoLoading onClick={onclick}>
         Submit
       </Button>
     ))
@@ -512,7 +512,7 @@ describe('Button', () => {
     const deferred = createDeferred()
     const onClick = vi.fn(() => deferred.promise)
     const screen = render(() => (
-      <Button loadingAuto onClick={onClick}>
+      <Button autoLoading onClick={onClick}>
         Submit once
       </Button>
     ))
@@ -543,7 +543,7 @@ describe('Button', () => {
       </Show>
     ))
     const screen = render(() => (
-      <Button loadingAuto onClick={onclick}>
+      <Button autoLoading onClick={onclick}>
         {children}
       </Button>
     ))
@@ -570,7 +570,7 @@ describe('Button', () => {
   test('does not auto load for synchronous onclick handler', async () => {
     const onClick = vi.fn(() => 'ok')
     const screen = render(() => (
-      <Button loadingAuto onClick={onClick}>
+      <Button autoLoading onClick={onClick}>
         Sync
       </Button>
     ))

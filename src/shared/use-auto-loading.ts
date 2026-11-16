@@ -11,14 +11,14 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   )
 }
 
-interface UseLoadingAutoClickOptions<T, E extends Event> {
+interface UseAutoLoadingClickOptions<T, E extends Event> {
   loading?: Accessor<boolean | undefined>
-  loadingAuto?: Accessor<boolean | undefined>
+  autoLoading?: Accessor<boolean | undefined>
   onClick?: JSX.EventHandlerUnion<T, E>
 }
 
-export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
-  options: UseLoadingAutoClickOptions<T, E>,
+export function useAutoLoadingClick<T, E extends Event = MouseEvent>(
+  options: UseAutoLoadingClickOptions<T, E>,
 ): {
   isLoading: Accessor<boolean>
   onClick: JSX.EventHandler<T, E>
@@ -26,13 +26,13 @@ export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
   const [pendingActionCount, setPendingActionCount] = createSignal(0)
 
   const isLoading = createMemo(() =>
-    Boolean(options.loading?.() || (options.loadingAuto?.() && pendingActionCount() > 0)),
+    Boolean(options.loading?.() || (options.autoLoading?.() && pendingActionCount() > 0)),
   )
 
   const onClick: JSX.EventHandler<T, E> = (event) => {
     const { defaultPrevented, result: handlerResult } = callHandler<E>(event, options.onClick)
 
-    if (!options.loadingAuto?.() || defaultPrevented || !isPromiseLike(handlerResult)) {
+    if (!options.autoLoading?.() || defaultPrevented || !isPromiseLike(handlerResult)) {
       return
     }
 

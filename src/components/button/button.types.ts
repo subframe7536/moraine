@@ -51,7 +51,7 @@ export namespace ButtonT {
      * Auto toggles loading while async click handlers are pending.
      * @default false
      */
-    loadingAuto?: boolean
+    autoLoading?: boolean
 
     /**
      * Optional icon shown when `loading` is active.

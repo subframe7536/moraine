@@ -15,7 +15,7 @@ export function LoadingUsage() {
         Controlled Loading
       </Button>
       <Button
-        loadingAuto
+        autoLoading
         variant="outline"
         onClick={() => new Promise((resolve) => setTimeout(resolve, 1500))}
       >

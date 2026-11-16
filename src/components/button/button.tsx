@@ -15,8 +15,8 @@ import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { useAutoLoadingClick } from '../../shared/use-auto-loading'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
@@ -42,16 +42,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'ref',
     'disabled',
     'loading',
-    'loadingAuto',
+    'autoLoading',
     'loadingIcon',
     'leading',
     'trailing',
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<HTMLElement>({
+  const { isLoading, onClick } = useAutoLoadingClick<HTMLElement>({
     loading: () => local.loading,
-    loadingAuto: () => local.loadingAuto,
+    autoLoading: () => local.autoLoading,
     get onClick() {
       return rest.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined
     },
