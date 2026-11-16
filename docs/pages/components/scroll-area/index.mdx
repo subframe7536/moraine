@@ -111,7 +111,7 @@ reaches a physical edge of an overflowing axis; in RTL content `onScrollLeft` an
 follow the physical edges, not the logical `start`/`end`. Combine `onScrollBottom` with
 `scrollThreshold` to load more content before the end.
 
-`controllerRef` receives a controller with the reactive `overflow` state and
+`setController` receives a controller with the reactive `overflow` state and
 `scrollToEdge(axis, edge, options)`.
 
 ```tsx
@@ -120,7 +120,7 @@ let controller: ScrollAreaT.Controller | undefined
 ;<ScrollArea
   scrollThreshold={48}
   onScrollBottom={loadMore}
-  controllerRef={(value) => (controller = value)}
+  setController={(value) => (controller = value)}
 >
   {messages}
 </ScrollArea>

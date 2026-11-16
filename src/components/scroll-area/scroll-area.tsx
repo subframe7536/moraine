@@ -97,7 +97,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
   const [local, rest] = splitProps(props, [
     'ref',
     'viewportRef',
-    'controllerRef',
+    'setController',
     'children',
     'items',
     'itemRender',
@@ -257,7 +257,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
   )
 
   callRef(
-    untrack(() => local.controllerRef),
+    untrack(() => local.setController),
     {
       get overflow() {
         return overflow()

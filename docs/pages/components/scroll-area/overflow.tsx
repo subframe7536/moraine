@@ -13,7 +13,7 @@ export function Overflow() {
         shadowSize={24}
         scrollThreshold={8}
         onOverflowChange={setOverflow}
-        controllerRef={(value) => (controller = value)}
+        setController={(value) => (controller = value)}
         class="h-48 w-full"
         classes={{ content: 'pe-3 space-y-1' }}
         role="region"

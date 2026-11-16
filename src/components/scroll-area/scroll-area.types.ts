@@ -81,7 +81,7 @@ export namespace ScrollAreaT {
     /** Receives the native scroll container. */
     viewportRef?: Ref<HTMLDivElement>
     /** Receives the imperative controller once, during setup. */
-    controllerRef?: (controller: Controller) => void
+    setController?: (controller: Controller) => void
     /** Called when the overflowing edges change. */
     onOverflowChange?: (overflow: Overflow) => void
     /** Called once when scrolling reaches the top edge of an overflowing axis. */

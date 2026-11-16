@@ -376,7 +376,7 @@ describe('ScrollArea', () => {
       <ScrollArea
         orientation="both"
         styles={{ viewport: { direction: 'rtl' } }}
-        controllerRef={(value) => (controller = value)}
+        setController={(value) => (controller = value)}
       />
     ))
     const { viewport } = parts(screen.container)
