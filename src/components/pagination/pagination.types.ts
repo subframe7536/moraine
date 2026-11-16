@@ -70,7 +70,7 @@ export namespace PaginationT {
      * Whether to show previous and next control buttons.
      * @default true
      */
-    showControls?: boolean
+    controls?: boolean
 
     /**
      * Whether the pagination is disabled.

@@ -68,7 +68,7 @@ export default function PaginationPlayground() {
           defaultValue: 10,
           inputType: 'number',
         },
-        { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
+        { kind: 'switch', prop: 'controls', label: 'Show arrows', defaultValue: true },
       ]}
     >
       {(props) => {
@@ -87,7 +87,7 @@ export default function PaginationPlayground() {
               variant={props.variant}
               activeVariant={props.activeVariant}
               tone={props.tone}
-              showControls={props.showControls}
+              controls={props.controls}
             />
             <span class="text-xs text-muted-foreground font-mono">
               Current Page: {currentPage()} of {pageCount()}

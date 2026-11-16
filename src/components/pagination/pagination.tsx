@@ -91,7 +91,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'pageSize',
     'total',
     'siblingCount',
-    'showControls',
+    'controls',
     'disabled',
     'size',
     'variant',
@@ -147,7 +147,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       pageSize: 10,
       total: 0,
       siblingCount: 2,
-      showControls: true,
+      controls: true,
 
       prevIcon: 'icon-chevron-left' as const,
       nextIcon: 'icon-chevron-right' as const,
@@ -256,7 +256,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       aria-label={local['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...listSlot}>
-        <Show when={merged.showControls}>
+        <Show when={merged.controls}>
           <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
               slotName="pagination-prev"
@@ -331,7 +331,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
           }}
         </For>
 
-        <Show when={merged.showControls}>
+        <Show when={merged.controls}>
           <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
               slotName="pagination-next"

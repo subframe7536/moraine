@@ -30,7 +30,7 @@ describe('Pagination', () => {
 
   test('derives page count from total and pageSize', () => {
     const screen = render(() => (
-      <Pagination total={42} pageSize={10} siblingCount={1} showControls={false} />
+      <Pagination total={42} pageSize={10} siblingCount={1} controls={false} />
     ))
 
     expect(screen.getByText('1')).not.toBeNull()
@@ -72,7 +72,7 @@ describe('Pagination', () => {
         pageSize={1}
         page={4_000_000_000}
         siblingCount={Number.MAX_SAFE_INTEGER}
-        showControls={false}
+        controls={false}
       />
     ))
 
@@ -126,13 +126,7 @@ describe('Pagination', () => {
     const onPageChange = vi.fn()
 
     const screen = render(() => (
-      <Pagination
-        page={2}
-        onPageChange={onPageChange}
-        total={50}
-        pageSize={10}
-        showControls={false}
-      />
+      <Pagination page={2} onPageChange={onPageChange} total={50} pageSize={10} controls={false} />
     ))
 
     fireEvent.click(screen.getByText('3'))
@@ -154,7 +148,7 @@ describe('Pagination', () => {
         {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
         total={50}
         pageSize={10}
-        showControls={false}
+        controls={false}
       />
     ))
 
@@ -165,21 +159,19 @@ describe('Pagination', () => {
   })
 
   test('toggles controls visibility', () => {
-    const withControls = render(() => <Pagination total={30} pageSize={10} showControls />)
+    const withControls = render(() => <Pagination total={30} pageSize={10} controls />)
 
     expect(withControls.container.querySelector('[data-slot="pagination-prev"]')).not.toBeNull()
     expect(withControls.container.querySelector('[data-slot="pagination-next"]')).not.toBeNull()
 
-    const withoutControls = render(() => (
-      <Pagination total={30} pageSize={10} showControls={false} />
-    ))
+    const withoutControls = render(() => <Pagination total={30} pageSize={10} controls={false} />)
 
     expect(withoutControls.container.querySelector('[data-slot="pagination-prev"]')).toBeNull()
     expect(withoutControls.container.querySelector('[data-slot="pagination-next"]')).toBeNull()
   })
 
   test('renders icon-only controls with icons in Button children', () => {
-    const screen = render(() => <Pagination total={30} pageSize={10} showControls />)
+    const screen = render(() => <Pagination total={30} pageSize={10} controls />)
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
@@ -191,7 +183,7 @@ describe('Pagination', () => {
 
   test('renders text controls with icons in their leading and trailing slots', () => {
     const screen = render(() => (
-      <Pagination total={30} pageSize={10} prevText="Previous" nextText="Next" showControls />
+      <Pagination total={30} pageSize={10} prevText="Previous" nextText="Next" controls />
     ))
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
@@ -272,7 +264,7 @@ describe('Pagination', () => {
 
   test('honors explicit itemAs without a destination', () => {
     const screen = render(() => (
-      <Pagination total={30} pageSize={10} itemAs={ItemLink} showControls={false} />
+      <Pagination total={30} pageSize={10} itemAs={ItemLink} controls={false} />
     ))
 
     const items = screen.container.querySelectorAll('[data-slot="pagination-item"]')
@@ -358,7 +350,7 @@ describe('Pagination', () => {
 
   test('uses disabled buttons when boundary is reached or `href` is absent', () => {
     const firstPage = render(() => (
-      <Pagination page={1} total={30} pageSize={10} href={(page) => `/page/${page}`} showControls />
+      <Pagination page={1} total={30} pageSize={10} href={(page) => `/page/${page}`} controls />
     ))
 
     const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
@@ -370,7 +362,7 @@ describe('Pagination', () => {
     expect(nextAtStart?.getAttribute('href')).toBe('/page/2')
 
     const withoutTo = render(() => (
-      <Pagination page={2} total={30} pageSize={10} showControls={false} />
+      <Pagination page={2} total={30} pageSize={10} controls={false} />
     ))
 
     const pageControl = withoutTo.getByText('3').closest('[data-slot="pagination-item"]')
@@ -380,7 +372,7 @@ describe('Pagination', () => {
   test('keeps focus on a page that stays visible when the current page changes', () => {
     const [page, setPage] = createSignal(5)
     const screen = render(() => (
-      <Pagination page={page()} total={100} pageSize={10} siblingCount={1} showControls={false} />
+      <Pagination page={page()} total={100} pageSize={10} siblingCount={1} controls={false} />
     ))
     const first = screen.getByLabelText('Go to page 1 of 10') as HTMLElement
 
@@ -412,7 +404,7 @@ describe('Pagination', () => {
 
   test('applies current-page aria attributes and labels', () => {
     const screen = render(() => (
-      <Pagination page={5} total={100} pageSize={10} siblingCount={1} showControls />
+      <Pagination page={5} total={100} pageSize={10} siblingCount={1} controls />
     ))
 
     const currentPage = screen.getByLabelText('Page 5 of 10, current page')
@@ -424,7 +416,7 @@ describe('Pagination', () => {
 
   test('renders ellipsis in `li[data-slot=list-item][aria-hidden]`', () => {
     const screen = render(() => (
-      <Pagination page={5} total={100} pageSize={10} siblingCount={1} showControls={false} />
+      <Pagination page={5} total={100} pageSize={10} siblingCount={1} controls={false} />
     ))
 
     const ellipsisNodes = screen.container.querySelectorAll(
@@ -438,13 +430,7 @@ describe('Pagination', () => {
     const [page, setPage] = createSignal(1)
 
     const screen = render(() => (
-      <Pagination
-        page={page()}
-        onPageChange={setPage}
-        total={50}
-        pageSize={10}
-        showControls={false}
-      />
+      <Pagination page={page()} onPageChange={setPage} total={50} pageSize={10} controls={false} />
     ))
 
     const status = screen.container.querySelector('[data-slot="pagination-status"]')
@@ -460,17 +446,17 @@ describe('Pagination', () => {
   })
 
   test('exposes target page in previous and next labels', () => {
-    const middle = render(() => <Pagination page={3} total={50} pageSize={10} showControls />)
+    const middle = render(() => <Pagination page={3} total={50} pageSize={10} controls />)
 
     expect(middle.getByLabelText('Go to previous page, page 2')).not.toBeNull()
     expect(middle.getByLabelText('Go to next page, page 4')).not.toBeNull()
 
-    const start = render(() => <Pagination page={1} total={50} pageSize={10} showControls />)
+    const start = render(() => <Pagination page={1} total={50} pageSize={10} controls />)
 
     expect(start.getByLabelText('Go to previous page')).not.toBeNull()
     expect(start.getByLabelText('Go to next page, page 2')).not.toBeNull()
 
-    const end = render(() => <Pagination page={5} total={50} pageSize={10} showControls />)
+    const end = render(() => <Pagination page={5} total={50} pageSize={10} controls />)
 
     expect(end.getByLabelText('Go to previous page, page 4')).not.toBeNull()
     expect(end.getByLabelText('Go to next page')).not.toBeNull()
