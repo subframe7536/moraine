@@ -199,7 +199,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
             if (drawer.closeOnEscape === false && event.cancelable) {
               // Keeps the watcher active for the next close request.
               event.preventDefault()
-              drawer.onClosePrevent?.()
+              drawer.onClosePrevented?.()
             }
           },
           close: () => {

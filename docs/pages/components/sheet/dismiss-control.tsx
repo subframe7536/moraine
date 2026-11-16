@@ -12,7 +12,7 @@ export function DismissControl() {
         onOpenChange={setOpen}
         closeOnOverlayClick={false}
         closeOnEscape={false}
-        onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
+        onClosePrevented={() => setPreventedCloseCount((value) => value + 1)}
       >
         <Sheet.Trigger as={Button} variant="outline">
           Open persistent sheet

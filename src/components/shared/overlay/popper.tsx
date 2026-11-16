@@ -233,7 +233,7 @@ export function PopperContent(
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerPositioned, setPositionerPositioned] = createSignal(false)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom')
-  const [portalMount, setPortalMount] = createSignal<HTMLElement>()
+  const [mount, setPortalMount] = createSignal<HTMLElement>()
   // Resolve after mounting, when the trigger may have been adopted into another document.
   createEffect(on(triggerElement, (trigger) => setPortalMount(trigger?.ownerDocument.body)))
   const contentMounted = () =>
@@ -369,7 +369,7 @@ export function PopperContent(
         return
       }
 
-      options.onClosePrevent?.()
+      options.onClosePrevented?.()
     },
     onFocusOutside: (event) => {
       const interactEvent: PopperInteractOutsideEvent = {
@@ -395,7 +395,7 @@ export function PopperContent(
       }
 
       if (!options.closeOnOutsideClick) {
-        options.onClosePrevent?.()
+        options.onClosePrevented?.()
 
         if (options.modal) {
           event.preventDefault()
@@ -420,7 +420,7 @@ export function PopperContent(
       }
 
       event.preventDefault()
-      options.onClosePrevent?.()
+      options.onClosePrevented?.()
     },
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
@@ -482,7 +482,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={portalMount()}>
+          <Portal mount={mount()}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}

@@ -27,7 +27,7 @@ export function StateDismissal() {
         onOpenChange={setOpen}
         closeOnOverlayClick={allowDismiss()}
         closeOnEscape={allowDismiss()}
-        onClosePrevent={() => setPreventedAttempts((c) => c + 1)}
+        onClosePrevented={() => setPreventedAttempts((c) => c + 1)}
       >
         <Dialog.Content
           title="Unsaved Configuration Changes"

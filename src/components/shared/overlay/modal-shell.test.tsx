@@ -145,7 +145,7 @@ describe.each([
     const mount = otherDocument.createElement('div')
     otherDocument.body.append(mount)
     const screen = render(() => (
-      <Root open portalMount={mount}>
+      <Root open mount={mount}>
         <Root.Content title="Title">Body</Root.Content>
       </Root>
     ))

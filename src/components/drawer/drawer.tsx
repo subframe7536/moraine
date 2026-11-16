@@ -40,8 +40,8 @@ export function Drawer(props: DrawerProps): JSX.Element {
     get closeOnEscape() {
       return props.closeOnEscape
     },
-    get onClosePrevent() {
-      return props.onClosePrevent
+    get onClosePrevented() {
+      return props.onClosePrevented
     },
     get slotOverrides() {
       return pickSlotOverrides(props)

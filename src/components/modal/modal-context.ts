@@ -17,7 +17,7 @@ export interface ModalContext {
   setContentElement: (element: HTMLDivElement | undefined) => void
   setOverlayScroll: (enabled: boolean) => void
   isModal: Accessor<boolean>
-  portalMount: Accessor<Node | undefined>
+  mount: Accessor<Node | undefined>
   transition: Accessor<boolean>
 }
 
@@ -33,10 +33,10 @@ export const MODAL_ROOT_KEYS = [
   'transition',
   'closeOnOverlayClick',
   'closeOnEscape',
-  'onClosePrevent',
+  'onClosePrevented',
   'preventScroll',
   'modal',
-  'portalMount',
+  'mount',
   'initialFocus',
   'finalFocus',
   'children',

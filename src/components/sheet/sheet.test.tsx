@@ -678,11 +678,11 @@ describe('Sheet', () => {
     expect(overlay.classList.contains('provider-sheet-overlay')).toBe(true)
   })
 
-  test('prevents close when closeOnEscape is false and emits onClosePrevent', async () => {
-    const onClosePrevent = vi.fn()
+  test('prevents close when closeOnEscape is false and emits onClosePrevented', async () => {
+    const onClosePrevented = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen closeOnEscape={false} onClosePrevent={onClosePrevent}>
+      <Sheet defaultOpen closeOnEscape={false} onClosePrevented={onClosePrevented}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
@@ -697,20 +697,20 @@ describe('Sheet', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
   })
 
-  test('emits onClosePrevent once for blocked outside pointer interaction', async () => {
-    const onClosePrevent = vi.fn()
+  test('emits onClosePrevented once for blocked outside pointer interaction', async () => {
+    const onClosePrevented = vi.fn()
 
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Sheet defaultOpen closeOnOverlayClick={false} onClosePrevent={onClosePrevent}>
+        <Sheet defaultOpen closeOnOverlayClick={false} onClosePrevented={onClosePrevented}>
           <Sheet.Trigger as="button" type="button">
             Trigger
           </Sheet.Trigger>
@@ -725,17 +725,17 @@ describe('Sheet', () => {
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
-      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onClosePrevented).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
   })
 
   test('closes on Escape by default', async () => {
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+      <Sheet defaultOpen onClosePrevented={onClosePrevented} onOpenChange={onOpenChange}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
@@ -752,7 +752,7 @@ describe('Sheet', () => {
     await finishExitMotion()
 
     await waitFor(() => {
-      expect(onClosePrevent).not.toHaveBeenCalled()
+      expect(onClosePrevented).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
       expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     })

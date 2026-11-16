@@ -2301,13 +2301,13 @@ describe('Drawer', () => {
 
     test('closeOnEscape={false} prevents a cancelable cancel and reports it', async () => {
       stubAndroidAndWatcher()
-      const onClosePrevent = vi.fn()
+      const onClosePrevented = vi.fn()
       const onOpenChange = vi.fn()
       render(() => (
         <Drawer
           defaultOpen
           closeOnEscape={false}
-          onClosePrevent={onClosePrevent}
+          onClosePrevented={onClosePrevented}
           onOpenChange={onOpenChange}
         >
           <Drawer.Content>
@@ -2320,7 +2320,7 @@ describe('Drawer', () => {
       )
 
       watchers[0]!.requestClose()
-      expect(onClosePrevent).toHaveBeenCalled()
+      expect(onClosePrevented).toHaveBeenCalled()
       expect(onOpenChange).not.toHaveBeenCalled()
       expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull()
     })

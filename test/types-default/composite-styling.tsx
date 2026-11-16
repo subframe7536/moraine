@@ -20,7 +20,7 @@ import { defineTheme } from 'moraine/theme'
   fullscreen
   modal={false}
   closable={false}
-  portalMount={document.body}
+  mount={document.body}
   closeIcon="icon-close"
 />
 // @ts-expect-error A headless root has no primary DOM element.
@@ -63,10 +63,10 @@ import { defineTheme } from 'moraine/theme'
   transition={false}
   modal={false}
   closable={false}
-  portalMount={document.body}
+  mount={document.body}
   closeIcon="icon-close"
 />
-;<Modal modal={false} portalMount={document.body} />
+;<Modal modal={false} mount={document.body} />
 ;<Modal.Portal mount={document.body} />
 // @ts-expect-error Modal behavior belongs to the root.
 ;<Modal.Content modal={false} />
@@ -109,7 +109,7 @@ import { defineTheme } from 'moraine/theme'
   modal={false}
   closable
   handle={false}
-  portalMount={document.body}
+  mount={document.body}
   closeIcon="icon-close"
   snapPoints={[0.5, '148px', '12rem']}
   snapPoint={0.5}

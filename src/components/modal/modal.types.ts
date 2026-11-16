@@ -47,20 +47,20 @@ export namespace ModalT {
 
     /**
      * Whether an outside pointer press on the overlay dismisses the shell.
-     * `false` blocks the press and reports it through `onClosePrevent`.
+     * `false` blocks the press and reports it through `onClosePrevented`.
      * @default true
      */
     closeOnOverlayClick?: boolean
 
     /**
      * Whether Escape dismisses the shell.
-     * `false` blocks Escape and reports it through `onClosePrevent`.
+     * `false` blocks Escape and reports it through `onClosePrevented`.
      * @default true
      */
     closeOnEscape?: boolean
 
     /** Called when a dismissal attempt is blocked. */
-    onClosePrevent?: () => void
+    onClosePrevented?: () => void
 
     /**
      * Whether body scroll should be locked while the shell is present.
@@ -78,7 +78,7 @@ export namespace ModalT {
     modal?: boolean
 
     /** Default destination for Modal.Portal; defaults to the trigger document body. */
-    portalMount?: Node
+    mount?: Node
 
     /**
      * Element (or accessor resolving to one) that receives focus when the shell

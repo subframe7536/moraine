@@ -142,7 +142,7 @@ export interface PopperContentOptions {
   modal?: boolean
 
   /** Called when a dismissal attempt is blocked. */
-  onClosePrevent?: () => void
+  onClosePrevented?: () => void
 
   /** Called when Escape is pressed while the content is active. */
   onEscapeKeyDown?: (event: KeyboardEvent) => void

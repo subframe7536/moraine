@@ -103,7 +103,7 @@ technology, and native outside pointer actions are prevented.
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
 closure. `closeOnOverlayClick` controls outside pointer dismissal and `closeOnEscape` controls
 Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
-`onClosePrevent`. Scroll locking is independent: `preventScroll` defaults to
+`onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to
 `true`. To allow background page interaction, set `preventScroll={false}` and omit `Modal.Overlay`.
 
 ### Styling and portal placement
@@ -111,7 +111,7 @@ Escape. Both default to `true`. A `false` value blocks that gesture and reports 
 The root renders no element. Apply `class` and object `style` to rendered parts; root `classes`
 and `styles` set their slot defaults. See [Customization](/docs/customization#the-4-layer-override-hierarchy).
 
-Set root `portalMount` for a chosen container, including controlled surfaces without a Trigger.
+Set root `mount` for a chosen container, including controlled surfaces without a Trigger.
 `Modal.Portal mount` overrides that default.
 
 ### State and exit lifecycle

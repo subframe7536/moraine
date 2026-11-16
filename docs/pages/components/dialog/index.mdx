@@ -144,7 +144,7 @@ Apply `class` and object `style` directly to each rendered part. Root `classes` 
 slot defaults for the family; Content's slot maps cover only `overlay`, `content`, and `contentClose`.
 See [Customization](/docs/customization#the-4-layer-override-hierarchy) for precedence.
 
-Set root `portalMount` to place Content in a chosen container. This also works for controlled
+Set root `mount` to place Content in a chosen container. This also works for controlled
 surfaces without a Trigger.
 
 ### Nested overlays
@@ -171,7 +171,7 @@ topmost dialog or popover, then returns focus to its trigger inside the parent d
 
 Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility.
 `closeOnOverlayClick={false}` blocks an outside pointer press, and `closeOnEscape={false}` blocks
-Escape. Both report the attempt through `onClosePrevent`. Provide a clear explicit close path when
+Escape. Both report the attempt through `onClosePrevented`. Provide a clear explicit close path when
 either one is blocked.
 
 ```tsx
@@ -180,7 +180,7 @@ either one is blocked.
   onOpenChange={setOpen}
   closeOnOverlayClick={false}
   closeOnEscape={false}
-  onClosePrevent={onBlocked}
+  onClosePrevented={onBlocked}
 >
   <Dialog.Content title="Unsaved changes">
     <Dialog.Footer>
@@ -231,7 +231,7 @@ layer and restores focus to its trigger.
 ### Save unsaved configuration
 
 Own visibility from the page. Toggle `closeOnOverlayClick` and `closeOnEscape` together to block
-outside clicks and Escape. `onClosePrevent` counts blocked attempts until Save or Discard.
+outside clicks and Escape. `onClosePrevented` counts blocked attempts until Save or Discard.
 
 <Preview path="./state-dismissal" />
 

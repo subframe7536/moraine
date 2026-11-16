@@ -99,7 +99,7 @@ independently of `modal`.
   <Popover.Trigger as={Button}>Filter</Popover.Trigger>
   <Popover.Content aria-label="Filter settings">Press Escape or click outside.</Popover.Content>
 </Popover>
-<Popover closeOnEscape={false} closeOnOutsideClick={false} onClosePrevent={onBlocked}>
+<Popover closeOnEscape={false} closeOnOutsideClick={false} onClosePrevented={onBlocked}>
   <Popover.Trigger as={Button}>Keep open</Popover.Trigger>
   <Popover.Content>Outside click and Escape are blocked.</Popover.Content>
 </Popover>
@@ -135,6 +135,6 @@ Hover or focus the trigger to follow an author. Open and close delays keep the c
 ### Keep a popover open until an explicit close
 
 `closeOnEscape={false}` and `closeOnOutsideClick={false}` block Escape and outside clicks.
-`onClosePrevent` counts blocked attempts.
+`onClosePrevented` counts blocked attempts.
 
 <Preview path="./dismiss-control" />

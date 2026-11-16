@@ -86,7 +86,7 @@ describe('Modal primitives', () => {
     const shadowRoot = host.attachShadow({ mode: 'open' })
     document.body.append(outside, host)
     const screen = render(() => (
-      <Modal defaultOpen portalMount={shadowRoot}>
+      <Modal defaultOpen mount={shadowRoot}>
         <Modal.Portal>
           <Modal.Content aria-label="Shadow modal">Content</Modal.Content>
         </Modal.Portal>
@@ -109,10 +109,10 @@ describe('Modal primitives', () => {
     document.body.append(outside, host)
     const [innerOpen, setInnerOpen] = createSignal(true)
     const screen = render(() => (
-      <Modal defaultOpen portalMount={shadowRoot}>
+      <Modal defaultOpen mount={shadowRoot}>
         <Modal.Portal>
           <Modal.Content aria-label="Outer">
-            <Modal open={innerOpen()} portalMount={shadowRoot}>
+            <Modal open={innerOpen()} mount={shadowRoot}>
               <Modal.Portal>
                 <Modal.Content aria-label="Inner">Inner</Modal.Content>
               </Modal.Portal>
@@ -1149,21 +1149,21 @@ describe('Modal primitives', () => {
 
   test('prefers the Portal mount over the root portal destination', () => {
     const rootMount = document.createElement('div')
-    const portalMount = document.createElement('div')
-    document.body.append(rootMount, portalMount)
+    const mount = document.createElement('div')
+    document.body.append(rootMount, mount)
     const screen = render(() => (
-      <Modal defaultOpen portalMount={rootMount}>
-        <Modal.Portal mount={portalMount}>
+      <Modal defaultOpen mount={rootMount}>
+        <Modal.Portal mount={mount}>
           <Modal.Content>Content</Modal.Content>
         </Modal.Portal>
       </Modal>
     ))
 
     expect(rootMount.querySelector('[data-slot="modal-content"]')).toBeNull()
-    expect(portalMount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(mount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
     screen.unmount()
     rootMount.remove()
-    portalMount.remove()
+    mount.remove()
   })
 
   test('uses the trigger document body when no portal destination is specified', () => {
@@ -1521,9 +1521,9 @@ describe('Modal primitives', () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const onOpenChange = vi.fn()
-    const onClosePrevent = vi.fn()
+    const onClosePrevented = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange} onClosePrevent={onClosePrevent}>
+      <Modal defaultOpen onOpenChange={onOpenChange} onClosePrevented={onClosePrevented}>
         <Modal.Portal>
           <Modal.Content>
             <span>Content</span>
@@ -1536,7 +1536,7 @@ describe('Modal primitives', () => {
     fireEvent.pointerDown(outside, { button: 2 })
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(onClosePrevent).not.toHaveBeenCalled()
+    expect(onClosePrevented).not.toHaveBeenCalled()
     expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
     screen.unmount()
     outside.remove()
@@ -1966,7 +1966,7 @@ describe('Modal primitives', () => {
     'keeps outside and Escape handling when modal is false and dismissal is $closeOnOverlayClick/$closeOnEscape',
     async ({ closeOnOverlayClick, closeOnEscape, closes, prevents }) => {
       const onOpenChange = vi.fn()
-      const onClosePrevent = vi.fn()
+      const onClosePrevented = vi.fn()
       const screen = render(() => (
         <>
           <button type="button" data-testid="outside">
@@ -1978,7 +1978,7 @@ describe('Modal primitives', () => {
             closeOnOverlayClick={closeOnOverlayClick}
             closeOnEscape={closeOnEscape}
             onOpenChange={onOpenChange}
-            onClosePrevent={onClosePrevent}
+            onClosePrevented={onClosePrevented}
           >
             <Modal.Portal>
               <Modal.Content aria-label="Content">Content</Modal.Content>
@@ -2005,7 +2005,7 @@ describe('Modal primitives', () => {
       document.dispatchEvent(escape)
       expect(escape.defaultPrevented).toBe(true)
       expect(onOpenChange).toHaveBeenCalledTimes(closes)
-      expect(onClosePrevent).toHaveBeenCalledTimes(prevents)
+      expect(onClosePrevented).toHaveBeenCalledTimes(prevents)
       screen.unmount()
     },
   )

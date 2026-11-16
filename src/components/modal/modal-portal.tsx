@@ -13,9 +13,7 @@ export function ModalPortal(props: ModalT.PortalProps): JSX.Element {
     <Show when={context.presence.present()}>
       {(_present) => (
         <Portal
-          mount={
-            props.mount ?? context.portalMount() ?? context.triggerElement()?.ownerDocument.body
-          }
+          mount={props.mount ?? context.mount() ?? context.triggerElement()?.ownerDocument.body}
         >
           {props.children}
         </Portal>

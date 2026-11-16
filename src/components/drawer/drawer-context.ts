@@ -114,7 +114,7 @@ export interface DrawerContextValue {
   snapPoints?: DrawerT.SnapPoint[]
   snapToSequentialPoints?: boolean
   closeOnEscape?: boolean
-  onClosePrevent?: () => void
+  onClosePrevented?: () => void
   snapPoint: Accessor<DrawerT.SnapPoint | null>
   setSnapPoint: (snapPoint: DrawerT.SnapPoint | null) => void
 }

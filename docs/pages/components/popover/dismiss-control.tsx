@@ -10,7 +10,7 @@ export function DismissControl() {
         defaultOpen
         closeOnEscape={false}
         closeOnOutsideClick={false}
-        onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
+        onClosePrevented={() => setPreventedCloseCount((value) => value + 1)}
       >
         <Popover.Trigger as={Button} variant="soft" tone="neutral">
           Try close me

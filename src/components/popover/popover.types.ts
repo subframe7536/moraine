@@ -34,7 +34,7 @@ export namespace PopoverT {
     | 'preventScroll'
     | 'closeOnEscape'
     | 'closeOnOutsideClick'
-    | 'onClosePrevent'
+    | 'onClosePrevented'
     | 'restoreFocusOnClose'
   > {
     /**

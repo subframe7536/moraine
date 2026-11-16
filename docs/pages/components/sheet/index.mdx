@@ -142,7 +142,7 @@ Apply `class` and object `style` directly to each rendered part. Root `classes` 
 slot defaults for the family; Content's slot maps cover only `overlay`, `content`, and `contentClose`.
 See [Customization](/docs/customization#the-4-layer-override-hierarchy) for precedence.
 
-Set root `portalMount` to place Content in a chosen container. This also works for controlled
+Set root `mount` to place Content in a chosen container. This also works for controlled
 surfaces without a Trigger.
 
 ### Structured drawer
@@ -165,7 +165,7 @@ Compose body and footer regions to keep the task content separate from its actio
 ### State and dismissal
 
 Use controlled open state when a layout owns visibility. Disable normal dismissal only when the
-sheet has a clear explicit close action; `onClosePrevent` receives blocked outside or Escape
+sheet has a clear explicit close action; `onClosePrevented` receives blocked outside or Escape
 attempts.
 
 ```tsx
@@ -176,7 +176,7 @@ attempts.
     </Sheet.Footer>
   </Sheet.Content>
 </Sheet>
-<Sheet closeOnOverlayClick={false} closeOnEscape={false} onClosePrevent={onBlocked}>
+<Sheet closeOnOverlayClick={false} closeOnEscape={false} onClosePrevented={onBlocked}>
   <Sheet.Content title="Persistent sheet">
     <Sheet.Footer>
       <Button onClick={() => setOpen(false)}>Close</Button>
@@ -210,7 +210,7 @@ A page button owns `open`. Closing from the footer reports back through `onOpenC
 ### Keep a sheet open until an explicit close
 
 `closeOnOverlayClick={false}` and `closeOnEscape={false}` block overlay click and Escape, and
-`onClosePrevent` reports each blocked attempt. The footer action is the only way to close.
+`onClosePrevented` reports each blocked attempt. The footer action is the only way to close.
 
 <Preview path="./dismiss-control" />
 

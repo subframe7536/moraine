@@ -106,7 +106,7 @@ export function Modal(props: ModalProps): JSX.Element {
       updateOpen(false)
       return
     }
-    props.onClosePrevent?.()
+    props.onClosePrevented?.()
   }
 
   createEffect(
@@ -316,7 +316,7 @@ export function Modal(props: ModalProps): JSX.Element {
     setContentElement,
     setOverlayScroll,
     isModal,
-    portalMount: () => props.portalMount,
+    mount: () => props.mount,
   }
 
   return <ModalProvider value={context}>{props.children}</ModalProvider>
