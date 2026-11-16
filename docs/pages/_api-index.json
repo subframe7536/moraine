@@ -136,6 +136,11 @@
       "category": "form"
     },
     {
+      "key": "hover-card",
+      "name": "HoverCard",
+      "category": "overlay"
+    },
+    {
       "key": "icon",
       "name": "Icon",
       "category": "display"

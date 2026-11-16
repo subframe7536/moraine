@@ -119,6 +119,37 @@ describe('useFloatingPosition', () => {
     expect(onPositionedChange.mock.calls).toEqual([[false], [true]])
   })
 
+  test('passes pointer coordinates to the inline middleware and recomputes when they change', async () => {
+    floatingMocks.computePosition.mockResolvedValue({
+      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
+      placement: 'bottom',
+      x: 1,
+      y: 2,
+    })
+    const [point, setPoint] = createSignal<{ x: number; y: number } | undefined>()
+    const [open] = createSignal(true)
+    const onPositionedChange = vi.fn()
+
+    render(() => (
+      <FloatingFixture
+        open={open}
+        onPositionedChange={onPositionedChange}
+        options={{ inline: point }}
+      />
+    ))
+
+    await waitFor(() => expect(floatingMocks.computePosition).toHaveBeenCalled())
+    let middleware = floatingMocks.computePosition.mock.calls.at(-1)?.[2]?.middleware
+    expect(middleware?.map((entry: { name: string }) => entry.name)).not.toContain('inline')
+
+    setPoint({ x: 10, y: 20 })
+    await waitFor(() => expect(floatingMocks.computePosition.mock.calls.length).toBeGreaterThan(1))
+    middleware = floatingMocks.computePosition.mock.calls.at(-1)?.[2]?.middleware
+    const names = middleware?.map((entry: { name: string }) => entry.name) ?? []
+    expect(names).toContain('inline')
+    expect(names.indexOf('inline')).toBeLessThan(names.indexOf('flip'))
+  })
+
   test('stays ready while configuration batches recalculate and reports readiness again after reopening', async () => {
     floatingMocks.computePosition.mockResolvedValue({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },

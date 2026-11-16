@@ -1,0 +1,258 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "hover-card",
+  "name": "HoverCard",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "hover-card",
+      "name": "HoverCard",
+      "access": {
+        "kind": "export",
+        "name": "HoverCard"
+      },
+      "props": [
+        {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment along the cross axis.",
+          "default": {
+            "kind": "literal",
+            "value": "center"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Composed trigger and content primitives."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "closeDelay",
+          "optional": true,
+          "type": "number",
+          "description": "Delay in milliseconds before closing after leaving the trigger or content.",
+          "default": {
+            "kind": "literal",
+            "value": 300
+          }
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial open state when uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether trigger interactions and content rendering are disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether content remains mounted while closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap in pixels between the trigger and the content.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Called whenever the open state changes."
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled open state."
+        },
+        {
+          "name": "openDelay",
+          "optional": true,
+          "type": "number",
+          "description": "Delay in milliseconds before opening on hover or keyboard focus.",
+          "default": {
+            "kind": "literal",
+            "value": 600
+          }
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Minimum padding in pixels between the content and the viewport edge.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Preferred content placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "hover-card-trigger",
+      "name": "HoverCard.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "HoverCard",
+        "member": "Trigger"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'a'"
+        }
+      ],
+      "defaultElement": "a",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "a"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "description": "Identifies this trigger when several triggers share one card. The content\nreads it from its render context."
+        }
+      ]
+    },
+    {
+      "id": "hover-card-content",
+      "name": "HoverCard.Content",
+      "access": {
+        "kind": "attached",
+        "root": "HoverCard",
+        "member": "Content"
+      },
+      "description": "Props for the HoverCard component.",
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element | ((context: ContentContext) => JSX.Element)",
+          "description": "Card content shown on hover or keyboard focus."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "trigger",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-align",
+        "data-closed",
+        "data-expanded",
+        "data-instant-motion",
+        "data-side"
+      ]
+    }
+  ]
+}

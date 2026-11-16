@@ -62,10 +62,12 @@ export interface PopperProps {
 export type PopperTriggerProps<T extends ValidComponent = 'button'> =
   OverlayTriggerComponentProps<T> & {
     /**
-     * Whether the trigger describes the content.
-     * @default false
+     * ARIA relation between the trigger and the content: `'popup'` exposes
+     * `aria-haspopup`, `aria-expanded`, and `aria-controls`; `'description'`
+     * exposes `aria-describedby`; `'none'` adds no relation attributes.
+     * @default 'popup'
      */
-    describeTrigger?: boolean
+    ariaRelation?: 'popup' | 'description' | 'none'
     /**
      * Whether clicking the trigger toggles the open state.
      * @default true
@@ -231,6 +233,12 @@ export interface PopperContentProps extends PopperContentOptions {
 
   /** Viewport coordinates to transition from when content is first positioned. */
   initialPosition?: Coords
+
+  /**
+   * Pointer coordinates used by Floating UI's `inline` middleware so content can
+   * anchor to the hovered line of a wrapped trigger.
+   */
+  inline?: Coords
 
   /** Class applied to the positioning wrapper. */
   positionerClass?: string

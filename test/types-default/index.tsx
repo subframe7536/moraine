@@ -20,6 +20,7 @@ import {
   Empty,
   Field,
   FileUpload,
+  HoverCard,
   Icon,
   Input,
   InputGroup,
@@ -758,6 +759,13 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   <Tooltip.Content />
 </Tooltip>
 
+;<HoverCard>
+  <HoverCard.Trigger as={CustomRoot} data-testid="hover-card-trigger" required="hover-card">
+    Preview target
+  </HoverCard.Trigger>
+  <HoverCard.Content />
+</HoverCard>
+
 ;<ContextMenu>
   <ContextMenu.Trigger as={CustomRoot} data-testid="context-trigger" required="context">
     Open menu
@@ -1183,9 +1191,11 @@ export type DefaultTagAssertions = [
 // Separate public floating dimensions accept sides and alignment independently.
 ;<Popover placement="bottom" align="start" />
 ;<Tooltip placement="top" align="end" />
-// Popover and Tooltip expose the gap and viewport padding as root options.
+;<HoverCard placement="bottom" align="center" />
+// Popover, Tooltip, and HoverCard expose the gap and viewport padding as root options.
 ;<Popover gutter={8} overflowPadding={12} />
 ;<Tooltip gutter={8} overflowPadding={12} />
+;<HoverCard gutter={8} overflowPadding={12} />
 // @ts-expect-error Tooltip.Content takes its text as children, not a text prop.
 ;<Tooltip.Content text="Removed" />
 ;<DropdownMenu placement="bottom" align="end" />

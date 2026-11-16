@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, mergeProps, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
 
+import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
 
 import { PopoverClose } from './popover-close'
@@ -27,63 +28,14 @@ export function Popover(props: PopoverProps): JSX.Element {
   const [closeRegistrations, setCloseRegistrations] = createSignal<Set<number>>(new Set())
   const hasClose = createMemo(() => closeRegistrations().size > 0)
 
-  let openTimer: ReturnType<typeof setTimeout> | undefined
-  let closeTimer: ReturnType<typeof setTimeout> | undefined
-  let hoverTimerVersion = 0
+  const hoverDelay = createHoverDelay({
+    openDelay: () => merged.openDelay,
+    closeDelay: () => merged.closeDelay,
+    enabled: () => merged.openOnHover && !merged.disabled,
+    setOpen: (open) => popper.setOpen(open),
+  })
+
   let nextCloseRegistrationId = 0
-  let ownerAlive = true
-
-  function clearOpenTimer(): void {
-    clearTimeout(openTimer)
-    openTimer = undefined
-  }
-
-  function clearCloseTimer(): void {
-    clearTimeout(closeTimer)
-    closeTimer = undefined
-  }
-
-  function invalidateHoverTimers(): void {
-    hoverTimerVersion += 1
-    clearOpenTimer()
-    clearCloseTimer()
-  }
-
-  function scheduleOpen(): void {
-    if (!merged.openOnHover || merged.disabled) {
-      return
-    }
-
-    clearCloseTimer()
-    clearOpenTimer()
-    const version = ++hoverTimerVersion
-    openTimer = setTimeout(() => {
-      if (!ownerAlive || version !== hoverTimerVersion || !merged.openOnHover || merged.disabled) {
-        return
-      }
-
-      openTimer = undefined
-      popper.setOpen(true)
-    }, merged.openDelay)
-  }
-
-  function scheduleClose(): void {
-    if (!merged.openOnHover || merged.disabled) {
-      return
-    }
-
-    clearOpenTimer()
-    clearCloseTimer()
-    const version = ++hoverTimerVersion
-    closeTimer = setTimeout(() => {
-      if (!ownerAlive || version !== hoverTimerVersion || !merged.openOnHover || merged.disabled) {
-        return
-      }
-
-      closeTimer = undefined
-      popper.setOpen(false)
-    }, merged.closeDelay)
-  }
 
   function registerClose(): () => void {
     const registrationId = nextCloseRegistrationId++
@@ -110,22 +62,17 @@ export function Popover(props: PopoverProps): JSX.Element {
 
   createEffect(
     on([() => merged.openOnHover, () => merged.disabled], () => {
-      invalidateHoverTimers()
+      hoverDelay.invalidate()
     }),
   )
-
-  onCleanup(() => {
-    ownerAlive = false
-    invalidateHoverTimers()
-  })
 
   const behavior: ReturnType<typeof usePopoverContext> = {
     options: merged,
     popper,
-    scheduleOpen,
-    scheduleClose,
-    clearCloseTimer,
-    invalidateHoverTimers,
+    scheduleOpen: hoverDelay.scheduleOpen,
+    scheduleClose: hoverDelay.scheduleClose,
+    clearCloseTimer: hoverDelay.cancelClose,
+    invalidateHoverTimers: hoverDelay.invalidate,
     hasClose,
     registerClose,
     get slotOverrides() {

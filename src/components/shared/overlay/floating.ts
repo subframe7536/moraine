@@ -3,6 +3,7 @@ import {
   computePosition,
   flip,
   hide,
+  inline,
   offset,
   platform,
   shift,
@@ -31,6 +32,8 @@ export interface FloatingPositionOptions {
   hideWhenDetached?: Accessor<boolean>
   /** Viewport coordinates to transition from on the first positioning commit. */
   initialPosition?: Accessor<Coords | undefined>
+  /** Pointer coordinates anchoring the content to the hovered line of a wrapped reference. */
+  inline?: Accessor<Coords | undefined>
   onPlacementChange: (placement: Placement) => void
   onPositionedChange: (positioned: boolean) => void
   open: Accessor<boolean>
@@ -154,6 +157,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               () => options.flip?.(),
               options.gutter,
               () => options.hideWhenDetached?.(),
+              () => options.inline?.(),
               options.overflowPadding,
               () => options.overlap?.(),
               options.placement,
@@ -168,6 +172,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               flipValue,
               gutter,
               hideWhenDetached,
+              inlineCoords,
               overflowPadding,
               overlapValue,
               placement,
@@ -222,6 +227,10 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                     alignmentAxis: crossAxisOffset,
                   }),
                 ]
+
+                if (inlineCoords) {
+                  middleware.push(inline({ x: inlineCoords.x, y: inlineCoords.y }))
+                }
 
                 if (flipOption !== false) {
                   middleware.push(

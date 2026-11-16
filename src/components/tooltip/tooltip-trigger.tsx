@@ -45,7 +45,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
       props,
     ),
     slots.trigger,
-    { context: popper, toggleOnClick: false, describeTrigger: true },
+    { context: popper, toggleOnClick: false, ariaRelation: 'description' },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
   return <PopperTrigger<T> {...triggerProps} />
 }

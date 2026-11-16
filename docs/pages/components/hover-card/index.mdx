@@ -1,0 +1,120 @@
+---
+title: Hover Card
+description: Preview content behind a link on hover or keyboard focus.
+group: Overlay
+api:
+  path: src/components/hover-card/hover-card
+  parts: [Trigger, Content]
+search:
+  tags: [hover card, link preview, profile preview, floating, anchored, popover]
+---
+
+import Playground from './playground'
+
+<Playground />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'HoverCard.Trigger',
+        slot: 'trigger',
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'HoverCard.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled inside an internal positioning wrapper.
+
+## Usage
+
+Use HoverCard to preview the destination of a link on hover or keyboard focus. The trigger
+defaults to an anchor element, so compose it directly inside prose. Use
+[Tooltip](/components/tooltip) for a brief, non-interactive hint and
+[Popover](/components/popover) for content the user must reach and operate.
+
+```tsx
+import { HoverCard } from 'moraine'
+
+export function Example() {
+  return (
+    <HoverCard>
+      <HoverCard.Trigger href="/u/alex.morgan">@alex.morgan</HoverCard.Trigger>
+      <HoverCard.Content>Author profile preview</HoverCard.Content>
+    </HoverCard>
+  )
+}
+```
+
+### Delays and anchoring
+
+`openDelay` (default 600ms) keeps the card from opening on a passing pointer, and `closeDelay`
+(default 300ms) keeps it open while the pointer travels from the trigger into the content.
+HoverCard anchors to the line the pointer entered, so the card stays attached when the trigger
+wraps across multiple lines.
+
+```tsx
+<HoverCard openDelay={200} closeDelay={100} placement="top" align="start">
+  <HoverCard.Trigger href="/releases/v2">v2 release notes</HoverCard.Trigger>
+  <HoverCard.Content>Ships December 15.</HoverCard.Content>
+</HoverCard>
+```
+
+### Dismissal and accessibility
+
+Escape and pressing outside close the card; hover or keyboard focus reopens it.
+
+Hover card content is supplementary: it is not reachable by keyboard and is not announced to
+screen readers, so it must never be the only place the information lives. The same content
+should also be available at the link destination.
+
+```tsx
+<HoverCard>
+  <HoverCard.Trigger href="/u/alex.morgan">@alex.morgan</HoverCard.Trigger>
+  <HoverCard.Content>Profile summary also shown on the author page.</HoverCard.Content>
+</HoverCard>
+```
+
+### Keyboard interaction
+
+Moving keyboard focus to the trigger opens the card after `openDelay`, and blurring the
+trigger closes it after `closeDelay`. The card itself is not keyboard reachable; keep
+interactive content in a [Popover](/components/popover) instead.
+
+## Examples
+
+### Preview a profile inside prose
+
+Hover or focus the link to preview the author. The trigger wraps across lines like any
+inline anchor, and the card anchors to the line the pointer entered.
+
+<Preview path="./profile-preview" />
+
+### Share one card across multiple triggers
+
+Don't mount a hover card per link. Put a `value` on each `Trigger` under one root and read it
+from the content render context — hovering another trigger moves the same card to it.
+
+<Preview path="./multiple-triggers" />
+
+### Preview a link destination
+
+Give a documentation link a small preview with the page title, a description, and the
+resolved URL. The link wraps across several lines, and the card anchors to the line the
+pointer entered.
+
+<Preview path="./link-preview" />

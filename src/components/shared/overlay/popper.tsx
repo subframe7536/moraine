@@ -17,6 +17,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
+import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { createPolymorphicRoot } from '../../../shared/create-polymorphic-root'
 import { bindElement, publishElement } from '../../../shared/element-binding'
 import { renderWithProps } from '../../../shared/render-with-props'
@@ -103,7 +104,10 @@ type PopperTriggerState = Pick<
 type PopperContentState = Omit<PopperContext, 'setTriggerElement'>
 
 /** Creates shared state for positioned overlay primitives in the current owner. */
-export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): PopperContext {
+export function createPopper(
+  props: PopperProps,
+  owner: 'popover' | 'tooltip' | 'hover-card',
+): PopperContext {
   const rootId = createId(() => props.id, 'popper')
   const contentId = () => `${rootId()}-content`
   const [open, setControlledOpen] = createControllableValue<boolean>({
@@ -143,7 +147,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     'context',
     'as',
     'disabled',
-    'describeTrigger',
+    'ariaRelation',
     'toggleOnClick',
     'ref' as any,
   ])
@@ -183,16 +187,24 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       component={tag()}
       data-slot={context.slotName('trigger')}
       {...triggerData}
-      aria-haspopup={local.describeTrigger ? undefined : true}
+      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? true : undefined}
       aria-controls={
-        !local.describeTrigger && context.contentPresence.present()
+        (local.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
           ? context.contentId()
           : undefined
       }
       aria-describedby={
-        local.describeTrigger && context.contentPresence.present() ? context.contentId() : undefined
+        local.ariaRelation === 'description' && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
       }
-      aria-expanded={local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'}
+      aria-expanded={
+        (local.ariaRelation ?? 'popup') === 'popup'
+          ? context.isOpen()
+            ? 'true'
+            : 'false'
+          : undefined
+      }
       {...rootBinding}
     />
   )
@@ -284,6 +296,7 @@ export function PopperContent(
     gutter: () => options.gutter,
     hideWhenDetached: () => options.hideWhenDetached,
     initialPosition: () => props.initialPosition,
+    inline: () => options.inline,
     onPlacementChange: setCurrentPlacement,
     onPositionedChange: (positioned) => {
       setPositionerPositioned(positioned)
@@ -472,7 +485,9 @@ export function PopperContent(
     <Show when={contentMounted()}>
       {(_present) => {
         const child = resolveChildren(() => props.children as JSX.Element)
-        const content = createMemo(() =>
+        // Portals emit no SSR markup, so content resolution must stay lazy and run
+        // inside the portal's post-hydration mount rather than during hydration.
+        const content = createLazyMemo(() =>
           renderWithProps(child(), {
             close: () => context.setOpen(false),
             contentProps,

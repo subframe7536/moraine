@@ -23,6 +23,7 @@ import type {
   FieldT,
   FileUploadT,
   FormT,
+  HoverCardT,
   IconT,
   InputGroupT,
   NumberInputT,
@@ -176,6 +177,13 @@ export type ComponentNamespaceHeaders = {
     FileUploadT.Styles
   >
   Form: Header<FormT.Kind, FormT.Slot, FormT.Variants, FormT.Classes, FormT.Styles>
+  HoverCard: Header<
+    HoverCardT.Kind,
+    HoverCardT.Slot,
+    HoverCardT.Variants,
+    HoverCardT.Classes,
+    HoverCardT.Styles
+  >
   Icon: Header<IconT.Kind, IconT.Slot, IconT.Variants, IconT.Classes, IconT.Styles>
   InputGroup: Header<
     InputGroupT.Kind,
@@ -457,6 +465,10 @@ export type CompositePartContracts = [
   TooltipT.TriggerProps,
   TooltipT.ContentBase,
   TooltipT.ContentProps,
+  HoverCardT.TriggerBase,
+  HoverCardT.TriggerProps,
+  HoverCardT.ContentBase,
+  HoverCardT.ContentProps,
   TreeT.ItemBase,
   TreeT.ItemProps,
   TreeT.ItemTriggerBase,

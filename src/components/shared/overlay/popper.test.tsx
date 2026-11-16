@@ -100,6 +100,33 @@ describe('Popper primitives', () => {
     expect(onContentPointerLeave.mock.calls[0]?.[0]).toBe(contentLeave)
   })
 
+  test('applies no ARIA relation attributes when the trigger relation is none', async () => {
+    const screen = render(() => (
+      <PopperFixture
+        contentRender={(popper) => (
+          <>
+            <PopperTrigger context={popper} ariaRelation="none">
+              Open
+            </PopperTrigger>
+            <PopperContent context={popper}>Content</PopperContent>
+          </>
+        )}
+      />
+    ))
+    const trigger = screen.getByRole('button')
+
+    expect(trigger.getAttribute('aria-haspopup')).toBeNull()
+    expect(trigger.getAttribute('aria-expanded')).toBeNull()
+    expect(trigger.getAttribute('aria-controls')).toBeNull()
+    expect(trigger.getAttribute('aria-describedby')).toBeNull()
+
+    fireEvent.click(trigger)
+    await waitFor(() => expect(trigger.getAttribute('aria-haspopup')).toBeNull())
+    expect(trigger.getAttribute('aria-expanded')).toBeNull()
+    expect(trigger.getAttribute('aria-controls')).toBeNull()
+    expect(trigger.getAttribute('aria-describedby')).toBeNull()
+  })
+
   test('does not render closed content until the trigger opens it', async () => {
     render(() => (
       <PopperFixture

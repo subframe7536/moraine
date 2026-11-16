@@ -5,6 +5,7 @@ import {
   Dialog,
   Drawer,
   DropdownMenu,
+  HoverCard,
   Modal,
   Popover,
   Sheet,
@@ -184,6 +185,18 @@ import { defineTheme } from 'moraine/theme'
 ;<Tooltip.Content classes={{ kbd: 'kbd' }} />
 // @ts-expect-error Tooltip.Content cannot configure Tooltip.Trigger.
 ;<Tooltip.Content classes={{ trigger: 'trigger' }} />
+
+;<HoverCard classes={{ trigger: 'trigger', content: 'content' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<HoverCard class="root" />
+;<HoverCard.Trigger class="trigger" />
+// @ts-expect-error HoverCard.Trigger is a one-slot part.
+;<HoverCard.Trigger classes={{ trigger: 'trigger' }} />
+;<HoverCard.Content class="content" />
+// @ts-expect-error HoverCard.Content is a compose-only part and does not accept classes.
+;<HoverCard.Content classes={{ content: 'content' }} />
+// @ts-expect-error HoverCard.Content cannot configure HoverCard.Trigger.
+;<HoverCard.Content classes={{ trigger: 'trigger' }} />
 
 ;<DropdownMenu classes={{ trigger: 'trigger', itemSubIndicator: 'submenu' }} />
 // @ts-expect-error A headless root has no primary DOM element.

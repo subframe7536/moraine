@@ -24,6 +24,7 @@ import type { EmptyStyleConfig } from '../components/empty/empty.style-types'
 import type { FieldStyleConfig } from '../components/field/field.style-types'
 import type { FileUploadStyleConfig } from '../components/file-upload/file-upload.style-types'
 import type { FormStyleConfig } from '../components/form/form.style-types'
+import type { HoverCardStyleConfig } from '../components/hover-card/hover-card.style-types'
 import type { IconStyleConfig } from '../components/icon/icon.style-types'
 import type { InputGroupStyleConfig } from '../components/input-group/input-group.style-types'
 import type { InputStyleConfig } from '../components/input/input.style-types'
@@ -121,6 +122,7 @@ export interface MoraineStyleSchema {
   dropdownMenu: DropdownMenuStyleConfig
   modal: ModalStyleConfig
   popover: PopoverStyleConfig
+  hoverCard: HoverCardStyleConfig
   sheet: SheetStyleConfig
   drawer: DrawerStyleConfig
   toast: ToastStyleConfig
