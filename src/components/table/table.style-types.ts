@@ -27,9 +27,9 @@ export interface TableStyleVariants {
   /** Whether rows display alternating background colors. @default false */
   striped?: boolean
   /** Whether rows highlight on hover. @default false */
-  hoverEffect?: boolean
+  highlightOnHover?: boolean
   /** Which divider borders are displayed. @default 'row' */
-  showBorder?: 'row' | 'col' | 'both'
+  border?: 'row' | 'col' | 'both'
 }
 
 export type TableStyleConfig = ComponentStyleConfig<TableStyleSlot, TableStyleVariants>

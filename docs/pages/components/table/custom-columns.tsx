@@ -9,7 +9,7 @@ export function CustomColumns() {
             Very very very very very very very very Long Column Title
           </Table.Head>
           <Table.Head align="center">Centered</Table.Head>
-          <Table.Head align="right">Right Aligned</Table.Head>
+          <Table.Head align="end">End Aligned</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -18,7 +18,7 @@ export function CustomColumns() {
             This is a very long cell content that will be truncated
           </Table.Cell>
           <Table.Cell align="center">Middle</Table.Cell>
-          <Table.Cell align="right">$99.00</Table.Cell>
+          <Table.Cell align="end">$99.00</Table.Cell>
         </Table.Row>
       </Table.Body>
     </Table>

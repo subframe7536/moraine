@@ -36,15 +36,15 @@ export namespace TableT {
   export type RowProps = BaseProps<'tr', RowBase, never, never, never>
 
   export interface HeadBase {
-    /** Text alignment for the column header. @default 'left' */
-    align?: 'left' | 'center' | 'right'
+    /** Text alignment for the column header. @default 'start' */
+    align?: 'start' | 'center' | 'end'
     children?: JSX.Element
   }
   export type HeadProps = BaseProps<'th', HeadBase, never, never, never>
 
   export interface CellBase {
-    /** Text alignment for the cell. @default 'left' */
-    align?: 'left' | 'center' | 'right'
+    /** Text alignment for the cell. @default 'start' */
+    align?: 'start' | 'center' | 'end'
     children?: JSX.Element
   }
   export type CellProps = BaseProps<'td', CellBase, never, never, never>

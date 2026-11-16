@@ -225,15 +225,15 @@ defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({
   table: {
     base: { head: 'font-bold' },
-    defaultVariants: { size: 'lg', showBorder: 'col', hoverEffect: true },
+    defaultVariants: { size: 'lg', border: 'col', highlightOnHover: true },
   },
 })
 
 ;<Table
   size="sm"
   striped
-  hoverEffect
-  showBorder="both"
+  highlightOnHover
+  border="both"
   class="root"
   style={{ width: '100%' }}
   classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}
@@ -250,7 +250,7 @@ defineTheme({
 ;<Table.Row selected class="row" />
 // @ts-expect-error Table.Row is a compose-only part and does not accept classes.
 ;<Table.Row classes={{ row: 'row' }} />
-;<Table.Cell align="left" class="cell" />
+;<Table.Cell align="start" class="cell" />
 // @ts-expect-error Table.Cell is a compose-only part and does not accept classes.
 ;<Table.Cell classes={{ cell: 'cell' }} />
 

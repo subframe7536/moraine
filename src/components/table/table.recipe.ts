@@ -9,15 +9,15 @@ export const tableDataAttributes = {
 } satisfies DataAttributeContract<keyof TableStyleSlot>
 
 export const TABLE_TEXT_ALIGN_CLASS = {
-  left: 'text-left',
+  start: 'text-start',
   center: 'text-center',
-  right: 'text-right',
+  end: 'text-end',
 } as const
 
 // Table surface shared by `Table` and `DataTable`. Both recipes build on these values so the
 // two components keep the same density, borders, and state colors.
 export const TABLE_ROOT_CLASS = 'border-border w-full'
-export const TABLE_HEADER_CLASS = 'text-left [&_tr]:border-border'
+export const TABLE_HEADER_CLASS = 'text-start [&_tr]:border-border'
 export const TABLE_FOOTER_CLASS = 'font-medium border-border bg-muted/50'
 export const TABLE_ROW_CLASS = 'border-border transition-colors data-selected:bg-accent'
 export const TABLE_HEAD_CLASS = 'text-muted-foreground font-medium align-middle border-border'
@@ -61,8 +61,8 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
     defaultVariants: {
       size: 'md',
       striped: false,
-      hoverEffect: false,
-      showBorder: 'row',
+      highlightOnHover: false,
+      border: 'row',
     },
     variants: {
       size: {
@@ -75,12 +75,12 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
           row: TABLE_STRIPED_ROW_CLASS,
         },
       },
-      hoverEffect: {
+      highlightOnHover: {
         true: {
           row: TABLE_HOVER_ROW_CLASS,
         },
       },
-      showBorder: {
+      border: {
         row: {
           header: '[&_tr]:border-b',
           row: 'border-b',

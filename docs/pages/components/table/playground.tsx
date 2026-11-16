@@ -18,10 +18,10 @@ export default function TablePlayground() {
           ],
         },
         { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
-        { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: false },
+        { kind: 'switch', prop: 'highlightOnHover', label: 'Hover Effect', defaultValue: false },
         {
           kind: 'select',
-          prop: 'showBorder',
+          prop: 'border',
           label: 'Show Border',
           defaultValue: 'row',
           options: [
@@ -36,8 +36,8 @@ export default function TablePlayground() {
         <Table
           size={props.size}
           striped={props.striped}
-          hoverEffect={props.hoverEffect}
-          showBorder={props.showBorder}
+          highlightOnHover={props.highlightOnHover}
+          border={props.border}
         >
           <Table.Caption>A list of recent transactions.</Table.Caption>
           <Table.Header>
@@ -45,7 +45,7 @@ export default function TablePlayground() {
               <Table.Head>Invoice</Table.Head>
               <Table.Head>Status</Table.Head>
               <Table.Head>Method</Table.Head>
-              <Table.Head align="right">Amount</Table.Head>
+              <Table.Head align="end">Amount</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -57,7 +57,7 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>Credit Card</Table.Cell>
-              <Table.Cell align="right">$250.00</Table.Cell>
+              <Table.Cell align="end">$250.00</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell class="font-medium">INV-002</Table.Cell>
@@ -67,7 +67,7 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>PayPal</Table.Cell>
-              <Table.Cell align="right">$150.00</Table.Cell>
+              <Table.Cell align="end">$150.00</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell class="font-medium">INV-003</Table.Cell>
@@ -77,7 +77,7 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>Bank Transfer</Table.Cell>
-              <Table.Cell align="right">$350.00</Table.Cell>
+              <Table.Cell align="end">$350.00</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell class="font-medium">INV-004</Table.Cell>
@@ -87,7 +87,7 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>Credit Card</Table.Cell>
-              <Table.Cell align="right">$450.00</Table.Cell>
+              <Table.Cell align="end">$450.00</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell class="font-medium">INV-005</Table.Cell>
@@ -97,7 +97,7 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>PayPal</Table.Cell>
-              <Table.Cell align="right">$550.00</Table.Cell>
+              <Table.Cell align="end">$550.00</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell class="font-medium">INV-006</Table.Cell>
@@ -107,13 +107,13 @@ export default function TablePlayground() {
                 </Badge>
               </Table.Cell>
               <Table.Cell>Bank Transfer</Table.Cell>
-              <Table.Cell align="right">$200.00</Table.Cell>
+              <Table.Cell align="end">$200.00</Table.Cell>
             </Table.Row>
           </Table.Body>
           <Table.Footer>
             <Table.Row>
               <Table.Cell colSpan={3}>Total</Table.Cell>
-              <Table.Cell align="right" class="font-semibold">
+              <Table.Cell align="end" class="font-semibold">
                 $1,950.00
               </Table.Cell>
             </Table.Row>

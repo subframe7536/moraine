@@ -19,8 +19,8 @@ export function Table(props: TableT.Props): JSX.Element {
   const [local, rest] = splitProps(props, [
     'size',
     'striped',
-    'hoverEffect',
-    'showBorder',
+    'highlightOnHover',
+    'border',
     'wrapperRef',
     'classes',
     'styles',

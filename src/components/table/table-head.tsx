@@ -11,7 +11,7 @@ export function TableHead(props: TableT.HeadProps): JSX.Element {
   // browser's centered default.
   const { head: headSlot } = useTablePart('head', local, {
     own: () => ({
-      class: TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'],
+      class: TABLE_TEXT_ALIGN_CLASS[local.align ?? 'start'],
     }),
   })
 
