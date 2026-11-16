@@ -9,8 +9,8 @@ export function AlertConfirm() {
       title: 'Revoke secret API key?',
       description:
         'Active background workers and webhook integrations using "Production Sync Key" will immediately lose API access.',
-      danger: true,
       action: {
+        tone: 'danger',
         label: 'Revoke key',
         onClick: async () => {
           await new Promise((resolve) => setTimeout(resolve, 600))

@@ -42,9 +42,8 @@ export function AlertPublish() {
       title: 'Publish release v2.4.0?',
       description:
         'Automated checks are still running (1 pending: e2e-regression). Publishing now will bypass remaining verification.',
-      danger: true,
       width: 440,
-      action: { label: 'Publish anyway', onClick: publishRelease },
+      action: { label: 'Publish anyway', tone: 'danger', onClick: publishRelease },
       cancel: { label: 'Wait for checks' },
     })
 
@@ -65,7 +64,7 @@ export function AlertPublish() {
         title: 'All checks passed — Publish release v2.4.0?',
         description:
           'Automated checks finished successfully (18/18 passed). Ready to deploy to production.',
-        danger: false,
+        type: 'default',
         action: { label: 'Publish release', onClick: publishRelease },
         cancel: { label: 'Cancel' },
       })

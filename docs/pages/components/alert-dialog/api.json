@@ -61,16 +61,6 @@
           }
         },
         {
-          "name": "danger",
-          "optional": true,
-          "type": "boolean",
-          "description": "Shows a caution icon when `type` is `default`, and gives the primary action the `danger`\ntone unless the action sets its own tone.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "dialogRender",
           "optional": true,
           "type": "Component<DialogRenderProps>",
@@ -137,7 +127,7 @@
     "content",
     "header",
     "icon",
-    "copy",
+    "wrapper",
     "footer",
     "action",
     "cancel"

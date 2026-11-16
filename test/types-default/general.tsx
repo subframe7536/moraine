@@ -1,4 +1,4 @@
-import { Accordion, AvatarGroup, ButtonGroup, Resizable } from 'moraine'
+import { Accordion, AlertDialog, AvatarGroup, ButtonGroup, Resizable } from 'moraine'
 import type { AccordionT } from 'moraine'
 
 ;<Accordion
@@ -50,3 +50,10 @@ void missingValue
 </ButtonGroup>
 // @ts-expect-error ButtonGroup supports ComponentSize, not icon sizes.
 ;<ButtonGroup size="icon-sm" />
+
+;<AlertDialog />
+AlertDialog.confirm({ title: 'Delete?' })
+// @ts-expect-error Alert dialog options require a title.
+AlertDialog.confirm({})
+AlertDialog.custom(<div>Custom</div>)
+AlertDialog.custom(<div>Custom</div>, { ariaLabel: 'Custom' })

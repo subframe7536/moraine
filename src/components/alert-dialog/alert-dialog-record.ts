@@ -15,7 +15,6 @@ export interface AlertDialogHostDefaults {
   closeOnOverlayClick?: boolean
   center?: AlertDialogT.Variants['center'] | null
   subtle?: AlertDialogT.Variants['subtle'] | null
-  danger?: AlertDialogT.Variants['danger'] | null
   type?: AlertDialogT.Type
   width?: string | number
   class?: AlertDialogT.Options['class']
@@ -108,7 +107,6 @@ export function createAlertDialogRecord(
       closeOnOverlayClick: pickDefined(call.closeOnOverlayClick, defaults.closeOnOverlayClick),
       center: pickDefined(call.center, defaults.center),
       subtle: pickDefined(call.subtle, defaults.subtle),
-      danger: pickDefined(call.danger, defaults.danger),
       width: pickDefined(call.width, defaults.width),
       class: pickDefined(call.class, defaults.class),
       classes: mergeSlots(defaults.classes, call.classes),

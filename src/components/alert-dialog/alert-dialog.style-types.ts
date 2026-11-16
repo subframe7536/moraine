@@ -8,7 +8,7 @@ export interface AlertDialogStyleSlot<T = unknown> {
   /** Type or custom icon. */
   icon?: T
   /** Title and description stack. */
-  copy?: T
+  wrapper?: T
   /** Action region. */
   footer?: T
   /** Primary (OK) action. */
@@ -23,12 +23,6 @@ export interface AlertDialogStyleVariants {
    * @default false
    */
   center?: boolean
-  /**
-   * Shows a caution icon when `type` is `default`, and gives the primary action the `danger`
-   * tone unless the action sets its own tone.
-   * @default false
-   */
-  danger?: boolean
   /**
    * Gives the footer a top border and muted background, like Card's `subtle` variant.
    * @default false

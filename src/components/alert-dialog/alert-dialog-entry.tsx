@@ -45,8 +45,8 @@ function iconToneClass(options: AlertDialogT.Options): string | undefined {
     return undefined
   }
   const type = options.type
-  if (type === undefined || type === 'default') {
-    return options.danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
+  if (!type || type === 'default') {
+    return undefined
   }
   return ALERT_DIALOG_ICON_TONE_CLASS[type]
 }
@@ -58,9 +58,6 @@ function createAlertDialogRecipe(options: () => AlertDialogT.Options) {
     {
       get center() {
         return options().center
-      },
-      get danger() {
-        return options().danger
       },
       get subtle() {
         return options().subtle
@@ -101,19 +98,17 @@ function AlertDialogDefault(props: {
   // oxlint-disable-next-line subf/solid-reactivity -- AlertDialogEntry creates the recipe once and never replaces it.
   const recipe = props.recipe
   const {
-    slots: { header: headerSlot, icon: iconSlot, copy: copySlot, footer: footerSlot },
+    slots: { header: headerSlot, icon: iconSlot, wrapper: wrapperSlot, footer: footerSlot },
     slotWith,
     variants,
   } = recipe
   const options = () => props.record.options()
   const messages = useMessages('dialog', defaultDialogMessages, () => options().translations)
-  const title = createMemo(() => options().title)
   const description = createMemo(() => options().description)
   const icon = createMemo(() =>
     resolveFeedbackIcon({
       type: options().type,
       icon: options().icon,
-      danger: options().danger,
     }),
   )
   const cancelConfig = () => {
@@ -132,41 +127,35 @@ function AlertDialogDefault(props: {
       style: options().action?.style,
     }),
   })
-  const showHeader = () => hasContent(icon()) || hasContent(title()) || hasContent(description())
 
   return (
     <>
-      <Show when={showHeader()}>
-        <Dialog.Header {...headerSlot}>
-          <Show when={icon()}>
-            {(current) => (
-              <Show
-                when={variants.center}
-                fallback={<Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />}
-              >
-                <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                  <Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />
-                </div>
-              </Show>
-            )}
+      <Dialog.Header {...headerSlot}>
+        <Show when={icon()}>
+          {(current) => (
+            <Show
+              when={variants.center}
+              fallback={<Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />}
+            >
+              <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
+                <Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />
+              </div>
+            </Show>
+          )}
+        </Show>
+        <div data-slot="alert-dialog-wrapper" {...wrapperSlot}>
+          <Dialog.Title>{options().title}</Dialog.Title>
+          <Show when={hasContent(description())}>
+            <Dialog.Description>{description()}</Dialog.Description>
           </Show>
-          <div data-slot="alert-dialog-copy" {...copySlot}>
-            <Show when={hasContent(title())}>
-              <Dialog.Title>{title()}</Dialog.Title>
-            </Show>
-            <Show when={hasContent(description())}>
-              <Dialog.Description>{description()}</Dialog.Description>
-            </Show>
-          </div>
-        </Dialog.Header>
-      </Show>
+        </div>
+      </Dialog.Header>
       <Dialog.Footer {...footerSlot}>
         <Show when={showsCancel(props.record.mode, options().cancel)}>
           <FeedbackActionButton
             action={cancelConfig()}
             label={messages().cancel}
             variant="outline"
-            tone="neutral"
             loading={props.record.pending() === 'cancel'}
             disabled={props.record.pending() === 'action'}
             slotName="alert-dialog-cancel"
@@ -178,7 +167,6 @@ function AlertDialogDefault(props: {
           action={options().action}
           label={messages().ok}
           variant="solid"
-          tone={options().danger ? 'danger' : 'primary'}
           loading={props.record.pending() === 'action'}
           disabled={props.record.pending() === 'cancel'}
           slotName="alert-dialog-action"

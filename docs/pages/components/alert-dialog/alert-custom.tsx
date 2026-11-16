@@ -39,7 +39,6 @@ export function AlertCustom() {
       {
         title: 'Delete repository?',
         description: 'Type moraine to confirm. This removes the repository and its history.',
-        danger: true,
         action: {
           onClick: async () => {
             await new Promise((resolve) => setTimeout(resolve, 400))

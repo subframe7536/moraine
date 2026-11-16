@@ -72,7 +72,7 @@ export namespace AlertDialogT {
     closeOnOverlayClick?: boolean
 
     /**
-     * Status tone. `default` has no icon unless `danger` is set.
+     * Status tone. `default` has no icon.
      * @default 'default'
      */
     type?: Type
@@ -95,7 +95,7 @@ export namespace AlertDialogT {
     host?: string
     /** Status tone. Methods such as `info` set this for you. */
     type?: Type
-    title?: JSX.Element
+    title: JSX.Element
     description?: JSX.Element
     /** Replaces the type icon. `null` omits the icon. */
     icon?: IconT.Name
@@ -119,17 +119,22 @@ export namespace AlertDialogT {
     style?: SlotStyleValue
     classes?: Classes
     styles?: Styles
-    danger?: Variants['danger'] | null
     center?: Variants['center'] | null
     subtle?: Variants['subtle'] | null
     width?: string | number
     closeOnEscape?: boolean
     closeOnOverlayClick?: boolean
-    /** Accessible name used when `title` is absent. */
+    /** Accessible name used when `title` is absent; `AlertDialog.custom` may omit `title`. */
     ariaLabel?: string
     /** Localized message overrides for this dialog, merged per key over the host translations. */
     translations?: DialogT.Translations
   }
+
+  /**
+   * Options for `AlertDialog.custom`. `title` is optional because the render owns the content and
+   * may name the dialog with `titleId` or `ariaLabel`.
+   */
+  export type CustomOptions = Omit<Options, 'title'> & { title?: JSX.Element }
 
   /** Selects dialogs for `AlertDialog.close`. Omitted fields match every dialog. */
   export interface CloseTarget {

@@ -15,7 +15,19 @@ export default function AlertDialogPlayground() {
             label: 'Description',
             defaultValue: 'This action cannot be undone.',
           },
-          { kind: 'switch', prop: 'danger', label: 'Danger', defaultValue: true },
+          {
+            kind: 'select',
+            prop: 'type',
+            label: 'Type',
+            defaultValue: 'info',
+            options: [
+              { label: 'Default', value: 'default' },
+              { label: 'Info', value: 'info' },
+              { label: 'Success', value: 'success' },
+              { label: 'Warning', value: 'warning' },
+              { label: 'Error', value: 'error' },
+            ],
+          },
           { kind: 'switch', prop: 'center', label: 'Center', defaultValue: false },
           { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
         ]}
@@ -23,12 +35,11 @@ export default function AlertDialogPlayground() {
         {(props) => (
           <Button
             variant="solid"
-            tone={props.danger ? 'danger' : 'primary'}
             onClick={() =>
               void AlertDialog.confirm({
+                type: props.type,
                 title: props.title,
                 description: props.description,
-                danger: props.danger,
                 center: props.center,
                 subtle: props.subtle,
               })

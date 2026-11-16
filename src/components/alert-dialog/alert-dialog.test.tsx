@@ -126,11 +126,6 @@ describe('AlertDialog', () => {
       await waitForDialogCount(0)
     }
 
-    void AlertDialog.confirm({ title: 'Danger confirm', danger: true })
-    await waitForTitle('Danger confirm')
-    const dangerIcon = document.body.querySelector('[data-slot="alert-dialog-icon"]')
-    expect(dangerIcon?.classList.contains('icon-caution')).toBe(true)
-
     AlertDialog.close()
     await waitForDialogCount(0)
     void AlertDialog.info({ title: 'Custom info icon', icon: 'icon-star' })
@@ -262,7 +257,6 @@ describe('AlertDialog', () => {
 
     first.update({
       title: 'Updated',
-      danger: true,
       closable: true,
       icon: null,
       style: { 'max-width': '12rem' },
@@ -275,7 +269,6 @@ describe('AlertDialog', () => {
 
     const second = AlertDialog.warning({
       title: 'Second',
-      danger: true,
       action: { variant: 'outline' },
     })
     await waitFor(() => {
@@ -354,7 +347,11 @@ describe('AlertDialog', () => {
       </MoraineProvider>
     ))
     void AlertDialog.confirm({ title: '标题', description: '说明' })
-    void AlertDialog.info({ ariaLabel: 'Notice', icon: <span data-testid="custom-icon">!</span> })
+    void AlertDialog.info({
+      title: undefined,
+      ariaLabel: 'Notice',
+      icon: <span data-testid="custom-icon">!</span>,
+    })
 
     await waitFor(() => {
       expect(button('确定')).toBeInstanceOf(HTMLButtonElement)
@@ -426,7 +423,7 @@ describe('AlertDialog', () => {
 
   test('applies live host defaults and lets the call override them', async () => {
     const [width, setWidth] = createSignal(420)
-    render(() => <AlertDialog width={width()} danger closable />)
+    render(() => <AlertDialog width={width()} closable />)
     void AlertDialog.confirm({ title: 'Defaults' })
     await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
@@ -441,7 +438,6 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
     void AlertDialog.info({
       title: 'Override',
-      danger: false,
       closable: false,
       action: { label: 'Done' },
     })
@@ -456,14 +452,13 @@ describe('AlertDialog', () => {
     ).toBe(false)
   })
 
-  test('renders custom action labels and the danger icon with centered and subtle layouts', async () => {
+  test('renders custom action labels with centered and subtle layouts', async () => {
     setup()
     void AlertDialog.confirm({
       title: 'Allow accessory to connect?',
       description: 'Connect this device?',
       center: true,
       subtle: true,
-      danger: true,
       action: { label: 'Allow' },
       cancel: { label: "Don't allow" },
     })
@@ -471,7 +466,6 @@ describe('AlertDialog', () => {
 
     expect(button("Don't allow")).toBeInstanceOf(HTMLButtonElement)
     expect(button('Allow')).toBeInstanceOf(HTMLButtonElement)
-    expect(document.body.querySelector('[data-slot="alert-dialog-icon"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-description"]')?.textContent).toBe(
       'Connect this device?',
     )
@@ -665,7 +659,7 @@ describe('AlertDialog', () => {
   test('warns in development when title and ariaLabel are both absent', async () => {
     setup()
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    AlertDialog.info({})
+    AlertDialog.info({ title: undefined })
     await waitFor(() => {
       expect(warn).toHaveBeenCalledWith(
         '[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.',

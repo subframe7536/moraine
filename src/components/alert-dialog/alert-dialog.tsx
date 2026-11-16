@@ -34,7 +34,6 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
     closeOnOverlayClick: props.closeOnOverlayClick,
     center: props.center,
     subtle: props.subtle,
-    danger: props.danger,
     type: props.type ?? undefined,
     width: props.width,
     classes: props.classes,
@@ -135,13 +134,14 @@ AlertDialog.error = (options: AlertDialogT.Options): AlertDialogT.Handle =>
   openAlertDialog('standard', withType('error', options))
 AlertDialog.custom = ((
   render: Component<AlertDialogT.DialogRenderProps> | JSX.Element,
-  options?: AlertDialogT.Options,
-): AlertDialogT.Handle => openAlertDialog('standard', options ?? {}, render)) as {
+  options?: AlertDialogT.CustomOptions,
+): AlertDialogT.Handle =>
+  openAlertDialog('standard', { title: undefined, ...options }, render)) as {
   (
     render: Component<AlertDialogT.DialogRenderProps>,
-    options?: AlertDialogT.Options,
+    options?: AlertDialogT.CustomOptions,
   ): AlertDialogT.Handle
-  (render: JSX.Element, options?: AlertDialogT.Options): AlertDialogT.Handle
+  (render: JSX.Element, options?: AlertDialogT.CustomOptions): AlertDialogT.Handle
 }
 AlertDialog.update = (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions): void => {
   if (isServer) {
