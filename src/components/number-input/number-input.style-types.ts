@@ -30,7 +30,7 @@ export interface NumberInputStyleVariants {
   variant?: TextControlVariant
   /** Text alignment; omitted values follow the control layout.
    */
-  align?: 'center' | 'start'
+  align?: 'start' | 'center' | 'end'
   /** Visual layout direction.
    * @default 'horizontal'
    */

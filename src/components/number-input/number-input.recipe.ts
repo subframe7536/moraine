@@ -85,6 +85,7 @@ export const numberInputRecipe = /* @__PURE__ */ defineRecipe<
     align: {
       center: { input: 'text-center' },
       start: { input: 'text-start' },
+      end: { input: 'text-end' },
     },
     orientation: {
       horizontal: {
