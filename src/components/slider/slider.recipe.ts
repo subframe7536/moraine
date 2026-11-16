@@ -37,7 +37,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
       track: 'rounded-full bg-input select-none translate-z-0 relative overflow-hidden',
       range: 'rounded-full bg-primary select-none absolute z-raised',
       marker: 'bg-background pointer-events-none absolute',
-      thumb: `outline-none border border-border rounded-full bg-background shrink-0 size-(--s-thumb-size) block cursor-pointer select-none transition-[box-shadow,transform] absolute z-control bg-clip-padding touch-none ${FOCUS_VISIBLE_CLASS} hover:(border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
+      thumb: `outline-none border border-ring rounded-full bg-background shrink-0 size-(--s-thumb-size) block cursor-pointer select-none transition-[box-shadow,transform] absolute z-control bg-clip-padding touch-none ${FOCUS_VISIBLE_CLASS} dark:bg-foreground hover:(ring-3 ring-ring/50) data-dragging:scale-120`,
     },
     defaultVariants: {
       orientation: 'horizontal',
