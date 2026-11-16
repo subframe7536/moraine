@@ -457,8 +457,8 @@ describe('AlertDialog', () => {
     void AlertDialog.confirm({
       title: 'Allow accessory to connect?',
       description: 'Connect this device?',
-      center: true,
-      subtle: true,
+      align: 'center',
+      variant: 'subtle',
       action: { label: 'Allow' },
       cancel: { label: "Don't allow" },
     })

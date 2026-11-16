@@ -20,14 +20,14 @@ export interface AlertDialogStyleSlot<T = unknown> {
 export interface AlertDialogStyleVariants {
   /**
    * Centers the icon, title, and description, and stretches the actions into an equal row.
-   * @default false
+   * @default 'start'
    */
-  center?: boolean
+  align?: 'start' | 'center'
   /**
-   * Gives the footer a top border and muted background, like Card's `subtle` variant.
-   * @default false
+   * `subtle` gives the footer a top border and muted background, like Card's `subtle` variant.
+   * @default 'default'
    */
-  subtle?: boolean
+  variant?: 'default' | 'subtle'
 }
 
 export type AlertDialogStyleConfig = ComponentStyleConfig<

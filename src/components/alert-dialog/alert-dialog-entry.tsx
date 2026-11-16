@@ -56,11 +56,11 @@ function createAlertDialogRecipe(options: () => AlertDialogT.Options) {
   return useRecipe(
     alertDialogRecipe,
     {
-      get center() {
-        return options().center
+      get align() {
+        return options().align
       },
-      get subtle() {
-        return options().subtle
+      get variant() {
+        return options().variant
       },
       get class() {
         return options().class
@@ -134,7 +134,7 @@ function AlertDialogDefault(props: {
         <Show when={icon()}>
           {(current) => (
             <Show
-              when={variants.center}
+              when={variants.align === 'center'}
               fallback={<Icon name={current()} data-slot="alert-dialog-icon" {...iconSlot} />}
             >
               <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>

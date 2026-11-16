@@ -166,7 +166,7 @@ pass `ariaLabel`.
 
 ### Layout
 
-`subtle` gives the footer a top border and muted background. `center` stacks the icon, title, and
+`variant="subtle"` gives the footer a top border and muted background. `align="center"` stacks the icon, title, and
 description and stretches the actions into an equal row.
 
 ```tsx
@@ -174,8 +174,8 @@ AlertDialog.confirm({
   title: 'Allow accessory to connect?',
   description: 'Do you want to allow the USB accessory to connect to this device?',
   icon: 'i-lucide-bluetooth',
-  center: true,
-  subtle: true,
+  align: 'center',
+  variant: 'subtle',
   action: { label: 'Allow' },
   cancel: { label: "Don't allow" },
 })
@@ -245,7 +245,7 @@ because the next `action` replaces the previous one.
 
 ### Authorize a hardware security key
 
-`center` stacks the icon and copy. `subtle` paints the action row with a muted background and a top
+`align="center"` stacks the icon and copy. `variant="subtle"` paints the action row with a muted background and a top
 border.
 
 <Preview path="./alert-center" />

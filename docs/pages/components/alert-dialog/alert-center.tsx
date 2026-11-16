@@ -10,8 +10,8 @@ export function AlertCenter() {
       description:
         'Hardware key "YubiKey 5C NFC" is requesting permission to authenticate and read security credentials.',
       icon: 'i-lucide:usb',
-      center: true,
-      subtle: true,
+      align: 'center',
+      variant: 'subtle',
       width: 380,
       action: { label: 'Allow key' },
       cancel: { label: "Don't allow" },

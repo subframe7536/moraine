@@ -26,19 +26,19 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
     cancel: '',
   },
   defaultVariants: {
-    center: false,
-    subtle: false,
+    align: 'start',
+    variant: 'default',
   },
   variants: {
-    subtle: {
-      true: {
+    variant: {
+      subtle: {
         content: 'p-0 gap-0',
         header: 'p-6',
         footer: 'p-3 border-t border-border bg-muted/50',
       },
     },
-    center: {
-      true: {
+    align: {
+      center: {
         content: 'p-0 gap-0',
         header: 'p-4 text-center flex flex-col gap-4 items-center',
         wrapper: 'text-center flex-none',

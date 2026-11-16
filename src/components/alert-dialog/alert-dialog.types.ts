@@ -119,8 +119,8 @@ export namespace AlertDialogT {
     style?: SlotStyleValue
     classes?: Classes
     styles?: Styles
-    center?: Variants['center'] | null
-    subtle?: Variants['subtle'] | null
+    align?: Variants['align'] | null
+    variant?: Variants['variant'] | null
     width?: string | number
     closeOnEscape?: boolean
     closeOnOverlayClick?: boolean

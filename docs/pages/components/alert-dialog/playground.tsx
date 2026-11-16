@@ -28,8 +28,26 @@ export default function AlertDialogPlayground() {
               { label: 'Error', value: 'error' },
             ],
           },
-          { kind: 'switch', prop: 'center', label: 'Center', defaultValue: false },
-          { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
+          {
+            kind: 'select',
+            prop: 'align',
+            label: 'Align',
+            defaultValue: 'start',
+            options: [
+              { label: 'Start', value: 'start' },
+              { label: 'Center', value: 'center' },
+            ],
+          },
+          {
+            kind: 'select',
+            prop: 'variant',
+            label: 'Variant',
+            defaultValue: 'default',
+            options: [
+              { label: 'Default', value: 'default' },
+              { label: 'Subtle', value: 'subtle' },
+            ],
+          },
         ]}
       >
         {(props) => (
@@ -40,8 +58,8 @@ export default function AlertDialogPlayground() {
                 type: props.type,
                 title: props.title,
                 description: props.description,
-                center: props.center,
-                subtle: props.subtle,
+                align: props.align,
+                variant: props.variant,
               })
             }
           >
