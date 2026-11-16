@@ -1199,8 +1199,8 @@ describe('Toast', () => {
     expect(document.querySelector('[data-slot="toast"]')).toBeNull()
   })
 
-  it('applies host invert and classes to toast items', async () => {
-    render(() => <Toast invert classes={{ title: 'host-title-class' }} />)
+  it('applies host variant and classes to toast items', async () => {
+    render(() => <Toast variant="invert" classes={{ title: 'host-title-class' }} />)
     Toast.show({ title: 'Inverted' })
     const title = await screen.findByText('Inverted')
     expect(title.className).toContain('host-title-class')
@@ -1240,7 +1240,7 @@ describe('Toast', () => {
     Toast.show({
       id: 'large-toast',
       title: 'Large Size',
-      large: true,
+      size: 'lg',
       action: { label: 'Action Large' },
       cancel: { label: 'Cancel Large' },
       closable: true,

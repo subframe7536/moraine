@@ -38,9 +38,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'id',
     'placement',
     'align',
-    'large',
+    'size',
     'type',
-    'invert',
+    'variant',
     'itemRender',
     'visibleToasts',
     'duration',
@@ -64,8 +64,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const hostDefaults = createMemo<ToastHostDefaults>(() => ({
     type: local.type,
-    large: local.large,
-    invert: local.invert,
+    size: local.size,
+    variant: local.variant,
     placement: local.placement,
     align: local.align,
     duration: local.duration,

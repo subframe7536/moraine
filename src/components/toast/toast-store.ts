@@ -11,8 +11,8 @@ import type { ToastT } from './toast.types'
 
 export interface ToastHostDefaults {
   type?: ToastT.Variants['type'] | null
-  large?: ToastT.Variants['large'] | null
-  invert?: ToastT.Variants['invert'] | null
+  size?: ToastT.Variants['size'] | null
+  variant?: ToastT.Variants['variant'] | null
   placement?: ToastT.Variants['placement'] | null
   align?: ToastT.Variants['align'] | null
   duration?: number
@@ -79,8 +79,8 @@ export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefault
     },
     onClose: call.onClose,
     type: call.type ?? host.type ?? 'default',
-    large: call.large ?? host.large ?? undefined,
-    invert: call.invert ?? host.invert ?? undefined,
+    size: call.size ?? host.size ?? undefined,
+    variant: call.variant ?? host.variant ?? undefined,
     placement: call.placement ?? host.placement ?? 'bottom',
     align: call.align ?? host.align ?? 'end',
     duration: pickDefined(call.duration, host.duration),

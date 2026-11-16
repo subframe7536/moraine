@@ -219,7 +219,7 @@ import { defineTheme } from 'moraine/theme'
 defineTheme({ dialog: { base: { contentClose: 'close' } } })
 defineTheme({ sheet: { base: { contentClose: 'close' } } })
 defineTheme({ drawer: { base: { handle: 'handle' } } })
-defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: true } } })
+defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { variant: 'invert' } } })
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({

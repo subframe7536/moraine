@@ -253,11 +253,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       get type() {
         return options().type
       },
-      get large() {
-        return options().large
+      get size() {
+        return options().size
       },
-      get invert() {
-        return options().invert
+      get variant() {
+        return options().variant
       },
       get placement() {
         return options().placement
@@ -341,7 +341,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         () => options().description,
         () => options().action,
         () => options().cancel,
-        () => options().large,
+        () => options().size,
         () => props.toast.render,
       ],
       () => {

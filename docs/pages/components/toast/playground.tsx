@@ -20,7 +20,16 @@ export default function ToastPlayground() {
             { label: 'Loading', value: 'loading' },
           ],
         },
-        { kind: 'switch', prop: 'large', label: 'Large', defaultValue: false },
+        {
+          kind: 'select',
+          prop: 'size',
+          label: 'Size',
+          defaultValue: 'md',
+          options: [
+            { label: 'Medium', value: 'md' },
+            { label: 'Large', value: 'lg' },
+          ],
+        },
         { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
         { kind: 'switch', prop: 'cancel', label: 'Cancel button', defaultValue: false },
         { kind: 'switch', prop: 'closable', label: 'Close button', defaultValue: true },
@@ -38,7 +47,7 @@ export default function ToastPlayground() {
           const options = {
             title: 'Preferences updated',
             description: 'Your account settings were saved.',
-            large: props.large,
+            size: props.size,
             closable: props.closable,
             progress: props.progress,
             preventDuplicate: props.preventDuplicate,

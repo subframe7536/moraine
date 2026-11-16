@@ -58,21 +58,21 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
           icon: 'text-muted-foreground animate-spin motion-reduce:animate-none',
         },
       },
-      large: {
-        true: {
+      size: {
+        lg: {
           item: 'flex-wrap items-start',
           actions: 'mt-1 w-full justify-end',
           close: 'right-3.5 top-3.5 absolute',
         },
-        false: {
+        md: {
           item: 'items-center',
         },
       },
-      invert: {
-        true: {
+      variant: {
+        invert: {
           item: 'text-background border-transparent bg-foreground',
         },
-        false: {
+        default: {
           item: 'text-popover-foreground border-border bg-popover',
         },
       },
@@ -109,8 +109,8 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
     },
     defaultVariants: {
       type: 'default',
-      large: false,
-      invert: false,
+      size: 'md',
+      variant: 'default',
       placement: 'bottom',
       align: 'end',
     },

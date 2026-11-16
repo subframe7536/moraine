@@ -47,16 +47,16 @@ export interface ToastStyleVariants {
   type?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'
 
   /**
-   * Whether to use large multi-line layout.
-   * @default false
+   * `lg` uses a multi-line layout with the actions on their own row.
+   * @default 'md'
    */
-  large?: boolean
+  size?: 'md' | 'lg'
 
   /**
-   * Whether to invert colors (e.g. dark toast on light theme).
-   * @default false
+   * `invert` flips the colors (e.g. dark toast on light theme).
+   * @default 'default'
    */
-  invert?: boolean
+  variant?: 'default' | 'invert'
 
   /**
    * Vertical stack placement on the viewport.
