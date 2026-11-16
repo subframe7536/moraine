@@ -75,7 +75,7 @@ export namespace TooltipT {
      */
     kbds?: string[]
 
-    /** Visual variant for the shortcut keycaps. Overrides the variant inferred from invert. */
+    /** Visual variant for the shortcut keycaps. Overrides the variant inferred from `variant="invert"`. */
     kbdVariant?: KbdGroupT.Variants['variant']
 
     /** Tooltip text or element to display. */

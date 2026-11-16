@@ -37,7 +37,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     variants,
   } = useRecipe(tooltipRecipe, local, {
     slot: 'content',
-    context: () => ({ variants: { invert: behavior.options.invert }, ...behavior.slotOverrides }),
+    context: () => ({ variants: { variant: behavior.options.variant }, ...behavior.slotOverrides }),
   })
   return (
     <PopperContent
@@ -80,7 +80,9 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
               {(keys) => (
                 <KbdGroup
                   data-slot="tooltip-kbds"
-                  variant={local.kbdVariant ?? (variants.invert ? 'invert' : undefined)}
+                  variant={
+                    local.kbdVariant ?? (variants.variant === 'invert' ? 'invert' : undefined)
+                  }
                   size="sm"
                   items={keys()}
                   {...kbdsSlot}

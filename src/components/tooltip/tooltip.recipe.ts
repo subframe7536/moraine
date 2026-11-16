@@ -37,12 +37,12 @@ export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, Tool
       kbds: 'rounded-sm relative z-floating isolate',
     },
     defaultVariants: {
-      invert: false,
+      variant: 'default',
     },
     variants: {
-      invert: {
-        true: { content: 'text-background bg-foreground' },
-        false: {
+      variant: {
+        invert: { content: 'text-background bg-foreground' },
+        default: {
           content: 'text-foreground border border-border bg-background shadow-overlay',
         },
       },

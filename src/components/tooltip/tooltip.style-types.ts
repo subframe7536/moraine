@@ -15,10 +15,10 @@ export interface TooltipStyleSlot<T = unknown> {
 }
 
 export interface TooltipStyleVariants {
-  /** Visual invert of the component.
-   * @default false
+  /** `invert` flips the colors (e.g. dark tooltip on light theme).
+   * @default 'default'
    */
-  invert?: boolean
+  variant?: 'default' | 'invert'
 }
 
 export type TooltipStyleConfig = ComponentStyleConfig<TooltipStyleSlot, TooltipStyleVariants>

@@ -31,7 +31,16 @@ export default function TooltipPlayground() {
           ],
         },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-        { kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
+        {
+          kind: 'select',
+          prop: 'variant',
+          label: 'Variant',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Invert', value: 'invert' },
+          ],
+        },
       ]}
     >
       {(props) => (
@@ -40,7 +49,7 @@ export default function TooltipPlayground() {
             placement={props.placement}
             align={props.align}
             disabled={props.disabled}
-            invert={props.invert}
+            variant={props.variant}
           >
             <Tooltip.Trigger as={Button} variant="outline" leading="i-lucide:file-plus">
               Hover me

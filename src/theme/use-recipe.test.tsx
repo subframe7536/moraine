@@ -147,25 +147,25 @@ describe('useRecipe', () => {
     const theme = defineTheme({
       tooltip: {
         base: { '--tooltip-color': 'purple' },
-        defaultVariants: { invert: true },
+        defaultVariants: { variant: 'invert' },
         variants: {
-          invert: {
-            true: { content: 'inverted' },
-            false: { content: 'plain' },
+          variant: {
+            invert: { content: 'inverted' },
+            default: { content: 'plain' },
           },
         },
       },
     })
-    const [invert, setInvert] = createSignal<boolean | undefined>(false)
+    const [variant, setVariant] = createSignal<'default' | 'invert' | undefined>('default')
     function Fixture() {
       const { slots } = useRecipe(
         tooltipRecipe,
         {
-          get invert() {
-            return invert()
+          get variant() {
+            return variant()
           },
         },
-        { slot: 'content', context: () => ({ variants: { invert: true } }) },
+        { slot: 'content', context: () => ({ variants: { variant: 'invert' } }) },
       )
       return <div data-testid="select" {...slots.content} />
     }
@@ -177,7 +177,7 @@ describe('useRecipe', () => {
     const root = screen.getByTestId('select')
     expect(root.className).toContain('plain')
     expect(root.style.getPropertyValue('--tooltip-color')).toBe('purple')
-    setInvert(undefined)
+    setVariant(undefined)
     expect(root.className).toContain('inverted')
   })
 
