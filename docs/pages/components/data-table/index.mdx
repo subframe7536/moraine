@@ -176,9 +176,9 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | Concern       | `DataTable` props                                                             |
 | ------------- | ----------------------------------------------------------------------------- |
 | Instance      | `table` (required)                                                            |
-| Layout        | `sticky`, `maxHeight`, `size`, `hoverEffect`, `showBorder`                    |
+| Layout        | `sticky`, `maxHeight`, `size`, `highlightOnHover`, `border`                   |
 | Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualizer` |
-| Rows          | `rowClass`, `onRowClick`, `onRowDoubleClick`                                  |
+| Rows          | `rowProps`, `onRowClick`, `onRowDoubleClick`                                  |
 | Styling, i18n | `classes`, `styles`, `class`, `style`, `wrapperRef`, `translations`           |
 
 Other native `table` attributes, such as `aria-label`, are forwarded to the `table` element.
@@ -210,14 +210,14 @@ Columns are TanStack column definitions typed as `DataTableT.Column<TData>`. A c
 
 | `meta` field | Effect                                                        |
 | ------------ | ------------------------------------------------------------- |
-| `align`      | `'left'` (default), `'center'`, or `'right'` text.            |
+| `align`      | `'start'` (default), `'center'`, or `'end'` text.             |
 | `truncated`  | Keeps cell text on one line with an ellipsis.                 |
 | `class`      | Extra classes on the column's header, body, and footer cells. |
 
 ```tsx
 const columns: DataTableT.Column<Invoice>[] = [
   { accessorKey: 'customer', header: 'Customer', meta: { truncated: true } },
-  { accessorKey: 'amount', header: 'Amount', size: 120, meta: { align: 'right' } },
+  { accessorKey: 'amount', header: 'Amount', size: 120, meta: { align: 'end' } },
 ]
 ```
 
@@ -485,14 +485,14 @@ const table = createDataTable({
 ### Row events
 
 `onRowClick` and `onRowDoubleClick` receive the row and the mouse event, and give rows a pointer
-cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not reach them. Use
-`rowClass` to add classes per row.
+cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not reach them. Return `class` from
+`rowProps` to add classes per row.
 
 ```tsx
 <DataTable
   table={table}
   onRowClick={(row) => navigate(`/users/${row.original.id}`)}
-  rowClass={(row) => row.original.archived && 'opacity-60'}
+  rowProps={({ row }) => ({ class: row.original.archived && 'opacity-60' })}
 />
 ```
 
@@ -501,7 +501,7 @@ action.
 
 `rowProps` adds attributes to each body `<tr>`. It runs once per row, inside that row, so it can
 call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with the table's own;
-`class` and `style` come from `rowClass` and the `row` slot instead.
+`class` merges into the `row` slot.
 
 ```tsx
 <DataTable
@@ -630,7 +630,7 @@ priority.
 ### Switch between single and multiple selection
 
 Read `selection` from a signal and control `state.rowSelection`, so the toolbar can count and clear
-the selection. `canSelectRow` locks terminated nodes, and `rowClass` mutes their text.
+the selection. `canSelectRow` locks terminated nodes, and `rowProps` mutes their text.
 
 <Preview path="./selection-modes" />
 

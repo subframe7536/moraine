@@ -106,7 +106,7 @@ const COLUMNS: DataTableT.Column<FileNode>[] = [
     header: 'Size',
     size: 120,
     accessorFn: totalSize,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => (
       <span class="text-muted-foreground tabular-nums">
         {formatSize(props.getValue() as number)}
@@ -153,7 +153,7 @@ export default function TreeDataExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable table={table} aria-label="Project files" hoverEffect />
+      <DataTable table={table} aria-label="Project files" highlightOnHover />
       <p class="text-sm text-muted-foreground" aria-live="polite">
         {selectedFiles().length > 0
           ? `Selected files: ${selectedFiles().join(', ')}`

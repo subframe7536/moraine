@@ -92,14 +92,14 @@ const COLUMNS: DataTableT.Column<ServerNode>[] = [
     accessorKey: 'vcpu',
     header: 'vCPU',
     size: 80,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.vcpu}</span>,
   },
   {
     accessorKey: 'ram',
     header: 'RAM',
     size: 90,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.ram}</span>,
   },
   {
@@ -173,8 +173,10 @@ export default function SelectionModesExample() {
 
       <DataTable
         table={table}
-        rowClass={(row) => row.original.status === 'terminated' && 'text-muted-foreground'}
-        hoverEffect
+        rowProps={({ row }) => ({
+          class: row.original.status === 'terminated' && 'text-muted-foreground',
+        })}
+        highlightOnHover
       />
 
       <div class="text-xs text-muted-foreground">

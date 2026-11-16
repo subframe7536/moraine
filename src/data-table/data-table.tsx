@@ -67,7 +67,6 @@ export function DataTable<TData extends RowData = RowData>(
     'translations',
     'wrapperRef',
     'ref',
-    'rowClass',
     'rowProps',
     'headProps',
     'loading',
@@ -80,8 +79,8 @@ export function DataTable<TData extends RowData = RowData>(
     'onRowDoubleClick',
     'virtualizer',
     'size',
-    'hoverEffect',
-    'showBorder',
+    'highlightOnHover',
+    'border',
     'classes',
     'styles',
     'class',
@@ -312,7 +311,6 @@ export function DataTable<TData extends RowData = RowData>(
                         <DataTableRow
                           row={row}
                           index={index()}
-                          rowClass={local.rowClass}
                           rowProps={local.rowProps}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}
@@ -342,7 +340,6 @@ export function DataTable<TData extends RowData = RowData>(
                           row={row}
                           index={index}
                           virtualRowProps={rowProps}
-                          rowClass={local.rowClass}
                           rowProps={local.rowProps}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}

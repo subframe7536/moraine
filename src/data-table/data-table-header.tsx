@@ -165,7 +165,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
           <span
             id={labelId}
             data-slot="data-table-head-label"
-            class={`${TABLE_TEXT_ALIGN_CLASS[column().columnDef.meta?.align ?? 'left']}  ${DATA_TABLE_HEAD_LABEL_CLASS}`}
+            class={`${TABLE_TEXT_ALIGN_CLASS[column().columnDef.meta?.align ?? 'start']}  ${DATA_TABLE_HEAD_LABEL_CLASS}`}
           >
             <FlexRender header={props.header} />
           </span>

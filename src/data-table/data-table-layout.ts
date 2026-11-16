@@ -181,7 +181,7 @@ export function createDataTableLayout<TData extends RowData>(
       const meta = column.columnDef.meta
       return {
         class: [
-          TABLE_TEXT_ALIGN_CLASS[meta?.align ?? 'left'],
+          TABLE_TEXT_ALIGN_CLASS[meta?.align ?? 'start'],
           meta?.truncated && 'truncate',
           section === 'body' && resizable() && DATA_TABLE_RESIZABLE_CELL_CLASS,
           meta?.class,

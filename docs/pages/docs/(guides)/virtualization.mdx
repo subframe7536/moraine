@@ -150,7 +150,7 @@ const invoices: Invoice[] = Array.from({ length: 10_000 }, (_, index) => ({
 }))
 const columns: DataTableT.Column<Invoice>[] = [
   { accessorKey: 'invoice', header: 'Invoice' },
-  { accessorKey: 'amount', header: 'Amount', meta: { align: 'right' } },
+  { accessorKey: 'amount', header: 'Amount', meta: { align: 'end' } },
 ]
 
 export function VirtualizedInvoices() {

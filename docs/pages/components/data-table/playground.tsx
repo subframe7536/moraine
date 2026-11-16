@@ -41,8 +41,8 @@ const COLUMNS: DataTableT.Column<Employee>[] = [
 
 interface PlaygroundProps {
   size?: 'sm' | 'md' | 'lg'
-  hoverEffect?: boolean
-  showBorder?: 'row' | 'col' | 'both'
+  highlightOnHover?: boolean
+  border?: 'row' | 'col' | 'both'
   sorting?: boolean
   selectable?: boolean
   pagination?: boolean
@@ -82,8 +82,8 @@ function EmployeesTable(props: PlaygroundProps) {
       table={table}
       aria-label="Employees"
       size={props.size}
-      hoverEffect={props.hoverEffect}
-      showBorder={props.showBorder}
+      highlightOnHover={props.highlightOnHover}
+      border={props.border}
       sticky={props.sticky}
       maxHeight={props.sticky ? 280 : undefined}
       loading={props.loading}
@@ -116,10 +116,10 @@ export default function DataTablePlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
+        { kind: 'switch', prop: 'highlightOnHover', label: 'Hover Effect', defaultValue: true },
         {
           kind: 'select',
-          prop: 'showBorder',
+          prop: 'border',
           label: 'Show Border',
           defaultValue: 'row',
           options: [

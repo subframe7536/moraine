@@ -161,5 +161,5 @@ export default function BasicExample() {
     initialState: { sorting: [{ id: 'role', desc: false }] },
   })
 
-  return <DataTable table={table} aria-label="Team members" hoverEffect />
+  return <DataTable table={table} aria-label="Team members" highlightOnHover />
 }

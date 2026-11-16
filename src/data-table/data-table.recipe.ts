@@ -155,8 +155,8 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
-    hoverEffect: false,
-    showBorder: 'row',
+    highlightOnHover: false,
+    border: 'row',
     sticky: false,
   },
   variants: {
@@ -186,7 +186,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         checkbox: CHECKBOX_CONTROL_SIZE_CLASS.lg,
       },
     },
-    hoverEffect: {
+    highlightOnHover: {
       true: {
         row: '[tbody>&:not([data-selected],[data-empty]):hover]:bg-accent/50',
         cell: '[tbody>tr:not([data-selected]):hover>&]:data-pinned:bg-[color-mix(in_oklch,var(--accent)_50%,var(--background))]',
@@ -194,7 +194,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     },
     // Cells carry their own row borders so they still render in `border-separate` mode
     // (sticky header/footer and pinned columns), where `tr` borders are not painted.
-    showBorder: {
+    border: {
       row: {
         header: '[&_tr]:border-b',
         head: 'border-b',

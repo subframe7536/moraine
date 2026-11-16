@@ -91,7 +91,7 @@ export namespace DataTableT {
   }
 
   export interface ColumnMeta {
-    align?: 'left' | 'center' | 'right'
+    align?: 'start' | 'center' | 'end'
     truncated?: boolean
     class?: SlotClassValue
   }
@@ -229,13 +229,15 @@ export namespace DataTableT {
   >
 
   /**
-   * Attributes for a body row element. `class` and `style` come from `rowClass` and the `row`
-   * slot instead; `ref`, `onClick`, and `onDblClick` are composed with the table's own.
+   * Attributes for a body row element. `class` merges into the `row` slot; `ref`, `onClick`,
+   * and `onDblClick` are composed with the table's own.
    */
   export type RowAttributes = Omit<
     JSX.HTMLAttributes<HTMLTableRowElement>,
     'children' | 'class' | 'classList' | 'style'
-  >
+  > & {
+    class?: SlotClassValue
+  }
 
   /**
    * Virtualizer accepted by the `virtualizer` prop, such as
@@ -251,8 +253,6 @@ export namespace DataTableT {
     translations?: Translations
     /** Ref forwarded to the wrapper element around the table. */
     wrapperRef?: Ref<HTMLDivElement>
-    /** Custom class or class getter applied to each row (`<tr>`). */
-    rowClass?: SlotClassValue | ((row: Row<TData>) => SlotClassValue)
     /**
      * Extra attributes for each body row (`<tr>`), such as drag wiring from
      * `createListSortable().useRow`. Called once per row, under that row's owner, so it may call

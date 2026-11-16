@@ -19,7 +19,7 @@ import { FlexRender } from './flex-render'
 
 export type DataTableRowProps<TData extends RowData> = Pick<
   DataTableT.Base<TData>,
-  'rowClass' | 'rowProps' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
+  'rowProps' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
 > & {
   row: DataTableT.Row<TData>
   index: number
@@ -99,10 +99,7 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
 
   const rowSlot = ctx.slotWith('row', {
     own: () => ({
-      class: [
-        typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
-        clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS,
-      ],
+      class: [extraOwned.class, clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS],
       style:
         depth() > 0
           ? { '--mo-data-table-depth': depth(), ...DATA_TABLE_TREE_ROW_STYLE }
@@ -131,7 +128,7 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
           },
         }) ?? {},
     ),
-    ['ref', 'onClick', 'onDblClick'],
+    ['ref', 'onClick', 'onDblClick', 'class'],
   )
 
   // Selection is presentation only: `aria-selected` is not valid on rows of a static table.

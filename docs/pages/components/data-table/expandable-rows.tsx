@@ -149,7 +149,7 @@ const COLUMNS: DataTableT.Column<Order>[] = [
     accessorKey: 'total',
     header: 'Total',
     size: 120,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="font-medium tabular-nums">{props.row.original.total}</span>,
   },
 ]
@@ -168,7 +168,7 @@ export default function ExpandableRowsExample() {
       </div>
       <DataTable
         table={table}
-        hoverEffect
+        highlightOnHover
         expandedRowRender={(props) => (
           <div class="flex flex-col gap-3">
             <div class="text-xs flex flex-wrap gap-x-6 gap-y-1">

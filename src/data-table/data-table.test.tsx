@@ -366,13 +366,15 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row')[1]?.textContent).toContain('Charlie')
   })
 
-  it('applies the rowClass result to matching rows', () => {
+  it('applies the rowProps class to matching rows', () => {
     render(() => {
       const table = createPersonTable()
       return (
         <DataTable
           table={table}
-          rowClass={(row) => (row.original.role === 'Intern' ? 'user-intern-row' : undefined)}
+          rowProps={({ row }) => ({
+            class: row.original.role === 'Intern' ? 'user-intern-row' : undefined,
+          })}
         />
       )
     })
@@ -407,7 +409,7 @@ describe('DataTable', () => {
   it('marks the empty-state row with data-empty', () => {
     const { container } = render(() => {
       const table = createPersonTable({ data: [] })
-      return <DataTable table={table} hoverEffect />
+      return <DataTable table={table} highlightOnHover />
     })
 
     const emptyRow = container.querySelector('tbody > tr')!
@@ -417,7 +419,7 @@ describe('DataTable', () => {
   it('keeps the sort button outside the column label, so its name is the label alone', () => {
     const columns: DataTableT.Column<Person>[] = [
       { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'age', header: 'Age', meta: { align: 'right' } },
+      { accessorKey: 'age', header: 'Age', meta: { align: 'end' } },
     ]
     render(() => {
       const table = createPersonTable({ columns })

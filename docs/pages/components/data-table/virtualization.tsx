@@ -31,7 +31,7 @@ const COLUMNS: DataTableT.Column<MetricRow>[] = [
     header: `H${hour + 1}`,
     accessorFn: (row) => row.readings[hour],
     size: 72,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.readings[hour]}%</span>,
   })),
 ]

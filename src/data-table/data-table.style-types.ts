@@ -45,9 +45,9 @@ export type DataTableStyleVariants = {
   /** Size density of table cells, text, and padding. @default 'md' */
   size?: 'sm' | 'md' | 'lg'
   /** Highlight row on mouse hover. @default false */
-  hoverEffect?: boolean
+  highlightOnHover?: boolean
   /** Border divider layout. @default 'row' */
-  showBorder?: 'row' | 'col' | 'both'
+  border?: 'row' | 'col' | 'both'
   /** Whether the header and/or footer stick to the edges of the scroll container (`true` sticks both). @default false */
   sticky?: boolean | 'header' | 'footer'
 }

@@ -139,14 +139,14 @@ const COLUMNS: DataTableT.Column<Customer>[] = [
     accessorKey: 'spend',
     header: 'Monthly Spend',
     size: 140,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="font-medium tabular-nums">{props.row.original.spend}</span>,
   },
   {
     accessorKey: 'invoices',
     header: 'Invoices',
     size: 100,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.invoices}</span>,
   },
   {
@@ -224,7 +224,7 @@ export default function PinnedColumnsExample() {
         Scroll horizontally: the selection and Customer ID columns stay pinned on the left, and the
         actions column stays pinned on the right.
       </div>
-      <DataTable table={table} hoverEffect />
+      <DataTable table={table} highlightOnHover />
     </div>
   )
 }

@@ -126,7 +126,7 @@ export default function StickySectionsExample() {
         aria-label="Audit log"
         sticky
         maxHeight={360}
-        hoverEffect
+        highlightOnHover
         size="sm"
       />
     </div>

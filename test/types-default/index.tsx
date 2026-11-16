@@ -555,7 +555,7 @@ export type DataTableContracts = [
 const dataTableRows = [{ id: '1', name: 'Alice', spend: 100 }]
 const dataTableCols: DataTableT.Column<(typeof dataTableRows)[number]>[] = [
   { accessorKey: 'name', header: 'Name' },
-  { accessorKey: 'spend', header: 'Spend', meta: { align: 'right', truncated: true } },
+  { accessorKey: 'spend', header: 'Spend', meta: { align: 'end', truncated: true } },
 ]
 const invalidDataTableCol: DataTableT.Column<(typeof dataTableRows)[number]> = {
   accessorKey: 'name',

@@ -95,7 +95,7 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
     size: 150,
     minSize: 110,
     maxSize: 220,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.rps.toLocaleString()}</span>,
   },
   {
@@ -104,7 +104,7 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
     size: 140,
     minSize: 100,
     maxSize: 200,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.p95Latency}</span>,
   },
   {
@@ -113,7 +113,7 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
     size: 130,
     minSize: 100,
     maxSize: 180,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => {
       const elevated = () => Number.parseFloat(props.row.original.errorRate) > 1
       return (
@@ -135,7 +135,7 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
     size: 120,
     minSize: 90,
     maxSize: 180,
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">{props.row.original.cpu}</span>,
   },
   {
@@ -167,7 +167,7 @@ export default function ResizableColumnsExample() {
       <div class="text-sm text-muted-foreground">
         Drag the boundary between two column headers to resize a column.
       </div>
-      <DataTable table={table} showBorder="both" hoverEffect />
+      <DataTable table={table} border="both" highlightOnHover />
     </div>
   )
 }

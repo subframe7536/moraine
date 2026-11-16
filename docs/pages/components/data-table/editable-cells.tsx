@@ -151,7 +151,7 @@ export default function EditableCellsExample() {
       accessorKey: 'stock',
       header: 'Stock',
       size: 120,
-      meta: { align: 'right' },
+      meta: { align: 'end' },
       cell: (context) => (
         <EditableCell context={context} columnId="stock" label="Stock">
           <span class="tabular-nums">{context.row.original.stock}</span>

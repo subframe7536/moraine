@@ -63,7 +63,7 @@ const COLUMNS: DataTableT.Column<Order>[] = [
   {
     accessorKey: 'total',
     header: 'Total',
-    meta: { align: 'right' },
+    meta: { align: 'end' },
     cell: (props) => <span class="tabular-nums">${props.row.original.total.toFixed(2)}</span>,
   },
 ]
