@@ -60,7 +60,7 @@ export function LandingPage() {
           class="mb-6 px-4 border-primary/60 rounded-full bg-primary/10 gap-2 h-9"
           classes={{ leading: 'text-primary' }}
         >
-          Styled & Composable for SolidJS · Pre-Alpha
+          Styled & Composable for SolidJS · Beta
         </Badge>
         <h1
           id="landing-title"
