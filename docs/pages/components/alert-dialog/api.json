@@ -15,13 +15,13 @@
       "description": "Props for the AlertDialog host component.",
       "props": [
         {
-          "name": "center",
+          "name": "align",
           "optional": true,
-          "type": "boolean",
+          "type": "'start' | 'center'",
           "description": "Centers the icon, title, and description, and stretches the actions into an equal row.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": "start"
           }
         },
         {
@@ -79,16 +79,6 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "subtle",
-          "optional": true,
-          "type": "boolean",
-          "description": "Gives the footer a top border and muted background, like Card's `subtle` variant.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "transition",
           "optional": true,
           "type": "boolean",
@@ -108,7 +98,17 @@
           "name": "type",
           "optional": true,
           "type": "Type",
-          "description": "Status tone. `default` has no icon unless `danger` is set.",
+          "description": "Status tone. `default` has no icon.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'default' | 'subtle'",
+          "description": "`subtle` gives the footer a top border and muted background, like Card's `subtle` variant.",
           "default": {
             "kind": "literal",
             "value": "default"

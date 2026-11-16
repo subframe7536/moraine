@@ -74,6 +74,12 @@
           "description": "Resolves an item from the canonical collection by value.\n\nUse this when `items` represents only the current navigation view,\nsuch as a filtered collection. When omitted, items are resolved from\nthe current `items` collection."
         },
         {
+          "name": "getItemLabel",
+          "optional": true,
+          "type": "(item: TItem) => string",
+          "description": "Machine-readable text for matching; does not change visual labels."
+        },
+        {
           "name": "gutter",
           "optional": true,
           "type": "number",
@@ -101,12 +107,6 @@
           "type": "readonly TItem[]",
           "typeDetails": "readonly ({\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n})[]",
           "description": "Current flat navigation collection."
-        },
-        {
-          "name": "itemToLabelString",
-          "optional": true,
-          "type": "(item: TItem) => string",
-          "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
           "name": "loop",
@@ -233,7 +233,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -320,7 +321,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -349,7 +351,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -421,7 +424,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -450,7 +454,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -479,7 +484,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -508,7 +514,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",

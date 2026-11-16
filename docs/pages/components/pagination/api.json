@@ -44,6 +44,16 @@
           "description": "Component used to render previous and next controls."
         },
         {
+          "name": "controls",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show previous and next control buttons.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "controlVariant",
           "optional": true,
           "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
@@ -150,16 +160,6 @@
           "optional": true,
           "type": "Ref<HTMLElement>",
           "description": "Ref forwarded to the root `<nav>` element."
-        },
-        {
-          "name": "showControls",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show previous and next control buttons.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         },
         {
           "name": "siblingCount",

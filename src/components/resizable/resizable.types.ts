@@ -76,6 +76,7 @@ export namespace ResizableT {
      * @default 10
      */
     keyboardDelta?: number
+    /** Whether pointer and keyboard resizing are disabled for the group. */
     disabled?: boolean
   }
 

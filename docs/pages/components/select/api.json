@@ -87,6 +87,12 @@
           "description": "Content or render function for the empty state."
         },
         {
+          "name": "getItemLabel",
+          "optional": true,
+          "type": "(item: NormalizedItem<TItem>) => string",
+          "description": "Machine-readable text for matching; does not change visual labels."
+        },
+        {
           "name": "gutter",
           "optional": true,
           "type": "number",
@@ -126,12 +132,6 @@
           "type": "Entry<TItem>[]",
           "typeDetails": "(string | {\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: (string | {\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  })[];\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
           "description": "String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection."
-        },
-        {
-          "name": "itemToLabelString",
-          "optional": true,
-          "type": "(item: NormalizedItem<TItem>) => string",
-          "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
           "name": "leading",

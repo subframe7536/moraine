@@ -48,7 +48,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.",
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevented`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -58,7 +58,7 @@
           "name": "closeOnOverlayClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevent`.",
+          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevented`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -123,7 +123,13 @@
           }
         },
         {
-          "name": "onClosePrevent",
+          "name": "mount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
+          "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
           "description": "Called when a dismissal attempt is blocked."
@@ -161,12 +167,6 @@
             "kind": "literal",
             "value": true
           }
-        },
-        {
-          "name": "portalMount",
-          "optional": true,
-          "type": "Node",
-          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
         },
         {
           "name": "preventScroll",
@@ -312,7 +312,8 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
@@ -370,12 +371,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -415,12 +418,14 @@
           "default": {
             "kind": "literal",
             "value": "h2"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -431,7 +436,8 @@
         {
           "name": "id",
           "optional": true,
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier applied to the rendered element."
         },
         {
           "name": "style",
@@ -465,12 +471,14 @@
           "default": {
             "kind": "literal",
             "value": "p"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -481,7 +489,8 @@
         {
           "name": "id",
           "optional": true,
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier applied to the rendered element."
         },
         {
           "name": "style",
@@ -515,12 +524,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -560,12 +571,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",

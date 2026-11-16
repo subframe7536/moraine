@@ -84,30 +84,10 @@
           "description": "Match toasts targeting a specific Toast host identifier."
         },
         {
-          "name": "invert",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to invert colors (e.g. dark toast on light theme).",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps>",
           "description": "Renders the inner content of every toast on this host that was not opened with\n`Toast.custom`. Receives the instance context and the resolved call options."
-        },
-        {
-          "name": "large",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to use large multi-line layout.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         },
         {
           "name": "placement",
@@ -140,6 +120,16 @@
           }
         },
         {
+          "name": "size",
+          "optional": true,
+          "type": "'md' | 'lg'",
+          "description": "`lg` uses a multi-line layout with the actions on their own row.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -162,6 +152,16 @@
           "optional": true,
           "type": "'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'",
           "description": "Visual status variant.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'default' | 'invert'",
+          "description": "`invert` flips the colors (e.g. dark toast on light theme).",
           "default": {
             "kind": "literal",
             "value": "default"

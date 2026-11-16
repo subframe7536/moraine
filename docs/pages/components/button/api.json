@@ -43,6 +43,16 @@
           }
         },
         {
+          "name": "autoLoading",
+          "optional": true,
+          "type": "boolean",
+          "description": "Auto toggles loading while async click handlers are pending.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element | Component<ChildrenRenderProps>",
@@ -77,16 +87,6 @@
           "optional": true,
           "type": "boolean",
           "description": "Controlled loading state.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "loadingAuto",
-          "optional": true,
-          "type": "boolean",
-          "description": "Auto toggles loading while async click handlers are pending.",
           "default": {
             "kind": "literal",
             "value": false

@@ -60,7 +60,9 @@ export interface SidebarStyleSlot<T = unknown> {
 }
 
 export interface SidebarStyleVariants {
+  /** Which viewport edge the sidebar attaches to. */
   side?: 'left' | 'right'
+  /** Sidebar chrome variant: `default` sits inline, `floating` and `inset` lift it from the page. */
   variant?: 'default' | 'floating' | 'inset'
 }
 

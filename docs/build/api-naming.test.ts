@@ -25,6 +25,20 @@ const BANNED_PROPS = new Set([
   'edgeThreshold',
   'onReachStart',
   'onReachEnd',
+  // Replaced names kept out by the naming conventions below.
+  'showValue',
+  'showControls',
+  'showBorder',
+  'hoverEffect',
+  'loadingAuto',
+  'portalMount',
+  'onClosePrevent',
+  'onCloseBlocked',
+  'controllerRef',
+  'inputsRef',
+  'itemToLabelString',
+  'filterItem',
+  'filterItems',
 ])
 
 // Item predicate callbacks may keep the `is` prefix; component booleans may not.
@@ -115,6 +129,34 @@ describe('api naming rules', () => {
           const valueName = stem.charAt(0).toLowerCase() + stem.slice(1)
           if (!names.has(valueName)) {
             offenders.push(`${doc.key} ${part.name}.${prop.name} expects ${valueName}`)
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('part-visibility props do not use the show prefix', () => {
+    const offenders: string[] = []
+    for (const { doc } of apiDocs) {
+      for (const part of doc.parts) {
+        for (const prop of part.props) {
+          if (/^show[A-Z]/.test(prop.name)) {
+            offenders.push(`${doc.key} ${part.name}.${prop.name}`)
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  test('*Ref props are DOM element refs', () => {
+    const offenders: string[] = []
+    for (const { doc } of apiDocs) {
+      for (const part of doc.parts) {
+        for (const prop of part.props) {
+          if (/Refs?$/.test(prop.name) && !prop.type.startsWith('Ref<')) {
+            offenders.push(`${doc.key} ${part.name}.${prop.name}: ${prop.type}`)
           }
         }
       }

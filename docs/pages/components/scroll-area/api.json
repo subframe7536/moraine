@@ -38,12 +38,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "controllerRef",
-          "optional": true,
-          "type": "(controller: Controller) => void",
-          "description": "Receives the imperative controller once, during setup."
-        },
-        {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<TItem>>",
@@ -124,6 +118,12 @@
             "kind": "literal",
             "value": 0
           }
+        },
+        {
+          "name": "setController",
+          "optional": true,
+          "type": "(controller: Controller) => void",
+          "description": "Receives the imperative controller once, during setup."
         },
         {
           "name": "shadow",

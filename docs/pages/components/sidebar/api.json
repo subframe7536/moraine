@@ -26,7 +26,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -112,6 +113,7 @@
           "name": "side",
           "optional": true,
           "type": "'left' | 'right'",
+          "description": "Which viewport edge the sidebar attaches to.",
           "default": {
             "kind": "literal",
             "value": "left"
@@ -139,6 +141,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'floating' | 'inset'",
+          "description": "Sidebar chrome variant: `default` sits inline, `floating` and `inset` lift it from the page.",
           "default": {
             "kind": "literal",
             "value": "default"
@@ -182,12 +185,14 @@
           "default": {
             "kind": "literal",
             "value": "aside"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -198,7 +203,8 @@
         {
           "name": "ref",
           "optional": true,
-          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",
@@ -268,12 +274,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -313,12 +321,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -358,12 +368,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -403,12 +415,14 @@
           "default": {
             "kind": "literal",
             "value": "main"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -472,7 +486,8 @@
         {
           "name": "ref",
           "optional": true,
-          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",
@@ -506,12 +521,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -551,12 +568,14 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -596,7 +615,8 @@
           "default": {
             "kind": "literal",
             "value": "ul"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
@@ -642,7 +662,8 @@
           "default": {
             "kind": "literal",
             "value": "li"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
@@ -684,7 +705,8 @@
         {
           "name": "active",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether the button is highlighted as the current item."
         },
         {
           "name": "as",
@@ -723,17 +745,20 @@
         {
           "name": "href",
           "optional": true,
-          "type": "string"
+          "type": "string",
+          "description": "Renders the button as a link."
         },
         {
           "name": "leading",
           "optional": true,
-          "type": "IconT.Name"
+          "type": "IconT.Name",
+          "description": "Icon rendered before the label."
         },
         {
           "name": "ref",
           "optional": true,
-          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",
@@ -744,7 +769,8 @@
         {
           "name": "trailing",
           "optional": true,
-          "type": "IconT.Name"
+          "type": "IconT.Name",
+          "description": "Icon rendered after the label."
         }
       ]
     },
@@ -772,7 +798,8 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
@@ -924,12 +951,14 @@
         {
           "name": "leading",
           "optional": true,
-          "type": "IconT.Name"
+          "type": "IconT.Name",
+          "description": "Icon rendered before the label."
         },
         {
           "name": "ref",
           "optional": true,
-          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",
@@ -973,7 +1002,8 @@
           "default": {
             "kind": "literal",
             "value": "ul"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",

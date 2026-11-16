@@ -16,6 +16,16 @@
       "defaultElement": "table",
       "props": [
         {
+          "name": "border",
+          "optional": true,
+          "type": "'row' | 'col' | 'both'",
+          "description": "Which divider borders are displayed.",
+          "default": {
+            "kind": "literal",
+            "value": "row"
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -34,23 +44,13 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "hoverEffect",
+          "name": "highlightOnHover",
           "optional": true,
           "type": "boolean",
           "description": "Whether rows highlight on hover.",
           "default": {
             "kind": "literal",
             "value": false
-          }
-        },
-        {
-          "name": "showBorder",
-          "optional": true,
-          "type": "'row' | 'col' | 'both'",
-          "description": "Which divider borders are displayed.",
-          "default": {
-            "kind": "literal",
-            "value": "row"
           }
         },
         {
@@ -106,7 +106,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -135,7 +136,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -164,7 +166,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -193,7 +196,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -228,17 +232,18 @@
         {
           "name": "align",
           "optional": true,
-          "type": "'left' | 'center' | 'right'",
+          "type": "'start' | 'center' | 'end'",
           "description": "Text alignment for the column header.",
           "default": {
             "kind": "literal",
-            "value": "left"
+            "value": "start"
           }
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -267,17 +272,18 @@
         {
           "name": "align",
           "optional": true,
-          "type": "'left' | 'center' | 'right'",
+          "type": "'start' | 'center' | 'end'",
           "description": "Text alignment for the cell.",
           "default": {
             "kind": "literal",
-            "value": "left"
+            "value": "start"
           }
         },
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -306,7 +312,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",

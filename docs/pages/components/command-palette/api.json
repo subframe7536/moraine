@@ -99,7 +99,7 @@
           "description": "Content or render function for the empty state."
         },
         {
-          "name": "filterItems",
+          "name": "filterGroups",
           "optional": true,
           "type": "(args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]",
           "description": "Custom filter function that fully controls which groups and items are visible."

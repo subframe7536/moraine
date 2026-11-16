@@ -18,7 +18,7 @@
         {
           "name": "align",
           "optional": true,
-          "type": "'center' | 'start'",
+          "type": "'start' | 'center' | 'end'",
           "description": "Text alignment; omitted values follow the control layout."
         },
         {

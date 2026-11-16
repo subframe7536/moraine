@@ -38,7 +38,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before closing in hover mode.",
+          "description": "Delay in milliseconds before closing on hover.",
           "default": {
             "kind": "literal",
             "value": 100
@@ -121,17 +121,7 @@
           }
         },
         {
-          "name": "mode",
-          "optional": true,
-          "type": "Mode",
-          "description": "Interaction mode for triggering the popover.",
-          "default": {
-            "kind": "literal",
-            "value": "click"
-          }
-        },
-        {
-          "name": "onClosePrevent",
+          "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
           "description": "Called when a dismissal attempt is blocked."
@@ -152,10 +142,20 @@
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before opening in hover mode.",
+          "description": "Delay in milliseconds before opening on hover.",
           "default": {
             "kind": "literal",
             "value": 100
+          }
+        },
+        {
+          "name": "openOnHover",
+          "optional": true,
+          "type": "boolean",
+          "description": "Opens on hover and focus instead of click.",
+          "default": {
+            "kind": "literal",
+            "value": false
           }
         },
         {

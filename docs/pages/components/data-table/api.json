@@ -21,6 +21,16 @@
       "defaultElement": "table",
       "props": [
         {
+          "name": "border",
+          "optional": true,
+          "type": "'row' | 'col' | 'both'",
+          "description": "Border divider layout.",
+          "default": {
+            "kind": "literal",
+            "value": "row"
+          }
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -51,7 +61,7 @@
           "description": "Extra attributes for each header cell (`<th>`), such as drag wiring from\n`createListSortable().useRow` to reorder columns. Called once per header cell, under its\nowner; read `context` fields lazily to follow index changes."
         },
         {
-          "name": "hoverEffect",
+          "name": "highlightOnHover",
           "optional": true,
           "type": "boolean",
           "description": "Highlight row on mouse hover.",
@@ -91,26 +101,10 @@
           "description": "Callback fired when a table body row is double-clicked."
         },
         {
-          "name": "rowClass",
-          "optional": true,
-          "type": "SlotClassValue | ((row: Row<TData>) => SlotClassValue)",
-          "description": "Custom class or class getter applied to each row (`<tr>`)."
-        },
-        {
           "name": "rowProps",
           "optional": true,
           "type": "(context: RowPropsContext<TData>) => RowAttributes",
           "description": "Extra attributes for each body row (`<tr>`), such as drag wiring from\n`createListSortable().useRow`. Called once per row, under that row's owner, so it may call\nrow-level hooks; read `context` fields lazily to follow index changes."
-        },
-        {
-          "name": "showBorder",
-          "optional": true,
-          "type": "'row' | 'col' | 'both'",
-          "description": "Border divider layout.",
-          "default": {
-            "kind": "literal",
-            "value": "row"
-          }
         },
         {
           "name": "size",

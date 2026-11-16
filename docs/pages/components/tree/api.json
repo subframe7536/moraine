@@ -364,7 +364,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",

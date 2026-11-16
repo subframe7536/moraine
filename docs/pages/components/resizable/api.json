@@ -16,7 +16,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -39,12 +40,14 @@
         {
           "name": "disabled",
           "optional": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether pointer and keyboard resizing are disabled for the group."
         },
         {
           "name": "id",
           "optional": true,
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier applied to the rendered element."
         },
         {
           "name": "keyboardDelta",
@@ -111,7 +114,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",

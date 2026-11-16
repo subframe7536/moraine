@@ -111,7 +111,10 @@ export namespace FormT {
   export type FieldProps<
     TSchema extends Schema = FormSchema,
     T extends ValidComponent = 'div',
-  > = Omit<StandaloneFieldProps<T>, 'name'> & { name: FieldName<TSchema> }
+  > = Omit<StandaloneFieldProps<T>, 'name'> & {
+    /** Schema field name this field binds to. */
+    name: FieldName<TSchema>
+  }
 }
 
 export type FormProps<TSchema extends Schema = FormSchema> = FormT.Props<TSchema>

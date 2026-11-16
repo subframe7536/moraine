@@ -24,7 +24,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -164,7 +165,8 @@
         {
           "name": "name",
           "optional": false,
-          "type": "FieldName<TSchema>"
+          "type": "FieldName<TSchema>",
+          "description": "Schema field name this field binds to."
         },
         {
           "name": "orientation",

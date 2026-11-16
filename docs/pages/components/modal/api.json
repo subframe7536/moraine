@@ -28,7 +28,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.",
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevented`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -38,7 +38,7 @@
           "name": "closeOnOverlayClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevent`.",
+          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevented`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -83,7 +83,13 @@
           }
         },
         {
-          "name": "onClosePrevent",
+          "name": "mount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
+          "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
           "description": "Called when a dismissal attempt is blocked."
@@ -105,12 +111,6 @@
           "optional": true,
           "type": "boolean",
           "description": "Controlled open state."
-        },
-        {
-          "name": "portalMount",
-          "optional": true,
-          "type": "Node",
-          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
         },
         {
           "name": "preventScroll",
@@ -292,7 +292,8 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",

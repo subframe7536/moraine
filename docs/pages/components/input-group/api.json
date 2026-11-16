@@ -16,7 +16,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element"
+          "type": "JSX.Element",
+          "description": "Content rendered inside the element."
         },
         {
           "name": "class",
@@ -98,7 +99,8 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",
@@ -154,7 +156,8 @@
           "default": {
             "kind": "literal",
             "value": "div"
-          }
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "children",

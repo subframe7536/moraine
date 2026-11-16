@@ -101,16 +101,6 @@
           }
         },
         {
-          "name": "invert",
-          "optional": true,
-          "type": "boolean",
-          "description": "Visual invert of the component.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -157,6 +147,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'default' | 'invert'",
+          "description": "`invert` flips the colors (e.g. dark tooltip on light theme).",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
         }
       ]
     },
@@ -246,7 +246,7 @@
           "name": "kbdVariant",
           "optional": true,
           "type": "'default' | 'outline' | 'invert'",
-          "description": "Visual variant for the shortcut keycaps. Overrides the variant inferred from invert."
+          "description": "Visual variant for the shortcut keycaps. Overrides the variant inferred from `variant=\"invert\"`."
         },
         {
           "name": "style",

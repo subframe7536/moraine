@@ -28,6 +28,13 @@ function isStyleTypeModule(filePath: string): boolean {
   return normalized.endsWith('.style-types.ts') || normalized.endsWith('/theme/style-types.ts')
 }
 
+const NATIVE_PROP_DESCRIPTIONS: Record<string, string> = {
+  children: 'Content rendered inside the element.',
+  as: 'Element or component to render as.',
+  id: 'Unique identifier applied to the rendered element.',
+  ref: 'Ref forwarded to the rendered element.',
+}
+
 function isFiniteStyleAlias(node: ESTree.TSType): boolean {
   if (node.type === 'TSParenthesizedType') {
     return isFiniteStyleAlias(node.typeAnnotation)
@@ -603,6 +610,10 @@ export class TypeExtractor {
     const asProp = props.find((prop) => prop.name === 'as')
     if (asProp && !asProp.default && defaultElement) {
       asProp.default = { kind: 'literal', value: defaultElement }
+    }
+
+    for (const prop of props) {
+      prop.description ??= NATIVE_PROP_DESCRIPTIONS[prop.name]
     }
 
     return { props, defaultElement }

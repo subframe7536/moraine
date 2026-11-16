@@ -26,7 +26,9 @@ export namespace SidebarT {
   export type State = 'expanded' | 'collapsed'
 
   export interface Context {
+    /** Which viewport edge the sidebar attaches to. */
     side: 'left' | 'right'
+    /** Sidebar chrome variant: `default` sits inline, `floating` and `inset` lift it from the page. */
     variant?: Variants['variant'] | null
     state: Accessor<State>
     isMobile: Accessor<boolean>
@@ -246,9 +248,13 @@ export namespace SidebarT {
 
   export type MenuButtonBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
+    /** Renders the button as a link. */
     href?: string
+    /** Whether the button is highlighted as the current item. */
     active?: boolean
+    /** Icon rendered before the label. */
     leading?: IconT.Name
+    /** Icon rendered after the label. */
     trailing?: IconT.Name
     /**
      * Whether activating this button on mobile closes the drawer.
@@ -318,6 +324,7 @@ export namespace SidebarT {
 
   export type MenuSubTriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
+    /** Icon rendered before the label. */
     leading?: IconT.Name
     /**
      * Disclosure icon that rotates while expanded.
