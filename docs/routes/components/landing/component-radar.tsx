@@ -164,7 +164,7 @@ export function ComponentRadar() {
               />
             </div>
             <BoldSlider
-              label="Bold"
+              textLabel="Bold"
               value={boldValue()}
               min={0}
               max={100}

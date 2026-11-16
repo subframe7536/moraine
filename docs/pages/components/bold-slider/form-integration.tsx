@@ -14,7 +14,7 @@ export function FormIntegration() {
     <form.Form>
       <div class="max-w-sm space-y-4">
         <form.Field name="brightness" label="Brightness" description="Keep it at least 20%.">
-          <BoldSlider defaultValue={60} step={5} formatValue={(value) => `${value}%`} />
+          <BoldSlider defaultValue={60} step={5} valueLabel={(value) => `${value}%`} />
         </form.Field>
         <Button type="submit" variant="soft" tone="neutral" size="sm">
           Validate

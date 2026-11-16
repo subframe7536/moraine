@@ -26,9 +26,8 @@ function countDecimals(value: number): number {
 /** Single-value slider with a filled track, an inline label and value, and an edge indicator. */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'label',
-    'showValue',
-    'formatValue',
+    'textLabel',
+    'valueLabel',
     'size',
     'variant',
     'classes',
@@ -81,8 +80,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   })
 
   const formatValue = (value: number): string => {
-    if (local.formatValue) {
-      return local.formatValue(value)
+    if (typeof local.valueLabel === 'function') {
+      return local.valueLabel(value)
     }
     const step = props.step
     const decimals = typeof step === 'number' && step > 0 ? countDecimals(step) : 2
@@ -149,12 +148,12 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
 
       return (
         <>
-          <Show when={local.label}>
+          <Show when={local.textLabel}>
             <span data-slot="bold-slider-label" {...labelSlot}>
-              {local.label}
+              {local.textLabel}
             </span>
           </Show>
-          <Show when={local.showValue ?? true}>
+          <Show when={local.valueLabel ?? true}>
             <span data-slot="bold-slider-value" {...valueSlot}>
               {formatted()}
             </span>
@@ -190,7 +189,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       }}
       orientation="horizontal"
       size={variants.size}
-      aria-label={local['aria-label'] ?? local.label}
+      aria-label={local['aria-label'] ?? local.textLabel}
       {...overrides({
         root: 'root',
         track: 'track',

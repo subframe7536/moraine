@@ -7,14 +7,14 @@ export function BlurSlider() {
   return (
     <div class="max-w-md w-full">
       <BoldSlider
-        label="Blur"
+        textLabel="Blur"
         value={value()}
         onValueChange={setValue}
         min={0}
         max={100}
         step={1}
         size="lg"
-        formatValue={(blur) => `${blur}px`}
+        valueLabel={(blur) => `${blur}px`}
       />
     </div>
   )

@@ -50,12 +50,6 @@
           "description": "The id of a `<form>` the hidden inputs belong to, instead of the closest\nancestor form."
         },
         {
-          "name": "formatValue",
-          "optional": true,
-          "type": "(value: number) => string",
-          "description": "Formats the displayed value.\nBy default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`."
-        },
-        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -66,12 +60,6 @@
           "optional": true,
           "type": "Ref<HTMLInputElement>",
           "description": "Optional inner input element ref."
-        },
-        {
-          "name": "label",
-          "optional": true,
-          "type": "string",
-          "description": "Text shown at the start of the track. Also used as the default `aria-label`."
         },
         {
           "name": "marker",
@@ -152,16 +140,6 @@
           }
         },
         {
-          "name": "showValue",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show the formatted value at the end of the track.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -190,6 +168,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "textLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Text shown at the start of the track. Also used as the default `aria-label`."
+        },
+        {
           "name": "thumbAlignment",
           "optional": true,
           "type": "'contain' | 'overflow'",
@@ -210,6 +194,16 @@
           "optional": true,
           "type": "number",
           "description": "The current value of the input (controlled)."
+        },
+        {
+          "name": "valueLabel",
+          "optional": true,
+          "type": "boolean | ((value: number) => string)",
+          "description": "Whether to show the value at the end of the track, or a formatter for it.\nBy default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "variant",

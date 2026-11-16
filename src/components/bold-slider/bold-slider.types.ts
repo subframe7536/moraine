@@ -24,19 +24,14 @@ export namespace BoldSliderT {
     /**
      * Text shown at the start of the track. Also used as the default `aria-label`.
      */
-    label?: string
+    textLabel?: string
 
     /**
-     * Whether to show the formatted value at the end of the track.
+     * Whether to show the value at the end of the track, or a formatter for it.
+     * By default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.
      * @default true
      */
-    showValue?: boolean
-
-    /**
-     * Formats the displayed value.
-     * By default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.
-     */
-    formatValue?: (value: number) => string
+    valueLabel?: boolean | ((value: number) => string)
   }
 
   /**

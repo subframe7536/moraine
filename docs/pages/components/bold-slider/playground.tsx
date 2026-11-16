@@ -29,7 +29,7 @@ export default function BoldSliderPlayground() {
           ],
         },
         { kind: 'switch', prop: 'step', label: 'Step', defaultValue: true },
-        { kind: 'switch', prop: 'showValue', label: 'Show value', defaultValue: true },
+        { kind: 'switch', prop: 'valueLabel', label: 'Value label', defaultValue: true },
         { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
         { kind: 'switch', prop: 'reversed', label: 'Inverted', defaultValue: false },
@@ -41,11 +41,11 @@ export default function BoldSliderPlayground() {
             defaultValue={0.5}
             min={0}
             max={1}
-            label={props.label}
+            textLabel={props.label}
             size={props.size}
             variant={props.variant}
             step={props.step ? 0.1 : undefined}
-            showValue={props.showValue}
+            valueLabel={props.valueLabel}
             marker={props.marker ? 0.1 : false}
             disabled={props.disabled}
             reversed={props.reversed}

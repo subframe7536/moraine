@@ -14,7 +14,9 @@ function queryAll(container: HTMLElement, selector: string): HTMLElement[] {
 
 describe('BoldSlider', () => {
   test('renders a single slider with label, value, and accessible name', () => {
-    const screen = render(() => <BoldSlider label="Bounce" defaultValue={0.5} max={1} step={0.1} />)
+    const screen = render(() => (
+      <BoldSlider textLabel="Bounce" defaultValue={0.5} max={1} step={0.1} />
+    ))
     const root = query(screen.container, '[data-slot="slider"]')
     const thumbs = queryAll(screen.container, '[data-slot="slider-thumb"]')
     const content = query(screen.container, '[data-slot="bold-slider-content"]')
@@ -34,7 +36,7 @@ describe('BoldSlider', () => {
   })
 
   test('prefers an explicit aria-label over the label', () => {
-    const screen = render(() => <BoldSlider label="Blur" aria-label="Background blur" />)
+    const screen = render(() => <BoldSlider textLabel="Blur" aria-label="Background blur" />)
 
     expect(query(screen.container, '[data-slot="slider"]').getAttribute('aria-label')).toBe(
       'Background blur',
@@ -42,7 +44,7 @@ describe('BoldSlider', () => {
   })
 
   test('renders overlay parts as root children after the track and thumb', () => {
-    const screen = render(() => <BoldSlider label="Bounce" defaultValue={30} />)
+    const screen = render(() => <BoldSlider textLabel="Bounce" defaultValue={30} />)
     const root = query(screen.container, '[data-slot="slider"]')
     const slots = Array.from(root.children).map((child) => child.getAttribute('data-slot'))
 
@@ -79,7 +81,7 @@ describe('BoldSlider', () => {
     const screen = render(() => (
       <>
         <BoldSlider data-testid="stepped" defaultValue={1.5} max={10} step={step()} />
-        <BoldSlider data-testid="custom" defaultValue={40} formatValue={(value) => `${value}px`} />
+        <BoldSlider data-testid="custom" defaultValue={40} valueLabel={(value) => `${value}px`} />
       </>
     ))
     const stepped = screen.getByTestId('stepped')
@@ -93,7 +95,7 @@ describe('BoldSlider', () => {
   })
 
   test('hides the label and value when they are not requested', () => {
-    const screen = render(() => <BoldSlider showValue={false} />)
+    const screen = render(() => <BoldSlider valueLabel={false} />)
 
     expect(screen.container.querySelector('[data-slot="bold-slider-label"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="bold-slider-value"]')).toBeNull()
@@ -105,7 +107,7 @@ describe('BoldSlider', () => {
     const onValueCommit = vi.fn()
     const screen = render(() => (
       <BoldSlider
-        label="Volume"
+        textLabel="Volume"
         defaultValue={50}
         step={10}
         onValueChange={onValueChange}
@@ -162,7 +164,7 @@ describe('BoldSlider', () => {
   })
 
   test('shows keyboard focus state only for keyboard focus', () => {
-    const screen = render(() => <BoldSlider label="Bounce" defaultValue={50} step={10} />)
+    const screen = render(() => <BoldSlider textLabel="Bounce" defaultValue={50} step={10} />)
     const track = query(screen.container, '[data-slot="slider-track"]')
     const thumb = query(screen.container, '[data-slot="slider-thumb"]')
     for (const element of [track, thumb]) {

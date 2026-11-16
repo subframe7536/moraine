@@ -44,7 +44,7 @@ ranges, vertical layouts, or a thin track with a visible thumb.
 import { BoldSlider } from 'moraine'
 
 export function Example() {
-  return <BoldSlider label="Opacity" defaultValue={80} formatValue={(value) => `${value}%`} />
+  return <BoldSlider textLabel="Opacity" defaultValue={80} valueLabel={(value) => `${value}%`} />
 }
 ```
 
@@ -53,9 +53,9 @@ BoldSlider is built on Slider, so `value`, `defaultValue`, `min`, `max`, `step`,
 
 ### Label and value
 
-`label` is drawn at the start of the track and is also the default `aria-label`. The value is
-drawn at the end; set `showValue={false}` to hide it. By default the value is rounded to the
-decimal places of `step`. Pass `formatValue` to add units or other formatting.
+`textLabel` is drawn at the start of the track and is also the default `aria-label`. The value is
+drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to the
+decimal places of `step`. Pass a function to `valueLabel` to add units or other formatting.
 
 Both texts are drawn twice: once over the track and once clipped to the filled range. Each part of
 the text uses the colors of the surface behind it, so it stays readable while the fill passes
@@ -69,7 +69,7 @@ The label, value, and indicator keep the same colors over the fill and the track
 `primary-foreground` where the fill passes under them.
 
 ```tsx
-<BoldSlider variant="solid" label="Bounce" defaultValue={0.5} max={1} step={0.1} />
+<BoldSlider variant="solid" textLabel="Bounce" defaultValue={0.5} max={1} step={0.1} />
 ```
 
 ### Step and markers
@@ -102,9 +102,15 @@ Stack several sliders to build a compact control panel.
 
 ### Show a unit with the value
 
-Use `formatValue` to append a unit.
+Use `valueLabel` to append a unit.
 
 <Preview path="./blur-slider" />
+
+### Map steps to preset names
+
+`valueLabel` can return any string, so snapped steps can read as names instead of numbers.
+
+<Preview path="./quality-slider" />
 
 ### Bind brightness to a form
 
