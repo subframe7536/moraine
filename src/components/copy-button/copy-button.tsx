@@ -26,7 +26,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const group = useButtonGroupContext()
   const messages = useMessages('copyButton', defaultCopyButtonMessages)
 
-  const [local, variantProps, rest] = splitProps(
+  const [local, rest] = splitProps(
     props as CopyButtonProps<T> & {
       ref?: unknown
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
@@ -54,8 +54,8 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'onClick',
       'children',
       'aria-label',
+      'size',
     ],
-    ['size'],
   )
 
   const clipboard = createCopy({
@@ -113,7 +113,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       })),
     },
     context: () => {
-      const s = String(variantProps.size ?? group?.size ?? 'md')
+      const s = String(local.size ?? group?.size ?? 'md')
       const resolvedSize =
         hasIcon() && !hasContent(resolvedChildren())
           ? s.startsWith('icon-')
