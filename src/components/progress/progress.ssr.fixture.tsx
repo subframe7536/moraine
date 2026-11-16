@@ -6,7 +6,7 @@ export function renderProgressFixture(): string {
   return renderToString(() => (
     <Progress
       value={50}
-      label="Upload"
+      textLabel="Upload"
       valueRender={(context) => <span>{context.percent}%</span>}
     />
   ))

@@ -41,24 +41,26 @@ export namespace ProgressT {
     max?: number
 
     /**
-     * Content for the label slot.
+     * Content for the label slot. Also used as the default `aria-label` when it is a string.
      */
-    label?: JSX.Element
+    textLabel?: JSX.Element
 
     /**
-     * Whether to show the value slot for determinate progress.
+     * Whether to show the value slot for determinate progress, or a formatter for it.
+     * `valueRender` takes precedence over the formatted text.
      * @default false
      */
-    showValue?: boolean
+    valueLabel?: boolean | ((params: { value: number; min: number; max: number }) => string)
 
     /**
      * Callback that supplies `aria-valuetext` for a determinate value.
+     * Defaults to the formatted value.
      */
-    valueLabel?: (params: { value: number; min: number; max: number }) => string
+    getValueText?: (params: { value: number; min: number; max: number }) => string
 
     /**
      * Content or render function for the value slot.
-     * Determinate progress shows this instead of the percentage.
+     * Determinate progress shows this instead of the formatted value.
      */
     valueRender?: JSX.Element | Component<ValueRenderProps>
   }

@@ -4,10 +4,10 @@ export function Semantics() {
   return (
     <div class="max-w-md w-full">
       <Progress
-        label="Downloading installation bundle"
+        textLabel="Downloading installation bundle"
         value={82}
-        showValue
-        aria-label="Downloading installation bundle"
+        valueLabel
+        aria-textLabel="Downloading installation bundle"
       />
     </div>
   )

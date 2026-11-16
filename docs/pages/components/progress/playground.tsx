@@ -25,15 +25,15 @@ export default function ProgressPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'showValue', label: 'Value', defaultValue: true },
+        { kind: 'switch', prop: 'valueLabel', label: 'Value', defaultValue: true },
       ]}
     >
       {(props) => (
         <Progress
-          label={props.label}
+          textLabel={props.label}
           value={props.value}
           size={props.size}
-          showValue={props.showValue}
+          valueLabel={props.valueLabel}
           aria-label="Upload progress"
         />
       )}

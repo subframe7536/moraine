@@ -45,7 +45,7 @@ export function Example() {
 ### Progress models
 
 Pass a numeric `value` for determinate progress. Omit `value` for indeterminate progress.
-`valueLabel` supplies `aria-valuetext` for a determinate value. Indeterminate progress sets
+`getValueText` supplies `aria-valuetext` for a determinate value. Indeterminate progress sets
 `aria-valuetext` from the `progress.indeterminate` message.
 
 ```tsx
@@ -56,11 +56,11 @@ Pass a numeric `value` for determinate progress. Omit `value` for indeterminate 
 ### Label and value
 
 Supply `aria-label` or a labelling relationship when the surrounding context does not name the
-operation. `label` fills the label slot. `showValue` shows the percentage in the value slot, and
-`valueRender` replaces that percentage. Indeterminate progress keeps the label and hides the value.
+operation. `textLabel` fills the label slot. `valueLabel` shows the percentage in the value slot or
+formats it, and `valueRender` replaces that text. Indeterminate progress keeps the label and hides the value.
 
 ```tsx
-<Progress value={82} label="Downloading installation bundle" showValue aria-label="Download" />
+<Progress value={82} textLabel="Downloading installation bundle" valueLabel aria-label="Download" />
 <Progress value={40} valueRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
 ```
 
@@ -74,7 +74,7 @@ Use a determinate value for known bytes. Omit `value` while a scanner has no tru
 
 ### Announce a bundle download
 
-Set `label` and `showValue` when the operation name and percentage should appear with the bar.
+Set `textLabel` and `valueLabel` when the operation name and percentage should appear with the bar.
 Keep `aria-label` as the accessible name.
 
 <Preview path="./semantics" />

@@ -15,7 +15,7 @@ describe('Progress SSR Hydration', () => {
       () => (
         <Progress
           value={value()}
-          label="Upload"
+          textLabel="Upload"
           valueRender={(context) => <span>{context.percent}%</span>}
         />
       ),
