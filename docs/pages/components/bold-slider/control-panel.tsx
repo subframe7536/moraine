@@ -9,7 +9,7 @@ export function ControlPanel() {
   return (
     <div class="max-w-sm w-full space-y-2">
       <BoldSlider
-        textLabel="Bounce"
+        label="Bounce"
         value={bounce()}
         onValueChange={setBounce}
         min={0}
@@ -18,7 +18,7 @@ export function ControlPanel() {
         marker
       />
       <BoldSlider
-        textLabel="Stiffness"
+        label="Stiffness"
         value={stiffness()}
         onValueChange={setStiffness}
         min={0}
@@ -26,7 +26,7 @@ export function ControlPanel() {
         step={10}
       />
       <BoldSlider
-        textLabel="Delay"
+        label="Delay"
         value={delay()}
         onValueChange={setDelay}
         min={0}

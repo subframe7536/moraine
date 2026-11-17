@@ -4,7 +4,7 @@ export function Semantics() {
   return (
     <div class="max-w-md w-full">
       <Progress
-        textLabel="Downloading installation bundle"
+        label="Downloading installation bundle"
         value={82}
         valueLabel
         aria-label="Downloading installation bundle"

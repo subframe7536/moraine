@@ -5,7 +5,7 @@ import { BoldSlider } from './bold-slider'
 export function renderBoldSliderFixture(): string {
   return renderToString(() => (
     <div>
-      <BoldSlider id="ssr-bold-slider" textLabel="Bounce" defaultValue={0.5} max={1} step={0.1} />
+      <BoldSlider id="ssr-bold-slider" label="Bounce" defaultValue={0.5} max={1} step={0.1} />
     </div>
   ))
 }

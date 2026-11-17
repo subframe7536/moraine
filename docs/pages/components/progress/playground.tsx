@@ -30,7 +30,7 @@ export default function ProgressPlayground() {
     >
       {(props) => (
         <Progress
-          textLabel={props.label}
+          label={props.label}
           value={props.value}
           size={props.size}
           valueLabel={props.valueLabel}

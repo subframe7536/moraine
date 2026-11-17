@@ -14,7 +14,7 @@ describe('BoldSlider SSR hydration', () => {
         <div>
           <BoldSlider
             id="ssr-bold-slider"
-            textLabel="Bounce"
+            label="Bounce"
             defaultValue={0.5}
             max={1}
             step={0.1}

@@ -7,7 +7,7 @@ export function BlurSlider() {
   return (
     <div class="max-w-md w-full">
       <BoldSlider
-        textLabel="Blur"
+        label="Blur"
         value={value()}
         onValueChange={setValue}
         min={0}

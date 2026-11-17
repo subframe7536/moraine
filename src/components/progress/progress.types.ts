@@ -38,7 +38,7 @@ export namespace ProgressT {
     /**
      * Content for the label slot. Also used as the default `aria-label` when it is a string.
      */
-    textLabel?: JSX.Element
+    label?: JSX.Element
 
     /**
      * Whether to show the value slot for determinate progress, or a formatter for it.

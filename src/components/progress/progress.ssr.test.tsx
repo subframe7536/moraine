@@ -13,7 +13,7 @@ describe('Progress SSR Hydration', () => {
       '/src/components/progress/progress.ssr.fixture.tsx',
       'renderProgressFixture',
       () => (
-        <Progress value={value()} textLabel="Upload" valueLabel={({ percent }) => `${percent}%`} />
+        <Progress value={value()} label="Upload" valueLabel={({ percent }) => `${percent}%`} />
       ),
     )
 

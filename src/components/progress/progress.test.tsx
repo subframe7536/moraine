@@ -39,7 +39,7 @@ describe('Progress', () => {
   test('renders label and value before the track in document order', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <Progress value={40} textLabel="Upload" valueLabel />
+        <Progress value={40} label="Upload" valueLabel />
       </MoraineProvider>
     ))
     const root = screen.getByRole('progressbar')
@@ -105,7 +105,7 @@ describe('Progress', () => {
   })
 
   test('indeterminate mode hides the value and keeps the label', () => {
-    const screen = render(() => <Progress value={undefined} textLabel="Scanning" valueLabel />)
+    const screen = render(() => <Progress value={undefined} label="Scanning" valueLabel />)
     const progress = screen.getByRole('progressbar')
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
 
@@ -123,7 +123,7 @@ describe('Progress', () => {
   test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
     'treats non-finite value %s as indeterminate',
     (value) => {
-      const screen = render(() => <Progress value={value} textLabel="Waiting" valueLabel />)
+      const screen = render(() => <Progress value={value} label="Waiting" valueLabel />)
       const progress = screen.getByRole('progressbar')
 
       expect(progress.hasAttribute('data-indeterminate')).toBe(true)
@@ -158,7 +158,7 @@ describe('Progress', () => {
 
   test('keeps overall progress on root and indicator', () => {
     const [value, setValue] = createSignal<number | undefined>(25)
-    const screen = render(() => <Progress value={value()} textLabel="Working" valueLabel />)
+    const screen = render(() => <Progress value={value()} label="Working" valueLabel />)
     const root = screen.container.querySelector('[data-slot="progress"]')!
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')!
     const structuralParts = screen.container.querySelectorAll(
@@ -244,7 +244,7 @@ describe('Progress', () => {
     const screen = render(() => (
       <Progress
         value={60}
-        textLabel="Upload"
+        label="Upload"
         valueLabel
         classes={{
           root: 'root-override',
@@ -277,7 +277,7 @@ describe('Progress', () => {
     const screen = render(() => (
       <Progress
         value={60}
-        textLabel="Upload"
+        label="Upload"
         valueLabel
         styles={{
           root: { width: '200px' },
@@ -308,7 +308,7 @@ describe('Progress', () => {
   })
 
   test('hides an empty label', () => {
-    const screen = render(() => <Progress value={10} textLabel="" valueLabel />)
+    const screen = render(() => <Progress value={10} label="" valueLabel />)
 
     expect(screen.container.querySelector('[data-slot="progress-label"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="progress-value"]')).not.toBeNull()

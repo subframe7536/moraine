@@ -56,12 +56,12 @@ sets `aria-valuetext` from the `progress.indeterminate` message.
 ### Label and value
 
 Supply `aria-label` or a labelling relationship when the surrounding context does not name the
-operation. `textLabel` fills the label slot. `valueLabel` shows the percentage in the value slot;
+operation. `label` fills the label slot. `valueLabel` shows the percentage in the value slot;
 pass a formatter to customize both the displayed text and `aria-valuetext`. Indeterminate progress
 keeps the label and hides the value.
 
 ```tsx
-<Progress value={82} textLabel="Downloading installation bundle" valueLabel aria-label="Download" />
+<Progress value={82} label="Downloading installation bundle" valueLabel aria-label="Download" />
 <Progress value={40} valueLabel={({ percent }) => `${percent}% complete`} aria-label="Export" />
 ```
 
@@ -75,7 +75,7 @@ Use a determinate value for known bytes. Omit `value` while a scanner has no tru
 
 ### Announce a bundle download
 
-Set `textLabel` and `valueLabel` when the operation name and percentage should appear with the bar.
+Set `label` and `valueLabel` when the operation name and percentage should appear with the bar.
 Keep `aria-label` as the accessible name.
 
 <Preview path="./semantics" />

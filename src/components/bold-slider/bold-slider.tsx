@@ -26,7 +26,7 @@ function countDecimals(value: number): number {
 /** Single-value slider with a filled track, an inline label and value, and an edge indicator. */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'textLabel',
+    'label',
     'valueLabel',
     'size',
     'variant',
@@ -148,9 +148,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
 
       return (
         <>
-          <Show when={local.textLabel}>
+          <Show when={local.label}>
             <span data-slot="bold-slider-label" {...labelSlot}>
-              {local.textLabel}
+              {local.label}
             </span>
           </Show>
           <Show when={local.valueLabel ?? true}>
@@ -189,7 +189,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       }}
       orientation="horizontal"
       size={variants.size}
-      aria-label={local['aria-label'] ?? local.textLabel}
+      aria-label={local['aria-label'] ?? local.label}
       {...overrides({
         root: 'root',
         track: 'track',

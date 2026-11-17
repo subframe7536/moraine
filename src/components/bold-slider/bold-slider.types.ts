@@ -24,7 +24,7 @@ export namespace BoldSliderT {
     /**
      * Text shown at the start of the track. Also used as the default `aria-label`.
      */
-    textLabel?: string
+    label?: string
 
     /**
      * Whether to show the value at the end of the track, or a formatter for it.

@@ -9,7 +9,7 @@ export function QualitySlider() {
   return (
     <div class="max-w-md w-full">
       <BoldSlider
-        textLabel="Quality"
+        label="Quality"
         value={value()}
         onValueChange={setValue}
         min={0}

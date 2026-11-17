@@ -25,11 +25,11 @@ function clamp(value: number, min: number, max: number): number {
 export function Progress(props: ProgressProps): JSX.Element {
   const [local, style, rest] = splitProps(
     props,
-    ['value', 'max', 'textLabel', 'valueLabel', 'translations'],
+    ['value', 'max', 'label', 'valueLabel', 'translations'],
     ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
   )
   const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
-  const labelContent = createMemo(() => local.textLabel)
+  const labelContent = createMemo(() => local.label)
   const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(
     () => local.value === undefined || !Number.isFinite(local.value),
