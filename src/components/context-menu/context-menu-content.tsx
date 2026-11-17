@@ -8,6 +8,29 @@ import { useContextMenuContext } from './context-menu-context'
 import { contextMenuRecipe } from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
 
+/**
+ * Popup list of actions for the surrounding `ContextMenu`, described by the `items` model: items,
+ * groups, separators, checkbox and radio items, and nested submenus. Place it inside `ContextMenu`;
+ * it renders in an overlay when open. Use `topRender`, `bottomRender`, and `itemRender` for custom
+ * headers, footers, and item presentation.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenu } from 'moraine'
+ *
+ * <ContextMenu>
+ *   <ContextMenu.Trigger>Right-click here</ContextMenu.Trigger>
+ *   <ContextMenu.Content
+ *     items={[
+ *       { label: 'Back' },
+ *       { label: 'Reload' },
+ *       { type: 'separator' },
+ *       { label: 'Forward', disabled: true },
+ *     ]}
+ *   />
+ * </ContextMenu>
+ * ```
+ */
 export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',

@@ -19,6 +19,23 @@ import {
 } from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
 
+/**
+ * Surface that opens the surrounding `ContextMenu` from a context-menu gesture, the keyboard
+ * context-menu keys, or a touch or pen long press. Place it inside `ContextMenu`; it renders a
+ * `div` by default, so pass `as` to use another element, and `disabled` prevents opening.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenu } from 'moraine'
+ *
+ * <ContextMenu>
+ *   <ContextMenu.Trigger class="flex h-32 items-center justify-center">
+ *     Right-click or long-press inside this area
+ *   </ContextMenu.Trigger>
+ *   <ContextMenu.Content items={[{ label: 'Reload' }]} />
+ * </ContextMenu>
+ * ```
+ */
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
