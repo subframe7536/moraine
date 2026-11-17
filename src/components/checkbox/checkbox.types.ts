@@ -19,7 +19,10 @@ export namespace CheckboxT {
 
   /** Base props for the Checkbox component. */
   export interface Base<TTrue = boolean, TFalse = boolean> extends FieldT.ControlBase {
-    /** Native input element ref. */
+    /**
+     * Ref to the hidden native `<input type="checkbox">` that carries the form value. The visible
+     * control is a separate `<button role="checkbox">`.
+     */
     inputRef?: Ref<HTMLInputElement>
 
     /**
@@ -28,7 +31,11 @@ export namespace CheckboxT {
      */
     form?: string
 
-    /** Pointer down handler for the checkbox control. */
+    /**
+     * Handler for `pointerdown` on the checkbox control button. Call `event.preventDefault()` to
+     * skip the built-in handling, which keeps focus on the hidden input when it is already
+     * focused.
+     */
     onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
@@ -37,34 +44,60 @@ export namespace CheckboxT {
      */
     value?: string
 
-    /** Whether the checkbox is checked (controlled). */
+    /**
+     * Whether the checkbox is checked (controlled). Accepts `trueValue` or `true` for checked,
+     * `falseValue` or `false` for unchecked, and `'indeterminate'` for the mixed state. Leave it
+     * `undefined` for uncontrolled state; update it from `onCheckedChange`.
+     */
     checked?: TTrue | TFalse | 'indeterminate'
 
     /**
-     * Whether the checkbox is checked by default (uncontrolled).
+     * Initial checked state when uncontrolled; also the state restored when the surrounding
+     * native form is reset. Accepts `true`, `false`, or `'indeterminate'`.
      * @default false
      */
     defaultChecked?: boolean | 'indeterminate'
 
     /**
-     * Value to use when the checkbox is checked.
+     * Value that represents the checked state: it is passed to `onCheckedChange`, stored as the
+     * value of a bound `Field`, and compared with `checked`. A string or number `trueValue` is
+     * also the native value submitted when `value` is not set.
      * @default true
+     * @example
+     * ```tsx
+     * import { Checkbox } from 'moraine'
+     *
+     * <Checkbox
+     *   trueValue="yes"
+     *   falseValue="no"
+     *   label="Accept the terms"
+     *   onCheckedChange={(value) => console.log(value)} // 'yes' or 'no'
+     * />
+     * ```
      */
     trueValue?: TTrue
 
     /**
-     * Value to use when the checkbox is unchecked.
+     * Value that represents the unchecked state, passed to `onCheckedChange` and stored as the
+     * value of a bound `Field`.
      * @default false
      */
     falseValue?: TFalse
 
-    /** Label for the checkbox. */
+    /**
+     * Label rendered beside the control and linked to it. With `variant="card"` the whole card
+     * toggles the checkbox when clicked.
+     */
     label?: JSX.Element
 
-    /** Description text for the checkbox. */
+    /** Description rendered under the label and linked to the control with `aria-describedby`. */
     description?: JSX.Element
 
-    /** Callback when the checked state changes. */
+    /**
+     * Called when the user toggles the checkbox, with `trueValue` (now checked) or `falseValue`
+     * (now unchecked). Toggling from `'indeterminate'` checks it. Not called while `disabled` or
+     * `readOnly`, nor when `checked` changes from outside.
+     */
     onCheckedChange?: (value: TTrue | TFalse) => void
 
     /**

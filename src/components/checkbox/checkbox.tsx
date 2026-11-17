@@ -16,7 +16,27 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { CHECKBOX_ICON_CLASS, checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
 
-/** Single checkbox control with card and list variants and custom true/false values. */
+/**
+ * Single checkbox control for an independent boolean or mapped choice, with optional `label` and
+ * `description`. Use `Switch` for an immediate on/off setting and `CheckboxGroup` when several
+ * choices submit as one array. Pair `checked` with `onCheckedChange` for controlled state or use
+ * `defaultChecked`; `trueValue` and `falseValue` map the state to domain values, and
+ * `checked="indeterminate"` shows the mixed presentation without a third value.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Checkbox } from 'moraine'
+ *
+ * const [subscribed, setSubscribed] = createSignal(false)
+ *
+ * <Checkbox
+ *   checked={subscribed()}
+ *   onCheckedChange={setSubscribed}
+ *   label="Subscribe to product updates"
+ * />
+ * ```
+ */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
 ): JSX.Element {
