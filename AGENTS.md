@@ -210,6 +210,15 @@ Component directories normally contain implementation (`{component}.tsx` and any
   - Item/option objects use `ariaLabel`; component props use `'aria-label'`.
   - `docs/build/api-naming.test.ts` enforces these rules against the generated `api.json` files; update it when a rule gains a documented exception.
 
+### JSDoc
+
+Component, prop, and type JSDoc is the documentation coding agents read first: the docs site, `api.json`, the llms Markdown, and the shipped `.d.mts` all render it.
+
+- **Components:** every public component, including attached parts such as `Dialog.Trigger`, has a description and an `@example`. The description says what it is, when to use it instead of a sibling component, and any contract that is not obvious from the types (required wrapper or parent, polymorphic `as`, controlled and uncontrolled state). Do not restate individual props.
+- **Props:** descriptions are Markdown. Wrap identifiers, prop names, and values in backticks and put HTML tags such as `<div>` in backticks; raw HTML in prose is escaped. Say what the prop does, including units, interactions with other props, and when a callback fires. Add `@default` only for a verified implementation default. Add `@example` only where usage is not obvious from the type (callbacks, object or array configurations, render props).
+- **Tag layout:** prose first, then `@default`, then `@example`. The docs parser ends the description at the first tag, and text after a tag belongs to that tag.
+- **Examples:** one fenced `tsx` block: `import` lines, optional statements, then one JSX expression starting at column 0 with `<`. Use real props; the block must type-check against `src/`.
+
 ### Public Type Exports
 
 - Component public types must be declared in the component namespace: `<Component>T`.

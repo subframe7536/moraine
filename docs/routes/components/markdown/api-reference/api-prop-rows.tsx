@@ -13,6 +13,12 @@ export const REFERENCE_ROOT_CLASS =
 export const PROP_GRID_CLASS =
   'grid grid-cols-[minmax(0,1fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem]'
 
+const DESCRIPTION_CLASS =
+  '[&_a]:text-primary [&_p]:m-0 [&_ul]:my-2 [&_p+p]:mt-2 [&_ul]:pl-5 [&_ul]:list-disc [&_a]:underline [&_a]:underline-offset-4'
+
+const EXAMPLE_CLASS =
+  'text-xs font-mono p-3 border border-border/40 rounded-md bg-background/60 overflow-x-auto [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:bg-transparent!'
+
 export function PropDetails(props: { prop: PropDoc }): JSX.Element {
   return (
     <div
@@ -37,11 +43,17 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
               <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
                 Description
               </dt>
-              <dd
-                class="text-muted-foreground leading-relaxed m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30"
-                // oxlint-disable-next-line subf/solid-no-innerhtml
-                innerHTML={description()}
-              />
+              <dd class="text-muted-foreground leading-relaxed m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
+                <Show when={props.prop.descriptionHtml} fallback={description()}>
+                  {(html) => (
+                    <div
+                      class={DESCRIPTION_CLASS}
+                      // oxlint-disable-next-line subf/solid-no-innerhtml
+                      innerHTML={html()}
+                    />
+                  )}
+                </Show>
+              </dd>
             </>
           )}
         </Show>
@@ -74,6 +86,23 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
           </dt>
           <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
             <code class={DOCS_INLINE_CODE_CLASS}>{props.prop.defaultValue}</code>
+          </dd>
+        </Show>
+
+        <Show when={props.prop.examplesHtml?.length}>
+          <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+            {props.prop.examplesHtml!.length > 1 ? 'Examples' : 'Example'}
+          </dt>
+          <dd class="m-0 gap-2 grid min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
+            <For each={props.prop.examplesHtml}>
+              {(html) => (
+                <div
+                  class={EXAMPLE_CLASS}
+                  // oxlint-disable-next-line subf/solid-no-innerhtml
+                  innerHTML={html}
+                />
+              )}
+            </For>
           </dd>
         </Show>
       </dl>

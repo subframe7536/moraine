@@ -223,10 +223,17 @@
         },
         "description": {
           "type": "string",
-          "description": "JSDoc description of the prop."
+          "description": "JSDoc description of the prop, written in Markdown."
         },
         "default": {
           "$ref": "#/$defs/DefaultValue"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Code of each JSDoc @example tag of the prop."
         }
       },
       "additionalProperties": false

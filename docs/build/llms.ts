@@ -143,6 +143,19 @@ function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'P
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
+function renderPropExamples(propItems: readonly PresentationPropItem[]): string {
+  return propItems
+    .filter((prop) => prop.examples?.length)
+    .map((prop) =>
+      [
+        `**\`${prop.name}\` ${prop.examples!.length > 1 ? 'examples' : 'example'}**`,
+        '',
+        ...prop.examples!.map((code) => codeFence('tsx', code)),
+      ].join('\n'),
+    )
+    .join('\n')
+}
+
 function renderAttributes(attributes: PresentationAttributesSection): string {
   return renderTable(
     attributes.items.map((attribute) => [
@@ -175,6 +188,10 @@ function renderApiReference(apiDoc: ComponentApi): string {
       }
       if (rootPart.props.length > 0) {
         output.push(renderPropTable(rootPart.props), '')
+        const examples = renderPropExamples(rootPart.props)
+        if (examples) {
+          output.push(examples)
+        }
       }
     }
   } else {
@@ -186,6 +203,10 @@ function renderApiReference(apiDoc: ComponentApi): string {
 
       if (part.props.length) {
         output.push(renderPropTable(part.props), '')
+        const examples = renderPropExamples(part.props)
+        if (examples) {
+          output.push(examples)
+        }
       }
     }
   }

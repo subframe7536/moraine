@@ -12,6 +12,9 @@ export interface PresentationPropItem {
   isCommonProp?: boolean
   defaultValue?: string
   description?: string
+  descriptionHtml?: string
+  examples?: string[]
+  examplesHtml?: string[]
 }
 
 export interface PresentationPartSection {
@@ -240,6 +243,9 @@ function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropIt
     isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
     ...(prop.description ? { description: prop.description } : {}),
+    ...(prop.descriptionHtml ? { descriptionHtml: prop.descriptionHtml } : {}),
+    ...(prop.examples ? { examples: prop.examples } : {}),
+    ...(prop.examplesHtml ? { examplesHtml: prop.examplesHtml } : {}),
   }
 }
 

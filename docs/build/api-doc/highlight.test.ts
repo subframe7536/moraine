@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { highlightApiTypes } from './highlight.ts'
+import { highlightApiTypes, renderDescriptionHtml } from './highlight.ts'
 import type { ComponentApi } from './types.ts'
 
 describe('API type highlighting', () => {
@@ -62,5 +62,52 @@ describe('API type highlighting', () => {
       '(() => string | undefined) | undefined',
     )
     expect(api.parts[0]!.props[0]).not.toHaveProperty('typeHtml')
+  })
+
+  test('renders prop descriptions as markdown and examples as highlighted code', async () => {
+    const api: ComponentApi = {
+      key: 'test',
+      name: 'Test',
+      kind: 'single',
+      slots: [],
+      dataAttributes: [],
+      parts: [
+        {
+          id: 'test',
+          name: 'Test',
+          access: { kind: 'export', name: 'Test' },
+          props: [
+            {
+              name: 'formatOptions',
+              optional: true,
+              type: 'Intl.NumberFormatOptions',
+              description: '`Intl.NumberFormat` options, see **notes**.',
+              examples: ['<Test formatOptions={{ style: "percent" }} />'],
+            },
+          ],
+        },
+      ],
+    }
+    const result = await highlightApiTypes(api)
+    const prop = result.parts[0]!.props[0]!
+    expect(prop.descriptionHtml).toBe(
+      '<p><code class="docs-inline-code">Intl.NumberFormat</code> options, see <strong>notes</strong>.</p>',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = prop.examplesHtml![0]!
+    expect(container.querySelector('code')?.textContent).toBe(
+      '<Test formatOptions={{ style: "percent" }} />',
+    )
+    expect(api.parts[0]!.props[0]).not.toHaveProperty('descriptionHtml')
+    expect(api.parts[0]!.props[0]).not.toHaveProperty('examplesHtml')
+  })
+
+  test('escapes raw HTML in prose but keeps code spans', async () => {
+    const html = renderDescriptionHtml('Renders <script>alert(1)</script> or `<div>`.')
+    const container = document.createElement('div')
+    container.innerHTML = html
+    expect(container.querySelector('script')).toBeNull()
+    expect(container.querySelector('code')?.textContent).toBe('<div>')
+    expect(container.textContent).toContain('<script>alert(1)</script>')
   })
 })

@@ -1094,6 +1094,7 @@ export class TypeExtractor {
       ...(typeDetails?.includes('{\n') ? { typeDetails } : {}),
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(defaultValue ? { default: defaultValue } : {}),
+      ...(jsdoc.examples ? { examples: jsdoc.examples } : {}),
     }
   }
 

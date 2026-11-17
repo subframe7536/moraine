@@ -21,6 +21,8 @@ export interface ParsedSource {
 export interface JsDoc {
   description?: string
   defaultValue?: string
+  /** Code of each `@example` tag, without fences. */
+  examples?: string[]
 }
 
 const PARSE_OPTIONS = {
@@ -68,6 +70,33 @@ function cleanJsDocValue(value: string): string[] {
   return lines.map((line) => line.replace(/^\s*\* ?/, '').trimEnd())
 }
 
+interface JsDocTag {
+  name: string
+  body: string
+}
+
+/** Split JSDoc text into its description and `@tag` sections, ignoring `@` inside code fences. */
+function splitJsDocTags(text: string): { description: string; tags: JsDocTag[] } {
+  const fences = [...text.matchAll(/```[\s\S]*?(?:```|$)/g)].map(
+    (match) => [match.index, match.index + match[0].length] as const,
+  )
+  const inFence = (index: number) => fences.some(([from, to]) => index >= from && index < to)
+  const starts = [...text.matchAll(/(?:^|\s)@(\w+)/g)]
+    .filter((match) => !inFence(match.index + match[0].indexOf('@')))
+    .map((match) => ({ name: match[1]!, at: match.index, bodyAt: match.index + match[0].length }))
+  const tags = starts.map((start, index) => ({
+    name: start.name,
+    body: text.slice(start.bodyAt, starts[index + 1]?.at ?? text.length).trim(),
+  }))
+  return { description: text.slice(0, starts[0]?.at ?? text.length).trim(), tags }
+}
+
+/** The code of an `@example` tag: the fenced block when present, otherwise the tag body. */
+function exampleCode(body: string): string {
+  const fenced = body.match(/```[^\n]*\n([\s\S]*?)\n?```/)
+  return (fenced ? fenced[1]! : body).trim()
+}
+
 export function getJsDoc(source: ParsedSource, node: Pick<AstNode, 'start'>): JsDoc {
   const comment = source.comments.findLast((candidate) => {
     if (
@@ -86,20 +115,21 @@ export function getJsDoc(source: ParsedSource, node: Pick<AstNode, 'start'>): Js
     return {}
   }
 
-  const lines = cleanJsDocValue(comment.value)
-  const text = lines.join('\n').trim()
-  const defaultMatch = text.match(/(?:^|\s)@default(?:Value)?\s+([^\n]*)/)
-  const description = text
-    .replace(/(?:^|\s)@\w+(?:\s+[^\n]*)?/g, '')
-    .split('\n')
-    .map((line) => line.trimEnd())
-    .join('\n')
-    .trim()
-  const defaultValue = defaultMatch?.[1]?.trim()
+  const text = cleanJsDocValue(comment.value).join('\n').trim()
+  const { description, tags } = splitJsDocTags(text)
+  const defaultValue = tags
+    .find((tag) => tag.name === 'default' || tag.name === 'defaultValue')
+    ?.body.split('\n')[0]
+    ?.trim()
+  const examples = tags
+    .filter((tag) => tag.name === 'example')
+    .map((tag) => exampleCode(tag.body))
+    .filter(Boolean)
 
   return {
     ...(description ? { description } : {}),
-    ...(defaultValue !== undefined ? { defaultValue } : {}),
+    ...(defaultValue ? { defaultValue } : {}),
+    ...(examples.length > 0 ? { examples } : {}),
   }
 }
 

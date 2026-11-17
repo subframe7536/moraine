@@ -26,8 +26,15 @@ export interface PropApi {
   typeDetails?: string
   /** Build-time HTML for the web reference only. */
   typeHtml?: string
+  /** Build-time HTML of the markdown description, for the web reference only. */
+  descriptionHtml?: string
+  /** Build-time highlighted HTML of each example, for the web reference only. */
+  examplesHtml?: string[]
+  /** Markdown description. */
   description?: string
   default?: DefaultValue
+  /** Code of each `@example` tag. */
+  examples?: string[]
 }
 
 export interface PartApi {

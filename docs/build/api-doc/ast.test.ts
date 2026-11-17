@@ -23,4 +23,34 @@ interface DemoProps {
       defaultValue: '"Demo"',
     })
   })
+
+  test('collects multi-line examples and keeps tags inside fences out of the description', async () => {
+    const source = await parseTypeScript(
+      'demo.d.ts',
+      `
+interface DemoProps {
+  /**
+   * Format with \`Intl.NumberFormat\`.
+   *
+   * Second paragraph.
+   * @default 'a'
+   * @example
+   * \`\`\`tsx
+   * <Demo format={{ '@sm': 1 }} />
+   * \`\`\`
+   * @example 3 // inline
+   */
+  format?: string
+}
+`,
+      'ts',
+    )
+    const declaration = source.program.body.find((node) => node.type === 'TSInterfaceDeclaration')
+    const property = declaration?.body.body[0]
+    expect(property && getJsDoc(source, property)).toEqual({
+      description: 'Format with `Intl.NumberFormat`.\n\nSecond paragraph.',
+      defaultValue: "'a'",
+      examples: ["<Demo format={{ '@sm': 1 }} />", '3 // inline'],
+    })
+  })
 })
