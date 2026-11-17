@@ -7,9 +7,15 @@ import { VirtualRows } from './virtual-rows'
 import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from './virtualizer.types'
 
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
-  /** Lays rows out side by side and scrolls horizontally. */
+  /**
+   * Lays rows out side by side and scrolls horizontally. Sizes (`estimateSize`, `gap`, scroll padding) then apply to widths.
+   * @default false
+   */
   horizontal?: boolean
-  /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */
+  /**
+   * Places rows from the right edge and scrolls with RTL offsets in a horizontal list. Set it to `true` when the scroll container has `dir="rtl"`; it has no effect unless `horizontal` is set.
+   * @default false
+   */
   isRtl?: boolean
 }
 

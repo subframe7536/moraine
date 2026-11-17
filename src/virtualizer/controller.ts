@@ -38,21 +38,50 @@ export function scrollElementWithRtl<
 
 /** Options shared by the list and table virtualizers. Each maps to the TanStack option of its name. */
 export interface VirtualizerAdapterOptions<TItem> {
-  /** Estimated row size in px before its element has been measured. */
+  /**
+   * Estimated size in px of a row along the scroll axis (height, or width when `horizontal`), used until its element has been measured.
+   * Rows are measured after they render, so a rough value is enough; a closer one reduces scrollbar jumps.
+   * It is read reactively: when the estimate of an item changes, its cached measurement is discarded.
+   */
   estimateSize: (item: TItem, index: number) => number
-  /** Stable row key. The item index is used by default. */
+  /**
+   * Returns a stable key for a row. Measured sizes are cached by key, so with stable keys they follow their items when rows are inserted, removed, or reordered.
+   * @default the item index
+   */
   getItemKey?: (item: TItem, index: number) => string | number | bigint
-  /** Space in px between adjacent rows. */
+  /**
+   * Space in px between adjacent rows.
+   * @default 0
+   */
   gap?: number
-  /** Extra rows rendered before and after the visible range. */
+  /**
+   * Number of extra rows rendered before and after the visible range, which reduces blank flashes during fast scrolling at the cost of more mounted rows.
+   * It is passed to `rangeExtractor` as `range.overscan`, so a custom extractor decides whether to apply it.
+   * @default 1
+   */
   overscan?: number
-  /** Chooses the rendered indexes, such as a dragged row that stays mounted. */
+  /**
+   * Chooses which row indexes are rendered, replacing the default visible range plus `overscan`. Receives the visible range (`startIndex`, `endIndex`, `overscan`, `count`) and returns the indexes to render.
+   * Use it to keep a row mounted while it is scrolled out of view, such as the row being dragged; `sortable.rangeExtractor` from `moraine/dnd` does this.
+   */
   rangeExtractor?: (range: VirtualRange) => number[]
-  /** Space in px before the first row, such as a header inside the scroll element. */
+  /**
+   * Space in px before the first row inside the scroll element, such as a header that scrolls with the rows. It offsets row positions and scroll-to-index targets.
+   * An explicit value wins over any value the host measures from the DOM.
+   * @default 0
+   */
   scrollMargin?: number
-  /** Space in px covered at the start edge while scrolling, such as a sticky header. */
+  /**
+   * Space in px covered at the start edge while scrolling, such as a sticky header, so `scrollToIndex` does not leave a row underneath it.
+   * An explicit value wins over any value the host measures from the DOM.
+   * @default 0
+   */
   scrollPaddingStart?: number
-  /** Space in px covered at the end edge while scrolling, such as a sticky footer. */
+  /**
+   * Space in px covered at the end edge while scrolling, such as a sticky footer, so `scrollToIndex` does not leave a row underneath it.
+   * An explicit value wins over any value the host measures from the DOM.
+   * @default 0
+   */
   scrollPaddingEnd?: number
 }
 

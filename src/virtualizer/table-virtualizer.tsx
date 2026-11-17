@@ -25,7 +25,10 @@ import type {
 
 /** Options of the horizontal column virtualizer. Scroll events are shared with the rows. */
 export type TableVirtualizerColumnOptions<TColumn> = {
-  /** Extra columns rendered before and after the visible range. */
+  /**
+   * Number of extra columns rendered before and after the visible range.
+   * @default 1
+   */
   overscan?: number
   /**
    * Width in px of a column. Defaults to the host's `columnSize` (DataTable passes each column's
@@ -38,7 +41,8 @@ export type TableVirtualizerOptions<TItem, TColumn = unknown> = VirtualizerAdapt
   /**
    * Virtualizes columns as well as rows. Only body cells of the `columns` passed to the render
    * component are virtualized; render header and footer cells, and cells outside `columns`
-   * (such as pinned ones), in full.
+   * (such as pinned ones), in full. It is read once when the virtualizer is created, so the
+   * virtualizer cannot switch column virtualization on or off later.
    */
   columns?: TableVirtualizerColumnOptions<TColumn>
 }

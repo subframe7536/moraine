@@ -6,8 +6,12 @@ import type { Accessor, Component, JSX } from 'solid-js'
 
 /** Options for scrolling a virtual row or column into view. */
 export interface VirtualScrollToOptions {
-  /** Where the target ends up in the viewport. @default 'auto' */
+  /**
+   * Where the target ends up in the viewport. `'auto'` scrolls the minimum distance needed to bring it into view, and does nothing when it is already visible.
+   * @default 'auto'
+   */
   align?: 'auto' | 'start' | 'center' | 'end'
+  /** Scroll behavior: `'smooth'` animates the scroll, `'instant'` jumps, and `'auto'` follows the browser's default for the scroll container. */
   behavior?: 'auto' | 'smooth' | 'instant'
 }
 
@@ -16,8 +20,9 @@ export type VirtualRowProps<TRowElement extends HTMLElement = HTMLElement> = Omi
   JSX.HTMLAttributes<TRowElement>,
   'ref' | 'style'
 > & {
-  /** Measures the row. */
+  /** Registers the row element so the virtualizer measures its real size. Compose it with any `ref` of your own. */
   ref?: (element: TRowElement) => void
+  /** Index of the row in the collection; the virtualizer uses it to match measured elements to rows. Keep it on the element. */
   'data-index'?: number | string
   style?: JSX.CSSProperties
 }
@@ -45,6 +50,7 @@ export interface TableVirtualColumn {
   readonly start: number
   /** Width in px. */
   readonly size: number
+  /** Key for rendering the column; it equals `index`, since columns have no `getItemKey`. */
   readonly key: string | number | bigint
 }
 
