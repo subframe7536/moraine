@@ -39,7 +39,7 @@ describe('PinInput SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/pin-input/pin-input.ssr.fixture.tsx',
       'renderPinInputWithSeparatorsFixture',
-      () => <PinInput id="sep-pin" defaultValue="123456" length={6} separator={3} />,
+      () => <PinInput id="sep-pin" defaultValue="123456" length={6} groupSize={3} />,
     )
 
     const separators = container.querySelectorAll('[data-slot="pin-input-separator"]')

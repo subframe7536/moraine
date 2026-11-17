@@ -46,7 +46,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'mask',
     'otp',
     'placeholder',
-    'separator',
+    'groupSize',
     'separatorRender',
     'value',
     'defaultValue',
@@ -304,28 +304,30 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   }
 
+  // Separators sit after the last input of every group except the final one.
   const separatorPositions = createMemo<ReadonlySet<number> | null>(() => {
-    const sep = local.separator
-    if (!sep) {
-      return null
-    }
+    const size = local.groupSize
     const len = length()
-    if (sep === true) {
-      const pos = Math.ceil(len / 2)
-      return pos < len ? new Set([pos]) : null
-    }
-    if (Array.isArray(sep)) {
-      const valid = sep.filter((pos) => pos > 0 && pos < len)
-      return valid.length > 0 ? new Set(valid) : null
-    }
-    if (typeof sep === 'number' && Number.isInteger(sep) && sep > 0) {
-      const set = new Set<number>()
-      for (let pos = sep; pos < len; pos += sep) {
-        set.add(pos)
+    const positions = new Set<number>()
+    if (size === true) {
+      positions.add(Math.ceil(len / 2))
+    } else if (typeof size === 'number' && Number.isInteger(size) && size > 0) {
+      for (let pos = size; pos < len; pos += size) {
+        positions.add(pos)
       }
-      return set.size > 0 ? set : null
+    } else if (Array.isArray(size)) {
+      let pos = 0
+      for (const groupSize of size) {
+        pos += groupSize
+        positions.add(pos)
+      }
     }
-    return null
+    for (const pos of positions) {
+      if (!(pos > 0 && pos < len)) {
+        positions.delete(pos)
+      }
+    }
+    return positions.size > 0 ? positions : null
   })
 
   function hasSeparator(index: number): boolean {

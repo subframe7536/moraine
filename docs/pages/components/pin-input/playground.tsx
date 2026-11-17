@@ -40,7 +40,7 @@ export default function PinInputPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
+        { kind: 'switch', prop: 'groupSize', label: 'Group size', defaultValue: true },
         { kind: 'switch', prop: 'otp', label: 'OTP', defaultValue: true },
         { kind: 'switch', prop: 'mask', label: 'Mask', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -51,7 +51,7 @@ export default function PinInputPlayground() {
           validationType={props.validationType}
           variant={props.variant}
           size={props.size}
-          separator={props.separator}
+          groupSize={props.groupSize}
           otp={props.otp}
           mask={props.mask}
           disabled={props.disabled}

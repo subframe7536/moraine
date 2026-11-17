@@ -84,11 +84,11 @@ Use `placeholder` to display a character hint in empty slots:
 
 ### Separators
 
-Use the `separator` prop to insert separators between input groups. Pass `true` to split inputs evenly in half, or pass a number or array of positions:
+Use the `groupSize` prop to insert separators between input groups. Pass `true` to split inputs evenly in half, a number for fixed-size groups, or an array of group sizes:
 
 ```tsx
-<PinInput length={6} separator />
-<PinInput length={6} separator={3} />
+<PinInput length={6} groupSize />
+<PinInput length={6} groupSize={3} />
 ```
 
 ### Keyboard interaction
@@ -108,7 +108,7 @@ Use the `separator` prop to insert separators between input groups. Pass `true` 
 
 ### One-Time Password verification
 
-Use `otp` and `separator` for standard 6-digit SMS verification code entry.
+Use `otp` and `groupSize` for standard 6-digit SMS verification code entry.
 
 <Preview path="./otp-example" />
 

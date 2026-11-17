@@ -108,7 +108,7 @@ describe('PinInput', () => {
   })
 
   test('focuses the last input on click when all inputs are filled by default', () => {
-    const screen = render(() => <PinInput defaultValue="1234" length={4} separator />)
+    const screen = render(() => <PinInput defaultValue="1234" length={4} groupSize />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
@@ -415,16 +415,16 @@ describe('PinInput', () => {
 
   test.each([
     ['a numeric step', 3],
-    ['separator={true}, which splits the slots in half', true],
+    ['groupSize={true}, which splits the slots in half', true],
   ] as const)('renders one default separator for a 6-slot pin with %s', (_label, separator) => {
-    const screen = render(() => <PinInput length={6} separator={separator} />)
+    const screen = render(() => <PinInput length={6} groupSize={separator} />)
     const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
     expect(separators).toHaveLength(1)
     expect(separators[0]?.textContent).toBe('•')
   })
 
-  test('renders separators at specified positions with array', () => {
-    const screen = render(() => <PinInput length={7} separator={[3, 4]} />)
+  test('renders separators at specified positions with sizes array', () => {
+    const screen = render(() => <PinInput length={7} groupSize={[3, 1, 3]} />)
     const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
     expect(separators).toHaveLength(2)
   })
@@ -433,7 +433,7 @@ describe('PinInput', () => {
     const screen = render(() => (
       <PinInput
         length={6}
-        separator={3}
+        groupSize={3}
         separatorRender={(props) => <span class="custom-sep">#{props.index}</span>}
       />
     ))
@@ -519,7 +519,7 @@ describe('PinInput', () => {
       <PinInput
         classes={{ root: 'custom-root', input: 'custom-input', separator: 'custom-separator' }}
         styles={{ root: { 'margin-top': '10px' } }}
-        separator={2}
+        groupSize={2}
         length={4}
       />
     ))

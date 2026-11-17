@@ -8,6 +8,6 @@ export function renderPinInputFixture(): string {
 
 export function renderPinInputWithSeparatorsFixture(): string {
   return renderToString(() => (
-    <PinInput id="sep-pin" defaultValue="123456" length={6} separator={3} />
+    <PinInput id="sep-pin" defaultValue="123456" length={6} groupSize={3} />
   ))
 }

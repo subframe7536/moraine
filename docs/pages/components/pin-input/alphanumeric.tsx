@@ -13,7 +13,7 @@ export function Alphanumeric() {
         <PinInput
           validationType="alphanumeric"
           length={8}
-          separator={4}
+          groupSize={4}
           onComplete={(val) => setCode(val)}
         />
       </Field>

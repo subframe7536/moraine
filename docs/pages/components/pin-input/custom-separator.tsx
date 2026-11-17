@@ -8,7 +8,7 @@ export function CustomSeparator() {
     <div class="flex flex-col gap-3">
       <PinInput
         length={6}
-        separator={3}
+        groupSize={3}
         separatorRender={() => <span class="text-muted-foreground font-semibold px-1">-</span>}
         onComplete={(val) => setValue(val)}
       />

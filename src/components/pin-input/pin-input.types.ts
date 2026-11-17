@@ -68,14 +68,14 @@ export namespace PinInputT {
     placeholder?: string
 
     /**
-     * Group inputs by inserting a separator between them.
-     * Pass `true` to split inputs in half, a number to insert one after every Nth input,
-     * or an array of positions to insert after specific inputs.
+     * Group inputs by inserting a separator between groups.
+     * Pass `true` to split inputs in half, a number for groups of that size,
+     * or an array of consecutive group sizes.
      * @example true // splits in half -> [X][X][X] • [X][X][X]
-     * @example 3 // after every 3rd input -> [X][X][X] • [X][X][X]
-     * @example [3, 4] // after the 3rd and 4th inputs -> [X][X][X] • [X] • [X][X][X]
+     * @example 3 // groups of 3 -> [X][X][X] • [X][X][X]
+     * @example [3, 1, 3] // explicit sizes -> [X][X][X] • [X] • [X][X][X]
      */
-    separator?: boolean | number | readonly number[]
+    groupSize?: boolean | number | readonly number[]
 
     /**
      * Custom renderer for the separator between inputs.
