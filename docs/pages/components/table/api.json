@@ -89,7 +89,7 @@
           "name": "wrapperRef",
           "optional": true,
           "type": "Ref<HTMLDivElement>",
-          "description": "Ref forwarded to the wrapper element around the table."
+          "description": "Receives the `<div>` that wraps the `<table>` and scrolls it horizontally. Use `ref` for the `<table>` itself."
         }
       ]
     },
@@ -209,7 +209,11 @@
           "name": "selected",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this row is selected."
+          "description": "Highlights the row as selected through `data-selected`. This is presentation only and sets no\n`aria-selected`, so expose the state to assistive technology with a labelled control in the row.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "style",
@@ -233,7 +237,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Text alignment for the column header.",
+          "description": "Text alignment for the column header. `start` and `end` follow the writing direction, so use `end` for numeric columns.",
           "default": {
             "kind": "literal",
             "value": "start"
@@ -273,7 +277,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Text alignment for the cell.",
+          "description": "Text alignment for the cell. `start` and `end` follow the writing direction, so use `end` for numeric columns.",
           "default": {
             "kind": "literal",
             "value": "start"

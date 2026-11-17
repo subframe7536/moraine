@@ -26,7 +26,7 @@
           "name": "accept",
           "optional": true,
           "type": "string",
-          "description": "Accepted file types (e.g., \".jpg,.png\", \"image/*\").",
+          "description": "Comma-separated list of accepted file types. Each entry is a case-insensitive extension\n(`.png`), a MIME wildcard (`image/*`), or an exact MIME type (`application/pdf`); `*`\naccepts everything. It is also passed to the native file input and enforced on dropped\nand picked files, which fail with `FILE_INVALID_TYPE` in `onReject`.",
           "default": {
             "kind": "literal",
             "value": "*"
@@ -48,19 +48,19 @@
           "name": "defaultValue",
           "optional": true,
           "type": "Value<Multiple>",
-          "description": "The default value (uncontrolled)."
+          "description": "Initial selection for uncontrolled usage. Defaults to `null` in single mode and `[]` when `multiple`."
         },
         {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Description text for the upload area."
+          "description": "Helper text inside the upload area, such as the accepted types. It is linked to the control through `aria-describedby`."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -70,7 +70,7 @@
           "name": "dropzone",
           "optional": true,
           "type": "boolean",
-          "description": "Whether files can be dropped onto the control.",
+          "description": "Whether files can be dragged and dropped onto the control. When `false`, drag events are\nignored, but clicking the control or pressing `Enter` / `Space` still opens the file dialog.",
           "default": {
             "kind": "literal",
             "value": true
@@ -80,7 +80,7 @@
           "name": "fileIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon to show for individual files when no preview is available.",
+          "description": "Icon shown in a file entry when there is no image thumbnail, such as for non-image files.",
           "default": {
             "kind": "literal",
             "value": "icon-file"
@@ -90,7 +90,7 @@
           "name": "fileList",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to show the list of selected files, including image thumbnails.",
+          "description": "Whether to render the list of selected files below the control, with an object-URL\nthumbnail for image files. When `false`, no list or previews are rendered and `itemRender`\nis not used.",
           "default": {
             "kind": "literal",
             "value": true
@@ -100,7 +100,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon to show in the upload area.",
+          "description": "Icon shown in the upload area.",
           "default": {
             "kind": "literal",
             "value": "icon-upload"
@@ -110,49 +110,52 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Native input element ref."
+          "description": "Ref to the hidden native `<input type=\"file\">` that backs the control."
         },
         {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps>",
-          "description": "Custom renderer for individual file entries in the file list."
+          "description": "Replaces the default entry for each selected file in the file list. Receives the `file`,\nits `index`, an image `previewUrl` when available, a `remove()` function, and `disabled`\n(`true` while disabled or read-only). Render a list item (`<li>`), since entries sit in a `<ul>`.",
+          "examples": [
+            "import { FileUpload } from 'moraine'\n\n<FileUpload\n  multiple\n  itemRender={(item) => (\n    <li>\n      {item.file.name}\n      <button type=\"button\" disabled={item.disabled} onClick={item.remove}>\n        Remove\n      </button>\n    </li>\n  )}\n/>"
+          ]
         },
         {
           "name": "label",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Label for the upload area."
+          "description": "Label text inside the upload area. It also names the control for assistive technology unless a surrounding `Field` supplies a label."
         },
         {
           "name": "maxFiles",
           "optional": true,
           "type": "Multiple extends true ? number: never",
-          "description": "Maximum number of files allowed. Only accepted when `multiple` is true; single mode always keeps one file."
+          "description": "Maximum total number of selected files, counting files already selected. Files beyond the\nlimit are dropped and reported as `TOO_MANY_FILES` in `onReject`. Only accepted when\n`multiple` is `true`; single mode always keeps one file. Unlimited by default."
         },
         {
           "name": "maxSize",
           "optional": true,
           "type": "number",
-          "description": "Maximum accepted file size in bytes."
+          "description": "Maximum accepted file size in bytes, inclusive. Larger files are rejected with `FILE_TOO_LARGE`."
         },
         {
           "name": "minSize",
           "optional": true,
           "type": "number",
-          "description": "Minimum accepted file size in bytes."
+          "description": "Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `FILE_TOO_SMALL`."
         },
         {
           "name": "multiple",
           "optional": true,
           "type": "Multiple",
-          "description": "Whether multiple files can be uploaded.",
+          "description": "Whether several files can be selected. When `true`, new files are appended to the current\nselection and `value` is a `File[]`; otherwise a new file replaces the current one.",
           "default": {
             "kind": "literal",
             "value": false
@@ -162,25 +165,28 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onReject",
           "optional": true,
           "type": "(files: Rejection[]) => void",
-          "description": "Called with the files rejected by type, size, duplicate, or count rules."
+          "description": "Called after a pick or drop with the files that failed validation, each with its `errors`\ncodes: `FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`, `FILE_DUPLICATE` (same\nname, size, type, and modification time as a selected file), or `TOO_MANY_FILES`. Accepted\nfiles from the same batch are still added and reported through `onValueChange`.",
+          "examples": [
+            "import { FileUpload } from 'moraine'\n\n<FileUpload\n  maxSize={2 * 1024 * 1024}\n  onReject={(rejections) => {\n    for (const { file, errors } of rejections) {\n      console.warn(file.name, errors.includes('FILE_TOO_LARGE') ? 'is over 2 MB' : errors)\n    }\n  }}\n/>"
+          ]
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: Value<Multiple>) => void",
-          "description": "Callback when the selected file(s) change."
+          "description": "Called when files are added or removed. Receives the complete new selection, a `File[]`\nwhen `multiple` and `File | null` otherwise (`null` once the file is removed). It is not\ncalled for files rejected by validation or while the control is disabled or read-only."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -190,7 +196,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -222,13 +228,16 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this file upload instance."
+          "description": "Localized message overrides for this file upload instance. `label` is the accessible name\nused when no visible `label` is set, and `remove` builds each remove button's `aria-label`\nfrom the file `name`.",
+          "examples": [
+            "import { FileUpload } from 'moraine'\n\n<FileUpload\n  label=\"Avatar\"\n  translations={{ label: 'Upload avatar', remove: ({ name }) => `Delete ${name}` }}\n/>"
+          ]
         },
         {
           "name": "value",
           "optional": true,
           "type": "Value<Multiple>",
-          "description": "The current value (controlled)."
+          "description": "The selected file(s) (controlled): `File | null` in single mode, `File[]` when `multiple`.\n`undefined` leaves the selection uncontrolled; pass `null` (single) or `[]` (multiple) for a\ncontrolled empty selection. Update it from `onValueChange`."
         },
         {
           "name": "variant",

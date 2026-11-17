@@ -29,13 +29,13 @@
           "name": "checked",
           "optional": true,
           "type": "TTrue | TFalse",
-          "description": "Whether the switch is checked."
+          "description": "Whether the switch is checked (controlled). Accepts `trueValue`, `falseValue`, or a boolean.\nLeave it `undefined` for uncontrolled usage."
         },
         {
           "name": "checkedIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown when the switch is checked."
+          "description": "Icon shown on the thumb when the switch is checked. No icon is rendered when omitted."
         },
         {
           "name": "class",
@@ -53,19 +53,19 @@
           "name": "defaultChecked",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the switch is checked by default."
+          "description": "Whether the switch is initially checked (uncontrolled). Form reset returns to this state."
         },
         {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Description for the switch."
+          "description": "Description shown with the label and linked to the control as its accessible description."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -75,7 +75,7 @@
           "name": "falseValue",
           "optional": true,
           "type": "TFalse",
-          "description": "Value to use when the switch is unchecked.",
+          "description": "Value that `onCheckedChange` receives when the switch becomes unchecked, and that `checked`\naccepts for the unchecked state.",
           "default": {
             "kind": "literal",
             "value": false
@@ -91,25 +91,25 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Optional inner input element ref."
+          "description": "Receives the hidden `<input type=\"checkbox\">` that submits the switch with a form."
         },
         {
           "name": "label",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Label for the switch."
+          "description": "Label for the switch. It is a `<label>` for the control and its accessible name unless the\nsurrounding `Field` provides one."
         },
         {
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the switch is in a loading state.",
+          "description": "Whether the switch is in a loading state. A loading switch is disabled and shows `loadingIcon`\non the thumb in place of the checked or unchecked icon.",
           "default": {
             "kind": "literal",
             "value": false
@@ -119,7 +119,7 @@
           "name": "loadingIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown during loading state.",
+          "description": "Icon shown on the thumb while `loading` is set.",
           "default": {
             "kind": "literal",
             "value": "icon-loading"
@@ -129,25 +129,25 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onCheckedChange",
           "optional": true,
           "type": "(value: TTrue | TFalse) => void",
-          "description": "Callback when the switch state changes."
+          "description": "Called when the user toggles the switch, with `trueValue` (checked) or `falseValue`\n(unchecked), which are `true` and `false` by default. It does not fire for programmatic\nchanges to `checked`, or while the switch is `disabled`, `readOnly`, or `loading`."
         },
         {
           "name": "onPointerDown",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>",
-          "description": "Pointer down handler for the switch root container."
+          "description": "Pointer down handler for the switch track (the `role=\"switch\"` button). It runs before the\nswitch's own handling; call `event.preventDefault()` to skip that."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -157,7 +157,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -189,23 +189,26 @@
           "name": "trueValue",
           "optional": true,
           "type": "TTrue",
-          "description": "Value to use when the switch is checked.",
+          "description": "Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`\naccepts for the checked state. Use it to map the state to a domain value.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Switch } from 'moraine'\n\n<Switch\n  label=\"Theme\"\n  trueValue=\"dark\"\n  falseValue=\"light\"\n  defaultChecked\n  onCheckedChange={(mode) => console.log(mode)}\n/>"
+          ]
         },
         {
           "name": "uncheckedIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown when the switch is unchecked."
+          "description": "Icon shown on the thumb when the switch is unchecked. No icon is rendered when omitted."
         },
         {
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Native value submitted when the switch is checked.",
+          "description": "Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing\nis submitted while it is unchecked. This is separate from `trueValue`, which is what callbacks receive.",
           "default": {
             "kind": "literal",
             "value": "on"

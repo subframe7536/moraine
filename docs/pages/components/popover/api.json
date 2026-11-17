@@ -16,7 +16,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment along the cross axis.",
+          "description": "Alignment of the content along the trigger edge: `'start'` and `'end'` line up the content\nedge with the matching trigger edge, `'center'` centers it. Combines with `placement`.",
           "default": {
             "kind": "literal",
             "value": "center"
@@ -38,7 +38,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before closing on hover.",
+          "description": "Delay in milliseconds between the pointer or focus leaving the trigger and content and\nclosing; re-entering within the delay keeps it open. Only used with `openOnHover`.",
           "default": {
             "kind": "literal",
             "value": 100
@@ -48,7 +48,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the content.",
+          "description": "Whether pressing Escape closes the content. When `false` the key press is blocked, the content\nstays open and `onClosePrevented` is called.",
           "default": {
             "kind": "literal",
             "value": true
@@ -58,7 +58,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether outside interaction, pointer or focus, dismisses the content.",
+          "description": "Whether a pointer press outside the content and its trigger, or focus moving outside, closes\nthe content (focus does not dismiss hover-opened popovers). When `false` the attempt is blocked,\nthe content stays open and `onClosePrevented` is called.",
           "default": {
             "kind": "literal",
             "value": true
@@ -68,7 +68,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial open state when uncontrolled.",
+          "description": "Initial open state when uncontrolled. Ignored while `open` is set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -88,17 +88,20 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. A string is a space-delimited list of fallback\nplacements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`; any other entry throws an error.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip=\"top bottom-end\">\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
-          "description": "Whether content remains mounted while closed.",
+          "description": "Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for\nexample to measure it or keep its state. Has no effect while `disabled`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -118,7 +121,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier used to derive the content id."
+          "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
         },
         {
           "name": "modal",
@@ -134,25 +137,28 @@
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
-          "description": "Called when a dismissal attempt is blocked."
+          "description": "Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press or focus\nmove (`closeOnOutsideClick` is `false`) tried to close the content and was blocked."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called whenever the open state changes."
+          "description": "Called with the next open state when an interaction (trigger press, hover or focus delay,\nEscape, outside press) requests a change. It is not called when `open` is changed from outside,\nand it does not apply the change itself when `open` is controlled: update `open` in the handler.",
+          "examples": [
+            "import { Button, Popover } from 'moraine'\nimport { createSignal } from 'solid-js'\n\nconst [open, setOpen] = createSignal(false)\n\n<Popover open={open()} onOpenChange={setOpen}>\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state."
+          "description": "Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component\nmanage its own state (see `defaultOpen`). `disabled` forces the content closed regardless."
         },
         {
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before opening on hover.",
+          "description": "Delay in milliseconds between pointer enter or trigger focus and opening. Only used with\n`openOnHover`.",
           "default": {
             "kind": "literal",
             "value": 100
@@ -162,7 +168,7 @@
           "name": "openOnHover",
           "optional": true,
           "type": "boolean",
-          "description": "Opens on hover and focus instead of click.",
+          "description": "Opens the popover when a mouse pointer enters the trigger or the trigger receives keyboard\nfocus, and closes it `closeDelay` ms after the pointer or focus leaves the trigger and content.\nClicking the trigger then only opens it instead of toggling. Touch hover is ignored. Outside\nfocus no longer dismisses the content, and focus is not restored to the trigger on close\nunless `restoreFocusOnClose` is set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -182,7 +188,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred content placement relative to the trigger.",
+          "description": "Side of the trigger the content opens on. The rendered side can differ when `flip` moves it to\nfit the viewport; read it from `data-side` on the content.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -192,7 +198,7 @@
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
-          "description": "Whether body scroll should be locked while the content is present.",
+          "description": "Whether body scroll is locked while the content is present. A modal content always locks it.",
           "default": {
             "kind": "literal",
             "value": false
@@ -202,7 +208,7 @@
           "name": "restoreFocusOnClose",
           "optional": true,
           "type": "boolean",
-          "description": "Whether focus returns to the trigger after the content closes.",
+          "description": "Whether focus returns to the trigger when the content closes. Focus is not restored when a\nnon-modal content is dismissed by an outside press or focus move, since focus already went\nelsewhere. Hover-opened popovers (`openOnHover`) default to not restoring focus.",
           "default": {
             "kind": "literal",
             "value": true
@@ -212,7 +218,7 @@
           "name": "shift",
           "optional": true,
           "type": "number",
-          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "description": "Offset in pixels along the trigger edge (horizontal for `top` and `bottom` placements,\nvertical for `left` and `right`), added to the position given by `align`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -222,7 +228,7 @@
           "name": "slide",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content may slide along its main axis to remain visible.",
+          "description": "Whether the content slides along the trigger edge (horizontally for `top` and `bottom`\nplacements, vertically for `left` and `right`) to stay inside the viewport, keeping\n`overflowPadding` from the edge, instead of overflowing.",
           "default": {
             "kind": "literal",
             "value": true

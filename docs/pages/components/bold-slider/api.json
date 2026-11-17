@@ -31,13 +31,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "number",
-          "description": "The default value (uncontrolled)."
+          "description": "The initial value (uncontrolled), with the same number or array shape as `value`; its shape\nalso sets the shape that `onValueChange` and `onValueCommit` receive. Defaults to `min`."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -53,19 +53,22 @@
           "name": "formatOptions",
           "optional": true,
           "type": "Intl.NumberFormatOptions",
-          "description": "`Intl.NumberFormat` options used to format values for `aria-valuetext`, such as\n`{ style: 'percent' }`. Formatting uses the provider locale."
+          "description": "`Intl.NumberFormat` options used to format values for `aria-valuetext`, such as\n`{ style: 'percent' }`. Formatting uses the provider locale and does not change the\nvalue passed to callbacks; `BoldSlider` also uses it for its displayed value. Remember that a\n`percent` style multiplies by 100, so pair it with a `0`-`1` range.",
+          "examples": [
+            "import { Slider } from 'moraine'\n\n<Slider\n  defaultValue={0.25}\n  min={0}\n  max={1}\n  step={0.05}\n  formatOptions={{ style: 'percent' }}\n/>"
+          ]
         },
         {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Optional inner input element ref."
+          "description": "Receives the hidden `<input type=\"range\">` of the first thumb."
         },
         {
           "name": "label",
@@ -107,25 +110,28 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: number) => void",
-          "description": "Callback when the slider selection changes during interaction."
+          "description": "Called on every value change during interaction (pointer drag, track click, or key press),\nwith the new value in the same shape as `value`. Does not fire for programmatic changes to\n`value`. Use `onValueCommit` to react once per finished interaction."
         },
         {
           "name": "onValueCommit",
           "optional": true,
           "type": "(value: number) => void",
-          "description": "Callback when the slider selection change is committed."
+          "description": "Called once an interaction that changed the value finishes: when the pointer is released,\nwhen a navigation key is released, or when focus leaves the slider. Receives the final value in\nthe same shape as `value`.",
+          "examples": [
+            "import { Slider } from 'moraine'\n\n<Slider\n  defaultValue={[20, 80]}\n  onValueCommit={(range) => console.log(`${range[0]} to ${range[1]}`)}\n/>"
+          ]
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -135,7 +141,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -145,7 +151,7 @@
           "name": "reversed",
           "optional": true,
           "type": "boolean",
-          "description": "Reverses value movement along the track.",
+          "description": "Reverses the track direction, so `min` sits at the right (or top when vertical) instead of\nthe left (or bottom) in left-to-right layouts.",
           "default": {
             "kind": "literal",
             "value": false
@@ -165,7 +171,7 @@
           "name": "step",
           "optional": true,
           "type": "number",
-          "description": "Step increment between values.\nWhen omitted, pointer movement is continuous."
+          "description": "Step increment between values; pointer and keyboard values snap to multiples of it from `min`.\nWhen omitted (or not above `0`), pointer movement is continuous and arrow keys move by 1% of\nthe range. `PageUp`/`PageDown` and `Shift` + arrow move by about 10% of the range."
         },
         {
           "name": "style",
@@ -193,23 +199,29 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this slider instance."
+          "description": "Localized message overrides for this slider instance: `thumb` returns each thumb's\n`aria-label` and `valueText` returns its `aria-valuetext`.",
+          "examples": [
+            "import { Slider } from 'moraine'\n\n<Slider\n  defaultValue={[20, 80]}\n  translations={{\n    thumb: ({ index }) => (index === 0 ? 'Minimum price' : 'Maximum price'),\n  }}\n/>"
+          ]
         },
         {
           "name": "value",
           "optional": true,
           "type": "number",
-          "description": "The current value (controlled)."
+          "description": "The current value (controlled). A number renders one thumb and an array renders one thumb per\nentry (an empty array gives one thumb at `min`). Values are clamped to `min`-`max` and\narrays are sorted. Leave it `undefined` for uncontrolled usage. The slider throws a\n`RangeError` when `max` is not greater than `min`."
         },
         {
           "name": "valueLabel",
           "optional": true,
           "type": "boolean | ((props: { percent: number; value: number; max: number }) => string)",
-          "description": "Whether to show the value at the end of the track, or a formatter for it. `percent` is the\nfilled share of the track from 0 to 100.\nBy default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.",
+          "description": "Controls the value text shown at the end of the track. `false` hides it, `true` shows the\nnumber, and a function returns the text to show. The function receives the current `value`,\nthe `max` (100 when not set), and `percent`, the filled share of the track from 0 to 100.\nWith `true`, the value is formatted with `formatOptions` when set; otherwise it is rounded to\nthe decimal places of `step` (2 places without `step`) with no digit grouping.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { BoldSlider } from 'moraine'\n\n<BoldSlider\n  label=\"Volume\"\n  defaultValue={40}\n  valueLabel={({ value, max }) => `${value} / ${max}`}\n/>"
+          ]
         },
         {
           "name": "variant",

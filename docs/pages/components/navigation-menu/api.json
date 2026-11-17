@@ -17,7 +17,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment relative to the trigger.",
+          "description": "Alignment of the panel relative to the active trigger: `'start'`, `'center'` or `'end'`.",
           "default": {
             "kind": "expression",
             "text": "center"
@@ -45,7 +45,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay after the pointer leaves the menu, in milliseconds.",
+          "description": "Delay in milliseconds between the pointer leaving the menu and the open panel closing. The\npanel stays open while focus is inside it, and moving across the gap toward the panel is\ntolerated.",
           "default": {
             "kind": "literal",
             "value": 50
@@ -55,7 +55,7 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string",
-          "description": "Initial open item value.",
+          "description": "`value` of the item that is open initially when uncontrolled; omit to start closed. Ignored\nwhen `value` is set.",
           "default": {
             "kind": "expression",
             "text": "undefined"
@@ -65,7 +65,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disable navigation interactions.",
+          "description": "Disables every trigger and link in the menu: panels cannot open (an open panel closes) and\nlinks lose their `href` and are marked `aria-disabled`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -75,11 +75,14 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. A string is a space-delimited list of fallback\nplacements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`; any other entry throws an error.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip=\"top bottom-end\">\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "gutter",
@@ -95,13 +98,13 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string | undefined) => void",
-          "description": "Called when an interaction requests a different open item."
+          "description": "Called with the `value` of the item that should open, or `undefined` when the menu should\nclose, after hover, click, keyboard or dismissal. It only fires when the value changes and\nfires in controlled mode too, so a controlled menu must write it back to `value`."
         },
         {
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Hover delay before the first panel opens, in milliseconds.",
+          "description": "Delay in milliseconds between a mouse pointer entering a trigger and its panel opening while\nno panel is open. Hovering another trigger while a panel is open switches immediately, and\nclick or keyboard activation never waits.",
           "default": {
             "kind": "literal",
             "value": 50
@@ -131,7 +134,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred content placement relative to the trigger.",
+          "description": "Side of the trigger the content opens on. The rendered side can differ when `flip` moves it to\nfit the viewport; read it from `data-side` on the content.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -141,7 +144,7 @@
           "name": "shift",
           "optional": true,
           "type": "number",
-          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "description": "Offset in pixels along the trigger edge (horizontal for `top` and `bottom` placements,\nvertical for `left` and `right`), added to the position given by `align`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -151,7 +154,7 @@
           "name": "slide",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content may slide along its main axis to remain visible.",
+          "description": "Whether the content slides along the trigger edge (horizontally for `top` and `bottom`\nplacements, vertically for `left` and `right`) to stay inside the viewport, keeping\n`overflowPadding` from the edge, instead of overflowing.",
           "default": {
             "kind": "literal",
             "value": true
@@ -173,7 +176,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Open item value. undefined closes the menu."
+          "description": "Controlled `value` of the open `NavigationMenu.Item`. While `undefined` the menu is\nuncontrolled and follows `defaultValue`; a value that matches no enabled item with content\nleaves the menu closed. Update it from `onValueChange`."
         }
       ]
     },
@@ -274,7 +277,10 @@
           "name": "as",
           "optional": true,
           "type": "T",
-          "description": "Element or component to render as.",
+          "description": "Element or component to render as. A tag name (`'a'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the trigger would put on\nits element, so it should spread them onto its root and forward `ref`. Own styles and state\nattributes are kept.",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button as=\"a\" href=\"/docs\" target=\"_blank\">Docs</Button>"
+          ],
           "default": {
             "kind": "literal",
             "value": "button"
@@ -350,7 +356,7 @@
           "name": "active",
           "optional": true,
           "type": "boolean",
-          "description": "Mark this link as the current page.",
+          "description": "Marks this link as the current page by setting `aria-current=\"page\"`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -372,7 +378,7 @@
           "name": "closeOnClick",
           "optional": true,
           "type": "boolean",
-          "description": "Close the panel after an uncancelled link click.",
+          "description": "Closes the open panel when the link is clicked, unless a click handler calls\n`preventDefault()`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -382,7 +388,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disable navigation from this link.",
+          "description": "Disables the link: it loses its `href`, gets `aria-disabled` and `tabIndex={-1}`, and clicks\nare prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.",
           "default": {
             "kind": "literal",
             "value": false
@@ -392,7 +398,10 @@
           "name": "linkRender",
           "optional": true,
           "type": "Component<LinkRenderProps>",
-          "description": "Custom link component. Forward all supplied props to its anchor."
+          "description": "Renders the link with a custom component, such as a router link, instead of `<a>`. It is\nmounted as a component and receives the merged anchor props (`href`, `class`, `ref`, ARIA\nattributes and event handlers), all of which it must forward to its anchor.",
+          "examples": [
+            "import { NavigationMenu } from 'moraine'\nimport type { NavigationMenuT } from 'moraine'\n\nconst RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />\n\n<NavigationMenu aria-label=\"Main navigation\">\n  <NavigationMenu.List>\n    <NavigationMenu.Item>\n      <NavigationMenu.Link href=\"/docs\" linkRender={RouterLink}>\n        Documentation\n      </NavigationMenu.Link>\n    </NavigationMenu.Item>\n  </NavigationMenu.List>\n</NavigationMenu>"
+          ]
         },
         {
           "name": "style",

@@ -16,7 +16,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment along the cross axis.",
+          "description": "Alignment of the content along the trigger edge: `'start'` and `'end'` line up the content\nedge with the matching trigger edge, `'center'` centers it. Combines with `placement`.",
           "default": {
             "kind": "literal",
             "value": "center"
@@ -38,7 +38,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before closing after leaving the trigger or content.",
+          "description": "Delay in milliseconds between the pointer leaving the trigger and content, or the trigger\nlosing focus, and closing. Moving onto the content within the delay keeps the card open.",
           "default": {
             "kind": "literal",
             "value": 300
@@ -48,7 +48,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial open state when uncontrolled.",
+          "description": "Initial open state when uncontrolled. Ignored while `open` is set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -68,17 +68,20 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. A string is a space-delimited list of fallback\nplacements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`; any other entry throws an error.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip=\"top bottom-end\">\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
-          "description": "Whether content remains mounted while closed.",
+          "description": "Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for\nexample to measure it or keep its state. Has no effect while `disabled`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -98,25 +101,28 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier used to derive the content id."
+          "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called whenever the open state changes."
+          "description": "Called with the next open state when an interaction (trigger press, hover or focus delay,\nEscape, outside press) requests a change. It is not called when `open` is changed from outside,\nand it does not apply the change itself when `open` is controlled: update `open` in the handler.",
+          "examples": [
+            "import { Button, Popover } from 'moraine'\nimport { createSignal } from 'solid-js'\n\nconst [open, setOpen] = createSignal(false)\n\n<Popover open={open()} onOpenChange={setOpen}>\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state."
+          "description": "Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component\nmanage its own state (see `defaultOpen`). `disabled` forces the content closed regardless."
         },
         {
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before opening on hover or keyboard focus.",
+          "description": "Delay in milliseconds between a mouse pointer entering the trigger and opening. Keyboard\nfocus on the trigger also opens it after this delay, but only for focus-visible (keyboard)\nfocus. Touch hover is ignored.",
           "default": {
             "kind": "literal",
             "value": 600
@@ -136,7 +142,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred content placement relative to the trigger.",
+          "description": "Side of the trigger the content opens on. The rendered side can differ when `flip` moves it to\nfit the viewport; read it from `data-side` on the content.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -146,7 +152,7 @@
           "name": "shift",
           "optional": true,
           "type": "number",
-          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "description": "Offset in pixels along the trigger edge (horizontal for `top` and `bottom` placements,\nvertical for `left` and `right`), added to the position given by `align`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -156,7 +162,7 @@
           "name": "slide",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content may slide along its main axis to remain visible.",
+          "description": "Whether the content slides along the trigger edge (horizontally for `top` and `bottom`\nplacements, vertically for `left` and `right`) to stay inside the viewport, keeping\n`overflowPadding` from the edge, instead of overflowing.",
           "default": {
             "kind": "literal",
             "value": true
@@ -225,7 +231,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Identifies this trigger when several triggers share one card. The content\nreads it from its render context."
+          "description": "Identifies this trigger when several triggers share one card. `HoverCard.Content` receives\nthe `value` of the trigger that most recently anchored the card through its function\nchildren."
         }
       ]
     },
@@ -244,7 +250,10 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element | ((context: ContentContext) => JSX.Element)",
-          "description": "Card content shown on hover or keyboard focus."
+          "description": "Card content shown while the card is open. A function receives `{ value }`, an accessor for\nthe `value` of the `HoverCard.Trigger` that anchored the card (`undefined` when that trigger\nhas no `value`).",
+          "examples": [
+            "import { HoverCard } from 'moraine'\n\n<HoverCard>\n  <HoverCard.Trigger href=\"/u/alex\" value=\"alex\">@alex</HoverCard.Trigger>\n  <HoverCard.Trigger href=\"/u/sam\" value=\"sam\">@sam</HoverCard.Trigger>\n  <HoverCard.Content>{({ value }) => <span>Profile of {value()}</span>}</HoverCard.Content>\n</HoverCard>"
+          ]
         },
         {
           "name": "class",

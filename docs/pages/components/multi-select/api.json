@@ -24,7 +24,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment along the cross axis.",
+          "description": "Alignment of the popup along the anchor's edge: `'start'`, `'center'`, or `'end'`.",
           "default": {
             "kind": "literal",
             "value": "start"
@@ -34,7 +34,7 @@
           "name": "autocomplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
-          "description": "The autocomplete attribute for the search input.",
+          "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `search` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "off"
@@ -56,7 +56,7 @@
           "name": "clearable",
           "optional": true,
           "type": "boolean",
-          "description": "Show a clear button when a value is selected.",
+          "description": "Shows a clear button while there are selected values or search text. Clearing removes every\nselected value except those of disabled items, empties the search text, calls `onClear`,\nand returns focus to the control.",
           "default": {
             "kind": "literal",
             "value": false
@@ -66,7 +66,7 @@
           "name": "clearIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon used when the action button clears the selection.",
+          "description": "Icon of the clear button.",
           "default": {
             "kind": "literal",
             "value": "icon-close"
@@ -76,7 +76,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the popup.",
+          "description": "Whether `Escape` closes the popup. When `false` the popup stays open and `onClosePrevented`\nis called instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -86,7 +86,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether outside interaction, pointer or focus, dismisses the popup.",
+          "description": "Whether an outside interaction, pointer press or focus moving elsewhere, closes the popup.\nWhen `false` the popup stays open and `onClosePrevented` is called instead. Tabbing out of\nthe control still closes it.",
           "default": {
             "kind": "literal",
             "value": true
@@ -96,13 +96,16 @@
           "name": "createItem",
           "optional": true,
           "type": "(input: string) => TItem",
-          "description": "Factory used for unmatched free-text creation.\nProviding it also enables the editable search input."
+          "description": "Creates an item from free text. It is called with the trimmed text when the user commits\ntext that matches no existing item by label or value (ignoring case and accents), by\npressing `Enter`, completing a token separator, pasting, or calling `create` from\n`emptyRender`. The returned item (its `value` must be a string or number) is selected and\nadded to the top of the option list until the form is reset. Nothing is created once\n`maxCount` is reached or when the value is already selected. Providing it also enables the\neditable search input, like `search`.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  createItem={(input) => ({ label: input, value: input.toLowerCase() })}\n/>"
+          ]
         },
         {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial popup state.",
+          "description": "Initial popup state when `open` is not set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -112,7 +115,7 @@
           "name": "defaultSearchValue",
           "optional": true,
           "type": "string",
-          "description": "Initial search text.",
+          "description": "Initial search text when `searchValue` is not set.",
           "default": {
             "kind": "literal",
             "value": ""
@@ -122,13 +125,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "TItem['value'][]",
-          "description": "Initial values when uncontrolled."
+          "description": "Initial selected values when `value` is not set. Read once on creation; a native form reset\nrestores it."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -138,23 +141,29 @@
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
-          "description": "Content or render function for the empty state."
+          "description": "Content shown in the popup when no item matches the search text or `items` is empty. A\nfunction receives `{ searchValue, hasMatches, selectedValues, isAtMaxCount, create, close }`,\nwhere `create(value?)` runs `createItem` for `value` (default: the current search text) and\nreturns whether an item was added. Defaults to the `create` translation (`Press Enter to\ncreate “text”`) when `createItem` is set and text was typed, otherwise to the `empty`\ntranslation.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  createItem={(input) => ({ label: input, value: input })}\n  emptyRender={(state) => (\n    <button type=\"button\" onClick={() => state.create()}>\n      Add \"{state.searchValue}\"\n    </button>\n  )}\n/>"
+          ]
         },
         {
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "Filtering strategy, or a predicate receiving the search query and the item. String items\narrive as `{ value, label }`. `false` disables filtering.",
+          "description": "How items are matched against the search text; filtering runs only while the text is not\nempty. The named strategies compare the item's plain-text label (see `getItemLabel`)\nignoring case and accents using the active locale. A predicate receives the search text and\nthe item (string items arrive as `{ value, label }`) and returns whether the item stays\nvisible; it replaces the built-in matching. `false` always shows every item (use it when you\nfilter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering\napplies only when `search` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "contains"
-          }
+          },
+          "examples": [
+            "import { Combobox } from 'moraine'\n\n<Combobox\n  items={[\n    { label: 'Apple', value: 'apple', description: 'Red fruit' },\n    { label: 'Lime', value: 'lime', description: 'Green fruit' },\n  ]}\n  filterMethod={(query, item) =>\n    `${item.value} ${item.description}`.toLowerCase().includes(query.toLowerCase())\n  }\n/>"
+          ]
         },
         {
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space.",
+          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. A\nstring is a space-delimited list of fallback placements tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`'top bottom-end'`); an invalid entry throws.",
           "default": {
             "kind": "literal",
             "value": true
@@ -164,7 +173,10 @@
           "name": "getItemLabel",
           "optional": true,
           "type": "(item: TItem) => string",
-          "description": "Plain-text label of an item, used for typeahead, filtering, form values, and plain-text\ndisplays such as an input value or tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`."
+          "description": "Plain-text label of an item, used for typeahead, filtering, form values, and plain-text\ndisplays such as an input value or tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
+          "examples": [
+            "import { Combobox } from 'moraine'\n\n<Combobox\n  items={[\n    { label: <strong>Apple</strong>, value: 'apple' },\n    { label: <strong>Pear</strong>, value: 'pear' },\n  ]}\n  getItemLabel={(item) => String(item.value)}\n/>"
+          ]
         },
         {
           "name": "gutter",
@@ -180,7 +192,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "inputRef",
@@ -192,50 +204,62 @@
           "name": "isItemDisabled",
           "optional": true,
           "type": "(item: TItem, values: readonly TItem['value'][]) => boolean",
-          "description": "Additional disabled policy evaluated against the current selection."
+          "description": "Extra disabled rule, evaluated for every item together with the current selected values;\nreturn `true` to disable the item in addition to `item.disabled`. Disabled items cannot be\nselected, highlighted, or reached by typeahead. In `MultiSelect`, a selected disabled item\nkeeps its tag (it cannot be removed) and survives clearing. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Admin', value: 'admin' },\n    { label: 'Guest', value: 'guest' },\n  ]}\n  isItemDisabled={(item, values) => item.value === 'guest' && values.includes('admin')}\n/>"
+          ]
         },
         {
           "name": "itemProps",
           "optional": true,
           "type": "(state: BaseSelectT.ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined",
-          "description": "Additional row attributes."
+          "description": "Returns extra attributes spread on each item row, computed per item from the same state as\n`itemRender`. `class`, `style`, `ref`, and the `onClick`, `onPointerMove`, and `onPointerDown`\nhandlers are merged with the component's own; calling `event.preventDefault()` in `onClick`\nstops the selection. `id`, `tabIndex`, `aria-selected`, and `aria-disabled` stay\ncomponent-owned.",
+          "examples": [
+            "import { Select } from 'moraine'\n\n<Select\n  items={['Apple', 'Pear']}\n  itemProps={(state) => ({ 'data-testid': `option-${state.item.value}` })}\n/>"
+          ]
         },
         {
           "name": "itemRender",
           "optional": true,
           "type": "Component<BaseSelectT.ItemRenderProps<TItem>>",
-          "description": "Renderer for each collection item."
+          "description": "Replaces the default content of every item row (icon, label, description, and selected\ncheck). The row element itself (`role=\"option\"`, click and hover handling) stays owned by the\ncomponent. Receives `{ item, selected, highlighted, disabled }`; for `Select` and `Combobox`\nstring items arrive as `{ value, label }`. Declare the parameter even when unused: a\nzero-argument function is called as an accessor, not mounted as a component.",
+          "examples": [
+            "import { Select } from 'moraine'\n\n<Select\n  items={[\n    { label: 'Free', value: 'free' },\n    { label: 'Pro', value: 'pro' },\n  ]}\n  itemRender={(state) => (\n    <span>\n      {state.item.label}\n      {state.selected ? ' ✓' : ''}\n    </span>\n  )}\n/>"
+          ]
         },
         {
           "name": "items",
           "optional": true,
           "type": "Entry<TItem>[]",
-          "typeDetails": "({\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: ({\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  })[];\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
-          "description": "Source items, optionally grouped. Item values must be unique within the collection."
+          "typeDetails": "({\n  /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n  value: string | number;\n  /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n  disabled?: boolean;\n  /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n  icon?: IconT.Name;\n  /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  /** Heading rendered above the group's items. Not selectable. */\n  label: JSX.Element;\n  /** Items in the group. Item values must be unique across the whole collection, not just the\ngroup: a repeated value is ignored (the first occurrence wins). A group with no remaining\nitems, or none matching the current search, renders nothing. */\n  items: ({\n    /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n    value: string | number;\n    /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\n  filtering) fall back to `String(value)` unless `getItemLabel` is set. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n    disabled?: boolean;\n    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */\n    icon?: IconT.Name;\n    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */\n    description?: JSX.Element;\n  })[];\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
+          "description": "Options of the popup list: item objects (no string shorthand), optionally grouped with\n`{ type: 'group', label, items }` and divided with `{ type: 'separator' }`. Item values must\nbe unique across the whole collection; a repeated value is ignored and logs an error in\ndevelopment. Items created through `createItem` are added on top of this list.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Design', value: 'design' },\n    { type: 'separator' },\n    {\n      type: 'group',\n      label: 'Engineering',\n      items: [\n        { label: 'Frontend', value: 'frontend' },\n        { label: 'Backend', value: 'backend', disabled: true },\n      ],\n    },\n  ]}\n/>"
+          ]
         },
         {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown before the input/value area."
+          "description": "Icon rendered before the tags and input."
         },
         {
           "name": "listboxProps",
           "optional": true,
           "type": "ElementProps<HTMLDivElement>",
-          "description": "Additional listbox attributes."
+          "description": "Extra attributes spread on the listbox `div` inside the popup, such as `aria-label`, `data-*`\nor an `onScroll` handler (calling `event.preventDefault()` there skips `onScrollBottom`).\n`id` and `tabIndex` stay component-owned."
         },
         {
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the select is in a loading state."
+          "description": "Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it\n`aria-busy`. Typing and the clear button keep working in the editable input."
         },
         {
           "name": "loadingIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown during loading state.",
+          "description": "Icon shown instead of `trailing` while `loading`.",
           "default": {
             "kind": "literal",
             "value": "icon-loading"
@@ -245,73 +269,73 @@
           "name": "maxCount",
           "optional": true,
           "type": "number",
-          "description": "Maximum number of selected values (multiple/tags)."
+          "description": "Maximum number of selected values. Once reached, unselected options are disabled and typed\ntext is not committed; selected ones can still be removed. It does not truncate a larger\n`value`."
         },
         {
           "name": "maxTagCount",
           "optional": true,
           "type": "number",
-          "description": "Maximum visible tags before collapsing the remainder into a +N summary."
+          "description": "Maximum number of tags rendered in the control. The remaining selected values collapse into\na `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides\nevery tag; unlimited when omitted."
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onClear",
           "optional": true,
           "type": "() => void",
-          "description": "Called when clear is triggered."
+          "description": "Called once after a clear action (see `clearable`), following `onValueChange`."
         },
         {
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
-          "description": "Called when a dismissal attempt is blocked."
+          "description": "Called, without arguments, when `Escape` or an outside interaction was blocked by\n`closeOnEscape={false}` or `closeOnOutsideClick={false}`. The popup remains open."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called when popup state changes."
+          "description": "Called with the next state whenever the popup should open or close (typing, arrow keys,\nselecting an item, `Escape`, `Tab`, or an outside press). Not called when the state would not\nchange. A disabled select never opens."
         },
         {
           "name": "onReset",
           "optional": true,
           "type": "() => void",
-          "description": "Post-reset notification after an unprevented native form reset."
+          "description": "Called after a native `<form>` reset has restored the initial selection (and, in `Combobox`\nand `MultiSelect`, cleared the search text). It runs in a microtask after the `reset` event\nand is skipped when the event was default-prevented. In controlled mode the selection stays\nat `value`, so use this callback to reset your own state."
         },
         {
           "name": "onScrollBottom",
           "optional": true,
           "type": "() => void",
-          "description": "Called once when scrolling reaches the bottom."
+          "description": "Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
         },
         {
           "name": "onSearchValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Called when search text changes."
+          "description": "Called with the new search text when it changes, including the component's own resets to\n`''`. The text is already truncated to `searchMaxLength`. During IME composition it fires\nonce the composition ends."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: NoInfer<TItem['value'][]>) => void",
-          "description": "Called when the selection changes."
+          "description": "Called with the full new array of selected values when the user adds or removes an item\n(clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared\nafterwards. Not called for prop updates or while disabled or read-only."
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled popup state."
+          "description": "Controlled popup state. `undefined` keeps it uncontrolled. In controlled mode the popup\nopens or closes only when you update this prop in `onOpenChange`. Page scrolling is locked\nwhile the popup is open."
         },
         {
           "name": "openOnControlClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether ordinary control/input pointer clicks open the popup.\nDefaults to `false` when editable (`search` or `createItem` enabled),\nor `true` when non-editable."
+          "description": "Whether a pointer click on the control (outside its buttons) opens the popup. Defaults\nto `false` when editable (`search` or `createItem` set) and `true` otherwise. Typing\nnon-blank text, `ArrowDown`, and the toggle button open it regardless."
         },
         {
           "name": "overflowPadding",
@@ -327,7 +351,7 @@
           "name": "placeholder",
           "optional": true,
           "type": "string",
-          "description": "Placeholder text shown when no value is selected.",
+          "description": "Text shown in the control while no value is selected: a label in the non-editable control,\nor the input placeholder when editable. Hidden as soon as there is a tag.",
           "default": {
             "kind": "literal",
             "value": ""
@@ -337,7 +361,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred popup placement relative to the anchor.",
+          "description": "Preferred side of the anchor (the control) on which the popup opens. Combined with `align`;\nsee `flip` for when the side can change.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -347,7 +371,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -367,7 +391,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -377,7 +401,7 @@
           "name": "scrollBottomThreshold",
           "optional": true,
           "type": "number",
-          "description": "Bottom threshold in pixels.",
+          "description": "Distance from the end of the listbox, in pixels, within which `onScrollBottom` fires.",
           "default": {
             "kind": "literal",
             "value": 20
@@ -387,7 +411,7 @@
           "name": "search",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the collection can be filtered through the editable input.",
+          "description": "Adds an editable input to the control so typing filters the options, using `filterMethod`.\nIt is also enabled implicitly by `createItem`. When neither is set the control is a\nnon-editable trigger: there is no input, and `filterMethod` and `autocomplete` have no\neffect.",
           "default": {
             "kind": "literal",
             "value": false
@@ -397,13 +421,13 @@
           "name": "searchMaxLength",
           "optional": true,
           "type": "number",
-          "description": "Maximum committed search length."
+          "description": "Maximum number of characters in the search text. Applied as the input's `maxLength` and by\ntruncating text the user commits; a controlled `searchValue` is not truncated. Unlimited when\nomitted."
         },
         {
           "name": "searchValue",
           "optional": true,
           "type": "string",
-          "description": "Controlled search text."
+          "description": "Controlled search text. `undefined` keeps the text uncontrolled. The component also resets\nthe text to `''` when the popup finishes closing, after a native form reset, and (in\n`MultiSelect`) after the selection changes; in controlled mode these resets are reported\nthrough `onSearchValueChange('')` and you decide whether to apply them."
         },
         {
           "name": "shift",
@@ -451,19 +475,25 @@
           "name": "tagOverflowRender",
           "optional": true,
           "type": "JSX.Element | Component<TagOverflowRenderProps<TItem>>",
-          "description": "Content or render function for tags hidden by `maxTagCount`."
+          "description": "Content shown in place of the default `+N` summary when `maxTagCount` hides tags. A\nfunction receives `{ count, tags }`, where `tags` are the hidden entries in selection order.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Design', value: 'design' },\n    { label: 'Code', value: 'code' },\n  ]}\n  defaultValue={['design', 'code']}\n  maxTagCount={1}\n  tagOverflowRender={(overflow) => <span>and {overflow.count} more</span>}\n/>"
+          ]
         },
         {
           "name": "tagRender",
           "optional": true,
           "type": "Component<TagRenderProps<TItem>>",
-          "description": "Renderer for each selected tag."
+          "description": "Replaces the default tag (label plus remove button) of each visible tag. Receives\n`{ item, value, label, remove }`; `item` is `undefined` for a selected value that matches\nno item. Provide your own control that calls `remove()`, which does nothing for disabled\nitems.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  defaultValue={['design']}\n  tagRender={(tag) => (\n    <button type=\"button\" onClick={() => tag.remove()}>\n      {tag.label} ×\n    </button>\n  )}\n/>"
+          ]
         },
         {
           "name": "tokenSeparators",
           "optional": true,
           "type": "string[]",
-          "description": "Strings that commit completed input tokens through `createItem` or an exact source match.\nDuplicate separators are ignored and overlapping separators prefer the longest match.",
+          "description": "Strings that commit completed input tokens through `createItem` or an exact source match,\nwhile typing or pasting into the editable input. Duplicate separators are ignored and\noverlapping separators prefer the longest match.",
           "default": {
             "kind": "expression",
             "text": "[',']"
@@ -473,7 +503,7 @@
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon used when the action button opens the dropdown.",
+          "description": "Icon of the toggle button that opens and closes the popup; replaced by `loadingIcon` while\n`loading`.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-down"
@@ -483,13 +513,16 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this multi-select instance."
+          "description": "Overrides the built-in messages for this instance, merged over the messages from the\nprovider and locale: `clear`, `loading`, `toggle`, `empty`, `placeholder`, `overflow`,\n`create`, and `remove`. `overflow({ count })`, `create({ value })`, and `remove({ title })`\nare functions returning the text.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  createItem={(input) => ({ label: input, value: input })}\n  translations={{\n    create: ({ value }) => `Add \"${value}\"`,\n    remove: ({ title }) => `Remove tag ${title}`,\n    overflow: ({ count }) => `${count} more selected`,\n  }}\n/>"
+          ]
         },
         {
           "name": "value",
           "optional": true,
           "type": "TItem['value'][]",
-          "description": "Controlled values."
+          "description": "Controlled array of selected item values, in selection order. `undefined` keeps the\nselection uncontrolled; `[]` keeps it controlled and empty. In controlled mode the\nselection changes only when you update this prop in `onValueChange`."
         },
         {
           "name": "variant",
@@ -505,7 +538,10 @@
           "name": "virtualizer",
           "optional": true,
           "type": "SelectVirtualizer<TItem>",
-          "description": "Renders only the visible rows, such as `createListVirtualizer()`. Rows include group labels\nand separators. The listbox is the scroll container, and keyboard highlight scrolls through\nthe virtualizer."
+          "description": "Renders only the visible rows, such as `createListVirtualizer()` from `moraine/virtualizer`\ntyped over `ComboboxT.Row`. Rows include group labels and separators. The listbox is the\nscroll container, items get `aria-posinset` and `aria-setsize`, and keyboard highlight scrolls\nthrough the virtualizer. Not available on `Select`.",
+          "examples": [
+            "import { Combobox } from 'moraine'\nimport type { ComboboxT } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst items = Array.from({ length: 5000 }, (_, index) => `Item ${index}`)\nconst virtualizer = createListVirtualizer<ComboboxT.Row<string>>({ estimateSize: () => 32 })\n\n<Combobox items={items} virtualizer={virtualizer} />"
+          ]
         }
       ]
     }
@@ -523,31 +559,31 @@
         "name": "description",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Secondary item description."
+        "description": "Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set."
       },
       {
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether this item cannot be selected."
+        "description": "Whether this item cannot be selected. A disabled item is also left out of form submission."
       },
       {
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Leading item icon."
+        "description": "Icon rendered before the label in the default item content. Ignored when `itemRender` is set."
       },
       {
         "name": "label",
         "optional": false,
         "type": "JSX.Element",
-        "description": "Visual label."
+        "description": "Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set."
       },
       {
         "name": "value",
         "optional": false,
         "type": "Val",
-        "description": "Unique selection and form value."
+        "description": "Unique selection and form value. Values compare by identity, so `1` and `'1'` differ."
       }
     ]
   },

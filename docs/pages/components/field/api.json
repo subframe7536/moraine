@@ -54,55 +54,55 @@
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Description text shown below the label."
+          "description": "Description rendered under the label, above the control. It is linked to the control with\n`aria-describedby`."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether controls inherit a disabled state."
+          "description": "Whether nested controls inherit a disabled state. A control's own `disabled` prop takes\nprecedence."
         },
         {
           "name": "error",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Custom error message or force error state."
+          "description": "Error message rendered under the control; it replaces `help` and marks the control with\n`aria-invalid`. When unset (`undefined` or `null`), the error of the form binding is used.\n`false` suppresses any error, including the bound one. Empty content such as `''` or\n`true` displays nothing."
         },
         {
           "name": "help",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Help text shown below the control when no error is present."
+          "description": "Help text rendered under the control. It is hidden while an error is displayed and linked to\nthe control with `aria-describedby`."
         },
         {
           "name": "hiddenLabel",
           "optional": true,
           "type": "string",
-          "description": "Visually hidden label used when no non-empty visible label is provided."
+          "description": "Visually hidden label used as the accessible name when `label` has no content. Ignored when\n`label` is non-empty."
         },
         {
           "name": "hint",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Hint text shown near the label."
+          "description": "Hint rendered beside the label, such as \"Optional\". Only shown when the field has a label\n(visible or `hiddenLabel`)."
         },
         {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for the field."
+          "description": "Prefix for the IDs of the label, hint, description, help, and error elements, which are\nused for `aria-labelledby` and `aria-describedby`. It is not set on the root element.\nA unique ID is generated when omitted."
         },
         {
           "name": "label",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Label for the field."
+          "description": "Label for the control. Rendered as a `<label>` pointing to the nested control and used as\nits `aria-labelledby`. Empty content (`''`, `null`, `false`) counts as no label."
         },
         {
           "name": "name",
           "optional": true,
           "type": "Name",
-          "description": "Optional standalone field name."
+          "description": "Standalone field name, for fields not bound through `form.Field`. A string is inherited by\nnested controls as their native `name` when they set none; a path array such as\n`['user', 'email']` identifies the field but is not used as a native name."
         },
         {
           "name": "orientation",
@@ -118,13 +118,13 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether controls inherit a read-only state."
+          "description": "Whether nested controls inherit a read-only state. A control's own `readOnly` prop takes\nprecedence."
         },
         {
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the field is required.",
+          "description": "Whether nested controls inherit the required state (`aria-required`) and the label shows a\nrequired indicator. A control's own `required` prop takes precedence.",
           "default": {
             "kind": "literal",
             "value": false

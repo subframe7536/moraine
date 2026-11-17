@@ -46,7 +46,7 @@
           "name": "autoLoading",
           "optional": true,
           "type": "boolean",
-          "description": "Auto toggles loading while async click handlers are pending.",
+          "description": "Shows loading automatically from the `onClick` handler: when it returns a promise (for example\nan `async` function), the button is loading until the promise settles, whether it resolves or\nrejects. A handler that calls `event.preventDefault()` does not trigger loading.",
           "default": {
             "kind": "literal",
             "value": false
@@ -56,7 +56,10 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element | Component<ChildrenRenderProps>",
-          "description": "Content or render function receiving the loading state.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+          "description": "Label content, or a render function receiving `{ loading }`.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component. Empty content renders no\nlabel element, which suits icon-only buttons (add an `aria-label`).",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button autoLoading onClick={() => fetch('/api/save')}>\n  {(state) => (state.loading ? 'Saving...' : 'Save')}\n</Button>"
+          ]
         },
         {
           "name": "class",
@@ -74,19 +77,19 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disabled state, including for non-button polymorphic roots."
+          "description": "Disables the button, including non-button roots set with `as` (those get `aria-disabled`\nand are removed from the tab order). Clicks and Enter/Space activation are ignored while\ndisabled."
         },
         {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading visual content, usually an icon."
+          "description": "Name of an icon rendered before the label. Replaced by the loading icon while loading."
         },
         {
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled loading state.",
+          "description": "Shows the loading indicator. While loading the button sets `aria-busy`, ignores clicks and\nkeyboard activation, and stays focusable. Combine with `autoLoading` to also show loading\nwhile an async click handler is pending.",
           "default": {
             "kind": "literal",
             "value": false
@@ -96,7 +99,7 @@
           "name": "loadingIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Optional icon shown when `loading` is active.",
+          "description": "Name of the icon shown while loading. It replaces the `leading` icon, or the `trailing` icon\nwhen only `trailing` is set; with no icons it is added before the label.",
           "default": {
             "kind": "literal",
             "value": "icon-loading"
@@ -116,7 +119,11 @@
           "name": "slotName",
           "optional": true,
           "type": "string",
-          "description": "Root `data-slot` name"
+          "description": "Value of the root `data-slot` attribute. Used by components that compose `Button` to\nidentify their own buttons.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
         },
         {
           "name": "style",
@@ -144,7 +151,7 @@
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Trailing visual content, usually an icon."
+          "description": "Name of an icon rendered after the label. It is replaced by the loading icon only when no\n`leading` icon is set."
         },
         {
           "name": "variant",

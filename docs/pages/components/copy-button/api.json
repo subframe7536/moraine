@@ -54,7 +54,7 @@
           "name": "copiedDuration",
           "optional": true,
           "type": "number",
-          "description": "Duration in milliseconds to hold the 'copied' state before returning to 'idle'.",
+          "description": "Duration in milliseconds to hold the `'copied'` or `'failed'` state before returning to\n`'idle'`. While the `'copied'` state is active the icon switches to `copiedIcon` and the\ndefault `aria-label` changes to the localized \"copied\" message.",
           "default": {
             "kind": "literal",
             "value": 2000
@@ -64,7 +64,7 @@
           "name": "copiedIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon displayed when copied.",
+          "description": "Icon displayed during the `'copied'` state, in place of `icon`.",
           "default": {
             "kind": "literal",
             "value": "icon-check"
@@ -80,7 +80,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon displayed in the idle state. Pass `false` to disable icon display.",
+          "description": "Icon displayed in the idle and failed states. Pass `false` (or `null`) to hide the icon;\nwithout children the button then has no visible content.",
           "default": {
             "kind": "literal",
             "value": "icon-copy"
@@ -90,7 +90,7 @@
           "name": "iconPosition",
           "optional": true,
           "type": "'leading' | 'trailing'",
-          "description": "Position of the copy indicator icon relative to the label.",
+          "description": "Position of the copy indicator icon relative to the label. Has no effect without children.",
           "default": {
             "kind": "literal",
             "value": "leading"
@@ -100,19 +100,19 @@
           "name": "onCopy",
           "optional": true,
           "type": "(data: CopyData) => void",
-          "description": "Callback fired when copy succeeds."
+          "description": "Called after the copy succeeds, with the resolved data that was written (after awaiting a\npromise or calling a function `value`)."
         },
         {
           "name": "onError",
           "optional": true,
           "type": "(error: unknown) => void",
-          "description": "Callback fired when copy fails."
+          "description": "Called when the copy fails, with the thrown or rejected error, or an `Error` when the\nclipboard could not be written. The button then has `aria-invalid` until `copiedDuration`\nelapses."
         },
         {
           "name": "onStatusChange",
           "optional": true,
           "type": "(details: { isCopied: boolean; state: CopyState }) => void",
-          "description": "Callback fired when copy status changes."
+          "description": "Called on every state change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,\nand `'idle'` again after `copiedDuration`. `isCopied` is `true` only for `'copied'`."
         },
         {
           "name": "size",
@@ -160,7 +160,10 @@
           "name": "value",
           "optional": false,
           "type": "CopySource",
-          "description": "Value to copy to the clipboard. Accepts a string, ClipboardItem, ClipboardItem[], or an accessor returning either."
+          "description": "What to copy on click: a string, a `ClipboardItem`, a `ClipboardItem[]`, a `Promise` of\neither, or a function returning one. A function is called on every click and a promise is\nawaited first; if it rejects or throws, the copy fails and `onError` receives the error.\nNon-string data is written with `navigator.clipboard.write`; the `execCommand` fallback can\nonly copy text.",
+          "examples": [
+            "import { CopyButton } from 'moraine'\n\n<CopyButton\n  value={async () => (await fetch('/api/share-link')).text()}\n  onError={(error) => console.error(error)}\n>\n  Copy share link\n</CopyButton>"
+          ]
         },
         {
           "name": "variant",

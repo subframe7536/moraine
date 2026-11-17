@@ -46,19 +46,28 @@
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps>",
-          "description": "Custom empty state content rendered when there are no rows."
+          "description": "Replaces the default `No results.` message inside the single empty-state cell, rendered when\nthe table has no rows and is not `loading`. A component receives the visible column count\nas `colSpan`.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} emptyRender={() => <p>No users yet. Invite someone to get started.</p>} />"
+          ]
         },
         {
           "name": "expandedRowRender",
           "optional": true,
           "type": "Component<ExpandedRowRenderProps<TData>>",
-          "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualizer` is set."
+          "description": "Component rendered in a detail row below each expanded row, spanning every column. Rows\nexpand through the `expandable` option, tree `getSubRows` data, or the row's\n`toggleExpanded()`. Receives the `row`. Ignored, with a development warning, when\n`virtualizer` is set.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada', bio: 'Mathematician' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  expandable: true,\n})\n\n<DataTable table={table} expandedRowRender={(props) => <p>{props.row.original.bio}</p>} />"
+          ]
         },
         {
           "name": "headProps",
           "optional": true,
           "type": "(context: HeadPropsContext<TData>) => HeadAttributes",
-          "description": "Extra attributes for each header cell (`<th>`), such as drag wiring from\n`createListSortable().useRow` to reorder columns. Called once per header cell, under its\nowner; read `context` fields lazily to follow index changes."
+          "description": "Extra attributes for each header cell (`<th>`), such as drag wiring from\n`createListSortable().useRow` to reorder columns. Called once per header cell, under its\nowner; read `context` fields lazily to follow index changes. Its `ref` is composed with the\ntable's own.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} headProps={({ header }) => ({ title: `Column ${header.column.id}` })} />"
+          ]
         },
         {
           "name": "highlightOnHover",
@@ -74,37 +83,46 @@
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the table is currently in a loading state."
+          "description": "Whether the table is loading. Shows the loading overlay (a spinner, or `loadingRender`) over\nthe table, sets `aria-busy`, and announces the localized `loading` message to screen\nreaders. Rows stay rendered, and the empty state is hidden while loading."
         },
         {
           "name": "loadingRender",
           "optional": true,
           "type": "JSX.Element | Component<LoadingRenderProps>",
-          "description": "Custom loading state content."
+          "description": "Replaces the default spinner inside the loading overlay shown while `loading` is `true`.\nA component receives the visible column count as `colSpan`.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} loading loadingRender={<span>Fetching rows…</span>} />"
+          ]
         },
         {
           "name": "maxHeight",
           "optional": true,
           "type": "number | string",
-          "description": "Maximum height for the table scroll container (e.g. `400` or `'400px'`)."
+          "description": "Maximum height of the table scroll container. A number is in pixels and a string is any CSS\nlength (e.g. `400` or `'50vh'`). Rows scroll vertically beyond it; combine with `sticky` to\nkeep the header visible. Unset or `0` leaves the height unbounded."
         },
         {
           "name": "onRowClick",
           "optional": true,
           "type": "(row: Row<TData>, event: MouseEvent) => void",
-          "description": "Callback fired when a table body row is clicked."
+          "description": "Called when a body row is clicked, with the row and the click event, and gives rows a\nclickable style. Clicks on the selection control and the expand button do not reach it.\nA click handler returned by `rowProps` runs first.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} onRowClick={(row, event) => console.log(row.original.id, event.metaKey)} />"
+          ]
         },
         {
           "name": "onRowDoubleClick",
           "optional": true,
           "type": "(row: Row<TData>, event: MouseEvent) => void",
-          "description": "Callback fired when a table body row is double-clicked."
+          "description": "Called when a body row is double-clicked, with the row and the event. Like `onRowClick`, it\ngives rows a clickable style, and the selection and expand controls do not trigger it."
         },
         {
           "name": "rowProps",
           "optional": true,
           "type": "(context: RowPropsContext<TData>) => RowAttributes",
-          "description": "Extra attributes for each body row (`<tr>`), such as drag wiring from\n`createListSortable().useRow`. Called once per row, under that row's owner, so it may call\nrow-level hooks; read `context` fields lazily to follow index changes."
+          "description": "Extra attributes for each body row (`<tr>`), such as drag wiring from\n`createListSortable().useRow`. Called once per row, under that row's owner, so it may call\nrow-level hooks; read `context` fields lazily to follow index changes. Its `class` merges\ninto the `row` slot, and its `ref`, `onClick`, and `onDblClick` run alongside the table's\nown (before `onRowClick` and `onRowDoubleClick`).",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada', active: false }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable\n  table={table}\n  rowProps={({ row }) => ({ class: row.original.active ? undefined : 'opacity-60', title: row.id })}\n/>"
+          ]
         },
         {
           "name": "size",
@@ -142,25 +160,31 @@
           "name": "table",
           "optional": false,
           "type": "Instance<TData>",
-          "description": "Table instance created with `createDataTable`."
+          "description": "Table instance created with `createDataTable`. Sorting, selection, pagination, expansion,\nand the other behavior live on it; `DataTable` only renders it. Without the instance's\npagination settings (a plain TanStack table), no pagination toolbar is rendered."
         },
         {
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this data table instance."
+          "description": "Localized messages for this data table, merged per key over the provider messages. Some\nentries are functions that receive a context object.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  pagination: true,\n})\n\n<DataTable\n  table={table}\n  translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}\n/>"
+          ]
         },
         {
           "name": "virtualizer",
           "optional": true,
           "type": "Virtualizer<TData>",
-          "description": "Renders only the visible rows, and the visible center columns when the virtualizer has the\n`columns` option. Disables pagination and `expandedRowRender`."
+          "description": "Renders only the visible rows, and the visible center columns when the virtualizer has the\n`columns` option. Create it with `createTableVirtualizer()` from `moraine/virtualizer`.\nDisables pagination (the toolbar is hidden and every row is shown in one scroll) and\n`expandedRowRender`. Bound the scroll area with `maxHeight`.",
+          "examples": [
+            "import { DataTable, createDataTable } from 'moraine/data-table'\nimport type { DataTableT } from 'moraine/data-table'\nimport { createTableVirtualizer } from 'moraine/virtualizer'\n\ninterface Person {\n  name: string\n}\nconst people: Person[] = Array.from({ length: 5000 }, (_, i) => ({ name: `Person ${i}` }))\nconst table = createDataTable({ data: people, columns: [{ accessorKey: 'name', header: 'Name' }] })\nconst virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({ estimateSize: () => 40 })\n\n<DataTable table={table} virtualizer={virtualizer} maxHeight={400} />"
+          ]
         },
         {
           "name": "wrapperRef",
           "optional": true,
           "type": "Ref<HTMLDivElement>",
-          "description": "Ref forwarded to the wrapper element around the table."
+          "description": "Ref callback or variable for the outer container `<div>`, which wraps the scrolling table,\nthe loading overlay, and the pagination toolbar. The inherited `ref` targets the `<table>`."
         }
       ]
     }

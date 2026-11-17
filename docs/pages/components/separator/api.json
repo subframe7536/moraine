@@ -31,7 +31,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "Layout axis used by the component Recipe.",
+          "description": "`horizontal` draws a full-width line; `vertical` draws a full-height line for use between items in a row, and sets `aria-orientation`.",
           "default": {
             "kind": "literal",
             "value": "horizontal"

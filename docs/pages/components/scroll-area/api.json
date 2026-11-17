@@ -41,43 +41,46 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<TItem>>",
-          "description": "Renders one collection item. Takes the place of `children`."
+          "description": "Renders one collection item. Takes the place of `children`. It is mounted as a component, so\nread `props.item` and `props.index` lazily instead of destructuring them.",
+          "examples": [
+            "import { ScrollArea } from 'moraine'\n\n<ScrollArea\n  class=\"h-48\"\n  items={['Alpha', 'Beta', 'Gamma']}\n  itemRender={(props) => (\n    <p>\n      {props.index + 1}. {props.item}\n    </p>\n  )}\n/>"
+          ]
         },
         {
           "name": "items",
           "optional": true,
           "type": "readonly TItem[]",
-          "description": "Reactive collection rendered with `itemRender`."
+          "description": "Reactive collection rendered with `itemRender`. Has no effect without `itemRender`."
         },
         {
           "name": "onOverflowChange",
           "optional": true,
           "type": "(overflow: Overflow) => void",
-          "description": "Called when the overflowing edges change."
+          "description": "Called with the new `Overflow` whenever content starts or stops extending beyond an edge, for example while scrolling or after a resize."
         },
         {
           "name": "onScrollBottom",
           "optional": true,
           "type": "() => void",
-          "description": "Called once when scrolling reaches the bottom edge of an overflowing axis."
+          "description": "Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an overflowing vertical axis, such as to load more items."
         },
         {
           "name": "onScrollLeft",
           "optional": true,
           "type": "() => void",
-          "description": "Called once when scrolling reaches the left edge of an overflowing axis."
+          "description": "Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end."
         },
         {
           "name": "onScrollRight",
           "optional": true,
           "type": "() => void",
-          "description": "Called once when scrolling reaches the right edge of an overflowing axis."
+          "description": "Called once each time scrolling reaches the right edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical start."
         },
         {
           "name": "onScrollTop",
           "optional": true,
           "type": "() => void",
-          "description": "Called once when scrolling reaches the top edge of an overflowing axis."
+          "description": "Called once each time scrolling returns to the top edge (within `scrollThreshold`) of an overflowing vertical axis; not called for the initial position."
         },
         {
           "name": "orientation",
@@ -103,7 +106,7 @@
           "name": "scrollHideDelay",
           "optional": true,
           "type": "number",
-          "description": "Milliseconds `hover` and `scroll` scrollbars stay visible after activity ends.",
+          "description": "Milliseconds `hover` and `scroll` scrollbars stay visible after pointer or scroll activity ends. Other scrollbar modes ignore it.",
           "default": {
             "kind": "literal",
             "value": 600
@@ -113,7 +116,7 @@
           "name": "scrollThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance in pixels from an edge within which it counts as reached.",
+          "description": "Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `onScroll*` callbacks respond. Negative values count as `0`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -123,7 +126,10 @@
           "name": "setController",
           "optional": true,
           "type": "(controller: Controller) => void",
-          "description": "Receives the imperative controller once, during setup."
+          "description": "Receives the imperative controller once, during setup. Store it and call it later; the viewport\nonly exists after mount, so `scrollToEdge` called during setup does nothing.",
+          "examples": [
+            "import { ScrollArea } from 'moraine'\nimport type { ScrollAreaT } from 'moraine'\n\nlet controller: ScrollAreaT.Controller | undefined\n\n<>\n  <button onClick={() => controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })}>\n    Jump to bottom\n  </button>\n  <ScrollArea class=\"h-48\" setController={(value) => (controller = value)}>\n    Long content\n  </ScrollArea>\n</>"
+          ]
         },
         {
           "name": "shadow",
@@ -139,7 +145,7 @@
           "name": "shadowSize",
           "optional": true,
           "type": "number",
-          "description": "Shadow length in pixels while `shadow` is enabled.",
+          "description": "Length in pixels of the edge fade shadows while the `shadow` variant is enabled. Negative values count as `0`.",
           "default": {
             "kind": "literal",
             "value": 40
@@ -161,13 +167,16 @@
           "name": "viewportRef",
           "optional": true,
           "type": "Ref<HTMLDivElement>",
-          "description": "Receives the native scroll container."
+          "description": "Receives the native scrolling `<div>` that wraps the content, to read or set `scrollTop` and similar."
         },
         {
           "name": "virtualizer",
           "optional": true,
           "type": "Virtualizer<TItem>",
-          "description": "Renders only the visible `items`. The viewport is the scroll container; create the\nvirtualizer with `horizontal` for `orientation=\"horizontal\"`."
+          "description": "Renders only the visible `items`. The viewport is the scroll container; create the\nvirtualizer with `horizontal` for `orientation=\"horizontal\"`. Requires `itemRender`, and\nthe row element must spread `props.props` so the virtualizer can position and measure it.",
+          "examples": [
+            "import { ScrollArea } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst rows = Array.from({ length: 10000 }, (_, index) => `Row ${index + 1}`)\nconst virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })\n\n<ScrollArea\n  class=\"h-64\"\n  items={rows}\n  virtualizer={virtualizer}\n  itemRender={(props) => <div {...props.props}>{props.item}</div>}\n/>"
+          ]
         }
       ]
     }

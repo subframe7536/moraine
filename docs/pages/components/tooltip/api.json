@@ -16,7 +16,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment along the cross axis.",
+          "description": "Alignment of the content along the trigger edge: `'start'` and `'end'` line up the content\nedge with the matching trigger edge, `'center'` centers it. Combines with `placement`.",
           "default": {
             "kind": "literal",
             "value": "center"
@@ -38,7 +38,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before closing after leaving trigger or content.",
+          "description": "Delay in milliseconds between the pointer leaving the trigger and content and closing;\nmoving onto the content keeps the tooltip open. `0` closes immediately.",
           "default": {
             "kind": "literal",
             "value": 200
@@ -48,7 +48,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial open state when uncontrolled.",
+          "description": "Initial open state when uncontrolled. Ignored while `open` is set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -68,17 +68,20 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. A string is a space-delimited list of fallback\nplacements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`; any other entry throws an error.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip=\"top bottom-end\">\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
-          "description": "Whether content remains mounted while closed.",
+          "description": "Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for\nexample to measure it or keep its state. Has no effect while `disabled`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -98,13 +101,13 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier used to derive the content id."
+          "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
         },
         {
           "name": "instantOpenDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds to skip the open delay for the next trigger after closing.",
+          "description": "Duration in milliseconds after a tooltip closes during which any tooltip in the same document\nopens without `openDelay`, so moving across a toolbar does not wait on every button. `0`\ndisables the grace period.",
           "default": {
             "kind": "literal",
             "value": 300
@@ -114,19 +117,22 @@
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called whenever the open state changes."
+          "description": "Called with the next open state when an interaction (trigger press, hover or focus delay,\nEscape, outside press) requests a change. It is not called when `open` is changed from outside,\nand it does not apply the change itself when `open` is controlled: update `open` in the handler.",
+          "examples": [
+            "import { Button, Popover } from 'moraine'\nimport { createSignal } from 'solid-js'\n\nconst [open, setOpen] = createSignal(false)\n\n<Popover open={open()} onOpenChange={setOpen}>\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+          ]
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state."
+          "description": "Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component\nmanage its own state (see `defaultOpen`). `disabled` forces the content closed regardless."
         },
         {
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before opening on hover or focus.",
+          "description": "Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;\n`0` opens immediately. The delay is skipped while another tooltip is open or within\n`instantOpenDelay` of one closing.",
           "default": {
             "kind": "literal",
             "value": 600
@@ -146,7 +152,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred content placement relative to the trigger.",
+          "description": "Preferred side of the trigger the tooltip appears on (`'top'`, `'right'`, `'bottom'` or\n`'left'`). It may move to another side when `flip` is enabled and the side lacks space.",
           "default": {
             "kind": "literal",
             "value": "top"
@@ -156,7 +162,7 @@
           "name": "shift",
           "optional": true,
           "type": "number",
-          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "description": "Offset in pixels along the trigger edge (horizontal for `top` and `bottom` placements,\nvertical for `left` and `right`), added to the position given by `align`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -166,7 +172,7 @@
           "name": "slide",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content may slide along its main axis to remain visible.",
+          "description": "Whether the content slides along the trigger edge (horizontally for `top` and `bottom`\nplacements, vertically for `left` and `right`) to stay inside the viewport, keeping\n`overflowPadding` from the edge, instead of overflowing.",
           "default": {
             "kind": "literal",
             "value": true
@@ -258,7 +264,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Tooltip text or element to display."
+          "description": "Tooltip text or element. A string is wrapped in the `text` slot; other nodes render as given."
         },
         {
           "name": "class",
@@ -270,13 +276,16 @@
           "name": "kbds",
           "optional": true,
           "type": "string[]",
-          "description": "Keyboard shortcuts to display next to the content."
+          "description": "Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,\n`ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not\nregister it.",
+          "examples": [
+            "import { Button, Tooltip } from 'moraine'\n\n<Tooltip>\n  <Tooltip.Trigger as={Button}>Search</Tooltip.Trigger>\n  <Tooltip.Content kbds={['meta', 'k']}>Search the docs</Tooltip.Content>\n</Tooltip>"
+          ]
         },
         {
           "name": "kbdVariant",
           "optional": true,
           "type": "'default' | 'outline' | 'invert'",
-          "description": "Visual variant for the shortcut keycaps. Overrides the variant inferred from `variant=\"invert\"`."
+          "description": "Visual variant of the shortcut keycaps (`'default'`, `'outline'` or `'invert'`). When omitted,\nkeycaps use `'invert'` if the tooltip itself has `variant=\"invert\"` and the default otherwise."
         },
         {
           "name": "style",

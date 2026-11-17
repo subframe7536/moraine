@@ -25,7 +25,7 @@
           "name": "autofocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to automatically focus the input on mount.",
+          "description": "Whether the input is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the control is disabled, and `autofocusDelay` postpones it.",
           "default": {
             "kind": "literal",
             "value": false
@@ -35,7 +35,7 @@
           "name": "autofocusDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before focusing the input.",
+          "description": "Delay in milliseconds between mount and focusing the input. Only used with `autofocus`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -57,7 +57,7 @@
           "name": "decrement",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to show the decrement button.",
+          "description": "Whether to render the decrement button. The button is also disabled automatically at `min`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -67,7 +67,7 @@
           "name": "decrementDisabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the decrement button is disabled."
+          "description": "Whether the decrement button is disabled. Keyboard and wheel stepping stay available."
         },
         {
           "name": "decrementIcon",
@@ -89,7 +89,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -99,25 +99,28 @@
           "name": "form",
           "optional": true,
           "type": "string",
-          "description": "The ID of an external form that owns the native spinbutton."
+          "description": "The `id` of the `<form>` the control belongs to, for a control rendered outside that form.\nIt is set on the visible input and on the hidden input that submits the value under `name`."
         },
         {
           "name": "formatOptions",
           "optional": true,
           "type": "Intl.NumberFormatOptions",
-          "description": "`Intl.NumberFormat` options for display formatting and parsing, such as\n`{ style: 'currency', currency: 'USD' }`."
+          "description": "`Intl.NumberFormat` options for display formatting and parsing. The value stays a plain\nnumber; only the displayed text is formatted.",
+          "examples": [
+            "import { NumberInput } from 'moraine'\n\n<NumberInput\n  defaultValue={19.99}\n  locale=\"de-DE\"\n  formatOptions={{ style: 'currency', currency: 'EUR' }}\n/>"
+          ]
         },
         {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "increment",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to show the increment button.",
+          "description": "Whether to render the increment button. The button is also disabled automatically at `max`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -127,7 +130,7 @@
           "name": "incrementDisabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the increment button is disabled."
+          "description": "Whether the increment button is disabled. Keyboard and wheel stepping stay available."
         },
         {
           "name": "incrementIcon",
@@ -143,13 +146,13 @@
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Optional inner input element ref."
+          "description": "Ref callback or variable that receives the visible `<input role=\"spinbutton\">` element."
         },
         {
           "name": "largeStep",
           "optional": true,
           "type": "number",
-          "description": "The step size used for PageUp/PageDown.",
+          "description": "Amount added or subtracted by `PageUp` / `PageDown`, and by the wheel while `Shift` is held.",
           "default": {
             "kind": "expression",
             "text": "step * 10"
@@ -165,49 +168,49 @@
           "name": "max",
           "optional": true,
           "type": "number",
-          "description": "Maximum allowed numeric value."
+          "description": "Maximum allowed value. Typed, stepped, and controlled values are clamped to it and it is\nexposed as `aria-valuemax`. The `End` key jumps to it. Unbounded by default."
         },
         {
           "name": "min",
           "optional": true,
           "type": "number",
-          "description": "Minimum allowed numeric value."
+          "description": "Minimum allowed value. Typed, stepped, and controlled values are clamped to it; it anchors\nthe step grid and is exposed as `aria-valuemin`. The `Home` key jumps to it. Unbounded by default."
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Callback when the input loses focus."
+          "description": "Called when the input loses focus, before the typed text is committed. Calling\n`preventDefault` skips that commit and the `Field` blur notification."
         },
         {
           "name": "onDecrementClick",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
-          "description": "Callback when the decrement button is clicked."
+          "description": "Called when the decrement button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."
         },
         {
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Callback when the input gains focus."
+          "description": "Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification."
         },
         {
           "name": "onIncrementClick",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
-          "description": "Callback when the increment button is clicked."
+          "description": "Called when the increment button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: number | undefined) => void",
-          "description": "Callback when the committed value changes. Receives `undefined` when the input is cleared."
+          "description": "Called when the committed value changes, with the value clamped to `min` / `max`, or\n`undefined` when the input is cleared. Typing commits as soon as the text is a complete\nnumber; partial text such as `-` waits for blur or `Enter`. Not called when the value is unchanged."
         },
         {
           "name": "orientation",
@@ -223,13 +226,13 @@
           "name": "placeholder",
           "optional": true,
           "type": "string",
-          "description": "Placeholder text for the input."
+          "description": "Hint text shown in the visible input while it is empty."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -239,17 +242,20 @@
           "name": "repeat",
           "optional": true,
           "type": "boolean | RepeatOptions",
-          "description": "Configuration for press-and-hold repeat, or boolean to toggle.",
+          "description": "Press-and-hold repeat on the step buttons: `true` for the defaults, `false` to step only on\nclick, or an options object. Keyboard and wheel stepping are not affected.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { NumberInput } from 'moraine'\n\n<NumberInput repeat={{ delay: 300, interval: 50, pointerTypes: 'mouse' }} />"
+          ]
         },
         {
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -269,7 +275,7 @@
           "name": "step",
           "optional": true,
           "type": "number",
-          "description": "The increment/decrement step size.",
+          "description": "Amount added or subtracted by the step buttons, `ArrowUp` / `ArrowDown`, and the mouse wheel.",
           "default": {
             "kind": "literal",
             "value": 1
@@ -279,7 +285,7 @@
           "name": "stepSnapping",
           "optional": true,
           "type": "boolean",
-          "description": "Whether committed values snap to the nearest step grid anchored at `min`.",
+          "description": "Whether stepping (buttons, arrow and `Page` keys, wheel) lands on the step grid anchored at\n`min`, or at `0` without `min`; for example `step={5}` from `7` goes to `10`. Typed values are\nonly clamped, never snapped.",
           "default": {
             "kind": "literal",
             "value": true
@@ -301,13 +307,13 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this number input instance."
+          "description": "Localized message overrides for this number input instance: `increment` and `decrement` are\nthe `aria-label`s of the step buttons."
         },
         {
           "name": "value",
           "optional": true,
           "type": "number | undefined",
-          "description": "Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to\n`undefined` clears the displayed text."
+          "description": "Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to\n`undefined` clears the displayed text. The displayed value is clamped to `min` / `max`; update\nit from `onValueChange`."
         },
         {
           "name": "variant",
@@ -323,7 +329,7 @@
           "name": "wheel",
           "optional": true,
           "type": "boolean",
-          "description": "Whether mouse wheel changes the value while the input is focused.",
+          "description": "Whether scrolling the mouse wheel over the focused input steps the value: up increments,\ndown decrements, and holding `Shift` uses `largeStep`. The page does not scroll while it\nsteps; `Ctrl` + wheel (zoom) is ignored.",
           "default": {
             "kind": "literal",
             "value": false

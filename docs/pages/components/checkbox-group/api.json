@@ -29,7 +29,7 @@
           "name": "checkedIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Default checked icon for all items."
+          "description": "Checked icon for all items; an item's own `checkedIcon` takes precedence."
         },
         {
           "name": "class",
@@ -47,13 +47,17 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string[]",
-          "description": "The default value (uncontrolled)."
+          "description": "Initially selected item values when uncontrolled; also the selection restored when the\nsurrounding native form is reset.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          }
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -63,44 +67,47 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "indeterminateIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Default indeterminate icon for all items."
+          "description": "Indeterminate icon for all items; an item's own `indeterminateIcon` takes precedence."
         },
         {
           "name": "indicator",
           "optional": true,
           "type": "'start' | 'end' | 'hidden'",
-          "description": "Default indicator position for all items."
+          "description": "Where the checkbox control sits relative to the label for every item (`'start'`, `'end'`,\nor `'hidden'` to visually hide the control, as in selectable cards)."
         },
         {
           "name": "items",
           "optional": true,
           "type": "(string | Item<TTrue, TFalse>)[]",
-          "typeDetails": "(string | {\n  /** Value of the group item. */\n  value?: string;\n  /** Label for the group item. */\n  label?: JSX.Element;\n  /** Description for the group item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Whether the item is indeterminate. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. */\n  indeterminateIcon?: IconT.Name;\n})[]",
-          "description": "Array of items to render in the group."
+          "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). Falls back to the item's index as a string. */\n  value?: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
+          "description": "Options to render. A string is shorthand for an item whose `value` and `label` are that\nstring.",
+          "examples": [
+            "import { CheckboxGroup } from 'moraine'\n\n<CheckboxGroup\n  legend=\"Toppings\"\n  defaultValue={['cheese']}\n  items={[\n    'cheese',\n    { value: 'mushroom', label: 'Mushroom', description: 'Fresh, sliced' },\n    { value: 'olives', label: 'Olives', disabled: true },\n  ]}\n/>"
+          ]
         },
         {
           "name": "legend",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Legend for the checkbox group."
+          "description": "Legend that labels the group (rendered as a `<legend>` inside the `<fieldset>`). A `Field`\nlabel takes precedence for `aria-labelledby`."
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
-          "description": "Callback when the selected values change."
+          "description": "Called after the user toggles an item, with the full new array of selected item values\n(previous values plus or minus the toggled one, in toggle order). Not called while the group\nis `disabled` or `readOnly`."
         },
         {
           "name": "orientation",
@@ -116,7 +123,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -126,7 +133,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -158,7 +165,7 @@
           "name": "value",
           "optional": true,
           "type": "string[]",
-          "description": "The current value (controlled)."
+          "description": "The `value` of every selected item (controlled). Leave it `undefined` for uncontrolled\nstate and update it from `onValueChange`."
         },
         {
           "name": "variant",
@@ -189,43 +196,43 @@
         "name": "checkedIcon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Custom checked icon for this item."
+        "description": "Custom checked icon for this item. Overrides the group's `checkedIcon`."
       },
       {
         "name": "description",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Description for the group item."
+        "description": "Description rendered under the item's label."
       },
       {
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is disabled."
+        "description": "Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation."
       },
       {
         "name": "indeterminate",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is indeterminate."
+        "description": "Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array."
       },
       {
         "name": "indeterminateIcon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Custom indeterminate icon for this item."
+        "description": "Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`."
       },
       {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Label for the group item."
+        "description": "Label rendered beside the item's checkbox."
       },
       {
         "name": "value",
         "optional": true,
         "type": "string",
-        "description": "Value of the group item."
+        "description": "Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). Falls back to the item's index as a string."
       }
     ]
   },

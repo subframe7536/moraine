@@ -31,7 +31,7 @@
           "name": "collapsible",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the last expanded item can be collapsed.",
+          "description": "Whether the expanded item can be closed by activating its trigger again. Only applies when\n`multiple` is `false`; with `multiple`, every item can always be collapsed.",
           "default": {
             "kind": "literal",
             "value": true
@@ -41,7 +41,7 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string[]",
-          "description": "Default list of expanded item values for uncontrolled usage.",
+          "description": "Item values expanded on first render when `value` is not provided. Read once at creation.",
           "default": {
             "kind": "expression",
             "text": "[]"
@@ -51,7 +51,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the entire accordion is disabled.",
+          "description": "Whether every item is disabled, regardless of each item's own `disabled`. No trigger can be\ntoggled or reached with arrow keys.",
           "default": {
             "kind": "literal",
             "value": false
@@ -71,7 +71,7 @@
           "name": "headingLevel",
           "optional": true,
           "type": "1 | 2 | 3 | 4 | 5 | 6",
-          "description": "Heading level for the accordion item header element.",
+          "description": "Heading level (1 to 6) of the element that wraps each trigger, rendered as `<h1>` to `<h6>`.\nPick the level that fits the surrounding document outline.",
           "default": {
             "kind": "literal",
             "value": 3
@@ -81,20 +81,23 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for the accordion root element."
+          "description": "Id of the root element. Also used as the prefix of the generated trigger and content ids that\nlink each trigger to its panel through `aria-controls` and `aria-labelledby`. A unique id is\ngenerated when omitted."
         },
         {
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item, used in `value` and `onValueChange`. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  icon?: IconT.Name;\n  /** Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
-          "description": "Array of accordion items to render."
+          "typeDetails": "({\n  /** Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,\nthe trigger's accessible name falls back to `value`. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value identifying the item. It is the entry stored in the accordion's `value` array and\npassed to `onValueChange`; duplicates trigger a development warning. */\n  value: string;\n  /** Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by\narrow-key, `Home` and `End` navigation. */\n  disabled?: boolean;\n  /** Name of an icon rendered before the label inside the trigger. */\n  icon?: IconT.Name;\n  /** Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, closed, disabled, value }`. It is mounted when the item first opens (see\n`forceMount` on the accordion). */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Extra class applied to this item's root element, merged after the `item` slot class and\noverridable by `classes.item`. */\n  class?: SlotClassValue;\n})[]",
+          "description": "Items to render, in order. Each item needs a unique `value`; `label`, `icon`, `content`,\n`disabled`, `ariaLabel` and `class` are optional.",
+          "examples": [
+            "import { Accordion } from 'moraine'\n\n<Accordion\n  defaultValue={['intro']}\n  items={[\n    { value: 'intro', label: 'Intro', icon: 'icon-info', content: 'Getting started.' },\n    { value: 'faq', label: 'FAQ', content: (state) => (state.expanded ? 'Open' : 'Closed') },\n    { value: 'beta', label: 'Beta', disabled: true },\n  ]}\n/>"
+          ]
         },
         {
           "name": "loop",
           "optional": true,
           "type": "boolean",
-          "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.",
+          "description": "Whether `ArrowDown` and `ArrowUp` focus wraps from the last enabled trigger to the first and\nvice versa. `Home` and `End` always jump to the first and last enabled trigger.",
           "default": {
             "kind": "literal",
             "value": true
@@ -104,7 +107,7 @@
           "name": "multiple",
           "optional": true,
           "type": "boolean",
-          "description": "Whether multiple accordion items can be expanded at the same time.",
+          "description": "Whether several items can be expanded at once. When `false`, opening an item replaces the\ncurrent `value` with just that item, which closes the others.",
           "default": {
             "kind": "literal",
             "value": false
@@ -114,7 +117,10 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
-          "description": "Callback when the expanded item values change."
+          "description": "Called when a user toggles an item (trigger click, `Enter`, `Space`, or browser find-in-page\nrevealing hidden content). Receives the complete next array of expanded values, in both\ncontrolled and uncontrolled mode. It is not called for changes you make to `value`.",
+          "examples": [
+            "import { Accordion } from 'moraine'\n\n<Accordion\n  multiple\n  items={[\n    { value: 'a', label: 'A', content: 'First' },\n    { value: 'b', label: 'B', content: 'Second' },\n  ]}\n  onValueChange={(value) => console.log(value)}\n/>"
+          ]
         },
         {
           "name": "style",
@@ -132,7 +138,7 @@
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Trailing icon name for all accordion items.",
+          "description": "Name of the icon rendered after the label in every item's trigger, typically an expand\nindicator.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-down"
@@ -142,7 +148,7 @@
           "name": "value",
           "optional": true,
           "type": "string[]",
-          "description": "Controlled list of expanded item values."
+          "description": "Controlled list of expanded item values. Always an array, even when `multiple` is `false`.\nLeave it `undefined` for uncontrolled usage; when set, update it from `onValueChange`."
         }
       ]
     }
@@ -159,19 +165,19 @@
         "name": "class",
         "optional": true,
         "type": "SlotClassValue",
-        "description": "Optional class applied to the item element."
+        "description": "Extra class applied to this item's root element, merged after the `item` slot class and\noverridable by `classes.item`."
       },
       {
         "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
-        "description": "Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }."
+        "description": "Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, closed, disabled, value }`. It is mounted when the item first opens (see\n`forceMount` on the accordion)."
       },
       {
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the accordion item is disabled.",
+        "description": "Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by\narrow-key, `Home` and `End` navigation.",
         "default": {
           "kind": "literal",
           "value": false
@@ -181,19 +187,19 @@
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Leading icon name for the accordion item."
+        "description": "Name of an icon rendered before the label inside the trigger."
       },
       {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Header label for the accordion item."
+        "description": "Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,\nthe trigger's accessible name falls back to `value`."
       },
       {
         "name": "value",
         "optional": false,
         "type": "string",
-        "description": "Unique value for the accordion item, used in `value` and `onValueChange`."
+        "description": "Unique value identifying the item. It is the entry stored in the accordion's `value` array and\npassed to `onValueChange`; duplicates trigger a development warning."
       }
     ]
   },

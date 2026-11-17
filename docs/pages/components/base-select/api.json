@@ -23,7 +23,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment along the cross axis.",
+          "description": "Alignment of the popup along the anchor's edge: `'start'`, `'center'`, or `'end'`.",
           "default": {
             "kind": "literal",
             "value": "start"
@@ -45,7 +45,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the popup.",
+          "description": "Whether `Escape` closes the popup. When `false` the popup stays open and `onClosePrevented`\nis called instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -55,7 +55,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether outside interaction, pointer or focus, dismisses the popup.",
+          "description": "Whether an outside interaction, pointer press or focus moving elsewhere, closes the popup.\nWhen `false` the popup stays open and `onClosePrevented` is called instead. Tabbing out of\nthe control still closes it.",
           "default": {
             "kind": "literal",
             "value": true
@@ -65,13 +65,13 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Close after selection. Defaults to true for single, false for multiple."
+          "description": "Whether choosing an item closes the popup and returns focus to the control. Defaults to\n`true` for single selection and `false` when `multiple` is set on `BaseSelect`; `MultiSelect`\nalways keeps the popup open."
         },
         {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial popup state.",
+          "description": "Initial popup state when `open` is not set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -81,7 +81,7 @@
           "name": "defaultValue",
           "optional": true,
           "type": "readonly TItem['value'][]",
-          "description": "Initial selection.",
+          "description": "Initial selection when `value` is not set. Read once on creation; a native form reset\nrestores it.",
           "default": {
             "kind": "expression",
             "text": "[]"
@@ -91,7 +91,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -101,7 +101,7 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space.",
+          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. A\nstring is a space-delimited list of fallback placements tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`'top bottom-end'`); an invalid entry throws.",
           "default": {
             "kind": "literal",
             "value": true
@@ -111,13 +111,16 @@
           "name": "getItemByValue",
           "optional": true,
           "type": "(value: TItem['value']) => TItem | undefined",
-          "description": "Resolves an item from the canonical collection by value.\n\nUse this when `items` represents only the current navigation view,\nsuch as a filtered collection. When omitted, items are resolved from\nthe current `items` collection."
+          "description": "Resolves an item from the canonical collection by value.\n\nUse this when `items` represents only the current navigation view,\nsuch as a filtered collection. When omitted, items are resolved from\nthe current `items` collection. The resolved item decides whether a selected value counts\nas disabled and is omitted from the form value."
         },
         {
           "name": "getItemLabel",
           "optional": true,
           "type": "(item: TItem) => string",
-          "description": "Plain-text label of an item, used for typeahead, filtering, form values, and plain-text\ndisplays such as an input value or tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`."
+          "description": "Plain-text label of an item, used for typeahead, filtering, form values, and plain-text\ndisplays such as an input value or tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
+          "examples": [
+            "import { Combobox } from 'moraine'\n\n<Combobox\n  items={[\n    { label: <strong>Apple</strong>, value: 'apple' },\n    { label: <strong>Pear</strong>, value: 'pear' },\n  ]}\n  getItemLabel={(item) => String(item.value)}\n/>"
+          ]
         },
         {
           "name": "gutter",
@@ -133,20 +136,23 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "isItemDisabled",
           "optional": true,
           "type": "(item: TItem, values: readonly TItem['value'][]) => boolean",
-          "description": "Additional disabled policy evaluated against the current selection."
+          "description": "Extra disabled rule, evaluated for every item together with the current selected values;\nreturn `true` to disable the item in addition to `item.disabled`. Disabled items cannot be\nselected, highlighted, or reached by typeahead. In `MultiSelect`, a selected disabled item\nkeeps its tag (it cannot be removed) and survives clearing. In `Select` and `Combobox`,\nstring items arrive as `{ value, label }`.",
+          "examples": [
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Admin', value: 'admin' },\n    { label: 'Guest', value: 'guest' },\n  ]}\n  isItemDisabled={(item, values) => item.value === 'guest' && values.includes('admin')}\n/>"
+          ]
         },
         {
           "name": "items",
           "optional": true,
           "type": "readonly TItem[]",
-          "typeDetails": "readonly ({\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n})[]",
-          "description": "Current flat navigation collection."
+          "typeDetails": "readonly ({\n  /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */\n  value: string | number;\n  /** Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. A disabled item is also left out of form submission. */\n  disabled?: boolean;\n})[]",
+          "description": "Flat list of items available for keyboard navigation, typeahead, and selection. It must\nlist the same items you render as `BaseSelect.Item`: an item whose value is not here cannot\nbe selected. Values must be unique (duplicates log an error in development). Groups and\nseparators are rendering concerns and do not belong here."
         },
         {
           "name": "loop",
@@ -162,49 +168,49 @@
           "name": "multiple",
           "optional": true,
           "type": "boolean",
-          "description": "Whether selecting an item toggles multiple values."
+          "description": "Whether selecting an item toggles it among several values instead of replacing the single\nvalue. Without it, `value` and `defaultValue` are truncated to their first entry."
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
-          "description": "Called when a dismissal attempt is blocked."
+          "description": "Called, without arguments, when `Escape` or an outside interaction was blocked by\n`closeOnEscape={false}` or `closeOnOutsideClick={false}`. The popup remains open."
         },
         {
           "name": "onExitComplete",
           "optional": true,
           "type": "() => void",
-          "description": "Called once after an open popup completes its exit."
+          "description": "Called once each time the popup finishes its exit after closing. It is not called while\nthe popup is open."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called when popup state changes."
+          "description": "Called with the next state whenever the popup should open or close (typing, arrow keys,\nselecting an item, `Escape`, `Tab`, or an outside press). Not called when the state would not\nchange. A disabled select never opens."
         },
         {
           "name": "onReset",
           "optional": true,
           "type": "() => void",
-          "description": "Post-reset notification after an unprevented native form reset."
+          "description": "Called after a native `<form>` reset has restored the initial selection (and, in `Combobox`\nand `MultiSelect`, cleared the search text). It runs in a microtask after the `reset` event\nand is skipped when the event was default-prevented. In controlled mode the selection stays\nat `value`, so use this callback to reset your own state."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: TItem['value'][]) => void",
-          "description": "Called when selection changes."
+          "description": "Called with the new array of selected values when the user changes the selection. Not\ncalled for prop updates, when the selection is unchanged, or while disabled or read-only."
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled popup state."
+          "description": "Controlled popup state. `undefined` keeps it uncontrolled. In controlled mode the popup\nopens or closes only when you update this prop in `onOpenChange`. Page scrolling is locked\nwhile the popup is open."
         },
         {
           "name": "overflowPadding",
@@ -220,7 +226,7 @@
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred popup placement relative to the anchor.",
+          "description": "Preferred side of the anchor (the control) on which the popup opens. Combined with `align`;\nsee `flip` for when the side can change.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -230,7 +236,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -240,7 +246,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -250,7 +256,7 @@
           "name": "serializeValue",
           "optional": true,
           "type": "(value: TItem['value']) => string | undefined",
-          "description": "Native form value; return undefined to omit a selected value from submission."
+          "description": "Maps a selected value to the string submitted under `name`; return `undefined` to omit the\nvalue from the submission. Defaults to `String(value)`, omitting items with\n`disabled: true`. With `multiple`, each selected value is submitted as its own entry."
         },
         {
           "name": "shift",
@@ -292,7 +298,7 @@
           "name": "value",
           "optional": true,
           "type": "readonly TItem['value'][]",
-          "description": "Controlled selection. Single mode uses at most the first value."
+          "description": "Controlled selection, always an array. `undefined` keeps it uncontrolled; `[]` keeps it\ncontrolled and empty. Single mode uses at most the first value."
         }
       ]
     },
@@ -621,19 +627,19 @@
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether this item cannot be selected."
+        "description": "Whether this item cannot be selected. A disabled item is also left out of form submission."
       },
       {
         "name": "label",
         "optional": false,
         "type": "JSX.Element",
-        "description": "Visual label."
+        "description": "Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,\nfiltering) fall back to `String(value)` unless `getItemLabel` is set."
       },
       {
         "name": "value",
         "optional": false,
         "type": "TValue",
-        "description": "Unique selection and form value."
+        "description": "Unique selection and form value. Values compare by identity, so `1` and `'1'` differ."
       }
     ]
   },

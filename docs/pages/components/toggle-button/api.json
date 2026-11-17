@@ -54,7 +54,7 @@
           "name": "autoLoading",
           "optional": true,
           "type": "boolean",
-          "description": "Auto toggles loading while async click handlers are pending.",
+          "description": "Shows loading automatically from the `onClick` handler: when it returns a promise (for example\nan `async` function), the button is loading until the promise settles, whether it resolves or\nrejects. A handler that calls `event.preventDefault()` does not trigger loading.",
           "default": {
             "kind": "literal",
             "value": false
@@ -92,19 +92,19 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disabled state, including for non-button polymorphic roots."
+          "description": "Disables the button, including non-button roots set with `as` (those get `aria-disabled`\nand are removed from the tab order). Clicks and Enter/Space activation are ignored while\ndisabled."
         },
         {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading visual content, usually an icon."
+          "description": "Name of an icon rendered before the label. Replaced by the loading icon while loading."
         },
         {
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled loading state.",
+          "description": "Shows the loading indicator. While loading the button sets `aria-busy`, ignores clicks and\nkeyboard activation, and stays focusable. Combine with `autoLoading` to also show loading\nwhile an async click handler is pending.",
           "default": {
             "kind": "literal",
             "value": false
@@ -114,7 +114,7 @@
           "name": "loadingIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Optional icon shown when `loading` is active.",
+          "description": "Name of the icon shown while loading. It replaces the `leading` icon, or the `trailing` icon\nwhen only `trailing` is set; with no icons it is added before the label.",
           "default": {
             "kind": "literal",
             "value": "icon-loading"
@@ -124,13 +124,13 @@
           "name": "onPressedChange",
           "optional": true,
           "type": "(pressed: boolean) => void",
-          "description": "Called after an uncancelled activation requests a toggle."
+          "description": "Called with the new pressed state when the user activates the button, unless an `onClick`\nhandler calls `event.preventDefault()`. It does not fire for programmatic changes to `pressed`."
         },
         {
           "name": "pressed",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled toggle state."
+          "description": "Controlled pressed state. Leave it `undefined` for uncontrolled usage; when set, clicks only call `onPressedChange` and the button follows what you pass back."
         },
         {
           "name": "size",
@@ -168,7 +168,7 @@
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Trailing visual content, usually an icon."
+          "description": "Name of an icon rendered after the label. It is replaced by the loading icon only when no\n`leading` icon is set."
         },
         {
           "name": "variant",

@@ -26,7 +26,7 @@
           "name": "autofocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to automatically focus the textarea on mount.",
+          "description": "Whether the textarea is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the textarea is disabled, and `autofocusDelay` postpones it.",
           "default": {
             "kind": "literal",
             "value": false
@@ -36,7 +36,7 @@
           "name": "autofocusDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before focusing the textarea.",
+          "description": "Delay in milliseconds between mount and focusing the textarea. Only used with `autofocus`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -46,7 +46,7 @@
           "name": "autoResize",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the textarea should automatically resize based on content.",
+          "description": "Whether the height grows with the content. The textarea shows at least `rows` rows and, when\n`maxRows` is set, at most `maxRows` rows before it scrolls. Overflow is hidden while it fits.",
           "default": {
             "kind": "literal",
             "value": false
@@ -56,7 +56,7 @@
           "name": "autoResizeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before triggering autoresize on mount.",
+          "description": "Delay in milliseconds before the first autoresize after mount. Later resizes run without it. Only used with `autoResize`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -78,13 +78,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "Value",
-          "description": "The default value (uncontrolled)."
+          "description": "Initial value for uncontrolled usage. Also the value restored when the owning form is reset."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -94,19 +94,19 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "maxLength",
           "optional": true,
           "type": "number | string",
-          "description": "Maximum character length for the textarea."
+          "description": "Native `maxlength`: the maximum number of characters the user can type. Numeric strings are accepted."
         },
         {
           "name": "maxRows",
           "optional": true,
           "type": "number",
-          "description": "Maximum number of rows allowed during autoresize.",
+          "description": "Maximum number of rows the textarea grows to with `autoResize`; longer content scrolls.\n`0` means unlimited. Ignored without `autoResize`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -116,13 +116,16 @@
           "name": "modifiers",
           "optional": true,
           "type": "M",
-          "description": "Modifiers for input processing (e.g., lazy, trim, number)."
+          "description": "Transforms the text before it reaches `onValueChange` and form state, and sets the callback's\nvalue type.\n\n- `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur).\n- `lazy`: updates the value on `change` instead of on every keystroke.\n- `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.\n- `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.",
+          "examples": [
+            "import { Textarea } from 'moraine'\n\n<Textarea\n  modifiers={{ trim: true, lazy: true, empty: 'undefined' }}\n  onValueChange={(note) => console.log(note)} // string | undefined, once per blur\n/>"
+          ]
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onBlur",
@@ -146,25 +149,25 @@
           "name": "onInput",
           "optional": true,
           "type": "JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>",
-          "description": "Native input event handler."
+          "description": "Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: ModifierValue<M>) => void",
-          "description": "Callback when the textarea value changes during input."
+          "description": "Called with the new value, after `modifiers` are applied, as the user edits. It fires on\nevery keystroke, or on `change` (blur) with `modifiers.lazy`. Its argument type follows\n`modifiers`: `string` by default, `number` with `number`, and may include `null` or\n`undefined` through `empty`."
         },
         {
           "name": "placeholder",
           "optional": true,
           "type": "string",
-          "description": "Placeholder text for the textarea."
+          "description": "Hint text shown while the textarea is empty. It is not a substitute for a label."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -174,13 +177,13 @@
           "name": "ref",
           "optional": true,
           "type": "Ref<HTMLTextAreaElement>",
-          "description": "Ref for the native textarea element."
+          "description": "Ref callback or variable that receives the native `<textarea>` element."
         },
         {
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -190,7 +193,7 @@
           "name": "rows",
           "optional": true,
           "type": "number",
-          "description": "Default number of rows.",
+          "description": "Number of visible text rows. With `autoResize` it is the minimum height in rows.",
           "default": {
             "kind": "literal",
             "value": 3
@@ -222,7 +225,7 @@
           "name": "value",
           "optional": true,
           "type": "Value",
-          "description": "The current value (controlled)."
+          "description": "The current value (controlled). `undefined` leaves the textarea uncontrolled; the displayed\ntext is restored to this value after every edit, so update it from `onValueChange`."
         },
         {
           "name": "variant",

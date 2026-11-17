@@ -26,7 +26,7 @@
           "name": "actions",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Action elements or controls displayed alongside the alert."
+          "description": "Buttons or links rendered in a container at the end of the alert, before the close button."
         },
         {
           "name": "as",
@@ -42,7 +42,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Direct children content. Rendered within the alert content area."
+          "description": "Free-form content rendered in the content area after the title and description."
         },
         {
           "name": "class",
@@ -60,7 +60,7 @@
           "name": "closable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to show a dismiss button.",
+          "description": "Whether to show a dismiss button at the end of the alert. Clicking it sets the open state to\n`false`, which plays the exit animation and then removes the alert from the DOM.",
           "default": {
             "kind": "literal",
             "value": false
@@ -70,7 +70,7 @@
           "name": "closeIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Custom icon name or element for the close button.",
+          "description": "Icon name shown inside the dismiss button. Only used when `closable` is `true`.",
           "default": {
             "kind": "literal",
             "value": "icon-close"
@@ -90,7 +90,7 @@
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Supporting detailed description."
+          "description": "Supporting text rendered under the title. Its presence switches the alert to the multi-line\nlayout (larger icon); `children` render after it."
         },
         {
           "name": "fullWidth",
@@ -106,25 +106,25 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to semantic icon for status types, or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to the semantic icon of the `type` (`info`,\n  `success`, `warning`, `error`), or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
         },
         {
           "name": "onExitComplete",
           "optional": true,
           "type": "() => void",
-          "description": "Callback fired when exit animation has fully settled and element is unmounted."
+          "description": "Called once after the alert closed, its CSS exit animation (if any) has finished, and the\nelement has been removed from the DOM."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Callback when open state changes."
+          "description": "Called with the next open state when the user dismisses the alert through the close button.\nIt is not called when `open` is changed from outside."
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state."
+          "description": "Controlled open state. Leave `undefined` for uncontrolled usage. A closed alert is removed\nfrom the DOM after its exit animation, so it renders nothing."
         },
         {
           "name": "style",
@@ -142,13 +142,16 @@
           "name": "title",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Primary alert title or message."
+          "description": "Primary title, rendered in bold above the description. Nothing is rendered when empty."
         },
         {
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this alert instance."
+          "description": "Overrides the built-in strings for this instance, merged over the provider locale. The only\nkey is `close`, the accessible label of the dismiss button (default `'Close alert'`).",
+          "examples": [
+            "import { Alert } from 'moraine'\n\n<Alert closable title=\"Saved\" translations={{ close: 'Dismiss' }} />"
+          ]
         },
         {
           "name": "type",

@@ -31,13 +31,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string",
-          "description": "The default value (uncontrolled)."
+          "description": "The initially selected value (uncontrolled). When omitted, no item is selected and the form\nsubmits nothing for the group."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -53,7 +53,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "indicator",
@@ -69,14 +69,17 @@
           "name": "items",
           "optional": true,
           "type": "(string | Item)[]",
-          "typeDetails": "(string | {\n  /** Value of the radio item. */\n  value?: string;\n  /** Label for the radio item. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n})[]",
-          "description": "Array of items to render in the group."
+          "typeDetails": "(string | {\n  /** Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to\nthe item's index as a string when omitted, so set it explicitly for stable values. */\n  value?: string;\n  /** Label for the radio item. It names the radio input for assistive technology. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. It cannot be selected or focused with the keyboard, and the\nother items stay interactive. */\n  disabled?: boolean;\n})[]",
+          "description": "Items to render, either plain strings (used as both `value` and `label`) or `Item` objects.",
+          "examples": [
+            "import { RadioGroup } from 'moraine'\n\n<RadioGroup\n  items={[\n    'Free',\n    { value: 'pro', label: 'Pro', description: 'Billed monthly' },\n    { value: 'team', label: 'Team', disabled: true },\n  ]}\n/>"
+          ]
         },
         {
           "name": "loop",
           "optional": true,
           "type": "boolean",
-          "description": "Whether keyboard navigation loops around when reaching the ends.",
+          "description": "Whether arrow-key navigation wraps from the last item to the first and back. Disabled items are skipped.",
           "default": {
             "kind": "literal",
             "value": true
@@ -86,19 +89,19 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Callback when the selected value changes."
+          "description": "Called when the user selects a different item, with that item's `value`. It does not fire for\nprogrammatic changes to `value`, for re-selecting the current item, or while the group is\n`disabled` or `readOnly`."
         },
         {
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "Layout axis used by the component Recipe.",
+          "description": "Direction items are laid out in.",
           "default": {
             "kind": "literal",
             "value": "vertical"
@@ -108,7 +111,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -118,7 +121,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -150,7 +153,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "The current value (controlled)."
+          "description": "The value of the selected item (controlled). Leave it `undefined` for uncontrolled usage; an\nempty string or a value matching no item leaves every item unselected."
         },
         {
           "name": "variant",
@@ -178,19 +181,19 @@
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is disabled."
+        "description": "Whether this item is disabled. It cannot be selected or focused with the keyboard, and the\nother items stay interactive."
       },
       {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Label for the radio item."
+        "description": "Label for the radio item. It names the radio input for assistive technology."
       },
       {
         "name": "value",
         "optional": true,
         "type": "string",
-        "description": "Value of the radio item."
+        "description": "Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to\nthe item's index as a string when omitted, so set it explicitly for stable values."
       }
     ]
   },

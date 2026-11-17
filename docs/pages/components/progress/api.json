@@ -45,13 +45,13 @@
           "name": "label",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Content for the label slot. Also used as the default `aria-label` when it is a string."
+          "description": "Content for the label slot. Also used as the default `aria-label` when it is a string; an\nexplicit `aria-label` takes precedence."
         },
         {
           "name": "max",
           "optional": true,
           "type": "number",
-          "description": "The maximum value of the progress bar.",
+          "description": "The value that counts as complete. A negative or non-finite number falls back to `100`.",
           "default": {
             "kind": "literal",
             "value": 100
@@ -93,13 +93,13 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this progress instance."
+          "description": "Localized message overrides for this progress instance, such as the `aria-valuetext` announced while indeterminate."
         },
         {
           "name": "value",
           "optional": true,
           "type": "number",
-          "description": "The current value of the progress bar. If undefined, it is indeterminate.",
+          "description": "The current value, from `0` to `max`; values outside that range are clamped. Leave it `undefined`\n(or non-finite) for indeterminate progress, which sets no `aria-valuenow`.",
           "default": {
             "kind": "expression",
             "text": "undefined"
@@ -109,11 +109,14 @@
           "name": "valueLabel",
           "optional": true,
           "type": "boolean | ((props: { percent: number; value: number; max: number }) => string)",
-          "description": "Whether to show the value slot for determinate progress, or a formatter for it.\nThe formatter result also supplies `aria-valuetext`.",
+          "description": "Whether to show the value slot for determinate progress, or a formatter for it.\nThe formatter receives the clamped `value`, `max` and `percent` (`0`-`100`, rounded to 2 decimals)\nand returns the text; the result also supplies `aria-valuetext`. Nothing is shown while indeterminate.",
           "default": {
             "kind": "literal",
             "value": false
-          }
+          },
+          "examples": [
+            "import { Progress } from 'moraine'\n\n<Progress\n  value={3}\n  max={8}\n  label=\"Files\"\n  valueLabel={({ value, max }) => `${value} of ${max}`}\n/>"
+          ]
         }
       ]
     }

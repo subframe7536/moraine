@@ -19,7 +19,7 @@
           "name": "aria-label",
           "optional": true,
           "type": "string",
-          "description": "Accessible label for assistive technology. Overrides the resolved key alias message."
+          "description": "Accessible label for the keycap. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set."
         },
         {
           "name": "class",
@@ -47,7 +47,11 @@
           "name": "slotName",
           "optional": true,
           "type": "string",
-          "description": "Data slot used by the rendered keycap."
+          "description": "Value of the keycap's `data-slot` attribute, for styling hooks. `KbdGroup` sets it to `kbd-group-item` for its keys.",
+          "default": {
+            "kind": "literal",
+            "value": "kbd"
+          }
         },
         {
           "name": "style",
@@ -75,13 +79,13 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized key alias labels for assistive technology."
+          "description": "Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set."
         },
         {
           "name": "value",
           "optional": false,
           "type": "Key",
-          "description": "Value displayed by the keycap or resolved through the static key aliases."
+          "description": "The key to display. A name matching a built-in alias, compared case-insensitively\n(`meta`, `ctrl`, `shift`, `escape`, `arrowup`, ...), shows its symbol or short label, such as `⌘` for\n`meta` or `Esc` for `escape`, unless `symbol` is `false`. Any other string renders as written, such as `K` or `F5`.\nNothing renders for an empty string."
         },
         {
           "name": "variant",

@@ -19,7 +19,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Buttons or compatible controls rendered as a cohesive group."
+          "description": "Buttons rendered as one joined set, optionally with `ButtonGroup.Separator` between them.\nDescendant `Button`s inherit the group's `size`, `variant` and `tone` unless they set their own."
         },
         {
           "name": "class",
@@ -37,7 +37,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Optional identifier for the group root."
+          "description": "`id` attribute of the group root element, for example to reference it from `aria-labelledby`."
         },
         {
           "name": "orientation",
@@ -53,7 +53,11 @@
           "name": "role",
           "optional": true,
           "type": "JSX.AriaAttributes['role']",
-          "description": "ARIA role for the group root."
+          "description": "ARIA role of the group root. Use `'toolbar'` only when you also provide the toolbar keyboard\nbehavior yourself; the group adds none.",
+          "default": {
+            "kind": "literal",
+            "value": "group"
+          }
         },
         {
           "name": "size",

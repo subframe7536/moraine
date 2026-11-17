@@ -29,7 +29,7 @@
           "name": "checked",
           "optional": true,
           "type": "TTrue | TFalse | 'indeterminate'",
-          "description": "Whether the checkbox is checked (controlled)."
+          "description": "Whether the checkbox is checked (controlled). Accepts `trueValue` or `true` for checked,\n`falseValue` or `false` for unchecked, and `'indeterminate'` for the mixed state. Leave it\n`undefined` for uncontrolled state; update it from `onCheckedChange`."
         },
         {
           "name": "checkedIcon",
@@ -57,7 +57,7 @@
           "name": "defaultChecked",
           "optional": true,
           "type": "boolean | 'indeterminate'",
-          "description": "Whether the checkbox is checked by default (uncontrolled).",
+          "description": "Initial checked state when uncontrolled; also the state restored when the surrounding\nnative form is reset. Accepts `true`, `false`, or `'indeterminate'`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -67,13 +67,13 @@
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Description text for the checkbox."
+          "description": "Description rendered under the label and linked to the control with `aria-describedby`."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -83,7 +83,7 @@
           "name": "falseValue",
           "optional": true,
           "type": "TFalse",
-          "description": "Value to use when the checkbox is unchecked.",
+          "description": "Value that represents the unchecked state, passed to `onCheckedChange` and stored as the\nvalue of a bound `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -99,7 +99,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "indeterminateIcon",
@@ -125,37 +125,37 @@
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Native input element ref."
+          "description": "Ref to the hidden native `<input type=\"checkbox\">` that carries the form value. The visible\ncontrol is a separate `<button role=\"checkbox\">`."
         },
         {
           "name": "label",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Label for the checkbox."
+          "description": "Label rendered beside the control and linked to it. With `variant=\"card\"` the whole card\ntoggles the checkbox when clicked."
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onCheckedChange",
           "optional": true,
           "type": "(value: TTrue | TFalse) => void",
-          "description": "Callback when the checked state changes."
+          "description": "Called when the user toggles the checkbox, with `trueValue` (now checked) or `falseValue`\n(now unchecked). Toggling from `'indeterminate'` checks it. Not called while `disabled` or\n`readOnly`, nor when `checked` changes from outside."
         },
         {
           "name": "onPointerDown",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>",
-          "description": "Pointer down handler for the checkbox control."
+          "description": "Handler for `pointerdown` on the checkbox control button. Call `event.preventDefault()` to\nskip the built-in handling, which keeps focus on the hidden input when it is already\nfocused."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -165,7 +165,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -197,11 +197,14 @@
           "name": "trueValue",
           "optional": true,
           "type": "TTrue",
-          "description": "Value to use when the checkbox is checked.",
+          "description": "Value that represents the checked state: it is passed to `onCheckedChange`, stored as the\nvalue of a bound `Field`, and compared with `checked`. A string or number `trueValue` is\nalso the native value submitted when `value` is not set.",
           "default": {
             "kind": "literal",
             "value": true
-          }
+          },
+          "examples": [
+            "import { Checkbox } from 'moraine'\n\n<Checkbox\n  trueValue=\"yes\"\n  falseValue=\"no\"\n  label=\"Accept the terms\"\n  onCheckedChange={(value) => console.log(value)} // 'yes' or 'no'\n/>"
+          ]
         },
         {
           "name": "value",

@@ -19,7 +19,7 @@
           "name": "activationMode",
           "optional": true,
           "type": "'automatic' | 'manual'",
-          "description": "Whether keyboard navigation activates the tab immediately or waits for confirmation.",
+          "description": "Whether arrow-key focus movement activates the tab immediately (`automatic`) or only moves\nfocus until `Enter` or `Space` confirms it (`manual`).",
           "default": {
             "kind": "literal",
             "value": "automatic"
@@ -41,13 +41,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string",
-          "description": "Default active tab value for uncontrolled usage."
+          "description": "Initially active tab value for uncontrolled usage. The first enabled tab is active when omitted."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the tab list is disabled.",
+          "description": "Whether the whole tab list is disabled: no tab can be selected by click or keyboard.",
           "default": {
             "kind": "literal",
             "value": false
@@ -57,20 +57,23 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for the tabs root element."
+          "description": "DOM `id` of the tabs root element; the trigger and panel ids derive from it. Generated when omitted."
         },
         {
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value: string;\n  /** Content to display when the tab is active. Accepts static JSX or a component receiving { value }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
-          "description": "Array of tabs to display."
+          "typeDetails": "({\n  /** Label to display on the tab trigger. It is also the tab's accessible name, so give icon-only\ntabs a text label or an accessible alternative. */\n  label?: JSX.Element;\n  /** Icon to display before the label. */\n  icon?: IconT.Name;\n  /** Unique value identifying the tab in `value` and `onValueChange`. A tab that repeats an earlier\ntab's value is disabled. */\n  value: string;\n  /** Content of the tab panel. Only the active tab's panel is mounted; switching tabs unmounts the\nprevious one. Accepts static JSX or a component receiving `{ value }`, which defers building the panel until it is shown. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the tab is disabled: it cannot be selected and is skipped by arrow-key navigation. */\n  disabled?: boolean;\n})[]",
+          "description": "Array of tabs to display, in order.",
+          "examples": [
+            "import { Tabs } from 'moraine'\n\n<Tabs\n  defaultValue=\"code\"\n  items={[\n    { value: 'code', label: 'Code', icon: 'icon-code' },\n    { value: 'preview', label: 'Preview' },\n    { value: 'history', label: 'History', disabled: true },\n  ]}\n/>"
+          ]
         },
         {
           "name": "loop",
           "optional": true,
           "type": "boolean",
-          "description": "Whether arrow-key navigation wraps from the ends.",
+          "description": "Whether arrow-key navigation wraps from the last tab to the first and back. Disabled tabs are skipped.",
           "default": {
             "kind": "literal",
             "value": true
@@ -80,13 +83,13 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Callback when the active tab changes."
+          "description": "Called with the tab's `value` when the user selects a different tab by click or keyboard.\nIt does not fire for programmatic `value` changes, for the already-active tab, or while the\ntabs are `disabled`."
         },
         {
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "Layout axis used by the component Recipe.",
+          "description": "Direction in which tabs are laid out. It also decides which arrow keys move between tabs.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -118,7 +121,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Controlled active tab value."
+          "description": "Controlled active tab value. When `undefined`, or when it matches no enabled tab, the first enabled tab is active."
         },
         {
           "name": "variant",
@@ -140,13 +143,16 @@
         "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
-        "description": "Content to display when the tab is active. Accepts static JSX or a component receiving { value }."
+        "description": "Content of the tab panel. Only the active tab's panel is mounted; switching tabs unmounts the\nprevious one. Accepts static JSX or a component receiving `{ value }`, which defers building the panel until it is shown.",
+        "examples": [
+          "import { Tabs } from 'moraine'\n\n<Tabs\n  items={[\n    { value: 'overview', label: 'Overview', content: () => <p>Summary</p> },\n    { value: 'logs', label: 'Logs', content: (props) => <p>Panel for {props.value}</p> },\n  ]}\n/>"
+        ]
       },
       {
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the tab is disabled.",
+        "description": "Whether the tab is disabled: it cannot be selected and is skipped by arrow-key navigation.",
         "default": {
           "kind": "literal",
           "value": false
@@ -156,19 +162,19 @@
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Icon to display next to the label."
+        "description": "Icon to display before the label."
       },
       {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Label to display on the tab trigger."
+        "description": "Label to display on the tab trigger. It is also the tab's accessible name, so give icon-only\ntabs a text label or an accessible alternative."
       },
       {
         "name": "value",
         "optional": false,
         "type": "string",
-        "description": "Unique value for the tab."
+        "description": "Unique value identifying the tab in `value` and `onValueChange`. A tab that repeats an earlier\ntab's value is disabled."
       }
     ]
   },

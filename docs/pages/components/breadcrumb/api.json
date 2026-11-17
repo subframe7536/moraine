@@ -31,14 +31,20 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps>",
-          "description": "Renderer for each breadcrumb item."
+          "description": "Component rendered for every item, replacing its default link or page element (the `<li>` and\nseparator are kept). Use it to integrate a router link. Receives `{ item, index, current,\ndisabled }`; you are responsible for `aria-current` and disabled handling.",
+          "examples": [
+            "import { Breadcrumb } from 'moraine'\n\n<Breadcrumb\n  items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}\n  itemRender={(ctx) => (\n    <a href={ctx.item.href} aria-current={ctx.current ? 'page' : undefined}>\n      {ctx.item.label}\n    </a>\n  )}\n/>"
+          ]
         },
         {
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Label to display for the breadcrumb item. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** The destination URL for this item. */\n  href?: string;\n  /** Where to display the linked URL. */\n  target?: string;\n  /** Relationship of the linked URL to the current document. */\n  rel?: string;\n  /** Whether the item is the current active page. */\n  active?: boolean;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Callback when the item is clicked. */\n  onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>;\n})[]",
-          "description": "Array of breadcrumb items to display."
+          "typeDetails": "({\n  /** Text or content of the item. Nothing is rendered for an empty label. */\n  label?: JSX.Element;\n  /** Name of an icon rendered before the label. */\n  icon?: IconT.Name;\n  /** Link destination. Applied only to an interactive item: the current page and disabled items\nrender without `href`, `target`, `rel` and `onClick`. */\n  href?: string;\n  /** Browsing context for the link, such as `'_blank'`. Ignored for the current page and disabled items. */\n  target?: string;\n  /** Link relationship, such as `'noopener'`. Ignored for the current page and disabled items. */\n  rel?: string;\n  /** Marks this item as the current page, rendered as a non-link with `aria-current=\"page\"`. When\nno item sets it, the last item is the current page. The first item with `active` wins. */\n  active?: boolean;\n  /** Whether the item is disabled: it renders as a non-interactive element with\n`aria-disabled=\"true\"` and without `href` or `onClick`. Has no effect on the current page. */\n  disabled?: boolean;\n  /** Click handler for the item's link. Not attached to the current page or disabled items. */\n  onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>;\n})[]",
+          "description": "Items of the trail, from the root to the current page. Separators are rendered between\nconsecutive items automatically.",
+          "examples": [
+            "import { Breadcrumb } from 'moraine'\n\n<Breadcrumb\n  items={[\n    { label: 'Home', href: '/' },\n    { label: 'Docs', href: '/docs', target: '_blank', rel: 'noopener' },\n    { label: 'Archive', disabled: true },\n    { label: 'Current page' },\n  ]}\n/>"
+          ]
         },
         {
           "name": "ref",
@@ -50,7 +56,7 @@
           "name": "separator",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon name for the separator between items.",
+          "description": "Name of the icon rendered between consecutive items. The separator is hidden from assistive\ntechnology.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"
@@ -82,7 +88,7 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this breadcrumb instance."
+          "description": "Overrides the built-in strings for this instance. The only key is `label`, the default\n`aria-label` of the `<nav>` (default `'breadcrumb'`). An explicit `aria-label` prop wins."
         },
         {
           "name": "wrap",
@@ -104,49 +110,49 @@
         "name": "active",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is the current active page."
+        "description": "Marks this item as the current page, rendered as a non-link with `aria-current=\"page\"`. When\nno item sets it, the last item is the current page. The first item with `active` wins."
       },
       {
         "name": "disabled",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is disabled."
+        "description": "Whether the item is disabled: it renders as a non-interactive element with\n`aria-disabled=\"true\"` and without `href` or `onClick`. Has no effect on the current page."
       },
       {
         "name": "href",
         "optional": true,
         "type": "string",
-        "description": "The destination URL for this item."
+        "description": "Link destination. Applied only to an interactive item: the current page and disabled items\nrender without `href`, `target`, `rel` and `onClick`."
       },
       {
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Icon to display next to the label."
+        "description": "Name of an icon rendered before the label."
       },
       {
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Label to display for the breadcrumb item."
+        "description": "Text or content of the item. Nothing is rendered for an empty label."
       },
       {
         "name": "onClick",
         "optional": true,
         "type": "JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>",
-        "description": "Callback when the item is clicked."
+        "description": "Click handler for the item's link. Not attached to the current page or disabled items."
       },
       {
         "name": "rel",
         "optional": true,
         "type": "string",
-        "description": "Relationship of the linked URL to the current document."
+        "description": "Link relationship, such as `'noopener'`. Ignored for the current page and disabled items."
       },
       {
         "name": "target",
         "optional": true,
         "type": "string",
-        "description": "Where to display the linked URL."
+        "description": "Browsing context for the link, such as `'_blank'`. Ignored for the current page and disabled items."
       }
     ]
   },

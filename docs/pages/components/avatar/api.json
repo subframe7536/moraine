@@ -19,13 +19,13 @@
           "name": "alt",
           "optional": true,
           "type": "string",
-          "description": "Accessible alt text for the avatar."
+          "description": "Alt text of the image and accessible name of the fallback. When `text` is not set, the fallback\nshows up to two initials taken from the first letters of the first words of `alt`."
         },
         {
           "name": "badge",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon name for the badge."
+          "description": "Name of an icon rendered in a small badge anchored to a corner of the avatar (see\n`badgePosition`). Nothing is rendered when omitted."
         },
         {
           "name": "badgePosition",
@@ -53,13 +53,16 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon name shown in place of `text` while the image is unavailable."
+          "description": "Name of an icon shown in the fallback in place of `text` or initials while the image is unavailable."
         },
         {
           "name": "onStatusChange",
           "optional": true,
           "type": "(status: Status) => void",
-          "description": "Callback when the loading status of the avatar changes."
+          "description": "Called whenever the image status changes, including once after mount with the initial status\n(`loading` when `src` is set, otherwise `error`). The status is `loaded` once the image has\nloaded and `error` when it fails or `src` is empty. It is not called on the server.",
+          "examples": [
+            "import { Avatar } from 'moraine'\n\n<Avatar\n  src=\"/alex.png\"\n  alt=\"Alex Rivera\"\n  onStatusChange={(status) => console.log(status)}\n/>"
+          ]
         },
         {
           "name": "size",
@@ -75,13 +78,17 @@
           "name": "slotName",
           "optional": true,
           "type": "string",
-          "description": "Root `data-slot` name, also used as the prefix for child slot names."
+          "description": "Root `data-slot` attribute value, also the prefix of the child slot names (for example\n`avatar-image`, `avatar-fallback`, `avatar-badge`). Used by composing components to rename the\nslots.",
+          "default": {
+            "kind": "literal",
+            "value": "avatar"
+          }
         },
         {
           "name": "src",
           "optional": true,
           "type": "string",
-          "description": "Source URL for the avatar image."
+          "description": "URL of the avatar image. Surrounding whitespace is trimmed. When empty or missing the status is\n`error` and the fallback is shown; changing it restarts loading."
         },
         {
           "name": "style",
@@ -99,7 +106,7 @@
           "name": "text",
           "optional": true,
           "type": "string",
-          "description": "Initial text to show if image fails or is missing."
+          "description": "Text shown in the fallback while the image is loading, failed, or missing, typically initials.\nIt is trimmed, and when blank the initials of `alt` are used instead. Ignored when `icon` is set."
         }
       ]
     }

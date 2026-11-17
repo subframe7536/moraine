@@ -51,7 +51,7 @@
           "name": "defaultWidth",
           "optional": true,
           "type": "number",
-          "description": "Initial desktop panel width in pixels for uncontrolled usage."
+          "description": "Initial desktop panel width in pixels for uncontrolled usage. Ignored while `width` is\ncontrolled. When omitted, the recipe default width applies until the rail is resized."
         },
         {
           "name": "maxWidth",
@@ -77,7 +77,7 @@
           "name": "mobile",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`."
+          "description": "Controlled mobile mode: `true` renders the panel in a drawer, `false` inline. When omitted,\na `matchMedia` query on `breakpoint` decides, and the server renders the desktop layout."
         },
         {
           "name": "onOpenChange",
@@ -89,7 +89,7 @@
           "name": "onWidthChange",
           "optional": true,
           "type": "(width: number) => void",
-          "description": "Called with the pixel width on every width change."
+          "description": "Called with the new pixel width on every width change, including each step of a\n`Sidebar.Rail` drag; use `onWidthCommit` to persist only the final value."
         },
         {
           "name": "onWidthCommit",
@@ -107,7 +107,7 @@
           "name": "panelId",
           "optional": true,
           "type": "string",
-          "description": "Stable identifier used for associating Trigger `aria-controls` with Panel."
+          "description": "Id applied to the panel and referenced by `aria-controls` on `Sidebar.Trigger` and\n`Sidebar.Rail`. A unique id is generated when omitted."
         },
         {
           "name": "side",
@@ -135,7 +135,10 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this sidebar instance."
+          "description": "Localized labels for this sidebar (`label` for the mobile drawer and `resize` for the rail\nseparator). Merged per key over the provider messages and English defaults.",
+          "examples": [
+            "import { Sidebar } from 'moraine'\n\n<Sidebar translations={{ label: 'Navegación', resize: 'Cambiar tamaño' }}>\n  <Sidebar.Panel />\n  <Sidebar.Rail />\n</Sidebar>"
+          ]
         },
         {
           "name": "variant",
@@ -176,7 +179,7 @@
           "name": "aria-label",
           "optional": true,
           "type": "string",
-          "description": "Accessible name for the mobile navigation Drawer. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.\nLocalized via MoraineProvider messages when omitted. English default is `Sidebar navigation`."
+          "description": "Accessible name of the panel: set on the desktop panel element and on the mobile drawer\ncontent. In the mobile drawer, falls back to the `title` attribute, then to the localized\n`label` message (English default `Sidebar navigation`)."
         },
         {
           "name": "as",
@@ -459,7 +462,10 @@
           "name": "as",
           "optional": true,
           "type": "T",
-          "description": "Element or component to render as.",
+          "description": "Element or component to render as. A tag name (`'a'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the trigger would put on\nits element, so it should spread them onto its root and forward `ref`. Own styles and state\nattributes are kept.",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button as=\"a\" href=\"/docs\" target=\"_blank\">Docs</Button>"
+          ],
           "default": {
             "kind": "literal",
             "value": "button"
@@ -706,13 +712,16 @@
           "name": "active",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the button is highlighted as the current item."
+          "description": "Whether the button is highlighted as the current item. On a link (`href` set or rendered as\n`<a>`) it also sets `aria-current=\"page\"` unless you pass your own `aria-current`."
         },
         {
           "name": "as",
           "optional": true,
           "type": "T",
-          "description": "Element or component to render as.",
+          "description": "Element or component to render as. A tag name (`'a'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the trigger would put on\nits element, so it should spread them onto its root and forward `ref`. Own styles and state\nattributes are kept.",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button as=\"a\" href=\"/docs\" target=\"_blank\">Docs</Button>"
+          ],
           "default": {
             "kind": "literal",
             "value": "button"
@@ -734,7 +743,7 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether activating this button on mobile closes the drawer.\nWhen omitted, buttons with `href` close the drawer."
+          "description": "Whether activating this button on mobile closes the drawer. Has no effect on desktop, when\nthe button is disabled, or when the click handler calls `preventDefault()`; modified and\nnon-primary clicks never close it. When omitted, buttons with `href` close the drawer and\nothers stay open."
         },
         {
           "name": "disabled",
@@ -746,7 +755,7 @@
           "name": "href",
           "optional": true,
           "type": "string",
-          "description": "Renders the button as a link."
+          "description": "Link target. Makes the button render as an `<a>` (unless `as` picks another element or\ncomponent, which still receives `href`). A disabled `<a>` has its `href` removed."
         },
         {
           "name": "leading",
@@ -924,7 +933,10 @@
           "name": "as",
           "optional": true,
           "type": "T",
-          "description": "Element or component to render as.",
+          "description": "Element or component to render as. A tag name (`'a'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the trigger would put on\nits element, so it should spread them onto its root and forward `ref`. Own styles and state\nattributes are kept.",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button as=\"a\" href=\"/docs\" target=\"_blank\">Docs</Button>"
+          ],
           "default": {
             "kind": "literal",
             "value": "button"

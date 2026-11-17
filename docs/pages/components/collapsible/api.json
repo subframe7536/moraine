@@ -37,7 +37,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the collapsible is open by default (uncontrolled).",
+          "description": "Whether the collapsible is open initially when uncontrolled.",
           "default": {
             "kind": "literal",
             "value": false
@@ -47,7 +47,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the collapsible is disabled.",
+          "description": "Whether the collapsible is disabled: its triggers cannot toggle it and `onOpenChange` is not\ncalled. The current open state is kept.",
           "default": {
             "kind": "literal",
             "value": false
@@ -57,7 +57,7 @@
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
-          "description": "Whether closed content stays mounted. When `false`, content mounts on first open and\nunmounts once it closes; when `true`, content mounts even before the first open.",
+          "description": "Whether closed content stays mounted. When `false`, content mounts on first open and\nunmounts once it closes; when `true`, content mounts even before the first open and stays\nhidden (and `inert`) while closed. Mounted closed content can be found by browser\nin-page search, which opens the collapsible.",
           "default": {
             "kind": "literal",
             "value": false
@@ -67,19 +67,19 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for the collapsible root element."
+          "description": "Unique identifier for the collapsible root element. The trigger and content derive their\nIDs from it (`{id}-trigger`, `{id}-content`) for `aria-controls` and `aria-labelledby`. A\nunique ID is generated when omitted."
         },
         {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Callback when the open state changes."
+          "description": "Called with the next open state when the user toggles the collapsible with the trigger, or\nwhen in-page search reveals `forceMount`ed content. It is not called while `disabled`, nor\nwhen `open` changes from outside. When `open` is controlled, the state only changes if you\nupdate `open`."
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the collapsible is open (controlled)."
+          "description": "Whether the collapsible is open (controlled). Leave it `undefined` for uncontrolled state\nand update it from `onOpenChange`."
         },
         {
           "name": "style",
@@ -97,7 +97,7 @@
           "name": "transition",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to keep content mounted until its height transition completes.",
+          "description": "Whether to animate the content height when opening and closing. The content is measured in\npixels and exposed as the `--mo-collapsible-content-height` CSS variable on the root, and\non close it stays mounted until the animation ends. Animations are skipped with\n`prefers-reduced-motion`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -126,7 +126,10 @@
           "name": "as",
           "optional": true,
           "type": "T",
-          "description": "Element or component to render as.",
+          "description": "Element or component to render as. A tag name (`'a'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the trigger would put on\nits element, so it should spread them onto its root and forward `ref`. Own styles and state\nattributes are kept.",
+          "examples": [
+            "import { Button } from 'moraine'\n\n<Button as=\"a\" href=\"/docs\" target=\"_blank\">Docs</Button>"
+          ],
           "default": {
             "kind": "literal",
             "value": "button"

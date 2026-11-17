@@ -49,19 +49,22 @@
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps>",
-          "description": "Content or render function rendered inside the list when the collection is empty."
+          "description": "Content or component rendered inside the list root when `items` is empty or `undefined`.\nWithout it, an empty list renders no children. Render a list item here when the root is a `ul`."
         },
         {
           "name": "itemRender",
           "optional": false,
           "type": "Component<ItemRenderProps<TItem>>",
-          "description": "Renders one collection item."
+          "description": "Renders one row for an item. Receives the `item`, its `index` in the complete `items`\ncollection, and, when a `virtualizer` is set, `props` to spread onto the row's outer element.",
+          "examples": [
+            "import { List } from 'moraine'\n\n<List\n  items={['Inbox', 'Sent']}\n  itemRender={(row) => <li data-index={row.index}>{row.item}</li>}\n/>"
+          ]
         },
         {
           "name": "items",
           "optional": true,
           "type": "readonly TItem[]",
-          "description": "Reactive collection rendered by the list."
+          "description": "Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`."
         },
         {
           "name": "style",
@@ -79,7 +82,10 @@
           "name": "virtualizer",
           "optional": true,
           "type": "Virtualizer<TItem>",
-          "description": "Renders only the visible items. The list root is the scroll container."
+          "description": "Virtualizer from `moraine/virtualizer` that mounts only the visible rows; create it with\n`createListVirtualizer()`. The list root becomes the scroll container, so give it a bounded\nheight, and each row must spread `props` from `itemRender` onto its outer element.",
+          "examples": [
+            "import { List } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst items = Array.from({ length: 10_000 }, (_, i) => `Row ${i}`)\nconst virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })\n\n<List\n  class=\"h-80 overflow-auto\"\n  items={items}\n  virtualizer={virtualizer}\n  itemRender={(row) => <li {...row.props}>{row.item}</li>}\n/>"
+          ]
         }
       ]
     }

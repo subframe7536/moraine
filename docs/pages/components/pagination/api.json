@@ -41,7 +41,7 @@
           "name": "controlAs",
           "optional": true,
           "type": "ValidComponent",
-          "description": "Component used to render previous and next controls."
+          "description": "Component or tag that renders the previous and next controls, like `itemAs` for page items.\nIt receives `href` and `rel` (`prev` or `next`) when `href` returns a URL. Controls at an edge\nand all controls while `disabled` stay disabled buttons."
         },
         {
           "name": "controls",
@@ -67,7 +67,7 @@
           "name": "defaultPage",
           "optional": true,
           "type": "number",
-          "description": "Initial page number when uncontrolled.",
+          "description": "Initial page number when uncontrolled. Ignored when `page` is set.",
           "default": {
             "kind": "literal",
             "value": 1
@@ -77,7 +77,11 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the pagination is disabled."
+          "description": "Disables every page item and control; they render as disabled buttons without links.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "ellipsisIcon",
@@ -93,13 +97,16 @@
           "name": "href",
           "optional": true,
           "type": "(page: number) => string | undefined",
-          "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
+          "description": "Builds the destination URL for a page number. It is called with the target page of each\nnumbered item other than the current page, and of the previous and next controls. An item\nthat gets a URL renders as `<a href>` (or as `itemAs` / `controlAs` when set) and still calls\n`onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while\n`disabled`, and previous on the first page and next on the last page stay disabled buttons.",
+          "examples": [
+            "import { Pagination } from 'moraine'\n\n<Pagination total={100} pageSize={10} href={(page) => `/posts?page=${page}`} />"
+          ]
         },
         {
           "name": "itemAs",
           "optional": true,
           "type": "ValidComponent",
-          "description": "Component used to render numbered page items."
+          "description": "Component or tag that renders the numbered page items, passed to the item button's `as`, for\nexample a router link. It receives `href` when `href` returns a URL. By default an item\nrenders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`."
         },
         {
           "name": "nextIcon",
@@ -115,25 +122,25 @@
           "name": "nextText",
           "optional": true,
           "type": "string",
-          "description": "Text to display in the next button."
+          "description": "Text shown in the next button. When set, the control shows the text with `nextIcon` after it\ninstead of an icon-only button. Its accessible name still comes from `translations.next`,\nnot from this text."
         },
         {
           "name": "onPageChange",
           "optional": true,
           "type": "(page: number) => void",
-          "description": "Callback triggered when the page changes."
+          "description": "Called with the new page number when the user selects a different page through a numbered\nitem or the previous and next controls. It does not fire for the current page or while\n`disabled`, and it fires in controlled mode too, so a controlled pagination must write the\nvalue back to `page`."
         },
         {
           "name": "page",
           "optional": true,
           "type": "number",
-          "description": "Controlled current page number (1-indexed)."
+          "description": "Controlled current page number (1-indexed). While `undefined` the page is uncontrolled and\nfollows `defaultPage`. Non-integers are truncated and the displayed page is clamped to the\nvalid range."
         },
         {
           "name": "pageSize",
           "optional": true,
           "type": "number",
-          "description": "Number of items to display per page.",
+          "description": "Number of items per page. Together with `total` it sets the page count,\n`ceil(total / pageSize)`. Truncated to an integer of at least 1; invalid values fall back to\nthe default.",
           "default": {
             "kind": "literal",
             "value": 10
@@ -153,7 +160,7 @@
           "name": "prevText",
           "optional": true,
           "type": "string",
-          "description": "Text to display in the previous button."
+          "description": "Text shown in the previous button. When set, the control shows the text with `prevIcon`\nbefore it instead of an icon-only button. Its accessible name still comes from\n`translations.prev`, not from this text."
         },
         {
           "name": "ref",
@@ -165,7 +172,7 @@
           "name": "siblingCount",
           "optional": true,
           "type": "number",
-          "description": "Number of page buttons to show on either side of the current page.\nFinite integer values are clamped between 0 and 100.",
+          "description": "Number of page buttons to show on either side of the current page.\nFinite integer values are clamped between 0 and 100. When `2 * siblingCount + 5` is at least\nthe page count, every page is shown without ellipses.",
           "default": {
             "kind": "literal",
             "value": 2
@@ -207,7 +214,7 @@
           "name": "total",
           "optional": true,
           "type": "number",
-          "description": "Total number of items across all pages.",
+          "description": "Total number of items (records) across all pages, not the number of pages. The page count is\nat least 1, so `0` still renders a single page.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -217,7 +224,10 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized message overrides for this pagination instance."
+          "description": "Overrides for the localized accessibility strings of this instance; omitted keys fall back to\nthe locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive\n`{ page, total }`; `prev` and `next` receive `{ page }`, which is `undefined` when already at\nthat edge.",
+          "examples": [
+            "import { Pagination } from 'moraine'\n\n<Pagination\n  total={100}\n  translations={{\n    label: 'Pages des résultats',\n    status: ({ page, total }) => `Page ${page} sur ${total}`,\n    prev: () => 'Page précédente',\n    next: () => 'Page suivante',\n  }}\n/>"
+          ]
         },
         {
           "name": "variant",

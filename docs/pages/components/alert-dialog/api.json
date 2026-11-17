@@ -34,7 +34,7 @@
           "name": "closable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the corner close button is shown.",
+          "description": "Whether the corner close button is shown. Closing with it settles the dialog with reason\n`dismiss`. The button is hidden while an action or cancel promise is pending.",
           "default": {
             "kind": "literal",
             "value": false
@@ -44,7 +44,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the dialog.",
+          "description": "Whether Escape dismisses the dialog (reason `dismiss`). Ignored while an action or cancel\npromise is pending.",
           "default": {
             "kind": "literal",
             "value": true
@@ -54,7 +54,7 @@
           "name": "closeOnOverlayClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
+          "description": "Whether a pointer press on the overlay outside the panel dismisses the dialog (reason\n`dismiss`). Ignored while an action or cancel promise is pending.",
           "default": {
             "kind": "literal",
             "value": false
@@ -64,7 +64,10 @@
           "name": "dialogRender",
           "optional": true,
           "type": "Component<DialogRenderProps>",
-          "description": "Renders the inner content of every dialog on this host that was not opened with\n`AlertDialog.custom`. Receives the instance context and the resolved call options."
+          "description": "Renders the inner content of every dialog on this host that was not opened with\n`AlertDialog.custom`, replacing the built-in icon, title, description, and buttons. Receives the\ninstance context and the resolved call options. Put `titleId` and `descriptionId` on your\ntitle and description so the dialog is named and described for assistive technology.",
+          "examples": [
+            "import { AlertDialog, Button } from 'moraine'\n\n<AlertDialog\n  dialogRender={(ctx) => (\n    <div>\n      <h2 id={ctx.titleId}>{ctx.options.title}</h2>\n      <Button onClick={() => ctx.close('dismiss')}>Close</Button>\n    </div>\n  )}\n/>"
+          ]
         },
         {
           "name": "id",
@@ -76,7 +79,7 @@
           "name": "maxWidth",
           "optional": true,
           "type": "string | number",
-          "description": "Dialog content `max-width`; a number is in pixels."
+          "description": "Dialog panel `max-width`. A number is in pixels; a string is any CSS length, e.g. `'32rem'`."
         },
         {
           "name": "styles",
@@ -98,13 +101,16 @@
           "name": "translations",
           "optional": true,
           "type": "DialogT.Translations",
-          "description": "Localized message overrides for dialogs opened on this host."
+          "description": "Overrides the built-in strings for every dialog on this host: `close` (corner close button\nlabel), `ok` (default action label), and `cancel` (default cancel label). A dialog's own\n`translations` option is merged over these per key.",
+          "examples": [
+            "import { AlertDialog } from 'moraine'\n\n<AlertDialog translations={{ ok: 'Got it', cancel: 'Never mind' }} />"
+          ]
         },
         {
           "name": "type",
           "optional": true,
           "type": "Type",
-          "description": "Status tone. `default` has no icon.",
+          "description": "Default status tone for dialogs on this host. It picks the leading icon and its color\n(`default` has no icon); `AlertDialog.info`, `success`, `warning` and `error` override it per\ncall.",
           "default": {
             "kind": "literal",
             "value": "default"

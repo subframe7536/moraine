@@ -24,7 +24,10 @@
           "name": "actionRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nReceives the item instance. Custom `itemRender` content composes `tree.ItemAction` directly."
+          "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nReceives the item instance. Ignored when `itemRender` is set; custom item content composes\n`tree.ItemAction` directly.",
+          "examples": [
+            "import { Button, createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })\n\n<tree.Tree\n  actionRender={(item) => (\n    <Button size=\"icon-sm\" variant=\"ghost\" leading=\"i-lucide:plus\" aria-label={`Add to ${item.textValue}`} />\n  )}\n/>"
+          ]
         },
         {
           "name": "class",
@@ -62,13 +65,16 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, label, and `actionRender` actions.\nUse `tree.Item` as the root of the rendered content."
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, label, and `actionRender` actions. Receives the item instance.\nUse `tree.Item` as the root of the rendered content; it also renders the nested children\nof expanded branches when the tree is not virtualized.",
+          "examples": [
+            "import { createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })\n\n<tree.Tree\n  itemRender={(item) => (\n    <tree.Item item={item}>\n      <tree.ItemTrigger />\n      <tree.ItemLabel>{item.raw.toUpperCase()}</tree.ItemLabel>\n    </tree.Item>\n  )}\n/>"
+          ]
         },
         {
           "name": "loadingIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon shown in the trigger while children load.",
+          "description": "Icon shown in the trigger instead of the expand icon while a lazy branch loads its children.",
           "default": {
             "kind": "literal",
             "value": "icon-loading"
@@ -110,7 +116,7 @@
           "name": "triggerIcon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Expand affordance icon.",
+          "description": "Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its\nown. The recipe rotates it as the branch expands.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"
@@ -130,7 +136,10 @@
           "name": "virtualizer",
           "optional": true,
           "type": "Virtualizer<T>",
-          "description": "Renders only the visible items of the flattened tree instead of nesting them. The tree\nroot is the scroll container, and keyboard focus scrolls through the virtualizer."
+          "description": "Renders only the visible items of the flattened tree instead of nesting them. Create it\nwith `createListVirtualizer()` from `moraine/virtualizer`. The tree root is the scroll\ncontainer, so give it a bounded height, and keyboard focus scrolls through the virtualizer.\nThe row wiring is applied by `tree.Item`, so no extra props need spreading.",
+          "examples": [
+            "import { createTree } from 'moraine'\nimport type { TreeT } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst names = Array.from({ length: 10_000 }, (_, index) => `Item ${index}`)\nconst tree = createTree<string>({ items: () => names, getKey: (name) => name })\nconst virtualizer = createListVirtualizer<TreeT.ItemInstance<string>>({ estimateSize: () => 28 })\n\n<tree.Tree class=\"h-80 overflow-auto\" virtualizer={virtualizer} />"
+          ]
         }
       ]
     },
@@ -166,7 +175,7 @@
           "name": "item",
           "optional": false,
           "type": "ItemInstance<T>",
-          "description": "Item this node renders."
+          "description": "Item this node renders; pass the instance that `itemRender` receives. Drives the\n`treeitem` ARIA attributes (level, position, expanded, selected, checked) and its click and\nkeyboard handling."
         },
         {
           "name": "style",
@@ -207,7 +216,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Replaces the icon."
+          "description": "Replaces the icon entirely, including the loading icon."
         },
         {
           "name": "class",
@@ -219,7 +228,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Overrides the expand icon."
+          "description": "Overrides the expand icon of this trigger (otherwise the tree's `triggerIcon`). The loading\nicon still replaces it while the branch loads."
         },
         {
           "name": "style",

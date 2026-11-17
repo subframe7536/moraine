@@ -26,7 +26,7 @@
           "name": "autocomplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
-          "description": "The autocomplete attribute for the input.",
+          "description": "The native `autocomplete` attribute, such as `'email'` or `'current-password'`. Browser\nautofill is off unless set.",
           "default": {
             "kind": "literal",
             "value": "off"
@@ -36,7 +36,7 @@
           "name": "autofocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input should automatically receive focus on mount.",
+          "description": "Whether the input is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the input is disabled, and `autofocusDelay` postpones it.",
           "default": {
             "kind": "literal",
             "value": false
@@ -46,7 +46,7 @@
           "name": "autofocusDelay",
           "optional": true,
           "type": "number",
-          "description": "The delay in milliseconds before automatically focusing the input.",
+          "description": "Delay in milliseconds between mount and focusing the input. Only used with `autofocus`.",
           "default": {
             "kind": "literal",
             "value": 0
@@ -68,13 +68,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "Value",
-          "description": "The default value (uncontrolled)."
+          "description": "Initial value for uncontrolled usage. Also the value restored when the owning form is reset."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is disabled.",
+          "description": "Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.\nWhen omitted, the control inherits `disabled` from the surrounding `Field`; an explicit\n`false` overrides the `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -84,25 +84,28 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control element."
+          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
           "name": "maxLength",
           "optional": true,
           "type": "number | string",
-          "description": "The maximum number of characters allowed in the input."
+          "description": "Native `maxlength`: the maximum number of characters the user can type. Numeric strings are accepted."
         },
         {
           "name": "modifiers",
           "optional": true,
           "type": "M",
-          "description": "Modifiers for the input value (e.g., trim, lazy, number)."
+          "description": "Transforms the text before it reaches `onValueChange` and form state, and sets the callback's\nvalue type.\n\n- `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur or Enter).\n- `lazy`: updates the value on `change` instead of on every keystroke.\n- `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.\n- `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.",
+          "examples": [
+            "import { Input } from 'moraine'\n\n<Input\n  modifiers={{ number: true, empty: 'null' }}\n  onValueChange={(value) => console.log(value)} // number | null\n/>"
+          ]
         },
         {
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the control, used for form submission."
+          "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
           "name": "onBlur",
@@ -126,25 +129,25 @@
           "name": "onInput",
           "optional": true,
           "type": "JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>",
-          "description": "Event handler for the input event."
+          "description": "Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`."
         },
         {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: ModifierValue<M>) => void",
-          "description": "Callback when the input value changes during input."
+          "description": "Called with the new value, after `modifiers` are applied, as the user edits. It fires on\nevery keystroke, or on `change` (blur or Enter) with `modifiers.lazy`. Its argument type\nfollows `modifiers`: `string` by default, `number` with `number`, and may include `null`\nor `undefined` through `empty`."
         },
         {
           "name": "placeholder",
           "optional": true,
           "type": "string",
-          "description": "The placeholder text for the input."
+          "description": "Hint text shown while the input is empty. It is not a substitute for a label."
         },
         {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is read-only.",
+          "description": "Whether the control is read-only: the value is visible and focusable but cannot be changed,\nand `aria-readonly` is set. When omitted, the control inherits `readOnly` from the\nsurrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -154,13 +157,13 @@
           "name": "ref",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Ref for the native input element."
+          "description": "Ref callback or variable that receives the native `<input>` element."
         },
         {
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the control is required.",
+          "description": "Whether the control is required, which sets `aria-required` (and the native `required`\nattribute where the control renders a native input). When omitted, the control inherits\n`required` from the surrounding `Field`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -192,7 +195,7 @@
           "name": "type",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['type']",
-          "description": "The type of the input element.",
+          "description": "The native `type` of the input element, such as `'email'`, `'password'`, or `'search'`.",
           "default": {
             "kind": "literal",
             "value": "text"
@@ -202,7 +205,7 @@
           "name": "value",
           "optional": true,
           "type": "Value",
-          "description": "The current value (controlled)."
+          "description": "The current value (controlled). `undefined` leaves the input uncontrolled; the displayed\ntext is restored to this value after every edit, so update it from `onValueChange`."
         },
         {
           "name": "variant",

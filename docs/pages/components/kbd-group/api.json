@@ -31,18 +31,24 @@
           "name": "items",
           "optional": false,
           "type": "Item[]",
-          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Localized key alias labels for assistive technology. */\n  translations?: Translations;\n  /** Value displayed by the keycap or resolved through the static key aliases. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for assistive technology. Overrides the resolved key alias message. */\n  aria-label?: string;\n  /** Data slot used by the rendered keycap. */\n  slotName?: string;\n})[]",
-          "description": "Keyboard keys displayed as one simultaneous shortcut."
+          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set. */\n  translations?: Translations;\n  /** The key to display. A name matching a built-in alias, compared case-insensitively\n(`meta`, `ctrl`, `shift`, `escape`, `arrowup`, ...), shows its symbol or short label, such as `⌘` for\n`meta` or `Esc` for `escape`, unless `symbol` is `false`. Any other string renders as written, such as `K` or `F5`.\nNothing renders for an empty string. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for the keycap. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set. */\n  aria-label?: string;\n  /** Value of the keycap's `data-slot` attribute, for styling hooks. `KbdGroup` sets it to `kbd-group-item` for its keys. */\n  slotName?: string;\n})[]",
+          "description": "Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved\nlike `Kbd` `value`, or a `Kbd` props object to customize one key. The group renders nothing when empty.",
+          "examples": [
+            "import { KbdGroup } from 'moraine'\n\n<KbdGroup items={['meta', { value: 'K', 'aria-label': 'letter K' }]} />"
+          ]
         },
         {
           "name": "separator",
           "optional": true,
           "type": "string | number | Component<SeparatorRenderProps>",
-          "description": "Text between keys, or a component that receives the separator `index`.",
+          "description": "Text between keys, or a component rendered between each pair of keys. The component receives the\n`index` of the key it follows.",
           "default": {
             "kind": "literal",
             "value": "+"
-          }
+          },
+          "examples": [
+            "import { KbdGroup } from 'moraine'\n\n<KbdGroup\n  items={['g', 'i']}\n  separator={(props) => <span aria-hidden=\"true\">then {props.index}</span>}\n/>"
+          ]
         },
         {
           "name": "size",

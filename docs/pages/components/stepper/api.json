@@ -19,7 +19,7 @@
           "name": "activationMode",
           "optional": true,
           "type": "'automatic' | 'manual'",
-          "description": "Whether keyboard activation happens immediately or only after confirmation.",
+          "description": "Whether arrow-key focus movement activates the step immediately (`automatic`) or only moves\nfocus until `Enter` or `Space` confirms it (`manual`).",
           "default": {
             "kind": "literal",
             "value": "automatic"
@@ -41,13 +41,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "Value",
-          "description": "Default active step value for uncontrolled usage."
+          "description": "Initially active step value for uncontrolled usage. The first enabled step is active when omitted."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the entire stepper is disabled.",
+          "description": "Whether the entire stepper is disabled: no step can be activated by click or keyboard.",
           "default": {
             "kind": "literal",
             "value": false
@@ -57,20 +57,23 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for the stepper root element."
+          "description": "DOM `id` of the stepper root element; the trigger and panel ids derive from it. Generated when omitted."
         },
         {
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Unique value for the step. */\n  value: Value;\n  /** Label of the step. */\n  label?: JSX.Element;\n  /** Secondary description of the step. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator. */\n  icon?: IconT.Name;\n  /** Content to display when the step is active. Accepts static JSX or a component receiving { value, index }. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for the step item. */\n  class?: string;\n})[]",
-          "description": "Array of steps to display."
+          "typeDetails": "({\n  /** Unique value identifying the step in `value` and `onValueChange`. A step that repeats an\nearlier step's value is disabled. */\n  value: Value;\n  /** Label of the step. It names the step trigger for assistive technology. */\n  label?: JSX.Element;\n  /** Secondary description of the step, shown with the label and used as the trigger's accessible description. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator instead of the step number. */\n  icon?: IconT.Name;\n  /** Content to display in the panel below the steps while this step is active. Accepts static JSX\nor a component receiving `{ value, index }`. A step without `content` renders no panel. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for this step's item element, merged after the slot classes. */\n  class?: string;\n})[]",
+          "description": "Array of steps to display, in order.",
+          "examples": [
+            "import { Stepper } from 'moraine'\n\n<Stepper\n  navigation=\"free\"\n  items={[\n    { value: 'cart', label: 'Cart', description: '2 items' },\n    { value: 'shipping', label: 'Shipping', icon: 'icon-truck' },\n    { value: 'payment', label: 'Payment', disabled: true },\n  ]}\n/>"
+          ]
         },
         {
           "name": "loop",
           "optional": true,
           "type": "boolean",
-          "description": "Whether keyboard navigation loops around when reaching the ends.",
+          "description": "Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps are skipped.",
           "default": {
             "kind": "literal",
             "value": false
@@ -90,13 +93,13 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: Value) => void",
-          "description": "Callback when the active step changes."
+          "description": "Called with the step's `value` when the user activates a different step by click or keyboard.\nIt does not fire for programmatic `value` changes, for the already-active step, or while the\nstepper is `disabled`."
         },
         {
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "Layout axis used by the component Recipe.",
+          "description": "Direction in which steps are laid out. It also decides which arrow keys move between steps.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -128,7 +131,7 @@
           "name": "value",
           "optional": true,
           "type": "Value",
-          "description": "Controlled active step value."
+          "description": "Controlled active step value. When `undefined`, or when it matches no enabled step, the first enabled step is active.\nSteps before the active one are marked completed."
         }
       ]
     }
@@ -140,19 +143,22 @@
         "name": "class",
         "optional": true,
         "type": "string",
-        "description": "Additional class name for the step item."
+        "description": "Additional class name for this step's item element, merged after the slot classes."
       },
       {
         "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
-        "description": "Content to display when the step is active. Accepts static JSX or a component receiving { value, index }."
+        "description": "Content to display in the panel below the steps while this step is active. Accepts static JSX\nor a component receiving `{ value, index }`. A step without `content` renders no panel.",
+        "examples": [
+          "import { Stepper } from 'moraine'\n\n<Stepper\n  defaultValue=\"plan\"\n  items={[\n    { value: 'plan', label: 'Plan', content: <p>Choose a plan.</p> },\n    { value: 'pay', label: 'Pay', content: (props) => <p>Step {props.index + 1}: {props.value}</p> },\n  ]}\n/>"
+        ]
       },
       {
         "name": "description",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Secondary description of the step."
+        "description": "Secondary description of the step, shown with the label and used as the trigger's accessible description."
       },
       {
         "name": "disabled",
@@ -168,7 +174,7 @@
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Icon to display in the step indicator.",
+        "description": "Icon to display in the step indicator instead of the step number.",
         "default": {
           "kind": "expression",
           "text": "index + 1"
@@ -178,13 +184,13 @@
         "name": "label",
         "optional": true,
         "type": "JSX.Element",
-        "description": "Label of the step."
+        "description": "Label of the step. It names the step trigger for assistive technology."
       },
       {
         "name": "value",
         "optional": false,
         "type": "Value",
-        "description": "Unique value for the step."
+        "description": "Unique value identifying the step in `value` and `onValueChange`. A step that repeats an\nearlier step's value is disabled."
       }
     ]
   },
