@@ -62,19 +62,25 @@ export namespace PopoverT {
     overflowPadding?: number
 
     /**
-     * Opens on hover and focus instead of click.
+     * Opens the popover when a mouse pointer enters the trigger or the trigger receives keyboard
+     * focus, and closes it `closeDelay` ms after the pointer or focus leaves the trigger and content.
+     * Clicking the trigger then only opens it instead of toggling. Touch hover is ignored. Outside
+     * focus no longer dismisses the content, and focus is not restored to the trigger on close
+     * unless `restoreFocusOnClose` is set.
      * @default false
      */
     openOnHover?: boolean
 
     /**
-     * Delay in milliseconds before opening on hover.
+     * Delay in milliseconds between pointer enter or trigger focus and opening. Only used with
+     * `openOnHover`.
      * @default 100
      */
     openDelay?: number
 
     /**
-     * Delay in milliseconds before closing on hover.
+     * Delay in milliseconds between the pointer or focus leaving the trigger and content and
+     * closing; re-entering within the delay keeps it open. Only used with `openOnHover`.
      * @default 100
      */
     closeDelay?: number

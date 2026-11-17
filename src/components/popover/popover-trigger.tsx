@@ -13,6 +13,20 @@ import { usePopoverContext } from './popover-context'
 import { popoverRecipe } from './popover.recipe'
 import type { PopoverT } from './popover.types'
 
+/**
+ * Element that toggles the surrounding `Popover` and anchors its content. It must be placed
+ * inside `Popover`. Renders a `button`; pass `as` to render another component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Popover } from 'moraine'
+ *
+ * <Popover>
+ *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+ *   <Popover.Content>More information</Popover.Content>
+ * </Popover>
+ * ```
+ */
 export function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {

@@ -9,7 +9,24 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { usePopoverContext } from './popover-context'
 import type { PopoverT } from './popover.types'
 
-/** Closes the current Popover and enables its modal accessibility behavior when composed in Content. */
+/**
+ * Element that closes the surrounding `Popover` when pressed. Compose it inside
+ * `Popover.Content`; doing so also enables the `modal` accessibility behavior of `Popover`.
+ * Renders a `button`; pass `as` to render another component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Popover } from 'moraine'
+ *
+ * <Popover modal>
+ *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+ *   <Popover.Content>
+ *     More information
+ *     <Popover.Close as={Button}>Close</Popover.Close>
+ *   </Popover.Content>
+ * </Popover>
+ * ```
+ */
 export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {

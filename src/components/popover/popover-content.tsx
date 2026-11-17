@@ -21,6 +21,22 @@ import { usePopoverContext } from './popover-context'
 import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'
 import type { PopoverT } from './popover.types'
 
+/**
+ * Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the
+ * popover is open. It must be placed inside `Popover`. Renders a `div` with `role="dialog"`
+ * wrapping its children. Compose a `Popover.Close` inside it for `Popover` `modal` behavior to
+ * take effect.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Popover } from 'moraine'
+ *
+ * <Popover>
+ *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+ *   <Popover.Content>More information</Popover.Content>
+ * </Popover>
+ * ```
+ */
 export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   let hasPreventedPointerAttempt = false

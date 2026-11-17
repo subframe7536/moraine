@@ -11,7 +11,24 @@ import { PopoverProvider } from './popover-context'
 import { PopoverTrigger } from './popover-trigger'
 import type { PopoverProps } from './popover.types'
 
-/** Click-triggered floating content panel anchored to a trigger element. */
+/**
+ * Floating panel of interactive content anchored to a trigger. Use it for anchored content that
+ * does not need a labeled modal surface; use `Tooltip` for a brief non-interactive hint,
+ * `DropdownMenu` for a compact action list, and `Dialog` or `Sheet` when the task should take over
+ * the page. It is headless (renders no element of its own) and opens on click by default, with
+ * `openOnHover` as an alternative; open state is uncontrolled with `defaultOpen` or controlled
+ * through `open` and `onOpenChange`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Popover } from 'moraine'
+ *
+ * <Popover>
+ *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+ *   <Popover.Content>More information</Popover.Content>
+ * </Popover>
+ * ```
+ */
 export function Popover(props: PopoverProps): JSX.Element {
   const merged = mergeProps(
     {
