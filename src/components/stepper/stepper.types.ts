@@ -18,7 +18,9 @@ export namespace StepperT {
   export type Value = string
 
   export interface ContentRenderProps {
+    /** `value` of the active step. */
     value: Value
+    /** Zero-based position of the active step in `items`. */
     index: number
   }
 
@@ -27,28 +29,42 @@ export namespace StepperT {
    */
   export interface Item {
     /**
-     * Unique value for the step.
+     * Unique value identifying the step in `value` and `onValueChange`. A step that repeats an
+     * earlier step's value is disabled.
      */
     value: Value
 
     /**
-     * Label of the step.
+     * Label of the step. It names the step trigger for assistive technology.
      */
     label?: JSX.Element
 
     /**
-     * Secondary description of the step.
+     * Secondary description of the step, shown with the label and used as the trigger's accessible description.
      */
     description?: JSX.Element
 
     /**
-     * Icon to display in the step indicator.
+     * Icon to display in the step indicator instead of the step number.
      * @default index + 1
      */
     icon?: IconT.Name
 
     /**
-     * Content to display when the step is active. Accepts static JSX or a component receiving { value, index }.
+     * Content to display in the panel below the steps while this step is active. Accepts static JSX
+     * or a component receiving `{ value, index }`. A step without `content` renders no panel.
+     * @example
+     * ```tsx
+     * import { Stepper } from 'moraine'
+     *
+     * <Stepper
+     *   defaultValue="plan"
+     *   items={[
+     *     { value: 'plan', label: 'Plan', content: <p>Choose a plan.</p> },
+     *     { value: 'pay', label: 'Pay', content: (props) => <p>Step {props.index + 1}: {props.value}</p> },
+     *   ]}
+     * />
+     * ```
      */
     content?: JSX.Element | Component<ContentRenderProps>
 
@@ -59,7 +75,7 @@ export namespace StepperT {
     disabled?: boolean
 
     /**
-     * Additional class name for the step item.
+     * Additional class name for this step's item element, merged after the slot classes.
      */
     class?: string
   }
@@ -69,33 +85,50 @@ export namespace StepperT {
    */
   export interface Base {
     /**
-     * Unique identifier for the stepper root element.
+     * DOM `id` of the stepper root element; the trigger and panel ids derive from it. Generated when omitted.
      */
     id?: string
 
     /**
-     * Controlled active step value.
+     * Controlled active step value. When `undefined`, or when it matches no enabled step, the first enabled step is active.
+     * Steps before the active one are marked completed.
      */
     value?: Value
 
     /**
-     * Default active step value for uncontrolled usage.
+     * Initially active step value for uncontrolled usage. The first enabled step is active when omitted.
      */
     defaultValue?: Value
 
     /**
-     * Callback when the active step changes.
+     * Called with the step's `value` when the user activates a different step by click or keyboard.
+     * It does not fire for programmatic `value` changes, for the already-active step, or while the
+     * stepper is `disabled`.
      */
     onValueChange?: (value: Value) => void
 
     /**
-     * Whether keyboard activation happens immediately or only after confirmation.
+     * Whether arrow-key focus movement activates the step immediately (`automatic`) or only moves
+     * focus until `Enter` or `Space` confirms it (`manual`).
      * @default 'automatic'
      */
     activationMode?: 'automatic' | 'manual'
 
     /**
-     * Array of steps to display.
+     * Array of steps to display, in order.
+     * @example
+     * ```tsx
+     * import { Stepper } from 'moraine'
+     *
+     * <Stepper
+     *   navigation="free"
+     *   items={[
+     *     { value: 'cart', label: 'Cart', description: '2 items' },
+     *     { value: 'shipping', label: 'Shipping', icon: 'icon-truck' },
+     *     { value: 'payment', label: 'Payment', disabled: true },
+     *   ]}
+     * />
+     * ```
      */
     items?: Item[]
 
@@ -107,13 +140,13 @@ export namespace StepperT {
     navigation?: 'none' | 'linear' | 'free'
 
     /**
-     * Whether the entire stepper is disabled.
+     * Whether the entire stepper is disabled: no step can be activated by click or keyboard.
      * @default false
      */
     disabled?: boolean
 
     /**
-     * Whether keyboard navigation loops around when reaching the ends.
+     * Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps are skipped.
      * @default false
      */
     loop?: boolean

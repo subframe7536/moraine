@@ -35,7 +35,10 @@ export interface StepperStyleSlot<T = unknown> {
 }
 
 export interface StepperStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * Direction in which steps are laid out. It also decides which arrow keys move between steps.
+   * @default 'horizontal'
+   */
   orientation?: Orientation
 
   /** Visual size of the component.

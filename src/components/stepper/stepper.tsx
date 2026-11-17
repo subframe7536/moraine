@@ -25,7 +25,33 @@ interface NormalizedStepperItem {
 }
 
 /**
- * Tab-structured step navigation with configurable orientation and separator layout.
+ * Step navigation through a fixed sequence, with an indicator, label, and optional panel per step.
+ * Use `Tabs` for peer panels that are not a sequence and `Pagination` for a result set with a known
+ * page count. Controlled with `value` and `onValueChange`, or uncontrolled with `defaultValue`;
+ * `navigation` decides how far users may jump ahead, and `none` leaves moving between steps to your
+ * own controls.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Button, Stepper } from 'moraine'
+ *
+ * const [step, setStep] = createSignal('account')
+ *
+ * <>
+ *   <Stepper
+ *     value={step()}
+ *     onValueChange={setStep}
+ *     navigation="linear"
+ *     items={[
+ *       { value: 'account', label: 'Account' },
+ *       { value: 'profile', label: 'Profile' },
+ *       { value: 'review', label: 'Review' },
+ *     ]}
+ *   />
+ *   <Button onClick={() => setStep('profile')}>Next</Button>
+ * </>
+ * ```
  */
 export function Stepper(props: StepperProps): JSX.Element {
   const [local, rest] = splitProps(props, [
