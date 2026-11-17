@@ -66,13 +66,21 @@ export function Example() {
 
 ### Single selection
 
-Use one string value for the selected item and pair `value` with `onValueChange` for controlled
-state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior
-rather than the independent focus order of checkboxes.
+`items` takes strings (used as both `value` and `label`) or objects with `value`, `label`,
+`description`, and `disabled`. The selected item is one string: use `defaultValue` for uncontrolled
+state, or pair `value` with `onValueChange` for controlled state. `onValueChange` fires only when the
+user selects a different item. Disabled items stay visible but cannot be selected or focused.
+`variant` sets the layout (`list`, `card`, or `table`), and `orientation` sets the direction.
 
 ```tsx
 <RadioGroup items={planOptions} value={plan()} onValueChange={setPlan} />
 ```
+
+### Keyboard interaction
+
+The group is one tab stop. The arrow keys that match `orientation` move focus to the next enabled
+item and select it. `Home`, `End`, and `Shift` with an arrow key move focus without selecting.
+`Space` selects the focused item. Navigation wraps unless `loop={false}`.
 
 ### Forms
 

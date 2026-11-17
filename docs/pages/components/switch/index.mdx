@@ -52,12 +52,14 @@ export function Example() {
 
 ### Checked state and forms
 
-The focusable button exposes `role="switch"`; a hidden checkbox handles native form submission.
-Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
+The focusable button has `role="switch"`; a hidden checkbox handles native form submission. Use
+`checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
+`onCheckedChange` fires only when the user toggles the switch, not for programmatic `checked`
+changes or while the switch is `disabled`, `readOnly`, or `loading`.
 
-`trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
-forms. Native form submission uses the separate `value` prop only while checked; an unchecked
-switch contributes no entry.
+`trueValue` and `falseValue` map checked state to domain values for `checked`, callbacks, and
+schema-bound forms. Native form submission uses the separate `value` prop (default `'on'`) under
+`name` only while checked; an unchecked switch contributes no entry.
 
 ```tsx
 <Switch
@@ -70,8 +72,9 @@ switch contributes no entry.
 
 ### Loading ownership
 
-`loading` shows the `loadingIcon` on the thumb and makes the switch non-interactive while set.
-Drive it from the application; the switch does not start or track the async operation itself.
+While `loading` is set, the switch is non-interactive and shows `loadingIcon` on the thumb in place
+of `checkedIcon` or `uncheckedIcon`. Drive `loading` from the application; the switch does not start
+or track the async operation itself.
 
 ```tsx
 <Switch
@@ -106,7 +109,7 @@ Drive `loading` from the in-flight request. The switch does not start an async o
 
 ### Mark on and off with icons
 
-Pass `checkedIcon` and `uncheckedIcon` when the track should show a semantic mark. Loading still
+Pass `checkedIcon` and `uncheckedIcon` to show a mark on the thumb for each state. Loading still
 comes from application state.
 
 <Preview path="./loading-icons" />

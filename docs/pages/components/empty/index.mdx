@@ -52,8 +52,9 @@ export function Example() {
 Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX,
 including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
 
-`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the
-surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+The root and its parts render a `div` by default, except `Empty.Description`, which renders a `p`.
+Every part accepts `as`. Set a heading such as `as="h2"` on `Empty.Title` when the surrounding page
+needs one. Empty adds no role or ARIA relationships automatically.
 
 ```tsx
 <Empty>
@@ -69,10 +70,11 @@ surrounding page needs one. Empty adds no role or ARIA relationships automatical
 
 ### Sizes
 
-The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use
-`sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state.
-Vertical padding is more generous than horizontal insets. Title and description stay grouped, with
-more space around media and actions. Size does not resize the content placed inside `Media`.
+The `sm`, `md` (default), and `lg` sizes change padding, spacing, typography, and action gaps
+together. Use `sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level
+empty state. Set `size` on `Empty`; the parts inherit it. Vertical padding is larger than horizontal
+padding, and media and actions get extra space around them. Size does not resize the content placed
+inside `Media`.
 
 ```tsx
 <Empty size="sm">
@@ -102,14 +104,14 @@ Your search logic decides when to render this message. Offer a way to clear the 
 
 ### Invite the first team members
 
-Compose avatars or an illustration in `Media` without changing Empty's layout API.
+Place avatars or an illustration in `Media`. The layout stays the same.
 
 <Preview path="./rich-media" />
 
 ### Frame a missing reports section
 
-Empty has no default border, background, shadow, or fixed height. Apply container styling through
-`class` and `style`. A part's own `class` and `style` take precedence over root `classes` and
-`styles`.
+Empty has no default border, background, shadow, or fixed height. Apply container styling with
+`class` and `style`. A part's own `class` and `style` take precedence over the root `classes` and
+`styles`. Set `as` on the root to change its element, such as `section` with an `aria-label`.
 
 <Preview path="./custom-container" />

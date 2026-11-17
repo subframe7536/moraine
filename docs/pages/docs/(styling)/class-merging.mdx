@@ -7,7 +7,7 @@ search:
   tags: [cn, createCn, useCn, cnConfig, class merging, conflict, tailwind-merge]
 ---
 
-Moraine includes a built-in class merging utility on top of [cn](https://github.com/shadcn-ui/cn), configured for UnoCSS and Tailwind 4. It resolves conflicting utility classes (e.g. `p-2` vs `p-4` or `bg-primary` vs `bg-muted`) and provides extensions for Moraine's semantic shadows, z-index, and parametric transform utilities. Class inputs use `cn`'s `ClassValue` type; an empty merge returns `undefined` for DOM bindings.
+Moraine includes a class merger built on [cn](https://github.com/shadcn-ui/cn) and configured for UnoCSS and Tailwind 4. It resolves conflicting utility classes (for example `p-2` and `p-4`, or `bg-primary` and `bg-muted`) and adds rules for Moraine's semantic shadows, z-index, text size, tone, and parametric transform utilities. Class inputs use `cn`'s `ClassValue` type. An empty merge returns `undefined`, which suits DOM bindings.
 
 ## Merging Classes
 
@@ -19,11 +19,13 @@ const className = cn('p-2 text-sm', 'p-4 text-foreground')
 // => "text-sm p-4 text-foreground"
 ```
 
-Keep UnoCSS's automatic class sorting enabled. Sorting orders tokens within a string; `cn` resolves conflicts across the inputs it receives, with later conflicting classes winning. Put component overrides in a later input or an appropriate [override layer](/docs/customization#the-4-layer-override-hierarchy). Avoid placing competing values such as `p-2 p-4` in the same string because sorting can change which one appears last.
+The exported `cn` always uses the default rules and ignores any `MoraineProvider`. Call `useCn()` inside a component to merge with the nearest Provider's rules.
+
+Keep UnoCSS's automatic class sorting enabled. Sorting orders tokens within a string, while `cn` resolves conflicts across the inputs it receives, and later classes win. Put component overrides in a later input or in the appropriate [override layer](/docs/customization#the-4-layer-override-hierarchy). Avoid placing competing values such as `p-2 p-4` in the same string, because sorting can change which one comes last.
 
 ## Custom Class Conflict Rules
 
-If your project adds custom utility classes that conflict with each other (such as custom density or brand utility prefixes), configure how they merge using `createCn` or `MoraineProvider`:
+If your project adds utility classes that conflict with each other (such as custom density or brand utilities), teach the merger about them with `createCn` or `MoraineProvider`:
 
 ```ts title="src/lib/app-cn.ts"
 import { createCn } from 'moraine'
@@ -43,9 +45,11 @@ const className = appCn('density-roomy', 'density-compact')
 // => "density-compact"
 ```
 
+`CnConfig` is the `cn` library's configuration extension, so besides `extend` it also accepts `override`, `prefix`, and `cacheSize`. `createCn` applies it on top of the library defaults and Moraine's rules.
+
 ## Scoping with `MoraineProvider`
 
-Pass your `cnConfig` to `MoraineProvider` so all nested Moraine components and calls to `useCn()` inherit your custom conflict rules:
+Pass your `cnConfig` to `MoraineProvider` so that every nested Moraine component and every `useCn()` call uses your conflict rules:
 
 ```tsx title="src/App.tsx"
 import { Button, MoraineProvider, useCn } from 'moraine'
@@ -56,7 +60,7 @@ function DensityExample() {
 
   return (
     <div class={scopedCn('density-roomy', 'density-compact')}>
-      {/* Button automatically uses the nearest Provider's merger */}
+      {/* Button uses the nearest Provider's merger */}
       <Button class="density-roomy density-compact">Compact Action</Button>
     </div>
   )
@@ -73,8 +77,8 @@ export function App() {
 
 ### `cnConfig` Inheritance
 
-| `cnConfig` prop        | Behavior                                                              |
-| :--------------------- | :-------------------------------------------------------------------- |
-| Omitted or `undefined` | Inherits parent merger, or uses default Moraine rules at root.        |
-| Configuration object   | Replaces parent merger with Moraine defaults plus supplied extension. |
-| `{}`                   | Resets to clean Moraine default rules without parent extensions.      |
+| `cnConfig` prop        | Behavior                                                               |
+| :--------------------- | :--------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherits the parent merger, or uses the default Moraine rules at root. |
+| Configuration object   | Replaces the parent merger with the Moraine defaults plus this config. |
+| `{}`                   | Resets to the default Moraine rules, dropping any parent's extensions. |

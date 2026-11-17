@@ -13,12 +13,12 @@ Start with a SolidJS application and a build pipeline that compiles Solid JSX:
 
 - **SolidJS**: `^1.9.15`, matching Moraine's peer dependency.
 - **Build tool**: A Solid/Vite application or SolidStart.
-- **Styling**: The [UnoCSS integration](/docs/unocss) or [Tailwind CSS v4 integration](/docs/tailwind).
+- **Styling**: The [UnoCSS integration](/docs/unocss) or the [Tailwind CSS v4 integration](/docs/tailwind).
 - **TypeScript**: Recommended for component props and collection types.
 
 ## 1. Install the Package
 
-Add the `moraine` package to your project using your preferred package manager:
+Add the `moraine` package to your project with your preferred package manager:
 
 ```shell title="pnpm" group-id="install"
 pnpm add moraine
@@ -36,17 +36,30 @@ npm install moraine
 yarn add moraine
 ```
 
+The main `moraine` entry needs only `solid-js`. Other entries need an optional peer dependency, which you install yourself:
+
+| Import path           | Provides                                            | Peer dependency                       |
+| :-------------------- | :-------------------------------------------------- | :------------------------------------ |
+| `moraine`             | Components, `MoraineProvider`, `cn`, and `useCn`    | `solid-js`                            |
+| `moraine/theme`       | `defineTheme()` and theme types                     | None                                  |
+| `moraine/utils`       | Utilities such as `createId` and `createMediaQuery` | `solid-js`                            |
+| `moraine/unocss`      | `presetMoraine()`                                   | `@subf/unocss` (`^0.4.0`)             |
+| `moraine/tailwind`    | Tailwind CSS v4 plugin                              | `tailwindcss` (`^4.3.5`)              |
+| `moraine/data-table`  | `DataTable` and `createDataTable`                   | `@tanstack/table-core` (`^9.3.1`)     |
+| `moraine/virtualizer` | List and table virtualizers                         | `@tanstack/virtual-core` (`^3.19.11`) |
+| `moraine/dnd`         | Sortable lists and trees                            | `@dnd-kit/dom` (`^0.5.3`)             |
+| `moraine/icon.css`    | Optional stylesheet for built-in icons              | None                                  |
+
 ## 2. Configure Atomic Class Styling
 
 Moraine needs generated utility classes and semantic CSS variables. Choose one integration and
-complete its setup before checking a component:
+complete its setup before checking a component.
 
 ### Option A: UnoCSS (Recommended)
 
 Follow the [UnoCSS setup](/docs/unocss#installation-and-config) to install `@subf/unocss`, register
-its Vite plugin, and import `virtual:uno.css`. The component scanning configuration is:
-
-Import `moraine/unocss` and configure `unocss.config.ts`:
+its Vite plugin, and import `virtual:uno.css`. Then add the preset and component scanning to
+`unocss.config.ts`:
 
 ```ts title="unocss.config.ts"
 import { defineConfig, presetWind4 } from '@subf/unocss'
@@ -67,11 +80,11 @@ export default defineConfig({
 })
 ```
 
-For Wind3, replace the presets with `[presetWind3(), presetMoraine({ wind3: true })]`. Wind3 compatibility must be enabled explicitly. See the [UnoCSS Setup Guide](/docs/unocss) for integration, scanning, variant groups, and color tokens.
+For Wind3, replace the presets with `[presetWind3(), presetMoraine({ wind3: true })]`. The preset does not detect Wind3, so you must enable `wind3` explicitly. See the [UnoCSS guide](/docs/unocss) for integration, scanning, and color tokens.
 
 ### Option B: Tailwind CSS
 
-If you use Tailwind CSS v4, configure its Vite integration and register the plugin from `moraine/tailwind`:
+With Tailwind CSS v4, install `tailwindcss` and `@tailwindcss/vite`, configure the Vite plugin, and register the plugin from `moraine/tailwind`:
 
 ```css title="src/index.css"
 @import 'tailwindcss';
@@ -79,11 +92,11 @@ If you use Tailwind CSS v4, configure its Vite integration and register the plug
 @source '../node_modules/moraine/dist';
 ```
 
-Define your theme variables in CSS. See the [Tailwind CSS Guide](/docs/tailwind) for `@source` configuration and monorepo paths.
+Define your theme variables in CSS, because the plugin does not emit them. See the [Tailwind CSS guide](/docs/tailwind) for `@source` configuration and monorepo paths.
 
 ## 3. Verify the Installation
 
-Render a test button in your application to confirm that utility classes are generated:
+Render a test button to confirm that utility classes are generated:
 
 ```tsx title="src/App.tsx"
 import { Button } from 'moraine'
@@ -99,14 +112,14 @@ export function App() {
 }
 ```
 
-Check that the button has a solid primary background, rounded corners, and padding. Verify the same appearance in each scenario:
+The button should have a solid primary background, rounded corners, and padding. Confirm the same appearance in each scenario:
 
-1. Start the dev server with an empty Vite dependency cache and open the app without editing source files or refreshing to recover styles.
-2. Stop and restart the dev server with its dependency cache present.
-3. Directly open a lazy-loaded route that renders Moraine components, without first visiting the home page.
-4. Build the application and check the same routes through its production preview server.
+1. Start the dev server with an empty Vite dependency cache and open the app, without editing source files or refreshing to recover styles.
+2. Stop the dev server and restart it with the dependency cache present.
+3. Open a lazy-loaded route that renders Moraine components directly, without visiting the home page first.
+4. Build the application and check the same routes in its production preview server.
 
-Use your application's dev, build, and preview commands. See [UnoCSS verification and troubleshooting](/docs/unocss#verification-and-troubleshooting) or [Tailwind troubleshooting](/docs/tailwind#troubleshooting) if any scenario is unstyled.
+Use your application's dev, build, and preview commands. If any scenario is unstyled, see [UnoCSS verification and troubleshooting](/docs/unocss#verification-and-troubleshooting) or [Tailwind troubleshooting](/docs/tailwind#troubleshooting).
 
 ## Troubleshooting
 
@@ -115,14 +128,14 @@ Use your application's dev, build, and preview commands. See [UnoCSS verificatio
 If the button renders as a plain unstyled HTML button:
 
 - **CSS entry**: Verify that the application entry imports `virtual:uno.css` for UnoCSS or your Tailwind stylesheet.
-- **UnoCSS**: Configure both `content.filesystem` and `content.pipeline.include` as shown above. The filter also applies to filesystem extraction in the documented Vite integration.
-- **Tailwind v4**: Verify that `@source` points to `moraine/dist` relative to your CSS file. If the CSS rule exists but its color is missing, check the theme variables as well.
+- **UnoCSS**: Configure both `content.filesystem` and `content.pipeline.include` as shown above. In the documented Vite integration, the filter also applies to filesystem extraction.
+- **Tailwind v4**: Verify that `@source` points to `moraine/dist` relative to your CSS file. If the CSS rule exists but its color is missing, also check the theme variables.
 
-Changing `MoraineProvider` or importing the optional `moraine/icon.css` does not replace class scanning. If styles appear only after clearing Vite's cache, follow the cache troubleshooting steps in the UnoCSS guide and verify a restart with the cache retained.
+Neither `MoraineProvider` nor the optional `moraine/icon.css` replaces class scanning. If styles appear only after you clear Vite's cache, follow the cache troubleshooting steps in the UnoCSS guide, then verify a restart with the cache retained.
 
 ### JSX TypeScript Errors
 
-If TypeScript complains about JSX elements or missing types, check that your `tsconfig.json` includes:
+If TypeScript reports errors on JSX elements or missing types, check that your `tsconfig.json` includes:
 
 ```json title="tsconfig.json"
 {

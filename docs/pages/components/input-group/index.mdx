@@ -27,18 +27,20 @@ import Playground from './playground'
         part: 'InputGroup.Trailing',
         slot: 'trailing',
       },
-      { internal: 'frame' },
+      { slot: 'frame' },
     ],
   }}
 />
 
-Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
+Place Leading parts before one Input or Textarea, then Trailing parts. The final frame element paints the shared boundary.
 
 ## Usage
 
 Use InputGroup when an editable control and its addons should share one visual boundary. The inner
 [Input](/components/input) or [Textarea](/components/textarea) still owns text entry and its
-accessible name.
+accessible name. Render the control as a direct child of InputGroup. `InputGroup.Leading` and
+`InputGroup.Trailing` throw when rendered outside an InputGroup, and each renders a `div` unless you
+set `as`.
 
 ```tsx
 import { Field, Input, InputGroup } from 'moraine'
@@ -57,9 +59,10 @@ export function Example() {
 
 ### Direction and orientation
 
-In horizontal groups, Leading and Trailing follow the document's writing direction. In vertical
-groups, they sit above and below the control. Set `inputGroup.defaultVariants.orientation` in
-your Theme to change the shared default, or `inputGroup.variants.orientation` to override its styles.
+In horizontal groups (the default), Leading and Trailing follow the document's writing direction.
+In vertical groups, they sit above and below the control. Set `inputGroup.defaultVariants.orientation`
+in your Theme to change the shared default, or `inputGroup.variants.orientation` to override its
+styles.
 
 ```tsx
 <InputGroup>
@@ -76,9 +79,9 @@ your Theme to change the shared default, or `inputGroup.variants.orientation` to
 
 ### Compact
 
-Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keeping the same layout
-role. In horizontal groups it uses smaller inline padding; in vertical groups it uses smaller
-padding on all sides. Use it for compact buttons, keyboard shortcuts, and inline prefixes.
+Set `compact` on a `Leading` or `Trailing` part to reduce its padding. In horizontal groups it
+uses smaller inline padding; in vertical groups it uses smaller padding on all sides. Use it for
+icon buttons, keyboard shortcuts, and inline prefixes.
 
 ```tsx
 <InputGroup>
@@ -93,16 +96,16 @@ padding on all sides. Use it for compact buttons, keyboard shortcuts, and inline
 ### Styling and forms
 
 `InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size`
-and `variant` to style the group. Disabled presentation remains on the native `Input` or
-`Textarea`, and the native control's `variant` applies when it is outside a group.
+and `variant` to style the group. Disabled presentation stays on the native `Input` or `Textarea`,
+and the control's own `variant` applies only outside a group.
 
 Size precedence is the control's explicit size, group size, Field size, then theme defaults.
-`classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation;
+`classes.leading`, `classes.trailing`, and their `styles` equivalents set group-wide presentation;
 each part's `class` and `style` override it.
 
 Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on
-the control. InputGroup does not register a form field. Clicking non-interactive group space
-focuses the native control; buttons and links retain their own focus behavior.
+the control. InputGroup does not register a form field. Pressing non-interactive group space
+focuses the control; buttons, links, and other interactive elements keep their own focus behavior.
 
 ## Examples
 
@@ -120,8 +123,8 @@ Supporting content accepts plain text and JSX. No dedicated text part is require
 
 ### Copy a profile URL
 
-Use Button for copy, toggle, and submit. Add `compact` on the part when the button needs denser
-padding. Keep each button's state and disabled behavior explicit.
+Use Button for copy, toggle, and submit. Add `compact` on the part when the button needs less
+padding. Set each button's state and disabled behavior explicitly.
 
 <Preview path="./actions" />
 
@@ -146,7 +149,7 @@ Render `DropdownMenu.Trigger` as a button inside Leading or Trailing.
 
 ### Show an in-progress lookup
 
-Render a loading icon wherever progress needs to appear. InputGroup does not infer a loading state.
+Render a loading icon where progress should appear. InputGroup has no loading state.
 
 <Preview path="./spinner" />
 
@@ -158,7 +161,7 @@ Set `orientation="vertical"` for a header and status bar around an independent T
 
 ### Compose a comment
 
-Textarea keeps its own value, ref, native attributes, and autoresize. The same group can provide
+Textarea keeps its own value, ref, native attributes, and autoresize. The same group can hold
 header and footer regions.
 
 <Preview path="./composer" />

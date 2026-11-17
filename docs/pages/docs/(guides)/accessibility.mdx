@@ -11,11 +11,11 @@ Moraine implements keyboard navigation, focus management, and ARIA relationships
 
 ## Keyboard Interaction Models
 
-Moraine components implement predictable keyboard contracts based on established UI patterns:
+Moraine components follow established UI patterns for keyboard interaction:
 
 ### Collection Navigation
 
-`Tabs` uses roving tabindex: the highlighted tab has `tabindex="0"`, and other tab triggers have `tabindex="-1"`. Select-family controls keep DOM focus on their trigger or input and identify the highlighted option through `aria-activedescendant`. Menus move focus between their items. These models support arrow navigation without placing every option in the page's tab order:
+`Tabs` uses roving tabindex: the highlighted tab has `tabindex="0"`, and other tab triggers have `tabindex="-1"`. Select-family controls keep DOM focus on their trigger or input and identify the highlighted option through `aria-activedescendant`. Menus move focus between their items. These models support arrow navigation without adding every option to the page's tab order:
 
 | Key                                 | Action                                                                          |
 | ----------------------------------- | ------------------------------------------------------------------------------- |
@@ -25,34 +25,35 @@ Moraine components implement predictable keyboard contracts based on established
 | <kbd>End</kbd>                      | Moves focus directly to the last enabled item.                                  |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates or selects where supported; editable inputs retain normal text entry. |
 
-Looping and activation behavior depend on the component and its options. See each component's keyboard documentation for orientation, disabled items, typeahead, and selection behavior.
+Looping and activation depend on the component and its options. See each component's keyboard documentation for orientation, disabled items, typeahead, and selection.
 
 ### Overlay Dismissal
 
-Dismissible overlays (`Dialog`, `Sheet`, `Popover`, `Tooltip`, `DropdownMenu`, `ContextMenu`) support the <kbd>Escape</kbd> key. Only the topmost active overlay handles dismissal, so closing a nested overlay leaves its parent open. Disabling dismissal or preventing the component's Escape callback can keep an overlay open.
+Dismissible overlays (such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`, and select popups) close on <kbd>Escape</kbd>. Only the topmost active overlay handles the key, so closing a nested overlay leaves its parent open. Escape is ignored during IME composition. Set `closeOnEscape` to `false` to keep an overlay open; `onClosePrevented` reports the blocked attempt.
 
 ## Focus Management
 
 ### Focus Trapping in Modals
 
-Modal surfaces like `Dialog` and `Sheet` automatically constrain keyboard focus within their boundary while open. Tabbing past the last interactive element loops focus back to the first, preventing users from interacting with inactive background content.
+Modal surfaces such as `Dialog`, `Sheet`, `Drawer`, and `Modal` keep keyboard focus inside their content while open. Tabbing past the last focusable element returns focus to the first. While open, they also hide outside content from assistive technology and lock page scroll. `Popover` is non-modal by default; `modal` applies the same behavior only when the content includes `Popover.Close`. With `modal={false}` on a modal surface, focus is not trapped, moved on open, or restored on close.
 
 ### Focus Restoration
 
-Modal overlays restore focus to their trigger after closing. Floating overlays restore focus when appropriate, such as keyboard dismissal, while allowing an outside pointer interaction to move focus to its target. Tooltips retain focus on their trigger. Check each component's focus options when customizing this behavior.
+Modal overlays restore focus to their trigger after closing, or to the element that was focused when they opened. Set `finalFocus` to choose another element. Non-modal floating overlays restore focus after keyboard dismissal but let an outside press move focus to its target. Tooltips never move focus from their trigger. Check each component's focus options before customizing this behavior.
 
 ### Initial Auto-Focus
 
-Modal surfaces focus the first focusable child when opened, falling back to the content container when there is no focusable child. Menus and select-family controls use their own highlighted-item behavior. Tooltips do not move focus into their content.
+Modal surfaces focus an `[autofocus]` or `[data-autofocus]` descendant when opened, otherwise the first focusable child, otherwise the content container. When opened by touch, they focus the content container. Set `initialFocus` to choose the element, or `false` to skip the move. Menus and select-family controls use their own highlighted-item behavior. Tooltips do not move focus into their content.
 
 ## ARIA Attribute Contracts
 
 Moraine sets and updates these ARIA attributes from component state:
 
-- **State Indication**: Components maintain `aria-expanded="true|false"` on triggers, `aria-selected="true|false"` on selection items, and `aria-checked="true|false|mixed"` on checkboxes.
-- **Relationship Wiring**: Triggers and contents are linked via `aria-controls` pointing to deterministic element IDs generated by `createId`.
-- **Form Association**: `Field` uses its `label` and `description` props to bind `aria-labelledby` and `aria-describedby` to the registered input control.
-- **Validation**: When a field has an error, Moraine applies `aria-invalid="true"` to the input and includes the visible error message in `aria-describedby`.
+- **State indication**: Components maintain `aria-expanded="true|false"` on triggers, `aria-selected="true|false"` on selection items, and `aria-checked="true|false|mixed"` on checkboxes.
+- **Relationship wiring**: Triggers and contents are linked through `aria-controls` with deterministic element IDs generated by `createId`.
+- **Overlay names**: `Dialog.Content` and `Sheet.Content` use `title` as `aria-labelledby` (unless `aria-label` is set) and `description` as `aria-describedby`. `Modal.Content` renders `role="dialog"` and needs an `aria-label` or `aria-labelledby`.
+- **Form association**: `Field` binds its `label` to the registered control through `aria-labelledby`, and its `hint`, `description`, `error`, and `help` text through `aria-describedby`. `hiddenLabel` supplies a visually hidden label when `label` is empty.
+- **Validation**: When a field has an error, Moraine sets `aria-invalid="true"` on the control and adds the visible error message to `aria-describedby`.
 
 ```tsx
 import { Field, Input } from 'moraine'
@@ -70,9 +71,16 @@ export function AccountField() {
 ## Screen Reader Considerations
 
 - **Semantic HTML**: Moraine uses native controls such as `<button>` and `<input>` alongside ARIA roles for custom widgets and overlay surfaces. When you use the `as` prop, the rendered element must provide the same semantics.
-- **Visually Hidden Labels**: For icon-only buttons, provide an accessible name using `aria-label`:
+- **Icon-only buttons**: Provide an accessible name with `aria-label`:
+
   ```tsx
-  <Button aria-label="Close settings dialog" variant="ghost">
-    <IconClose />
-  </Button>
+  import { Button } from 'moraine'
+
+  export function CloseSettingsButton() {
+    return (
+      <Button aria-label="Close settings" variant="ghost" size="icon-md" leading="icon-close" />
+    )
+  }
   ```
+
+- **Built-in labels**: Accessible names that Moraine supplies, such as the `Dialog` close button, come from locale messages. Override them with a component's `translations` prop or `MoraineProvider` `messages`; see the [Localization guide](/docs/localization).

@@ -10,7 +10,7 @@ search:
 
 import Playground from './playground'
 
-Enter an invalid email and leave the input to show the error and enable its slot indicator.
+Enter an invalid email and leave the input to show the error, or turn on Invalid.
 
 <Playground />
 
@@ -38,20 +38,21 @@ Enter an invalid email and leave the input to show the error and enable its slot
   }}
 />
 
-Help and error are mutually exclusive; the error replaces help when the field is invalid.
+Help and error are mutually exclusive; the error replaces help while it is displayed.
 
 ## Usage
 
 Use Field to label a standalone control and attach description, help, and error text. It registers
-the nested control, inherits size and disabled state, and wires ARIA relationships. It does not
-validate or submit values.
+the nested control, passes `size`, `disabled`, `required`, and `readOnly` down to it, and wires the
+ARIA relationships. It does not validate or submit values.
 
 For schema binding, use `form.Field` from [createForm](/components/form). Put a Moraine control
-inside Field so its label, description, and error IDs attach to the actual focusable element. For
+inside Field so the label, description, and error IDs attach to the actual focusable element. For
 local validation, pass the current message to `error`.
 
 Children can be JSX or a render function that receives the field state as props, such as
-`(state) => ...`, where `state.error` is the effective error.
+`(state) => ...`, where `state.error` is the effective error (`false` when `error={false}`
+suppresses it).
 
 ```tsx
 import { Field, Input } from 'moraine'
@@ -65,12 +66,27 @@ export function Example() {
 }
 ```
 
+### Text and messages
+
+| Prop          | Placement and behavior                                                      |
+| ------------- | --------------------------------------------------------------------------- |
+| `label`       | A `<label>` pointing to the nested control; also its `aria-labelledby`      |
+| `hint`        | Beside the label, such as "Optional"; shown only when the field has a label |
+| `description` | Under the label, above the control; linked with `aria-describedby`          |
+| `help`        | Under the control; hidden while an error is displayed                       |
+| `error`       | Under the control, replacing `help`; marks the control `aria-invalid`       |
+
+When `error` is `undefined` or `null`, Field shows the error of its form binding. `error={false}`
+suppresses any error, including the bound one. Empty content such as `''` displays nothing. Set
+`required`, `disabled`, or `readOnly` on Field to pass the state to nested controls; a control's own
+prop takes precedence. `required` also adds a required indicator to the label.
+
 ### Visually hidden labels
 
 Use `hiddenLabel` when a compact control needs an accessible name without a visible label. It
-preserves the label association without reserving label spacing or an empty horizontal label
-column. A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain
-visible; help and error text keep their usual placement.
+keeps the label association without reserving label spacing or an empty horizontal label column.
+A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain visible;
+help and error text keep their usual placement.
 
 ```tsx
 <Field hiddenLabel="Filter commands" help="Search by command name or shortcut.">
@@ -82,8 +98,8 @@ For a switch with a trailing visible label, use `<Switch label="Auto refresh" />
 
 ### Orientation
 
-`orientation="horizontal"` lays the label beside the control. Use it for settings rows. Vertical
-is the default stacked layout.
+`orientation="horizontal"` lays the label beside the control, as in a settings row. `'vertical'` is
+the default stacked layout.
 
 ```tsx
 <Field orientation="horizontal" label="Display name" description="Shown to other users.">
@@ -102,21 +118,20 @@ render in their usual place.
 
 ### Inherit size and required onto a switch
 
-Size and required on `Field` flow into the nested control. Keep a visible `label` on the switch
-when the field label is the setting name.
+`size` and `required` on `Field` pass down to the nested control. Keep a visible `label` on the
+switch when the field label is the setting name.
 
 <Preview path="./inherited-state" />
 
 ### Surface a local validation message
 
-Pass the current message to `error`. Standalone `Field` does not run a schema; the page owns the
-string.
+Pass the current message to `error`. Standalone `Field` does not run a schema; your code owns the
+message.
 
 <Preview path="./manual-validation" />
 
 ### Align a settings row
 
-Set `orientation="horizontal"` when the label should sit beside the control, as in a settings
-panel.
+Set `orientation="horizontal"` to put the label beside the control, as in a settings panel.
 
 <Preview path="./horizontal-layout" />

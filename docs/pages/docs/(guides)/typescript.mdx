@@ -7,12 +7,12 @@ search:
   tags: [types, typescript, namespaces, generics, props, MoraineTypeConfig, SolidJS]
 ---
 
-Moraine exports types for component props, style slots, collection items, and polymorphic targets.
-Use the component's props type for wrappers and its namespace for supporting types.
+Moraine exports types for component props, style slots, collection items, and polymorphic targets (`ValidComponent` and `Tags`).
+Use a component's props type for wrappers and its namespace for supporting types.
 
 ## Props vs Namespaces
 
-Moraine uses a clear two-tier export convention for every component:
+Every component exports two kinds of types:
 
 | Pattern    | Purpose                                         | Example                            |
 | :--------- | :---------------------------------------------- | :--------------------------------- |
@@ -25,7 +25,7 @@ import type { ButtonProps, ButtonT, SelectProps, SelectT } from 'moraine'
 
 ### Component Props (`XxxProps`)
 
-Use `XxxProps` when wrapping a component, typing function parameters, or defining extended prop interfaces:
+Use `XxxProps` to wrap a component, type function parameters, or extend a props interface:
 
 ```tsx
 import type { ButtonProps } from 'moraine'
@@ -42,7 +42,7 @@ export function SubmitButton(props: SubmitButtonProps) {
 
 ### Component Namespaces (`XxxT`)
 
-The `XxxT` namespace organizes all auxiliary types for a component under a single import:
+The `XxxT` namespace groups a component's supporting types under one import:
 
 ```tsx
 import type { SelectT } from 'moraine'
@@ -59,21 +59,21 @@ const countries: SelectT.Item[] = [
 | :--------- | :---------------------------------------------------------------------------------- |
 | `Kind`     | `'single'` or `'composite'`; composite components expose attached JSX parts.        |
 | `Props`    | Complete component props type (identical to `XxxProps`).                            |
-| `Base`     | Core business props without native HTML attributes.                                 |
+| `Base`     | Component-specific props, without native attributes, variants, or slot maps.        |
 | `Slot<T>`  | Object shape of optional styling slots; `keyof XxxT.Slot` gives the slot names.     |
 | `Variants` | Object shape of visual variant options; component props additionally accept `null`. |
 | `Classes`  | Slot shape containing `cn` class values, including strings, arrays, and objects.    |
 | `Styles`   | Slot shape containing `JSX.CSSProperties` objects; string styles are unsupported.   |
 | `Item`     | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).         |
-| `Value`    | Value domain type for form controls with value semantics.                           |
+| `Value`    | Value type of controls with a value domain (`Input`, `Slider`, `Stepper`).          |
 
-Members are available where applicable. For example, collection components expose `Item`, while
-single-root components such as `Icon` do not accept instance slot maps. Attached parts use
-namespace types such as `DialogT.ContentProps`.
+Members exist where they apply. For example, collection components expose `Item`, and components
+without visual variants, such as `Icon`, have `Variants` of type `never`. Attached parts use namespace
+types such as `DialogT.ContentProps`.
 
 ## Visual Variants (`XxxT.Variants`)
 
-Components supporting visual variants expose their options under `XxxT.Variants`. The corresponding properties on `XxxProps` accept `null` to explicitly clear defaults for that variant, while base recipe styles and other variants remain active:
+Components with visual variants expose their options under `XxxT.Variants`. The matching props on `XxxProps` also accept `undefined` and `null`. `undefined` falls back to the variant inherited from an ancestor (such as a group), then to the recipe default, including `defaultVariants` from a `MoraineProvider` theme. `null` selects no value, so no styles for that variant apply, while base recipe styles and other variants remain active:
 
 ```tsx
 import type { ButtonProps } from 'moraine'
@@ -89,7 +89,7 @@ export function RawButton() {
 
 ## Slot Classes & Styles (`XxxT.Classes`, `XxxT.Styles`)
 
-Use `Classes` and `Styles` to type slot override records when customizing composite elements:
+Use `Classes` and `Styles` to type slot override records:
 
 ```tsx
 import type { CardT } from 'moraine'
@@ -108,9 +108,9 @@ export function StyledCard() {
 
 ## Global Type Configuration (`MoraineTypeConfig`)
 
-You can customize Moraine's compile-time type behavior across your entire application using TypeScript module augmentation.
+Use TypeScript module augmentation to change Moraine's compile-time type behavior across your application.
 
-Create a declaration file (e.g. `src/env.d.ts` or `src/moraine.d.ts`) in your project:
+Create a declaration file, such as `src/env.d.ts` or `src/moraine.d.ts`:
 
 ```ts title="src/moraine.d.ts"
 import 'moraine'
@@ -123,14 +123,14 @@ declare module 'moraine' {
 }
 ```
 
-Enable only the options you need, using required properties with the literal type `true`. Omit an option to retain its default behavior; optional `boolean` properties do not enable it.
+Enable only the options you need, declared as required properties with the literal type `true`. Omit an option to keep its default behavior; an optional `boolean` property does not enable it.
 
 ### `simpleRootAttributes`
 
 - **`false` (default)**: Strict type checking against intrinsic elements. Non-standard attributes trigger compile-time errors.
-- **`true`**: Relaxes attribute checks while maintaining strict verification for known component props (`variant`, `size`, `disabled`).
+- **`true`**: Relaxes attribute checks on HTML tag roots while still checking known component props (`variant`, `size`, `disabled`) and `ref`. `as={Component}` keeps the target component's own props.
 
 ### `simpleHtmlTags`
 
 - **`false` (default)**: Autocompletes all elements in `keyof JSX.IntrinsicElements` (including SVG tags like `path`, `g`, `svg`).
-- **`true`**: Filters autocompletion down to standard `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, etc.), reducing suggestion noise.
+- **`true`**: Narrows autocompletion to `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, and so on), which reduces suggestion noise. Other string tags still type-check.

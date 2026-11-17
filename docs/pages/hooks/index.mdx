@@ -7,7 +7,7 @@ search:
   tags: [hooks, primitives, state, interaction, collection, headless, utils, helpers, moraine/utils]
 ---
 
-Moraine exports its headless interaction primitives and reactive utilities from the `moraine/utils` entry point. These hooks back Moraine's own components, and you can use them to build custom controls.
+Moraine exports its headless interaction primitives and reactive utilities from the `moraine/utils` entry point. These hooks back Moraine's own components. Use them to build custom controls.
 
 ## Import
 
@@ -29,7 +29,7 @@ import {
 } from 'moraine/utils'
 ```
 
-Styling helpers such as `cn`, `createCn`, and `useCn` are exported from both `moraine` and `moraine/utils`. For class merging documentation, see [Class Merging](/docs/class-merging).
+The styling helpers `cn`, `createCn`, and `useCn` are exported from `moraine`, not `moraine/utils`. See [Class Merging](/docs/class-merging).
 
 ## Headless Hooks
 

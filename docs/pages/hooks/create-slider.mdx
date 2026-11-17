@@ -5,7 +5,7 @@ search:
   tags: [createSlider, slider, range, dragging, pointer, keyboard, step, thumb]
 ---
 
-`createSlider` is the interaction engine behind Moraine's `Slider`. It handles pointer dragging with pointer capture, keyboard stepping, value clamping and step snapping, and computes inline styles for the range and thumbs.
+`createSlider` is the interaction engine behind Moraine's `Slider`. It handles pointer dragging with pointer capture, keyboard stepping, value clamping, and step snapping. It also computes inline styles for the range and thumbs. It renders nothing: you provide the track and thumb elements and wire the returned handlers to them.
 
 ## Import
 
@@ -15,10 +15,11 @@ import { createSlider } from 'moraine/utils'
 
 ## Features
 
-- Accepts a single number or a `[min, max]` tuple for a dual-thumb range.
+- Accepts a number for one thumb, or an array of numbers for one thumb per entry, such as `[20, 80]` for a range.
 - Captures the pointer during a drag so tracking continues when the pointer leaves the track.
-- Handles Arrow Left/Right/Up/Down, PageUp/PageDown, and Home/End.
+- Handles Arrow Left/Right/Up/Down, PageUp/PageDown, and Home/End. Shift + arrow takes a page-sized step.
 - Supports horizontal and vertical orientation, reversed axes, and RTL.
+- Reports each change through `onValueInput` and each finished interaction through `onValueCommit`.
 
 ## Signature
 
@@ -28,6 +29,31 @@ function createSlider<TValue extends number | number[]>(
   options?: CreateSliderOptions<TValue>,
 ): CreateSliderReturn<TValue>
 ```
+
+`props` configures the value and geometry. It is read reactively, so declare a getter for any value that changes:
+
+| Prop                                        | Default                 | Notes                                                                                                   |
+| ------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `value`, `defaultValue`                     | `min`                   | Controlled and initial value. The shape of `value` or `defaultValue` sets the shape of callback values. |
+| `min`, `max`                                | `0`, `100`              | Values clamp to this range.                                                                             |
+| `step`                                      | None                    | Pointer and keyboard values snap to multiples of it from `min`. Without it, values are continuous.      |
+| `orientation`, `reversed`                   | `'horizontal'`, `false` | Axis and direction of the track.                                                                        |
+| `minStepsBetweenThumbs`                     | `0`                     | Minimum gap between thumbs in `step` units. Above `0`, thumbs cannot cross.                             |
+| `allowThumbCrossing`                        | `true`                  | When `false`, a dragged thumb stops at its neighbor.                                                    |
+| `thumbAlignment`                            | `'overflow'`            | `'contain'` keeps thumb edges inside the track.                                                         |
+| `marker`, `styles.marker`                   | None                    | Marker interval (`true` uses `step`) and extra marker styles.                                           |
+| `readOnly`, `formatOptions`, `translations` | None                    | Blocks changes; formats `aria-valuetext`; overrides messages.                                           |
+
+`options` holds the callbacks and the disabled state:
+
+| Option                            | Called when or effect                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `disabled`                        | Accessor. While it returns `true`, pointer and keyboard input are ignored.                        |
+| `onValueInput(value)`             | The value changes during an interaction. It does not fire for programmatic `value` changes.       |
+| `onValueCommit(value)`            | The pointer is released, a navigation key is released, or focus leaves the thumbs after a change. |
+| `onFocus(event)`, `onBlur(event)` | Focus enters or leaves the group of thumbs. Moving between thumbs fires neither.                  |
+
+Wire `setTrackRef`, `setThumbRefs`, and the `onTrack*`, `onThumb*`, and `onPointerCancel` handlers to your elements, as in the example. `onThumbFocus` and `onThumbBlur` track keyboard focus and commit on blur. Bind `thumbStyles()` and `rangeStyle()` for placement, and `currentValues()` for the live values.
 
 ## Usage Example
 
@@ -69,6 +95,8 @@ export function CustomSlider() {
         onPointerUp={slider.onThumbPointerUp}
         onPointerCancel={slider.onPointerCancel}
         onLostPointerCapture={slider.onPointerCancel}
+        onFocus={(event) => slider.onThumbFocus(0, event)}
+        onBlur={slider.onThumbBlur}
         onKeyDown={(event) => slider.onThumbKeyDown(0, event)}
         onKeyUp={slider.onThumbKeyUp}
         style={slider.thumbStyles()[0]}

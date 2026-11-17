@@ -50,14 +50,15 @@ import Playground from './playground'
   }}
 />
 
-Group labels and items may be flattened into sibling rows when virtualized. Trailing descriptions render inside itemLabel.
+Group labels and items flatten into sibling rows when virtualized. With `descriptionPosition: 'trailing'`, the description renders inside `itemLabel`.
 
 ## Usage
 
 Use CommandPalette for searchable commands or navigation targets on an inline surface. The
 application decides when to open it and registers any global shortcut. Wrap it in a
 [Dialog](/components/dialog) or [Modal](/components/modal) when the palette should occupy a focused
-overlay. Use [NavigationMenu](/components/navigation-menu) for persistent site destinations.
+overlay; the wrapper also owns Escape dismissal. Use [NavigationMenu](/components/navigation-menu)
+for persistent site destinations.
 
 ```tsx
 import { CommandPalette } from 'moraine'
@@ -73,9 +74,12 @@ export function Example() {
 
 ### Groups, filtering, and selection
 
-Pass groups and items from application state. The palette filters the supplied collection and
-invokes `onSelect` or an item's own `onSelect`. Fetching commands, routing, and global shortcuts
-remain application-owned. Pass `filterMethod` (`'contains'`, `'startsWith'`, `'endsWith'`, or a predicate) for custom matching, or `false` to bypass filtering when the collection is already filtered.
+Pass groups and items from application state. The palette filters the supplied collection and calls
+the item's `onSelect`, then the palette's `onSelect`. Fetching commands, routing, and global
+shortcuts stay with the application. The default `filterMethod` is `'contains'`; it matches the
+item's label, value, description, and `keywords` ignoring case and accents. Pass `'startsWith'`,
+`'endsWith'`, or a predicate for custom matching, or `false` to skip filtering when you already
+filter the collection. Set `alwaysShow` on an item to keep it visible for any query.
 
 ```tsx
 <CommandPalette
@@ -85,10 +89,19 @@ remain application-owned. Pass `filterMethod` (`'contains'`, `'startsWith'`, `'e
 />
 ```
 
+By default, selecting an enabled item also calls `onClose`. The palette never hides itself: use
+`onClose` to close the surrounding Dialog or Modal. Set `closable` to show a close button that calls
+`onClose`. The search input takes focus on mount unless the palette sits inside an element with
+`role="dialog"`; set `autofocus={false}` to disable it. Control the query with `searchValue` and
+`onSearchValueChange`, or start from `defaultSearchValue`.
+
 ### Custom item layout and states
 
-Use `itemRender` when a row needs extra fields such as owner or status. Provide `emptyRender` when
-an empty query or miss needs explanation. Set `loading` while results are still arriving.
+Use `itemRender` when a row needs extra fields such as owner or status; it replaces the default row
+content, so the items' `leadingRender` and `trailingRender` no longer apply. Provide `emptyRender`
+when an empty query or a miss needs explanation, and `footerRender` for a footer such as keyboard
+hints. Set `loading` while results are still arriving: it swaps the leading icon for `loadingIcon`,
+and items stay selectable.
 
 ```tsx
 <CommandPalette
@@ -105,14 +118,15 @@ the branch stays open.
 
 ### Keyboard interaction
 
-| Key                  | Description                            |
-| -------------------- | -------------------------------------- |
-| <kbd>ArrowDown</kbd> | Moves to the next enabled command.     |
-| <kbd>ArrowUp</kbd>   | Moves to the previous enabled command. |
-| <kbd>Enter</kbd>     | Activates the highlighted command.     |
+| Key                  | Description                              |
+| -------------------- | ---------------------------------------- |
+| <kbd>ArrowDown</kbd> | Highlights the next enabled command.     |
+| <kbd>ArrowUp</kbd>   | Highlights the previous enabled command. |
+| <kbd>Enter</kbd>     | Selects the highlighted command.         |
 
-Navigation wraps from the last command back to the first. Escape and other dismissal keys belong to
-the enclosing Dialog or Modal, not the palette itself.
+Focus stays in the search input while the highlight moves. Navigation wraps from the last command to
+the first. Escape and other dismissal keys belong to the enclosing Dialog or Modal, not the
+palette.
 
 ## Examples
 

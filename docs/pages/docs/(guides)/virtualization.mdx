@@ -22,7 +22,7 @@ search:
     ]
 ---
 
-Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Every component takes it the same way: create a virtualizer from `moraine/virtualizer` and pass it to the component's `virtualizer` prop.
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Every component takes it the same way: create a virtualizer with `moraine/virtualizer` and pass it to the component's `virtualizer` prop.
 
 | Virtualizer              | Components                                                  |
 | ------------------------ | ----------------------------------------------------------- |
@@ -38,7 +38,7 @@ option: a list long enough to need virtualization also needs search, so use `Com
 
 ## When to virtualize
 
-Start with ordinary rendering. Add virtualization when a long collection makes opening, filtering, or scrolling noticeably slow. It reduces mounted DOM; it does not reduce the cost of loading or filtering the data itself. Small collections usually do not need it.
+Start with ordinary rendering. Add virtualization when a long collection makes opening, filtering, or scrolling noticeably slow. It reduces mounted DOM; it does not reduce the cost of loading or filtering the data. Small collections usually do not need it.
 
 ## Installation
 
@@ -89,7 +89,7 @@ Keep custom padding and row content inside the positioned row when they could re
 
 ## Combobox and MultiSelect
 
-A collection virtualizes **rows**, not just your input items. Group labels and options can both be virtual rows. Use `ComboboxT.Row<ComboboxT.Item<string>>` as the virtualizer item type, estimate each row kind, and key it with `row.key`.
+A collection virtualizes **rows**, not only your input items. Group labels, separators, and options are all virtual rows. Use `ComboboxT.Row<ComboboxT.Item<string>>` as the virtualizer item type, estimate each row kind, and key each row with `row.key`.
 
 ```tsx
 import { Combobox } from 'moraine'
@@ -127,9 +127,9 @@ export function VirtualizedCombobox() {
 }
 ```
 
-Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
+The default collection renderer applies the virtual row props to labels, separators, and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
 
-`CommandPalette` flattens group labels and commands into `CommandPaletteT.VirtualEntry` rows; key them with `entry.key`.
+`CommandPalette` flattens group labels and commands into `CommandPaletteT.VirtualEntry` rows. Key them with `entry.key`.
 
 ## DataTable
 
@@ -188,10 +188,10 @@ of positioning rows absolutely, so cells keep native column alignment.
   virtualized, with a development warning. Select-all toggles every row. Tree sub-rows still
   expand, because each is its own entry.
 - Only a window of rows exists in the DOM, so the table gets `aria-rowcount` and every rendered
-  row gets `aria-rowindex`.
+  row gets `aria-rowindex`. A value you set yourself is kept.
 - Add the `columns` option to the virtualizer to also render only the unpinned body cells near the
   viewport. See [DataTable virtualization](/components/data-table#virtualization) for the column
-  layout it uses.
+  layout it uses. The table then also gets `aria-colcount`.
 - `virtualizer.scrollToIndex(index)` scrolls to a row, and `virtualizer.scrollToColumn(index)` to a
   column.
 
@@ -201,7 +201,7 @@ The adapter reads the component's current entries and scroll container, allocate
 
 ### estimateSize
 
-Return a positive estimate in pixels for each row before it is measured. Choose a value close to the expected height; distinguish group labels from options when their sizes differ. Estimates affect the initial scroll range and the accuracy of jumps to unmeasured rows.
+Return a positive estimate in pixels for each row before it is measured. Choose a value close to the expected height; distinguish group labels from options when their sizes differ. Estimates affect the initial scroll range and the accuracy of jumps to unmeasured rows. When the estimate for an item changes, its cached measurement is discarded.
 
 ### getItemKey
 
@@ -209,7 +209,14 @@ Return a stable, unique identity. Use an item ID for `List` and the supplied `ro
 
 ### overscan
 
-`overscan` is the number of extra rows rendered around the visible range. A modest buffer such as `8` helps scrolling without mounting the whole collection. Increase it only when fast scrolling reveals gaps; larger values increase DOM work.
+`overscan` is the number of extra rows rendered before and after the visible range. It defaults to `1`. A modest buffer such as `8` helps scrolling without mounting the whole collection. Increase it only when fast scrolling reveals gaps; larger values increase DOM work.
+
+### Other options
+
+- `gap` adds space in pixels between rows.
+- `scrollMargin`, `scrollPaddingStart`, and `scrollPaddingEnd` account for content inside the scroll container that is not a row, such as a sticky header. `DataTable` measures them when you omit them.
+- `rangeExtractor` chooses which row indexes to render. Use it to keep a row mounted while it scrolls out of view, as [drag and drop](/docs/drag-and-drop#virtualization) does.
+- `createListVirtualizer` also accepts `horizontal` to lay rows out side by side. Set `isRtl` when a horizontal scroll container has `dir="rtl"`.
 
 ### Dynamic measurements
 

@@ -58,8 +58,9 @@ export function Example() {
 ### Content
 
 `content` accepts text or JSX, or a component that receives `{ value, expanded, closed, disabled }`.
-Use the component form to build heavy panels only when they are needed. `headingLevel` sets the
-heading level wrapping each trigger.
+Use the component form when the panel depends on the item state. Content mounts on first open. `headingLevel` (default `3`) sets the heading level that
+wraps each trigger. `icon` adds a leading icon to an item, and `trailing` replaces the indicator icon
+for every item.
 
 ```tsx
 <Accordion
@@ -71,9 +72,11 @@ heading level wrapping each trigger.
 
 ### Open items
 
-`value`, `defaultValue`, and `onValueChange` always use an array of item values. Single mode opens at most
-one item. Set `multiple` to allow several. Pair `value` with `onValueChange` when the page owns the open
-set. `collapsible` controls whether the currently open item may close.
+`value`, `defaultValue`, and `onValueChange` always use an array of item values. By default, opening an
+item closes the others. Set `multiple` to allow several open items. Pair `value` with `onValueChange`
+when the page owns the open set. `onValueChange` receives the complete next array and fires only for
+user toggles, not for changes you make to `value`. In single mode, `collapsible` (default `true`)
+controls whether the open item can close; with `multiple`, every item can always close.
 
 ```tsx
 const [open, setOpen] = createSignal<string[]>(['shipping'])
@@ -84,9 +87,10 @@ const [open, setOpen] = createSignal<string[]>(['shipping'])
 
 ### Content lifetime
 
-The content shell stays mounted so each trigger's `aria-controls` always points to a real element.
-`forceMount` controls only the user content inside that shell. Set it when hidden fields
-must preserve local state.
+The content shell always stays mounted, so each trigger's `aria-controls` points to a real element.
+`forceMount` controls only the content inside that shell. By default, content mounts on first open and
+unmounts when it closes. Set `forceMount` to mount content before the first open and keep it mounted, so
+hidden fields preserve local state.
 
 ```tsx
 <Accordion forceMount defaultValue={['notes']} items={items} />
@@ -101,6 +105,9 @@ must preserve local state.
 | <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
 | <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
 | <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
+
+Arrow-key focus wraps from the last trigger to the first by default. Set `loop={false}` to stop at
+either end. Disabled items are skipped.
 
 ## Examples
 

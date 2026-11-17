@@ -44,9 +44,10 @@ export function Example() {
 
 ### Progress models
 
-Pass a numeric `value` for determinate progress. Omit `value` for indeterminate progress. A
-`valueLabel` formatter supplies `aria-valuetext` for a determinate value. Indeterminate progress
-sets `aria-valuetext` from the `progress.indeterminate` message.
+Pass a numeric `value` from `0` to `max` for determinate progress; `max` defaults to `100`, and a
+`value` outside the range is clamped. Omit `value` for indeterminate progress, which sets no
+`aria-valuenow` and takes its `aria-valuetext` from the `progress.indeterminate` message. Use
+`animation` (`carousel`, `reverse`, `swing`, or `elastic`) to change the indeterminate motion.
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />
@@ -56,9 +57,11 @@ sets `aria-valuetext` from the `progress.indeterminate` message.
 ### Label and value
 
 Supply `aria-label` or a labelling relationship when the surrounding context does not name the
-operation. `label` fills the label slot. `valueLabel` shows the percentage in the value slot;
-pass a formatter to customize both the displayed text and `aria-valuetext`. Indeterminate progress
-keeps the label and hides the value.
+operation. `label` fills the label slot, and a string `label` is also the default `aria-label`. An
+explicit `aria-label` takes precedence. `valueLabel` shows the percentage in the value slot; pass a
+formatter to customize both the displayed text and `aria-valuetext`. Without `valueLabel`,
+`aria-valuetext` is still the formatted percentage. Indeterminate progress keeps the label and hides
+the value.
 
 ```tsx
 <Progress value={82} label="Downloading installation bundle" valueLabel aria-label="Download" />
@@ -79,7 +82,8 @@ minimum of 9rem.
 
 `formatOptions` accepts `Intl.NumberFormat` options and formats the displayed value and
 `aria-valuetext` with the provider locale. A `percent` style formats the completed fraction; other
-styles format `value`. A `valueLabel` formatter still takes precedence.
+styles format `value`. Without `formatOptions`, the text is the percentage rounded to two decimals.
+A `valueLabel` formatter takes precedence.
 
 ```tsx
 <Progress value={3} max={4} valueLabel formatOptions={{ style: 'percent' }} aria-label="Setup" />

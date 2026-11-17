@@ -23,8 +23,8 @@ search:
 
 import Playground from './playground'
 
-The slot controls below apply only to the `form.Form` root. To explore label, description,
-help, and error slots, use the [Field playground](/components/field).
+The controls below configure the `form.Field` wrappers inside the form. To explore the label,
+description, help, and error slots, use the [Field playground](/components/field).
 
 <Playground />
 
@@ -40,7 +40,8 @@ help, and error slots, use the [Field playground](/components/field).
   }}
 />
 
-Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
+Each `form.Field` uses the [Field](/components/field) layout; the bound `form.Form` owns only its
+native form root.
 
 ## Usage
 
@@ -85,13 +86,16 @@ export function NotificationForm() {
 ### Submission
 
 `form.Form` renders Formisch's `Form`: it prevents native navigation, validates the schema, focuses
-the first invalid field in schema order, and calls `onSubmit` with the validated output. Native
-`action` and `method` attributes do not enable a browser navigation submit. The returned store also
-supports Formisch's public methods and helpers, including `submit(form)` and programmatic field
-focus.
+the first invalid field in schema order, and calls `onSubmit` with the validated schema output
+(after any Valibot transforms) and the native `SubmitEvent`. An invalid submit does not call
+`onSubmit`. Native `action` and `method` attributes do not enable a browser navigation submit. The
+returned store also supports Formisch's public methods and helpers, including `submit(form)` and
+programmatic field focus.
 
-`form.Form` does not automatically disable child controls during submission. Read
-`form.isSubmitting` to derive button loading or disabled state while an async submit is in flight.
+`form.isSubmitting` stays `true` until a promise returned by `onSubmit` settles. A thrown or
+rejected error is stored in the form `errors` rather than propagating; an error without a `message`
+is recorded as the `unknownError` translation. `form.Form` does not disable child controls during
+submission, so derive button loading or disabled state from `form.isSubmitting`.
 
 ```tsx
 <Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>
@@ -101,13 +105,14 @@ focus.
 
 ### Root styling
 
-`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an
-individual form, or configure `form.base.root` in your Theme. Slot maps remain available on
-`form.Field`, but the bound Form component does not accept `classes` or `styles`.
+`<form.Form>` owns only its native form root, exposed as the `root` slot. Use `class` and `style`
+(or `classes={{ root }}` and `styles={{ root }}`) for an individual form, or configure `form.base.root`
+in your Theme. The root sets `data-submitting` while `form.isSubmitting` is `true`. Style the parts
+of a field through the slot maps on `form.Field`.
 
 ### Bound field outside the form root
 
-`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering
+`form.Field` captures the Formisch store from `createForm()`, so it works without rendering
 `form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
 
 ```tsx
@@ -120,8 +125,10 @@ const form = createForm({ schema })
 
 ### Field labels and messages
 
-Configure `label`, `hint`, `description`, `help`, and `required` on `<form.Field>`. Supported
-Moraine controls link helper descriptions and error messages through ARIA attributes.
+`<form.Field>` accepts every [Field](/components/field) prop except `name`, which takes a schema
+path: `label`, `hint`, `description`, `help`, `required`, `orientation`, and so on. Its error is the
+first schema error unless you pass `error`. Moraine controls link descriptions and error messages
+through ARIA attributes.
 
 ```tsx
 <form.Field
@@ -136,8 +143,9 @@ Moraine controls link helper descriptions and error messages through ARIA attrib
 
 ### Nested and array paths
 
-Target nested object and array fields with path tuples such as `['profile', 'email']`. Path types
-are validated and autocompleted from the schema.
+Target nested object and array fields with a path array such as `['profile', 'email']` or
+`['tags', 0]`. Path types are validated and autocompleted from the schema. A dotted string like
+`'profile.email'` is read as one top-level key, not a path.
 
 ```tsx
 <form.Field name={['profile', 'email']} label="Profile Email">
@@ -148,7 +156,8 @@ are validated and autocompleted from the schema.
 ### Reset
 
 A `type="reset"` button restores the initial store input snapshot and clears validation metadata.
-Handle `onReset` on `form.Form` when the page needs to react to that restore.
+The restore runs in a microtask after the `reset` event and is skipped if a handler calls
+`event.preventDefault()`. Handle `onReset` on `form.Form` when your code needs to react to it.
 
 ```tsx
 <form.Form onReset={() => setResetCount((count) => count + 1)}>

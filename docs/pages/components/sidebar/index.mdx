@@ -111,17 +111,17 @@ import Playground from './playground'
   }}
 />
 
-Trigger can appear anywhere inside the root, and `Sidebar.Rail` sits directly between `Panel` and `Inset`. On mobile, `Sidebar.Panel` renders its regions inside an internal Drawer. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it rather than adding another `<main>`.
+`Sidebar.Trigger` can appear anywhere inside the root, and `Sidebar.Rail` sits directly between `Panel` and `Inset`. On mobile, `Sidebar.Panel` renders its regions inside an internal Drawer. `Sidebar.Inset` renders a `<main>` landmark by default, so keep page content inside it instead of adding another `<main>`.
 
 ## Usage
 
 Use Sidebar for application-shell navigation that stays inline on desktop and moves into a
-mobile drawer. Use [Drawer](/components/drawer) for a standalone gesture-enabled drawer that is not a persistent
+mobile drawer. Use [Drawer](/components/drawer) for a standalone swipe-to-dismiss drawer that is not a persistent
 layout region. Use [NavigationMenu](/components/navigation-menu) for a website header of links and
 panels.
 
-`Sidebar` is both the state provider and desktop layout root. `Sidebar.Panel` renders
-inline on desktop and moves the same content into a mobile Drawer on smaller viewports.
+`Sidebar` is both the state provider and the desktop layout root. `Sidebar.Panel` renders inline on
+desktop and moves the same content into a mobile Drawer on smaller viewports.
 
 ```tsx
 import { Sidebar } from 'moraine'
@@ -155,9 +155,9 @@ export function Example() {
 ### Responsive navigation ownership
 
 Keep one navigation tree inside `Sidebar.Panel`. Put the application header outside the
-frame, then place `Sidebar.Trigger` where users need to reveal or collapse navigation. If a
-child needs to coordinate with the sidebar, read `Sidebar.useContext()` within the provider rather
-than maintaining a second open state.
+frame, then place `Sidebar.Trigger` where users need to reveal or collapse navigation. A child that
+must coordinate with the sidebar reads `Sidebar.useContext()` instead of keeping a second open
+state.
 
 ```tsx
 <Sidebar.Trigger as={Button} variant="ghost" size="icon-sm" aria-label="Toggle sidebar">
@@ -168,52 +168,62 @@ than maintaining a second open state.
 Root `open`, `defaultOpen`, and `onOpenChange` drive whichever layout is active: the desktop panel or
 the mobile drawer. Uncontrolled desktop and mobile states are remembered separately. `defaultOpen`
 seeds both layouts, `defaultOpen="desktop-only"` seeds only the panel, and when omitted the desktop
-panel starts expanded and the drawer starts closed. Switching
-layouts never calls `onOpenChange` and never writes a controlled `open`. Leaving mobile closes an
-uncontrolled drawer, and returning to desktop restores the desktop state. The trigger, the rail, and
-Escape or overlay dismissal of the drawer all report through `onOpenChange`.
-Menu buttons with `href` close the mobile drawer on activate; set `closeOnSelect={false}` on a
-button to keep it open. When `mobile` is omitted, `breakpoint` (default `768`) drives
-`(max-width: ${breakpoint}px)` via `matchMedia`. Pass `mobile` to force either layout.
+panel starts expanded and the drawer starts closed. Switching layouts never calls `onOpenChange` and
+never writes a controlled `open`. Leaving mobile closes an uncontrolled drawer, and returning to
+desktop restores the desktop state. The trigger, the rail, and Escape or overlay dismissal of the
+drawer all report through `onOpenChange`.
 
-Root `classes` and `styles` set defaults for the panel, region, group, menu, menu item, and sub-menu slots.
-On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
+On mobile, a `Sidebar.MenuButton` with `href` closes the drawer when activated. Modified and
+non-primary clicks, and clicks that call `preventDefault()`, leave it open. Set
+`closeOnSelect={false}` to keep the drawer open after an `href` click, or `closeOnSelect` on a
+button without `href` to close it.
+
+When `mobile` is omitted, `breakpoint` (default `768`) selects the layout through the
+`(max-width: ${breakpoint}px)` media query, and the server renders the desktop layout. Pass `mobile`
+to force either layout.
+
+`side` (`'left'` or `'right'`) and `variant` (`'default'`, `'floating'`, or `'inset'`) on the root
+choose the viewport edge and chrome. Root `classes` and `styles` set defaults for the slots of every
+part. On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
 slots; Sidebar overrides do not style the internal Drawer. See [Theming](/docs/theming) for
 nested Provider behavior.
 
 `Sidebar` declares `--mo-sidebar-width` on its root. Pass a numeric `width` (controlled),
-`defaultWidth` (uncontrolled), `minWidth` (default `224`), or `maxWidth` (default `480`) in pixels;
-when none is given the recipe fallback `var(--sidebar-width, clamp(14rem, 25%, 20rem))` applies, so
-you can also set the global `--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the
-desktop panel keeps its width and slides out with a negative margin, so its content does not reflow
-during the transition.
+`defaultWidth` (uncontrolled), `minWidth` (default `224`), or `maxWidth` (default `480`) in pixels.
+`onWidthChange` reports every width change. When none of the width props is set, the recipe fallback
+`var(--sidebar-width, clamp(14rem, 25%, 20rem))` applies, so you can also set the global
+`--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the desktop panel keeps its width
+and slides out with a negative margin, so its content does not reflow during the transition.
 
 The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
 `class="h-dvh"` (or `h-svh`) on the root.
 
-Call `Sidebar.useContext()` from a descendant for `isMobile`, `isOpen`, `state`, `setOpen`, and
-`toggle`. A global application header belongs outside the frame.
+Call `Sidebar.useContext()` from a descendant for `side`, `variant`, `isMobile`, `isOpen`, `state`
+(`'expanded'` or `'collapsed'`), `setOpen`, and `toggle`. Place a global application header outside
+the frame. Pass `translations` (`label` for the mobile drawer, `resize` for the rail) to localize
+the accessible names of one sidebar.
 
 ### Resizable rail
 
 Place `Sidebar.Rail` directly between `Sidebar.Panel` and `Sidebar.Inset` to make the desktop
 sidebar resizable; it renders nothing on mobile. Dragging the rail updates the pixel width live
-between `minWidth` and `maxWidth`; releasing emits `onWidthCommit` once. A click without movement
-toggles the sidebar, and dragging below half of `minWidth` closes it — drag back to reopen.
-Because the root is a splitter scope, a nested `Resizable` inside `Sidebar.Inset` whose handle has
-`intersection` and touches the rail cross-drags both.
+between `minWidth` and `maxWidth`. Releasing a drag that changed the width calls `onWidthCommit`
+once, and each keyboard resize calls it too. A click without movement toggles the sidebar, and
+dragging below half of `minWidth` closes it; drag back to reopen. Set `disabled` on the rail to turn
+off resizing and toggling. Because the root is a splitter scope, a nested `Resizable` inside
+`Sidebar.Inset` whose handle has `intersection` and touches the rail cross-drags both.
 
-| Key                                                          | Action                                            |
-| ------------------------------------------------------------ | ------------------------------------------------- |
-| Growth arrow (`ArrowRight` or `ArrowLeft`, follows geometry) | resize by 16px                                    |
-| Growth arrow + `Shift`                                       | resize by 1px                                     |
-| Opposite arrow                                               | shrink (clamps at `minWidth`, never closes)       |
-| `Home` / `End`                                               | `minWidth` / `maxWidth`                           |
-| `Enter`                                                      | toggle open (the only key that acts while closed) |
+| Key                                                          | Action                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------ |
+| Growth arrow (`ArrowRight` or `ArrowLeft`, follows geometry) | Grows the panel by 16px.                               |
+| Growth arrow + `Shift`                                       | Grows the panel by 1px.                                |
+| Opposite arrow                                               | Shrinks the panel; clamps at `minWidth`, never closes. |
+| `Home` / `End`                                               | Sets the width to `minWidth` / `maxWidth`.             |
+| `Enter`                                                      | Toggles open; the only key that acts while closed.     |
 
 To persist desktop layout across reloads, control `open` and `width` from the app and store them in
-a cookie (not `localStorage`, which mismatches SSR hydration) inside `onOpenChange` and
-`onWidthCommit`.
+a cookie inside `onOpenChange` and `onWidthCommit`. Do not use `localStorage`, which mismatches SSR
+hydration.
 
 ### Navigation menu
 
@@ -224,15 +234,17 @@ Build labeled navigation with these parts:
 - `Sidebar.Menu`: `<ul>` list of the items of a group
 - `Sidebar.MenuItem`: `<li>` that holds one `MenuButton` with an optional `MenuAction`, or a
   `MenuSub`
-- `Sidebar.MenuButton`: polymorphic button (`button`, `a`, or a custom link) with `leading`,
-  `trailing`, and `active`. It owns the hover, active, focus, and disabled styles. `leading` and
-  `trailing` accept icon names
+- `Sidebar.MenuButton`: polymorphic button (`button`, `a` when `href` is set, or a custom link
+  through `as`) with `leading` and `trailing` icon names and `active`. It owns the hover, active,
+  focus, and disabled styles. On a link, `active` also sets `aria-current="page"`
 - `Sidebar.MenuAction`: controls placed over the end of the item's first row, such as a dropdown
   menu trigger. The button stays highlighted while the pointer is over the action. The button does
   not reserve space for the action, so add `pe-8` to a `MenuButton` whose label can run under it
-- `Sidebar.MenuSub` / `MenuSubTrigger` / `MenuSubContent`: collapsible sub-navigation on
-  `Collapsible`, placed inside a `MenuItem`. `MenuSubTrigger` renders a `MenuButton` with a
-  chevron that rotates while expanded. `MenuSubContent` renders a nested `<ul>` of `MenuItem`s
+- `Sidebar.MenuSub` / `MenuSubTrigger` / `MenuSubContent`: collapsible sub-navigation built on
+  `Collapsible`, placed inside a `MenuItem`. `MenuSub` takes `open`, `defaultOpen`, `onOpenChange`,
+  `disabled`, `transition` (animates the height), and `forceMount`. `MenuSubTrigger` renders a
+  `MenuButton` with a chevron (`trailing`) that rotates while expanded. `MenuSubContent` renders a
+  nested `<ul>` of `MenuItem`s
 
 ```tsx
 <Sidebar.Group>
@@ -292,13 +304,14 @@ height.
 
 ### Resize the explorer on desktop
 
-`Sidebar.Rail` between `Panel` and `Inset` resizes the sidebar in pixels; on mobile the same content
-moves into the mobile Drawer with no rail.
+`Sidebar.Rail` between `Panel` and `Inset` resizes the sidebar in pixels. On mobile, the same content
+moves into the Drawer and the rail disappears.
 
 <Preview path="./resizable-rail" />
 
 ### Force the mobile drawer
 
-Set `mobile` to demonstrate a touch-first layout with a slide-over navigation drawer.
+Set `mobile` to render the slide-over navigation drawer at any viewport width, for example in a
+touch-first layout.
 
 <Preview path="./forced-mobile" />

@@ -5,7 +5,7 @@ search:
   tags: [createCopy, copy, clipboard, execCommand, headless, feedback, timeout]
 ---
 
-`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as a reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `failed` state for a set duration before returning to `idle`.
+`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `failed` state for a set duration before returning to `idle`. For a ready-made button, use `CopyButton`.
 
 ## Import
 
@@ -15,11 +15,12 @@ import { createCopy } from 'moraine/utils'
 
 ## Features
 
-- Writes with `navigator.clipboard.writeText` or `navigator.clipboard.write`, and falls back to `document.execCommand('copy')` when neither is available or the write throws.
-- Accepts a `string`, `ClipboardItem`, `ClipboardItem[]`, a `Promise` of any of these, or an accessor returning them.
+- Writes strings with `navigator.clipboard.writeText` and `ClipboardItem` values with `navigator.clipboard.write`. It falls back to `document.execCommand('copy')` when the matching method is missing or the write throws.
+- Accepts a `string`, `ClipboardItem`, `ClipboardItem[]`, a `Promise` of any of these, or a function returning them.
 - In the fallback path, extracts plain text from a `ClipboardItem`, or serializes the data with `JSON.stringify` when no text type is present.
-- Exposes `isCopied()` and `state()` (`'idle' | 'copied' | 'failed'`); the active state resets to `idle` after `copiedDuration` milliseconds.
-- Returns `false` from `copy()` and skips clipboard calls on the server.
+- Exposes `isCopied()`, `isError()`, and `state()` (`'idle' | 'copied' | 'failed'`). Both active states reset to `idle` after `copiedDuration` milliseconds.
+- A newer `copy()` call supersedes an earlier pending one. The superseded call resolves to `false` and sets no state.
+- Resolves `copy()` to `false` without touching the clipboard on the server, after the owner disposes, or when there is no source (neither the argument nor `options.value`).
 
 ## Signature
 
@@ -27,6 +28,12 @@ import { createCopy } from 'moraine/utils'
 function createCopy(options?: CreateCopyOptions): CreateCopyReturn
 
 interface CreateCopyOptions {
+  /**
+   * Document owning the element that triggers the copy. Used for the execCommand
+   * fallback so it targets the same document as the invoking element.
+   */
+  ownerDocument?: Accessor<Document | undefined>
+
   /**
    * Default source value to copy if none is provided to copy().
    */
@@ -55,14 +62,23 @@ interface CreateCopyOptions {
 }
 
 interface CreateCopyReturn {
+  /** Whether the last copy succeeded and its duration is still active. */
   isCopied: Accessor<boolean>
+  /** Whether the last copy failed and its duration is still active. */
   isError: Accessor<boolean>
   state: Accessor<'idle' | 'copied' | 'failed'>
+  /** Copies `data`, or `options.value` when omitted. Resolves to whether the copy succeeded. */
   copy: (data?: CopySource) => Promise<boolean>
+  /** Returns to `idle`, clears the error, and cancels the pending reset timer. */
   reset: () => void
+  /** The last error when a copy failed. */
   error: Accessor<unknown>
+  /** Whether the Clipboard API or `execCommand` is available. `false` on the server. */
   isSupported: Accessor<boolean>
 }
+
+type CopyData = string | ClipboardItem | ClipboardItem[]
+type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 ```
 
 ## Usage Example

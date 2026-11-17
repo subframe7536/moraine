@@ -178,7 +178,7 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | Instance      | `table` (required)                                                            |
 | Layout        | `sticky`, `maxHeight`, `size`, `highlightOnHover`, `border`                   |
 | Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualizer` |
-| Rows          | `rowProps`, `onRowClick`, `onRowDoubleClick`                                  |
+| Rows, headers | `rowProps`, `headProps`, `onRowClick`, `onRowDoubleClick`                     |
 | Styling, i18n | `classes`, `styles`, `class`, `style`, `wrapperRef`, `translations`           |
 
 Other native `table` attributes, such as `aria-label`, are forwarded to the `table` element.
@@ -231,8 +231,11 @@ warning suggests an explicit `id`, which keeps both columns.
 Sorting is on by default, and each sortable header has a sort button. Shift-click a second
 header to sort by more than one column. While more than one column is sorted, each sorted header
 shows its priority (`sortIndex` slot), and screen readers hear it through the localized
-`sortPriority` message. Turn multi-column sorting off with `tableOptions.enableMultiSort: false`,
-or turn a column's sorting off with `enableSorting: false` in its definition.
+`sortPriority` message. Set `sorting: false` to turn sorting off for every column, or
+`enableSorting` in a column definition to override it for one column. Turn multi-column sorting off
+with `tableOptions.enableMultiSort: false`.
+
+The `alphanumeric`, `text`, and `datetime` sort functions are registered for a column's `sortingFn`.
 
 ### Controlled state
 
@@ -351,7 +354,8 @@ Control which rows are open with `state.expanded` and `onExpandedChange`.
 
 Pagination is off by default, and every row renders. Pass `pagination: true` for ten rows per
 page, or `pagination: { pageSize, pageSizes }`. The toolbar below the table shows page navigation,
-a page-size menu (`pageSizes: false` hides it), and the selected-row count when `selection` is set.
+a page-size menu (`pageSizes: false` hides it), and a row summary: the total row count, or
+"n of total selected" once a row is selected. The menu always lists the current page size.
 
 For server-side sorting, filtering, and paging, set `manual: true`. Then `data` is the current
 page, `rowCount` is the total across all pages, and the change callbacks tell you what to fetch.
@@ -451,12 +455,12 @@ width commits when a drag ends; set
 Each handle is a focusable separator named after its column, such as "Name Resize column". It
 reports the column's current, minimum, and maximum width.
 
-| Key                                          | Action                                             |
-| -------------------------------------------- | -------------------------------------------------- |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> | Narrows or widens the column by 10px.              |
-| <kbd>Shift</kbd> + arrows                    | Narrows or widens the column by 50px.              |
-| <kbd>Home</kbd>                              | Sets the column to its `minSize`.                  |
-| <kbd>End</kbd>                               | Sets the column to its `maxSize`, when one is set. |
+| Key                                          | Action                                                |
+| -------------------------------------------- | ----------------------------------------------------- |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> | Narrows or widens the column by 10px.                 |
+| <kbd>Shift</kbd> + arrows                    | Narrows or widens the column by 50px.                 |
+| <kbd>Home</kbd>                              | Sets the column to its `minSize`.                     |
+| <kbd>End</kbd>                               | Sets the column to its `maxSize` (1000px unless set). |
 
 The arrows swap direction when `tableOptions.columnResizeDirection` is `'rtl'`.
 
@@ -485,8 +489,8 @@ const table = createDataTable({
 ### Row events
 
 `onRowClick` and `onRowDoubleClick` receive the row and the mouse event, and give rows a pointer
-cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not reach them. Return `class` from
-`rowProps` to add classes per row.
+cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not reach them. Return
+`class` from `rowProps` to add classes per row.
 
 ```tsx
 <DataTable
@@ -500,8 +504,10 @@ Row clicks are pointer-only. Keep a link or button in a cell so keyboard users c
 action.
 
 `rowProps` adds attributes to each body `<tr>`. It runs once per row, inside that row, so it can
-call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with the table's own;
-`class` merges into the `row` slot.
+call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with the table's own
+(its click handlers run before `onRowClick` and `onRowDoubleClick`); `class` merges into the `row`
+slot. `headProps` does the same for each header `<th>`, except that `class`, `style`, `colSpan`,
+and `aria-sort` stay owned by the table.
 
 ```tsx
 <DataTable
@@ -569,7 +575,7 @@ return <DataTable table={table} virtualizer={virtualizer} sticky maxHeight={320}
 
 A virtualized table shows every row in one scroll, which changes three behaviors:
 
-- `pagination` is ignored, with a development warning.
+- `pagination` is ignored, with a development warning, and the toolbar is hidden.
 - Select-all toggles every row, not one page.
 - `expandedRowRender` is ignored, with a development warning, because the virtualizer cannot
   measure a second row per entry. Tree sub-rows still expand, because each is its own entry.

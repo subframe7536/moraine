@@ -7,11 +7,11 @@ search:
   tags: [theming, defineTheme, MoraineProvider, theme, presets, portals, design system]
 ---
 
-Moraine allows you to establish component defaults across your application or within specific subtrees using `defineTheme()` and `MoraineProvider`. For colors, fonts, shadows, and sizing tokens, configure [UnoCSS themes](/docs/unocss#theme-tokens) or write CSS variables. `defineTheme()` changes component recipes and default variants.
+Use `defineTheme()` and `MoraineProvider` to set component defaults across your application or within a subtree. `defineTheme()` changes component recipes and default variants. For colors, fonts, shadows, and sizing tokens, configure the [UnoCSS preset](/docs/unocss#theme-tokens) or write CSS variables.
 
 ## Defining a Theme with `defineTheme`
 
-Use `defineTheme()` from `moraine/theme` to create a reusable theme configuration:
+Use `defineTheme()` from `moraine/theme` to create a reusable theme. Each key is a component name in camelCase (such as `button`, `card`, or `dropdownMenu`). Its value accepts `base`, `variants`, `compoundVariants`, and `defaultVariants`, all optional. These layers merge on top of the component's built-in recipe. The returned theme is immutable.
 
 ```ts title="src/theme/brand-theme.ts"
 import { defineTheme } from 'moraine/theme'
@@ -49,7 +49,7 @@ export const brandTheme = defineTheme({
 
 ### Extending Themes
 
-Pass an existing theme to `extends` to build specialized themes (such as high-contrast or compact modes):
+Pass an existing theme to `extends` to build a specialized theme, such as a high-contrast or compact mode. The new theme applies the parent's overrides first, then its own on top:
 
 ```ts
 export const highContrastTheme = defineTheme({
@@ -64,7 +64,7 @@ export const highContrastTheme = defineTheme({
 
 ## Scoping with `MoraineProvider`
 
-Wrap your application root or any subtree in `MoraineProvider` to activate your theme:
+Wrap your application root or any subtree in `MoraineProvider` to apply a theme:
 
 ```tsx title="src/App.tsx"
 import { MoraineProvider } from 'moraine'
@@ -83,9 +83,9 @@ export function App(props) {
 | `defineTheme(...)`     | Replaces the parent's theme for this subtree. Overrides apply on top of built-in component recipes; the object is not merged with the ancestor's theme. |
 | `theme={null}`         | Disables theming for this subtree: any inherited theme is dropped, and components use built-in recipe defaults.                                         |
 
-Omit the prop to keep the parent's theme, pass an object to replace it, and pass `null` to opt a subtree out of theming.
+Omit the prop to keep the parent's theme, pass a theme to replace it, and pass `null` to opt a subtree out of theming. Instance `classes`, `styles`, `class`, and `style` props still win over the theme.
 
-`locale`, `dir`, and `messages` follow the same nesting rules. See [Localization](/docs/localization).
+`locale`, `dir`, and `messages` also inherit from the parent when omitted, with their own merge rules. See [Localization](/docs/localization).
 
 ## Dynamic Theme Switching
 
@@ -111,18 +111,18 @@ Interactive elements keep their focus, text selection, and native element refere
 
 ## State Selectors in Themes
 
-Variants define stable design dimensions (`size`, `variant`, `color`). Transient state (such as disabled, active, or loading) should use attribute selectors in the `base` configuration:
+Variants define stable design dimensions (`size`, `variant`, `tone`). Style transient state (such as disabled or loading) with attribute selectors in `base`:
 
 ```ts
 const theme = defineTheme({
   button: {
     base: {
-      root: 'data-disabled:(opacity-50 cursor-not-allowed) data-loading:cursor-wait',
+      root: 'data-disabled:opacity-50 data-disabled:cursor-not-allowed data-loading:cursor-wait',
     },
   },
   select: {
     base: {
-      control: 'focus-within:(ring-3 ring-ring/50)',
+      control: 'focus-within:ring-3 focus-within:ring-ring/50',
     },
   },
 })
@@ -130,11 +130,11 @@ const theme = defineTheme({
 
 ## Portals & CSS Variables
 
-Overlay components (`Dialog.Content`, `Popover.Content`, `Tooltip.Content`) render into a Portal attached to `document.body` by default.
+Overlay components (`Dialog.Content`, `Popover.Content`, `Tooltip.Content`) render into a Portal attached to the trigger's `document.body` by default.
 
-Because portaled nodes are physically rendered outside their parent container in the DOM tree, **CSS custom properties declared on local container elements do not cascade into portaled overlays**.
+Portaled nodes sit outside their parent container in the DOM tree, so **CSS custom properties declared on local container elements do not cascade into portaled overlays**.
 
-To pass custom variables or classes to portaled overlays, pass them directly to the overlay's root or content slots:
+`Dialog`, `Sheet`, and `Drawer` accept a `mount` node, so you can portal them into a container that declares the variables. To pass custom variables or classes to any portaled overlay directly, set them on its slots:
 
 ```tsx
 import { Dialog, Button } from 'moraine'

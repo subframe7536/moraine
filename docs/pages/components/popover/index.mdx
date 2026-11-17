@@ -65,8 +65,12 @@ export function Example() {
 
 ### Trigger modes and state
 
-Click is the default. `openOnHover` also opens on focus and closes on blur, and accepts
-`openDelay` and `closeDelay`. Use controlled `open` state when the application coordinates
+Click toggles the popover by default. `openOnHover` opens it when a mouse pointer enters the
+trigger or the trigger receives keyboard focus, and closes it `closeDelay` ms after the pointer or
+focus leaves the trigger and content (`openDelay` and `closeDelay` default to `100`). With
+`openOnHover`, clicking the trigger only opens the popover, touch hover is ignored, outside focus
+no longer dismisses the content, and focus is not restored to the trigger on close unless
+`restoreFocusOnClose` is set. Use controlled `open` state when the application coordinates
 visibility.
 
 ```tsx
@@ -80,10 +84,28 @@ visibility.
 </Popover>
 ```
 
+### Placement
+
+`placement` chooses the side of the trigger (`top`, `right`, `bottom`, or `left`; default
+`bottom`), and `align` lines the content up with the trigger edge (`start`, `center`, or `end`;
+default `center`). `gutter` sets the gap to the trigger in pixels, and `overflowPadding` the
+minimum distance from the viewport edge (both default to `4`). By default, the content moves to
+another side when `placement` does not fit (`flip`; `false` keeps the side fixed) and slides along
+the trigger edge to stay in the viewport (`slide`). Read the rendered side from `data-side` on the
+content.
+
+```tsx
+<Popover placement="right" align="start" gutter={8}>
+  <Popover.Trigger as={Button}>Details</Popover.Trigger>
+  <Popover.Content>Opens to the right of the trigger.</Popover.Content>
+</Popover>
+```
+
 ### Dismissal and accessibility
 
-Escape and outside interaction close a popover. Give `Popover.Content` an accessible
-name with `aria-label` when it has no visible label.
+Escape and outside interaction close a popover. Closing restores focus to the trigger, except after
+an outside press or focus move, where focus has already gone elsewhere. Give `Popover.Content` an
+accessible name with `aria-label` when it has no visible label.
 
 `modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
 the content, outside content is hidden from assistive technology, and body scroll is locked.
@@ -109,7 +131,9 @@ independently of `modal`.
 
 Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
 dismissal when `closeOnEscape` allows it; focusable controls inside non-modal content participate
-in normal document focus order. Modal content contains focus.
+in normal document focus order. Modal content contains focus. With `openOnHover`, Tab from the
+last control in the content moves to the next focusable element after the trigger, and
+Shift+Tab from the first control returns to the trigger.
 
 ## Examples
 

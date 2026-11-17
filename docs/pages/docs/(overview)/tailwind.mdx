@@ -7,11 +7,11 @@ search:
   tags: [Tailwind CSS, v4, plugin, '@source', utilities, data variants]
 ---
 
-Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It maps Moraine tokens to CSS variables and registers semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
+The `moraine/tailwind` entry exports a Tailwind CSS plugin. It maps Moraine tokens to CSS variables and registers semantic z-index utilities, keyframe animations, parametric transform utilities, tone utilities, and `data-*` / `aria-*` state variants.
 
 ## Tailwind CSS v4
 
-In an existing Solid/Vite project, install Tailwind's Vite integration:
+In an existing Solid/Vite project, install Moraine, Tailwind, and Tailwind's Vite integration:
 
 ```shell
 pnpm add moraine
@@ -36,25 +36,25 @@ Register Moraine with the `@plugin` directive and scan its published distributio
 @source '../node_modules/moraine/dist';
 ```
 
-Import `./index.css` in `src/main.tsx` and define the theme variables described below. Keep the import in the application entry so the stylesheet is loaded when directly opening any route. See [Tailwind's Vite integration guide](https://tailwindcss.com/docs/installation/using-vite) for the build-tool setup.
+Import `./index.css` in `src/main.tsx` and define the theme variables described below. Keep the import in the application entry so the stylesheet loads when a user opens any route directly. See [Tailwind's Vite integration guide](https://tailwindcss.com/docs/installation/using-vite) for the build-tool setup.
 
 ### The `@source` path directive
 
-Tailwind CSS v4 ignores `node_modules` during automatic source detection. The Moraine plugin registers utility rules and variants; it does not register component files as sources. Use `@source` even when the plugin is already configured. See [Tailwind's source detection guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources).
+Tailwind CSS v4 ignores `node_modules` during automatic source detection. The Moraine plugin registers utility rules and variants, but not component files as sources. Use `@source` even when the plugin is registered. See [Tailwind's source detection guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources).
 
-Scan the full `moraine/dist` directory. Note the following requirements:
+Scan the full `moraine/dist` directory, and note the following requirements:
 
-1. **Path resolution**: `@source` paths are filesystem paths relative to the stylesheet, not package imports. Use a path to the published `dist` folder (e.g. `'../node_modules/moraine/dist'` for `src/index.css`).
+1. **Path resolution**: `@source` paths are filesystem paths relative to the stylesheet, not package imports. Point to the published `dist` folder (for example, `'../node_modules/moraine/dist'` for `src/index.css`).
 2. **Monorepos and workspaces**: If `moraine` is hoisted to a root `node_modules` directory in a pnpm or npm workspace, adjust the relative path to point to the repository root:
    ```css
    @source '../../../node_modules/moraine/dist';
    ```
 
-Tailwind discovers static classes by scanning files, independently of whether a lazy route has been loaded. Cover route directories with automatic source detection or explicit `@source` entries. If you disable automatic detection with `source(none)`, also register your application sources. These paths are relative to the stylesheet; automatic detection uses the working directory unless a base path is configured.
+Tailwind discovers static classes by scanning files, whether or not a lazy route has loaded. Cover route directories with automatic source detection or explicit `@source` entries. If you disable automatic detection with `source(none)`, also register your application sources. These paths are relative to the stylesheet; automatic detection uses the working directory unless you configure a base path.
 
 ### Theme variables
 
-Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but must add Moraine's independent `--control` surface in both themes and define its semantic shadows:
+Theme variables and page background and text styles belong in your CSS. The plugin registers utilities and variants but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but you must add Moraine's independent `--control` surface in both themes and define its semantic shadows:
 
 ```css
 :root {
@@ -68,13 +68,13 @@ Theme variables and page background/text styles belong in your CSS. The plugin r
 }
 ```
 
-Set the global `--sidebar-width` in `:root` to customize the desktop sidebar width. Sidebar uses `clamp(14rem, 25%, 20rem)` when unset.
+Set the global `--sidebar-width` in `:root` to customize the desktop sidebar width. Sidebar uses `clamp(14rem, 25%, 20rem)` when it is unset.
 
-`bg-control` supplies outline field, unchecked choice, and upload surfaces; `border-input` keeps the existing boundary role, including neutral tracks/separators elsewhere. `control` uses existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
+`bg-control` supplies outline field, unchecked choice, and upload surfaces. `border-input` keeps the existing boundary role, including neutral tracks and separators elsewhere. `control` uses the existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
 
-Surface hover and active utilities (`hover:bg-accent-hover`, `active:bg-accent-active`) mix the surface toward its foreground in browsers that support `color-mix(in oklch, …)`, falling back to the base surface color. Tone components handle interaction states dynamically via the component tone channel. Tones expose derived `--<tone>-ink` text colors and `--<tone>-soft` washes that mix toward transparent so they composite on the local surface.
+Surface hover and active utilities (`hover:bg-accent-hover`, `active:bg-accent-active`) mix the surface toward its foreground in browsers that support `color-mix(in oklch, …)`, and fall back to the base surface color elsewhere. Tone components handle interaction states through the component tone channel. Tones also expose derived `--<tone>-ink` text colors and `--<tone>-soft` washes that mix toward transparent, so they composite on the local surface.
 
-`bg-backdrop` reads `--backdrop` with a black-at-32% fallback. Component shadows use `shadow-surface`, `shadow-overlay`, and `shadow-input`, which read `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`. Define these role tokens in `:root` and override them in `.dark`; use `none` to remove a role's shadow. Native size utilities such as `shadow-xs` use Tailwind's own theme and remain independently configurable. See [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
+`bg-backdrop` reads `--backdrop` with a black-at-32% fallback. Component shadows use `shadow-surface`, `shadow-overlay`, and `shadow-input`, which read `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`. Define these role tokens in `:root`, override them in `.dark`, and use `none` to remove a role's shadow. Native size utilities such as `shadow-xs` use Tailwind's own theme and stay independently configurable. See [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
 
 ## Injected utilities and variants
 
@@ -82,7 +82,7 @@ The plugin registers the following utilities and variants with Tailwind v4:
 
 ### Parametric transform utilities
 
-Combine with `animate-mo-enter` and `animate-mo-exit` to customize motion:
+Combine these with `animate-mo-enter` and `animate-mo-exit` to customize motion:
 
 - **Opacity**: `enter-opacity-<percent>`, `exit-opacity-<percent>`
 - **Scale**: `enter-scale-<percent>`, `exit-scale-<percent>`
@@ -101,12 +101,17 @@ See the [Animations guide](/docs/animations) for details and interactive specime
 - `z-overlay` (`40`)
 - `z-floating` (`50`)
 
+### Tone and accent utilities
+
+- `tone-<color>` publishes a color group's channels (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-hover`, and so on) on an element. Descendants read them with `bg-tone`, `text-tone-ink`, `hover:bg-tone-hover`, and similar utilities.
+- `accent-scope` and `accent-fg-<color>` let a host publish `--mo-accent-fg` (usually under `hover:` or `focus-within:`) so descendants switch to the accent foreground. Without it, `accent-fg-<color>` falls back to the named color.
+
 ### State attribute variants
 
-Target component DOM states cleanly using utility prefixes:
+Target component DOM states with these utility prefixes:
 
-- **Data attributes**: `data-active:`, `data-checked:`, `data-disabled:`, `data-expanded:`, `data-focused:`, `data-hidden:`, `data-invalid:`, `data-loading:`, `data-open:`, `data-selected:`, `data-pressed:`, `data-submitting:`
-- **ARIA attributes**: `aria-busy:`, `aria-checked:`, `aria-disabled:`, `aria-expanded:`, `aria-hidden:`, `aria-invalid:`, `aria-readonly:`, `aria-required:`, `aria-selected:`
+- **Data attributes**: A fixed set of component state names, including `data-active:`, `data-checked:`, `data-closed:`, `data-disabled:`, `data-expanded:`, `data-focused:`, `data-hidden:`, `data-highlighted:`, `data-invalid:`, `data-loading:`, `data-open:`, `data-pressed:`, `data-selected:`, and `data-submitting:`.
+- **ARIA attributes**: `aria-busy:`, `aria-checked:`, `aria-disabled:`, `aria-expanded:`, `aria-hidden:`, `aria-invalid:`, `aria-modal:`, `aria-pressed:`, `aria-readonly:`, `aria-required:`, `aria-selected:`
 
 ```tsx
 <button class="bg-muted text-muted-foreground data-active:bg-primary data-active:text-primary-foreground">
@@ -118,17 +123,16 @@ Target component DOM states cleanly using utility prefixes:
 
 The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/design#css-variables).
 
-The default `text-xs` through `text-9xl` scale reads the local `--font-size`, and named radius utilities read `--radius`. Explicit Tailwind theme values can replace these mappings. See [Typography and spacing](/docs/design#typography-and-spacing) for the differences between
-Tailwind, UnoCSS Wind3, and UnoCSS Wind4.
+The default `text-xs` through `text-9xl` scale reads the local `--font-size`, and named radius utilities read `--radius`. Explicit Tailwind theme values can replace these mappings. See [Typography and spacing](/docs/design#typography-and-spacing) for the differences between Tailwind, UnoCSS Wind3, and UnoCSS Wind4.
 
 ## Troubleshooting
 
-Check the installation button on a clean dev-server start, after restarting with Vite's cache retained, on a directly opened lazy-loaded route, and in a production preview.
+Check the installation button on a clean dev-server start, after a restart with Vite's cache retained, on a directly opened lazy-loaded route, and in a production preview.
 
 - **No utility styles**: Confirm Tailwind's build integration runs and your application entry imports its stylesheet.
-- **Application classes work, but Moraine classes are missing**: Confirm `@plugin 'moraine/tailwind'` is loaded and `@source` points to the installed distribution. Registering a plugin alone does not scan a dependency.
-- **Rules exist, but colors, radius, or shadows are missing**: Check the referenced CSS variables and their scope. Unlike `presetMoraine()` with default options, the Tailwind plugin does not emit a complete default theme. `MoraineProvider` and the optional `moraine/icon.css` do not replace theme variables or scanning.
+- **Application classes work, but Moraine classes are missing**: Confirm `@plugin 'moraine/tailwind'` is loaded and `@source` points to the installed distribution. Registering a plugin does not scan a dependency.
+- **Rules exist, but colors, radius, or shadows are missing**: Check the referenced CSS variables and their scope. Unlike `presetMoraine()` with default options, the Tailwind plugin does not emit a complete default theme. Neither `MoraineProvider` nor the optional `moraine/icon.css` replaces theme variables or scanning.
 - **Classes from a lazy route are missing**: Check source coverage and keep the stylesheet import in the application entry. Correctly registered sources do not require navigating through the home page first.
-- **Dynamically constructed classes are missing**: Use complete static class maps. Tailwind cannot infer classes such as `bg-${color}`; in v4, explicitly include additional classes with `@source inline()` on versions that support it. The legacy JavaScript `safelist` option is not supported in v4. See [Tailwind's safelisting guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#safelisting-specific-utilities).
+- **Dynamically constructed classes are missing**: Use complete static class maps. Tailwind cannot infer classes such as `bg-${color}`. In v4, include extra classes explicitly with `@source inline()` on versions that support it. The legacy JavaScript `safelist` option is not supported in v4. See [Tailwind's safelisting guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#safelisting-specific-utilities).
 
-If clearing Vite's dependency cache changes the symptom, recheck the imported stylesheet, registered sources, and theme configuration, then verify a restart with the cache retained. Cache clearing does not replace `@source` and is not a normal setup requirement.
+If clearing Vite's dependency cache changes the symptom, recheck the imported stylesheet, registered sources, and theme configuration, then verify a restart with the cache retained. Clearing the cache does not replace `@source` and is not part of normal setup.

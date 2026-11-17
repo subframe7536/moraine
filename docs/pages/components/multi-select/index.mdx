@@ -52,6 +52,7 @@ import Playground from './playground'
                     slot: 'group',
                     children: [{ slot: 'groupLabel' }],
                   },
+                  { slot: 'separator' },
                   {
                     slot: 'item',
                     children: [
@@ -74,14 +75,15 @@ import Playground from './playground'
   }}
 />
 
-MultiSelect renders its portaled popup collection internally. Tags have a separate rendering path through `tagRender`.
+MultiSelect renders its portaled popup internally; the popup names are style slots, not attached parts. Replace tags with `tagRender`.
 
 ## Usage
 
-Use MultiSelect for several selected collection items displayed as tags. Its values resolve through
-collection items. Use [Select](/components/select) for one non-editable choice, [Combobox](/components/combobox)
-for editable single selection, or [BaseSelect](/components/base-select) to compose the listbox
-yourself.
+Use MultiSelect for several collection items shown as tags, or for creatable free-form tags. Each
+value resolves through a collection item. Use [Select](/components/select) for one non-editable
+choice, [Combobox](/components/combobox) for editable single selection, or
+[BaseSelect](/components/base-select) to compose the listbox yourself. Unlike Select and Combobox,
+`items` takes item objects only, with no string shorthand.
 
 ```tsx
 import { Field, MultiSelect } from 'moraine'
@@ -103,22 +105,21 @@ export function Example() {
 
 ### Values and tag lifecycle
 
-When the control is non-editable, clicking it opens the panel. When it is editable (`search` or
-`createItem`), clicking it focuses the input without opening the panel so a user can type. Set
-`openOnControlClick` to override that default.
-
-`value` contains the selected item values as an array. An empty array means no selection; an empty
-string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
-Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` lets users
-type in the field to filter options.
+`value` is the array of selected item values, in selection order. An empty array means no
+selection, and an empty string can be an item value. Pair `value` with `onValueChange` for controlled
+selection, or use `defaultValue` for an initial uncontrolled selection. `onValueChange` receives the
+full new array and clears the search text afterward. Without `search`, printable keys trigger
+collection typeahead. Set `search` to let users type in the field to filter options.
 
 ```tsx
 <MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} clearable />
 ```
 
-`clearable` does not empty a MultiSelect. Selected values whose items are disabled stay selected
-because the user cannot remove them, and values that do not resolve to any item are dropped. Every
-other selection is cleared. Select and Combobox clear to an empty value instead.
+`clearable` shows a clear button while there are selected values or search text. It does not always
+empty a MultiSelect: selected values whose items are disabled stay selected because the user cannot
+remove them, and values that match no item are dropped. Every other selection is cleared, the search
+text is emptied, and `onClear` runs after `onValueChange`. Select and Combobox clear to an empty
+value instead.
 
 ### Search and item creation
 
@@ -132,18 +133,21 @@ the four combinations behave as follows:
 | unset    | set          | Editable input                | Yes             | Yes           | `false`                      |
 | `true`   | set          | Editable input                | Yes             | Yes           | `false`                      |
 
-`search` alone filters the collection as the user types. Providing `createItem` makes the input
-editable and enables creation. It also filters the list, so `search` adds nothing once `createItem`
-is set.
+`search` alone filters the collection as the user types. `createItem` makes the input editable and
+enables creation. It also filters the list, so `search` adds nothing once `createItem` is set.
+`filterMethod` and `autocomplete` have no effect on a non-editable control.
 
-`openOnControlClick` defaults to the opposite of editability. A non-editable control opens its panel
-on click. An editable control focuses its input on click and opens from typing, the chevron, or
-ArrowDown. Set `openOnControlClick` explicitly to change either default.
+`openOnControlClick` defaults to the opposite of editability. A non-editable control opens its popup
+on click. An editable control focuses its input on click and opens from typing, the chevron button,
+or ArrowDown. Set `openOnControlClick` explicitly to change either default.
 
 ### Item creation and delimiters
 
-Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
-separator is encountered. Separator characters and pasted strings go through the same creation path.
+`createItem` receives the trimmed query text when the user commits text that matches no existing item
+by label or value, and returns the `TItem` to select. The item is added to the top of the option list
+until a native form reset. Nothing is created when the value is already selected or `maxCount` is
+reached. Commit text with Enter, a token separator, or paste; all go through the same creation path.
+`tokenSeparators` defaults to `[',']`.
 
 ```tsx
 <MultiSelect
@@ -156,18 +160,22 @@ separator is encountered. Separator characters and pasted strings go through the
 
 ### Keyboard interaction
 
-| Key                 | Behavior                                                                   |
-| ------------------- | -------------------------------------------------------------------------- |
-| Backspace           | When input is empty, deletes the immediately preceding tag                 |
-| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
-| Enter               | Commit the highlighted item (or create an item when input text is present) |
-| Escape              | Close the dropdown or clear active query text                              |
+| Key                 | Behavior                                                                        |
+| ------------------- | ------------------------------------------------------------------------------- |
+| Backspace           | With an empty input, remove the last removable tag                              |
+| ArrowLeft           | At the start of the input, focus the last tag's remove button                   |
+| ArrowLeft / Right   | On a remove button, focus the neighboring removable tag, or return to the input |
+| Backspace / Delete  | On a remove button, remove that tag and focus a neighbor                        |
+| ArrowDown / ArrowUp | Open the popup and move the highlight through enabled options                   |
+| Enter               | Commit the highlighted option, or create an item from the input text            |
+| Escape              | Close the popup; the search text resets once it closes                          |
+| Tab                 | Close the popup and move focus on                                               |
 
 ### Virtualization
 
-Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
-keyboard navigation.
+Pass a `virtualizer` from `createListVirtualizer` when rendering the full collection makes opening
+or scrolling slow. Type it over `MultiSelectT.Row`. Read the [Virtualization guide](/docs/virtualization)
+for setup, row measurement, stable keys, and keyboard navigation.
 
 ```tsx
 <MultiSelect items={items} virtualizer={virtualizer} />
@@ -177,27 +185,29 @@ keyboard navigation.
 
 ### Color issue labels
 
-Use `tagRender` to paint chips from item data such as a color class. Selected values still come
+Use `tagRender` to style tags from item data such as a color class. Selected values still come
 from the collection.
 
 <Preview path="./custom-tags" />
 
 ### Assign project members
 
-Search teammates and keep each selection as a chip. Include email or role on `description`.
+Search teammates and keep each selection as a tag. Put the email or role in `description`.
 
 <Preview path="./user-chips" />
 
 ### Cap selection and visible tags
 
-`maxCount` blocks additional selections. `maxTagCount` is visual: surplus selections stay committed
-and collapse into a `+N` badge. Use `tagOverflowRender` to render hidden tags in a tooltip.
+`maxCount` blocks additional selections by disabling unselected options. `maxTagCount` is visual:
+surplus selections stay committed and collapse into a `+N` summary. Use `tagOverflowRender` to
+render the hidden tags yourself, for example in a tooltip.
 
 <Preview path="./max-count-max-tag-count" />
 
 ### Create a missing topic
 
 Pass `createItem` and an `emptyRender` action so unmatched text can become a collection item.
+The `create` function in the `emptyRender` state runs `createItem` for the current search text.
 
 <Preview path="./create-new-tags" />
 
@@ -223,15 +233,16 @@ root freeze the whole control.
 
 ### Search a large collection
 
-Pass `createListVirtualizer` when opening or scrolling the full list is slow.
+Pass a `createListVirtualizer` instance as `virtualizer` when opening or scrolling the full list is
+slow.
 
 <Preview path="./virtualization" />
 
 ### Require a minimum number of tags
 
-Validate the selected array with `createForm`. Empty selections should fail a `minLength` schema
-rule. `required` only checks that something is selected. A selection made only of disabled items
-passes constraint validation but submits no value to the native form, as a native `<select multiple>`
-does.
+Validate the selected array with `createForm`. Use a `minLength` schema rule to fail short
+selections; `required` only checks that something is selected. A selection made only of disabled
+items passes constraint validation but submits no value to the native form, as a native
+`<select multiple>` does.
 
 <Preview path="./form-integration" />

@@ -39,8 +39,9 @@ export function Example() {
 
 ### Semantic orientation
 
-Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orientation`. The default
-orientation is horizontal. Use `vertical` between items in a row.
+Every `Separator` sets `role="separator"`, `aria-orientation`, and `data-orientation`. The default
+orientation is `horizontal`, a full-width line. Use `vertical` between items in a row; it draws a
+full-height line, so give the row a height.
 
 ```tsx
 <Separator />
@@ -49,9 +50,9 @@ orientation is horizontal. Use `vertical` between items in a row.
 
 ### Root styling
 
-`Separator` has one `<div>` root. Use direct `class` and `style` for a local override, or configure
-`separator.base.root` in your Theme for application defaults. It does not accept instance `classes`
-or `styles` maps.
+`Separator` has one `<div>` root. Use `class` and `style` for a local override, or configure
+`separator.base.root` in your Theme for application defaults. `root` is the only slot, so `classes`
+and `styles` only duplicate `class` and `style`.
 
 ```tsx
 <Separator class="bg-blue-500" style={{ height: '3px' }} />

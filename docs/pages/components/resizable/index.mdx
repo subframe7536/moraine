@@ -38,14 +38,15 @@ import Playground from './playground'
 
 ## Usage
 
-Use Resizable to split space into draggable, keyboard-accessible panels for multi-pane layouts. For a
-single expandable disclosure or a drawer, see [Collapsible](/components/collapsible) or
+Use Resizable to split space into draggable, keyboard-operated panels for multi-pane layouts. For a
+single expandable disclosure or a drawer, use [Collapsible](/components/collapsible) or
 [Sheet](/components/sheet).
 
-The root owns the size of every panel as a layout record: a `Record` keyed by panel `id` with sizes
+The root owns the size of every panel as a layout record: a `Record` keyed by panel `id`, with sizes
 as percentages of the group (`0`–`100`). `Resizable.Panel` sets each panel's `min`, `max`, and
 collapse constraints. Place `Resizable.Handle` between two panels to add pointer dragging, keyboard
-resizing, and collapse toggles.
+resizing, and collapse toggles. Set `orientation="vertical"` on the root to stack panels instead of
+placing them side by side.
 
 ```tsx
 import { Resizable } from 'moraine'
@@ -71,8 +72,9 @@ export function Example() {
 
 Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. All values are
 percentages of the group. Dragging a handle grows one panel and shrinks its neighbor, stopping at
-each panel's `min` and `max`. A panel with `resizable={false}` stays at its current size. Panels
-without an entry in the layout record share the remaining space.
+each panel's `min` (default `0`) and `max` (default `100`). A panel with `resizable={false}` stays at
+its current size, and the handles next to it are disabled. Panels without an entry in the layout
+record share the remaining space.
 
 ```tsx
 <Resizable defaultValue={{ inspector: 32, viewport: 68 }}>
@@ -88,14 +90,17 @@ without an entry in the layout record share the remaining space.
 
 ### Collapsible panels
 
-Set `collapsible` on a panel to let it collapse to `collapsedSize` (default `0`). Pressing
-
-<kbd>Enter</kbd> on a handle toggles its nearest collapsible neighbor — the preceding panel first,
-then the following one. A handle's children can be a render function that receives `collapsed`,
-`dragging`, and `active` to switch the icon. `onCollapse` and `onExpand` fire on state transitions.
+Set `collapsible` on a panel to let it collapse to `collapsedSize` (default `0`, clamped between `0`
+and `min`). Dragging a handle past the midpoint between `min` and `collapsedSize` collapses the
+panel, and pressing <kbd>Enter</kbd> on a handle toggles its nearest collapsible neighbor: the
+preceding panel first, then the following one. A handle's children can be a render function that
+receives `collapsed`, `dragging`, `active`, `canCollapse`, `disabled`, and `orientation` to switch
+the icon; pass `false` to hide the grip. `onCollapse` and `onExpand` fire on transitions, not for the
+initial layout.
 
 Inside panel content, `Resizable.usePanel()` exposes `collapse()`, `expand()`, `resize(size)`,
-`size`, and `collapsed` — use it to build a collapse button.
+`size`, and `collapsed`. Use it to build a collapse button. `expand()` restores the last expanded
+size, or `min` when there is none.
 
 ```tsx
 function CollapseButton() {
@@ -124,8 +129,10 @@ function CollapseButton() {
 ### Controlled state and persistence
 
 Use `value` with `onValueChange` when the application coordinates layout presets, resets, or persists
-splits to storage. Both carry the full layout record keyed by panel id. `onValueCommit` fires once
-per completed interaction — a drag that changed the layout, each keyboard step, a collapse toggle,
+splits to storage. Both carry the full layout record keyed by panel id. With `value` set, resizing
+only calls `onValueChange`, and the panels follow the `value` you pass back. `onValueChange` fires on
+every layout change, including each step of a drag. `onValueCommit` fires once per completed
+interaction: a drag that changed the layout, each keyboard step that changed it, a collapse toggle,
 or a `usePanel()` call.
 
 ```tsx
@@ -142,18 +149,20 @@ or a `usePanel()` call.
 
 ### Keyboard interaction
 
-Handles render semantic separator elements with `tabIndex={0}`, `role="separator"`, and standard
-ARIA boundary values reported for the preceding panel.
+Handles render focusable `role="separator"` elements. Their `aria-valuenow`, `aria-valuemin`, and
+`aria-valuemax` describe the preceding panel; `aria-valuemin` is `collapsedSize` for a collapsible
+panel. A disabled handle (the group is `disabled`, or a neighbor has `resizable={false}`) leaves the
+tab order. Horizontal groups in right-to-left content swap the arrow keys.
 
-| Key                                          | Description                                                        |
-| -------------------------------------------- | ------------------------------------------------------------------ |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Decreases the preceding panel by `keyboardDelta` (default `10%`).  |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Increases the preceding panel by `keyboardDelta` (default `10%`).  |
-| <kbd>Shift</kbd> + <kbd>Arrow</kbd>          | Resizes by `1%` for fine-grained adjustments.                      |
-| <kbd>Home</kbd>                              | Snaps the adjacent panel to its minimum permitted size.            |
-| <kbd>End</kbd>                               | Snaps the adjacent panel to its maximum permitted size.            |
-| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel (preceding, then following). |
-| <kbd>Alt</kbd> + drag                        | Distributes delta symmetrically across adjacent panels.            |
+| Key                                          | Description                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Shrinks the preceding panel by `keyboardDelta` (default `10%`).                      |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Grows the preceding panel by `keyboardDelta` (default `10%`).                        |
+| <kbd>Shift</kbd> + <kbd>Arrow</kbd>          | Moves the handle as far as the panels' `min` and `max` allow.                        |
+| <kbd>Home</kbd>                              | Shrinks the preceding panel as far as the panels' `min` and `max` allow.             |
+| <kbd>End</kbd>                               | Grows the preceding panel as far as the panels' `min` and `max` allow.               |
+| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel (preceding, then following).                   |
+| <kbd>Alt</kbd> + drag                        | Distributes the movement symmetrically across the panels in groups of three or more. |
 
 ## Examples
 

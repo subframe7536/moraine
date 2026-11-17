@@ -7,15 +7,15 @@ search:
   tags: [composition, parts, slots, anatomy, dom ownership, single, composite]
 ---
 
-Every Moraine component exposes its structure through JSX parts and its styling surface through slots. A component is either single or composite.
+Moraine components expose styling through slots, and composite components also expose structure through attached JSX parts. Each component is either single or composite, as declared by `XxxT.Kind` (see the [TypeScript guide](/docs/typescript#namespace-members-reference)).
 
 ## Component Kinds
 
 ### Single Components
 
-A single component renders through one JSX element and manages its internal DOM and styling slots.
+A single component is one JSX element that renders its own internal DOM. Configure it with props, including `items` for collections, and style its slots with `classes` and `styles`.
 
-Examples include `Button`, `Badge`, `Input`, and `Checkbox`:
+Examples include `Button`, `Badge`, `Input`, `Checkbox`, and `Accordion`:
 
 ```tsx
 import { Button } from 'moraine'
@@ -29,7 +29,7 @@ export function Action() {
 
 A composite component exposes attached JSX parts that you arrange in your layout, so you control markup order, nested text, and layout wrappers.
 
-Examples include `Card`, `Dialog`, `Accordion`, and `Sidebar`:
+Examples include `Card`, `Dialog`, `Table`, and `Sidebar`:
 
 ```tsx
 import { Card } from 'moraine'
@@ -71,7 +71,7 @@ Components like `Card`, `Button`, and `Input` render their own top-level contain
 
 ### State-only Roots
 
-Components like `Dialog`, `Popover`, `Sheet`, and `BaseSelect` manage reactive state, context, and focus trapping **without rendering a wrapper element in the DOM**:
+Components like `Dialog`, `Popover`, `Sheet`, and `BaseSelect` manage reactive state and context **without rendering a wrapper element in the DOM**:
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -93,7 +93,7 @@ export function ModalExample() {
 In state-only roots:
 
 - Direct DOM attributes belong on rendered parts (such as `Dialog.Content` or `Dialog.Trigger`).
-- Setting `classes` or `styles` on the root sets default slot styles that cascade to all descendant parts.
+- Setting `classes` or `styles` on the root sets default slot styles for all descendant parts.
 
 ## Polymorphism (`as` Prop)
 
@@ -116,4 +116,4 @@ Component documentation includes an **Anatomy** tree showing:
 
 - The hierarchy of attached public **parts**
 - The corresponding **slot** names
-- Annotations showing whether a root renders a DOM node (`slot=root`) or manages state (`no DOM`)
+- Annotations showing whether a root renders a DOM node (`slot=root`) or only manages state (`no DOM`)

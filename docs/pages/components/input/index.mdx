@@ -45,18 +45,45 @@ export function Example() {
 ### Native input behavior
 
 `Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and
-`defaultValue` for an initial uncontrolled value. `readOnly` keeps the field focusable without
-allowing edits; `disabled` removes it from interaction.
+`defaultValue` for an initial uncontrolled value; a native form reset restores `defaultValue`.
+`value={undefined}` leaves the input uncontrolled, and a controlled input restores its displayed text
+to `value` after every edit, so update `value` from `onValueChange`. `readOnly` keeps the field
+focusable without allowing edits; `disabled` removes it from interaction. `autocomplete` defaults to
+`'off'`.
 
 ```tsx
 <Input value={query()} onValueChange={setQuery} placeholder="Search projects..." />
 ```
 
+Inside a [Field](/components/field), Input inherits `size`, `required`, `disabled`, and `readOnly`,
+takes its `name` from the field when it sets none, and links the label, description, and error
+through ARIA attributes. Set `variant` (`'outline'`, `'subtle'`, `'ghost'`, or `'none'`) and `size`
+(`'sm'`, `'md'`, or `'lg'`) to change its presentation.
+
+### Value modifiers
+
+`modifiers` transforms the text before it reaches `onValueChange` and form state, and sets the
+callback's value type.
+
+| Modifier | Effect                                                                            |
+| -------- | --------------------------------------------------------------------------------- |
+| `trim`   | Strips surrounding whitespace, also from the displayed text on `change`           |
+| `lazy`   | Updates the value on `change` (blur or Enter) instead of on every keystroke       |
+| `number` | Parses the text to a `number`; non-numeric text gives `undefined`                 |
+| `empty`  | `'null'` or `'undefined'` turns empty text into that value; `'preserve'` keeps it |
+
+```tsx
+<Input modifiers={{ number: true, empty: 'null' }} onValueChange={(value) => setAge(value)} />
+```
+
+Here `value` is `number | null`. Use [NumberInput](/components/number-input) when the user needs
+stepping, bounds, or formatting.
+
 ### Composed controls
 
 Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit.
-Password visibility, clearing, copying, and loading remain application behavior: compose buttons
-and icons into these parts and provide their labels and handlers.
+Password visibility, clearing, copying, and loading stay in your application: compose buttons and
+icons into these parts and provide their labels and handlers.
 
 ```tsx
 <InputGroup>
@@ -85,21 +112,21 @@ Keep the query in local state with `value` and `onValueChange`. Filter the list 
 
 ### Reveal a deploy token
 
-Compose the visibility toggle yourself. InputGroup does not own show/hide or labeling for that
-button.
+Compose the visibility toggle yourself. InputGroup does not own the show/hide state or the
+button's label.
 
 <Preview path="./composed-controls" />
 
 ### Password, search, URL, and price fields
 
-Compose `InputGroup` addons around Input. Visibility toggles, clear buttons, and unit suffixes stay
-application-owned.
+Compose `InputGroup` addons around Input. Your application owns visibility toggles, clear buttons,
+and unit suffixes.
 
 <Preview path="./input-with-icons" />
 
 ### Validate a work email
 
-Bind Input to `form.Field` so schema validation owns the error. Keep `name` off the input when the
-field wrapper supplies it.
+Bind Input to `form.Field` so schema validation owns the error. Omit `name` on the input; the
+bound field supplies it.
 
 <Preview path="./form-integration" />

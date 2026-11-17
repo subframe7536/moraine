@@ -79,8 +79,10 @@ export function Example() {
   are reached.
 - `free` enables every enabled step.
 
-`onValueChange` fires only on trigger activations in `linear` and `free`. To drive the flow from
-your own Previous and Next buttons, control `value` and update it in those handlers.
+`onValueChange` fires only when the user activates a different step from a trigger, so in practice
+only in `linear` and `free`. It does not fire for programmatic `value` changes. To drive the flow
+from your own Previous and Next buttons, control `value` and update it in those handlers. Set
+`disabled` on the Stepper to block every trigger.
 
 ```tsx
 <Stepper items={STEPS} value={step()} onValueChange={setStep} navigation="linear" />
@@ -88,10 +90,12 @@ your own Previous and Next buttons, control `value` and update it in those handl
 
 ### Panels and orientation
 
-Step labels and panels use tab-like relationships. Every item requires a unique `value`; a later item that repeats an earlier value renders disabled and logs a DEV warning. Pass a
-component as `item.content`; Stepper renders it with `{ value, index }` only for
-the active step. Vertical orientation changes the layout and the arrow-key directions. Stepper marks every step before the
-active one as completed from its index; supply `item.icon` to replace the default step number.
+Step triggers and panels use tab semantics (`tablist`, `tab`, `tabpanel`). Every item requires a
+unique `value`; an item that repeats an earlier value renders disabled and logs a development
+warning. `item.content` is static JSX or a component that receives `{ value, index }`; only the
+active step's panel renders, and a step without `content` has no panel. Vertical orientation changes
+the layout and the arrow keys that move between steps. Stepper marks every step before the active
+one as completed, based on item order. Set `item.icon` to replace the step number in the indicator.
 
 ```tsx
 <Stepper
@@ -106,13 +110,17 @@ active one as completed from its index; supply `item.icon` to replace the defaul
 
 ### Keyboard interaction
 
-`activationMode` controls whether keyboard focus selects a step immediately (`automatic`, the default navigation mode) or selection waits for activation (`manual`). Disabled and navigation-locked steps are skipped.
+`activationMode` controls whether arrow-key focus activates a step immediately (`automatic`, the
+default) or only moves focus until <kbd>Enter</kbd> or <kbd>Space</kbd> confirms it (`manual`).
+Disabled and navigation-locked steps are skipped. Navigation stops at the first and last step unless
+you set `loop`.
 
-| Key                                          | Description                                              |
-| -------------------------------------------- | -------------------------------------------------------- |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves toward the next enabled step where applicable.     |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves toward the previous enabled step where applicable. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>          | Activates the focused step in manual activation mode.    |
+| Key                                          | Description                                                           |
+| -------------------------------------------- | --------------------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowLeft</kbd> | Moves to the next or previous enabled step in horizontal orientation. |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>    | Moves to the next or previous enabled step in vertical orientation.   |
+| <kbd>Home</kbd> / <kbd>End</kbd>             | Moves to the first or last enabled step.                              |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>          | Activates the focused step in manual activation mode.                 |
 
 ## Examples
 

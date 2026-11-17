@@ -5,7 +5,7 @@ search:
   tags: [createBaseSelectSearchInput, base-select, search, combobox, ime, autocomplete, a11y]
 ---
 
-`createBaseSelectSearchInput` connects a caller-owned `<input>` to a `BaseSelect`. Call `BaseSelect.useContext()` inside a BaseSelect child and pass that state to the hook. It returns input attributes, keyboard handling, focus registration, and IME-safe query commits.
+`createBaseSelectSearchInput` connects an `<input>` you own to a `BaseSelect`. Call `BaseSelect.useContext()` inside a BaseSelect child and pass that state to the hook. The hook returns the input attributes, keyboard handling, focus registration, and IME-safe query commits.
 
 ## Import
 
@@ -47,9 +47,15 @@ interface BaseSelectSearchInputOptions {
 const { inputProps, isComposing, discardComposition } = createBaseSelectSearchInput(options)
 ```
 
-Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or provide equivalent functions. `setSearchValue` must return the text it applies. Spread `inputProps` directly on an `<input>`. The other result methods let a custom control defer its own keyboard work during composition or discard a draft before clearing the selection.
+Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or provide equivalent functions. `setSearchValue` must return the text it applies. Spread `inputProps` on an `<input>`. `isComposing` reports an active IME composition, so a custom control can defer its own keyboard work. `discardComposition` drops the composition draft, for example before clearing the selection.
 
-`enabled` defaults to `true`. When false, the input is read-only and BaseSelect handles keys as a non-editable control. `displayValue` defaults to `searchValue`; a Combobox can supply the selected label while closed. `transformInput` runs before a completed input is committed. `maxLength` sets the native input attribute; clamp the value in your setter too when programmatic updates must obey the same limit. `autocomplete` defaults to `off`.
+- `enabled` defaults to `true`. When it is `false`, the input is read-only and BaseSelect handles keys as it does for a non-editable control.
+- `displayValue` defaults to `searchValue`. A Combobox can supply the selected label while the list is closed.
+- `transformInput` runs on each committed input before `setSearchValue`.
+- `maxLength` sets the native input attribute. Clamp the value in your setter too when programmatic updates must obey the same limit.
+- `autocomplete` defaults to `'off'`.
+
+A non-empty committed query opens the list. During IME composition, the input shows the draft and commits it when the composition ends.
 
 ## Example
 

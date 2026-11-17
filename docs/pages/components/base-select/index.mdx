@@ -78,7 +78,7 @@ import Playground from './playground'
   }}
 />
 
-Control is an optional layout container and floating anchor; without it, Content uses the registered focus owner as its anchor.
+Control is an optional layout container and floating anchor; without it, Content anchors to the registered focus owner.
 
 ## Usage
 
@@ -108,30 +108,62 @@ export function Example() {
 }
 ```
 
+### Values and form submission
+
+`value`, `defaultValue`, and `onValueChange` always use arrays, even for single selection; without
+`multiple`, only the first entry is used. `value={undefined}` keeps the selection uncontrolled and
+`value={[]}` keeps it controlled and empty. Choosing an item closes the popup unless you set
+`multiple` or `closeOnSelect={false}`. Set `name` to submit the selection with the enclosing native
+form; use `serializeValue` to change or omit a submitted value.
+
 ### Control and focus ownership
 
 Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
 own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
-select-like focus owner and activator. If Control is omitted, Content falls back to the registered
-focus owner for positioning.
+select-like focus owner and activator. If Control is omitted, Content anchors to the registered
+focus owner.
 
-For an editable composition, register `focusOwner` on the physical input. The input helper never
-becomes the floating anchor. The caller owns the input, canonical source, filtering, and query
-cleanup. No `BaseSelect.Trigger` is required in that pattern.
+For an editable composition, bind your own `<input>` with `createBaseSelectSearchInput` from
+`moraine/utils`. Call it in a component rendered inside `BaseSelect`, passing `BaseSelect.useContext()`
+as `state`, and spread `inputProps` on the input. The helper registers the input as the focus owner
+and adds the combobox ARIA attributes and keyboard handling. It does not make the input the floating
+anchor, so render a `BaseSelect.Control` around it. You own the input, the canonical source,
+filtering, and query reset. No `BaseSelect.Trigger` is required in that pattern.
+
+```tsx
+import { BaseSelect } from 'moraine'
+import { createBaseSelectSearchInput } from 'moraine/utils'
+
+function SearchControl(props: { query: () => string; setQuery: (value: string) => string }) {
+  const input = createBaseSelectSearchInput({
+    state: BaseSelect.useContext(),
+    searchValue: props.query,
+    setSearchValue: props.setQuery,
+  })
+  return (
+    <BaseSelect.Control>
+      <input {...input.inputProps} />
+    </BaseSelect.Control>
+  )
+}
+```
 
 ### Item fields
 
-`BaseSelect.Item` accepts collection item data via the `item` prop: `<BaseSelect.Item item={item} />`.
-Ordinary component props are DOM/rendering props for the rendered `<div>`. Custom item fields are
-available through render state: `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`,
-and arbitrary item fields never leak into rendered DOM attributes.
+`BaseSelect.Item` takes the collection entry through the `item` prop: `<BaseSelect.Item item={item} />`.
+Other props are DOM and rendering props for the rendered `<div>`. Custom item fields are available
+through render state, and arbitrary item fields never leak into DOM attributes:
+`<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`.
+Without children, Item renders `item.label`.
 
 ### Filtered collections
 
-By default, `<BaseSelect items={items}>` uses `items` as both the canonical data source and the
-active navigation collection.
+`items` is the flat list of every item you render as `BaseSelect.Item`; an item whose value is not
+in `items` cannot be selected. By default, `items` is both the canonical data source and the active
+navigation collection. Values must be unique. Groups and separators are rendering concerns and do
+not belong in `items`.
 
-For custom filtered compositions (such as searchable controls), provide `getItemByValue` alongside
+For custom filtered compositions such as searchable controls, provide `getItemByValue` alongside
 a filtered `items` view:
 
 ```tsx
@@ -146,36 +178,37 @@ when an item is filtered out.
 
 ### Styling
 
-BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
-and direct `class` or `style` on the part that renders the element. See [Customization](/docs/customization)
-and [Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
+BaseSelect exposes the style slots `control`, `trigger`, `content`, `listbox`, `item`, `group`,
+`groupLabel`, `separator`, and `empty` through `classes` and `styles` on the root. Each part also
+accepts `class` and `style` for its own element. See [Customization](/docs/customization) and
+[Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
 
 ## Examples
 
 ### Pick a grouped framework
 
-Compose groups, labels, and item render state when Select's built-in collection is not enough.
-Keep selection labels on the trigger from the full collection.
+Compose groups, group labels, and item render state when Select's built-in collection is not enough.
+Resolve the trigger label from the full collection.
 
 <Preview path="./composition" />
 
 ### Search a custom listbox
 
-Own the query input and filtered `items`. Pass `getItemByValue` so a selected option still
-resolves after it leaves the filtered view.
+Own the query and the filtered `items`, and bind the input with `createBaseSelectSearchInput`. Pass
+`getItemByValue` so a selected option still resolves after it leaves the filtered view.
 
 <Preview path="./searchable" />
 
 ### Select multiple frameworks
 
-Set `multiple` and read `state.value` as an array. The trigger should summarize the current
-selection rather than a single label.
+Set `multiple` and read `state.value` as an array. Summarize the whole selection in the trigger
+instead of showing a single label. The popup stays open after each choice.
 
 <Preview path="./multiple" />
 
 ### Submit a native form value
 
-Give the root a `name`. The control writes the selected value into the enclosing form without
+Give the root a `name`. BaseSelect writes the selected value into the enclosing native form without
 `createForm`.
 
 <Preview path="./form" />

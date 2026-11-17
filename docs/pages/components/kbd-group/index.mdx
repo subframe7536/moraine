@@ -41,8 +41,10 @@ export function Example() {
 
 ### Key labels
 
-Items may be alias strings or objects with `value`. Known aliases resolve to symbol notation and
-spoken names. Pass `translations` on an item object to change those spoken names.
+Each item is a key string, resolved like the `value` of [Kbd](/components/kbd), or a Kbd props
+object with `value`. Known aliases resolve to symbol notation and spoken names. Use an object to set
+`aria-label`, `symbol`, or `translations` for one key. The group's `size` and `variant` apply to
+every key.
 
 ```tsx
 <KbdGroup items={['meta', 's']} />
@@ -51,9 +53,9 @@ spoken names. Pass `translations` on an item object to change those spoken names
 
 ### Separator
 
-`separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom
-JSX, pass a component that receives the separator `index`; each position mounts its own instance. It
-is unrelated to the standalone layout [Separator](/components/separator).
+`separator` defaults to `"+"` and accepts a string or number for inline notation. For custom JSX,
+pass a component that receives the `index` of the key it follows; each position mounts its own
+instance. It is unrelated to the layout [Separator](/components/separator).
 
 ```tsx
 <KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
@@ -70,6 +72,6 @@ Place the group beside the command it describes. Alias keys resolve to platform 
 
 ### Show a chord with a custom divider
 
-Pass a separator renderer when the notation should not use `+`.
+Pass a `separator` component when the notation should not use `+`.
 
 <Preview path="./custom-separator" />

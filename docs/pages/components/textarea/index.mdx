@@ -44,17 +44,26 @@ export function Example() {
 ### Native text behavior
 
 `Textarea` forwards native textarea attributes and works with controlled or uncontrolled values.
-Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
+Pair `value` with `onValueChange` for controlled text, or use `defaultValue`; a native form reset
+restores `defaultValue`. A controlled textarea restores its displayed text to `value` after every
+edit, so update `value` from `onValueChange`. Use `readOnly` to preserve selection and focus without
+edits, or `disabled` to prevent interaction.
 
 ```tsx
 <Textarea value={bio()} onValueChange={setBio} rows={3} />
 ```
 
+`modifiers` works as on [Input](/components/input#value-modifiers): `trim`, `lazy`, `number`, and
+`empty` transform the text before `onValueChange` and form state. In Textarea, `trim` and `lazy`
+apply on `change` (blur).
+
 ### Size and composition
 
-Enable autoresize and constrain it with `rows` and `maxRows`. Use
+`rows` sets the visible height (default `3`). Set `autoResize` to grow the textarea with its content:
+it never shrinks below `rows`, and `maxRows` caps the growth before it scrolls (`0`, the default, is
+unlimited). `autoResizeDelay` postpones the first resize after mount. Use
 `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions.
-Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+Your application owns counters, submit buttons, and keyboard shortcuts.
 
 ```tsx
 <InputGroup orientation="vertical">
@@ -70,21 +79,21 @@ Counters, submit buttons, and keyboard shortcuts remain application-owned behavi
 
 ### Draft a release announcement
 
-Turn on `autoResize` and cap growth with `maxRows`. Keep the draft string in local state.
+Turn on `autoResize` and cap growth with `maxRows`. Keep the draft in local state.
 
 <Preview path="./autoresize" />
 
 ### Chat, message, and code panes
 
-Use a vertical InputGroup for a header, footer, or both around the textarea. The textarea still
+Use a vertical InputGroup for a header, a footer, or both around the textarea. The textarea still
 owns the value.
 
 <Preview path="./header-footer" />
 
 ### Count remaining characters
 
-Keep the count in application state. InputGroup Trailing is a place to render it, not a built-in
-counter.
+Keep the count in application state. `InputGroup.Trailing` is a place to render it; Moraine has no
+built-in counter.
 
 <Preview path="./character-count" />
 

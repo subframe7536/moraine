@@ -75,6 +75,10 @@ when open and keeps them present through exit animations. Without it, both parts
 and your application controls their mounting. One root owns one active Content; use a nested
 Modal root for a second surface.
 
+To scroll content taller than the viewport inside the backdrop, set `scrollable` on `Modal.Overlay`
+and nest `Modal.Content` inside it. With `overlay={false}`, `Modal.Overlay` renders an unstyled
+wrapper around its children instead of the backdrop.
+
 ```tsx
 <Modal>
   <Modal.Trigger as={Button}>Open</Modal.Trigger>
@@ -98,13 +102,15 @@ accessible name with `aria-label` or `aria-labelledby`.
 ### Focus and outside interaction
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
-technology, and native outside pointer actions are prevented.
+technology, and native outside pointer actions are prevented. Closing restores focus to the
+trigger. Use `initialFocus` to choose the element that receives focus on open, or `false` to skip
+the move, and `finalFocus` to choose where focus returns. Both apply only while `modal` is `true`.
 
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
 closure. `closeOnOverlayClick` controls outside pointer dismissal and `closeOnEscape` controls
 Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
-`onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to
-`true`. To allow background page interaction, set `preventScroll={false}` and omit `Modal.Overlay`.
+`onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to `true`. To allow
+background page interaction, set `preventScroll={false}` and omit `Modal.Overlay`.
 
 ### Styling and portal placement
 

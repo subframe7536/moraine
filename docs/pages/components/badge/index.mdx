@@ -23,8 +23,8 @@ import Playground from './playground'
 
 ## Usage
 
-Use Badge for compact status or metadata beside content. It is presentational by default. An action
-needs a semantic interactive root and an accessible name.
+Use Badge for compact status or metadata beside content. It renders a presentational `span` by default.
+For an action, render a semantic interactive element with an accessible name.
 
 ```tsx
 import { Badge } from 'moraine'
@@ -37,28 +37,30 @@ export function Example() {
 ### Presentational status
 
 Place Badge beside a separately labeled control or heading. It does not replace an accessible status
-announcement where one is required. Variants (`solid`, `soft`, `subtle`, `outline`) and sizes
-(`sm`, `md`, `lg`) change appearance only.
+announcement where one is required. `variant` (`solid`, `soft` by default, `subtle`, `outline`),
+`tone`, and `size` (`sm`, `md` by default, `lg`) change appearance only.
 
 ```tsx
 <Badge variant="soft">In progress</Badge>
-<Badge variant="outline" size="sm">
+<Badge variant="outline" tone="success" size="sm">
   v2.4.0
 </Badge>
 ```
 
-### Label prop
+### Label and icons
 
 Pass `label` instead of `children` when the text comes from data. `label` takes precedence over
-`children` when both are set.
+`children` when both are set. `leading` and `trailing` take icon names and render before and after
+the label. A badge with no label and exactly one icon renders as a square icon badge.
 
 ```tsx
-<Badge label="Needs review" variant="soft" />
+<Badge label="Needs review" variant="soft" leading="i-lucide:eye" />
+<Badge leading="i-lucide:check" />
 ```
 
 ### Interactive root
 
-For a clickable badge, set `as` to a semantic element and pass that element's required attributes.
+For a clickable badge, set `as` to a semantic element and pass the attributes that element requires.
 
 ```tsx
 <Badge as="button" type="button" onClick={onFilter}>

@@ -38,11 +38,10 @@ export function Example() {
 
 ### Icon sources
 
-Pass a supported icon name, JSX element, or component source. Use `<Icon name="icon-search" />` or
-`<Icon name="icon-success" />` for Moraine's semantic aliases. Editor completion suggests the
-built-in names, while `<Icon name="i-lucide-search" />` and `<Icon name="app-logo" />` remain valid.
-`Icon` applies string names as classes; your UnoCSS or Tailwind setup must generate the corresponding
-CSS for custom names.
+Pass an icon class name, a JSX element, or a Solid component as `name`. Use `icon-search` or
+`icon-success` for Moraine's semantic aliases. Editor completion suggests the built-in names, while
+`i-lucide-search` and `app-logo` remain valid. `Icon` applies string names as classes, so your
+UnoCSS or Tailwind setup must generate the CSS for custom names.
 
 Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the
 top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is
@@ -58,17 +57,18 @@ rendered.
 ### Root styling
 
 `Icon` always renders one `span` root, whatever the `name` source. Use `class` and `style` for an
-individual icon, or configure
-`icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props
-because there are no child slots to target.
+individual icon, or configure `icon.base.root` in your Theme for shared defaults. `root` is the only
+slot, so `classes` and `styles` only duplicate `class` and `style`.
 
 Every icon follows the surrounding font size. A string icon is sized by its icon class, which is
 `1.2em` in `moraine/icon.css`. For a JSX or component graphic, the root is a `1.2em` box
 (`size-[1.2em]`) and the graphic fills it through `*:size-full`. Resize an icon with a
 font-size utility on the icon or an ancestor, such as `text-2xl`, or with a size utility such as
 `size-6` on the icon; the graphic follows the root. `moraine/icon.css` puts its rules in the
-`components` cascade layer, so these utilities override it in both UnoCSS and Tailwind. Icon renders no `data-slot` of its own;
-pass a `data-slot` attribute when the icon fills a component slot.
+`components` cascade layer, so these utilities override it in both UnoCSS and Tailwind.
+
+Icon renders no `data-slot` of its own. Pass a `data-slot` attribute when the icon fills a
+component slot.
 
 ```tsx
 <Icon name="i-lucide:info" class="text-2xl text-blue-500" data-slot="custom-icon" />

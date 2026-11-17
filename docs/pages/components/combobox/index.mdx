@@ -37,6 +37,7 @@ import Playground from './playground'
                     slot: 'group',
                     children: [{ slot: 'groupLabel' }],
                   },
+                  { slot: 'separator' },
                   {
                     slot: 'item',
                     children: [
@@ -59,12 +60,12 @@ import Playground from './playground'
   }}
 />
 
-Combobox renders the portaled popup collection internally; its content and item names are style slots, rather than attached child parts.
+Combobox renders the portaled popup internally; the popup names are style slots, not attached parts.
 
 ## Usage
 
 Use Combobox when users should type to find one item in a collection. Use [Select](/components/select)
-for a non-editable choice, [MultiSelect](/components/multi-select) for multiple collection values, or
+for a non-editable choice, [MultiSelect](/components/multi-select) for several collection values, or
 [BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ```tsx
@@ -87,8 +88,8 @@ export function Example() {
 
 ### String items
 
-Pass strings when the label and value are identical. Strings and objects can be mixed at the
-root or inside a group. Whitespace is preserved, and an empty string is a valid value.
+Pass strings when the label and value are identical. You can mix strings and objects at the root
+or inside a group. Whitespace is preserved, and an empty string is a valid value.
 
 ```tsx
 <Combobox items={['Apple', 'Banana']} defaultValue="Apple" />
@@ -102,20 +103,23 @@ root or inside a group. Whitespace is preserved, and an empty string is a valid 
 ```
 
 String items are converted to the same item shape used by callbacks: `'Apple'` becomes
-`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
-`ComboboxT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
-occurrence, including collisions between strings and objects.
+`{ value: 'Apple', label: 'Apple' }`. Object items keep their identity and custom fields.
+`ComboboxT.NormalizedItem<TItem>` is the callback item type. Item values must be unique. When two
+items share a value, the first one wins (including a string that collides with an object), and
+development builds log an error.
 
 ### Value and query
 
 Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
 uncontrolled choice. `value={undefined}` keeps the selection uncontrolled; `value={null}` keeps it
-controlled and empty, and `onValueChange` emits `null` when the selection is cleared. Inside a form
-field, clearing writes `null`. An empty string is a valid item value.
+controlled and empty. `onValueChange` receives `null` when the selection is cleared, and inside a
+form field, clearing writes `null`.
 
 While open, the input displays the query; while closed, it displays the selected item label.
-Arbitrary query text is never committed as a value. Use `value` / `onValueChange` for selection and
-`searchValue` / `onSearchValueChange` for query text.
+Query text is never committed as a value, and filtering never changes the selection. Use `value` /
+`onValueChange` for selection and `searchValue` / `onSearchValueChange` for query text. The query
+resets to `''` when the popup finishes closing and after a native form reset; in controlled mode,
+`onSearchValueChange('')` reports these resets and you decide whether to apply them.
 
 ```tsx
 <Combobox
@@ -127,11 +131,18 @@ Arbitrary query text is never committed as a value. Use `value` / `onValueChange
 />
 ```
 
+### Clear and loading
+
+`clearable` shows a clear button while there is a selected value or query text. Clearing resets the
+selection and the query, calls `onValueChange(null)` if a value existed, then `onClear`, and returns
+focus to the input. `loading` replaces the toggle icon with `loadingIcon` and disables the toggle
+button; typing and the clear button keep working.
+
 ### Pointer opening
 
-By default, clicking inside the input focuses the field without opening the popup immediately. The
-trailing chevron button toggles the dropdown, while typing or pressing ArrowDown opens it. Set
-`openOnControlClick={true}` if you want any click on the field to open the options list.
+By default, clicking inside the control focuses the input without opening the popup. The trailing
+chevron button toggles the popup, and typing non-blank text or pressing ArrowDown opens it. Set
+`openOnControlClick` to open the popup on any click on the control outside its buttons.
 
 ```tsx
 <Combobox items={items} placeholder="Click the chevron to open" />
@@ -140,18 +151,23 @@ trailing chevron button toggles the dropdown, while typing or pressing ArrowDown
 
 ### Keyboard interaction
 
-| Key                 | Behavior                                                                    |
-| ------------------- | --------------------------------------------------------------------------- |
-| ArrowDown / ArrowUp | Open the popup or navigate through matched options                          |
-| Enter               | Commit the currently highlighted option                                     |
-| Escape              | Revert query text or close the dropdown                                     |
-| Home / End          | Move text cursor within input (or navigate options when listbox is focused) |
+Focus stays in the input; the highlighted option is exposed through `aria-activedescendant`.
+
+| Key                 | Behavior                                                                          |
+| ------------------- | --------------------------------------------------------------------------------- |
+| ArrowDown / ArrowUp | Open the popup and move the highlight through enabled options                     |
+| PageUp / PageDown   | Move the highlight by one page of options while open                              |
+| Enter               | Open the popup, or commit the highlighted option while open                       |
+| Escape              | Close the popup; with the popup closed and `clearable`, clear the value and query |
+| Backspace / Delete  | With an empty input and `clearable`, clear the value                              |
+| Tab                 | Close the popup and move focus on                                                 |
+| Home / End          | Move the text cursor; they never move the highlight                               |
 
 ### Virtualization
 
-Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
-keyboard navigation.
+Pass a `virtualizer` from `createListVirtualizer` when rendering the full collection makes opening
+or scrolling slow. Type it over `ComboboxT.Row`. Read the [Virtualization guide](/docs/virtualization)
+for setup, row measurement, stable keys, and keyboard navigation.
 
 ```tsx
 <Combobox items={items} virtualizer={virtualizer} />
@@ -161,8 +177,8 @@ keyboard navigation.
 
 ### Search a framework
 
-Filter a local collection as the user types. `clearable` removes the committed value without
-keeping leftover query text as a selection.
+Filter a local collection as the user types. `clearable` removes the committed value and the
+query text.
 
 <Preview path="./basic" />
 
@@ -174,36 +190,37 @@ Put `icon` and `description` on each item when the option needs a status mark an
 
 ### Assign a teammate
 
-Search people by name or email. Set `openOnControlClick` when clicking the field should open the
-list immediately.
+Search people by name; each item's `description` shows the email and role. The default filter
+matches the label only. Set `openOnControlClick` to open the list as soon as the user clicks the
+control.
 
 <Preview path="./user-picker" />
 
 ### Match by contains or prefix
 
-Set `filterMethod="contains"` (default) or `filterMethod="startsWith"` when the query should match
-anywhere in the label or only at the start.
+`filterMethod` defaults to `'contains'`, which matches the query anywhere in the label. Set
+`'startsWith'` or `'endsWith'` to match only at that end of the label, or pass a predicate for
+custom matching.
 
 <Preview path="./filter-strategies" />
 
 ### Search remote repositories
 
-Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set `filterMethod={false}`
-when the server already returns the matched items.
+Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set
+`filterMethod={false}` when the server already returns the matched items.
 
 <Preview path="./async-search" />
 
 ### Browse grouped technologies
 
-Organize options into `type: 'group'` entries. Customize the empty state when the query has no
-matches.
+Organize options into `type: 'group'` entries. Use `emptyRender` to customize the empty state when
+the query has no matches.
 
 <Preview path="./groups" />
 
 ### Search a large collection
 
-Pass `createListVirtualizer` when the list is large enough that rendering every row on open is
-slow.
+Pass a `createListVirtualizer` instance as `virtualizer` when rendering every row on open is slow.
 
 <Preview path="./virtualization" />
 
@@ -225,8 +242,8 @@ clears the picker.
 
 ### Open the list from the whole field
 
-Default typing and the chevron toggle the popup. Set `openOnControlClick` when a click anywhere in
-the field should open the list, as in an assignee picker.
+By default, typing and the chevron button open the popup. Set `openOnControlClick` when a click
+anywhere on the control should open it, as in an assignee picker.
 
 <Preview path="./explicit-trigger" />
 

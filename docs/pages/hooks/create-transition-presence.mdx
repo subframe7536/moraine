@@ -5,7 +5,7 @@ search:
   tags: [createTransitionPresence, presence, exit animation, transition, animation, mounting]
 ---
 
-`createTransitionPresence` coordinates enter and exit animations for conditionally rendered elements. When `open` becomes `false`, `present()` stays `true` until the element's CSS exit animations settle, so you can render it with `<Show when={present()}>` and let the exit animation run before it unmounts.
+`createTransitionPresence` keeps conditionally rendered elements mounted while their CSS exit animation runs. When `open` becomes `false`, `present()` stays `true` until the registered elements' exit animations settle. Render the element with `<Show when={present()}>` so it unmounts only after the animation ends.
 
 ## Import
 
@@ -29,7 +29,7 @@ interface TransitionPresenceState {
     readonly 'data-closed'?: string
     readonly 'data-expanded'?: string
   }
-  setElement: (element: HTMLElement | undefined) => void
+  /** Tracks an element until its exit animation settles; call the returned function to release it. */
   registerElement: (element: HTMLElement) => () => void
 }
 ```
@@ -37,12 +37,21 @@ interface TransitionPresenceState {
 ## Usage Example
 
 ```tsx title="src/AnimatedDialog.tsx"
-import { Show, createSignal } from 'solid-js'
+import { Show, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { createTransitionPresence } from 'moraine/utils'
 
 export function AnimatedDialog() {
   const [open, setOpen] = createSignal(false)
   const presence = createTransitionPresence({ open })
+  const [panel, setPanel] = createSignal<HTMLDivElement>()
+
+  createEffect(
+    on(panel, (element) => {
+      if (element) {
+        onCleanup(presence.registerElement(element))
+      }
+    }),
+  )
 
   return (
     <>
@@ -50,7 +59,7 @@ export function AnimatedDialog() {
 
       <Show when={presence.present()}>
         <div
-          ref={presence.setElement}
+          ref={setPanel}
           {...presence.dataAttrs}
           class="data-expanded:animate-mo-enter data-closed:animate-mo-exit p-6 bg-card border rounded-xl"
         >
@@ -64,6 +73,8 @@ export function AnimatedDialog() {
 
 ## Details
 
-- Register the animating element with `setElement` (one element) or `registerElement` (which returns a disposer). The hook then listens for `animationstart`, `animationend`, and `animationcancel` on it.
-- `onExitComplete` runs after the exit settles and `present()` turns `false`.
-- Measured zero-duration animations and cancelled animations complete the exit immediately, so a missing or interrupted animation does not leave the element mounted.
+- Register each animating element with `registerElement`, which returns a release function. Register from the component that renders the element, not inside its `ref` callback, so the owner releases the registration on unmount. The hook listens for `animationstart`, `animationend`, and `animationcancel` on the element.
+- `present()` starts as the initial `open()` value. It turns `true` as soon as `open` is `true`.
+- With no registered element, `present()` turns `false` as soon as `open` is `false`.
+- `onExitComplete` runs once the exit settles and `present()` turns `false`.
+- Zero-duration and cancelled animations complete the exit immediately, so a missing or interrupted animation does not leave the element mounted.

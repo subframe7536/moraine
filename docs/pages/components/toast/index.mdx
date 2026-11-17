@@ -32,8 +32,10 @@ import Playground from './playground'
                 slot: 'wrapper',
                 children: [{ slot: 'title' }, { slot: 'description' }],
               },
-              { slot: 'action' },
-              { slot: 'cancel' },
+              {
+                slot: 'actions',
+                children: [{ slot: 'cancel' }, { slot: 'action' }],
+              },
               { slot: 'close' },
               { slot: 'progress' },
             ],
@@ -45,15 +47,16 @@ import Playground from './playground'
 />
 
 `<Toast />` renders a portaled `root` with `role="region"` and `aria-live="polite"`, holding one
-`list` stack per placement. Each notification is an `item`. The `icon` reflects the type, and the
-`action`, `cancel`, `close`, and `progress` slots appear when the matching option is set.
+`list` stack per placement and alignment. Each notification is an `item`. The `icon` reflects the
+`type`. The `actions` row (holding `cancel` and `action`), `close`, and `progress` appear when the
+matching option is set.
 
 ## Usage
 
 Use Toast for temporary feedback that stays in the page. Use [Alert Dialog](/components/alert-dialog)
 when the next step should wait for an explicit choice.
 
-Mount `<Toast />` once. It holds no open state. Trigger notifications from event handlers with the
+Mount `<Toast />` once. It holds no open state. Open notifications from event handlers with the
 static methods.
 
 ```tsx
@@ -80,8 +83,11 @@ throws. On the server the call returns a handle whose `result()` is already `'ap
 interface Action {
   label?: JSX.Element
   variant?: ButtonT.Variants['variant']
+  tone?: ButtonT.Variants['tone']
   leading?: IconT.Name
   disabled?: boolean
+  class?: SlotClassValue
+  style?: SlotStyleValue
   onClick?: (event?: MouseEvent) => void | Promise<unknown>
 }
 
@@ -106,24 +112,26 @@ and a swipe close with `'dismiss'` and do not run the cancel handler. The timer 
 `'timeout'`. `result()` resolves once with that reason, and calling it again returns the same
 promise. The handle itself is not a promise.
 
-`update` merges the next options into an open instance. An update after close does not reopen it.
-Reusing an open `id` updates that instance in place and replays its entrance. `update` replaces
-`action` and `cancel` as a whole, so include `onClick` again when the label changes.
+`update` merges the next options into an open instance and restarts its timer. An update after close
+does not reopen it. Reusing an open `id` in a new call updates that instance in place and returns
+its existing handle. `update` replaces `action` and `cancel` as a whole, so include `onClick` again
+when the label changes.
 
 Custom content has two entry points. `Toast.custom(render, options?)` supplies a render for that
 call. `<Toast itemRender={render} />` supplies one for every other call on that host. A `.custom()`
-render wins, then the host render, then the built-in layout. The render receives the id, the
-resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `index`, and
+render wins, then the host render, then the built-in layout. The render receives the `id`, the
+resolved `options`, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `index`, and
 `expanded`. It replaces the inner content. The toast keeps its stack, swipe, timer, and live region.
+`close()` closes with `'dismiss'` unless you pass a reason.
 
 A call without `host` goes to the host without an id and throws if only hosts with an id are
 mounted. Pass `host` to target `<Toast id="alerts" />`.
 
 ### Methods
 
-`show` is the neutral notice. `info`, `success`, `warning`, and `error` set the type. `loading` is
-`show` with `type: 'loading'`. A loading toast stays open because of that type. After `update`
-changes the type, the normal duration applies again.
+`show` is the neutral notice. `info`, `success`, `warning`, and `error` set the `type`. `loading` is
+`show` with `type: 'loading'`. A loading toast never closes on its own because of that type. After
+`update` changes the type, the normal duration applies again.
 
 ```ts
 Toast.show(options)
@@ -148,9 +156,9 @@ Toast.show({ title: 'Draft saved' })
 
 ### Action and dismissal
 
-`action` is the primary button. `cancel: true` uses the locale label, and `cancel: { label }`
-sets one. The corner button is shown when `closable` is set. Loading toasts hide the close button and
-the progress bar.
+`action` is the primary button. `cancel: true` uses the locale label, and `cancel: { label }` sets
+one. The corner close button shows when `closable` is set on the call or the host. Loading toasts
+hide the close button and the progress bar.
 
 ```tsx
 Toast.show({
@@ -179,12 +187,28 @@ Toast.success({
 
 `<Toast size="lg" />` applies that layout to every toast on the host.
 
+### Host options
+
+`<Toast />` options set defaults for every toast on that host, and call options override them.
+`placement` (`'top'` or `'bottom'`, default `'bottom'`) and `align` (default `'end'`) choose the
+corner; each placement and alignment pair gets its own stack. `type`, `size`, `variant`, `duration`,
+`closable`, `progress`, and `preventDuplicate` set per-toast defaults. `visibleToasts` (default 3)
+limits each stack, and later toasts stay queued until earlier ones close. A collapsed stack expands
+while the pointer is over it; set `expand` to keep it expanded. `gap` (default 14 px) sets the
+spacing between toasts. `translations` overrides the viewport label and the close and cancel
+labels.
+
+```tsx
+<Toast placement="top" align="center" visibleToasts={5} closable progress />
+```
+
 ### Promises
 
-`promise` opens a loading toast and updates it when the promise settles. `loading`, `success`, and
-`error` are the same options object used everywhere else. `success` and `error` may also be
-functions of the settled value. When either is omitted, that outcome closes the toast with `'api'`.
-The method returns the ordinary handle. Keep the original promise when you need the value.
+`promise` opens a loading toast and updates it when the promise settles. It accepts a promise or a
+function that returns one. `loading`, `success`, and `error` are the same options object used
+everywhere else. `success` and `error` may also be functions of the settled value or the rejection
+reason. When either is omitted, that outcome closes the toast with `'api'`. The method returns the
+ordinary handle. Keep the original promise when you need the value.
 
 ```tsx
 const task = deployProject()
@@ -206,10 +230,13 @@ handle.close()
 Toast.close()
 ```
 
+`Toast.close(id)` closes one toast, and `Toast.close()` without an id closes every toast.
+
 ### Duplicates
 
 `preventDuplicate` compares the new toast with the front toast in the same host and corner. A match
-bumps that toast and returns its handle. The option is a boolean on the host or on the call.
+bumps that toast, restarting its timer, and returns its handle. The option is a boolean on the host
+or on the call. It does not apply to a call that sets `id`.
 
 ```tsx
 Toast.info({
@@ -220,8 +247,9 @@ Toast.info({
 
 ### Duration and progress
 
-`duration` defaults to 4000 milliseconds. `progress` shows the remaining-time bar. Hovering the
-list, leaving the window, or a pending action pauses the timer.
+`duration` defaults to 4000 milliseconds, and `Infinity` keeps the toast open until dismissed.
+`progress` shows the remaining-time bar. The timer pauses while the pointer is over the stack, the
+window is blurred or the tab is hidden, a swipe is in progress, or an action promise is pending.
 
 ### Custom content
 
@@ -252,8 +280,8 @@ The action button restores the conversation with another toast.
 
 ### Report distinct task outcomes
 
-Tone methods set the icon and the live-region role. An error toast uses `alert`. The others use
-`status`.
+The `type` methods set the icon and the live-region role. An error toast uses `alert`. The others
+use `status`.
 
 <Preview path="./status-outcomes" />
 

@@ -48,15 +48,19 @@ export function Example() {
 }
 ```
 
-BoldSlider is built on Slider, so `value`, `defaultValue`, `min`, `max`, `step`, `marker`,
-`reversed`, form props, keyboard interaction, and `translations` behave the same way.
+BoldSlider is built on Slider, so `value`, `defaultValue`, `onValueChange`, `onValueCommit`, `min`,
+`max`, `step`, `marker`, `reversed`, form props, keyboard interaction, and `translations` behave the
+same way. The value is always a single `number`; BoldSlider has no range or multi-thumb mode. `size`
+accepts `sm`, `md` (default), or `lg`.
 
 ### Label and value
 
 `label` is drawn at the start of the track; a string label is also the default `aria-label`. The
 value is drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to
-the decimal places of `step`. Pass a function to `valueLabel` to add units or other formatting. It
-receives `{ percent, value, max }`, the same shape as Progress `valueLabel`.
+the decimal places of `step` (two places without `step`) and has no digit grouping. Set
+`formatOptions` to format it with `Intl.NumberFormat` instead. Pass a function to `valueLabel` to add
+units or other formatting. It receives `{ percent, value, max }`, the same shape as Progress
+`valueLabel`. `percent` is the filled share of the track from 0 to 100, and `max` is 100 when unset.
 
 Both texts are drawn twice: once over the track and once clipped to the filled range. Each part of
 the text uses the colors of the surface behind it, so it stays readable while the fill passes
@@ -76,15 +80,16 @@ The label, value, and indicator keep the same colors over the fill and the track
 ### Step and markers
 
 Set `step` to snap pointer and keyboard input to increments. Without `step`, pointer movement is
-continuous. Set `marker` to `true` to draw a tick at each step, or to a number to draw a tick every
-that many units without changing how the value snaps. Ticks use `muted-foreground`, so they stay
-visible in light and dark themes.
+continuous and arrow keys move by 1% of the range. Set `marker` to `true` to draw a tick at each
+step (this requires a `step` greater than 0), or to a number to draw a tick every that many units
+without changing how the value snaps. Ticks use `muted-foreground`, so they stay visible in light
+and dark themes.
 
 ### Indicator
 
-The indicator is a capsule just inside the edge of the fill. When the value is 0, the fill and
-indicator collapse to zero so the track is completely clear. Once the value is greater than 0, the fill
-appears and the indicator sits just inside its edge. Where it sits on the fill it uses
+The indicator is a capsule just inside the edge of the fill. When the value is 0, the fill is hidden
+and the indicator rests at the minimum-fill position as a drag anchor. Once the value is greater than
+0, the fill appears and the indicator sits just inside its edge. Where it sits on the fill it uses
 `--bs-indicator-fill`, and where it sits on the track it uses `--bs-indicator-track`, so its color
 follows the surface behind it. It stays dim and shorter at rest, and brightens to full size while
 the track is hovered, the slider is dragged, or the thumb has keyboard focus. Clicking the track

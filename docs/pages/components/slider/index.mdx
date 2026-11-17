@@ -49,20 +49,25 @@ export function Example() {
 
 ### Single values and ranges
 
-Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with
-`onValueChange` for controlled state; `onValueChange` also reports immediate updates during drag
-when the slider owns its value.
+Use a number for one thumb and an array for one thumb per entry, such as an ordered pair for a
+range. Values are clamped to `min`–`max` (default `0`–`100`), and arrays are sorted. Pair `value`
+with `onValueChange` for controlled state, or use `defaultValue` for uncontrolled state; its shape
+sets the shape of the value that callbacks receive.
+
+`onValueChange` fires on every change during a drag, track click, or key press, but not for
+programmatic changes to `value`. Use `onValueCommit` to react once when the interaction ends, such
+as when saving a setting.
 
 ```tsx
 <Slider value={volume()} onValueChange={setVolume} />
-<Slider value={range()} onValueChange={setRange} />
+<Slider value={range()} onValueChange={setRange} onValueCommit={saveRange} />
 ```
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to fixed increments. Set `marker` to
-`true` to draw a tick at each step, or to a number to draw a tick every that many units without
-changing how the value snaps.
+Set `step` to snap pointer drag and keyboard navigation to multiples of it from `min`. Set `marker`
+to `true` to draw a tick at each step (this requires a `step` above `0`), or to a number to draw a
+tick every that many units without changing how the value snaps.
 
 ```tsx
 <Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
@@ -72,8 +77,9 @@ changing how the value snaps.
 ### Value text format
 
 `formatOptions` accepts `Intl.NumberFormat` options and formats each thumb's `aria-valuetext` with
-the provider locale. BoldSlider also uses it for the visible value unless `valueLabel` is a
-formatter.
+the provider locale. It does not change the value that callbacks receive. A `percent` style
+multiplies by 100, so pair it with a `0`–`1` range. BoldSlider also uses `formatOptions` for its
+visible value unless `valueLabel` is a formatter.
 
 ```tsx
 <Slider defaultValue={50} formatOptions={{ style: 'unit', unit: 'percent' }} aria-label="Zoom" />
@@ -92,7 +98,9 @@ you only need a label and messages.
 ### Custom content
 
 Pass `children` to render extra content inside the root after the thumbs. A render function
-receives the live `value`, sorted `values`, `percentages` from `0` to `1`, and `dragging` state.
+receives the live `value`, sorted `values`, `percentages` from `0` to `1`, `dragging` state, and the
+`startEdge` where the filled range begins. Declare the function's parameter even when you do not use
+it; a zero-argument function is called as an accessor and is not mounted as a component.
 
 ```tsx
 <Slider defaultValue={40}>{(state) => <output>{state.value}</output>}</Slider>
@@ -101,7 +109,9 @@ receives the live `value`, sorted `values`, `percentages` from `0` to `1`, and `
 ### Keyboard interaction
 
 When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized
-movement is approximately 10% of the range and is snapped to `step` when one is defined.
+movement is approximately 10% of the range and is snapped to `step` when one is defined. Horizontal
+arrow keys swap in right-to-left layouts, and a `reversed` vertical slider swaps <kbd>ArrowUp</kbd>
+and <kbd>ArrowDown</kbd>.
 
 | Key                                         | Description                                             |
 | ------------------------------------------- | ------------------------------------------------------- |

@@ -7,22 +7,22 @@ search:
   tags: [classes, styles, slots, customization, single, composite, data-slot, overrides]
 ---
 
-Moraine components expose typed slots and four class override layers. CSS theme tokens are a separate choice: change a semantic color or radius in CSS to update every component using that token. With UnoCSS, `presetMoraine()` emits neutral defaults and accepts named color overrides; with Tailwind, define them in CSS. Use `defineTheme()` when you need to change component recipes or default variants.
+Moraine components expose typed slots and four class override layers. CSS theme tokens are a separate mechanism: change a semantic color or radius in CSS to update every component that uses the token. With UnoCSS, `presetMoraine()` emits neutral defaults and accepts named color overrides; with Tailwind, define the tokens in CSS. Use `defineTheme()` to change component recipes or default variants.
 
 ## The 4-Layer Override Hierarchy
 
-When styling a component, choose the layer matching your intended scope:
+Choose the layer that matches the scope of your change:
 
-| Layer | Surface            | Scope                           | How to configure                                           |
-| :---: | :----------------- | :------------------------------ | :--------------------------------------------------------- |
-| **1** | **Base Recipe**    | Library defaults                | Built-in styles shipped with Moraine.                      |
-| **2** | **Theme Layer**    | Application or subtree defaults | Wrap in `<MoraineProvider theme={defineTheme(...)}>`       |
-| **3** | **Instance Slots** | Named slots on one instance     | `classes={{ slot: '...' }}` / `styles={{ slot: { ... } }}` |
-| **4** | **Direct Element** | Target DOM element on a part    | `class="..."` / `style={{ ... }}` directly on the element  |
+| Layer | Surface            | Scope                                        | How to configure                                           |
+| :---: | :----------------- | :------------------------------------------- | :--------------------------------------------------------- |
+| **1** | **Base Recipe**    | Library defaults                             | Built-in styles shipped with Moraine.                      |
+| **2** | **Theme Layer**    | Application or subtree defaults              | Wrap in `<MoraineProvider theme={defineTheme(...)}>`       |
+| **3** | **Instance Slots** | Named slots on one instance                  | `classes={{ slot: '...' }}` / `styles={{ slot: { ... } }}` |
+| **4** | **Direct Element** | The root element, or one part of a composite | `class="..."` / `style={{ ... }}` on that component        |
 
 ### How Classes Merge Across Layers
 
-Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) using Moraine's `cn` merger. Conflicting Tailwind/UnoCSS classes (e.g. `bg-primary` vs `bg-danger` or `p-2` vs `p-4`) resolve with the higher layer winning:
+Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) with Moraine's `cn` merger. When utilities conflict (for example `bg-primary` and `bg-danger`, or `p-2` and `p-4`), the higher layer wins. Two refinements apply: the `classes` of an ancestor component sit between the Theme layer and the instance, and classes a component enforces for functional reasons (positioning, virtual scroll sizes) always win and cannot be overridden. `styles` and `style` merge per property in the same order, and `undefined` or `null` values are skipped.
 
 ```tsx
 import { Button } from 'moraine'
@@ -31,9 +31,9 @@ export function CustomAction() {
   return (
     <Button
       tone="danger"
-      // Layer 4: direct class adds custom shadow
+      // Layer 4: `class` adds a shadow to the root element
       class="shadow-lg"
-      // Layer 3: instance slot classes customize inner elements
+      // Layer 3: slot `classes` style the inner elements
       classes={{
         label: 'font-mono uppercase tracking-widest',
         leading: 'text-danger-foreground',
@@ -45,13 +45,13 @@ export function CustomAction() {
 }
 ```
 
-See [Composition](/docs/composition) for public parts vs style slots, and [Theming](/docs/theming) for app-wide defaults (Layer 2).
+See [Composition](/docs/composition) for public parts versus style slots, and [Theming](/docs/theming) for app-wide defaults (Layer 2).
 
 ## Style Slots & the `data-slot` Contract
 
 ### CamelCase in TSX Props
 
-In TypeScript JSX, slot names on `classes` and `styles` are always camelCase:
+In TSX, slot names on `classes` and `styles` are always camelCase:
 
 ```tsx
 import { Select } from 'moraine'
@@ -72,12 +72,12 @@ export function StyledSelect() {
 
 ### Kebab-case `data-slot` in DOM
 
-In the rendered DOM, Moraine tags elements with standardized kebab-case `data-slot` attributes:
+In the rendered DOM, Moraine tags each slot element with a kebab-case `data-slot` attribute:
 
-- **Root elements**: `data-slot="<component>"` (e.g. `data-slot="select"`, `data-slot="button"`).
-- **Child slots**: `data-slot="<component>-<slot>"` (e.g. `data-slot="select-control"`, `data-slot="select-item-label"`).
+- **Root slot**: `data-slot="<component>"` (for example `data-slot="button"`).
+- **Other slots**: `data-slot="<component>-<slot>"` (for example `data-slot="select-control"` and `data-slot="select-item-label"`).
 
-This contract enables clean global CSS selectors or testing queries:
+Use this contract for global CSS selectors and test queries:
 
 ```css
 /* Custom backdrop blur for all Moraine select dropdowns */

@@ -1,17 +1,17 @@
 ---
 title: Polymorphism
-description: Render components as alternative HTML elements or custom SolidJS components with full type safety via the as prop.
+description: Render components as alternative HTML elements or custom SolidJS components with type safety through the as prop.
 sidebar:
   order: 2
 search:
   tags: [polymorphism, as, polymorphic, element, trigger, component polymorphism]
 ---
 
-Moraine components and parts that expose `as` can render a different element or Solid component while preserving their styles and typed props. State-only roots and native form controls such as `Input` do not expose `as`. When you change the element, give the result an accessible name and the semantics its role needs.
+Moraine components and parts that expose `as` can render a different element or Solid component while keeping their styles and typed props. State-only roots and native form controls such as `Input` do not expose `as`. When you change the element, give the result an accessible name and the semantics its role needs.
 
 ## Rendering as an HTML Element (`as="tag"`)
 
-By default, interactive components render sensible semantic elements (such as `<button>` for `Button` or `<div>` for `Card`). Use `as="tag"` to change the underlying HTML element:
+By default, components render a semantic element, such as `<button>` for `Button` and `<div>` for `Card`. Use `as="tag"` to change the element:
 
 ```tsx
 import { Button } from 'moraine'
@@ -28,7 +28,7 @@ export function NavigationLink() {
 
 ### TypeScript Attribute Narrowing
 
-When you specify `as="tag"`, Moraine automatically narrows the allowed props, event types, and `ref` callback parameter to match that specific HTML tag:
+With `as="tag"`, Moraine narrows the allowed props, event types, and `ref` callback parameter to that HTML tag:
 
 ```tsx
 import { Button } from 'moraine'
@@ -36,13 +36,13 @@ import { Button } from 'moraine'
 // Valid: 'href' and 'target' exist on <a>
 <Button as="a" href="/dashboard" target="_blank">Dashboard</Button>
 
-// Type Error: Property 'href' does not exist on HTMLButtonElement
+// Type error: 'href' is not a <button> attribute
 <Button as="button" href="/dashboard">Dashboard</Button>
 ```
 
 ## Rendering as a Solid Component (`as={Component}`)
 
-You can pass another SolidJS component to `as`. Moraine forwards the target component's props and keeps its types, so IDE autocompletion and type checks apply:
+Pass a SolidJS component to `as`. Moraine accepts the target component's props and checks them against its types, so autocompletion and type checking apply:
 
 ```tsx
 import { Button, DropdownMenu } from 'moraine'
@@ -50,7 +50,7 @@ import { Button, DropdownMenu } from 'moraine'
 export function MenuExample() {
   return (
     <DropdownMenu>
-      {/* Renders Button with its 'variant', 'size', and 'autoLoading' props intact */}
+      {/* Renders a Button and type-checks its 'variant' and 'size' props */}
       <DropdownMenu.Trigger as={Button} variant="ghost" size="icon-xs">
         Menu
       </DropdownMenu.Trigger>
@@ -60,17 +60,17 @@ export function MenuExample() {
 }
 ```
 
-Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Forward the root `ref` to let Moraine resolve native element semantics and manage focus. Ordinary event callbacks remain available even when the target does not forward its ref.
+Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Spread the received props onto one root element and forward its `ref`, so Moraine can resolve native element semantics and manage focus. `Dialog`, `Sheet`, `Drawer`, `Modal`, `DropdownMenu`, and `ContextMenu` triggers throw on mount when no element resolves from the component.
 
 ## Overlay Triggers and Composition
 
-Overlay triggers (`Dialog.Trigger`, `Popover.Trigger`, `Sheet.Trigger`, `DropdownMenu.Trigger`, `ContextMenu.Trigger`) are designed to be composed with `as={Button}`:
+Overlay triggers (`Dialog.Trigger`, `Sheet.Trigger`, `Drawer.Trigger`, `Popover.Trigger`, `Tooltip.Trigger`, `DropdownMenu.Trigger`) are designed to be composed with `as={Button}`:
 
-1. **State Injection**: The trigger automatically injects `aria-haspopup`, `aria-expanded`, and required click or pointer handlers into the rendered element.
+1. **State Injection**: The trigger injects ARIA state (`aria-haspopup`, `aria-expanded`, and `aria-controls` while the content is present) and the click, pointer, and keyboard handlers it needs into the rendered element. `Tooltip.Trigger` sets `aria-describedby` instead.
 2. **Event Merging**: If you provide your own `onClick` handler on `<Dialog.Trigger as={Button} onClick={...}>`, Moraine calls your handler first. If you call `event.preventDefault()`, the disclosure action is canceled.
-3. **Ref Forwarding**: Refs point directly to the underlying DOM button, allowing easy focus management.
+3. **Ref Forwarding**: The `ref` you pass receives the rendered DOM element, so you can manage focus.
 
-Modal, Dialog, Sheet, Popover, Tooltip, and DropdownMenu triggers handle composed clicks after a custom root's own click handler. For these triggers, the custom target does not receive the composed `onClick` prop; its own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including BaseSelect and ContextMenu triggers, forward `onClick` normally. Keyboard handlers run through the target's forwarding path in both the main document and iframe documents.
+`Modal`, `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, and `DropdownMenu` triggers handle clicks on a custom component after its own click handler runs. These custom targets do not receive the composed `onClick` prop; the target's own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including `BaseSelect` and `ContextMenu` triggers, forward `onClick` normally. Delegated events, including keyboard events, also reach custom targets rendered in an iframe document.
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -99,4 +99,4 @@ export function DeleteConfirmation() {
 
 ## Global Type Configuration
 
-If you want to restrict `as` autocompletion to standard HTML element tags (excluding SVG and MathML elements), enable `simpleHtmlTags` via module augmentation. See the [TypeScript Guide](/docs/typescript#simple-html-tags) for details.
+To restrict `as` autocompletion to standard HTML element tags (excluding SVG and MathML elements), enable `simpleHtmlTags` through module augmentation. To relax the tag-specific attribute narrowing, enable `simpleRootAttributes`. See the [TypeScript guide](/docs/typescript#global-type-configuration-moraine-type-config) for details.

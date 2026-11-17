@@ -7,11 +7,11 @@ search:
   tags: [animation, keyframes, transitions, duration, motion, enter, exit, accordion]
 ---
 
-Moraine provides CSS animations through the UnoCSS preset and Tailwind 4 plugin. Built-in keyframes and transform utilities read the duration variables shown below. Set these variables in CSS; UnoCSS theme overrides cover design tokens, not animation controls.
+The UnoCSS preset and the Tailwind 4 plugin provide Moraine's CSS animations. The built-in keyframes and transform utilities read the duration variables shown below. Set these variables in CSS; the preset's theme overrides cover design tokens, not animation controls.
 
 ## Built-in Animation Utilities
 
-The following animation utilities are registered by `presetMoraine()` and `moraine/tailwind`:
+`presetMoraine()` and `moraine/tailwind` register the following animation utilities:
 
 | Utility                     | Description                                                         | Iteration |
 | :-------------------------- | :------------------------------------------------------------------ | :-------- |
@@ -28,10 +28,12 @@ The following animation utilities are registered by `presetMoraine()` and `morai
 | `animate-swing-vertical`    | Oscillating vertical swing (`60%` to `-60%`).                       | Infinite  |
 | `animate-elastic`           | Horizontal stretch and snap translation.                            | Infinite  |
 | `animate-elastic-vertical`  | Vertical stretch and snap translation.                              | Infinite  |
+| `animate-toast-bump`        | Brief scale pulse when a toast updates.                             | 1         |
+| `animate-toast-progress`    | Toast countdown bar shrinking from full to empty width.             | 1         |
 
 ## Parametric Transform Utilities
 
-`animate-mo-enter` and `animate-mo-exit` read parametric CSS variables defined by matching utility classes. Combine them to create custom entrance and exit choreographies without writing custom keyframes:
+`animate-mo-enter` and `animate-mo-exit` read CSS variables that matching utility classes set. Combine the utilities to build custom entrance and exit motion without writing keyframes:
 
 ```tsx
 export function AnimatedPopover() {
@@ -58,7 +60,7 @@ export function AnimatedPopover() {
 
 ## Animation Durations and Easing
 
-Moraine defines default durations and easing curves for each animation type:
+Moraine defines a default duration and easing curve for each animation type. Keyframes that fit no named type (such as `animate-accordion-down` and `animate-toast-bump`) use the `enter` duration and curve, except `animate-toast-progress`, which sets its own duration per toast.
 
 ```css
 :root {
@@ -77,8 +79,8 @@ Moraine defines default durations and easing curves for each animation type:
 ```
 
 - **`--mo-anim-duration`** overrides every Moraine animation duration when defined.
-- If `--mo-anim-duration` is not set, each animation falls back to its type-specific duration (`enter`, `exit`, `loop`, or `spin`).
-- **`--mo-anim-ease`** overrides the easing of `animate-mo-enter` and `animate-mo-exit` in its scope. When unset, they read `--mo-anim-ease-enter` and `--mo-anim-ease-exit`, respectively, then fall back to the curves below. Set these variables on the animated element or a DOM ancestor; portaled content cannot inherit from a trigger's container outside the portal.
+- When `--mo-anim-duration` is unset, each animation uses its type-specific duration (`enter`, `exit`, `loop`, or `spin`).
+- **`--mo-anim-ease`** overrides the easing of `animate-mo-enter` and `animate-mo-exit` in its scope. When it is unset, they read `--mo-anim-ease-enter` and `--mo-anim-ease-exit` respectively, then fall back to the curves below. Set these variables on the animated element or a DOM ancestor. Portaled content cannot inherit from a trigger's container, because the portal is outside it.
 - **Easing curves**:
   - `enter`: `cubic-bezier(0.16, 1, 0.3, 1)` (snappy ease-out)
   - `exit`: `cubic-bezier(0.7, 0, 0.84, 0)` (accelerating ease-in)
@@ -89,7 +91,7 @@ Moraine defines default durations and easing curves for each animation type:
 
 ## Disclosure Height Token
 
-Collapsible and Accordion components calculate their rendered panel dimensions and set `--mo-collapsible-content-height` on the disclosure container element. The `animate-accordion-down` and `animate-accordion-up` keyframes read this variable to animate smoothly between `0` and the exact natural content height.
+Collapsible and Accordion measure their panel and set `--mo-collapsible-content-height`, in pixels, on the disclosure container (the Collapsible root or the Accordion item content). The `animate-accordion-down` and `animate-accordion-up` keyframes read this variable to animate between `0` and the panel's natural height.
 
 ```css
 @keyframes accordion-down {

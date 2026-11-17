@@ -53,8 +53,9 @@ import Playground from './playground'
 ## Usage
 
 Use Card to group related content and actions on a neutral surface. Its parts are structural and add
-no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a
-heading with `as` when the page needs one.
+no interactive behavior or ARIA relationships. The root, `Card.Title`, and the other parts render a
+`div` by default (`Card.Description` renders a `p`); set `as` to change the element, such as a
+heading for the title or `article` for the root.
 
 ```tsx
 import { Card } from 'moraine'
@@ -73,10 +74,11 @@ export function Example() {
 
 ### Variants and sizes
 
-Every variant has an outer border, and the header keeps the same appearance as the body. `outline`
+Every variant has an outer border, and the header looks the same as the body. `outline` (default)
 adds a top border to the footer. `subtle` adds the footer divider and a muted footer background.
-`none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the
-density of the header, body, footer, title, and description together.
+`none` keeps only the outer border and the part spacing. The `sm`, `md` (default), and `lg` sizes
+change the density of the header, body, footer, title, and description together. Set `variant` and
+`size` on `Card`; the parts inherit them.
 
 ```tsx
 <Card variant="subtle" size="sm">
@@ -90,8 +92,9 @@ density of the header, body, footer, title, and description together.
 ### Parts
 
 Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root
-spaces the sections. Direct children can still span the card's full width. Place actions in
-`Card.Action` or `Card.Footer`.
+spaces the sections. Direct children can still span the card's full width. Place a control for the
+whole card in `Card.Action`, which sits at the end of the header beside the title and description.
+Place other actions in `Card.Footer`.
 
 ```tsx
 <Card>
@@ -118,15 +121,15 @@ Pair a heading, description, and footer actions when the card is the decision su
 
 ### Publish a release announcement
 
-Card does not choose a heading level. Use `as="h2"` or another appropriate level, and `as="article"`
-when the card is a standalone story.
+Card does not choose a heading level. Set `as` on `Card.Title` to the level that fits the page, such
+as `h2`, and set `as="article"` on `Card` when the card is a standalone story.
 
 <Preview path="./card-semantics" />
 
 ### Open a gallery item
 
-Place media directly inside `Card` to span its width. Clip overflow on the root only if the image
-must follow the card radius.
+Place media directly inside `Card` to span its width. Clip overflow on the root with `overflow-hidden`
+only if the image must follow the card radius.
 
 <Preview path="./with-image" />
 

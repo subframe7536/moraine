@@ -16,10 +16,7 @@ import { createMediaQuery } from 'moraine/utils'
 ## Signature
 
 ```ts
-function createMediaQuery(
-  query: string | Accessor<string>,
-  defaultValue?: boolean,
-): Accessor<boolean>
+function createMediaQuery(query: string | Accessor<string>, defaultValue = false): Accessor<boolean>
 ```
 
 ## Usage Example
@@ -41,6 +38,8 @@ export function ResponsiveLayout() {
 
 ## Features
 
-- Returns `defaultValue` during server rendering, then attaches a `matchMedia` listener in the browser.
+- Returns `defaultValue` during server rendering and until the first client effect runs, so server and hydrated markup match. It then reads the real match state and subscribes to changes with `matchMedia`.
 - The `query` argument may be an accessor, so the tracked query can change reactively (for example, `() => isDesktop() ? '(min-width: 1024px)' : '(min-width: 640px)'`).
-- Removes the media listener when the Solid owner disposes.
+- Accepts a query with a leading `@media`; the prefix is stripped.
+- Removes the media listener when the Solid owner disposes or the query changes.
+- Stays at `defaultValue` when `window.matchMedia` is unavailable.

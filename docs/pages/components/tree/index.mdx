@@ -115,14 +115,14 @@ Always name the tree with `aria-label` or `aria-labelledby` on `tree.Tree`.
 Behavior is configured on `createTree`; presentation is configured on `tree.Tree`. The generated
 API reference below lists `tree.Tree` and part props. `createTree` options are listed here.
 
-| Concern    | `createTree` options                                                                                                    |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Data       | `items` (accessor), `getKey`, `getChildren`, `getTextValue`, `isDisabled`, `isLeaf`                                     |
-| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedChange`, `expandOnClick` (`true`), `trigger` (`true`)                 |
-| Selection  | `selectionMode` (`'single'`, also `'multiple'` or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange` |
-| Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedChange`                  |
-| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                         |
-| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                      |
+| Concern    | `createTree` options                                                                                                           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Data       | `items` (accessor), `getKey`, `getChildren`, `getTextValue`, `isDisabled`, `isLeaf`                                            |
+| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedChange`, `expandOnClick` (`true`), `trigger` (`true`)                        |
+| Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange` |
+| Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedChange`                         |
+| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                                |
+| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                             |
 
 | Concern      | `tree.Tree` props                                                                 |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -320,15 +320,14 @@ const sortable = createTreeSortable(tree, {
 - Moves into the dragged item or its descendants are rejected. Pass `canDrop` for other rules.
 - Hovering inside a collapsed item for 600 ms expands it, which also loads lazy children. Set
   `expandDelay` to change or disable it.
-- The tree styles the drag: the item stays in place while a copy at 60% opacity follows the
-  pointer, the row under the pointer keeps
-  its hover background, `before` and `after` draw a straight line from the label start, and
-  `inside` rings the row. They follow `data-dnd-dragging` and `data-drop-position` on `tree.Item`, so
-  override them through the `row` slot.
+- The tree styles the drag: a copy stays in place while the dragged item follows the pointer at 60%
+  opacity, the row under the pointer keeps its hover background, `before` and `after` draw a
+  straight line from the label start, and `inside` rings the row. These styles follow
+  `data-dnd-dragging` and `data-drop-position` on `tree.Item`; override them through the `row` slot.
 - After the drop, the moved item slides from where it was released into its new place. A drop
   inside a collapsed item expands it first. Set `dropAnimation: false` to place it at once.
-- Keyboard dragging starts only from `node.handleRef`, so Space and Enter on an item keep selecting
-  and activating it. Arrow keys move along the visible rows.
+- Keyboard dragging starts only from `node.handleRef`, so <kbd>Space</kbd> and <kbd>Enter</kbd> on
+  an item keep selecting and activating it. Arrow keys move along the visible rows.
 - With a `virtualizer`, pass `rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer`
   so the dragged row stays mounted while it is scrolled out of view.
 - `moveTreeNode` only moves nodes that are in your data. Children from `loadChildren` live in the

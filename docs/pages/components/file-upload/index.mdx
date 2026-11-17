@@ -67,20 +67,48 @@ export function Example() {
 shows a compact picker button. Clicking anywhere in the visible control, including its padding, icon,
 and text, opens the file picker. `dropzone` (default `true`) only controls whether files can be
 dropped onto the control; it does not change how the control looks. File previews and removal
-actions are outside the picker hit area. Use `multiple` when the value can contain more than one
-`File`; `onValueChange` receives either a single file, an array, or `null`.
+actions are outside the picker hit area.
+
+Use `multiple` when the value can hold more than one `File`. New files are appended to the
+selection, and `value` and `onValueChange` use a `File[]`. Without `multiple`, a new file replaces
+the current one, and the value is `File | null`.
 
 ```tsx
 <FileUpload multiple label="Click anywhere or drop files" description="Choose documents and images." />
 <FileUpload variant="button" label="Attach files" />
 ```
 
+### Selected file list
+
+The selected files appear in a list below the control, with an image thumbnail for image files and
+`fileIcon` for other types. Set `fileList={false}` to omit the list and render the selection
+yourself from `onValueChange`. Use `itemRender` to replace each entry. It receives `file`, `index`,
+`previewUrl`, `remove`, and `disabled`, and must return an `<li>`.
+
+```tsx
+<FileUpload
+  multiple
+  itemRender={(item) => (
+    <li>
+      {item.file.name}
+      <button type="button" disabled={item.disabled} onClick={item.remove}>
+        Remove
+      </button>
+    </li>
+  )}
+/>
+```
+
 ### Rejections and form behavior
 
-`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added.
-Handle `onReject` to present rejected files and their reason codes. `readOnly` prevents changes
-while preserving the selected list. It inherits an enclosing Field read-only state when omitted; an
-explicit `readOnly={false}` overrides that state. `disabled` also removes interaction.
+`accept`, `minSize`, `maxSize`, and `maxFiles` validate each picked or dropped file before it is
+added. `maxFiles` counts files already selected and applies only with `multiple`. Rejected files are
+reported to `onReject` with reason codes (`FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`,
+`FILE_DUPLICATE`, `TOO_MANY_FILES`); accepted files from the same batch are still added.
+
+`readOnly` keeps the selected list visible but blocks adding and removing files. `disabled` removes
+all interaction. Both inherit the enclosing Field's state when omitted, and an explicit `false`
+overrides it.
 
 ```tsx
 <FileUpload

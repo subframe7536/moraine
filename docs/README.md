@@ -4,7 +4,7 @@ The private `@moraine/docs` workspace imports the Moraine library from `src/`. V
 
 ## Information architecture
 
-The landing is `/`. Conceptual documentation lives under `/docs/**`, and component reference lives at `/components` and `/components/**`. These are separate navigation spaces in the header, sidebar, and Previous/Next controls. Search covers both spaces.
+The landing is `/`. Conceptual documentation lives under `/docs/**`, component reference at `/components` and `/components/**`, and the hook reference at `/hooks` and `/hooks/**`. These are separate navigation spaces in the header, sidebar, and Previous/Next controls. Search covers all three.
 
 ```text
 docs/pages/docs/(overview)/getting-started.mdx       → /docs/getting-started
@@ -16,6 +16,9 @@ docs/pages/docs/(guides)/polymorphism.mdx            → /docs/polymorphism
 docs/pages/docs/(guides)/typescript.mdx              → /docs/typescript
 docs/pages/docs/(guides)/ssr.mdx                     → /docs/ssr
 docs/pages/docs/(guides)/accessibility.mdx           → /docs/accessibility
+docs/pages/docs/(guides)/virtualization.mdx          → /docs/virtualization
+docs/pages/docs/(guides)/localization.mdx            → /docs/localization
+docs/pages/docs/(guides)/drag-and-drop.mdx           → /docs/drag-and-drop
 docs/pages/docs/(styling)/design.mdx                 → /docs/design
 docs/pages/docs/(styling)/customization.mdx          → /docs/customization
 docs/pages/docs/(styling)/theming.mdx                → /docs/theming
@@ -25,18 +28,18 @@ docs/pages/docs/(styling)/class-merging.mdx          → /docs/class-merging
 docs/pages/hooks/index.mdx                           → /hooks
 docs/pages/hooks/create-*.mdx                        → /hooks/create-*
 docs/pages/components/index.mdx                      → /components
-docs/pages/components/(general)/button/index.mdx     → /components/button
+docs/pages/components/button/index.mdx               → /components/button
 ```
 
-Docs sections run Overview → Guides → Styling. Components run Overview → Buttons → Display → Form → Select → Layout → Overlay → Navigation. For docs sections, `sidebar.order` controls ordering within each section, while components and hooks are sorted alphabetically with their index page first. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
+Docs sections run Overview → Guides → Styling. Components run Overview → Buttons → Display → Form → Select → Layout → Overlay → Navigation, and hooks run Overview → Hooks. For docs sections, `sidebar.order` controls ordering within each section, while components and hooks are sorted alphabetically with their index page first. A component page picks its section from the `group` frontmatter field (`Buttons`, `Display`, `Form`, `Select`, `Layout`, `Overlay`, or `Navigation`); the directory layout under `docs/pages/components/` is flat. Group directories in parentheses under `docs/pages/docs/` are pathless and set the docs section. Component source, previews, and generated `api.json` stay colocated, and the generated `docs/pages/_api-index.json` lists every documented component.
 
 `docs/build/core/paths.ts` derives `surface`, `section`, `routePath`, and `markdownPath` from the source path. The canonical route path is used for metadata and page links; Markdown mirrors it with `.md`. The root landing has no Markdown page. Old root-level URLs have no redirect.
 
-`docs/vite.config.ts` excludes the UI implementation in `docs/routes/components/**/*.tsx` while allowing the MDX provider to discover `docs/pages/components/**/*.mdx`. Keep these ignore rules distinct.
+`docs/vite.config.ts` excludes the UI implementation in `docs/routes/components/**/*.{ts,tsx}`, the docs UI hooks in `docs/routes/hooks/**`, and `*.test.tsx` files from the file router, while allowing the MDX provider to discover `docs/pages/components/**/*.mdx`. Keep these ignore rules distinct. `docs/routes/hooks/**` holds the site's own helpers, such as theme and scroll handling, and is unrelated to the `/hooks` documentation pages in `docs/pages/hooks/`.
 
 ## Content contract
 
-All pages have validated frontmatter with `title`, `description`, optional `sidebar` (`order` for docs sections, optional `badge`), and nonempty `search.tags`. A component can additionally register `api.path`, optional API parts, and `upstreamHref`. Unknown fields fail the build. Surface and section come from the path rather than frontmatter.
+All pages have validated frontmatter with `title`, `description`, optional `sidebar` (`order` for docs sections, optional `badge`), and nonempty `search.tags`. A component page can additionally set `group` (its sidebar and directory section), `api` (`path`, optional `parts`, optional `root`), and `upstreamHref`. Unknown fields fail the build. Surface comes from the path; for docs and hooks pages the section does too.
 
 A component page uses this order:
 
@@ -56,7 +59,7 @@ components only to change what the recipe renders. Do not repeat utilities the c
 applies for the variant and size in use. Page content (Previews, Playgrounds, and code in MDX) may
 style components as a consumer would.
 
-`Usage` is text and fenced code only: no `<Preview />`. It teaches when to use the component, when not to, and how to compose the public API. Start with a short choice-oriented introduction and one complete TSX example that imports `moraine`. Follow with subsections that explain state, composition, and constraints the API table cannot convey; put a small code fence next to a behavior when a snippet teaches it faster than prose. Keep keyboard or accessibility rules that Moraine adds beside the relevant subsection. Do not repeat native browser behavior.
+`Usage` is text and fenced code only: no `<Preview />`. It teaches when to use the component, when not to, and how to compose the public API. Start with a short choice-oriented introduction and exactly one complete TSX example that imports `moraine` (or a `moraine/*` entry) before the first `###` subsection; `docs/build/content.test.ts` type-checks that example. Follow with subsections that explain state, composition, and constraints the API table cannot convey; put a small code fence next to a behavior when a snippet teaches it faster than prose. Keep keyboard or accessibility rules that Moraine adds beside the relevant subsection. Do not repeat native browser behavior.
 
 `Examples` is required. Each example is a real application task with a short agent-facing guide and a self-contained `<Preview />` whose TSX is the copyable source. Prefer tasks, compositions, and state transitions over catalogs of variants and sizes.
 
@@ -66,9 +69,9 @@ Preview paths are static, relative to a page, and point to a self-contained TSX 
 
 ## Build pipeline and Markdown
 
-`docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt` and a `.md` counterpart for each page. The development server serves the same Markdown paths.
+`docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt`, a `.md` counterpart for each page, and a `.json` API document for each documented component. The development server serves these documents for `/llms.txt`, `/docs/**`, and `/components/**`.
 
-Every generated document, including `/llms.txt`, starts with YAML frontmatter containing `title`, `description`, `package`, `version`, and `repository`. Package metadata comes from the root `package.json`; the repository is a browser-friendly GitHub URL. Markdown removes build-only frontmatter fields, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components directory with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
+Every generated document, including `/llms.txt`, starts with YAML frontmatter containing `title`, `description`, `package`, `version`, and `repository`. Package metadata comes from the root `package.json`; the repository is a browser-friendly GitHub URL. Markdown removes build-only frontmatter fields, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components and Hooks directories with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
 
 The shared shell in `docs/routes/_app.tsx` owns route scrolling and hash navigation; the table of contents observes visible headings. `docs/DESIGN.md` defines visual and interaction guidelines. Generated route types and `docs/dist` are build artifacts.
 

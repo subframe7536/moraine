@@ -7,7 +7,7 @@ search:
   tags: [CSS variables, tokens, colors, radius, shadows, z-index, contrast, spacing]
 ---
 
-Use semantic CSS variables to customize colors, typography, spacing, radiuses, and shadows. A variable applies to components that use it within its CSS scope.
+Use semantic CSS variables to customize colors, typography, spacing, border radii, and shadows. A variable applies to the components within its CSS scope.
 
 ## CSS Variables
 
@@ -17,7 +17,7 @@ Define the base color variables listed below for both the light and the dark the
 
 ### Color Tokens
 
-Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants, while tones additionally provide `-ink` and `-soft` for readable text and translucent washes. The swatches below use the live token values, so they follow the docs site's light or dark theme:
+Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants. Tones also provide `-ink` for readable text, `-soft` for translucent washes, and `-border` for subtle boundaries. The swatches below use the live token values, so they follow the docs site's light or dark theme:
 
 <ColorTokenTable />
 
@@ -34,6 +34,7 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--<tone>-hover`, `--<tone>-active`                                                                         | Tone interaction colors for `primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`.   | Generated state color mixing tone base with tone foreground.                                                           |
 | `--<tone>-ink`                                                                                              | Accessible text/indicator color for tones (`primary`, `secondary`, `neutral`, etc.).                     | Explicit override, then auto-mixed ink, then base fallback.                                                            |
 | `--<tone>-soft`                                                                                             | Translucent wash for tones (`primary`, `secondary`, `neutral`, etc.).                                    | Explicit override, then auto-mixed with transparent, then transparent.                                                 |
+| `--<tone>-border`                                                                                           | Opaque subtle boundary for tones.                                                                        | Explicit override, then auto-mixed with `--border`, then `--border`.                                                   |
 | `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | `--background`.                                                                                                        |
 | `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | `--background`.                                                                                                        |
 | `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
@@ -98,10 +99,10 @@ Use the UnoCSS defaults listed under [Moraine-specific Variables](#moraine-speci
 
 Moraine generates interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
 
-1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 8%) and `mix.active` (default 12%) percentages.
+1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 6%) and `mix.active` (default 10%) percentages.
 2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive `--<tone>-ink` for readable text on washes, `--<tone>-soft` for the wash itself, and `--<tone>-border` for an opaque subtle boundary. State, ink, soft, and border variables follow a 3-tier precedence:
    - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, `.ink`, `.soft`, or `.border` override.
-   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink), with `transparent` (for soft, so the wash composites on the local surface), or with `var(--border)` (for border, default 20% tone + 80% border).
+   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink, default 25% foreground), with `transparent` (for soft, default 12% tone, so the wash composites on the local surface), or with `var(--border)` (for border, default 20% tone + 80% border).
    - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, `transparent` for soft, or `var(--border)` for border.
 
 Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.

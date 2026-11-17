@@ -11,19 +11,19 @@ Moraine supports SolidJS server rendering and hydration. Your application must s
 same initial state on the server and client, defer browser-only work, and create conditional JSX
 only when its branch renders.
 
-This guide covers IDs, portals, responsive state, and content ownership.
+This guide covers IDs, portals, content ownership, responsive state, and locale.
 
 ## Deterministic Hydration IDs
 
-Accessible components require matching IDs between elements (for example, connecting a trigger's `aria-controls` to a content panel's `id`). When server rendering, randomly generated IDs could differ between server and client, causing hydration mismatches.
+Accessible components need matching IDs between elements, for example a trigger's `aria-controls` and a content panel's `id`. Random IDs differ between server and client and cause hydration mismatches.
 
-Use `createId` from `moraine/utils` to generate matching IDs across server rendering and client hydration:
+Use `createId` from `moraine/utils` to generate IDs that match across server rendering and client hydration. It builds on Solid's `createUniqueId`. Pass an accessor as the first argument to prefer a caller-provided ID, and a prefix as the second:
 
 ```tsx
 import { createId } from 'moraine/utils'
 
 function CustomField() {
-  const id = createId() // Generates stable, synchronized IDs across SSR and hydration
+  const id = createId() // Returns an accessor with the same ID on the server and the client
 
   return (
     <div>
@@ -36,12 +36,12 @@ function CustomField() {
 
 ## Hydration-Safe Portals
 
-Floating overlays such as `Dialog`, `Sheet`, `Popover`, `Tooltip`, and `ContextMenu` render into `document.body` through a Solid `<Portal>`.
+Overlays such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `DropdownMenu`, and `ContextMenu` render their content through a Solid `<Portal>`. The portal mounts into the `body` of the trigger's document, or into the `mount` element when you set one.
 
 In Moraine:
 
-- Overlays default to closed, so initial server rendering emits nothing or a minimal placeholder.
-- Content portals to the body on the client when the overlay opens, so the server and initial client tree match.
+- Overlays default to closed, so the server output contains only the trigger.
+- Portals emit no server markup, so overlay content renders only on the client, even when an overlay starts open. The server and initial client trees match.
 - Read browser APIs in `onMount` or event handlers. For browser-only content, keep the server and
   initial client tree identical, then reveal that content after mounting.
 
@@ -52,7 +52,7 @@ export function UserDialog() {
   return (
     <Dialog>
       <Dialog.Trigger as={Button}>Edit Profile</Dialog.Trigger>
-      {/* Content safely portals to body on client without hydration error */}
+      {/* Content portals to the body on the client only, so hydration matches */}
       <Dialog.Content title="Edit Profile">
         <p>Update your profile details below.</p>
       </Dialog.Content>
@@ -100,8 +100,10 @@ The same rule applies to JSX panel data in [Accordion](/components/accordion) an
 
 Some props accept either JSX or a function `(props) => JSX.Element`, including children of
 [Button](/components/button), [ToggleButton](/components/toggle-button),
-[BaseSelect](/components/base-select) trigger and item, [Dialog](/components/dialog) content,
-[Modal](/components/modal) content, [Sheet](/components/sheet) content, and [Resizable](/components/resizable) handle.
+[CopyButton](/components/copy-button), [Slider](/components/slider),
+[BaseSelect](/components/base-select) trigger and item, [Dialog](/components/dialog),
+[Modal](/components/modal), [Sheet](/components/sheet), and [Drawer](/components/drawer) content, and
+[Resizable](/components/resizable) handle.
 
 Declare the function parameter even when the callback does not use it. TypeScript still accepts a
 zero-argument function for that prop type. Moraine calls a zero-argument function as an accessor
@@ -113,16 +115,16 @@ declared parameter. The call is tracked, so signals read directly in the functio
 
 ## Responsive Queries in SSR
 
-Browser APIs like `window.matchMedia` do not exist on the server. If a component conditionally renders layout based on screen width, it must provide a deterministic server default.
+Browser APIs such as `window.matchMedia` do not exist on the server. A component that renders different layouts by screen width needs a deterministic server default.
 
-Moraine's `createMediaQuery` accepts a `defaultValue` to define the fallback state during SSR:
+Moraine's `createMediaQuery` takes a `defaultValue` (default `false`) that is the state during SSR and the first client render. It updates from `matchMedia` after mount:
 
 ```tsx
 import { createMediaQuery } from 'moraine/utils'
 import { Show } from 'solid-js'
 
 export function Navigation() {
-  // Defaults to false on the server; synchronizes with matchMedia on the client
+  // false on the server and during hydration; follows matchMedia after mount
   const isDesktop = createMediaQuery('(min-width: 1024px)', false)
 
   return (
@@ -137,15 +139,19 @@ export function Navigation() {
 
 ## Transition Presence & Exit Lifecycles
 
-SolidJS conditional `<Show>` primitives unmount elements immediately when their condition becomes false. Moraine components use `createTransitionPresence` internally to keep exiting overlays mounted while CSS exit animations run.
+Solid's `<Show>` unmounts elements as soon as its condition becomes false. Moraine components use `createTransitionPresence` internally to keep exiting overlays mounted while CSS exit animations run.
 
 During server rendering:
 
 - Hidden or transitioning elements keep deterministic closed states.
-- Animation variables such as `--mo-collapsible-content-height` resolve to safe initial values without browser DOM measurement.
+- Animation variables such as `--mo-collapsible-content-height` start at safe initial values (`0px`) without DOM measurement.
+
+## Locale and Direction
+
+`MoraineProvider` renders the same locale on the server and during hydration. SSR and the first client render use `en-US`. A root provider then follows `navigator.language` unless you set `locale` or `detectLocale={false}`. To render localized text on the server, pass `locale` from a cookie or an `Accept-Language` header. The provider's `dir` prop changes component behavior but does not set a `dir` attribute; set `dir` on `<html>` for layout. See the [Localization guide](/docs/localization).
 
 ## Best Practices for SSR Safety
 
-1. **Avoid `window` or `document` in Component Body**: Read window dimensions, localStorage, or DOM properties inside `onMount` or inside user event handlers (`onClick`, `onInput`), never at component execution time.
-2. **Deterministic Initial State**: For controlled signals, initialize with static defaults that the server can evaluate consistently.
-3. **Use Moraine Primitives for Overlays**: Built-in primitives already manage portal scopes, scroll locks, and focus traps so you do not need custom SSR guard wrappers.
+1. **Avoid `window` or `document` in the component body**: Read window dimensions, `localStorage`, or DOM properties inside `onMount` or user event handlers (`onClick`, `onInput`), never while the component runs.
+2. **Deterministic initial state**: Initialize controlled signals with static defaults that the server evaluates the same way as the client.
+3. **Use Moraine primitives for overlays**: Built-in primitives already manage portals, scroll locks, and focus containment, so you do not need custom SSR guards.

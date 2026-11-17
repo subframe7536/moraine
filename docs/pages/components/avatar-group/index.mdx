@@ -50,9 +50,12 @@ export function Example() {
 
 ### Overflow count
 
-AvatarGroup renders no root for an empty `items` array. Items keep input order in the DOM. Omit `max`
-to show every avatar. Set `max` to `0` to show only `+N`. A positive `max` uses its floored count.
-The overflow count follows the visible items.
+Each entry in `items` accepts the [Avatar](/components/avatar) props except `slotName`. The group
+`size` (default `md`) overrides an entry's `size`. AvatarGroup renders nothing for an empty `items`
+array, and items keep input order in the DOM.
+
+Omit `max` to show every avatar. A positive `max` is rounded down. Set `max` to `0` (or any negative
+value) to show only the `+N` count. `N` is the number of hidden items.
 
 ```tsx
 <AvatarGroup max={3} items={reviewers} />

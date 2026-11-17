@@ -46,18 +46,31 @@ export function Example() {
 
 ### Type and variant
 
-`type` selects the semantic role: `default`, `info`, `success`, `warning`, and `error`.
-The `info`, `success`, `warning`, and `error` types render a matching status icon; `default`
-renders none. `variant` selects the surface treatment: `subtle`, `soft`, `outline`, and
-`solid`.
+`type` selects the semantic status: `default`, `info`, `success`, `warning`, and `error`. The
+`info`, `success`, `warning`, and `error` types render a matching status icon; `default` renders
+none. `variant` selects the surface treatment: `subtle` (default), `soft`, `outline`, and `solid`.
 
 ### Description layout
 
 Pass `description` for a supporting line below the title. With a description, the root uses larger
-padding and the title turns bold.
+padding and the title turns bold. `children` render after the title and description.
 
 ```tsx
 <Alert type="warning" title="Storage almost full" description="You have used 85% of your quota." />
+```
+
+### Dismissal
+
+Set `closable` to render a dismiss button. Clicking it closes the alert, plays the exit animation,
+and removes the alert from the DOM. Use `open` with `onOpenChange` to control visibility, or
+`defaultOpen` to start closed. `onOpenChange` fires only for user dismissal, and `onExitComplete`
+fires after the alert leaves the DOM. Override the button's accessible label (`Close alert`) with
+`translations={{ close: '...' }}`.
+
+```tsx
+const [open, setOpen] = createSignal(true)
+
+<Alert closable open={open()} onOpenChange={setOpen} title="Changes saved" />
 ```
 
 ## Examples

@@ -11,20 +11,20 @@ Moraine provides built-in CSS mask styles for Lucide icons. Mask icons render as
 
 ## Zero-Config Setup
 
-To enable built-in icons, import Moraine's icon stylesheet into your main application entry:
+To enable built-in icons, import Moraine's icon stylesheet in your main application entry:
 
 ```css title="src/index.css"
 @import 'moraine/icon.css';
 ```
 
 The stylesheet puts its rules in the `components` cascade layer and sizes each icon at `1.2em`.
-`<Icon>` renders every icon as a `span`, and utilities such as `size-4` on the icon override that
-size in both UnoCSS and Tailwind. JSX and component icons fill a `1.2em` `span` that Icon sizes
-itself.
+`<Icon>` renders every icon in a `span`, and a size utility such as `size-4` on the icon overrides
+that size in both UnoCSS and Tailwind. For a JSX or component icon, Icon renders a `1.2em` `span`
+that the graphic fills.
 
 ## The `<Icon>` Component
 
-Render standalone icons using the `<Icon>` component:
+Render standalone icons with the `<Icon>` component:
 
 ```tsx
 import { Icon } from 'moraine'
@@ -36,7 +36,7 @@ export function SearchIndicator() {
 
 ## Component Icon Props
 
-`Button` and `Badge` accept `leading` and `trailing` icon props. Select-family controls use `leading` and `trailing`; tabs use each item's `icon`. Wrap a native-style `Input` in `InputGroup` to add an icon:
+`Button` and `Badge` accept `leading` and `trailing` icon props, as do `Select`, `Combobox`, and `MultiSelect`. `Tabs` items take an `icon`. To add an icon to an `Input`, wrap it in `InputGroup`:
 
 ```tsx
 import { Button, Icon, Input, InputGroup } from 'moraine'
@@ -58,10 +58,10 @@ export function SearchBar() {
 }
 ```
 
-The published stylesheet includes Moraine's semantic aliases such as `icon-search` and `icon-chevron-down`. Other names such as `i-lucide-search` need their own CSS generator, for example UnoCSS's `presetIcons()` with the Lucide collection. Passing an icon name does not load its CSS.
+The published stylesheet includes Moraine's semantic aliases such as `icon-search` and `icon-chevron-down`. Other names, such as `i-lucide-search`, need their own CSS generator, for example UnoCSS's `presetIcons()` with the Lucide collection. Passing an icon name does not load its CSS.
 
 ## Icon Gallery
 
-Browse and search all built-in Lucide icons below. Click any icon to copy its name to your clipboard:
+Browse the built-in `icon-*` aliases below. Click an icon to copy its name to your clipboard:
 
 <IconGallery />

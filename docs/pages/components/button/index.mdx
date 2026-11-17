@@ -38,12 +38,26 @@ export function Example() {
 }
 ```
 
+### Variant, tone, and size
+
+`variant` selects the surface: `solid` (default), `soft`, `outline`, `ghost`, or `link`. `tone` sets
+the color. It defaults to `primary` and accepts the shared tones such as `neutral`, `danger`, and
+`success`. `size` runs from `xs` to `xl` (default `md`). Inside a
+[ButtonGroup](/components/button-group), a button inherits the group's `size`, `variant`, and `tone`
+unless it sets its own.
+
+```tsx
+<Button variant="outline" tone="danger" size="sm">
+  Delete
+</Button>
+```
+
 ### Press motion
 
 `activeEffect` controls the press motion. The default `move-down` shifts the button down by one pixel.
 `zoom-in` scales it down slightly. Both skip the motion when the button has `aria-haspopup`, so overlay
-triggers stay still. Use `none` to disable the motion, or pass a function that returns a class string
-from the rendered element.
+triggers stay still. Use `none` to disable the motion, or pass a function that receives the rendered
+element and returns a class string.
 
 ```tsx
 <Button activeEffect="zoom-in">Compress</Button>
@@ -52,24 +66,31 @@ from the rendered element.
 
 ### Loading
 
-Use `loading` when application state owns the pending operation. `autoLoading` is opt-in: a promise
-returned by `onClick` drives the visual loading state. Loading suppresses additional activation
-without applying native `disabled`, so a focused button keeps its keyboard position. Explicit
-`disabled` still uses native disabled semantics where available.
+Use `loading` when application state owns the pending operation. `autoLoading` is opt-in: when
+`onClick` returns a promise, the button loads until the promise settles. A handler that calls
+`event.preventDefault()` does not start loading. While loading, the button sets `aria-busy` and
+ignores clicks and keyboard activation, but does not apply native `disabled`, so a focused button
+keeps its keyboard position. An explicit `disabled` still uses native disabled semantics where
+available.
+
+The loading icon replaces `leading`, or `trailing` when only `trailing` is set. With no icons, it is
+added before the label. Set `loadingIcon` to change it. `children` can also be a function that
+receives `{ loading }`. Declare its parameter even when unused.
 
 ```tsx
 <Button loading={saving()}>Save</Button>
 <Button autoLoading onClick={() => submit()}>
-  Save
+  {(state) => (state.loading ? 'Saving...' : 'Save')}
 </Button>
 ```
 
 ### Icons and polymorphism
 
-Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or
-another accessible name. Polymorphic roots without native link semantics receive button role and
-keyboard activation; anchors with `href` keep native link behavior. When a custom component forwards
-its root ref, Moraine resolves native button semantics from the rendered DOM element.
+`leading` and `trailing` accept icon names, elements, or components. Icon-only buttons need an
+`aria-label` or another accessible name. Polymorphic roots without native link semantics receive the
+button role and keyboard activation; anchors with `href` keep native link behavior. When `disabled`
+is set on such a root, it gets `aria-disabled` and leaves the tab order. When a custom component
+forwards its root ref, Moraine resolves native button semantics from the rendered DOM element.
 
 ```tsx
 <Button leading="i-lucide:plus">Create</Button>
@@ -81,7 +102,7 @@ its root ref, Moraine resolves native button semantics from the rendered DOM ele
 
 ### Icon sizes
 
-Icon-only buttons support dedicated square sizes from `icon-xs` to `icon-xl`.
+Icon-only buttons use the square sizes `icon-xs` to `icon-xl`.
 
 ```tsx
 <Button size="icon-md" aria-label="Search" leading="i-lucide:search" />

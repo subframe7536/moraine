@@ -82,8 +82,13 @@ export function Example() {
 ### Selection model
 
 The group value is an array of item values. Pair `value` with `onValueChange` for controlled
-selection, or use a default value when the group owns its initial state. A disabled group disables
-all items; an item can also be disabled independently.
+selection, or set `defaultValue` when the group owns its initial state. `onValueChange` receives the
+complete next array and fires only for user toggles. A disabled group disables all items; an item
+can also be disabled independently.
+
+`items` accepts objects with `value`, `label`, `description`, `disabled`, `indeterminate`,
+`checkedIcon`, and `indeterminateIcon`. A string is shorthand for an item whose `value` and `label`
+are that string. Item `value` must be unique. An item without a `value` falls back to its index.
 
 ```tsx
 <CheckboxGroup
@@ -92,22 +97,29 @@ all items; an item can also be disabled independently.
   value={selected()}
   onValueChange={setSelected}
 />
+<CheckboxGroup legend="Toppings" items={['cheese', 'olives']} />
 ```
 
 ### Forms
 
 Give the group a `name` for native form submission, or place it inside `form.Field` from
 [createForm](/components/form) for schema binding. Standalone [Field](/components/field) supplies
-labels and messages without validation. Each checkbox keeps its own tab stop; the group does not
-use radio-style arrow navigation.
+labels and messages without validation. With `required`, the group is valid when at least one
+enabled item is selected. Each checkbox keeps its own tab stop; the group does not use radio-style
+arrow navigation.
 
 ```tsx
 <CheckboxGroup name="permissions" items={roleOptions} defaultValue={['read']} />
 ```
 
-### Indicator
+### Layout and indicator
 
-`indicator` places the check mark at `start` or `end`, or hides it with `hidden`.
+`variant` is `list` (default), `card`, or `table`. `card` draws each item as a bordered card that
+toggles when clicked, and `table` joins bordered cards into one connected block. `orientation`
+(`vertical` by default, or `horizontal`) sets the layout direction, and `size` accepts `sm`, `md`
+(default), or `lg`.
+
+`indicator` places the check mark at `start` (default) or `end`, or hides it visually with `hidden`.
 
 ```tsx
 <CheckboxGroup indicator="end" items={items} />
@@ -125,8 +137,8 @@ owns the selection.
 
 ### Assign locked team roles
 
-Disable an item that must stay selected. Controlled `value` still includes that item; the user
-cannot remove it.
+Disable an item that must stay selected. The controlled `value` still includes that item, and the
+user cannot remove it.
 
 <Preview path="./controlled-disabled-items" />
 
@@ -138,7 +150,7 @@ Bind the array to `form.Field` and reject an empty selection with a `minLength` 
 
 ### Put the check at the end of alert cards
 
-`indicator="end"` places the mark after the label on `variant="card"`. Use this when the card
-reads as a row with the control on the trailing edge.
+`indicator="end"` places the check after the label on `variant="card"`. Use it when the card reads as
+a row with the control on the trailing edge.
 
 <Preview path="./indicator" />

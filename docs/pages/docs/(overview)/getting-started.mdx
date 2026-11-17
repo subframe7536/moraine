@@ -8,7 +8,7 @@ search:
 ---
 
 Moraine provides styled SolidJS components for forms, navigation, overlays, and content.
-Components use utility classes and semantic CSS variables, with setup for UnoCSS or Tailwind CSS.
+Components are styled with utility classes and semantic CSS variables. Moraine provides setup for UnoCSS and Tailwind CSS.
 
 Moraine is pre-1.0; breaking changes may occur.
 
@@ -20,22 +20,23 @@ Moraine is pre-1.0; breaking changes may occur.
 
 ## Read a component page
 
-Each page starts with a Playground, then Anatomy with the component structure and slot tree,
-then Usage with when to use the component and copyable code. Usage stays text and code so agents
-can learn the API. Examples are real tasks with live previews whose source is the copy-paste guide.
-The generated API reference lists attributes and props from the library source.
+Each component page opens with a Playground, followed by Anatomy (the component structure and slot
+tree) and Usage (when to use the component, with copyable code). Usage contains only text and code,
+so agents can learn the API from it. Examples are real tasks with live previews, and their source
+doubles as a copy-paste guide. The generated API reference lists attributes and props from the
+library source.
 
-Components such as `Button`, `Input`, and `Select` use one JSX entry point. Components such as
+Components such as `Button`, `Input`, and `Select` use a single JSX entry point. Components such as
 `Dialog` and `Card` expose attached parts that you arrange yourself. Read
 [Composition](/docs/composition) for parts, slots, and DOM ownership, and
 [Polymorphism](/docs/polymorphism) before changing a rendered element with `as`.
 
 ## Adapt the styles
 
-Use `class` and object `style` props for local changes. Use slot `classes` and `styles` where the
+Use the `class` and object `style` props for local changes. Use slot `classes` and `styles` where the
 component exposes them, or scope shared recipe overrides with `defineTheme()` and `MoraineProvider`.
-Start with [Customization](/docs/customization), then see [Theming](/docs/theming) for shared overrides
-and [Design tokens](/docs/design) for colors, spacing, and dimensions.
+Start with [Customization](/docs/customization), then read [Theming](/docs/theming) for shared
+overrides and [Design tokens](/docs/design) for colors, spacing, and dimensions.
 
 ## Integrate behavior
 

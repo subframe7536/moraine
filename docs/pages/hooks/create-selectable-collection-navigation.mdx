@@ -26,7 +26,7 @@ import { createSelectableCollectionNavigation } from 'moraine/utils'
 ## Signature
 
 ```ts
-function createSelectableCollectionNavigation<TItem, TValue extends string | number>(
+function createSelectableCollectionNavigation<TItem, TValue extends NonNullable<unknown>>(
   options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ): {
   onNavigationKeyDown: (
@@ -39,17 +39,33 @@ function createSelectableCollectionNavigation<TItem, TValue extends string | num
   moveSelection: (currentValue: TValue, offset: number) => void
 }
 
-interface CreateSelectableCollectionNavigationOptions<TItem, TValue> {
+interface CreateSelectableCollectionNavigationOptions<TItem, TValue extends NonNullable<unknown>> {
+  /** Items in the collection. */
   items: Accessor<TItem[]>
+  /** Returns the stable, non-null value that identifies an item. */
   getValue: (item: TItem) => TValue
+  /** Called when an item is selected. */
   onSelect: (value: TValue) => void
+  /** Returns whether an item is disabled. Disabled items are skipped. */
   isDisabled?: (item: TItem) => boolean
+  /**
+   * Whether arrow-key navigation wraps from the ends.
+   * @default false
+   */
   loop?: Accessor<boolean>
+  /**
+   * `'automatic'` selects the item arrow keys move to. `'manual'` only focuses it.
+   * @default 'automatic'
+   */
   activationMode?: Accessor<'automatic' | 'manual'>
+  /** Focuses an item by its value. */
   focusValue?: (value: TValue) => void
+  /** Returns the text direction. Without it, the direction comes from the event target's computed style. */
   getDirection?: () => 'ltr' | 'rtl'
 }
 ```
+
+`TValue` can be a string, number, or any other non-null value. Items compare by `===`.
 
 ## Usage Example
 
@@ -103,7 +119,12 @@ export function CustomTabs() {
 
 ## Key Bindings
 
-- **ArrowLeft / ArrowRight**: Move previous / next in horizontal collections (respects RTL).
-- **ArrowUp / ArrowDown**: Move previous / next in vertical collections.
-- **Home / End**: Jump directly to first / last enabled item.
-- **Automatic vs Manual**: In `automatic` mode, arrow keys move and select in one step. In `manual` mode, arrow keys only move focus, and Enter or Space selects. Enter and Space select in both modes.
+The orientation you pass to `onNavigationKeyDown` decides which arrow keys navigate.
+
+- **ArrowLeft / ArrowRight**: Move to the previous / next item in horizontal collections. The keys swap in RTL.
+- **ArrowUp / ArrowDown**: Move to the previous / next item in vertical collections.
+- **Home / End**: Jump to the first / last enabled item.
+- **Enter / Space**: Select the current item unless it is disabled, in both activation modes.
+- **Automatic vs manual**: In `automatic` mode, arrow keys, Home, and End move focus and select in one step. In `manual` mode, they only move focus.
+
+Without a current item, the next key goes to the first enabled item and the previous key to the last. Disabled items are skipped. Without `loop`, navigation stops at the ends.

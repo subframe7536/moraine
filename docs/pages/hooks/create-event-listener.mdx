@@ -6,7 +6,7 @@ search:
     [createEventListener, createEventListenerMap, events, addEventListener, cleanup, window, dom]
 ---
 
-`createEventListener` and `createEventListenerMap` attach DOM event listeners to a `Window`, `Document`, or element target. Each registers its removal with `onCleanup` in the active Solid owner, so the listener detaches when that scope disposes.
+`createEventListener` and `createEventListenerMap` attach DOM event listeners to a `Window`, `Document`, `MediaQueryList`, element, or other `EventTarget`. Each registers its removal with `onCleanup` in the active Solid owner, so the listener detaches when that scope disposes.
 
 ## Import
 
@@ -33,6 +33,8 @@ function createEventListenerMap<TTarget extends EventTarget>(
   options?: boolean | AddEventListenerOptions,
 ): void
 ```
+
+`EventListenerMap` maps event types to either a listener or a `[listener, options]` tuple. A tuple's options replace the shared `options` for that event.
 
 ## Usage Example
 
@@ -80,3 +82,5 @@ export function DragObserver() {
 - The event type and `event` argument narrow from the target: `window` `keydown` gives a `KeyboardEvent`, `window` `resize` gives a `UIEvent`.
 - Cleanup registers through `onCleanup` in the active owner, including when you call the hook from `onMount`.
 - A `null` or `undefined` target is a no-op; no listener is attached.
+- The hooks are not reactive. They read `target`, `type`, and `options` once. To follow a changing target, call them inside `createEffect(on(target, ...))`.
+- Call them from a component body, `onMount`, or an effect. Do not call them inside a `ref` callback.

@@ -8,8 +8,8 @@ export default function ToastPlayground() {
       controls={[
         {
           kind: 'select',
-          prop: 'tone',
-          label: 'Tone',
+          prop: 'type',
+          label: 'Type',
           defaultValue: 'success',
           options: [
             { label: 'Default', value: 'default' },
@@ -60,7 +60,7 @@ export default function ToastPlayground() {
               : undefined,
           }
 
-          switch (props.tone) {
+          switch (props.type) {
             case 'default':
               Toast.show(options)
               break

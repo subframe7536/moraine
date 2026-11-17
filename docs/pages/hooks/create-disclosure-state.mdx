@@ -5,7 +5,7 @@ search:
   tags: [createDisclosureState, disclosure, collapsible, accordion, height, animation]
 ---
 
-`createDisclosureState` tracks open state, measures content height, and exposes data-attribute getters for expandable components such as `Collapsible` and `Accordion`.
+`createDisclosureState` derives the state of an expandable panel from an `open` accessor: presence through the exit animation, measured content height, data attributes, and hidden and inert flags. `Collapsible` and `Accordion` use it. It does not own the open state; pair it with `createControllableValue` or your own signal.
 
 ## Import
 
@@ -16,23 +16,71 @@ import { createDisclosureState } from 'moraine/utils'
 ## Signature
 
 ```ts
-function createDisclosureState(options: CreateDisclosureStateOptions): {
-  readonly contentHeight: Accessor<number>
-  readonly dataAttrs: {
+function createDisclosureState(options: CreateDisclosureStateOptions): DisclosureState
+
+interface CreateDisclosureStateOptions {
+  /** Reactive open state. */
+  open: Accessor<boolean>
+  disabled?: Accessor<boolean>
+  /**
+   * Whether exit transitions keep the content mounted until they finish.
+   * @default true
+   */
+  transition?: Accessor<boolean> | boolean
+  /**
+   * Whether the content stays mounted when closed.
+   * @default false
+   */
+  forceMount?: Accessor<boolean | undefined> | boolean
+  /** Called when the exit transition completes. */
+  onExitComplete?: () => void
+  /**
+   * Called on `beforematch` of the registered content element. Providing it opts kept-mounted
+   * closed content into `hidden="until-found"`, so in-page search reveals it and calls this
+   * so you can open the panel.
+   */
+  onBeforeMatch?: () => void
+}
+
+interface DisclosureState {
+  open: Accessor<boolean>
+  /** `true` while the panel is open and has never toggled, so it can skip the opening animation. */
+  initialOpen: Accessor<boolean>
+  disabled: Accessor<boolean>
+  transition: Accessor<boolean>
+  forceMount: Accessor<boolean>
+  closed: Accessor<boolean>
+  /** `true` while a closed panel plays its exit animation. */
+  exiting: Accessor<boolean>
+  /** Whether the content should be in the tree: open, exiting, or `forceMount`. */
+  shouldMount: () => boolean
+  contentHeight: Accessor<number>
+  dataAttrs: {
     readonly 'data-closed'?: string
     readonly 'data-disabled'?: string
     readonly 'data-expanded'?: string
   }
-  readonly disabled: Accessor<boolean>
-  /** Keeps the content shell mounted through its exit animation; returns a release function. */
-  readonly registerContentElement: (element: HTMLElement) => () => void
-  /** Measures the element's `scrollHeight` into `contentHeight`; returns a release function. */
-  readonly registerMeasureElement: (element: HTMLElement) => () => void
-}
-
-interface CreateDisclosureStateOptions {
-  disabled?: Accessor<boolean>
-  open: Accessor<boolean>
+  hidden: Accessor<boolean | 'until-found'>
+  /** `hidden` attribute value for the content shell (`''`, `'until-found'`, or absent). */
+  hiddenAttr: Accessor<'' | 'until-found' | undefined>
+  inert: Accessor<true | undefined>
+  ariaHidden: Accessor<true | undefined>
+  presence: TransitionPresenceState
+  triggerElement: Accessor<HTMLElement | undefined>
+  setTriggerElement: (element: HTMLElement | undefined) => void
+  contentElement: Accessor<HTMLElement | undefined>
+  /**
+   * Registers the content shell: keeps it mounted through its exit animation and restores trigger
+   * focus when it closes while focused. Returns a release function.
+   */
+  registerContentElement: (element: HTMLElement) => () => void
+  /**
+   * Registers the element whose `scrollHeight` feeds `contentHeight`. The latest registration wins;
+   * releasing it falls back to the previous one. Returns a release function.
+   */
+  registerMeasureElement: (element: HTMLElement) => () => void
+  /** Moves focus to the trigger when focus is inside the content. */
+  restoreTriggerFocus: () => void
 }
 ```
 
@@ -81,5 +129,8 @@ export function MyCollapsible() {
 
 ## Features
 
-- Attaches a `ResizeObserver` to the content element and reports its `scrollHeight` through `contentHeight()`, remeasuring when the content changes size.
+- Attaches a `ResizeObserver` to the measured element and reports its `scrollHeight` through `contentHeight()`, remeasuring when the element resizes and when `open` changes.
 - Exposes `data-expanded`, `data-closed`, and `data-disabled` as getters, so each attribute tracks its own condition when you spread `dataAttrs`.
+- Keeps the content shell mounted through its exit animation (`shouldMount()`, `exiting()`) unless `transition` is `false`, and always mounts it with `forceMount`.
+- Returns focus to the trigger (set with `setTriggerElement`) when the panel closes while focus is inside the content shell (registered with `registerContentElement`).
+- With `onBeforeMatch`, kept-mounted closed content uses `hidden="until-found"` so browser find-in-page can reveal it.

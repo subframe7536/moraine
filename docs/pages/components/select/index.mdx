@@ -25,13 +25,9 @@ import Playground from './playground'
         children: [
           {
             slot: 'trigger',
-            children: [
-              { slot: 'leading' },
-              { slot: 'value' },
-              { slot: 'clear' },
-              { slot: 'trailing' },
-            ],
+            children: [{ slot: 'leading' }, { slot: 'value' }, { slot: 'trailing' }],
           },
+          { slot: 'clear' },
         ],
       },
       {
@@ -69,14 +65,14 @@ import Playground from './playground'
   }}
 />
 
-Select renders the portaled popup collection internally; its slots are styling targets. Use [BaseSelect](/components/base-select) to compose the listbox yourself.
+Select renders the portaled popup internally; the popup names are style slots, not attached parts. Use [BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ## Usage
 
 Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
 users need to type a query or the collection is large enough to need virtualization,
 [MultiSelect](/components/multi-select) for several collection values, or
-[BaseSelect](/components/base-select) when you need to compose the listbox yourself.
+[BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ```tsx
 import { Field, Select } from 'moraine'
@@ -98,8 +94,8 @@ export function Example() {
 
 ### String items
 
-Pass strings when the label and value are identical. Strings and objects can be mixed at the
-root or inside a group. Whitespace is preserved, and an empty string is a valid value.
+Pass strings when the label and value are identical. You can mix strings and objects at the root
+or inside a group. Whitespace is preserved, and an empty string is a valid value.
 
 ```tsx
 <Select items={['Apple', 'Banana']} defaultValue="Apple" />
@@ -114,30 +110,40 @@ root or inside a group. Whitespace is preserved, and an empty string is a valid 
 
 A string item normalizes to `{ value, label }` with both set to the string, so `'Apple'` becomes
 `{ value: 'Apple', label: 'Apple' }`. Object items keep their custom fields, and
-`SelectT.NormalizedItem<TItem>` is the item type passed to callbacks. When two items share a value,
-the first one wins, including a string that collides with an object.
+`SelectT.NormalizedItem<TItem>` is the item type passed to callbacks. Item values must be unique
+across the collection. When two items share a value, the first one wins (including a string that
+collides with an object), and development builds log an error.
 
 ### Value and collection
 
-The value slot shows the selected label or `String(value)` for an unresolved value. Clear is a
-pointer-only action inside the trigger that clears selection without toggling the popup.
+The value slot shows the selected label, or `String(value)` when the value matches no item.
 
 Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
 uncontrolled choice. `value={undefined}` keeps the selection uncontrolled; `value={null}` keeps it
-controlled and empty, and `onValueChange` emits `null` when the selection is cleared. Inside a form
-field, clearing writes `null`. An empty string is a valid item value. Use unique
-item values so each selection identifies one option.
+controlled and empty. `onValueChange` receives `null` when the selection is cleared, and inside a
+form field, clearing writes `null`.
 
 ```tsx
 <Select items={countries} value={selected()} onValueChange={setSelected} clearable />
 ```
+
+### Clear and loading
+
+`clearable` shows a clear button beside the trigger while a value is selected. Clicking it clears
+the selection without toggling the popup. Backspace or Delete on the focused trigger also clears.
+Clearing calls `onValueChange(null)`, then `onClear`, and returns focus to the trigger. Neither
+fires while the select is disabled or read-only.
+
+`loading` swaps the `trailing` icon for `loadingIcon` and hides the clear button. It does not
+disable the select.
 
 ### Popup positioning and dismissal
 
 The popup opens below the control and aligns to its start edge. `placement`, `align`, `gutter`,
 `shift`, `flip`, `slide`, and `overflowPadding` adjust that position. `closeOnEscape` and
 `closeOnOutsideClick` default to `true`; set either to `false` to block that dismissal and listen
-for it through `onClosePrevented`. Combobox and MultiSelect accept the same props.
+for it with `onClosePrevented`. Combobox and MultiSelect accept the same props. `open`,
+`defaultOpen`, and `onOpenChange` control the popup state.
 
 ```tsx
 <Select items={items} placement="top" align="end" flip={false} />
@@ -145,13 +151,16 @@ for it through `onClosePrevented`. Combobox and MultiSelect accept the same prop
 
 ### Keyboard interaction
 
-| Key                 | Behavior                                      |
-| ------------------- | --------------------------------------------- |
-| Enter / Space       | Open the popup or commit the active option    |
-| ArrowDown / ArrowUp | Open or move through selectable options       |
-| Home / End          | Move to the first or last option while open   |
-| Printable key       | Typeahead to the matching item label          |
-| Escape              | Close the dropdown without changing the value |
+| Key                 | Behavior                                                                |
+| ------------------- | ----------------------------------------------------------------------- |
+| Enter / Space       | Open the popup, or commit the highlighted option while open             |
+| ArrowDown / ArrowUp | Open the popup and move the highlight through enabled options           |
+| Home / End          | Highlight the first or last enabled option while open                   |
+| PageUp / PageDown   | Move the highlight by one page of options while open                    |
+| Printable key       | Typeahead: highlight the matching label while open, select it if closed |
+| Backspace / Delete  | Clear the value when `clearable` and a value is selected                |
+| Escape              | Close the popup without changing the value                              |
+| Tab                 | Close the popup and move focus on                                       |
 
 ## Examples
 
@@ -171,7 +180,7 @@ Pick one permission role from a short collection. Keep the selected value as the
 ### Choose a workspace timezone
 
 Organize options with `type: 'group'`. Insert `{ type: 'separator' }` between groups or items.
-Labels and separators are excluded from selection and keyboard navigation.
+Group labels and separators are excluded from selection and keyboard navigation.
 
 <Preview path="./grouped-items" />
 
@@ -206,7 +215,7 @@ entries in one `items` list.
 
 ### Custom option and empty state renderers
 
-Use `itemRender` to customize row presentation with badges or status details. Use `emptyRender` to
-render a custom placeholder message or recovery action when no items match.
+Use `itemRender` to customize row content with badges or status details. Use `emptyRender` to
+render a message or recovery action when `items` is empty.
 
 <Preview path="./custom-render" />

@@ -31,7 +31,7 @@ export default function BreadcrumbPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
+        { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: true },
       ]}
     >
       {(props) => (

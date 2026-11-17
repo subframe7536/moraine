@@ -42,10 +42,11 @@ export function Example() {
 
 ### Off and on variants
 
-`variant` controls the unpressed appearance; `activeVariant` controls the pressed appearance. Both
-accept all Button variants. The defaults are `ghost` and `soft`. Changing a variant does not
-reset the pressed state. The `link` variant only changes appearance; ToggleButton still renders a
-button that toggles, not a link.
+`variant` sets the unpressed appearance and `activeVariant` sets the pressed appearance. Both
+accept all Button variants, and the defaults are `ghost` and `soft`. `tone` and `activeTone` pick
+the color the same way (both default to `neutral`). Changing a variant does not reset the pressed
+state. The `link` variant only changes appearance; ToggleButton still renders a button that
+toggles, not a link.
 
 ```tsx
 <ToggleButton variant="outline" activeVariant="solid">
@@ -57,10 +58,11 @@ button that toggles, not a link.
 
 Use `defaultPressed` to initialize an uncontrolled button. Pass `pressed` and `onPressedChange` when
 application state owns the value. Controlled activation reports the requested next value and waits
-for the caller to update `pressed`.
+for the caller to update `pressed`. `onPressedChange` does not fire for programmatic changes to
+`pressed`.
 
-User `onClick` runs before the toggle. Calling `event.preventDefault()` cancels both the state change
-and `onPressedChange`.
+Your `onClick` runs before the toggle. Calling `event.preventDefault()` cancels both the state
+change and `onPressedChange`.
 
 ```tsx
 <ToggleButton pressed={pinned()} onPressedChange={setPinned} leading="i-lucide:pin">
@@ -74,7 +76,9 @@ Keep the accessible name stable while toggling. Use `aria-label` for icon-only b
 `aria-pressed` then reports the on or off state. Disabled and loading buttons suppress activation.
 
 Children can be a render function that receives reactive `pressed` and `loading` values. Use it to
-style the content from the pressed state without remounting the button's children.
+style the content from the pressed state without remounting the button's children. Declare the
+function's parameter even when you do not use it; a zero-argument function is called as an
+accessor and is not mounted as a component.
 
 ```tsx
 <ToggleButton size="icon-md" leading="i-lucide:bold" aria-label="Bold" />

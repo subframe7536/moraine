@@ -46,9 +46,11 @@ export function Example() {
 
 ### Image fallbacks
 
-`text` shows initials when the image is missing or fails. `icon` is an icon name that replaces the
-initials, for a generic placeholder. Status is `loading`, `loaded`, or `error`. Avatar renders the real `<img src>` during
-server rendering and uses native load and error events to switch between image and fallback.
+The fallback shows while the image is loading, missing, or failed. `text` sets the fallback text,
+typically initials. When `text` is blank or omitted, the fallback shows up to two initials taken from
+`alt`. `icon` is an icon name that replaces the text, for a generic placeholder. Avatar renders the
+real `<img src>` during server rendering and uses native load and error events to switch between
+image and fallback. `size` accepts `sm`, `md` (default), or `lg`.
 
 ```tsx
 <Avatar src="/alex.png" alt="Alex Rivera" text="AR" />
@@ -57,8 +59,10 @@ server rendering and uses native load and error events to switch between image a
 
 ### Loading status
 
-Use `onStatusChange` when surrounding UI must react to a source change. Pair it with a status label
-owned by the page.
+The image status is `loading`, `loaded`, or `error`. An empty or missing `src` is `error`. Use
+`onStatusChange` when surrounding UI must react to a source change. It fires after mount with the
+initial status and on every change, and never on the server. Pair it with a status label owned by the
+page.
 
 ```tsx
 <Avatar src={src()} alt="Alex" onStatusChange={setStatus} />
@@ -66,7 +70,8 @@ owned by the page.
 
 ### Badge
 
-`badge` accepts an icon name. `badgePosition` places it in a corner; the default is `bottom-right`.
+`badge` accepts an icon name. `badgePosition` places it in a corner: `top-left`, `top-right`,
+`bottom-left`, or `bottom-right` (default).
 
 ```tsx
 <Avatar alt="Alex" text="A" badge="i-lucide:check" badgePosition="bottom-right" />
@@ -88,7 +93,7 @@ Drive nearby copy from `onStatusChange` when the page needs to know whether the 
 
 ### Fall back after a broken photo URL
 
-Handle `error` with an icon fallback when the stored URL 404s.
+Set `icon` as a placeholder and read the `error` status when the stored URL 404s.
 
 <Preview path="./status-change" />
 

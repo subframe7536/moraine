@@ -25,7 +25,8 @@ import Playground from './playground'
 
 Use CopyButton to copy a string or `ClipboardItem` to the clipboard from a single control. It writes
 through `navigator.clipboard` and falls back to `document.execCommand('copy')` when the Clipboard API
-is missing or the write fails. After a successful copy it shows a copied state, then returns to idle.
+is missing or the write fails. After a copy it holds a `copied` or `failed` state for `copiedDuration`,
+then returns to `idle`.
 
 ```tsx
 import { CopyButton } from 'moraine'
@@ -35,19 +36,44 @@ export function Example() {
 }
 ```
 
+### Value
+
+`value` accepts a string, a `ClipboardItem`, a `ClipboardItem[]`, a promise of either, or a function
+that returns one. A function runs on every click, and a promise is awaited first. If either fails,
+the copy fails and `onError` receives the error. The `execCommand` fallback copies text only.
+
+```tsx
+<CopyButton value={async () => (await fetch('/api/share-link')).text()}>Copy share link</CopyButton>
+```
+
 ### With text and icons
 
 Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
-button at the matching icon size.
+button at the matching icon size. `iconPosition` places the icon before (`leading`, default) or after
+(`trailing`) the label. Children can also be a function that receives the copy state, including
+`isCopied`, `isError`, and `state`.
 
 ```tsx
 <CopyButton value="npm i moraine">Copy Install Command</CopyButton>
 ```
 
+### Accessible name
+
+The button's `aria-label` is `Copy to clipboard`, and `Copied to clipboard` while copied. Override
+the wording through the provider messages, or set `aria-label` to name what is copied. After a failed
+copy the button sets `aria-invalid` until `copiedDuration` elapses.
+
+### Variant, tone, and size
+
+`variant` (`solid`, `soft`, `outline`, `ghost`), `tone`, and `size` work as on
+[Button](/components/button), but CopyButton defaults to the `ghost` variant and `neutral` tone.
+Inside a [ButtonGroup](/components/button-group), it inherits the group's `size`, `tone`, and
+`variant` (except `link`).
+
 ### Feedback duration and icons
 
-`copiedDuration` sets how long the copied state holds in milliseconds; it defaults to 2000. Set `icon`
-for the idle glyph and `copiedIcon` for the copied glyph.
+`copiedDuration` sets how long the `copied` or `failed` state holds, in milliseconds; it defaults to 2000. Set `icon` for the idle glyph and `copiedIcon` for the copied glyph. Pass `icon={false}` to hide
+the icon. Use `onCopy`, `onError`, and `onStatusChange` to react to the result.
 
 ```tsx
 <CopyButton
@@ -60,8 +86,9 @@ for the idle glyph and `copiedIcon` for the copied glyph.
 
 ### Headless hook: `createCopy`
 
-`createCopy` from `moraine/utils` runs the same copy logic without a button. It returns `copy`,
-`reset`, and the `isCopied`, `isError`, `state`, and `isSupported` accessors.
+[createCopy](/hooks/create-copy) from `moraine/utils` runs the same copy logic without a button. It
+returns `copy` and `reset`, plus the `isCopied`, `isError`, `state`, `error`, and `isSupported`
+accessors.
 
 ```tsx
 import { createCopy } from 'moraine/utils'
@@ -92,6 +119,7 @@ visible.
 
 ### Change the label while copied
 
-Pass a function child to read `state.isCopied` and show different label text after a copy.
+Pass a function child to read `state.isCopied` and show different label text after a copy. Set
+`iconPosition="trailing"` to move the icon after the label.
 
 <Preview path="./with-label" />

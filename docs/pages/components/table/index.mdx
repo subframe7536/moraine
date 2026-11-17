@@ -121,7 +121,8 @@ Each part renders one fixed element and forwards native attributes to it.
 
 Use native attributes for table semantics: `colSpan` and `rowSpan` on cells, and `scope="row"` on a
 `Table.Head` that labels a body row. Name the table with `Table.Caption`, or with `aria-label` when
-a visible caption does not fit.
+a visible caption does not fit. Place `Table.Caption` first in the markup; it renders below the
+table.
 
 ```tsx
 <Table.Row>
@@ -135,9 +136,10 @@ a visible caption does not fit.
 
 ### Density and borders
 
-`size` sets cell padding and text size. `border` draws row dividers (`'row'`, the default),
-column dividers (`'col'`), or both (`'both'`). `striped` shades even body rows, and `highlightOnHover`
-highlights body rows under the pointer. Neither applies to selected rows.
+`size` (`'sm'`, `'md'`, or `'lg'`; default `'md'`) sets cell padding and text size. `border` draws
+row dividers (`'row'`, the default), column dividers (`'col'`), or both (`'both'`). `striped` shades
+alternate rows, and `highlightOnHover` highlights body rows under the pointer. Neither applies to
+selected rows.
 
 ### Alignment and truncation
 

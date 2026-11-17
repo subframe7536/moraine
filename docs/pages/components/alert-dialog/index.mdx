@@ -29,7 +29,7 @@ import Playground from './playground'
           },
           {
             slot: 'footer',
-            children: [{ slot: 'action' }],
+            children: [{ slot: 'cancel' }, { slot: 'action' }],
           },
         ],
       },
@@ -38,22 +38,24 @@ import Playground from './playground'
 />
 
 `<AlertDialog>` mounts a host with no DOM of its own. Each call opens a dialog whose panel is
-`content`, with a `header` for the icon and copy, and a `footer` for the action buttons.
+`content`, with a `header` for the icon and copy, and a `footer` for the `cancel` and `action`
+buttons.
 
 ## Usage
 
 Use Alert Dialog for a short confirm, info, warning, error, or success prompt opened from an event
 handler. Use [Dialog](/components/dialog) when the task has its own trigger, body, and footer.
 
-Mount `<AlertDialog>` once. It renders no children and holds no open state. Props on that host are
-live defaults for every dialog, and options passed to a method override them. `false`, `0`, and
-`null` on the call are kept: `icon: null` still omits the icon when the host sets one. A call
-before the host is mounted throws. On the server the same call returns a handle whose `result()`
-is already `'api'`.
+Mount `<AlertDialog>` once. It renders no children and holds no open state. Props on the host are
+live defaults for every dialog, and options passed to a method override them. Only `undefined`
+falls back to the host: `false`, `0`, and `null` on a call are kept, so `closable: false` or
+`align: null` overrides a host default. A call before the host is mounted throws. On the server, a
+call returns a handle whose `result()` is already `'api'`.
 
 Give each host a unique `id` when more than one is mounted. A call without `host` goes to the host
-without an id and throws if only hosts with an id are mounted. Pass `host` to target `<AlertDialog id="billing" />`. Unmounting a host settles its
-open dialogs as `'api'` and removes them immediately.
+without an id and throws if only hosts with an id are mounted. Pass `host` to target
+`<AlertDialog id="billing" />`. Unmounting a host settles its open dialogs as `'api'` and removes
+them immediately.
 
 ```tsx
 import { AlertDialog, Button, MoraineProvider } from 'moraine'
@@ -87,8 +89,11 @@ reasons. Every instance is created with a static method that takes an options ob
 interface Action {
   label?: JSX.Element
   variant?: ButtonT.Variants['variant']
+  tone?: ButtonT.Variants['tone']
   leading?: IconT.Name
   disabled?: boolean
+  class?: SlotClassValue
+  style?: SlotStyleValue
   onClick?: (event?: MouseEvent) => void | Promise<unknown>
 }
 
@@ -120,29 +125,34 @@ if ((await handle.result()) === 'action') {
 }
 ```
 
-`update` merges the next options into an open instance. An update after close does not reopen it.
-Reusing an open `id` with the same method and render updates that instance in place. With a different method or render, the open dialog closes with `'api'` and a new one opens. `update` replaces `action` and `cancel` as a
-whole, so include `onClick` again when the label changes.
+`update` merges the next options into an open instance; options set to `undefined` are ignored. An
+update after close does not reopen it. Reusing an open `id` with the same method and render updates
+that instance in place. With a different method or render, the open dialog closes with `'api'` and a
+new one opens. `update` replaces `action` and `cancel` as a whole, so include `onClick` again when
+the label changes.
 
 Custom content has two entry points. `AlertDialog.custom(render, options?)` supplies a render for
-that specific call, accepting either static `JSX.Element` or a `Component<DialogRenderProps>`.
-Host-level `<AlertDialog dialogRender={render} />` supplies a reusable component for all standard calls
-on that host, requiring a `Component<DialogRenderProps>` because the host creates fresh instances across
-multiple dialog calls. A `.custom()` render wins, then the host render, then the built-in layout. The render
-receives the id, the resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `titleId`,
-and `descriptionId`. It replaces the inner content. The dialog keeps its overlay, focus trap,
-`role="alertdialog"`, and panel width.
+that call, either a static `JSX.Element` or a `Component<DialogRenderProps>`. The host's
+`<AlertDialog dialogRender={render} />` supplies a reusable render for every other call on that
+host. It must be a `Component<DialogRenderProps>`, because the host creates a fresh instance for
+each dialog. A `.custom()` render wins, then the host `dialogRender`, then the built-in layout. The
+render receives the `id`, the resolved `options`, `pending()`, `action()`, `cancel()`, `close()`,
+`update()`, `titleId`, and `descriptionId`. It replaces the inner content. The dialog keeps its
+overlay, focus trap, `role="alertdialog"`, and panel width.
 
 ### Methods
 
 `show`, `info`, `warning`, `error`, and `success` show the action button only. `confirm` shows
 cancel as well. Set `cancel: true` to use the locale label, `cancel: { label }` to change it, or
-`cancel: false` to hide it on a confirm. `type: 'error'` pairs the error icon with a danger-toned
-action; `action.tone` overrides the tone.
+`cancel: false` to hide it on a confirm. `info`, `success`, `warning`, and `error` set `type`, which
+picks the leading icon and its color; `icon` replaces the icon. The action button keeps its neutral
+tone, so pass `action: { tone: 'danger' }` for a destructive action.
 
 `close()` closes every open dialog. `close(id)` closes one. `close({ host })` closes every dialog on
 that host, and `close({ host, id })` closes one dialog there. All settle with `'api'` before the exit
 transition finishes. Unmounting a host also closes its dialogs with `'api'` and calls `onClose`.
+`AlertDialog.update(id, options)` updates the open dialog with that id on any host, like
+`handle.update`.
 
 ```ts
 AlertDialog.show(options)
@@ -160,20 +170,22 @@ AlertDialog.close({ host?, id? })
 ### Defaults
 
 Action and cancel labels use the `dialog` message group (`ok`, `cancel`) when `label` is omitted.
-The corner button uses `closable`. `aria-label` names the dialog when `title` is omitted, which only
-`custom` calls may do. Put `titleId` on the custom heading so `aria-labelledby` can point at it, or
-pass `ariaLabel`.
+Set `translations` on the host or a call to change these labels and the corner button's `close`
+label. `closable` shows the corner close button and defaults to `false`. `title` names the dialog.
+Only `custom` calls may omit it; they name the dialog with `ariaLabel`, or by putting `titleId` on
+the custom heading so `aria-labelledby` points at it.
 
 ### Layout
 
-`variant="subtle"` gives the footer a top border and muted background. `align="center"` stacks the icon, title, and
-description and stretches the actions into an equal row.
+`variant="subtle"` gives the footer a top border and muted background. `align="center"` stacks the
+icon, title, and description and stretches the actions into an equal row. Both are props of the host
+and options of a call.
 
 ```tsx
 AlertDialog.confirm({
   title: 'Allow accessory to connect?',
   description: 'Do you want to allow the USB accessory to connect to this device?',
-  icon: 'i-lucide-bluetooth',
+  icon: 'i-lucide:bluetooth',
   align: 'center',
   variant: 'subtle',
   action: { label: 'Allow' },
@@ -183,12 +195,13 @@ AlertDialog.confirm({
 
 ### Dismissal
 
-An outside pointer press dismisses the dialog when `closeOnOverlayClick` is set. Escape dismisses
-it when `closeOnEscape` is left on, which is the default. The corner close button is shown when
-`closable` is set. Escape closes only the topmost alert dialog. All three settle with `'dismiss'`.
+A pointer press on the overlay dismisses the dialog when `closeOnOverlayClick` is `true` (default
+`false`). Escape dismisses it unless `closeOnEscape` is `false` (default `true`). The corner close
+button appears when `closable` is `true`. Escape closes only the topmost dialog. All three settle
+with `'dismiss'`.
 
 `transition` on the host sets the default for every dialog on it, and the same option in a call
-overrides it. `transition: false` unmounts a dismissed dialog without its exit animation.
+overrides it. `transition: false` unmounts a closed dialog without its exit animation.
 
 ### Custom content
 
@@ -232,7 +245,7 @@ AlertDialog.custom(
 
 ### Show info, warning, error, and success
 
-Each method sets the type icon and tone. Cancel stays hidden until `cancel` is set.
+Each method sets the `type`, which picks the icon and its color. Cancel stays hidden until you set `cancel`.
 
 <Preview path="./alert-types" />
 
@@ -245,8 +258,8 @@ because the next `action` replaces the previous one.
 
 ### Authorize a hardware security key
 
-`align="center"` stacks the icon and copy. `variant="subtle"` paints the action row with a muted background and a top
-border.
+`align="center"` stacks the icon and copy. `variant="subtle"` gives the action row a muted
+background and a top border.
 
 <Preview path="./alert-center" />
 

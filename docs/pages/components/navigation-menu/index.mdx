@@ -78,9 +78,10 @@ export function Example() {
 ### Panels and direct links
 
 Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and
-`NavigationMenu.Link` for its destinations. `active` marks the current page with
-`aria-current="page"`. `closeOnClick` defaults to `false`; enable it when activation should also
-close the panel. A cancelled click does not request closing.
+`NavigationMenu.Link` for its destinations; a link can also sit directly in a `NavigationMenu.Item`.
+`active` marks the current page with `aria-current="page"`. `closeOnClick` defaults to `false`;
+enable it to close the panel on activation. A click handler that calls `preventDefault()` cancels
+the close. A disabled link loses its `href` and gets `aria-disabled`.
 
 ```tsx
 <NavigationMenu.Item value="products">
@@ -103,8 +104,12 @@ navigation landmarks. This version supports one level of panels.
 
 ### Controlled state
 
-Use stable item values with `value` and `onValueChange`. Set the value to `null` to close. Disabled
-or removed items cannot keep a panel open. `defaultValue` opens an item after hydration.
+Give each item a stable `value`, then control the open item with `value` and `onValueChange`.
+`onValueChange` receives the value of the item to open, or `undefined` to close, and you write it
+back to `value`. A value that matches no enabled item with content leaves the menu closed, so
+disabled or removed items cannot keep a panel open. For uncontrolled state, `defaultValue` opens an
+item after hydration. `disabled` on the root disables every trigger and link and closes the
+open panel; on an `Item` it disables only that item's trigger or direct links.
 
 ```tsx
 <NavigationMenu value={value()} onValueChange={setValue} disabled={disabled()}>
@@ -128,10 +133,19 @@ the triggers.
 </NavigationMenu>
 ```
 
+### Hover timing and positioning
+
+Panels open on hover after `openDelay` (default `50` ms) while no panel is open; hovering another
+trigger while a panel is open switches immediately, and click or keyboard activation never waits.
+The open panel closes `closeDelay` (default `50` ms) after the pointer leaves the menu, and stays
+open while focus is inside it. `placement` (default `'bottom'`), `align` (default `'center'`),
+`gutter` (default `8`), `shift`, `flip`, and `slide` position the shared panel relative to the
+active trigger.
+
 ### RTL
 
-Set `dir="rtl"` on the surrounding container for right-to-left navigation. Arrow keys follow that
-direction when opening a vertical menu.
+Set `dir="rtl"` on a surrounding container for right-to-left navigation. Arrow keys follow that
+direction, including the key that opens a panel from a vertical menu.
 
 ```tsx
 <div dir="rtl">

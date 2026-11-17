@@ -70,9 +70,9 @@ resting at snap points. Use [Sheet](/components/sheet) for an edge panel without
 [Dialog](/components/dialog) for a centered labeled task, and [Modal](/components/modal) to compose
 backdrop and content yourself.
 
-Drawer shares modal dismissal and focus behavior with Dialog. The default side is `bottom`.
-For a persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`,
-`preventScroll={false}`, and `closeOnOverlayClick={false}` — Escape and swipe dismissal still apply.
+Drawer shares modal dismissal and focus behavior with Dialog. The default `side` is `bottom`. For a
+persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`,
+`preventScroll={false}`, and `closeOnOverlayClick={false}`. Escape and swipe dismissal still apply.
 
 ```tsx
 import { Button, Drawer } from 'moraine'
@@ -95,38 +95,42 @@ export function Example() {
 ### Content composition
 
 Use Content `title` and `description` for simple cases, or compose `Drawer.Header`, `Drawer.Title`,
-`Drawer.Description`, `Drawer.Body`, and `Drawer.Footer` for a custom layout — the same contract as
-[Sheet](/components/sheet#content-composition). An explicit `Drawer.Header` replaces the generated
-header. `Drawer.Close` is an explicit close control; root `closable` adds the automatic corner close
-button (on by default; `closable={false}` hides it), and `closeIcon` replaces its icon. The button is
-named by the `drawer` message group (`close`), and a swipe that starts on it still dismisses.
+`Drawer.Description`, `Drawer.Body`, and `Drawer.Footer` for a custom layout, following the same
+contract as [Sheet](/components/sheet#content-composition). An explicit `Drawer.Header` replaces the
+generated header. `Drawer.Close` is an explicit close control. Root `closable` (default `true`) adds
+the automatic corner close button, and `closeIcon` replaces its icon. The `drawer` message group
+(`close`) names the button, and `translations` overrides it per drawer. A touch swipe that starts
+on the button still dismisses.
 
-Root `transition={false}` turns off the enter and exit animations. Content and overlay then unmount as
-soon as the drawer closes instead of waiting for the animation to end.
+Root `transition={false}` turns off the enter and exit animations. Content and overlay then unmount
+as soon as the drawer closes instead of waiting for the animation to end.
 
-For `top` and `bottom` sides, Content renders a decorative `handle` grab bar along the edge
-facing the viewport. Set `handle={false}` to hide it.
+For `top` and `bottom` sides, Content renders a decorative `handle` grab bar along the edge facing
+the viewport. Set `handle={false}` to hide it.
 
 ### Sizing and scrolling
 
-A `top` or `bottom` drawer sizes to its content, capped `0.5rem` (or the top safe-area inset)
-below the viewport height; `left` and `right` panels span `w-3/4` up to `sm:max-w-sm`. Override
-either with Content `class` — for example `class="h-[50dvh]"` for a fixed height, or
+A `top` or `bottom` drawer sizes to its content and stops `0.5rem` (or the top safe-area inset, if
+larger) short of the viewport height. `left` and `right` panels span `w-3/4`, up to `sm:max-w-sm`.
+Override either with Content `class`, for example `class="h-[50dvh]"` for a fixed height or
 `class="w-1/2 sm:max-w-2xl"` for a wider side panel. Body is the scrollable region: once Content's
 height is bounded, it scrolls between the header and footer.
 
 ### Swipe to dismiss
 
-The surface tracks a drag along its dismiss axis — down for `bottom`, up for `top`, and outward for
-`left`/`right` — and closes past half its size or on a fast flick. A drag against the dismiss
-direction is damped and springs back. The `data-swiping` attribute on the content and overlay marks
-the active gesture so transitions pause.
+The surface tracks a drag along its dismiss axis (down for `bottom`, up for `top`, outward for
+`left` and `right`) and closes once dragged past half its size or on a fast flick. A drag against
+the dismiss direction is damped and springs back. The `data-swiping` attribute on the content and
+overlay marks the active gesture so transitions pause.
 
-A drag never starts on interactive elements (`button`, `a`, form controls, `[contenteditable]`,
-`[role="slider"]`), on `[data-swipe-ignore]` subtrees, or on a mouse press inside `Drawer.Body`, which
-stays available for text selection. On touch, `data-swipe-ignore="x"` or `"y"` blocks only that axis.
-Touch drags that begin inside a scrollable region defer to native scrolling until the scroller
-reaches its edge in the drag direction.
+A mouse or pen drag does not start on interactive elements (`button`, `a`, form controls,
+`[contenteditable]`, `[role="button"]`, `[role="slider"]`), inside `Drawer.Body`, which stays
+available for text selection, or inside a region that scrolls along the drag axis. A touch drag can start on interactive
+elements. Touch drags that begin inside a scrollable region defer to native scrolling until the
+scroller reaches its edge in the drag direction.
+
+Mark a subtree with `data-swipe-ignore` to block drags that start in it. On touch,
+`data-swipe-ignore="x"` or `"y"` blocks only drags along that axis.
 
 ```tsx
 <Drawer.Body>
@@ -136,15 +140,18 @@ reaches its edge in the drag direction.
 
 ### Snap points
 
-`snapPoints` limits where a `top` or `bottom` drawer rests: numbers `<= 1` are a fraction of the
-viewport height, larger numbers are pixels, and `'px'`/`'rem'` strings resolve directly. Snap points
-are ignored for `left` and `right`. Snap heights are clamped to the content's rendered height, so
-give Content an explicit height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using
-fractional or full snap points.
+`snapPoints` limits where a `top` or `bottom` drawer rests. Each entry is the visible height from the
+edge, in any order: numbers `<= 1` are a fraction of the viewport height, larger numbers are pixels,
+and `'px'` or `'rem'` strings resolve directly. Snap points are ignored for `left` and `right`. Snap
+heights are clamped to the content's rendered height and the viewport, so give Content an explicit
+height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using fractional or full snap points.
 
-`snapPoint` / `defaultSnapPoint` / `onSnapPointChange` control the resting point (the default is the
-first snap point). Release settles on the closest point or closes; `snapToSequentialPoints` advances
-at most one point per flick and closes only from the last point.
+`snapPoint`, `defaultSnapPoint`, and `onSnapPointChange` control the resting point. It defaults to
+the first snap point, and `null` means fully open. Releasing a swipe settles on the closest point
+(projected by the swipe velocity), and dragging past the lowest point closes the drawer. With
+`snapToSequentialPoints`, a flick advances at most one point and closes only from the lowest point.
+After the drawer finishes closing, it returns to the default point and reports it through
+`onSnapPointChange` if the active point differed.
 
 ```tsx
 const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px')
@@ -154,7 +161,7 @@ const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px'
 
 ### CSS variables
 
-Content declares these variables; set them with `styles.content` or measure them from the binding.
+Content declares these variables. Override them with `styles.content`, or read them in your own styles.
 
 | Variable                     | Default                                                     | Description                                                                |
 | ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -168,19 +175,19 @@ Content declares these variables; set them with `styles.content` or measure them
 | `--drawer-nested-num`        | `0`                                                         | Number of open drawers nested inside this drawer.                          |
 | `--drawer-nested-progress`   | `0`                                                         | Swipe progress of the frontmost nested drawer in `[0, 1]`.                 |
 | `--drawer-frontmost-height`  | `0px`                                                       | Measured popup height of the frontmost nested drawer.                      |
-| `--drawer-nested-scale`      | `1`                                                         | Scale applied to recede ancestor drawers in a nested stack.                |
-| `--drawer-nested-offset`     | `0px`                                                       | Offset applied to push ancestor drawers upward in a nested stack.          |
+| `--drawer-nested-scale`      | derived from nested count and progress (`1` when none)      | Scale applied to recede ancestor drawers in a nested stack.                |
+| `--drawer-nested-offset`     | derived from nested count and progress (`0px` when none)    | Offset applied to push ancestor drawers upward in a nested stack.          |
 
 ### Keyboard interaction
 
 | Key                    | Description                                             |
 | ---------------------- | ------------------------------------------------------- |
-| <kbd>Escape</kbd>      | Requests dismissal when `closeOnEscape` is not `false`. |
+| <kbd>Escape</kbd>      | Dismisses the drawer unless `closeOnEscape` is `false`. |
 | <kbd>Tab</kbd>         | Moves focus forward; modal drawers contain focus.       |
 | <kbd>Shift + Tab</kbd> | Moves focus backward; modal drawers contain focus.      |
 
-On Android, the system back gesture closes the drawer on browsers that support `CloseWatcher`.
-It follows `closeOnEscape` and reports blocked requests through `onClosePrevented`.
+On Android, the system back gesture closes the drawer in browsers that support `CloseWatcher`. It
+follows `closeOnEscape` and reports blocked requests through `onClosePrevented`.
 
 ## Examples
 
@@ -198,7 +205,7 @@ A controlled snap point switches between a compact peek and the full-height surf
 
 ### Nest drawers
 
-A child drawer opens above its parent: ancestors shrink, slide up, and dim behind it. Setting
+A child drawer opens above its parent: ancestors shrink and slide up behind it. Setting
 `overlay={false}` on the nested drawers keeps a single overlay for the whole stack.
 Escape, swipe, outside press, and the Android back gesture close only the topmost drawer.
 

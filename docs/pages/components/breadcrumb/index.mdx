@@ -31,6 +31,10 @@ import Playground from './playground'
                 slot: 'link',
                 children: [{ slot: 'leading' }, { slot: 'label' }],
               },
+              {
+                slot: 'page',
+                children: [{ slot: 'leading' }, { slot: 'label' }],
+              },
             ],
           },
           { slot: 'separator' },
@@ -56,9 +60,11 @@ export function Example() {
 
 ### Items and current page
 
-Use `href` for navigable ancestors. The last item is the current page by default; set
-`active` to mark another item instead. The current page renders as a `span` with
-`aria-current="page"`. Disabled ancestors stay non-interactive and expose `aria-disabled="true"`.
+Use `href` for navigable ancestors, with `target`, `rel`, and `onClick` as needed. The last item is
+the current page by default; set `active` on another item to mark it instead (the first `active` item
+wins). The current page renders as a `span` with `aria-current="page"`. Disabled ancestors render
+without `href` or `onClick` and expose `aria-disabled="true"`. `disabled` has no effect on the
+current page.
 
 ```tsx
 <Breadcrumb
@@ -81,8 +87,26 @@ Use `href` for navigable ancestors. The last item is the current page by default
 />
 ```
 
-`separator` accepts an icon name or a render function. `wrap` lets a long trail break onto extra
-lines in a narrow column.
+`separator` accepts an icon name, an element, or a component, and defaults to `icon-chevron-right`.
+It is hidden from assistive technology. `wrap` (default `true`) lets a long trail break onto extra
+lines in a narrow column; with `wrap={false}`, the trail stays on one line and clips any overflow.
+The `<nav>` is labeled `breadcrumb` by default. Set `aria-label`, or `translations={{ label }}`, to
+change it.
+
+Pass `itemRender` to replace each item's link or page element, for example with a router link. The
+component receives `{ item, index, current, disabled }` and is responsible for `aria-current` and
+disabled handling.
+
+```tsx
+<Breadcrumb
+  items={items}
+  itemRender={(ctx) => (
+    <A href={ctx.item.href ?? '#'} aria-current={ctx.current ? 'page' : undefined}>
+      {ctx.item.label}
+    </A>
+  )}
+/>
+```
 
 ## Examples
 
@@ -100,13 +124,13 @@ Keep a disabled private workspace in the trail. Replace the chevron with a slash
 
 ### Long trail in a narrow column
 
-Turn wrapping on so the trail can break. Turn it off to keep every item on one line.
+Leave `wrap` on so the trail can break across lines. Set `wrap={false}` to keep every item on one line.
 
 <Preview path="./wrapping" />
 
 ### Custom item rendering
 
-Use `itemRender` to take over rendering of each breadcrumb item, receiving `item`, `index`,
-`current`, and `disabled` state for router link or custom chip styling.
+Use `itemRender` to render each item yourself for router links or custom chip styling. It receives
+`item`, `index`, `current`, and `disabled`.
 
 <Preview path="./custom-item-render" />
