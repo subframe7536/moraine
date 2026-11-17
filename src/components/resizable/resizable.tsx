@@ -68,6 +68,30 @@ function createServerSafeMemo<T>(fn: () => T): () => T {
   return memo
 }
 
+/**
+ * Split layout of draggable, keyboard-accessible panels for multi-pane interfaces. The group owns
+ * the size of every panel as a layout record keyed by panel `id`, with sizes as percentages
+ * (0-100); it is uncontrolled with `defaultValue` or controlled through `value` and
+ * `onValueChange`. Lays panels out horizontally unless `orientation` is `vertical`. For a single
+ * expandable disclosure or a drawer, use `Collapsible` or `Sheet` instead.
+ *
+ * @example
+ * ```tsx
+ * import { Resizable } from 'moraine'
+ *
+ * <div class="h-64 w-full">
+ *   <Resizable defaultValue={{ sidebar: 30, content: 70 }}>
+ *     <Resizable.Panel id="sidebar" min={20}>
+ *       Sidebar
+ *     </Resizable.Panel>
+ *     <Resizable.Handle />
+ *     <Resizable.Panel id="content" min={30}>
+ *       Content
+ *     </Resizable.Panel>
+ *   </Resizable>
+ * </div>
+ * ```
+ */
 export function Resizable(props: ResizableProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',

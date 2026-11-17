@@ -22,6 +22,27 @@ export function useResizablePanel(): ResizableT.PanelContext {
   return useResizablePanelContext()
 }
 
+/**
+ * Content pane of a `Resizable` group whose size is a percentage of the group. It must be placed
+ * inside `Resizable`, with a `Resizable.Handle` between adjacent panels. `id` keys the panel in
+ * the group's layout record; `min`, `max`, and `collapsible` constrain how handles can resize it.
+ * Renders a `div`.
+ *
+ * @example
+ * ```tsx
+ * import { Resizable } from 'moraine'
+ *
+ * <Resizable defaultValue={{ inspector: 32, viewport: 68 }}>
+ *   <Resizable.Panel id="inspector" min={25} max={45}>
+ *     Inspector
+ *   </Resizable.Panel>
+ *   <Resizable.Handle />
+ *   <Resizable.Panel id="viewport" min={35}>
+ *     Viewport
+ *   </Resizable.Panel>
+ * </Resizable>
+ * ```
+ */
 export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
   const ctx = useResizableContext()
   const [local, rest] = splitProps(props, [

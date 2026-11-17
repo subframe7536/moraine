@@ -35,6 +35,25 @@ function callHandleEvent<E extends Event>(
   }
 }
 
+/**
+ * Draggable divider between two `Resizable.Panel` siblings inside `Resizable`. It supports pointer
+ * dragging, arrow-key resizing, and `Enter` to toggle a collapsible neighbor, and renders a
+ * focusable `div` with `role="separator"` and a decorative grip. Its children can be a render
+ * function that receives the handle state (such as `collapsed` and `dragging`).
+ *
+ * @example
+ * ```tsx
+ * import { Resizable } from 'moraine'
+ *
+ * <Resizable defaultValue={{ nav: 25, main: 75 }}>
+ *   <Resizable.Panel id="nav" collapsible min={15}>
+ *     Navigation
+ *   </Resizable.Panel>
+ *   <Resizable.Handle />
+ *   <Resizable.Panel id="main">Main</Resizable.Panel>
+ * </Resizable>
+ * ```
+ */
 export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   const ctx = useResizableContext()
   const [local, rest] = splitProps(props, [

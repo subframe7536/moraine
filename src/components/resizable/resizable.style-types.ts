@@ -18,7 +18,10 @@ export interface ResizableStyleSlot<T = unknown> {
 }
 
 export interface ResizableStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * Direction panels are laid out in: `horizontal` places panels side by side with vertical handles, `vertical` stacks them.
+   * @default 'horizontal'
+   */
   orientation?: Orientation
 }
 
