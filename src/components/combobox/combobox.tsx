@@ -211,7 +211,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           emptyRender={(emptyProps) => (
             <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
               {renderWithProps(local.emptyRender, {
-                get inputValue() {
+                get searchValue() {
                   return search.value()
                 },
                 get hasMatches() {

@@ -53,8 +53,8 @@ export namespace ComboboxT {
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
-    /** Current query text. */
-    inputValue: string
+    /** Current search text. */
+    searchValue: string
     /** Whether the filtered collection has matches. */
     hasMatches: boolean
     /** Currently selected value. */

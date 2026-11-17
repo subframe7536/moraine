@@ -58,6 +58,7 @@ import {
 ;<Select emptyRender={<span />} />
 ;<Select emptyRender={(props) => <span>Empty {String(props.selectedValue)}</span>} />
 ;<Combobox emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
+;<Combobox emptyRender={(props) => <span>No match for {props.searchValue}</span>} />
 ;<MultiSelect
   emptyRender={<span />}
   tagOverflowRender={<span />}

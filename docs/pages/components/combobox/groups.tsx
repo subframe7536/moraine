@@ -43,7 +43,7 @@ export function Groups() {
         emptyRender={(ctx) => (
           <div class="text-xs text-muted-foreground p-3 text-center">
             No technology found matching &ldquo;
-            <span class="text-foreground font-medium">{ctx.inputValue}</span>&rdquo;.
+            <span class="text-foreground font-medium">{ctx.searchValue}</span>&rdquo;.
           </div>
         )}
       />
