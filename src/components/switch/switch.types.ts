@@ -28,77 +28,98 @@ export namespace SwitchT {
     form?: string
 
     /**
-     * Pointer down handler for the switch root container.
+     * Pointer down handler for the switch track (the `role="switch"` button). It runs before the
+     * switch's own handling; call `event.preventDefault()` to skip that.
      */
     onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
-     * Native value submitted when the switch is checked.
+     * Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing
+     * is submitted while it is unchecked. This is separate from `trueValue`, which is what callbacks receive.
      * @default 'on'
      */
     value?: string
 
     /**
-     * Whether the switch is checked.
+     * Whether the switch is checked (controlled). Accepts `trueValue`, `falseValue`, or a boolean.
+     * Leave it `undefined` for uncontrolled usage.
      */
     checked?: TTrue | TFalse
 
     /**
-     * Whether the switch is checked by default.
+     * Whether the switch is initially checked (uncontrolled). Form reset returns to this state.
      */
     defaultChecked?: boolean
 
     /**
-     * Value to use when the switch is checked.
+     * Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`
+     * accepts for the checked state. Use it to map the state to a domain value.
      * @default true
+     * @example
+     * ```tsx
+     * import { Switch } from 'moraine'
+     *
+     * <Switch
+     *   label="Theme"
+     *   trueValue="dark"
+     *   falseValue="light"
+     *   defaultChecked
+     *   onCheckedChange={(mode) => console.log(mode)}
+     * />
+     * ```
      */
     trueValue?: TTrue
 
     /**
-     * Value to use when the switch is unchecked.
+     * Value that `onCheckedChange` receives when the switch becomes unchecked, and that `checked`
+     * accepts for the unchecked state.
      * @default false
      */
     falseValue?: TFalse
 
     /**
-     * Whether the switch is in a loading state.
+     * Whether the switch is in a loading state. A loading switch is disabled and shows `loadingIcon`
+     * on the thumb in place of the checked or unchecked icon.
      * @default false
      */
     loading?: boolean
 
     /**
-     * Icon shown during loading state.
+     * Icon shown on the thumb while `loading` is set.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
 
     /**
-     * Icon shown when the switch is checked.
+     * Icon shown on the thumb when the switch is checked. No icon is rendered when omitted.
      */
     checkedIcon?: IconT.Name
 
     /**
-     * Icon shown when the switch is unchecked.
+     * Icon shown on the thumb when the switch is unchecked. No icon is rendered when omitted.
      */
     uncheckedIcon?: IconT.Name
 
     /**
-     * Label for the switch.
+     * Label for the switch. It is a `<label>` for the control and its accessible name unless the
+     * surrounding `Field` provides one.
      */
     label?: JSX.Element
 
     /**
-     * Description for the switch.
+     * Description shown with the label and linked to the control as its accessible description.
      */
     description?: JSX.Element
 
     /**
-     * Optional inner input element ref.
+     * Receives the hidden `<input type="checkbox">` that submits the switch with a form.
      */
     inputRef?: Ref<HTMLInputElement>
 
     /**
-     * Callback when the switch state changes.
+     * Called when the user toggles the switch, with `trueValue` (checked) or `falseValue`
+     * (unchecked), which are `true` and `false` by default. It does not fire for programmatic
+     * changes to `checked`, or while the switch is `disabled`, `readOnly`, or `loading`.
      */
     onCheckedChange?: (value: TTrue | TFalse) => void
   }

@@ -17,7 +17,28 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { switchDataAttributes, switchRecipe } from './switch.recipe'
 import type { SwitchProps } from './switch.types'
 
-/** Toggle switch control with icon slots and loading state. */
+/**
+ * On/off toggle with switch semantics, an optional `label` and `description`, and icon and loading
+ * states. Use it for a setting whose state takes effect immediately, `Checkbox` for an independent
+ * form choice that may be part of a set, and `ToggleButton` for a pressed command button.
+ * Controlled with `checked` and `onCheckedChange`, or uncontrolled with `defaultChecked`;
+ * `trueValue` and `falseValue` map the state to domain values.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Switch } from 'moraine'
+ *
+ * const [enabled, setEnabled] = createSignal(false)
+ *
+ * <Switch
+ *   checked={enabled()}
+ *   onCheckedChange={setEnabled}
+ *   label="Airplane mode"
+ *   description="Turns off all wireless connections."
+ * />
+ * ```
+ */
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,
 ): JSX.Element {
