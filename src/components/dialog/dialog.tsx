@@ -17,7 +17,27 @@ import { DialogTitle } from './dialog-title'
 import { DialogTrigger } from './dialog-trigger'
 import type { DialogProps } from './dialog.types'
 
-/** Dialog state and presentation, sharing the Modal root context. */
+/**
+ * Labeled modal task with an optional title, description, body, and footer. Pass `title` and
+ * `description` to `Dialog.Content` for the default header, or compose `Dialog.Header`, `Dialog.Title`,
+ * and `Dialog.Description` yourself. Use `AlertDialog` for confirmations, `Sheet` or `Drawer` for edge
+ * panels, and `Modal` for a bare modal without dialog presentation.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Dialog } from 'moraine'
+ *
+ * <Dialog>
+ *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+ *   <Dialog.Content title="Settings" description="Update your account.">
+ *     <Dialog.Body>Preferences</Dialog.Body>
+ *     <Dialog.Footer>
+ *       <Dialog.Close as={Button}>Done</Dialog.Close>
+ *     </Dialog.Footer>
+ *   </Dialog.Content>
+ * </Dialog>
+ * ```
+ */
 export function Dialog(props: DialogProps): JSX.Element {
   const [modalProps, dialogProps] = splitProps(props, MODAL_ROOT_KEYS)
   const context: DialogContextValue = mergeProps(dialogProps, {

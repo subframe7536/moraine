@@ -30,6 +30,28 @@ function createDialogHeader(headerKind: 'explicit' | 'shorthand') {
   }
 }
 
+/**
+ * Header region of a `Dialog` for a custom title and description layout. Place it inside
+ * `Dialog.Content` and put `Dialog.Title` and `Dialog.Description` in it; an explicit header
+ * replaces the one generated from the `title` and `description` props of `Dialog.Content`. Renders
+ * a `div`; pass `as` to render another element or component.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Dialog } from 'moraine'
+ *
+ * <Dialog>
+ *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+ *   <Dialog.Content>
+ *     <Dialog.Header>
+ *       <Dialog.Title>Settings</Dialog.Title>
+ *       <Dialog.Description>Update your account.</Dialog.Description>
+ *     </Dialog.Header>
+ *     <Dialog.Body>Preferences</Dialog.Body>
+ *   </Dialog.Content>
+ * </Dialog>
+ * ```
+ */
 export const DialogHeader: <T extends ValidComponent = 'div'>(
   props: DialogT.HeaderProps<T>,
 ) => JSX.Element = /* @__PURE__ */ createDialogHeader('explicit')

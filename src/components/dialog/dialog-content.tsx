@@ -38,6 +38,29 @@ import { defaultDialogMessages } from './dialog.messages'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
 
+/**
+ * Portaled surface of a `Dialog` that renders the overlay, the dialog panel, and a corner close
+ * button. Pass `title` and `description` for the default header, or compose `Dialog.Header`,
+ * `Dialog.Title`, and `Dialog.Description` yourself (an explicit `Dialog.Header` replaces the
+ * generated one). Children can be JSX or a function that receives `close`. Give it an accessible
+ * name with a `Dialog.Title`, the `title` prop, or `aria-label`. Renders a `div`; pass `as` to
+ * change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Dialog } from 'moraine'
+ *
+ * <Dialog>
+ *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+ *   <Dialog.Content title="Settings" description="Update your account.">
+ *     <Dialog.Body>Preferences</Dialog.Body>
+ *     <Dialog.Footer>
+ *       <Dialog.Close as={Button}>Done</Dialog.Close>
+ *     </Dialog.Footer>
+ *   </Dialog.Content>
+ * </Dialog>
+ * ```
+ */
 export function DialogContent<T extends ValidComponent = 'div'>(
   props: DialogT.ContentProps<T>,
 ): JSX.Element {
