@@ -23,7 +23,25 @@ import { defaultSliderMessages } from './slider.messages'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
 
-/** Range slider component with single or multi-thumb support and step markers. */
+/**
+ * Range slider for choosing a number or range by moving one or more thumbs; a number `value` gives
+ * one thumb and an array gives a range. Use `NumberInput` when the value is typed and stepped
+ * rather than dragged, and `BoldSlider` for a compact single value with the label inside the track.
+ * Controlled with `value` and `onValueChange`, or uncontrolled with `defaultValue`; wrap it in
+ * `Field` for a label and messages, or set `aria-label`.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, Slider } from 'moraine'
+ *
+ * const [volume, setVolume] = createSignal(50)
+ *
+ * <Field label="Volume">
+ *   <Slider value={volume()} onValueChange={setVolume} min={0} max={100} step={5} marker />
+ * </Field>
+ * ```
+ */
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {

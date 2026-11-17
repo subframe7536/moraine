@@ -38,9 +38,17 @@ export namespace SliderT {
    * Base props for the Slider component.
    */
   export interface Base<TValue = Value> extends FieldT.ControlBase {
-    /** The current value (controlled). */
+    /**
+     * The current value (controlled). A number renders one thumb and an array renders one thumb per
+     * entry (an empty array gives one thumb at `min`). Values are clamped to `min`-`max` and
+     * arrays are sorted. Leave it `undefined` for uncontrolled usage. The slider throws a
+     * `RangeError` when `max` is not greater than `min`.
+     */
     value?: TValue
-    /** The default value (uncontrolled). */
+    /**
+     * The initial value (uncontrolled), with the same number or array shape as `value`; its shape
+     * also sets the shape that `onValueChange` and `onValueCommit` receive. Defaults to `min`.
+     */
     defaultValue?: TValue
 
     /**
@@ -49,15 +57,44 @@ export namespace SliderT {
      */
     form?: string
 
-    /** Localized message overrides for this slider instance. */
+    /**
+     * Localized message overrides for this slider instance: `thumb` returns each thumb's
+     * `aria-label` and `valueText` returns its `aria-valuetext`.
+     * @example
+     * ```tsx
+     * import { Slider } from 'moraine'
+     *
+     * <Slider
+     *   defaultValue={[20, 80]}
+     *   translations={{
+     *     thumb: ({ index }) => (index === 0 ? 'Minimum price' : 'Maximum price'),
+     *   }}
+     * />
+     * ```
+     */
     translations?: Translations
     /**
      * `Intl.NumberFormat` options used to format values for `aria-valuetext`, such as
-     * `{ style: 'percent' }`. Formatting uses the provider locale.
+     * `{ style: 'percent' }`. Formatting uses the provider locale and does not change the
+     * value passed to callbacks; `BoldSlider` also uses it for its displayed value. Remember that a
+     * `percent` style multiplies by 100, so pair it with a `0`-`1` range.
+     * @example
+     * ```tsx
+     * import { Slider } from 'moraine'
+     *
+     * <Slider
+     *   defaultValue={0.25}
+     *   min={0}
+     *   max={1}
+     *   step={0.05}
+     *   formatOptions={{ style: 'percent' }}
+     * />
+     * ```
      */
     formatOptions?: Intl.NumberFormatOptions
     /**
-     * Reverses value movement along the track.
+     * Reverses the track direction, so `min` sits at the right (or top when vertical) instead of
+     * the left (or bottom) in left-to-right layouts.
      * @default false
      */
     reversed?: boolean
@@ -75,13 +112,16 @@ export namespace SliderT {
     max?: number
 
     /**
-     * Step increment between values.
-     * When omitted, pointer movement is continuous.
+     * Step increment between values; pointer and keyboard values snap to multiples of it from `min`.
+     * When omitted (or not above `0`), pointer movement is continuous and arrow keys move by 1% of
+     * the range. `PageUp`/`PageDown` and `Shift` + arrow move by about 10% of the range.
      */
     step?: number
 
     /**
-     * Minimum steps required between thumbs in a multi-thumb slider.
+     * Minimum distance between neighboring thumbs in a multi-thumb slider, counted in `step` units
+     * (1% of the range when `step` is not set). A value above `0` also stops thumbs from crossing,
+     * regardless of `allowThumbCrossing`.
      * @default 0
      */
     minStepsBetweenThumbs?: number
@@ -94,7 +134,8 @@ export namespace SliderT {
     marker?: boolean | number
 
     /**
-     * Whether dragging can continue across another thumb when there is no minimum gap.
+     * Whether dragging can continue across another thumb when there is no minimum gap. When `false`,
+     * a thumb stops at its neighbor. Ignored while `minStepsBetweenThumbs` is above `0`.
      * @default true
      */
     allowThumbCrossing?: boolean
@@ -109,17 +150,30 @@ export namespace SliderT {
     thumbAlignment?: 'contain' | 'overflow'
 
     /**
-     * Optional inner input element ref.
+     * Receives the hidden `<input type="range">` of the first thumb.
      */
     inputRef?: Ref<HTMLInputElement>
 
     /**
-     * Callback when the slider selection changes during interaction.
+     * Called on every value change during interaction (pointer drag, track click, or key press),
+     * with the new value in the same shape as `value`. Does not fire for programmatic changes to
+     * `value`. Use `onValueCommit` to react once per finished interaction.
      */
     onValueChange?: (value: TValue) => void
 
     /**
-     * Callback when the slider selection change is committed.
+     * Called once an interaction that changed the value finishes: when the pointer is released,
+     * when a navigation key is released, or when focus leaves the slider. Receives the final value in
+     * the same shape as `value`.
+     * @example
+     * ```tsx
+     * import { Slider } from 'moraine'
+     *
+     * <Slider
+     *   defaultValue={[20, 80]}
+     *   onValueCommit={(range) => console.log(`${range[0]} to ${range[1]}`)}
+     * />
+     * ```
      */
     onValueCommit?: (value: TValue) => void
 
@@ -127,6 +181,14 @@ export namespace SliderT {
      * Content rendered inside the root after the thumbs, or a render function receiving the live slider state.
      * A render function must declare its parameter, even when unused. A zero-argument
      * function is called as an accessor and is not mounted as a component.
+     * @example
+     * ```tsx
+     * import { Slider } from 'moraine'
+     *
+     * <Slider defaultValue={30}>
+     *   {(state) => <output>{state.dragging ? 'Dragging ' : ''}{state.values[0]}</output>}
+     * </Slider>
+     * ```
      */
     children?: JSX.Element | Component<ChildrenRenderProps<TValue>>
   }

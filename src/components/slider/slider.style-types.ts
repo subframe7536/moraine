@@ -20,7 +20,10 @@ export interface SliderStyleSlot<T = unknown> {
 }
 
 export interface SliderStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * Direction of the track. A `vertical` slider fills the height of its parent and puts `min` at the bottom unless `reversed`.
+   * @default 'horizontal'
+   */
   orientation?: Orientation
 
   /** Visual size of the component.
