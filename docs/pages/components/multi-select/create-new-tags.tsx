@@ -35,7 +35,7 @@ export function CreateNewTags() {
               class="text-xs text-primary"
               onClick={() => ctx.create()}
             >
-              Create &ldquo;{ctx.inputValue}&rdquo;
+              Create &ldquo;{ctx.searchValue}&rdquo;
             </Button>
           </div>
         )}

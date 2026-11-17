@@ -60,10 +60,10 @@ import {
 ;<Combobox emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
 ;<Combobox emptyRender={(props) => <span>No match for {props.searchValue}</span>} />
 ;<MultiSelect
-  emptyRender={<span />}
+  emptyRender={(props) => <span>No match for {props.searchValue}</span>}
   tagOverflowRender={<span />}
   itemRender={(props) => <span>{props.item.label}</span>}
-  tagRender={(props) => <span>{props.label}</span>}
+  tagRender={(props) => <button onClick={props.remove}>{props.label}</button>}
 />
 ;<CommandPalette
   emptyRender={<span />}

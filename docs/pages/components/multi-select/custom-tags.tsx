@@ -56,7 +56,7 @@ export function CustomTags() {
                 aria-label={`Remove ${props.value}`}
                 onClick={(event) => {
                   event.stopPropagation()
-                  props.onClose()
+                  props.remove()
                 }}
                 class="p-0.5 rounded-full inline-flex transition-opacity items-center justify-center hover:opacity-80"
               >

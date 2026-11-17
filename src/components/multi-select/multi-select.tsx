@@ -373,7 +373,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                       item: source().byValue.get(tag.value),
                       value: tag.value,
                       label: tag.label,
-                      onClose: () => tags.remove(index()),
+                      remove: () => tags.remove(index()),
                     })
                   }
                 </Show>
@@ -497,7 +497,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               }
             >
               {renderWithProps(local.emptyRender, {
-                get inputValue() {
+                get searchValue() {
                   return search.value()
                 },
                 get hasMatches() {

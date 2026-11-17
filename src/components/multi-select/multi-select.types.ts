@@ -57,7 +57,7 @@ export namespace MultiSelectT {
     /** Visual label, or String(value) when unresolved. */
     label: import('solid-js').JSX.Element
     /** Removes this item from the selection. */
-    onClose: () => void
+    remove: () => void
   }
 
   export type TagOverflowEntry<TItem extends Item = Item> = Pick<
@@ -73,8 +73,8 @@ export namespace MultiSelectT {
   }
 
   export interface EmptyRenderProps<TItem extends Item = Item> {
-    /** Current input/search text. */
-    inputValue: string
+    /** Current search text. */
+    searchValue: string
     /** Whether the current filter has any matches. */
     hasMatches: boolean
     /** Currently selected values. */

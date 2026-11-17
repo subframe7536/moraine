@@ -500,7 +500,7 @@ describe('MultiSelect', () => {
         items={ITEMS}
         defaultValue={['apple', 'banana']}
         tagRender={(tag) => (
-          <button type="button" aria-label={`Custom ${tag.value}`} onClick={tag.onClose}>
+          <button type="button" aria-label={`Custom ${tag.value}`} onClick={tag.remove}>
             {tag.label}
           </button>
         )}
