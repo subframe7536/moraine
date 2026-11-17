@@ -41,7 +41,7 @@ export namespace SheetT {
     /** Icon name or custom content for the close button.
      * @default 'icon-close'
      */
-    closeIcon?: IconT.Name | JSX.Element
+    closeIcon?: IconT.Name
   }
   export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 

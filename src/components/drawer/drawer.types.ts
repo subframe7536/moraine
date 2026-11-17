@@ -47,7 +47,7 @@ export namespace DrawerT {
     /** Icon name or custom content for the close button.
      * @default 'icon-close'
      */
-    closeIcon?: IconT.Name | JSX.Element
+    closeIcon?: IconT.Name
 
     /** Whether to render the decorative grab handle. Only rendered for `top` and `bottom` sides.
      * @default true
