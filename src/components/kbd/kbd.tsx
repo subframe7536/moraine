@@ -9,7 +9,22 @@ import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps } from './kbd.types'
 
-/** Keyboard keycap component with configurable size, variant, and accessible label. */
+/**
+ * Keycap that displays one keyboard key as shortcut notation in a `kbd` element. Known aliases
+ * such as `meta`, `ctrl`, `shift`, and `escape` resolve to symbols unless `symbol={false}`, and
+ * `aria-label` overrides the spoken name. Use `KbdGroup` to combine several keys into one
+ * shortcut. It only displays the key; it does not register a keyboard handler.
+ *
+ * @example
+ * ```tsx
+ * import { Kbd } from 'moraine'
+ *
+ * <p>
+ *   Press <Kbd value="meta" /> <Kbd value="K" aria-label="K" /> to search, or{' '}
+ *   <Kbd value="escape" symbol={false} /> to cancel.
+ * </p>
+ * ```
+ */
 export function Kbd(props: KbdProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'value',

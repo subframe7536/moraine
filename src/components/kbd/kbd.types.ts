@@ -47,18 +47,26 @@ export namespace KbdT {
 
   /** Base props for the Kbd component. */
   export interface Base {
-    /** Localized key alias labels for assistive technology. */
+    /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set. */
     translations?: Translations
-    /** Value displayed by the keycap or resolved through the static key aliases. */
+    /**
+     * The key to display. A name matching a built-in alias, compared case-insensitively
+     * (`meta`, `ctrl`, `shift`, `escape`, `arrowup`, ...), shows its symbol or short label, such as `⌘` for
+     * `meta` or `Esc` for `escape`, unless `symbol` is `false`. Any other string renders as written, such as `K` or `F5`.
+     * Nothing renders for an empty string.
+     */
     value: Key
     /**
      * Whether to resolve known key aliases to symbols.
      * @default true
      */
     symbol?: boolean
-    /** Accessible label for assistive technology. Overrides the resolved key alias message. */
+    /** Accessible label for the keycap. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set. */
     'aria-label'?: string
-    /** Data slot used by the rendered keycap. */
+    /**
+     * Value of the keycap's `data-slot` attribute, for styling hooks. `KbdGroup` sets it to `kbd-group-item` for its keys.
+     * @default 'kbd'
+     */
     slotName?: string
   }
 
