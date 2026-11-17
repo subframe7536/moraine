@@ -144,7 +144,7 @@
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "Filtering strategy or predicate receiving the raw item. `false` disables filtering.",
+          "description": "Filtering strategy, or a predicate receiving the search query and the item. String items\narrive as `{ value, label }`. `false` disables filtering.",
           "default": {
             "kind": "literal",
             "value": "contains"
@@ -164,7 +164,7 @@
           "name": "getItemLabel",
           "optional": true,
           "type": "(item: TItem) => string",
-          "description": "Plain-text label of an item, used for filtering, typeahead, form-value matching, and plain-text\ndisplay such as the Combobox input and MultiSelect tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`."
+          "description": "Plain-text label of an item, used for typeahead, filtering, form values, and plain-text\ndisplays such as an input value or tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`."
         },
         {
           "name": "gutter",

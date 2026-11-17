@@ -102,7 +102,7 @@
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "Filtering strategy or predicate receiving the raw item. `false` disables filtering.\nItems with `alwaysShow` stay visible.",
+          "description": "Filtering strategy, or a predicate receiving the search query and the item.\n`false` disables filtering. Items with `alwaysShow` stay visible.",
           "default": {
             "kind": "literal",
             "value": "contains"
@@ -117,8 +117,8 @@
         {
           "name": "getItemLabel",
           "optional": true,
-          "type": "(item: TItem, group: Group<TItem>) => string",
-          "description": "Plain-text label of an item, used for matching; does not change visual labels.\nDefaults to the label, value, description, and keywords joined by spaces."
+          "type": "(item: TItem) => string",
+          "description": "Plain-text label of an item, used for filtering; does not change rendered labels.\nDefaults to the label, value, description, and keywords joined by spaces."
         },
         {
           "name": "groups",

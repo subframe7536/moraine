@@ -37,7 +37,7 @@
         {
           "name": "closeIcon",
           "optional": true,
-          "type": "IconT.Name | JSX.Element",
+          "type": "IconT.Name",
           "description": "Icon name or custom content for the close button.",
           "default": {
             "kind": "literal",

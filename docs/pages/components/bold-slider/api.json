@@ -70,8 +70,8 @@
         {
           "name": "label",
           "optional": true,
-          "type": "string",
-          "description": "Text shown at the start of the track. Also used as the default `aria-label`."
+          "type": "JSX.Element",
+          "description": "Content shown at the start of the track. Also used as the default `aria-label` when it is a\nstring. It renders in both the track and fill text layers, so pass JSX inline rather than a\nshared node."
         },
         {
           "name": "marker",
@@ -204,8 +204,8 @@
         {
           "name": "valueLabel",
           "optional": true,
-          "type": "boolean | ((value: number) => string)",
-          "description": "Whether to show the value at the end of the track, or a formatter for it.\nBy default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.",
+          "type": "boolean | ((props: { percent: number; value: number; max: number }) => string)",
+          "description": "Whether to show the value at the end of the track, or a formatter for it. `percent` is the\nfilled share of the track from 0 to 100.\nBy default the value is rounded to the decimal places of `step`, or to 2 decimal places without `step`.",
           "default": {
             "kind": "literal",
             "value": true

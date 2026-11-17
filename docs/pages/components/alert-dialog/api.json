@@ -73,6 +73,12 @@
           "description": "Unique identifier for this host when multiple hosts are mounted.\nA call without `host` goes to the last mounted host without an id. Pass `host` in the\ncall options to target one host. If duplicate ids are mounted, the last mounted host takes precedence.\nUnmounting a host settles its open dialogs with reason `api`."
         },
         {
+          "name": "maxWidth",
+          "optional": true,
+          "type": "string | number",
+          "description": "Dialog content `max-width`; a number is in pixels."
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
@@ -113,12 +119,6 @@
             "kind": "literal",
             "value": "default"
           }
-        },
-        {
-          "name": "width",
-          "optional": true,
-          "type": "string | number",
-          "description": "Sets the dialog content `max-width`."
         }
       ]
     }
