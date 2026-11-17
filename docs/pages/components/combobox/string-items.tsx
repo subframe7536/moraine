@@ -18,13 +18,13 @@ export function StringItems() {
         aria-label="Issue status"
         items={['Open', 'In progress', 'Blocked', 'Done']}
         defaultValue="Open"
-        allowClear
+        clearable
       />
       <Combobox
         aria-label="Issue status with groups"
         items={MIXED_STATUSES}
         placeholder="Choose a status..."
-        allowClear
+        clearable
       />
     </div>
   )

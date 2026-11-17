@@ -91,7 +91,7 @@ export namespace ComboboxT {
     /** Whether the control is loading. */
     loading?: boolean
     /** Show a clear action when a value or query exists. */
-    allowClear?: boolean
+    clearable?: boolean
     /** Called once when clear is triggered. */
     onClear?: () => void
     /**

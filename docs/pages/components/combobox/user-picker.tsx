@@ -37,7 +37,7 @@ export function UserPicker() {
         placeholder="Assign to teammate..."
         leading="i-lucide:user-plus"
         openOnControlClick
-        allowClear
+        clearable
       />
     </div>
   )

@@ -24,7 +24,7 @@ export function UsageQuery() {
         onSearchValueChange={setQuery}
         placeholder="Search framework..."
         leading="i-lucide:search"
-        allowClear
+        clearable
       />
       <div class="text-xs text-muted-foreground space-y-1">
         <p>

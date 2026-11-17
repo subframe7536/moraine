@@ -15,7 +15,7 @@ export function FreeFormTags() {
         createItem={(input) => ({ value: input.trim().toLowerCase(), label: input.trim() })}
         tokenSeparators={[',', ' ']}
         placeholder="Type words, press space or comma..."
-        allowClear
+        clearable
       />
       <p class="text-xs text-muted-foreground">Tags array: {JSON.stringify(tags())}</p>
     </div>

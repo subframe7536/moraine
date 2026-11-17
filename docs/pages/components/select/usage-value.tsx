@@ -21,7 +21,7 @@ export function UsageValue() {
         items={COUNTRIES}
         value={selected()}
         onValueChange={setSelected}
-        allowClear
+        clearable
       />
       <div class="text-xs flex items-center justify-between">
         <span class="text-muted-foreground">

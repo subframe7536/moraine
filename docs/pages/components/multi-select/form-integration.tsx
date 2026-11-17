@@ -38,7 +38,7 @@ export function FormIntegration() {
             placeholder="Select topics..."
             search
             openOnControlClick
-            allowClear
+            clearable
           />
         </form.Field>
         <div class="flex gap-3 items-center">

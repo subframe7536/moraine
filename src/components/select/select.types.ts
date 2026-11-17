@@ -82,7 +82,7 @@ export namespace SelectT {
     /** Whether the select is in a loading state. */
     loading?: boolean
     /** Show a pointer clear affordance when a value is selected. */
-    allowClear?: boolean
+    clearable?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
     /**

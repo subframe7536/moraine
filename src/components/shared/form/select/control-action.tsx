@@ -133,7 +133,7 @@ export function ToggleTrigger(props: ToggleTriggerProps): JSX.Element {
 }
 
 export function createSelectClearKeyDownHandler(options: {
-  allowClear: () => boolean | undefined
+  clearable: () => boolean | undefined
   canClear: () => boolean
   clear: () => void
 }) {
@@ -141,11 +141,11 @@ export function createSelectClearKeyDownHandler(options: {
     keys: {
       Backspace: {
         handle: options.clear,
-        when: () => Boolean(options.allowClear()) && options.canClear(),
+        when: () => Boolean(options.clearable()) && options.canClear(),
       },
       Delete: {
         handle: options.clear,
-        when: () => Boolean(options.allowClear()) && options.canClear(),
+        when: () => Boolean(options.clearable()) && options.canClear(),
       },
     },
   })

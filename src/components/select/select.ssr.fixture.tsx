@@ -14,7 +14,7 @@ export function renderSelectFixture(): string {
         { value: 'apple', label: 'Apple', description: 'Crisp' },
         { value: 'banana', label: 'Banana', description: 'Sweet' },
       ]}
-      allowClear
+      clearable
       leading="icon-search"
       trailing="icon-chevron-down"
       clearIcon="icon-close"

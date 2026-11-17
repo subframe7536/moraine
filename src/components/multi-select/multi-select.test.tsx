@@ -139,7 +139,7 @@ describe('MultiSelect', () => {
   test('clear and trigger coexist without accidental opening', () => {
     const onClear = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear onClear={onClear} />
+      <MultiSelect items={ITEMS} defaultValue={['apple']} clearable onClear={onClear} />
     ))
     expect(screen.getByRole('combobox')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
@@ -353,7 +353,7 @@ describe('MultiSelect', () => {
 
   test('loading keeps the non-editable trigger mounted', () => {
     const screen = render(() => (
-      <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear loading />
+      <MultiSelect items={ITEMS} defaultValue={['apple']} clearable loading />
     ))
     const trigger = screen.getByRole('combobox')
     expect(trigger.getAttribute('data-slot')).toBe('multi-select-trigger')
@@ -813,7 +813,7 @@ describe('MultiSelect', () => {
           { value: 'locked', label: 'Locked', disabled: true },
         ]}
         defaultValue={['apple', 'locked']}
-        allowClear
+        clearable
         onValueChange={onChange}
       />
     ))

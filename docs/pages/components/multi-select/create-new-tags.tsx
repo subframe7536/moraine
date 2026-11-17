@@ -26,7 +26,7 @@ export function CreateNewTags() {
         tokenSeparators={[',', ';']}
         placeholder="Type to create or select..."
         openOnControlClick
-        allowClear
+        clearable
         emptyRender={(ctx) => (
           <div class="p-2 text-center">
             <Button

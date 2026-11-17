@@ -44,7 +44,7 @@ export function UserChips() {
         search
         openOnControlClick
         placeholder="Assign teammates..."
-        allowClear
+        clearable
       />
     </div>
   )

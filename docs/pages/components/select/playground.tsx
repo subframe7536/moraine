@@ -61,7 +61,7 @@ export default function SelectPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+        { kind: 'switch', prop: 'clearable', label: 'Clearable', defaultValue: true },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
       ]}
     >
@@ -73,7 +73,7 @@ export default function SelectPlayground() {
           placeholder="Select a framework..."
           variant={props.variant}
           size={props.size}
-          allowClear={props.allowClear}
+          clearable={props.clearable}
           disabled={props.disabled}
           class="max-w-72 min-w-40 w-60%"
         />

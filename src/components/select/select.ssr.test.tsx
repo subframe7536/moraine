@@ -16,7 +16,7 @@ test('hydrates Select Control/Trigger/Value anatomy in place', () => {
         id: 'fruit',
         name: 'fruit',
         value: 'banana',
-        allowClear: true,
+        clearable: true,
         items: [
           { value: 'apple', label: 'Apple', description: 'Crisp' },
           { value: 'banana', label: 'Banana', description: 'Sweet' },

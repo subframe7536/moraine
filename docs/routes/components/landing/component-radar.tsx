@@ -232,7 +232,7 @@ export function ComponentRadar() {
           description="Full-featured composite select with typeahead search and clearable input."
           href="/components/combobox"
         >
-          <Combobox items={OPTIONS} placeholder="Search technologies..." allowClear />
+          <Combobox items={OPTIONS} placeholder="Search technologies..." clearable />
         </SamplerItem>
 
         <SamplerItem

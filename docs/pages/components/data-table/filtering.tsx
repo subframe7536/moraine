@@ -63,7 +63,7 @@ export default function FilteringExample() {
           items={[...ROLES]}
           value={roleFilter()}
           onValueChange={(value) => table.getColumn('role')?.setFilterValue(value)}
-          allowClear
+          clearable
           class="w-40"
         />
         <Button

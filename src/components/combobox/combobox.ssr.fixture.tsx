@@ -12,7 +12,7 @@ export function renderComboboxFixture(): string {
         { value: 'apple', label: 'Apple' },
         { value: 'banana', label: 'Banana' },
       ]}
-      allowClear
+      clearable
     />
   ))
 }

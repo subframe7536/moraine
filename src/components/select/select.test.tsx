@@ -32,7 +32,7 @@ describe('Select', () => {
   test('clear renders an accessible button outside the trigger and supports keyboard clear', () => {
     const onClear = vi.fn()
     const screen = render(() => (
-      <Select items={ITEMS} defaultValue="apple" allowClear onClear={onClear} />
+      <Select items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
     const trigger = screen.getByRole('combobox')
     const clear = screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!
@@ -47,7 +47,7 @@ describe('Select', () => {
     // Test keyboard clearing via Backspace on trigger
     const onClearKey = vi.fn()
     const screenKey = render(() => (
-      <Select items={ITEMS} defaultValue="banana" allowClear onClear={onClearKey} />
+      <Select items={ITEMS} defaultValue="banana" clearable onClear={onClearKey} />
     ))
     const triggerKey = screenKey.getByRole('combobox')
     fireEvent.keyDown(triggerKey, { key: 'Backspace' })
@@ -236,7 +236,7 @@ describe('Select', () => {
   })
 
   test('keeps the trigger structure while loading', () => {
-    const screen = render(() => <Select items={ITEMS} defaultValue="apple" allowClear loading />)
+    const screen = render(() => <Select items={ITEMS} defaultValue="apple" clearable loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()
     expect(screen.container.querySelector('[data-loading]')).toBeTruthy()
     expect(screen.container.querySelector('[data-slot="select-clear"]')).toBeNull()
@@ -347,7 +347,7 @@ describe('Select', () => {
                   { label: 'Empty', value: '' },
                   { label: 'Zero', value: 0 },
                 ]}
-                allowClear
+                clearable
                 closeOnSelect={false}
                 defaultOpen
               />
@@ -547,7 +547,7 @@ describe('Select', () => {
       <Select
         items={ITEMS}
         defaultValue="apple"
-        allowClear
+        clearable
         class="user-root"
         classes={{ trigger: 'user-trigger', value: 'user-value', clear: 'user-clear' }}
         styles={{ trigger: { 'min-width': '200px' } }}
@@ -572,7 +572,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
         items={['Apple', 'Banana']}
         defaultValue="Apple"
         defaultOpen
-        allowClear
+        clearable
         onValueChange={onChange}
       />
     </form>

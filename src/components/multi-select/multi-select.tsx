@@ -428,7 +428,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               />
             </Show>
           </div>
-          <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.value()))}>
+          <Show when={local.clearable && (tags.tags().length > 0 || Boolean(search.value()))}>
             <ClearButton
               dataSlot="multi-select-clear"
               ariaLabel={messages().clear}

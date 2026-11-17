@@ -44,7 +44,7 @@ export function GroupedItems() {
         onValueChange={setSelected}
         search
         openOnControlClick
-        allowClear
+        clearable
       />
     </div>
   )

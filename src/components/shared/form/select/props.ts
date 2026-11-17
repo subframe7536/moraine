@@ -61,7 +61,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'scrollBottomThreshold',
   'emptyRender',
   'placeholder',
-  'allowClear',
+  'clearable',
   'onClear',
   'loading',
   'leading',

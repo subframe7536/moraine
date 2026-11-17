@@ -46,7 +46,7 @@ export function AsyncSearch() {
         placeholder="Type to search repositories..."
         leading="i-lucide:search"
         openOnControlClick
-        allowClear
+        clearable
       />
       <p class="text-xs text-muted-foreground">
         {loading() ? 'Searching remote index...' : `${items().length} repositories found`}

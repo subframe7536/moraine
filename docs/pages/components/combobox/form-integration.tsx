@@ -41,7 +41,7 @@ export function FormIntegration() {
             placeholder="Search and select framework..."
             leading="i-lucide:search"
             openOnControlClick
-            allowClear
+            clearable
           />
         </form.Field>
         <div class="flex gap-3 items-center">

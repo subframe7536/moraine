@@ -86,7 +86,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             {...triggerSlot}
             onKeyDown={createSelectClearKeyDownHandler({
-              allowClear: () => local.allowClear,
+              clearable: () => local.clearable,
               canClear: hasValue,
               clear,
             })}
@@ -110,7 +110,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               {...trailingSlot}
             />
           </BaseSelect.Trigger>
-          <Show when={!local.loading && local.allowClear && hasValue()}>
+          <Show when={!local.loading && local.clearable && hasValue()}>
             <ClearButton
               dataSlot="select-clear"
               ariaLabel={messages().clear}

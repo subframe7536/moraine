@@ -18,13 +18,13 @@ export function StringItems() {
         aria-label="Deploy region"
         items={['us-east-1', 'eu-west-1', 'ap-northeast-1']}
         defaultValue="us-east-1"
-        allowClear
+        clearable
       />
       <Select
         aria-label="Deploy region with groups"
         items={MIXED_REGIONS}
         placeholder="Choose a region..."
-        allowClear
+        clearable
       />
     </div>
   )

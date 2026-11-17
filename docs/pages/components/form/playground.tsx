@@ -100,7 +100,7 @@ export default function FormPlayground() {
                   items={ROLE_OPTIONS}
                   placeholder="Select a role"
                   disabled={props.disabled}
-                  allowClear
+                  clearable
                 />
               </form.Field>
 

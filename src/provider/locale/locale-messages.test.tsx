@@ -87,11 +87,11 @@ describe('localized component text', () => {
           tagsField: { remove: ({ title }) => `Retirer ${title}` },
         }}
       >
-        <Select items={FRUIT} defaultValue="apple" allowClear />
+        <Select items={FRUIT} defaultValue="apple" clearable />
         <Select items={FRUIT} />
         <Select items={FRUIT} placeholder="Fruit" />
-        <Combobox items={FRUIT} allowClear defaultValue="apple" loading />
-        <MultiSelect items={FRUIT} defaultValue={['apple']} allowClear />
+        <Combobox items={FRUIT} clearable defaultValue="apple" loading />
+        <MultiSelect items={FRUIT} defaultValue={['apple']} clearable />
       </MoraineProvider>
     ))
 
@@ -357,14 +357,14 @@ describe('component translations prop', () => {
         <Select
           items={FRUIT}
           defaultValue="apple"
-          allowClear
+          clearable
           translations={{ clear: 'Clear fruit' }}
         />
         <Combobox items={[]} defaultOpen translations={{ empty: 'Nothing found' }} />
         <MultiSelect
           items={FRUIT}
           defaultValue={['apple']}
-          allowClear
+          clearable
           translations={{
             clear: 'Reset all',
             remove: ({ title }) => `Drop ${title}`,

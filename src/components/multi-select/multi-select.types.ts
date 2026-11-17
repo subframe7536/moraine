@@ -107,7 +107,7 @@ export namespace MultiSelectT {
      * Show a clear button when a value is selected.
      * @default false
      */
-    allowClear?: boolean
+    clearable?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
     /**

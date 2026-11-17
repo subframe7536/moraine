@@ -113,10 +113,10 @@ Without `search`, printable keys trigger collection typeahead. Enabling `search=
 type in the field to filter options.
 
 ```tsx
-<MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} allowClear />
+<MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} clearable />
 ```
 
-`allowClear` does not empty a MultiSelect. Selected values whose items are disabled stay selected
+`clearable` does not empty a MultiSelect. Selected values whose items are disabled stay selected
 because the user cannot remove them, and values that do not resolve to any item are dropped. Every
 other selection is cleared. Select and Combobox clear to an empty value instead.
 

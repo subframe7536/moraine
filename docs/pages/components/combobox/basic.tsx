@@ -18,7 +18,7 @@ export function Basic() {
         items={FRAMEWORKS}
         placeholder="Search framework..."
         leading="i-lucide:search"
-        allowClear
+        clearable
       />
     </div>
   )

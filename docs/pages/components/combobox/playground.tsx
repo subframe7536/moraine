@@ -62,7 +62,7 @@ export default function ComboboxPlayground() {
           ],
         },
         { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
-        { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+        { kind: 'switch', prop: 'clearable', label: 'Clearable', defaultValue: true },
         {
           kind: 'switch',
           prop: 'openOnControlClick',
@@ -81,7 +81,7 @@ export default function ComboboxPlayground() {
           variant={props.variant}
           size={props.size}
           openOnControlClick={props.openOnControlClick}
-          allowClear={props.allowClear}
+          clearable={props.clearable}
           disabled={props.disabled}
           class="max-w-72 min-w-40 w-60%"
         />

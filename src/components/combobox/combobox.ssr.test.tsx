@@ -19,7 +19,7 @@ test('hydrates Combobox with one input focus owner', () => {
           { value: 'apple', label: 'Apple' },
           { value: 'banana', label: 'Banana' },
         ],
-        allowClear: true,
+        clearable: true,
       }),
   )
   const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!

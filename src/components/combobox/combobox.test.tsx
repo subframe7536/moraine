@@ -146,7 +146,7 @@ describe('Combobox', () => {
   test('clear and trigger coexist and clear does not open', () => {
     const onClear = vi.fn()
     const screen = render(() => (
-      <Combobox items={ITEMS} defaultValue="apple" allowClear onClear={onClear} />
+      <Combobox items={ITEMS} defaultValue="apple" clearable onClear={onClear} />
     ))
     expect(screen.getByRole('button', { name: 'Toggle options' })).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
@@ -155,7 +155,7 @@ describe('Combobox', () => {
   })
 
   test('keeps the trigger structurally present while loading', () => {
-    const screen = render(() => <Combobox items={ITEMS} defaultValue="apple" allowClear loading />)
+    const screen = render(() => <Combobox items={ITEMS} defaultValue="apple" clearable loading />)
     const trigger = screen.getByRole('button', { name: 'Loading' })
     expect(trigger.getAttribute('data-slot')).toBe('combobox-trigger')
     expect(trigger.hasAttribute('data-loading')).toBe(true)
@@ -509,7 +509,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
         items={['Apple', 'Banana']}
         defaultValue="Apple"
         defaultOpen
-        allowClear
+        clearable
         onValueChange={onChange}
       />
     </form>
@@ -656,10 +656,10 @@ test('ignores Enter immediately after compositionend', () => {
   }
 })
 
-test('combobox allowClear provides tabbable button and keyboard clear', () => {
+test('combobox clearable provides tabbable button and keyboard clear', () => {
   const onClear = vi.fn()
   const screen = render(() => (
-    <Combobox items={['Apple', 'Banana']} defaultValue="Apple" allowClear onClear={onClear} />
+    <Combobox items={['Apple', 'Banana']} defaultValue="Apple" clearable onClear={onClear} />
   ))
   const clear = screen.container.querySelector<HTMLElement>('[data-slot="combobox-clear"]')!
   expect(clear).toBeTruthy()

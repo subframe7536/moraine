@@ -121,15 +121,15 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     const dispatchInputKeyDown = createKeyDownHandler<HTMLInputElement>({
       keys: {
         Escape: {
-          when: () => Boolean(local.allowClear) && canClear() && !state.open(),
+          when: () => Boolean(local.clearable) && canClear() && !state.open(),
           handle: clear,
         },
         Delete: {
-          when: () => Boolean(local.allowClear) && canClear() && !search.value(),
+          when: () => Boolean(local.clearable) && canClear() && !search.value(),
           handle: clear,
         },
         Backspace: {
-          when: () => Boolean(local.allowClear) && canClear() && !search.value(),
+          when: () => Boolean(local.clearable) && canClear() && !search.value(),
           handle: clear,
         },
       },
@@ -179,7 +179,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             }}
             onKeyDown={onInputKeyDown}
           />
-          <Show when={local.allowClear && canClear()}>
+          <Show when={local.clearable && canClear()}>
             <ClearButton
               dataSlot="combobox-clear"
               ariaLabel={messages().clear}
