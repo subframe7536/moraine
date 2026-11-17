@@ -77,14 +77,14 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string | number | undefined",
-          "description": "The default value of the input (uncontrolled)."
+          "type": "Value",
+          "description": "The default value (uncontrolled)."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is disabled.",
+          "description": "Whether the control is disabled.",
           "default": {
             "kind": "literal",
             "value": false
@@ -94,7 +94,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the input element."
+          "description": "The ID of the control element."
         },
         {
           "name": "maxLength",
@@ -122,7 +122,7 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the input element, used for form submission."
+          "description": "The name of the control, used for form submission."
         },
         {
           "name": "onBlur",
@@ -164,7 +164,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is read-only.",
+          "description": "Whether the control is read-only.",
           "default": {
             "kind": "literal",
             "value": false
@@ -180,7 +180,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is required.",
+          "description": "Whether the control is required.",
           "default": {
             "kind": "literal",
             "value": false
@@ -221,8 +221,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string | number | undefined",
-          "description": "The current value of the input (controlled)."
+          "type": "Value",
+          "description": "The current value (controlled)."
         },
         {
           "name": "variant",

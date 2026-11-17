@@ -65,6 +65,16 @@
           }
         },
         {
+          "name": "flip",
+          "optional": true,
+          "type": "boolean | string",
+          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
@@ -140,6 +150,26 @@
           "default": {
             "kind": "literal",
             "value": "top"
+          }
+        },
+        {
+          "name": "shift",
+          "optional": true,
+          "type": "number",
+          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "slide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the content may slide along its main axis to remain visible.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {

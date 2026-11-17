@@ -36,6 +36,18 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "formatOptions",
+          "optional": true,
+          "type": "Intl.NumberFormatOptions",
+          "description": "`Intl.NumberFormat` options for the displayed value, using the provider locale. A\n`percent` style formats the completed fraction; other styles format `value`.\nDefaults to the percentage rounded to 2 decimal places."
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Content for the label slot. Also used as the default `aria-label` when it is a string."
+        },
+        {
           "name": "max",
           "optional": true,
           "type": "number",
@@ -76,12 +88,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "textLabel",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Content for the label slot. Also used as the default `aria-label` when it is a string."
         },
         {
           "name": "translations",

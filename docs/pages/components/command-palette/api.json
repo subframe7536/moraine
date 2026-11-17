@@ -99,10 +99,14 @@
           "description": "Content or render function for the empty state."
         },
         {
-          "name": "filterGroups",
+          "name": "filterMethod",
           "optional": true,
-          "type": "(args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]",
-          "description": "Custom filter function that fully controls which groups and items are visible."
+          "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
+          "description": "Filtering strategy or predicate receiving the raw item. `false` disables filtering.\nItems with `alwaysShow` stay visible.",
+          "default": {
+            "kind": "literal",
+            "value": "contains"
+          }
         },
         {
           "name": "footerRender",
@@ -111,10 +115,10 @@
           "description": "Content or render function for the footer."
         },
         {
-          "name": "getItemSearchText",
+          "name": "getItemLabel",
           "optional": true,
           "type": "(item: TItem, group: Group<TItem>) => string",
-          "description": "Custom search text builder for built-in filtering."
+          "description": "Plain-text label of an item, used for matching; does not change visual labels.\nDefaults to the label, value, description, and keywords joined by spaces."
         },
         {
           "name": "groups",

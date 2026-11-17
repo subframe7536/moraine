@@ -51,6 +51,12 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "label",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Label content. Takes precedence over `children`."
+        },
+        {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
@@ -77,12 +83,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "title",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible title shown by the browser for the badge root."
         },
         {
           "name": "tone",

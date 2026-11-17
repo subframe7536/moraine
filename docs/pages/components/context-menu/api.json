@@ -35,6 +35,26 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the menu.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOutsideClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether outside interaction dismisses the menu.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
@@ -55,6 +75,16 @@
           }
         },
         {
+          "name": "flip",
+          "optional": true,
+          "type": "boolean | string",
+          "description": "Whether to flip placement when the preferred side lacks space.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "gutter",
           "optional": true,
           "type": "number",
@@ -69,6 +99,22 @@
           "optional": true,
           "type": "string",
           "description": "Unique identifier for the menu."
+        },
+        {
+          "name": "modal",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether outside content is hidden from assistive technology and outside pointer events are blocked.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "onClosePrevented",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called when a dismissal attempt is blocked."
         },
         {
           "name": "onOpenChange",
@@ -130,6 +176,16 @@
           "default": {
             "kind": "literal",
             "value": "md"
+          }
+        },
+        {
+          "name": "slide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the content may slide along its main axis to remain visible.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {

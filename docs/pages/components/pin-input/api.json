@@ -67,7 +67,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is disabled.",
+          "description": "Whether the control is disabled.",
           "default": {
             "kind": "literal",
             "value": false
@@ -80,10 +80,16 @@
           "description": "Form ID to associate with the hidden input."
         },
         {
+          "name": "groupSize",
+          "optional": true,
+          "type": "boolean | number | readonly number[]",
+          "description": "Group inputs by inserting a separator between groups.\nPass `true` to split inputs in half, a number for groups of that size,\nor an array of consecutive group sizes."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the input element."
+          "description": "The ID of the control element."
         },
         {
           "name": "inputMode",
@@ -121,7 +127,7 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the input element, used for form submission."
+          "description": "The name of the control, used for form submission."
         },
         {
           "name": "normalizeValue",
@@ -191,7 +197,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is read-only.",
+          "description": "Whether the control is read-only.",
           "default": {
             "kind": "literal",
             "value": false
@@ -207,17 +213,11 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is required.",
+          "description": "Whether the control is required.",
           "default": {
             "kind": "literal",
             "value": false
           }
-        },
-        {
-          "name": "separator",
-          "optional": true,
-          "type": "boolean | number | readonly number[]",
-          "description": "Group inputs by inserting a separator between them.\nPass `true` to split inputs in half, a number to insert one after every Nth input,\nor an array of positions to insert after specific inputs."
         },
         {
           "name": "separatorRender",

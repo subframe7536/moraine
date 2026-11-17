@@ -20,6 +20,16 @@
       ],
       "props": [
         {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment along the cross axis.",
+          "default": {
+            "kind": "literal",
+            "value": "start"
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -30,6 +40,26 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the popup.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOutsideClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether outside interaction, pointer or focus, dismisses the popup.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "closeOnSelect",
@@ -61,10 +91,20 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is disabled.",
+          "description": "Whether the control is disabled.",
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "flip",
+          "optional": true,
+          "type": "boolean | string",
+          "description": "Whether to flip placement when the preferred side lacks space.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
@@ -77,13 +117,13 @@
           "name": "getItemLabel",
           "optional": true,
           "type": "(item: TItem) => string",
-          "description": "Machine-readable text for matching; does not change visual labels."
+          "description": "Plain-text label of an item, used for filtering, typeahead, form-value matching, and plain-text\ndisplay such as the Combobox input and MultiSelect tag title; does not change rendered labels.\nDefaults to the string `label`, otherwise `String(value)`."
         },
         {
           "name": "gutter",
           "optional": true,
           "type": "number",
-          "description": "Gap between anchor and popup.",
+          "description": "Gap in pixels between anchor and popup.",
           "default": {
             "kind": "literal",
             "value": 4
@@ -93,7 +133,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the input element."
+          "description": "The ID of the control element."
         },
         {
           "name": "isItemDisabled",
@@ -128,7 +168,13 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the input element, used for form submission."
+          "description": "The name of the control, used for form submission."
+        },
+        {
+          "name": "onClosePrevented",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called when a dismissal attempt is blocked."
         },
         {
           "name": "onExitComplete",
@@ -164,17 +210,27 @@
           "name": "overflowPadding",
           "optional": true,
           "type": "number",
-          "description": "Viewport collision padding.",
+          "description": "Viewport collision padding in pixels.",
           "default": {
             "kind": "literal",
             "value": 4
           }
         },
         {
+          "name": "placement",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Preferred popup placement relative to the anchor.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is read-only.",
+          "description": "Whether the control is read-only.",
           "default": {
             "kind": "literal",
             "value": false
@@ -184,7 +240,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is required.",
+          "description": "Whether the control is required.",
           "default": {
             "kind": "literal",
             "value": false
@@ -197,6 +253,16 @@
           "description": "Native form value; return undefined to omit a selected value from submission."
         },
         {
+          "name": "shift",
+          "optional": true,
+          "type": "number",
+          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -204,6 +270,16 @@
           "default": {
             "kind": "literal",
             "value": "md"
+          }
+        },
+        {
+          "name": "slide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the popup may slide along its main axis to remain visible.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {

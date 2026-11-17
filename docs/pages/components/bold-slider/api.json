@@ -31,13 +31,13 @@
           "name": "defaultValue",
           "optional": true,
           "type": "number",
-          "description": "The default value of the input (uncontrolled)."
+          "description": "The default value (uncontrolled)."
         },
         {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is disabled.",
+          "description": "Whether the control is disabled.",
           "default": {
             "kind": "literal",
             "value": false
@@ -50,16 +50,28 @@
           "description": "The id of a `<form>` the hidden inputs belong to, instead of the closest\nancestor form."
         },
         {
+          "name": "formatOptions",
+          "optional": true,
+          "type": "Intl.NumberFormatOptions",
+          "description": "`Intl.NumberFormat` options used to format values for `aria-valuetext`, such as\n`{ style: 'percent' }`. Formatting uses the provider locale."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the input element."
+          "description": "The ID of the control element."
         },
         {
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
           "description": "Optional inner input element ref."
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "description": "Text shown at the start of the track. Also used as the default `aria-label`."
         },
         {
           "name": "marker",
@@ -95,7 +107,7 @@
           "name": "name",
           "optional": true,
           "type": "string",
-          "description": "The name of the input element, used for form submission."
+          "description": "The name of the control, used for form submission."
         },
         {
           "name": "onValueChange",
@@ -113,7 +125,7 @@
           "name": "readOnly",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is read-only.",
+          "description": "Whether the control is read-only.",
           "default": {
             "kind": "literal",
             "value": false
@@ -123,7 +135,7 @@
           "name": "required",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is required.",
+          "description": "Whether the control is required.",
           "default": {
             "kind": "literal",
             "value": false
@@ -168,12 +180,6 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "textLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Text shown at the start of the track. Also used as the default `aria-label`."
-        },
-        {
           "name": "thumbAlignment",
           "optional": true,
           "type": "'contain' | 'overflow'",
@@ -193,7 +199,7 @@
           "name": "value",
           "optional": true,
           "type": "number",
-          "description": "The current value of the input (controlled)."
+          "description": "The current value (controlled)."
         },
         {
           "name": "valueLabel",
