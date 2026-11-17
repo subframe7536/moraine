@@ -1,5 +1,6 @@
 import {
   AlertDialog,
+  BoldSlider,
   Breadcrumb,
   Combobox,
   CommandPalette,
@@ -46,6 +47,12 @@ import {
 
 ;<Progress valueLabel />
 ;<Progress valueLabel={({ percent }) => `${percent}%`} />
+;<BoldSlider
+  label={<b>Blur</b>}
+  valueLabel={({ percent, value, max }) => `${value}/${max} ${percent}%`}
+/>
+// @ts-expect-error BoldSlider valueLabel receives `{ percent, value, max }`, not a number.
+;<BoldSlider valueLabel={(value: number) => `${value}`} />
 ;<Breadcrumb itemRender={(props) => <span>{props.index}</span>} />
 ;<Select itemRender={(props) => <span>{props.item.label}</span>} />
 ;<Select emptyRender={<span />} />

@@ -33,6 +33,22 @@ describe('BoldSlider', () => {
     expect(values.map((value) => value.hasAttribute('data-fill'))).toEqual([false, true])
   })
 
+  test('renders a JSX label in both text layers without an aria-label fallback', () => {
+    const screen = render(() => (
+      <BoldSlider
+        label={
+          <>
+            <b>Blur</b> radius
+          </>
+        }
+      />
+    ))
+    const labels = queryAll(screen.container, '[data-slot="bold-slider-label"]')
+
+    expect(labels.map((label) => label.querySelector('b')?.textContent)).toEqual(['Blur', 'Blur'])
+    expect(query(screen.container, '[data-slot="slider"]').hasAttribute('aria-label')).toBe(false)
+  })
+
   test('prefers an explicit aria-label over the label', () => {
     const screen = render(() => <BoldSlider label="Blur" aria-label="Background blur" />)
 
@@ -79,14 +95,19 @@ describe('BoldSlider', () => {
     const screen = render(() => (
       <>
         <BoldSlider data-testid="stepped" defaultValue={1.5} max={10} step={step()} />
-        <BoldSlider data-testid="custom" defaultValue={40} valueLabel={(value) => `${value}px`} />
+        <BoldSlider
+          data-testid="custom"
+          defaultValue={40}
+          max={80}
+          valueLabel={({ percent, value, max }) => `${value}/${max} ${percent}%`}
+        />
       </>
     ))
     const stepped = screen.getByTestId('stepped')
     const custom = screen.getByTestId('custom')
 
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
-    expect(query(custom, '[data-slot="bold-slider-value"]').textContent).toBe('40px')
+    expect(query(custom, '[data-slot="bold-slider-value"]').textContent).toBe('40/80 50%')
 
     setStep(undefined)
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')

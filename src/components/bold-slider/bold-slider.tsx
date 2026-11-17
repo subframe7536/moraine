@@ -82,9 +82,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     },
   })
 
-  const formatValue = (value: number): string => {
+  const formatValue = (value: number, fraction: number): string => {
     if (typeof local.valueLabel === 'function') {
-      return local.valueLabel(value)
+      return local.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
     }
     const step = props.step
     const decimals = typeof step === 'number' && step > 0 ? countDecimals(step) : 2
@@ -143,7 +143,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       }
     }
     const indicatorSlot = slotWith('indicator', { enforced: indicatorStyle })
-    const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
+    const formatted = createMemo(() =>
+      formatValue(state.values[0] ?? props.min ?? 0, state.percentages[0] ?? 0),
+    )
 
     function Texts(textProps: { fill?: boolean }): JSX.Element {
       const labelSlot = slotWith('label', {
@@ -152,12 +154,14 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       const valueSlot = slotWith('value', {
         data: boldSliderDataAttributes.value({ fill: () => textProps.fill }),
       })
+      // Each text layer owns its label instance; a JSX node cannot be inserted twice.
+      const label = createMemo(() => local.label)
 
       return (
         <>
-          <Show when={local.label}>
+          <Show when={label()}>
             <span data-slot="bold-slider-label" {...labelSlot}>
-              {local.label}
+              {label()}
             </span>
           </Show>
           <Show when={local.valueLabel ?? true}>
@@ -196,7 +200,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       }}
       orientation="horizontal"
       size={variants.size}
-      aria-label={local['aria-label'] ?? local.label}
+      aria-label={
+        local['aria-label'] ?? (typeof local.label === 'string' ? local.label : undefined)
+      }
       {...overrides({
         root: 'root',
         track: 'track',

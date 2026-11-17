@@ -44,7 +44,7 @@ ranges, vertical layouts, or a thin track with a visible thumb.
 import { BoldSlider } from 'moraine'
 
 export function Example() {
-  return <BoldSlider label="Opacity" defaultValue={80} valueLabel={(value) => `${value}%`} />
+  return <BoldSlider label="Opacity" defaultValue={80} valueLabel={({ value }) => `${value}%`} />
 }
 ```
 
@@ -53,13 +53,14 @@ BoldSlider is built on Slider, so `value`, `defaultValue`, `min`, `max`, `step`,
 
 ### Label and value
 
-`label` is drawn at the start of the track and is also the default `aria-label`. The value is
-drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to the
-decimal places of `step`. Pass a function to `valueLabel` to add units or other formatting.
+`label` is drawn at the start of the track; a string label is also the default `aria-label`. The
+value is drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to
+the decimal places of `step`. Pass a function to `valueLabel` to add units or other formatting. It
+receives `{ percent, value, max }`, the same shape as Progress `valueLabel`.
 
 Both texts are drawn twice: once over the track and once clipped to the filled range. Each part of
 the text uses the colors of the surface behind it, so it stays readable while the fill passes
-through it.
+through it. Pass a JSX `label` inline rather than as a shared node, so each layer gets its own copy.
 
 ### Variants
 

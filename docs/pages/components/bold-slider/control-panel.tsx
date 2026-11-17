@@ -32,7 +32,7 @@ export function ControlPanel() {
         min={0}
         max={2000}
         step={50}
-        valueLabel={(ms) => `${ms}ms`}
+        valueLabel={({ value }) => `${value}ms`}
       />
     </div>
   )

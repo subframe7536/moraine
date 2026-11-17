@@ -14,7 +14,7 @@ export function BlurSlider() {
         max={100}
         step={1}
         size="lg"
-        valueLabel={(blur) => `${blur}px`}
+        valueLabel={({ value }) => `${value}px`}
       />
     </div>
   )
