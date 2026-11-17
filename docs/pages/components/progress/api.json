@@ -36,12 +36,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "getValueText",
-          "optional": true,
-          "type": "(params: { value: number; min: number; max: number }) => string",
-          "description": "Callback that supplies `aria-valuetext` for a determinate value.\nDefaults to the formatted value."
-        },
-        {
           "name": "max",
           "optional": true,
           "type": "number",
@@ -108,18 +102,12 @@
         {
           "name": "valueLabel",
           "optional": true,
-          "type": "boolean | ((params: { value: number; min: number; max: number }) => string)",
-          "description": "Whether to show the value slot for determinate progress, or a formatter for it.\n`valueRender` takes precedence over the formatted text.",
+          "type": "boolean | ((props: { percent: number; value: number; max: number }) => string)",
+          "description": "Whether to show the value slot for determinate progress, or a formatter for it.\nThe formatter result also supplies `aria-valuetext`.",
           "default": {
             "kind": "literal",
             "value": false
           }
-        },
-        {
-          "name": "valueRender",
-          "optional": true,
-          "type": "JSX.Element | Component<ValueRenderProps>",
-          "description": "Content or render function for the value slot.\nDeterminate progress shows this instead of the formatted value."
         }
       ]
     }

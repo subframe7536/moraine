@@ -1,21 +1,12 @@
 import { render } from '@solidjs/testing-library'
-import { ErrorBoundary, createComponent, createSignal, onCleanup } from 'solid-js'
+import { ErrorBoundary, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Progress } from './progress'
-import type { ProgressT } from './progress.types'
 
 describe('Progress', () => {
-  test('accepts static JSX for valueRender', () => {
-    const screen = render(() => (
-      <Progress value={40} valueRender={<span data-testid="value">Working</span>} />
-    ))
-
-    expect(screen.getByTestId('value').textContent).toBe('Working')
-  })
-
   test('accepts a style override for thickness', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -65,48 +56,27 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-value')).toBe('0.4')
   })
 
-  test('shows valueRender without valueLabel', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Progress value={25} valueRender={(props) => <>Done {props.percent}%</>} />
-      </MoraineProvider>
-    ))
-
-    expect(screen.getByText('Done 25%')).not.toBeNull()
-  })
-
-  test('supports getValueText for aria-valuetext', () => {
-    const screen = render(() => (
-      <Progress
-        value={3}
-        max={10}
-        getValueText={({ value, max }) => `${value} of ${max} completed`}
-      />
-    ))
-
-    expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('3 of 10 completed')
-  })
-
   test('formats the displayed value and aria-valuetext with a valueLabel formatter', () => {
     const screen = render(() => (
       <Progress
         value={3}
         max={10}
-        valueLabel={({ value, max }) => `${value} of ${max} completed`}
+        valueLabel={({ percent, value, max }) => `${value} of ${max} completed (${percent}%)`}
       />
     ))
 
     const progress = screen.getByRole('progressbar')
-    expect(progress.getAttribute('aria-valuetext')).toBe('3 of 10 completed')
+    expect(progress.getAttribute('aria-valuetext')).toBe('3 of 10 completed (30%)')
     expect(screen.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe(
-      '3 of 10 completed',
+      '3 of 10 completed (30%)',
     )
   })
 
-  test('updates the value text and valueRender content when value changes', () => {
+  test('updates the value text and formatter output when value changes', () => {
     const [value, setValue] = createSignal(25)
-    const renderValue = (props: ProgressT.ValueRenderProps) => <>Done {props.percent}%</>
-    const screen = render(() => <Progress value={value()} valueLabel valueRender={renderValue} />)
+    const screen = render(() => (
+      <Progress value={value()} valueLabel={({ percent }) => `Done ${percent}%`} />
+    ))
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
     setValue(50)
@@ -213,36 +183,28 @@ describe('Progress', () => {
     expect(indicator.hasAttribute('data-progress')).toBe(false)
   })
 
-  test('shows valueRender only while progress is determinate', () => {
+  test('shows the value slot only while progress is determinate', () => {
     const [value, setValue] = createSignal<number | undefined>(undefined)
-    const screen = render(() =>
-      createComponent(Progress, {
-        get valueRender() {
-          return <span data-testid="value-render">Status</span>
-        },
-        get value() {
-          return value()
-        },
-      }),
-    )
+    const screen = render(() => <Progress value={value()} valueLabel />)
+    const valueSlot = () => screen.container.querySelector('[data-slot="progress-value"]')
 
-    expect(screen.queryByTestId('value-render')).toBeNull()
+    expect(valueSlot()).toBeNull()
 
     setValue(25)
-    expect(screen.getByTestId('value-render')).not.toBeNull()
+    expect(valueSlot()?.textContent).toBe('25%')
 
     setValue(undefined)
-    expect(screen.queryByTestId('value-render')).toBeNull()
+    expect(valueSlot()).toBeNull()
 
     setValue(1)
-    expect(screen.getByTestId('value-render')).not.toBeNull()
+    expect(valueSlot()?.textContent).toBe('1%')
   })
 
-  test('updates to the latest getValueText callback and contains thrown label errors', () => {
+  test('updates to the latest valueLabel formatter and contains thrown label errors', () => {
     const [formatter, setFormatter] = createSignal<(value: number) => string>((value) => `${value}`)
     const screen = render(() => (
       <ErrorBoundary fallback={(error) => <span data-testid="error">{String(error)}</span>}>
-        <Progress value={2} max={4} getValueText={({ value }) => formatter()(value)} />
+        <Progress value={2} max={4} valueLabel={({ value }) => formatter()(value)} />
       </ErrorBoundary>
     ))
     const progress = screen.getByRole('progressbar')
@@ -350,32 +312,5 @@ describe('Progress', () => {
 
     expect(screen.container.querySelector('[data-slot="progress-label"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="progress-value"]')).not.toBeNull()
-  })
-
-  test('cleans up a valueRender component when progress becomes indeterminate', () => {
-    const [value, setValue] = createSignal<number | undefined>(20)
-    let cleanups = 0
-    const screen = render(() =>
-      createComponent(Progress, {
-        get value() {
-          return value()
-        },
-        get valueRender() {
-          return (_props: ProgressT.ValueRenderProps) => {
-            onCleanup(() => {
-              cleanups += 1
-            })
-            return <span>Shown</span>
-          }
-        },
-      }),
-    )
-
-    expect(screen.getByText('Shown')).not.toBeNull()
-    setValue(undefined)
-    expect(screen.queryByText('Shown')).toBeNull()
-    expect(cleanups).toBe(1)
-    screen.unmount()
-    expect(cleanups).toBe(1)
   })
 })

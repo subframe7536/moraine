@@ -4,7 +4,6 @@ import { Show, createMemo, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
-import { renderWithProps } from '../../shared/render-with-props'
 
 import { defaultProgressMessages } from './progress.messages'
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
@@ -26,7 +25,7 @@ function clamp(value: number, min: number, max: number): number {
 export function Progress(props: ProgressProps): JSX.Element {
   const [local, style, rest] = splitProps(
     props,
-    ['value', 'max', 'textLabel', 'valueLabel', 'getValueText', 'valueRender', 'translations'],
+    ['value', 'max', 'textLabel', 'valueLabel', 'translations'],
     ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
   )
   const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
@@ -35,17 +34,7 @@ export function Progress(props: ProgressProps): JSX.Element {
   const isIndeterminate = createMemo(
     () => local.value === undefined || !Number.isFinite(local.value),
   )
-  const valueRender = createMemo(() => (isIndeterminate() ? undefined : local.valueRender))
-  const formatValue = () => (typeof local.valueLabel === 'function' ? local.valueLabel : undefined)
-  const showValueSlot = () => {
-    if (isIndeterminate()) {
-      return false
-    }
-
-    return local.valueLabel !== undefined && local.valueLabel !== false
-      ? true
-      : valueRender() !== undefined
-  }
+  const showValueSlot = () => !isIndeterminate() && Boolean(local.valueLabel)
   const showHeader = () => hasLabel() || showValueSlot()
 
   const resolvedMax = createMemo(() => resolveMaxValue(local.max))
@@ -103,19 +92,12 @@ export function Progress(props: ProgressProps): JSX.Element {
       isIndeterminate() ? undefined : resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
   }
   const displayText = createMemo(() => {
-    const params = { value: resolvedValue(), min: minValue, max: resolvedMax() }
-    return formatValue()?.(params) ?? `${percent() ?? 0}%`
+    const next = percent() ?? 0
+    return typeof local.valueLabel === 'function'
+      ? local.valueLabel({ percent: next, value: resolvedValue(), max: resolvedMax() })
+      : `${next}%`
   })
-  const valueText = createMemo(() => {
-    if (isIndeterminate()) {
-      return messages().indeterminate
-    }
-
-    return (
-      local.getValueText?.({ value: resolvedValue(), min: minValue, max: resolvedMax() }) ??
-      displayText()
-    )
-  })
+  const valueText = createMemo(() => (isIndeterminate() ? messages().indeterminate : displayText()))
 
   return (
     <div
@@ -140,13 +122,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
       <Show when={showValueSlot()}>
         <span data-slot="progress-value" {...valueSlot}>
-          <Show when={valueRender()} fallback={displayText()}>
-            {renderWithProps(valueRender(), {
-              get percent() {
-                return percent()
-              },
-            })}
-          </Show>
+          {displayText()}
         </span>
       </Show>
 

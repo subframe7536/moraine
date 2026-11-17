@@ -44,8 +44,8 @@ import {
 // @ts-expect-error Object is not a valid itemRender.
 ;<Breadcrumb itemRender={{ invalid: true }} />
 
-;<Progress valueRender={<span />} />
-;<Progress valueRender={(props) => <span>{props.percent}</span>} />
+;<Progress valueLabel />
+;<Progress valueLabel={({ percent }) => `${percent}%`} />
 ;<Breadcrumb itemRender={(props) => <span>{props.index}</span>} />
 ;<Select itemRender={(props) => <span>{props.item.label}</span>} />
 ;<Select emptyRender={<span />} />

@@ -7,7 +7,7 @@ export function Semantics() {
         textLabel="Downloading installation bundle"
         value={82}
         valueLabel
-        aria-textLabel="Downloading installation bundle"
+        aria-label="Downloading installation bundle"
       />
     </div>
   )

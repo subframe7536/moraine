@@ -44,9 +44,9 @@ export function Example() {
 
 ### Progress models
 
-Pass a numeric `value` for determinate progress. Omit `value` for indeterminate progress.
-`getValueText` supplies `aria-valuetext` for a determinate value. Indeterminate progress sets
-`aria-valuetext` from the `progress.indeterminate` message.
+Pass a numeric `value` for determinate progress. Omit `value` for indeterminate progress. A
+`valueLabel` formatter supplies `aria-valuetext` for a determinate value. Indeterminate progress
+sets `aria-valuetext` from the `progress.indeterminate` message.
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />
@@ -56,12 +56,13 @@ Pass a numeric `value` for determinate progress. Omit `value` for indeterminate 
 ### Label and value
 
 Supply `aria-label` or a labelling relationship when the surrounding context does not name the
-operation. `textLabel` fills the label slot. `valueLabel` shows the percentage in the value slot or
-formats it, and `valueRender` replaces that text. Indeterminate progress keeps the label and hides the value.
+operation. `textLabel` fills the label slot. `valueLabel` shows the percentage in the value slot;
+pass a formatter to customize both the displayed text and `aria-valuetext`. Indeterminate progress
+keeps the label and hides the value.
 
 ```tsx
 <Progress value={82} textLabel="Downloading installation bundle" valueLabel aria-label="Download" />
-<Progress value={40} valueRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
+<Progress value={40} valueLabel={({ percent }) => `${percent}% complete`} aria-label="Export" />
 ```
 
 ## Examples

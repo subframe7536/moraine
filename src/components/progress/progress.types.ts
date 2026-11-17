@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -18,11 +18,6 @@ export namespace ProgressT {
   export type Styles = Slot<SlotStyleValue>
   export type Messages = ComponentMessages<typeof defaultProgressMessages>
   export type Translations = Partial<Messages>
-
-  export interface ValueRenderProps {
-    /** Current progress percentage (0-100). */
-    percent?: number
-  }
 
   /** Base props for the Progress component. */
   export interface Base {
@@ -47,22 +42,10 @@ export namespace ProgressT {
 
     /**
      * Whether to show the value slot for determinate progress, or a formatter for it.
-     * `valueRender` takes precedence over the formatted text.
+     * The formatter result also supplies `aria-valuetext`.
      * @default false
      */
-    valueLabel?: boolean | ((params: { value: number; min: number; max: number }) => string)
-
-    /**
-     * Callback that supplies `aria-valuetext` for a determinate value.
-     * Defaults to the formatted value.
-     */
-    getValueText?: (params: { value: number; min: number; max: number }) => string
-
-    /**
-     * Content or render function for the value slot.
-     * Determinate progress shows this instead of the formatted value.
-     */
-    valueRender?: JSX.Element | Component<ValueRenderProps>
+    valueLabel?: boolean | ((props: { percent: number; value: number; max: number }) => string)
   }
 
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
