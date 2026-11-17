@@ -2,23 +2,11 @@ import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type {
-  FormIdentityOptions,
-  FormDisableOption,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form/form-options.types'
+import type { FieldT } from '../field'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
 
 export type BaseSelectValue = string | number
-
-/**
- * Form identity and state forwarded to the selection machine.
- * @internal
- */
-export interface BaseSelectFieldProps
-  extends FormIdentityOptions, FormDisableOption, FormReadOnlyOption, FormRequiredOption {}
 
 /**
  * Controlled and uncontrolled popup state.
@@ -107,7 +95,6 @@ export namespace BaseSelectT {
   export type Styles = Slot<SlotStyleValue>
 
   export type Value = BaseSelectValue
-  export type FieldProps = BaseSelectFieldProps
   export type DisclosureProps = BaseSelectDisclosureProps
   export type ItemBehaviorProps<TItem extends Item> = BaseSelectItemBehaviorProps<TItem>
   export type CloseOnSelectOption = BaseSelectCloseOnSelectOption
@@ -175,7 +162,7 @@ export namespace BaseSelectT {
 
   export interface Base<TItem extends Item = Item>
     extends
-      BaseSelectFieldProps,
+      FieldT.ControlBase,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<TItem>,
       BaseSelectCloseOnSelectOption,

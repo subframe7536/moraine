@@ -3,14 +3,8 @@ import type { Component, JSX, Ref } from 'solid-js'
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { FieldT } from '../field'
 import type { IconT } from '../icon'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form/form-options.types'
 
 import type { defaultFileUploadMessages } from './file-upload.messages'
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
@@ -56,13 +50,12 @@ export namespace FileUploadT {
   }
 
   /** Base props for the FileUpload component. */
-  export interface Base<Multiple extends boolean = false>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<Value<Multiple>>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+  export interface Base<Multiple extends boolean = false> extends FieldT.ControlBase {
+    /** The current value (controlled). */
+    value?: Value<Multiple>
+    /** The default value (uncontrolled). */
+    defaultValue?: Value<Multiple>
+
     /** Localized message overrides for this file upload instance. */
     translations?: Translations
     /** Native input element ref. */

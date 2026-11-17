@@ -3,13 +3,7 @@ import type { Component, JSX, Ref } from 'solid-js'
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form/form-options.types'
+import type { FieldT } from '../field'
 
 import type { defaultSliderMessages } from './slider.messages'
 import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
@@ -43,13 +37,12 @@ export namespace SliderT {
   /**
    * Base props for the Slider component.
    */
-  export interface Base<TValue = Value>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<TValue>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+  export interface Base<TValue = Value> extends FieldT.ControlBase {
+    /** The current value (controlled). */
+    value?: TValue
+    /** The default value (uncontrolled). */
+    defaultValue?: TValue
+
     /**
      * The id of a `<form>` the hidden inputs belong to, instead of the closest
      * ancestor form.

@@ -3,13 +3,8 @@ import type { JSX, Ref } from 'solid-js'
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { FieldT } from '../field'
 import type { IconT } from '../icon'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form/form-options.types'
 
 import type { defaultNumberInputMessages } from './number-input.messages'
 import type { NumberInputStyleSlot, NumberInputStyleVariants } from './number-input.style-types'
@@ -53,8 +48,7 @@ export namespace NumberInputT {
   /**
    * Base props for the NumberInput component.
    */
-  export interface Base
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
+  export interface Base extends FieldT.ControlBase {
     /**
      * Localized message overrides for this number input instance.
      */

@@ -323,7 +323,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       }
     }
     for (const pos of positions) {
-      if (!(pos > 0 && pos < len)) {
+      if (!(pos > 0) || !(pos < len)) {
         positions.delete(pos)
       }
     }

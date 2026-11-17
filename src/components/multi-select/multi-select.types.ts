@@ -5,13 +5,12 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
   BaseSelectDisclosureProps,
-  BaseSelectFieldProps,
   BaseSelectItemBehaviorProps,
   BaseSelectResetProps,
   BaseSelectT,
 } from '../base-select/base-select.types'
+import type { FieldT } from '../field'
 import type { IconT } from '../icon/index'
-import type { FormValueOptions } from '../shared/form/form-options.types'
 import type { defaultTagsFieldMessages } from '../shared/form/select/tags-field.messages'
 import type {
   SearchProps,
@@ -90,13 +89,16 @@ export namespace MultiSelectT {
 
   export interface Base<TItem extends Item = Item>
     extends
-      BaseSelectFieldProps,
+      FieldT.ControlBase,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<TItem>,
       BaseSelectResetProps,
       SearchProps<TItem>,
-      ContentProps<TItem>,
-      FormValueOptions<TItem['value'][]> {
+      ContentProps<TItem> {
+    /** Controlled values. */
+    value?: TItem['value'][]
+    /** Initial values when uncontrolled. */
+    defaultValue?: TItem['value'][]
     /** Localized message overrides for this multi-select instance. */
     translations?: Translations
     /** Source items, optionally grouped. Item values must be unique within the collection. */

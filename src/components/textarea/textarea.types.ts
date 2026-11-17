@@ -3,13 +3,7 @@ import type { JSX, Ref } from 'solid-js'
 import type { InputModifiers, ModifierValue } from '../../shared/input-modifiers'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form/form-options.types'
+import type { FieldT } from '../field'
 
 import type { TextareaStyleSlot, TextareaStyleVariants } from './textarea.style-types'
 
@@ -28,12 +22,12 @@ export namespace TextareaT {
    * Base props for the Textarea component.
    */
   export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<Value>,
-      FormRequiredOption,
-      FormReadOnlyOption,
-      FormDisableOption {
+    extends FieldT.ControlBase {
+    /** The current value (controlled). */
+    value?: Value
+    /** The default value (uncontrolled). */
+    defaultValue?: Value
+
     /**
      * Placeholder text for the textarea.
      */

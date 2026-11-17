@@ -12,13 +12,7 @@ describe('BoldSlider SSR hydration', () => {
       'renderBoldSliderFixture',
       () => (
         <div>
-          <BoldSlider
-            id="ssr-bold-slider"
-            label="Bounce"
-            defaultValue={0.5}
-            max={1}
-            step={0.1}
-          />
+          <BoldSlider id="ssr-bold-slider" label="Bounce" defaultValue={0.5} max={1} step={0.1} />
         </div>
       ),
     )

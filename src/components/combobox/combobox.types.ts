@@ -6,13 +6,12 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
   BaseSelectCloseOnSelectOption,
   BaseSelectDisclosureProps,
-  BaseSelectFieldProps,
   BaseSelectItemBehaviorProps,
   BaseSelectResetProps,
   BaseSelectT,
 } from '../base-select/base-select.types'
+import type { FieldT } from '../field'
 import type { IconT } from '../icon/index'
-import type { FormValueOptions } from '../shared/form/form-options.types'
 import type {
   NormalizedSelectItem,
   ContentProps,
@@ -65,14 +64,15 @@ export namespace ComboboxT {
   }
   export interface Base<TItem extends string | Item = string | Item>
     extends
-      BaseSelectFieldProps,
+      FieldT.ControlBase,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       SearchProps<NormalizedItem<TItem>>,
-      ContentProps<NormalizedItem<TItem>>,
-      Omit<FormValueOptions<NormalizedItem<TItem>['value']>, 'value'> {
+      ContentProps<NormalizedItem<TItem>> {
+    /** Initial committed value when uncontrolled. */
+    defaultValue?: NormalizedItem<TItem>['value']
     /** Localized message overrides for this combobox instance. */
     translations?: Translations
     /**

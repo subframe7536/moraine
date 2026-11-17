@@ -2,13 +2,7 @@ import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form/form-options.types'
+import type { FieldT } from '../field'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
 
@@ -50,13 +44,12 @@ export namespace RadioGroupT {
   /**
    * Base props for the RadioGroup component.
    */
-  export interface Base
-    extends
-      FormIdentityOptions,
-      FormValueOptions<string>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+  export interface Base extends FieldT.ControlBase {
+    /** The current value (controlled). */
+    value?: string
+    /** The default value (uncontrolled). */
+    defaultValue?: string
+
     /**
      * The id of a `<form>` the hidden inputs belong to, instead of the closest
      * ancestor form.

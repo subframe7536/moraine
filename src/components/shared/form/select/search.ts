@@ -32,15 +32,16 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
   })
   const view = createMemo(() => {
     const query = search.value()
-    if (!enabled() || props.filterMethod === false || !query) {
+    const method = props.filterMethod ?? 'contains'
+    if (!enabled() || method === false || !query) {
       return source()
     }
     const collator = createSearchCollator(locale())
     return filterView(source(), (item) => {
-      if (typeof props.filterMethod === 'function') {
-        return props.filterMethod(query, item)
+      if (typeof method === 'function') {
+        return method(query, item)
       }
-      return collatorMatches(collator, props.filterMethod ?? 'contains', labelString(item, resolve()), query)
+      return collatorMatches(collator, method, labelString(item, resolve()), query)
     })
   })
   return { ...search, view }

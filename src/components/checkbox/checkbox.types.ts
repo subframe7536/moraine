@@ -2,13 +2,8 @@ import type { JSX, Ref } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { FieldT } from '../field'
 import type { IconT } from '../icon'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form/form-options.types'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariants } from './checkbox.style-types'
 
@@ -23,8 +18,7 @@ export namespace CheckboxT {
   export type Styles = Slot<SlotStyleValue>
 
   /** Base props for the Checkbox component. */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
+  export interface Base<TTrue = boolean, TFalse = boolean> extends FieldT.ControlBase {
     /** Native input element ref. */
     inputRef?: Ref<HTMLInputElement>
 

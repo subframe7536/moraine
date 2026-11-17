@@ -3,13 +3,7 @@ import type { JSX } from 'solid-js'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { CheckboxProps } from '../checkbox'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form/form-options.types'
+import type { FieldT } from '../field'
 
 import type {
   CheckboxGroupStyleSlot,
@@ -44,13 +38,12 @@ export namespace CheckboxGroupT {
   }
 
   /** Base props for the CheckboxGroup component. */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<string[]>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+  export interface Base<TTrue = boolean, TFalse = boolean> extends FieldT.ControlBase {
+    /** The current value (controlled). */
+    value?: string[]
+    /** The default value (uncontrolled). */
+    defaultValue?: string[]
+
     /** Legend for the checkbox group. */
     legend?: JSX.Element
 

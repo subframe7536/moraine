@@ -14,9 +14,7 @@ function queryAll(container: HTMLElement, selector: string): HTMLElement[] {
 
 describe('BoldSlider', () => {
   test('renders a single slider with label, value, and accessible name', () => {
-    const screen = render(() => (
-      <BoldSlider label="Bounce" defaultValue={0.5} max={1} step={0.1} />
-    ))
+    const screen = render(() => <BoldSlider label="Bounce" defaultValue={0.5} max={1} step={0.1} />)
     const root = query(screen.container, '[data-slot="slider"]')
     const thumbs = queryAll(screen.container, '[data-slot="slider-thumb"]')
     const content = query(screen.container, '[data-slot="bold-slider-content"]')

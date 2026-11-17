@@ -12,9 +12,7 @@ describe('Progress SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/progress/progress.ssr.fixture.tsx',
       'renderProgressFixture',
-      () => (
-        <Progress value={value()} label="Upload" valueLabel={({ percent }) => `${percent}%`} />
-      ),
+      () => <Progress value={value()} label="Upload" valueLabel={({ percent }) => `${percent}%`} />,
     )
 
     const root = container.querySelector('[data-slot="progress"]')!

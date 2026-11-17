@@ -18,6 +18,29 @@ export namespace FieldT {
 
   export type Name = string | FieldPath
 
+  /** Identity and state props shared by controls that bind to a Field. */
+  export interface ControlBase {
+    /** The ID of the control element. */
+    id?: string
+    /** The name of the control, used for form submission. */
+    name?: string
+    /**
+     * Whether the control is disabled.
+     * @default false
+     */
+    disabled?: boolean
+    /**
+     * Whether the control is required.
+     * @default false
+     */
+    required?: boolean
+    /**
+     * Whether the control is read-only.
+     * @default false
+     */
+    readOnly?: boolean
+  }
+
   /** Props passed to Field children when provided as a render function. */
   export interface RenderProps {
     /** The current effective error for the field. */
