@@ -31,7 +31,7 @@ export function AlertPublish() {
       void AlertDialog.confirm({
         title: 'Publish release v2.4.0?',
         description: 'All 18 automated checks passed. Ready to deploy to production.',
-        width: 440,
+        maxWidth: 440,
         action: { label: 'Publish release', onClick: publishRelease },
         cancel: { label: 'Cancel' },
       })
@@ -42,7 +42,7 @@ export function AlertPublish() {
       title: 'Publish release v2.4.0?',
       description:
         'Automated checks are still running (1 pending: e2e-regression). Publishing now will bypass remaining verification.',
-      width: 440,
+      maxWidth: 440,
       action: { label: 'Publish anyway', tone: 'danger', onClick: publishRelease },
       cancel: { label: 'Wait for checks' },
     })

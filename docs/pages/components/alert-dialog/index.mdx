@@ -61,7 +61,7 @@ import { AlertDialog, Button, MoraineProvider } from 'moraine'
 export function App() {
   return (
     <MoraineProvider>
-      <AlertDialog width={420} />
+      <AlertDialog maxWidth={420} />
       <Button
         onClick={() => {
           void AlertDialog.confirm({

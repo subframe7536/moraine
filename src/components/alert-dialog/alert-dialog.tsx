@@ -35,7 +35,7 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
     align: props.align,
     variant: props.variant,
     type: props.type ?? undefined,
-    width: props.width,
+    maxWidth: props.maxWidth,
     classes: props.classes,
     styles: props.styles,
     translations: props.translations,

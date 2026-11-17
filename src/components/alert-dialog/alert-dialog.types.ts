@@ -77,8 +77,8 @@ export namespace AlertDialogT {
      */
     type?: Type
 
-    /** Sets the dialog content `max-width`. */
-    width?: string | number
+    /** Dialog content `max-width`; a number is in pixels. */
+    maxWidth?: string | number
   }
 
   /** Props for the AlertDialog host component. */
@@ -121,7 +121,7 @@ export namespace AlertDialogT {
     styles?: Styles
     align?: Variants['align'] | null
     variant?: Variants['variant'] | null
-    width?: string | number
+    maxWidth?: string | number
     closeOnEscape?: boolean
     closeOnOverlayClick?: boolean
     /** Accessible name used when `title` is absent; `AlertDialog.custom` may omit `title`. */

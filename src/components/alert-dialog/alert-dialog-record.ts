@@ -16,7 +16,7 @@ export interface AlertDialogHostDefaults {
   align?: AlertDialogT.Variants['align'] | null
   variant?: AlertDialogT.Variants['variant'] | null
   type?: AlertDialogT.Type
-  width?: string | number
+  maxWidth?: string | number
   class?: AlertDialogT.Options['class']
   classes?: AlertDialogT.Options['classes']
   style?: AlertDialogT.Options['style']
@@ -107,7 +107,7 @@ export function createAlertDialogRecord(
       closeOnOverlayClick: pickDefined(call.closeOnOverlayClick, defaults.closeOnOverlayClick),
       align: pickDefined(call.align, defaults.align),
       variant: pickDefined(call.variant, defaults.variant),
-      width: pickDefined(call.width, defaults.width),
+      maxWidth: pickDefined(call.maxWidth, defaults.maxWidth),
       class: pickDefined(call.class, defaults.class),
       classes: mergeSlots(defaults.classes, call.classes),
       style: pickDefined(call.style, defaults.style),

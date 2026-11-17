@@ -250,7 +250,7 @@ describe('AlertDialog', () => {
 
   test('updates options, closes one dialog, and closes the rest', async () => {
     setup()
-    const first = AlertDialog.confirm({ title: 'First', width: 280, class: 'custom-alert' })
+    const first = AlertDialog.confirm({ title: 'First', maxWidth: 280, class: 'custom-alert' })
     await waitForTitle('First')
     expect(dialog().style.maxWidth).toBe('280px')
     expect(dialog().classList.contains('custom-alert')).toBe(true)
@@ -260,7 +260,7 @@ describe('AlertDialog', () => {
       closable: true,
       icon: null,
       style: { 'max-width': '12rem' },
-      width: 280,
+      maxWidth: 280,
     })
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
     expect(document.body.querySelector('.icon-caution')).toBeNull()
@@ -422,14 +422,14 @@ describe('AlertDialog', () => {
   })
 
   test('applies live host defaults and lets the call override them', async () => {
-    const [width, setWidth] = createSignal(420)
-    render(() => <AlertDialog width={width()} closable />)
+    const [maxWidth, setMaxWidth] = createSignal(420)
+    render(() => <AlertDialog maxWidth={maxWidth()} closable />)
     void AlertDialog.confirm({ title: 'Defaults' })
     await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
-    setWidth(240)
+    setMaxWidth(240)
     await waitFor(() => {
       expect(dialog().style.maxWidth).toBe('240px')
     })

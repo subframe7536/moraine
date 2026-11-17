@@ -12,7 +12,7 @@ export function AlertCenter() {
       icon: 'i-lucide:usb',
       align: 'center',
       variant: 'subtle',
-      width: 380,
+      maxWidth: 380,
       action: { label: 'Allow key' },
       cancel: { label: "Don't allow" },
     }).result()

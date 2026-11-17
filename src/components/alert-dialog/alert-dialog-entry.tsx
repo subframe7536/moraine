@@ -52,7 +52,7 @@ function iconToneClass(options: AlertDialogT.Options): string | undefined {
 }
 
 function createAlertDialogRecipe(options: () => AlertDialogT.Options) {
-  const maxWidth = () => contentMaxWidth(options().width)
+  const maxWidth = () => contentMaxWidth(options().maxWidth)
   return useRecipe(
     alertDialogRecipe,
     {
