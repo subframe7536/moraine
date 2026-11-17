@@ -23,11 +23,12 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     'style',
     'leading',
     'trailing',
+    'label',
     'children',
   ])
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
-  const resolvedChildren = resolveChildren(() => local.children)
+  const resolvedChildren = resolveChildren(() => local.label ?? local.children)
   const hasChildren = () => hasContent(resolvedChildren())
   const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
   const styleProps = mergeProps(local, {

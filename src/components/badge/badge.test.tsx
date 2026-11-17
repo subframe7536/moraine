@@ -20,6 +20,12 @@ describe('Badge', () => {
     expect(label?.textContent).toBe('New')
   })
 
+  test('renders label and prefers it over children', () => {
+    const screen = render(() => <Badge label="Label">Child</Badge>)
+
+    expect(screen.container.querySelector('[data-slot="badge-label"]')?.textContent).toBe('Label')
+  })
+
   test('renders a native button with forwarded attributes and events', () => {
     const onClick = vi.fn()
     const screen = render(() => (

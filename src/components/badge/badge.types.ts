@@ -26,8 +26,8 @@ export namespace BadgeT {
      */
     as?: T
 
-    /** Accessible title shown by the browser for the badge root. */
-    title?: string
+    /** Label content. Takes precedence over `children`. */
+    label?: JSX.Element
 
     /**
      * Leading icon name.
