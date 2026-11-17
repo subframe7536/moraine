@@ -109,7 +109,31 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 }
 
 /**
- * CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.
+ * Searchable list of commands or navigation targets, optionally grouped, shown on an inline
+ * surface with keyboard navigation. The application decides when to open it and registers any
+ * global shortcut; wrap it in `Dialog` or `Modal` for a focused overlay, which also owns Escape
+ * dismissal. Use `NavigationMenu` for persistent site destinations. It filters the supplied
+ * `groups` and calls `onSelect` or the item's own `onSelect`.
+ *
+ * @example
+ * ```tsx
+ * import { CommandPalette } from 'moraine'
+ *
+ * <CommandPalette
+ *   placeholder="Find a page..."
+ *   groups={[
+ *     {
+ *       id: 'pages',
+ *       label: 'Pages',
+ *       items: [
+ *         { value: 'settings', label: 'Settings' },
+ *         { value: 'billing', label: 'Billing' },
+ *       ],
+ *     },
+ *   ]}
+ *   onSelect={(item) => console.log(item.value)}
+ * />
+ * ```
  */
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,

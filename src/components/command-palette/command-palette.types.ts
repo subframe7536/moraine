@@ -32,32 +32,59 @@ export namespace CommandPaletteT {
   export type Translations = Partial<Messages>
 
   export interface Item {
-    /** Unique value for the item. */
+    /**
+     * Identifier of the item, unique across all groups. It is also the displayed label when
+     * `label` is empty and part of the default search text. Duplicates still render but log a
+     * warning in development.
+     */
     value: string
-    /** Primary label for the item. */
+    /** Primary label shown for the item. Falls back to `value`. */
     label?: string
-    /** Secondary description text shown for the item. */
+    /**
+     * Secondary text shown for the item, below or after the label depending on the
+     * `descriptionPosition` variant. Part of the default search text.
+     */
     description?: string
-    /** Additional keywords included in built-in search matching. */
+    /**
+     * Extra search terms that are not displayed, such as synonyms. They are matched by the
+     * built-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function.
+     */
     keywords?: string[]
-    /** Content or render function at the start of this item. */
+    /**
+     * Content or render function shown before the label, such as an icon. Receives the row state.
+     * Ignored when the palette sets `itemRender`.
+     */
     leadingRender?: JSX.Element | Component<ItemRenderProps>
-    /** Content or render function at the end of this item. */
+    /**
+     * Content or render function shown at the end of the row, such as a shortcut hint. Receives
+     * the row state. Ignored when the palette sets `itemRender`.
+     */
     trailingRender?: JSX.Element | Component<ItemRenderProps>
-    /** Whether the item is disabled and cannot be selected. */
+    /**
+     * Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is
+     * still displayed and marked `aria-disabled`.
+     */
     disabled?: boolean
-    /** Whether this item should be excluded from built-in search filtering. */
+    /**
+     * Keeps the item visible while the search text filters the list, even when it does not
+     * match, for entries like "Search the docs for...".
+     */
     alwaysShow?: boolean
-    /** Callback triggered when the item is selected. */
+    /**
+     * Called, without arguments, when the item is selected by click or Enter. It runs before the
+     * palette's `onSelect` and `onClose`. Not called for disabled items.
+     */
     onSelect?: () => void
   }
 
   export interface Group<TItem extends Item = Item> {
-    /** Unique identifier for the group. */
+    /** Identifier of the group, unique within `groups`. Not displayed. */
     id: string
-    /** Display name for the group header. */
+    /**
+     * Header shown above the group's items. Without it the items render with no header.
+     */
     label?: string
-    /** Items belonging to this group. */
+    /** Items in this group. While searching, a group with no matching items is hidden. */
     items?: TItem[]
   }
 
@@ -106,47 +133,93 @@ export namespace CommandPaletteT {
   export type FooterRenderProps<TItem extends Item = Item> = CommandPaletteBaseRenderProps<TItem>
 
   export interface Base<TItem extends Item = Item> {
-    /** Localized message overrides for this command palette instance. */
+    /**
+     * Overrides for this instance's built-in texts (`placeholder`, `close`, `empty`), merged over
+     * the messages from `MoraineProvider`. The `placeholder` prop takes precedence over the
+     * `placeholder` translation.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   closable
+     *   groups={[]}
+     *   translations={{ placeholder: 'Type a command...', empty: 'Nothing found.', close: 'Dismiss' }}
+     * />
+     * ```
+     */
     translations?: Translations
     /** Ref forwarded to the root `<div>` element. */
     ref?: Ref<HTMLDivElement>
     /** Ref forwarded to the inner search `<input>` element. */
     inputRef?: Ref<HTMLInputElement>
     /**
-     * Command groups to display initially.
+     * Commands to display, in order, optionally split into labelled groups. The search text
+     * filters them according to `filterMethod`; the list is reactive to changes of this prop.
      * @default []
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[
+     *     {
+     *       id: 'file',
+     *       label: 'File',
+     *       items: [
+     *         { value: 'new', label: 'New file', keywords: ['create'], onSelect: () => {} },
+     *         { value: 'save', label: 'Save', description: 'Write to disk', disabled: true },
+     *       ],
+     *     },
+     *   ]}
+     * />
+     * ```
      */
     groups?: Group<TItem>[]
     /**
-     * Placeholder text for the search input.
+     * Placeholder text for the search input. It is also the input's accessible name unless
+     * `inputProps` sets `aria-label` or `aria-labelledby`.
      * Localized via MoraineProvider messages. English default is `Search...`.
      */
     placeholder?: string
-    /** Controlled search value. */
+    /**
+     * Search text (controlled). Leave it `undefined` for uncontrolled state and update it from
+     * `onSearchValueChange`. Surrounding whitespace is ignored when filtering.
+     */
     searchValue?: string
     /**
-     * Initial search value.
+     * Initial search text when uncontrolled.
      * @default ''
      */
     defaultSearchValue?: string
-    /** Callback triggered when the search value changes. */
+    /**
+     * Called with the new search text when the user edits the input. While an IME composition
+     * is in progress it is deferred until the composition ends (except on Android). It is not called when
+     * `searchValue` changes from outside.
+     */
     onSearchValueChange?: (value: string) => void
-    /** Callback triggered when an enabled item is selected. */
+    /**
+     * Called with the selected item when the user clicks an enabled item or presses Enter on the
+     * highlighted one. It runs after the item's own `onSelect`, and before `onClose` when
+     * `closeOnSelect` is `true`.
+     */
     onSelect?: (item: TItem) => void
-    /** Maximum allowed length for the search text. */
+    /** Maximum number of characters the search input accepts (the native `maxlength`). */
     searchMaxLength?: number
     /**
-     * Whether to focus the search input automatically on mount.
+     * Whether to focus the search input when the palette mounts. Skipped when the palette is
+     * inside an element with `role="dialog"`, which handles its own initial focus.
      * @default true
      */
     autofocus?: boolean
     /**
-     * Icon name of input's leading icon.
+     * Icon name of input's leading icon. Replaced by `loadingIcon` while `loading` is `true`.
      * @default 'icon-search'
      */
     leading?: IconT.Name
     /**
-     * Icon name of input's leading icon for the loading state.
+     * Icon shown in place of `leading` while `loading` is `true`; the icon is marked
+     * `aria-busy`.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
@@ -156,31 +229,61 @@ export namespace CommandPaletteT {
      */
     closeIcon?: IconT.Name
     /**
-     * Whether to show a close button in the header.
+     * Whether to show a close button in the header. Clicking it calls `onClose`.
      * @default false
      */
     closable?: boolean
-    /** Callback triggered when the close button is clicked or selection requests closing. */
+    /**
+     * Called when the close button is clicked, and after an enabled item is selected when
+     * `closeOnSelect` is `true`. The palette does not hide itself: use it to close the
+     * surrounding `Dialog`, `Modal`, or your own container. Escape is not handled here.
+     */
     onClose?: () => void
     /**
-     * Whether to request closing the palette after an enabled item is selected.
+     * Whether selecting an enabled item calls `onClose` after `onSelect`. The palette does not
+     * close itself.
      * @default true
      */
     closeOnSelect?: boolean
     /**
-     * Whether the palette is in a loading state.
+     * Whether the palette is loading, for example while `groups` are fetched. Swaps the leading
+     * icon for `loadingIcon`; items stay visible and selectable.
      * @default false
      */
     loading?: boolean
     /**
-     * Plain-text label of an item, used for filtering; does not change rendered labels.
-     * Defaults to the label, value, description, and keywords joined by spaces.
+     * Plain-text label of an item, used only by the built-in filter (`filterMethod` strings);
+     * it does not change rendered labels. Replaces the default, which is the label, value,
+     * description, and keywords joined by spaces.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[{ id: 'a', items: [{ value: 'open', label: 'Open', keywords: ['launch'] }] }]}
+     *   getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}
+     * />
+     * ```
      */
     getItemLabel?: (item: TItem) => string
     /**
-     * Filtering strategy, or a predicate receiving the search query and the item.
-     * `false` disables filtering. Items with `alwaysShow` stay visible.
+     * Filtering strategy applied to the trimmed search text. The built-in strategies match the
+     * item's search text (see `getItemLabel`) ignoring case and accents, using the active
+     * locale. A predicate receives the trimmed query and the item, and returns whether to
+     * keep it; it is not called for an empty query. `false` disables filtering, for example
+     * when you filter `groups` yourself. Items with `alwaysShow` stay visible.
      * @default 'contains'
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[{ id: 'a', items: [{ value: 'open-file', label: 'Open file' }] }]}
+     *   filterMethod={(query, item) =>
+     *     item.value.split('-').some((part) => part.startsWith(query.toLowerCase()))
+     *   }
+     * />
+     * ```
      */
     filterMethod?:
       | false
@@ -188,22 +291,85 @@ export namespace CommandPaletteT {
       | 'startsWith'
       | 'endsWith'
       | ((query: string, item: TItem) => boolean)
-    /** Content or render function for the empty state. */
+    /**
+     * Content or render function shown instead of the listbox rows when no item is visible
+     * (no groups, or none matches the search). The default is the localized `empty` message.
+     * A function receives the search text and loading state.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[]}
+     *   emptyRender={(state) => <p>No command matches "{state.searchValue}".</p>}
+     * />
+     * ```
+     */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
-    /** Content or render function for the footer. */
+    /**
+     * Content or render function for a footer below the list, such as keyboard hints. Nothing is
+     * rendered when unset. A function receives the search text, loading state, and the groups.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[]}
+     *   footerRender={(state) => <span>{state.visibleGroups.length} groups shown</span>}
+     * />
+     * ```
+     */
     footerRender?: JSX.Element | Component<FooterRenderProps<TItem>>
-    /** Renderer for each command row. */
+    /**
+     * Renders the content of every command row instead of the default leading, label,
+     * description, and trailing layout (the items' `leadingRender` and `trailingRender` are then
+     * ignored). The row element itself, with its `option` role, highlight, and click handling,
+     * stays. Receives the item, its group, and `highlighted`/`disabled` state.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[{ id: 'a', items: [{ value: 'open', label: 'Open' }] }]}
+     *   itemRender={(row) => (
+     *     <strong>{row.highlighted ? '> ' : ''}{row.item.label ?? row.item.value}</strong>
+     *   )}
+     * />
+     * ```
+     */
     itemRender?: Component<ItemRenderProps<TItem>>
     /**
      * Renders only the visible rows of the flattened group labels and commands. The listbox is
      * the scroll container, and keyboard highlight scrolls through the virtualizer.
      */
     virtualizer?: Virtualizer<TItem>
-    /** Additional attributes for the command listbox. */
+    /**
+     * Additional attributes for the command listbox element. Its `id` and `role` are managed by
+     * the palette; `class` and `style` are merged with the slot styling.
+     */
     listboxProps?: Omit<ElementProps<HTMLDivElement>, 'children'>
-    /** Additional attributes for a command row. */
+    /**
+     * Function returning additional attributes for a command row (the `option` element). It is
+     * called per row with the row state. Event handlers run before the built-in ones, and
+     * calling `event.preventDefault()` in them skips the built-in behavior. `id`, `role`, and
+     * `aria-selected` are managed by the palette.
+     * @example
+     * ```tsx
+     * import { CommandPalette } from 'moraine'
+     *
+     * <CommandPalette
+     *   groups={[{ id: 'a', items: [{ value: 'open', description: 'Open a file' }] }]}
+     *   itemProps={(row) => ({ title: row.item.description })}
+     * />
+     * ```
+     */
     itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
-    /** Additional attributes for the search input. */
+    /**
+     * Additional attributes for the search `<input>`. Its `onInput` and `onKeyDown` handlers run
+     * before the built-in ones, and calling `event.preventDefault()` in them skips the built-in
+     * behavior. `value`, `role`, and the combobox `aria-*` wiring are managed by the palette;
+     * `aria-label` or `aria-labelledby` replace the placeholder as the accessible name.
+     */
     inputProps?: InputElementProps
   }
 
