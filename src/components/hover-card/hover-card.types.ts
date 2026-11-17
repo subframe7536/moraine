@@ -47,13 +47,16 @@ export namespace HoverCardT {
     overflowPadding?: number
 
     /**
-     * Delay in milliseconds before opening on hover or keyboard focus.
+     * Delay in milliseconds between a mouse pointer entering the trigger and opening. Keyboard
+     * focus on the trigger also opens it after this delay, but only for focus-visible (keyboard)
+     * focus. Touch hover is ignored.
      * @default 600
      */
     openDelay?: number
 
     /**
-     * Delay in milliseconds before closing after leaving the trigger or content.
+     * Delay in milliseconds between the pointer leaving the trigger and content, or the trigger
+     * losing focus, and closing. Moving onto the content within the delay keeps the card open.
      * @default 300
      */
     closeDelay?: number
@@ -65,8 +68,9 @@ export namespace HoverCardT {
 
   export type TriggerBase<T extends ValidComponent = 'a'> = OverlayTriggerBase<T> & {
     /**
-     * Identifies this trigger when several triggers share one card. The content
-     * reads it from its render context.
+     * Identifies this trigger when several triggers share one card. `HoverCard.Content` receives
+     * the `value` of the trigger that most recently anchored the card through its function
+     * children.
      */
     value?: string
   }
@@ -86,7 +90,21 @@ export namespace HoverCardT {
   }
 
   export interface ContentBase {
-    /** Card content shown on hover or keyboard focus. */
+    /**
+     * Card content shown while the card is open. A function receives `{ value }`, an accessor for
+     * the `value` of the `HoverCard.Trigger` that anchored the card (`undefined` when that trigger
+     * has no `value`).
+     * @example
+     * ```tsx
+     * import { HoverCard } from 'moraine'
+     *
+     * <HoverCard>
+     *   <HoverCard.Trigger href="/u/alex" value="alex">@alex</HoverCard.Trigger>
+     *   <HoverCard.Trigger href="/u/sam" value="sam">@sam</HoverCard.Trigger>
+     *   <HoverCard.Content>{({ value }) => <span>Profile of {value()}</span>}</HoverCard.Content>
+     * </HoverCard>
+     * ```
+     */
     children?: JSX.Element | ((context: ContentContext) => JSX.Element)
   }
 

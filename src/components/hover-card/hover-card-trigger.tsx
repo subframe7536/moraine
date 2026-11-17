@@ -11,6 +11,24 @@ import { useHoverCardContext } from './hover-card-context'
 import { hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
 
+/**
+ * Element that opens its `HoverCard` on pointer hover or keyboard focus and anchors the card to
+ * itself; place it inside `HoverCard`. It renders an `a` by default, so give it an `href` and
+ * compose it in prose; use `as` to render another element. Set `value` to tell `HoverCard.Content`
+ * which trigger anchored the card when several triggers share one card.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCard } from 'moraine'
+ *
+ * <HoverCard>
+ *   <HoverCard.Trigger href="/u/alex.morgan" value="alex">
+ *     @alex.morgan
+ *   </HoverCard.Trigger>
+ *   <HoverCard.Content>Author profile preview</HoverCard.Content>
+ * </HoverCard>
+ * ```
+ */
 export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   props: HoverCardT.TriggerProps<T>,
 ): JSX.Element {

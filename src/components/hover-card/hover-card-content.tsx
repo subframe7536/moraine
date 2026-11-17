@@ -9,6 +9,27 @@ import { useHoverCardContext } from './hover-card-context'
 import { hoverCardContentDataAttributes, hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
 
+/**
+ * Floating `div` shown next to the trigger while a `HoverCard` is open; place it inside
+ * `HoverCard`. It stays open while the pointer moves from the trigger into it. Children may be a
+ * function that receives `{ value }`, the accessor for the `value` of the `HoverCard.Trigger` that
+ * anchored the card, so several triggers can share one card.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCard } from 'moraine'
+ *
+ * <HoverCard>
+ *   <HoverCard.Trigger href="/u/alex" value="alex">
+ *     @alex
+ *   </HoverCard.Trigger>
+ *   <HoverCard.Trigger href="/u/sam" value="sam">
+ *     @sam
+ *   </HoverCard.Trigger>
+ *   <HoverCard.Content>{({ value }) => <p>Profile of {value()}</p>}</HoverCard.Content>
+ * </HoverCard>
+ * ```
+ */
 export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
 

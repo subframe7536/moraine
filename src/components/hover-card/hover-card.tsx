@@ -13,7 +13,24 @@ import { HoverCardProvider, useHoverCardContext } from './hover-card-context'
 import { HoverCardTrigger } from './hover-card-trigger'
 import type { HoverCardProps } from './hover-card.types'
 
-/** Hover and focus-triggered preview card anchored to a link trigger. */
+/**
+ * Headless root for a preview card that opens on hover or keyboard focus of a link trigger. Use it
+ * to preview the destination of a link, `Tooltip` for a brief non-interactive hint, and `Popover`
+ * for content the user must reach and operate. The content is supplementary: it is not reachable
+ * by keyboard or announced to screen readers, so the same information must exist at the link
+ * destination. Open state can be controlled with `open` / `onOpenChange`, or left uncontrolled
+ * with `defaultOpen`.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCard } from 'moraine'
+ *
+ * <HoverCard placement="top" openDelay={300}>
+ *   <HoverCard.Trigger href="/u/alex.morgan">@alex.morgan</HoverCard.Trigger>
+ *   <HoverCard.Content>Author profile preview</HoverCard.Content>
+ * </HoverCard>
+ * ```
+ */
 export function HoverCard(props: HoverCardProps): JSX.Element {
   const merged = mergeProps(
     {
