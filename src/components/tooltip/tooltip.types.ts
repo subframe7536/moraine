@@ -35,7 +35,8 @@ export namespace TooltipT {
     | 'forceMount'
   > {
     /**
-     * Preferred content placement relative to the trigger.
+     * Preferred side of the trigger the tooltip appears on (`'top'`, `'right'`, `'bottom'` or
+     * `'left'`). It may move to another side when `flip` is enabled and the side lacks space.
      * @default 'top'
      */
     placement?: OverlayPlacement
@@ -53,19 +54,24 @@ export namespace TooltipT {
     overflowPadding?: number
 
     /**
-     * Delay in milliseconds before opening on hover or focus.
+     * Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;
+     * `0` opens immediately. The delay is skipped while another tooltip is open or within
+     * `instantOpenDelay` of one closing.
      * @default 600
      */
     openDelay?: number
 
     /**
-     * Delay in milliseconds before closing after leaving trigger or content.
+     * Delay in milliseconds between the pointer leaving the trigger and content and closing;
+     * moving onto the content keeps the tooltip open. `0` closes immediately.
      * @default 200
      */
     closeDelay?: number
 
     /**
-     * Delay in milliseconds to skip the open delay for the next trigger after closing.
+     * Duration in milliseconds after a tooltip closes during which any tooltip in the same document
+     * opens without `openDelay`, so moving across a toolbar does not wait on every button. `0`
+     * disables the grace period.
      * @default 300
      */
     instantOpenDelay?: number
@@ -80,14 +86,30 @@ export namespace TooltipT {
 
   export interface ContentBase {
     /**
-     * Keyboard shortcuts to display next to the content.
+     * Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,
+     * `ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not
+     * register it.
+     * @example
+     * ```tsx
+     * import { Button, Tooltip } from 'moraine'
+     *
+     * <Tooltip>
+     *   <Tooltip.Trigger as={Button}>Search</Tooltip.Trigger>
+     *   <Tooltip.Content kbds={['meta', 'k']}>Search the docs</Tooltip.Content>
+     * </Tooltip>
+     * ```
      */
     kbds?: string[]
 
-    /** Visual variant for the shortcut keycaps. Overrides the variant inferred from `variant="invert"`. */
+    /**
+     * Visual variant of the shortcut keycaps (`'default'`, `'outline'` or `'invert'`). When omitted,
+     * keycaps use `'invert'` if the tooltip itself has `variant="invert"` and the default otherwise.
+     */
     kbdVariant?: KbdGroupT.Variants['variant']
 
-    /** Tooltip text or element to display. */
+    /**
+     * Tooltip text or element. A string is wrapped in the `text` slot; other nodes render as given.
+     */
     children?: JSX.Element
   }
 

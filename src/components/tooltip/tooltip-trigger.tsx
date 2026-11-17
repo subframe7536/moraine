@@ -11,6 +11,24 @@ import { useTooltipContext } from './tooltip-context'
 import { tooltipRecipe } from './tooltip.recipe'
 import type { TooltipT } from './tooltip.types'
 
+/**
+ * Element that the surrounding `Tooltip` is anchored to; it opens the tooltip on pointer hover
+ * and keyboard focus, and pressing it dismisses the tooltip. Renders a `button`; pass `as` to
+ * render another component such as `Button`. The trigger needs its own accessible name, for
+ * example visible text or `aria-label`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Tooltip } from 'moraine'
+ *
+ * <Tooltip>
+ *   <Tooltip.Trigger as={Button} variant="outline">
+ *     Deploy History
+ *   </Tooltip.Trigger>
+ *   <Tooltip.Content>View project deployment history and logs</Tooltip.Content>
+ * </Tooltip>
+ * ```
+ */
 export function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {

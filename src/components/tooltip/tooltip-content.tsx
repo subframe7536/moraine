@@ -15,6 +15,24 @@ import {
 } from './tooltip.recipe'
 import type { TooltipT } from './tooltip.types'
 
+/**
+ * Floating panel of the surrounding `Tooltip`; renders a `div` with `role="tooltip"` in a
+ * portaled positioner. Place it inside `Tooltip`, next to `Tooltip.Trigger`. String children
+ * are rendered as text, other children render as given. `kbds` only displays shortcut keycaps
+ * and does not register the shortcut.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Tooltip } from 'moraine'
+ *
+ * <Tooltip>
+ *   <Tooltip.Trigger as={Button}>Save</Tooltip.Trigger>
+ *   <Tooltip.Content kbds={['command', 's']} kbdVariant="outline">
+ *     Save changes
+ *   </Tooltip.Content>
+ * </Tooltip>
+ * ```
+ */
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, ['kbds', 'kbdVariant', 'children', 'class', 'style'])
 

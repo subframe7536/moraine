@@ -99,7 +99,26 @@ function shouldOpenImmediately(ownerDocument: Document | undefined): boolean {
   return Boolean(scope?.activeTooltip || scope?.skipDelay)
 }
 
-/** Hover-triggered informational overlay anchored to a trigger element. */
+/**
+ * Hover- and focus-triggered informational overlay anchored to a trigger element. Compose
+ * `Tooltip.Trigger` and `Tooltip.Content` inside it; the root renders no DOM element itself. Use
+ * it for supplemental, non-interactive hints, `Popover` when the content is interactive, and
+ * `Dialog` or `Sheet` for a task that should take over the page. Do not rely on tooltip text as
+ * the only accessible name of a control. Uncontrolled by default; use `open`, `defaultOpen`, and
+ * `onOpenChange` to control it.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Tooltip } from 'moraine'
+ *
+ * <Tooltip placement="bottom">
+ *   <Tooltip.Trigger as={Button} leading="i-lucide:save">
+ *     Save
+ *   </Tooltip.Trigger>
+ *   <Tooltip.Content kbds={['command', 's']}>Save changes</Tooltip.Content>
+ * </Tooltip>
+ * ```
+ */
 export function Tooltip(props: TooltipProps): JSX.Element {
   const merged = mergeProps(
     {
