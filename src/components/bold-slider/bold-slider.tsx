@@ -25,7 +25,28 @@ function countDecimals(value: number): number {
   return dot === -1 ? 0 : text.length - dot - 1
 }
 
-/** Single-value slider with a filled track, an inline label and value, and an edge indicator. */
+/**
+ * Single-value slider with a filled track, an inline label and value, and an edge indicator. Use
+ * it for dense settings such as inspector panels, where each row holds one number and the track
+ * doubles as its readout; use `Slider` for ranges, vertical layouts, or a thin track with a
+ * visible thumb. It is built on `Slider`, so `value`, `defaultValue`, `onValueChange`, `min`,
+ * `max`, and `step` behave the same way, with a plain `number` value.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { BoldSlider } from 'moraine'
+ *
+ * const [opacity, setOpacity] = createSignal(80)
+ *
+ * <BoldSlider
+ *   label="Opacity"
+ *   value={opacity()}
+ *   onValueChange={setOpacity}
+ *   valueLabel={({ value }) => `${value}%`}
+ * />
+ * ```
+ */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'label',
