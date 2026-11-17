@@ -25,21 +25,50 @@ export namespace NavigationMenuT {
     PopperContentOptions,
     'placement' | 'shift' | 'overflowPadding' | 'flip' | 'slide'
   > {
-    /** Alignment relative to the trigger. @default center */
+    /**
+     * Alignment of the panel relative to the active trigger: `'start'`, `'center'` or `'end'`.
+     * @default center
+     */
     align?: OverlayAlign
     /** Gap between the trigger and panel, in pixels. @default 8 */
     gutter?: number
-    /** Open item value. undefined closes the menu. */
+    /**
+     * Controlled `value` of the open `NavigationMenu.Item`. While `undefined` the menu is
+     * uncontrolled and follows `defaultValue`; a value that matches no enabled item with content
+     * leaves the menu closed. Update it from `onValueChange`.
+     */
     value?: string
-    /** Initial open item value. @default undefined */
+    /**
+     * `value` of the item that is open initially when uncontrolled; omit to start closed. Ignored
+     * when `value` is set.
+     * @default undefined
+     */
     defaultValue?: string
-    /** Called when an interaction requests a different open item. */
+    /**
+     * Called with the `value` of the item that should open, or `undefined` when the menu should
+     * close, after hover, click, keyboard or dismissal. It only fires when the value changes and
+     * fires in controlled mode too, so a controlled menu must write it back to `value`.
+     */
     onValueChange?: (value: string | undefined) => void
-    /** Disable navigation interactions. @default false */
+    /**
+     * Disables every trigger and link in the menu: panels cannot open (an open panel closes) and
+     * links lose their `href` and are marked `aria-disabled`.
+     * @default false
+     */
     disabled?: boolean
-    /** Hover delay before the first panel opens, in milliseconds. @default 50 */
+    /**
+     * Delay in milliseconds between a mouse pointer entering a trigger and its panel opening while
+     * no panel is open. Hovering another trigger while a panel is open switches immediately, and
+     * click or keyboard activation never waits.
+     * @default 50
+     */
     openDelay?: number
-    /** Delay after the pointer leaves the menu, in milliseconds. @default 50 */
+    /**
+     * Delay in milliseconds between the pointer leaving the menu and the open panel closing. The
+     * panel stays open while focus is inside it, and moving across the gap toward the panel is
+     * tolerated.
+     * @default 50
+     */
     closeDelay?: number
     /** Composed navigation parts. */
     children?: JSX.Element
@@ -77,13 +106,45 @@ export namespace NavigationMenuT {
     JSX.AnchorHTMLAttributes<HTMLAnchorElement>
   >
   export interface LinkBase {
-    /** Mark this link as the current page. @default false */
+    /**
+     * Marks this link as the current page by setting `aria-current="page"`.
+     * @default false
+     */
     active?: boolean
-    /** Disable navigation from this link. @default false */
+    /**
+     * Disables the link: it loses its `href`, gets `aria-disabled` and `tabIndex={-1}`, and clicks
+     * are prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.
+     * @default false
+     */
     disabled?: boolean
-    /** Close the panel after an uncancelled link click. @default false */
+    /**
+     * Closes the open panel when the link is clicked, unless a click handler calls
+     * `preventDefault()`.
+     * @default false
+     */
     closeOnClick?: boolean
-    /** Custom link component. Forward all supplied props to its anchor. */
+    /**
+     * Renders the link with a custom component, such as a router link, instead of `<a>`. It is
+     * mounted as a component and receives the merged anchor props (`href`, `class`, `ref`, ARIA
+     * attributes and event handlers), all of which it must forward to its anchor.
+     * @example
+     * ```tsx
+     * import { NavigationMenu } from 'moraine'
+     * import type { NavigationMenuT } from 'moraine'
+     *
+     * const RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />
+     *
+     * <NavigationMenu aria-label="Main navigation">
+     *   <NavigationMenu.List>
+     *     <NavigationMenu.Item>
+     *       <NavigationMenu.Link href="/docs" linkRender={RouterLink}>
+     *         Documentation
+     *       </NavigationMenu.Link>
+     *     </NavigationMenu.Item>
+     *   </NavigationMenu.List>
+     * </NavigationMenu>
+     * ```
+     */
     linkRender?: Component<LinkRenderProps>
     children?: JSX.Element
   }

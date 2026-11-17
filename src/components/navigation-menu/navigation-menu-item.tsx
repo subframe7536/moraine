@@ -9,6 +9,28 @@ import type { NavigationMenuItemContextValue } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
+/**
+ * One entry of a `NavigationMenu.List`, rendered as an `li`. It holds either a
+ * `NavigationMenu.Trigger` with its `NavigationMenu.Content` panel, or a direct
+ * `NavigationMenu.Link`. `value` identifies the item for controlled `NavigationMenu` state and is
+ * generated when omitted.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenu } from 'moraine'
+ *
+ * <NavigationMenu aria-label="Main navigation">
+ *   <NavigationMenu.List>
+ *     <NavigationMenu.Item value="products">
+ *       <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+ *       <NavigationMenu.Content>
+ *         <NavigationMenu.Link href="/overview">Overview</NavigationMenu.Link>
+ *       </NavigationMenu.Content>
+ *     </NavigationMenu.Item>
+ *   </NavigationMenu.List>
+ * </NavigationMenu>
+ * ```
+ */
 export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
   const context = useNavigationMenuContext()
   const [local, rest] = splitProps(props, ['value', 'disabled', 'class', 'style'])

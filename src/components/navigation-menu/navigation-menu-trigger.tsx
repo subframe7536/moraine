@@ -24,6 +24,27 @@ import {
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
+/**
+ * Button that opens the `NavigationMenu.Content` panel of the surrounding `NavigationMenu.Item`
+ * on hover, click, or keyboard, and shows a chevron icon after its children. It must be placed
+ * inside `NavigationMenu.Item`. Renders a `button`; pass `as` to render another component.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenu } from 'moraine'
+ *
+ * <NavigationMenu aria-label="Main navigation">
+ *   <NavigationMenu.List>
+ *     <NavigationMenu.Item value="products">
+ *       <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+ *       <NavigationMenu.Content>
+ *         <NavigationMenu.Link href="/overview">Overview</NavigationMenu.Link>
+ *       </NavigationMenu.Content>
+ *     </NavigationMenu.Item>
+ *   </NavigationMenu.List>
+ * </NavigationMenu>
+ * ```
+ */
 export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   props: NavigationMenuT.TriggerProps<T>,
 ): JSX.Element {

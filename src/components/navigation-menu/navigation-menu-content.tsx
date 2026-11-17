@@ -17,6 +17,33 @@ import { useNavigationMenuContext, useNavigationMenuItemContext } from './naviga
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
+/**
+ * Panel of links that opens when the sibling `NavigationMenu.Trigger` of the same
+ * `NavigationMenu.Item` is active. It must be placed inside `NavigationMenu.Item`; its content is
+ * shown in the menu's shared, animated panel. Renders a `div` with `role="region"`, and arrow
+ * keys move focus between its `NavigationMenu.Link` children.
+ *
+ * @example
+ * ```tsx
+ * import { NavigationMenu } from 'moraine'
+ *
+ * <NavigationMenu aria-label="Main navigation">
+ *   <NavigationMenu.List>
+ *     <NavigationMenu.Item value="products">
+ *       <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+ *       <NavigationMenu.Content>
+ *         <NavigationMenu.Link href="/overview" closeOnClick>
+ *           Overview
+ *         </NavigationMenu.Link>
+ *         <NavigationMenu.Link href="/pricing" closeOnClick>
+ *           Pricing
+ *         </NavigationMenu.Link>
+ *       </NavigationMenu.Content>
+ *     </NavigationMenu.Item>
+ *   </NavigationMenu.List>
+ * </NavigationMenu>
+ * ```
+ */
 export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.Element {
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
