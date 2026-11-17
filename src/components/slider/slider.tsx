@@ -56,6 +56,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
     'aria-label',
     'translations',
+    'formatOptions',
     'children',
   ])
   const themeField = useFieldContext()

@@ -18,6 +18,18 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-size')).toBe('10px')
   })
 
+  test('formats the value with formatOptions', () => {
+    const percent = render(() => (
+      <Progress value={1} max={4} formatOptions={{ style: 'percent' }} valueLabel />
+    ))
+    expect(percent.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('25%')
+
+    const currency = render(() => (
+      <Progress value={5} formatOptions={{ style: 'currency', currency: 'USD' }} valueLabel />
+    ))
+    expect(currency.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('$5.00')
+  })
+
   test('renders determinate progress with default aria values', () => {
     const screen = render(() => <Progress value={50} />)
     const progress = screen.getByRole('progressbar')

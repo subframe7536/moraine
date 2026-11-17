@@ -10,6 +10,7 @@ import {
 } from 'solid-js'
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
+import { formatLocaleNumber } from '../../../provider/locale/number'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { KeyBindingOptions } from '../../../shared/keyboard'
 import { createKeyDownHandler, createKeyUpHandler } from '../../../shared/keyboard'
@@ -47,6 +48,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   thumbAlignment?: 'contain' | 'overflow'
   value?: TValue
   translations?: SliderT.Translations
+  formatOptions?: Intl.NumberFormatOptions
 }
 
 export type CreateSliderOptions<TValue extends SliderValue = SliderValue> = {
@@ -94,7 +96,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   rawProps: CreateSliderProps<TValue>,
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
-  const providerDirection = useLocale().dir
+  const { dir: providerDirection, locale } = useLocale()
   const merged = mergeProps(
     {
       min: 0,
@@ -760,8 +762,12 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function getThumbValueText(index: number): string {
     const values = currentValues()
+    const value = values[index] ?? merged.min
     return messages().valueText({
-      value: values[index] ?? merged.min,
+      value,
+      text: merged.formatOptions
+        ? formatLocaleNumber(value, locale(), merged.formatOptions)
+        : String(value),
       index,
       total: values.length,
     })

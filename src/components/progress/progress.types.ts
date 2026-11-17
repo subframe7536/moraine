@@ -41,6 +41,13 @@ export namespace ProgressT {
     label?: JSX.Element
 
     /**
+     * Intl.NumberFormat options for the displayed value, using the provider locale. A
+     * percent style formats the completed fraction; other styles format alue.
+     * Defaults to the percentage rounded to 2 decimal places.
+     */
+    formatOptions?: Intl.NumberFormatOptions
+
+    /**
      * Whether to show the value slot for determinate progress, or a formatter for it.
      * The formatter result also supplies `aria-valuetext`.
      * @default false

@@ -2,7 +2,8 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { useMessages } from '../../provider/locale/locale-context'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { formatLocaleNumber } from '../../provider/locale/number'
 import { hasContent } from '../../shared/jsx-content'
 
 import { defaultProgressMessages } from './progress.messages'
@@ -25,10 +26,11 @@ function clamp(value: number, min: number, max: number): number {
 export function Progress(props: ProgressProps): JSX.Element {
   const [local, style, rest] = splitProps(
     props,
-    ['value', 'max', 'label', 'valueLabel', 'translations'],
+    ['value', 'max', 'label', 'valueLabel', 'formatOptions', 'translations'],
     ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
   )
   const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
+  const { locale } = useLocale()
   const labelContent = createMemo(() => local.label)
   const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(
@@ -93,9 +95,18 @@ export function Progress(props: ProgressProps): JSX.Element {
   }
   const displayText = createMemo(() => {
     const next = percent() ?? 0
-    return typeof local.valueLabel === 'function'
-      ? local.valueLabel({ percent: next, value: resolvedValue(), max: resolvedMax() })
-      : `${next}%`
+    if (typeof local.valueLabel === 'function') {
+      return local.valueLabel({ percent: next, value: resolvedValue(), max: resolvedMax() })
+    }
+    const options = local.formatOptions
+    if (!options) {
+      return `${next}%`
+    }
+    return formatLocaleNumber(
+      options.style === 'percent' ? next / 100 : resolvedValue(),
+      locale(),
+      options,
+    )
   })
   const valueText = createMemo(() => (isIndeterminate() ? messages().indeterminate : displayText()))
 

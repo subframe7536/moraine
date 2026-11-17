@@ -16,6 +16,14 @@ function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="slider-thumb"]')) as HTMLElement[]
 }
 
+test('formats aria-valuetext with formatOptions', () => {
+  const screen = render(() => (
+    <Slider defaultValue={50} formatOptions={{ style: 'unit', unit: 'percent' }} />
+  ))
+
+  expect(getThumbs(screen.container)[0]?.getAttribute('aria-valuetext')).toBe('50%')
+})
+
 function getInputs(container: HTMLElement): HTMLInputElement[] {
   return Array.from(container.querySelectorAll('input[type="range"]')) as HTMLInputElement[]
 }

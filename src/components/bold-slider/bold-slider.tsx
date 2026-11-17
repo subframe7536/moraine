@@ -2,6 +2,8 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, Show, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
+import { formatLocaleNumber } from '../../provider/locale/number'
 import { useFieldContext } from '../field/field-context'
 import { Slider } from '../slider'
 import type { SliderT } from '../slider'
@@ -37,6 +39,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     'aria-label',
   ])
   const themeField = useFieldContext()
+  const { locale } = useLocale()
 
   const [internalValue, setInternalValue] = createSignal(
     untrack(() => props.value ?? props.defaultValue ?? props.min ?? 0),
@@ -85,7 +88,11 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     }
     const step = props.step
     const decimals = typeof step === 'number' && step > 0 ? countDecimals(step) : 2
-    return String(Number(value.toFixed(decimals)))
+    return formatLocaleNumber(
+      value,
+      locale(),
+      props.formatOptions ?? { maximumFractionDigits: decimals, useGrouping: false },
+    )
   }
 
   // Rendered as Slider root children after the track and thumb, so each part can read their
