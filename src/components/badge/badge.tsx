@@ -10,7 +10,21 @@ import { Icon } from '../icon'
 import { badgeRecipe } from './badge.recipe'
 import type { BadgeProps } from './badge.types'
 
-/** Compact label component with leading/trailing icon slots and variant styles. */
+/**
+ * Compact label for status or metadata beside related content, with optional leading and trailing
+ * icons. It renders a presentational `span` by default and does not replace an accessible status
+ * announcement. For a clickable badge, set `as` to a semantic element such as `"button"` and give
+ * it an accessible name.
+ *
+ * @example
+ * ```tsx
+ * import { Badge } from 'moraine'
+ *
+ * <Badge variant="soft" leading="i-lucide:circle-check">
+ *   In progress
+ * </Badge>
+ * ```
+ */
 export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): JSX.Element {
   const [local, rest] = splitProps(props, [
     'as',
