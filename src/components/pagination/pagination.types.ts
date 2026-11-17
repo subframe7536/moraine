@@ -24,7 +24,26 @@ export namespace PaginationT {
    * Base props for the Pagination component.
    */
   export interface Base {
-    /** Localized message overrides for this pagination instance. */
+    /**
+     * Overrides for the localized accessibility strings of this instance; omitted keys fall back to
+     * the locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive
+     * `{ page, total }`; `prev` and `next` receive `{ page }`, which is `undefined` when already at
+     * that edge.
+     * @example
+     * ```tsx
+     * import { Pagination } from 'moraine'
+     *
+     * <Pagination
+     *   total={100}
+     *   translations={{
+     *     label: 'Pages des résultats',
+     *     status: ({ page, total }) => `Page ${page} sur ${total}`,
+     *     prev: () => 'Page précédente',
+     *     next: () => 'Page suivante',
+     *   }}
+     * />
+     * ```
+     */
     translations?: Translations
     /**
      * Ref forwarded to the root `<nav>` element.
@@ -32,37 +51,46 @@ export namespace PaginationT {
     ref?: Ref<HTMLElement>
 
     /**
-     * Controlled current page number (1-indexed).
+     * Controlled current page number (1-indexed). While `undefined` the page is uncontrolled and
+     * follows `defaultPage`. Non-integers are truncated and the displayed page is clamped to the
+     * valid range.
      */
     page?: number
 
     /**
-     * Initial page number when uncontrolled.
+     * Initial page number when uncontrolled. Ignored when `page` is set.
      * @default 1
      */
     defaultPage?: number
 
     /**
-     * Callback triggered when the page changes.
+     * Called with the new page number when the user selects a different page through a numbered
+     * item or the previous and next controls. It does not fire for the current page or while
+     * `disabled`, and it fires in controlled mode too, so a controlled pagination must write the
+     * value back to `page`.
      */
     onPageChange?: (page: number) => void
 
     /**
-     * Number of items to display per page.
+     * Number of items per page. Together with `total` it sets the page count,
+     * `ceil(total / pageSize)`. Truncated to an integer of at least 1; invalid values fall back to
+     * the default.
      * @default 10
      */
     pageSize?: number
 
     /**
-     * Total number of items across all pages.
+     * Total number of items (records) across all pages, not the number of pages. The page count is
+     * at least 1, so `0` still renders a single page.
      * @default 0
      */
     total?: number
 
     /**
      * Number of page buttons to show on either side of the current page.
+     * Finite integer values are clamped between 0 and 100. When `2 * siblingCount + 5` is at least
+     * the page count, every page is shown without ellipses.
      * @default 2
-     * Finite integer values are clamped between 0 and 100.
      */
     siblingCount?: number
 
@@ -73,7 +101,8 @@ export namespace PaginationT {
     controls?: boolean
 
     /**
-     * Whether the pagination is disabled.
+     * Disables every page item and control; they render as disabled buttons without links.
+     * @default false
      */
     disabled?: boolean
 
@@ -84,7 +113,9 @@ export namespace PaginationT {
     prevIcon?: IconT.Name
 
     /**
-     * Text to display in the previous button.
+     * Text shown in the previous button. When set, the control shows the text with `prevIcon`
+     * before it instead of an icon-only button. Its accessible name still comes from
+     * `translations.prev`, not from this text.
      */
     prevText?: string
 
@@ -95,7 +126,9 @@ export namespace PaginationT {
     nextIcon?: IconT.Name
 
     /**
-     * Text to display in the next button.
+     * Text shown in the next button. When set, the control shows the text with `nextIcon` after it
+     * instead of an icon-only button. Its accessible name still comes from `translations.next`,
+     * not from this text.
      */
     nextText?: string
 
@@ -106,15 +139,32 @@ export namespace PaginationT {
     ellipsisIcon?: IconT.Name
 
     /**
-     * Function to generate a destination URL for a given page number.
-     * Without a custom component, enabled pagination controls with a destination render as anchors.
+     * Builds the destination URL for a page number. It is called with the target page of each
+     * numbered item other than the current page, and of the previous and next controls. An item
+     * that gets a URL renders as `<a href>` (or as `itemAs` / `controlAs` when set) and still calls
+     * `onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while
+     * `disabled`, and previous on the first page and next on the last page stay disabled buttons.
+     * @example
+     * ```tsx
+     * import { Pagination } from 'moraine'
+     *
+     * <Pagination total={100} pageSize={10} href={(page) => `/posts?page=${page}`} />
+     * ```
      */
     href?: (page: number) => string | undefined
 
-    /** Component used to render numbered page items. */
+    /**
+     * Component or tag that renders the numbered page items, passed to the item button's `as`, for
+     * example a router link. It receives `href` when `href` returns a URL. By default an item
+     * renders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`.
+     */
     itemAs?: ValidComponent
 
-    /** Component used to render previous and next controls. */
+    /**
+     * Component or tag that renders the previous and next controls, like `itemAs` for page items.
+     * It receives `href` and `rel` (`prev` or `next`) when `href` returns a URL. Controls at an edge
+     * and all controls while `disabled` stay disabled buttons.
+     */
     controlAs?: ValidComponent
   }
 

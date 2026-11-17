@@ -80,7 +80,21 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
 }
 
 /**
- * Page navigation component with configurable sibling count and edge display.
+ * Page navigation for a result set with a known page count, rendered as a `nav` with Previous
+ * and Next controls and numbered pages. `total` is the number of records; the page count is
+ * derived from `pageSize`. The application owns data fetching: the current page is uncontrolled
+ * with `defaultPage` or controlled through `page` and `onPageChange`. Use `Stepper` rather than
+ * `Pagination` for a fixed sequence of steps.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Pagination } from 'moraine'
+ *
+ * const [page, setPage] = createSignal(1)
+ *
+ * <Pagination total={100} pageSize={10} page={page()} onPageChange={setPage} />
+ * ```
  */
 export function Pagination(props: PaginationProps): JSX.Element {
   const [local, rest] = splitProps(props, [
