@@ -20,6 +20,7 @@ export namespace PinInputT {
   export type ValidationType = 'text' | 'number' | 'alphanumeric' | 'alpha'
 
   export interface SeparatorRenderProps {
+    /** Zero-based index of the input the separator follows. */
     index: number
   }
 
@@ -28,36 +29,50 @@ export namespace PinInputT {
    */
   export interface Base extends FieldT.ControlBase {
     /**
-     * Localized message overrides for this pin input instance.
+     * Localized message overrides for this pin input instance. `input` builds the `aria-label` of
+     * each slot from its 1-based `index` and the `length`.
+     * @example
+     * ```tsx
+     * import { PinInput } from 'moraine'
+     *
+     * <PinInput
+     *   length={6}
+     *   translations={{ input: ({ index, length }) => `Digit ${index} of ${length}` }}
+     * />
+     * ```
      */
     translations?: Translations
 
     /**
-     * The number of input fields.
+     * The number of single-character inputs, at least 1. Longer values are truncated to it.
      * @default 5
      */
     length?: number
 
     /**
-     * Type of characters allowed in the inputs.
+     * Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,
+     * `'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped
+     * and reported to `onValueInvalid`. It also picks the default `inputMode` (`numeric` for
+     * `'number'`, `text` otherwise).
      * @default 'text'
      */
     validationType?: ValidationType
 
     /**
-     * Whether to treat the inputs like passwords by masking the value.
+     * Whether to hide the entered characters by rendering the slots as `type="password"` inputs.
      * @default false
      */
     mask?: boolean
 
     /**
-     * Whether to enable One-Time Password autocomplete (`one-time-code`).
+     * Whether to enable One-Time Password autofill by setting `autocomplete="one-time-code"` on
+     * the first slot, and on the hidden input when `name` is set. A received code is spread across the slots.
      * @default false
      */
     otp?: boolean
 
     /**
-     * Placeholder character displayed in empty inputs.
+     * Placeholder text shown in empty slots that are not focused, typically one character such as `○`.
      */
     placeholder?: string
 
@@ -72,28 +87,39 @@ export namespace PinInputT {
     groupSize?: boolean | number | readonly number[]
 
     /**
-     * Custom renderer for the separator between inputs.
+     * Component that renders the separator content between groups, replacing the default `•`.
+     * It receives the `index` of the input it follows and only appears when `groupSize` creates groups.
+     * @example
+     * ```tsx
+     * import { PinInput } from 'moraine'
+     *
+     * <PinInput length={6} groupSize={3} separatorRender={() => <span>–</span>} />
+     * ```
      */
     separatorRender?: Component<SeparatorRenderProps>
 
     /**
-     * Controlled value as an array of characters or joined string.
+     * Controlled value as a joined string (`'123456'`) or an array with one character per slot
+     * (an empty string `''` leaves that slot empty). `undefined` leaves the input uncontrolled. The
+     * value is filtered by `validationType` and truncated to `length`; update it from `onValueChange`.
      */
     value?: string[] | string
 
     /**
-     * Default uncontrolled value.
+     * Initial value for uncontrolled usage, as a joined string or one character per slot. Also
+     * the value restored when the owning form is reset.
      */
     defaultValue?: string[] | string
 
     /**
-     * Callback when the pin input value changes, passing the slot characters as an array.
+     * Called whenever the entered characters change, with an array of `length` entries holding
+     * one character per slot and `''` for empty slots. Use `.join('')` for the string.
      */
     onValueChange?: (value: string[]) => void
 
     /**
-     * Callback when all input fields are completely filled.
-     * For controlled values it fires once the value is actually applied.
+     * Called with the joined string when every slot is filled. For controlled values it fires once
+     * the value is actually applied. Runs before the form is submitted when `autoSubmit` is set.
      */
     onComplete?: (value: string) => void
 
@@ -104,7 +130,9 @@ export namespace PinInputT {
     onValueInvalid?: (value: string) => void
 
     /**
-     * Whether to submit the owning form when the pin input becomes complete.
+     * Whether to call `requestSubmit()` on the owning form, which runs native validation and
+     * fires a `submit` event, right after `onComplete`. The form is found through `form`, the
+     * inputs, or the closest ancestor `<form>`; nothing happens without one.
      * @default false
      */
     autoSubmit?: boolean
@@ -124,12 +152,14 @@ export namespace PinInputT {
     normalizeValue?: (value: string) => string
 
     /**
-     * Native focus event when focus enters the pin input group.
+     * Native focus event when focus enters the pin input group from outside. Calling
+     * `preventDefault` skips the `Field` focus notification.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
-     * Native blur event when focus leaves the pin input group.
+     * Native blur event when focus leaves the pin input group. Calling `preventDefault` skips the
+     * `Field` blur notification.
      */
     onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
@@ -146,29 +176,32 @@ export namespace PinInputT {
     onFocusOut?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
-     * Whether the first input should automatically receive focus on mount.
+     * Whether to focus the first empty slot after mounting, or the last slot when all are filled.
+     * Focus is skipped when the control is disabled, and `autofocusDelay` postpones it.
      * @default false
      */
     autofocus?: boolean
 
     /**
-     * Delay in milliseconds before automatically focusing.
+     * Delay in milliseconds between mount and focusing. Only used with `autofocus`.
      * @default 0
      */
     autofocusDelay?: number
 
     /**
-     * Form ID to associate with the hidden input.
+     * The `id` of the `<form>` the control belongs to, for a control rendered outside that form.
+     * It is set on the slot inputs and on the hidden input that submits the joined value under `name`.
      */
     form?: string
 
     /**
-     * Ref for the root container element.
+     * Ref callback or variable that receives the root `<div>` container element.
      */
     ref?: Ref<HTMLDivElement>
 
     /**
-     * Ref collection for the individual input elements.
+     * Receives the array of the slot `<input>` elements, in order, after mount and whenever
+     * `length` changes. It is called with an empty array on cleanup.
      */
     inputRefs?: Ref<HTMLInputElement[]>
   }

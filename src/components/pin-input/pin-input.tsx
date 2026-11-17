@@ -34,7 +34,24 @@ import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps } from './pin-input.types'
 
 /**
- * An accessible pin/OTP input component.
+ * Row of single-character inputs for verification codes, OTPs, and numeric PINs. `validationType`
+ * restricts the accepted characters, and `onComplete` fires once every slot is filled. The value is
+ * uncontrolled with `defaultValue` or controlled through `value` and `onValueChange`, which
+ * receives the slot characters as an array. Wrap it in `Field` for a label and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { Field, PinInput } from 'moraine'
+ *
+ * <Field label="Verification code">
+ *   <PinInput
+ *     length={6}
+ *     validationType="number"
+ *     otp
+ *     onComplete={(code) => console.log(code)}
+ *   />
+ * </Field>
+ * ```
  */
 export function PinInput(props: PinInputProps): JSX.Element {
   const [local, rest] = splitProps(props, [
