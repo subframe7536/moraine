@@ -33,46 +33,65 @@ export namespace ButtonT {
     as?: T
 
     /**
-     * Disabled state, including for non-button polymorphic roots.
+     * Disables the button, including non-button roots set with `as` (those get `aria-disabled`
+     * and are removed from the tab order). Clicks and Enter/Space activation are ignored while
+     * disabled.
      */
     disabled?: boolean
 
     /**
-     * Root `data-slot` name
+     * Value of the root `data-slot` attribute. Used by components that compose `Button` to
+     * identify their own buttons.
+     * @default 'button'
      */
     slotName?: string
     /**
-     * Controlled loading state.
+     * Shows the loading indicator. While loading the button sets `aria-busy`, ignores clicks and
+     * keyboard activation, and stays focusable. Combine with `autoLoading` to also show loading
+     * while an async click handler is pending.
      * @default false
      */
     loading?: boolean
 
     /**
-     * Auto toggles loading while async click handlers are pending.
+     * Shows loading automatically from the `onClick` handler: when it returns a promise (for example
+     * an `async` function), the button is loading until the promise settles, whether it resolves or
+     * rejects. A handler that calls `event.preventDefault()` does not trigger loading.
      * @default false
      */
     autoLoading?: boolean
 
     /**
-     * Optional icon shown when `loading` is active.
+     * Name of the icon shown while loading. It replaces the `leading` icon, or the `trailing` icon
+     * when only `trailing` is set; with no icons it is added before the label.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
 
     /**
-     * Leading visual content, usually an icon.
+     * Name of an icon rendered before the label. Replaced by the loading icon while loading.
      */
     leading?: IconT.Name
 
     /**
-     * Trailing visual content, usually an icon.
+     * Name of an icon rendered after the label. It is replaced by the loading icon only when no
+     * `leading` icon is set.
      */
     trailing?: IconT.Name
 
     /**
-     * Content or render function receiving the loading state.
+     * Label content, or a render function receiving `{ loading }`.
      * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
+     * function is called as an accessor and is not mounted as a component. Empty content renders no
+     * label element, which suits icon-only buttons (add an `aria-label`).
+     * @example
+     * ```tsx
+     * import { Button } from 'moraine'
+     *
+     * <Button autoLoading onClick={() => fetch('/api/save')}>
+     *   {(state) => (state.loading ? 'Saving...' : 'Save')}
+     * </Button>
+     * ```
      */
     children?: JSX.Element | Component<ChildrenRenderProps>
   }

@@ -24,7 +24,24 @@ import { BUTTON_LOADING_ICON_CLASS, buttonDataAttributes, buttonRecipe } from '.
 import type { ButtonProps } from './button.types'
 
 /**
- * Button component with polymorphic `as` support and loading state.
+ * Button for commands and explicit navigation, with optional leading and trailing icons and a
+ * loading state. It renders a native `button`; pass `as="a"` with `href` for a destination, and
+ * use `ToggleButton` when the control stays pressed. Icon-only buttons need an `aria-label`.
+ * Inside a `ButtonGroup` it inherits the group's `size`, `variant`, and `tone`. Set `loading`
+ * from state, or `autoLoading` to show loading while an async `onClick` is pending.
+ *
+ * @example
+ * ```tsx
+ * import { Button } from 'moraine'
+ *
+ * <Button
+ *   leading="i-lucide:save"
+ *   autoLoading
+ *   onClick={() => new Promise((resolve) => setTimeout(resolve, 1000))}
+ * >
+ *   Save
+ * </Button>
+ * ```
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useButtonGroupContext()
