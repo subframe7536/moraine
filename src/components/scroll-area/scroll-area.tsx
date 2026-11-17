@@ -92,7 +92,25 @@ function createReleaseDelay(delay: () => number) {
   }
 }
 
-/** Native scroll container with custom scrollbars, edge shadows, and optional virtualization. */
+/**
+ * Native scroll container that constrains overflowing content and draws custom scrollbars over
+ * it. Scrolling stays native (wheel, touch, keyboard), so give the root a height or maximum height
+ * for vertical scrolling and a width for horizontal scrolling. Pass `items` with `itemRender`
+ * (and optionally a `virtualizer`) to render a collection instead of `children`. When the
+ * area is a landmark of its own, label it with `role="region"` and `aria-label`.
+ *
+ * @example
+ * ```tsx
+ * import { For } from 'solid-js'
+ * import { ScrollArea } from 'moraine'
+ *
+ * <ScrollArea class="h-48 w-full" role="region" aria-label="Recent activity">
+ *   <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
+ *     {(entry) => <p class="py-2 text-sm">Activity entry {entry}</p>}
+ *   </For>
+ * </ScrollArea>
+ * ```
+ */
 export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
