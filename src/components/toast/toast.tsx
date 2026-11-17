@@ -31,7 +31,8 @@ function withType(type: ToastT.Variants['type'], options: ToastT.Options): Toast
 }
 
 /**
- * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and the other static methods.
+ * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and the other static
+ * methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -178,6 +179,39 @@ function ToastRoot(props: ToastProps): JSX.Element {
   )
 }
 
+/**
+ * Imperative notification API plus its host. Mount `<Toast />` once; it holds no open state and
+ * renders a portaled `role="region"` live region. Open toasts from event handlers with the static
+ * methods (`Toast.show`, `Toast.success`, `Toast.promise`, `Toast.update`, `Toast.close`), which
+ * return a handle. Use `Toast` for temporary feedback that stays in the page and `AlertDialog`
+ * when the next step should wait for an explicit choice. A call before the host is mounted
+ * throws, and on the server it returns an inert handle.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Toast } from 'moraine'
+ *
+ * <>
+ *   <Button
+ *     onClick={() =>
+ *       Toast.success({
+ *         title: 'Preferences saved',
+ *         description: 'Your changes are now live.',
+ *         action: {
+ *           label: 'Undo',
+ *           onClick: () => {
+ *             Toast.info({ title: 'Reverted' })
+ *           },
+ *         },
+ *       })
+ *     }
+ *   >
+ *     Save
+ *   </Button>
+ *   <Toast placement="top" />
+ * </>
+ * ```
+ */
 export const Toast = ToastRoot as typeof ToastRoot & {
   show: (options: ToastT.Options) => ToastT.Handle
   info: (options: ToastT.Options) => ToastT.Handle
