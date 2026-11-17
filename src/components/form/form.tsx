@@ -1,6 +1,5 @@
 import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid'
 import { createForm as createFormischForm, reset as resetForm } from '@formisch/solid'
-import { INTERNAL, validateFormInput } from '@formisch/solid/internals'
 import type { JSX } from 'solid-js'
 import { createSignal, splitProps } from 'solid-js'
 
@@ -16,6 +15,7 @@ import { useFormischFieldBinding } from './form-field-binding'
 import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
+import { getFormElement, setFormElement, submitFormWithoutFocus } from './formisch-store'
 import { createInvalidFocusManager } from './invalid-focus-manager'
 import type { InvalidFocusManager } from './invalid-focus-manager'
 interface InternalFormProps<TSchema extends Schema> extends FormProps<TSchema> {
@@ -46,10 +46,8 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
   bindElement(
     element,
     publishElement(
-      () => local.of[INTERNAL].element,
-      (next) => {
-        local.of[INTERNAL].element = next
-      },
+      () => getFormElement(local.of),
+      (next) => setFormElement(local.of, next),
     ),
   )
 
@@ -63,45 +61,11 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     event.preventDefault()
     local.focusManager.requestFocus(event.currentTarget)
 
-    // Formisch's public handleSubmit always focuses invalid fields.
-    const internal = local.of[INTERNAL]
-    const submissionId = ++internal.submissionId
-    internal.isSubmitted.value = true
-    internal.isSubmitting.value = true
-    const validationId = internal.validationId + 1
-    let isHandlingSubmit = false
-
-    void (async () => {
-      try {
-        const result = await validateFormInput(internal, { shouldFocus: false })
-        if (
-          result.success &&
-          internal.submissionId === submissionId &&
-          internal.validationId === validationId
-        ) {
-          isHandlingSubmit = true
-          await local.onSubmit?.(result.output, event)
-        }
-      } catch (error) {
-        if (
-          internal.submissionId === submissionId &&
-          (isHandlingSubmit || internal.validationId === validationId)
-        ) {
-          internal.errors.value = [
-            error &&
-            typeof error === 'object' &&
-            'message' in error &&
-            typeof error.message === 'string'
-              ? error.message
-              : messages().unknownError,
-          ]
-        }
-      } finally {
-        if (internal.submissionId === submissionId) {
-          internal.isSubmitting.value = false
-        }
-      }
-    })()
+    submitFormWithoutFocus(
+      local.of,
+      (output) => local.onSubmit?.(output as never, event),
+      () => messages().unknownError,
+    )
   }
 
   return (
