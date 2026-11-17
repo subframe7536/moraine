@@ -24,7 +24,8 @@ export namespace AccordionT {
 
   export interface Item {
     /**
-     * Header label for the accordion item.
+     * Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,
+     * the trigger's accessible name falls back to `value`.
      */
     label?: JSX.Element
 
@@ -35,28 +36,33 @@ export namespace AccordionT {
     ariaLabel?: string
 
     /**
-     * Unique value for the accordion item, used in `value` and `onValueChange`.
+     * Unique value identifying the item. It is the entry stored in the accordion's `value` array and
+     * passed to `onValueChange`; duplicates trigger a development warning.
      */
     value: string
 
     /**
-     * Whether the accordion item is disabled.
+     * Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by
+     * arrow-key, `Home` and `End` navigation.
      * @default false
      */
     disabled?: boolean
 
     /**
-     * Leading icon name for the accordion item.
+     * Name of an icon rendered before the label inside the trigger.
      */
     icon?: IconT.Name
 
     /**
-     * Content to display when the accordion item is expanded. Accepts static JSX or a component receiving { expanded, closed, disabled, value }.
+     * Panel content for the item. Accepts static JSX or a component that receives
+     * `{ expanded, closed, disabled, value }`. It is mounted when the item first opens (see
+     * `forceMount` on the accordion).
      */
     content?: JSX.Element | Component<ContentRenderProps>
 
     /**
-     * Optional class applied to the item element.
+     * Extra class applied to this item's root element, merged after the `item` slot class and
+     * overridable by `classes.item`.
      */
     class?: SlotClassValue
   }
@@ -65,38 +71,87 @@ export namespace AccordionT {
    */
   export interface Base {
     /**
-     * Unique identifier for the accordion root element.
+     * Id of the root element. Also used as the prefix of the generated trigger and content ids that
+     * link each trigger to its panel through `aria-controls` and `aria-labelledby`. A unique id is
+     * generated when omitted.
      */
     id?: string
 
-    /** Controlled list of expanded item values. */
+    /**
+     * Controlled list of expanded item values. Always an array, even when `multiple` is `false`.
+     * Leave it `undefined` for uncontrolled usage; when set, update it from `onValueChange`.
+     */
     value?: string[]
 
-    /** Default list of expanded item values for uncontrolled usage. @default [] */
+    /**
+     * Item values expanded on first render when `value` is not provided. Read once at creation.
+     * @default []
+     */
     defaultValue?: string[]
 
-    /** Whether multiple accordion items can be expanded at the same time. @default false */
+    /**
+     * Whether several items can be expanded at once. When `false`, opening an item replaces the
+     * current `value` with just that item, which closes the others.
+     * @default false
+     */
     multiple?: boolean
 
-    /** Whether the last expanded item can be collapsed. @default true */
+    /**
+     * Whether the expanded item can be closed by activating its trigger again. Only applies when
+     * `multiple` is `false`; with `multiple`, every item can always be collapsed.
+     * @default true
+     */
     collapsible?: boolean
 
-    /** Callback when the expanded item values change. */
+    /**
+     * Called when a user toggles an item (trigger click, `Enter`, `Space`, or browser find-in-page
+     * revealing hidden content). Receives the complete next array of expanded values, in both
+     * controlled and uncontrolled mode. It is not called for changes you make to `value`.
+     * @example
+     * ```tsx
+     * import { Accordion } from 'moraine'
+     *
+     * <Accordion
+     *   multiple
+     *   items={[
+     *     { value: 'a', label: 'A', content: 'First' },
+     *     { value: 'b', label: 'B', content: 'Second' },
+     *   ]}
+     *   onValueChange={(value) => console.log(value)}
+     * />
+     * ```
+     */
     onValueChange?: (value: string[]) => void
 
     /**
-     * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
+     * Whether `ArrowDown` and `ArrowUp` focus wraps from the last enabled trigger to the first and
+     * vice versa. `Home` and `End` always jump to the first and last enabled trigger.
      * @default true
      */
     loop?: boolean
 
     /**
-     * Array of accordion items to render.
+     * Items to render, in order. Each item needs a unique `value`; `label`, `icon`, `content`,
+     * `disabled`, `ariaLabel` and `class` are optional.
+     * @example
+     * ```tsx
+     * import { Accordion } from 'moraine'
+     *
+     * <Accordion
+     *   defaultValue={['intro']}
+     *   items={[
+     *     { value: 'intro', label: 'Intro', icon: 'icon-info', content: 'Getting started.' },
+     *     { value: 'faq', label: 'FAQ', content: (state) => (state.expanded ? 'Open' : 'Closed') },
+     *     { value: 'beta', label: 'Beta', disabled: true },
+     *   ]}
+     * />
+     * ```
      */
     items?: Item[]
 
     /**
-     * Whether the entire accordion is disabled.
+     * Whether every item is disabled, regardless of each item's own `disabled`. No trigger can be
+     * toggled or reached with arrow keys.
      * @default false
      */
     disabled?: boolean
@@ -109,13 +164,15 @@ export namespace AccordionT {
     forceMount?: boolean
 
     /**
-     * Trailing icon name for all accordion items.
+     * Name of the icon rendered after the label in every item's trigger, typically an expand
+     * indicator.
      * @default 'icon-chevron-down'
      */
     trailing?: IconT.Name
 
     /**
-     * Heading level for the accordion item header element.
+     * Heading level (1 to 6) of the element that wraps each trigger, rendered as `<h1>` to `<h6>`.
+     * Pick the level that fits the surrounding document outline.
      * @default 3
      */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6

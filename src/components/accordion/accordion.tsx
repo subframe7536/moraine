@@ -88,7 +88,29 @@ function AccordionItemPanel(props: {
   )
 }
 
-/** Stacked disclosure component with single or multiple expanded sections. */
+/**
+ * Stacked disclosure component with single or multiple expanded sections, driven by an `items`
+ * array. Use `Accordion` for several related disclosures that share one open-item policy, and
+ * `Collapsible` for a single independent disclosure. `value`, `defaultValue`, and `onValueChange`
+ * always use an array of item values, even when `multiple` is off.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Accordion } from 'moraine'
+ *
+ * const [open, setOpen] = createSignal<string[]>(['shipping'])
+ *
+ * <Accordion
+ *   items={[
+ *     { value: 'shipping', label: 'Shipping', content: 'Ships in two days.' },
+ *     { value: 'returns', label: 'Returns', content: 'Free returns within 30 days.' },
+ *   ]}
+ *   value={open()}
+ *   onValueChange={setOpen}
+ * />
+ * ```
+ */
 export function Accordion(props: AccordionProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
