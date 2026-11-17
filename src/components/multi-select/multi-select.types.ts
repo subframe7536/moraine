@@ -37,9 +37,9 @@ export namespace MultiSelectT {
   export interface Item<
     Val extends string | number = string | number,
   > extends BaseSelectT.Item<Val> {
-    /** Leading item icon. */
+    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */
     icon?: IconT.Name
-    /** Secondary item description. */
+    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */
     description?: JSX.Element
   }
   export type Group<TItem extends Item = Item> = SelectGroup<TItem>
@@ -95,65 +95,206 @@ export namespace MultiSelectT {
       BaseSelectResetProps,
       SearchProps<TItem>,
       ContentProps<TItem> {
-    /** Controlled values. */
+    /**
+     * Controlled array of selected item values, in selection order. `undefined` keeps the
+     * selection uncontrolled; `[]` keeps it controlled and empty. In controlled mode the
+     * selection changes only when you update this prop in `onValueChange`.
+     */
     value?: TItem['value'][]
-    /** Initial values when uncontrolled. */
+    /**
+     * Initial selected values when `value` is not set. Read once on creation; a native form reset
+     * restores it.
+     */
     defaultValue?: TItem['value'][]
-    /** Localized message overrides for this multi-select instance. */
+    /**
+     * Overrides the built-in messages for this instance, merged over the messages from the
+     * provider and locale: `clear`, `loading`, `toggle`, `empty`, `placeholder`, `overflow`,
+     * `create`, and `remove`. `overflow({ count })`, `create({ value })`, and `remove({ title })`
+     * are functions returning the text.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[{ label: 'Design', value: 'design' }]}
+     *   createItem={(input) => ({ label: input, value: input })}
+     *   translations={{
+     *     create: ({ value }) => `Add "${value}"`,
+     *     remove: ({ title }) => `Remove tag ${title}`,
+     *     overflow: ({ count }) => `${count} more selected`,
+     *   }}
+     * />
+     * ```
+     */
     translations?: Translations
-    /** Source items, optionally grouped. Item values must be unique within the collection. */
+    /**
+     * Options of the popup list: item objects (no string shorthand), optionally grouped with
+     * `{ type: 'group', label, items }` and divided with `{ type: 'separator' }`. Item values must
+     * be unique across the whole collection; a repeated value is ignored and logs an error in
+     * development. Items created through `createItem` are added on top of this list.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[
+     *     { label: 'Design', value: 'design' },
+     *     { type: 'separator' },
+     *     {
+     *       type: 'group',
+     *       label: 'Engineering',
+     *       items: [
+     *         { label: 'Frontend', value: 'frontend' },
+     *         { label: 'Backend', value: 'backend', disabled: true },
+     *       ],
+     *     },
+     *   ]}
+     * />
+     * ```
+     */
     items?: Entry<TItem>[]
-    /** Called when the selection changes. */
+    /**
+     * Called with the full new array of selected values when the user adds or removes an item
+     * (clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared
+     * afterwards. Not called for prop updates or while disabled or read-only.
+     */
     onValueChange?: (value: NoInfer<TItem['value'][]>) => void
     /**
-     * Show a clear button when a value is selected.
+     * Shows a clear button while there are selected values or search text. Clearing removes every
+     * selected value except those of disabled items, empties the search text, calls `onClear`,
+     * and returns focus to the control.
      * @default false
      */
     clearable?: boolean
-    /** Called when clear is triggered. */
+    /** Called once after a clear action (see `clearable`), following `onValueChange`. */
     onClear?: () => void
     /**
-     * Factory used for unmatched free-text creation.
-     * Providing it also enables the editable search input.
+     * Creates an item from free text. It is called with the trimmed text when the user commits
+     * text that matches no existing item by label or value (ignoring case and accents), by
+     * pressing `Enter`, completing a token separator, pasting, or calling `create` from
+     * `emptyRender`. The returned item (its `value` must be a string or number) is selected and
+     * added to the top of the option list until the form is reset. Nothing is created once
+     * `maxCount` is reached or when the value is already selected. Providing it also enables the
+     * editable search input, like `search`.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[{ label: 'Design', value: 'design' }]}
+     *   createItem={(input) => ({ label: input, value: input.toLowerCase() })}
+     * />
+     * ```
      */
     createItem?: (input: string) => TItem
-    /** Maximum number of selected values (multiple/tags). */
+    /**
+     * Maximum number of selected values. Once reached, unselected options are disabled and typed
+     * text is not committed; selected ones can still be removed. It does not truncate a larger
+     * `value`.
+     */
     maxCount?: number
-    /** Maximum visible tags before collapsing the remainder into a +N summary. */
+    /**
+     * Maximum number of tags rendered in the control. The remaining selected values collapse into
+     * a `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides
+     * every tag; unlimited when omitted.
+     */
     maxTagCount?: number
     /**
-     * Strings that commit completed input tokens through `createItem` or an exact source match.
-     * Duplicate separators are ignored and overlapping separators prefer the longest match.
+     * Strings that commit completed input tokens through `createItem` or an exact source match,
+     * while typing or pasting into the editable input. Duplicate separators are ignored and
+     * overlapping separators prefer the longest match.
      * @default [',']
      */
     tokenSeparators?: string[]
-    /** Renderer for each selected tag. */
+    /**
+     * Replaces the default tag (label plus remove button) of each visible tag. Receives
+     * `{ item, value, label, remove }`; `item` is `undefined` for a selected value that matches
+     * no item. Provide your own control that calls `remove()`, which does nothing for disabled
+     * items.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[{ label: 'Design', value: 'design' }]}
+     *   defaultValue={['design']}
+     *   tagRender={(tag) => (
+     *     <button type="button" onClick={() => tag.remove()}>
+     *       {tag.label} ×
+     *     </button>
+     *   )}
+     * />
+     * ```
+     */
     tagRender?: Component<TagRenderProps<TItem>>
-    /** Content or render function for tags hidden by `maxTagCount`. */
+    /**
+     * Content shown in place of the default `+N` summary when `maxTagCount` hides tags. A
+     * function receives `{ count, tags }`, where `tags` are the hidden entries in selection order.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[
+     *     { label: 'Design', value: 'design' },
+     *     { label: 'Code', value: 'code' },
+     *   ]}
+     *   defaultValue={['design', 'code']}
+     *   maxTagCount={1}
+     *   tagOverflowRender={(overflow) => <span>and {overflow.count} more</span>}
+     * />
+     * ```
+     */
     tagOverflowRender?: JSX.Element | Component<TagOverflowRenderProps<TItem>>
-    /** Content or render function for the empty state. */
+    /**
+     * Content shown in the popup when no item matches the search text or `items` is empty. A
+     * function receives `{ searchValue, hasMatches, selectedValues, isAtMaxCount, create, close }`,
+     * where `create(value?)` runs `createItem` for `value` (default: the current search text) and
+     * returns whether an item was added. Defaults to the `create` translation (`Press Enter to
+     * create “text”`) when `createItem` is set and text was typed, otherwise to the `empty`
+     * translation.
+     * @example
+     * ```tsx
+     * import { MultiSelect } from 'moraine'
+     *
+     * <MultiSelect
+     *   items={[{ label: 'Design', value: 'design' }]}
+     *   createItem={(input) => ({ label: input, value: input })}
+     *   emptyRender={(state) => (
+     *     <button type="button" onClick={() => state.create()}>
+     *       Add "{state.searchValue}"
+     *     </button>
+     *   )}
+     * />
+     * ```
+     */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
-     * Placeholder text shown when no value is selected.
+     * Text shown in the control while no value is selected: a label in the non-editable control,
+     * or the input placeholder when editable. Hidden as soon as there is a tag.
      * @default ''
      */
     placeholder?: string
-    /** Whether the select is in a loading state. */
+    /**
+     * Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it
+     * `aria-busy`. Typing and the clear button keep working in the editable input.
+     */
     loading?: boolean
     /**
-     * Icon shown during loading state.
+     * Icon shown instead of `trailing` while `loading`.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
-    /** Icon shown before the input/value area. */
+    /** Icon rendered before the tags and input. */
     leading?: IconT.Name
     /**
-     * Icon used when the action button opens the dropdown.
+     * Icon of the toggle button that opens and closes the popup; replaced by `loadingIcon` while
+     * `loading`.
      * @default 'icon-chevron-down'
      */
     trailing?: IconT.Name
     /**
-     * Icon used when the action button clears the selection.
+     * Icon of the clear button.
      * @default 'icon-close'
      */
     clearIcon?: IconT.Name
@@ -163,13 +304,16 @@ export namespace MultiSelectT {
      */
     removeIcon?: IconT.Name
     /**
-     * Whether ordinary control/input pointer clicks open the popup.
-     * Defaults to `false` when editable (`search` or `createItem` enabled),
-     * or `true` when non-editable.
+     * Whether a pointer click on the control (outside its buttons) opens the popup. Defaults
+     * to `false` when editable (`search` or `createItem` set) and `true` otherwise. Typing
+     * non-blank text, `ArrowDown`, and the toggle button open it regardless.
      */
     openOnControlClick?: boolean
     /**
-     * Whether the collection can be filtered through the editable input.
+     * Adds an editable input to the control so typing filters the options, using `filterMethod`.
+     * It is also enabled implicitly by `createItem`. When neither is set the control is a
+     * non-editable trigger: there is no input, and `filterMethod` and `autocomplete` have no
+     * effect.
      * @default false
      */
     search?: boolean

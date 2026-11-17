@@ -40,7 +40,37 @@ import {
   multiSelectRecipe,
 } from './multi-select.recipe'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
-/** Collection-backed multiple selection with tags and optional search or creation. */
+/**
+ * Collection-backed multiple selection that shows the selected items as tags, with optional
+ * search and creation of free-form tags. Use it for several selected values and creatable tags,
+ * `Select` for one non-editable choice, `Combobox` for editable single selection, and
+ * `BaseSelect` to compose the listbox yourself. `value` is the array of selected item values,
+ * controlled with `value` / `onValueChange` or uncontrolled with `defaultValue`. Wrap it in
+ * `Field` for a label and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, MultiSelect } from 'moraine'
+ *
+ * const [skills, setSkills] = createSignal<string[]>(['design'])
+ *
+ * <Field label="Skills">
+ *   <MultiSelect
+ *     items={[
+ *       { label: 'Design', value: 'design' },
+ *       { label: 'Code', value: 'code' },
+ *       { label: 'Write', value: 'write' },
+ *     ]}
+ *     value={skills()}
+ *     onValueChange={setSkills}
+ *     placeholder="Choose skills"
+ *     search
+ *     clearable
+ *   />
+ * </Field>
+ * ```
+ */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   props: MultiSelectProps<T>,
 ): JSX.Element {
