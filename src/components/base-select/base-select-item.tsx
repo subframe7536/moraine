@@ -9,6 +9,28 @@ import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
 
+/**
+ * Selectable option (`role="option"`) of `BaseSelect`. Pass the collection entry through `item`;
+ * clicking it selects the item. Without children it renders `item.label`; children can instead
+ * be a node or a render function receiving `{ item, selected, highlighted, disabled }`. Place it
+ * inside `BaseSelect.Listbox` (or a `BaseSelect.Group`). It always renders a `div`.
+ *
+ * @example
+ * ```tsx
+ * import { BaseSelect } from 'moraine'
+ *
+ * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
+ *   <BaseSelect.Trigger>Choose an option</BaseSelect.Trigger>
+ *   <BaseSelect.Content>
+ *     <BaseSelect.Listbox>
+ *       <BaseSelect.Item item={{ label: 'Option A', value: 'a' }}>
+ *         {(state) => (state.selected ? 'Option A (selected)' : 'Option A')}
+ *       </BaseSelect.Item>
+ *     </BaseSelect.Listbox>
+ *   </BaseSelect.Content>
+ * </BaseSelect>
+ * ```
+ */
 export function BaseSelectItem<T extends BaseSelectT.Item>(
   props: BaseSelectT.ItemProps<T>,
 ): JSX.Element {

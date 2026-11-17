@@ -10,6 +10,25 @@ import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
 
+/**
+ * Scrollable `role="listbox"` container for the options of `BaseSelect`. Place it inside
+ * `BaseSelect.Content`; it holds `BaseSelect.Item`, `BaseSelect.Group`, and
+ * `BaseSelect.Separator` parts and scrolls the highlighted item into view. Renders a `div`.
+ *
+ * @example
+ * ```tsx
+ * import { BaseSelect } from 'moraine'
+ *
+ * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
+ *   <BaseSelect.Trigger>Choose an option</BaseSelect.Trigger>
+ *   <BaseSelect.Content>
+ *     <BaseSelect.Listbox>
+ *       <BaseSelect.Item item={{ label: 'Option A', value: 'a' }} />
+ *     </BaseSelect.Listbox>
+ *   </BaseSelect.Content>
+ * </BaseSelect>
+ * ```
+ */
 export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['class', 'style', 'ref'])

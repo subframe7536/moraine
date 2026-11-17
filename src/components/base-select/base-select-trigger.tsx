@@ -14,6 +14,31 @@ import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
 
+/**
+ * Primary focus owner and activator of the surrounding `BaseSelect`: it opens and closes the
+ * popup and handles keyboard navigation, with `role="combobox"` and the related ARIA attributes.
+ * Place it inside `BaseSelect`, usually within `BaseSelect.Control`. Renders a `button`; pass `as`
+ * to render another component such as `Button`. Children can be a node or a render function
+ * receiving `{ open, value, disabled, readOnly }`.
+ *
+ * @example
+ * ```tsx
+ * import { BaseSelect } from 'moraine'
+ *
+ * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
+ *   <BaseSelect.Control>
+ *     <BaseSelect.Trigger>
+ *       {(state) => (state.value.length > 0 ? 'Selected' : 'Choose')}
+ *     </BaseSelect.Trigger>
+ *   </BaseSelect.Control>
+ *   <BaseSelect.Content>
+ *     <BaseSelect.Listbox>
+ *       <BaseSelect.Item item={{ label: 'Option A', value: 'a' }} />
+ *     </BaseSelect.Listbox>
+ *   </BaseSelect.Content>
+ * </BaseSelect>
+ * ```
+ */
 export function BaseSelectTrigger<
   T extends ValidComponent = 'button',
   TItem extends BaseSelectT.Item = BaseSelectT.Item,

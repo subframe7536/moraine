@@ -19,6 +19,26 @@ import {
 } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
 
+/**
+ * Floating popup panel of `BaseSelect`. It mounts in a portal only while the select is open, is
+ * positioned against `BaseSelect.Control` (or the focus owner when there is none), and dismisses
+ * on Escape or an outside press. Place it as a sibling of the control, inside `BaseSelect`, and
+ * put `BaseSelect.Listbox` and optionally `BaseSelect.Empty` in it. Renders a `div`.
+ *
+ * @example
+ * ```tsx
+ * import { BaseSelect } from 'moraine'
+ *
+ * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
+ *   <BaseSelect.Trigger>Choose an option</BaseSelect.Trigger>
+ *   <BaseSelect.Content>
+ *     <BaseSelect.Listbox>
+ *       <BaseSelect.Item item={{ label: 'Option A', value: 'a' }} />
+ *     </BaseSelect.Listbox>
+ *   </BaseSelect.Content>
+ * </BaseSelect>
+ * ```
+ */
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['ref', 'class', 'style'])

@@ -18,16 +18,24 @@ export type BaseSelectValue = string | number
  * @internal
  */
 export interface BaseSelectDisclosureProps {
-  /** Controlled popup state. */
+  /**
+   * Controlled popup state. `undefined` keeps it uncontrolled. In controlled mode the popup
+   * opens or closes only when you update this prop in `onOpenChange`. Page scrolling is locked
+   * while the popup is open.
+   */
   open?: boolean
 
   /**
-   * Initial popup state.
+   * Initial popup state when `open` is not set.
    * @default false
    */
   defaultOpen?: boolean
 
-  /** Called when popup state changes. */
+  /**
+   * Called with the next state whenever the popup should open or close (typing, arrow keys,
+   * selecting an item, `Escape`, `Tab`, or an outside press). Not called when the state would not
+   * change. A disabled select never opens.
+   */
   onOpenChange?: (open: boolean) => void
 }
 
@@ -37,12 +45,13 @@ export interface BaseSelectDisclosureProps {
  */
 export interface BaseSelectPopupProps {
   /**
-   * Preferred popup placement relative to the anchor.
+   * Preferred side of the anchor (the control) on which the popup opens. Combined with `align`;
+   * see `flip` for when the side can change.
    * @default 'bottom'
    */
   placement?: OverlayPlacement
   /**
-   * Alignment along the cross axis.
+   * Alignment of the popup along the anchor's edge: `'start'`, `'center'`, or `'end'`.
    * @default 'start'
    */
   align?: OverlayAlign
@@ -57,7 +66,10 @@ export interface BaseSelectPopupProps {
    */
   shift?: number
   /**
-   * Whether to flip placement when the preferred side lacks space.
+   * Whether to flip placement when the preferred side lacks space. `false` disables flipping. A
+   * string is a space-delimited list of fallback placements tried in order, each `top`,
+   * `bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example
+   * `'top bottom-end'`); an invalid entry throws.
    * @default true
    */
   flip?: boolean | string
@@ -72,16 +84,22 @@ export interface BaseSelectPopupProps {
    */
   overflowPadding?: number
   /**
-   * Whether Escape dismisses the popup.
+   * Whether `Escape` closes the popup. When `false` the popup stays open and `onClosePrevented`
+   * is called instead.
    * @default true
    */
   closeOnEscape?: boolean
   /**
-   * Whether outside interaction, pointer or focus, dismisses the popup.
+   * Whether an outside interaction, pointer press or focus moving elsewhere, closes the popup.
+   * When `false` the popup stays open and `onClosePrevented` is called instead. Tabbing out of
+   * the control still closes it.
    * @default true
    */
   closeOnOutsideClick?: boolean
-  /** Called when a dismissal attempt is blocked. */
+  /**
+   * Called, without arguments, when `Escape` or an outside interaction was blocked by
+   * `closeOnEscape={false}` or `closeOnOutsideClick={false}`. The popup remains open.
+   */
   onClosePrevented?: () => void
 }
 /**
@@ -92,11 +110,42 @@ export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
   /**
    * Plain-text label of an item, used for typeahead, filtering, form values, and plain-text
    * displays such as an input value or tag title; does not change rendered labels.
-   * Defaults to the string `label`, otherwise `String(value)`.
+   * Defaults to the string `label`, otherwise `String(value)`. In `Select` and `Combobox`,
+   * string items arrive as `{ value, label }`.
+   * @example
+   * ```tsx
+   * import { Combobox } from 'moraine'
+   *
+   * <Combobox
+   *   items={[
+   *     { label: <strong>Apple</strong>, value: 'apple' },
+   *     { label: <strong>Pear</strong>, value: 'pear' },
+   *   ]}
+   *   getItemLabel={(item) => String(item.value)}
+   * />
+   * ```
    */
   getItemLabel?: (item: TItem) => string
 
-  /** Additional disabled policy evaluated against the current selection. */
+  /**
+   * Extra disabled rule, evaluated for every item together with the current selected values;
+   * return `true` to disable the item in addition to `item.disabled`. Disabled items cannot be
+   * selected, highlighted, or reached by typeahead. In `MultiSelect`, a selected disabled item
+   * keeps its tag (it cannot be removed) and survives clearing. In `Select` and `Combobox`,
+   * string items arrive as `{ value, label }`.
+   * @example
+   * ```tsx
+   * import { MultiSelect } from 'moraine'
+   *
+   * <MultiSelect
+   *   items={[
+   *     { label: 'Admin', value: 'admin' },
+   *     { label: 'Guest', value: 'guest' },
+   *   ]}
+   *   isItemDisabled={(item, values) => item.value === 'guest' && values.includes('admin')}
+   * />
+   * ```
+   */
   isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
 }
 
@@ -105,7 +154,11 @@ export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
  * @internal
  */
 export interface BaseSelectCloseOnSelectOption {
-  /** Close after selection. Defaults to true for single, false for multiple. */
+  /**
+   * Whether choosing an item closes the popup and returns focus to the control. Defaults to
+   * `true` for single selection and `false` when `multiple` is set on `BaseSelect`; `MultiSelect`
+   * always keeps the popup open.
+   */
   closeOnSelect?: boolean
 }
 
@@ -114,7 +167,12 @@ export interface BaseSelectCloseOnSelectOption {
  * @internal
  */
 export interface BaseSelectResetProps {
-  /** Post-reset notification after an unprevented native form reset. */
+  /**
+   * Called after a native `<form>` reset has restored the initial selection (and, in `Combobox`
+   * and `MultiSelect`, cleared the search text). It runs in a microtask after the `reset` event
+   * and is skipped when the event was default-prevented. In controlled mode the selection stays
+   * at `value`, so use this callback to reset your own state.
+   */
   onReset?: () => void
 }
 
@@ -123,19 +181,29 @@ export interface BaseSelectResetProps {
  * @internal
  */
 export interface BaseSelectSelection<TValue extends BaseSelectValue> {
-  /** Whether selecting an item toggles multiple values. */
+  /**
+   * Whether selecting an item toggles it among several values instead of replacing the single
+   * value. Without it, `value` and `defaultValue` are truncated to their first entry.
+   */
   multiple?: boolean
 
-  /** Controlled selection. Single mode uses at most the first value. */
+  /**
+   * Controlled selection, always an array. `undefined` keeps it uncontrolled; `[]` keeps it
+   * controlled and empty. Single mode uses at most the first value.
+   */
   value?: readonly TValue[]
 
   /**
-   * Initial selection.
+   * Initial selection when `value` is not set. Read once on creation; a native form reset
+   * restores it.
    * @default []
    */
   defaultValue?: readonly TValue[]
 
-  /** Called when selection changes. */
+  /**
+   * Called with the new array of selected values when the user changes the selection. Not
+   * called for prop updates, when the selection is unchanged, or while disabled or read-only.
+   */
   onValueChange?: (value: TValue[]) => void
 }
 
@@ -162,11 +230,14 @@ export namespace BaseSelectT {
   export type PartProps = BaseSelectPartProps
 
   export interface Item<TValue extends string | number = string | number> {
-    /** Unique selection and form value. */
+    /** Unique selection and form value. Values compare by identity, so `1` and `'1'` differ. */
     value: TValue
-    /** Visual label. */
+    /**
+     * Visual label. May be any JSX; when it is not a string, plain-text uses (typeahead,
+     * filtering) fall back to `String(value)` unless `getItemLabel` is set.
+     */
     label: JSX.Element
-    /** Whether this item cannot be selected. */
+    /** Whether this item cannot be selected. A disabled item is also left out of form submission. */
     disabled?: boolean
   }
 
@@ -228,14 +299,20 @@ export namespace BaseSelectT {
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       BaseSelectSelection<TItem['value']> {
-    /** Current flat navigation collection. */
+    /**
+     * Flat list of items available for keyboard navigation, typeahead, and selection. It must
+     * list the same items you render as `BaseSelect.Item`: an item whose value is not here cannot
+     * be selected. Values must be unique (duplicates log an error in development). Groups and
+     * separators are rendering concerns and do not belong here.
+     */
     items?: readonly TItem[]
     /**
      * Resolves an item from the canonical collection by value.
      *
      * Use this when `items` represents only the current navigation view,
      * such as a filtered collection. When omitted, items are resolved from
-     * the current `items` collection.
+     * the current `items` collection. The resolved item decides whether a selected value counts
+     * as disabled and is omitted from the form value.
      */
     getItemByValue?: (value: TItem['value']) => TItem | undefined
     /**
@@ -243,9 +320,16 @@ export namespace BaseSelectT {
      * @default true
      */
     loop?: boolean
-    /** Native form value; return undefined to omit a selected value from submission. */
+    /**
+     * Maps a selected value to the string submitted under `name`; return `undefined` to omit the
+     * value from the submission. Defaults to `String(value)`, omitting items with
+     * `disabled: true`. With `multiple`, each selected value is submitted as its own entry.
+     */
     serializeValue?: (value: TItem['value']) => string | undefined
-    /** Called once after an open popup completes its exit. */
+    /**
+     * Called once each time the popup finishes its exit after closing. It is not called while
+     * the popup is open.
+     */
     onExitComplete?: () => void
     /** Composed trigger and popup parts. */
     children?: JSX.Element
