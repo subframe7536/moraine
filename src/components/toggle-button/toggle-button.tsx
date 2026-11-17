@@ -12,7 +12,32 @@ import { useButtonGroupContext } from '../button-group/button-group-context'
 import { toggleButtonDataAttributes, toggleButtonRecipe } from './toggle-button.recipe'
 import type { ToggleButtonProps, ToggleButtonT } from './toggle-button.types'
 
-/** Toggle button with independently configurable off and on variants. */
+/**
+ * Toggle button with independently configurable off and on variants (`variant` and
+ * `activeVariant`). Use it for persistent on/off actions such as bold formatting or bookmarking,
+ * and `Button` for a one-shot command. It renders a `button` by default (pass `as` for another
+ * element) and reports its state through `aria-pressed`. Uncontrolled with `defaultPressed`, or
+ * controlled with `pressed` and `onPressedChange`. `ButtonGroup` only lays toggles out; it does
+ * not coordinate their selection.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { ToggleButton } from 'moraine'
+ *
+ * const [pinned, setPinned] = createSignal(false)
+ *
+ * <ToggleButton
+ *   pressed={pinned()}
+ *   onPressedChange={setPinned}
+ *   variant="outline"
+ *   activeVariant="solid"
+ *   leading="i-lucide:pin"
+ * >
+ *   Pin conversation
+ * </ToggleButton>
+ * ```
+ */
 export function ToggleButton<T extends ValidComponent = 'button'>(
   props: ToggleButtonProps<T>,
 ): JSX.Element {

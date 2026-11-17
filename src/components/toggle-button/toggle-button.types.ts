@@ -24,11 +24,14 @@ export namespace ToggleButtonT {
     ButtonT.Base<T>,
     'slotName' | 'children'
   > & {
-    /** Controlled toggle state. */
+    /** Controlled pressed state. Leave it `undefined` for uncontrolled usage; when set, clicks only call `onPressedChange` and the button follows what you pass back. */
     pressed?: boolean
     /** Initial uncontrolled toggle state. @default false */
     defaultPressed?: boolean
-    /** Called after an uncancelled activation requests a toggle. */
+    /**
+     * Called with the new pressed state when the user activates the button, unless an `onClick`
+     * handler calls `event.preventDefault()`. It does not fire for programmatic changes to `pressed`.
+     */
     onPressedChange?: (pressed: boolean) => void
     /**
      * Content or render function receiving reactive toggle and loading states.
