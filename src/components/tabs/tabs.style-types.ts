@@ -26,7 +26,10 @@ export interface TabsStyleSlot<T = unknown> {
 }
 
 export interface TabsStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * Direction in which tabs are laid out. It also decides which arrow keys move between tabs.
+   * @default 'horizontal'
+   */
   orientation?: Orientation
 
   /** Visual treatment of the component.

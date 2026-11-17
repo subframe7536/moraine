@@ -17,6 +17,7 @@ export namespace TabsT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface ContentRenderProps {
+    /** `value` of the active tab. */
     value: string
   }
 
@@ -25,27 +26,41 @@ export namespace TabsT {
    */
   export interface Item {
     /**
-     * Label to display on the tab trigger.
+     * Label to display on the tab trigger. It is also the tab's accessible name, so give icon-only
+     * tabs a text label or an accessible alternative.
      */
     label?: JSX.Element
 
     /**
-     * Icon to display next to the label.
+     * Icon to display before the label.
      */
     icon?: IconT.Name
 
     /**
-     * Unique value for the tab.
+     * Unique value identifying the tab in `value` and `onValueChange`. A tab that repeats an earlier
+     * tab's value is disabled.
      */
     value: string
 
     /**
-     * Content to display when the tab is active. Accepts static JSX or a component receiving { value }.
+     * Content of the tab panel. Only the active tab's panel is mounted; switching tabs unmounts the
+     * previous one. Accepts static JSX or a component receiving `{ value }`, which defers building the panel until it is shown.
+     * @example
+     * ```tsx
+     * import { Tabs } from 'moraine'
+     *
+     * <Tabs
+     *   items={[
+     *     { value: 'overview', label: 'Overview', content: () => <p>Summary</p> },
+     *     { value: 'logs', label: 'Logs', content: (props) => <p>Panel for {props.value}</p> },
+     *   ]}
+     * />
+     * ```
      */
     content?: JSX.Element | Component<ContentRenderProps>
 
     /**
-     * Whether the tab is disabled.
+     * Whether the tab is disabled: it cannot be selected and is skipped by arrow-key navigation.
      * @default false
      */
     disabled?: boolean
@@ -56,45 +71,61 @@ export namespace TabsT {
    */
   export interface Base {
     /**
-     * Unique identifier for the tabs root element.
+     * DOM `id` of the tabs root element; the trigger and panel ids derive from it. Generated when omitted.
      */
     id?: string
 
     /**
-     * Controlled active tab value.
+     * Controlled active tab value. When `undefined`, or when it matches no enabled tab, the first enabled tab is active.
      */
     value?: string
 
     /**
-     * Default active tab value for uncontrolled usage.
+     * Initially active tab value for uncontrolled usage. The first enabled tab is active when omitted.
      */
     defaultValue?: string
 
     /**
-     * Whether keyboard navigation activates the tab immediately or waits for confirmation.
+     * Whether arrow-key focus movement activates the tab immediately (`automatic`) or only moves
+     * focus until `Enter` or `Space` confirms it (`manual`).
      * @default 'automatic'
      */
     activationMode?: 'automatic' | 'manual'
 
     /**
-     * Whether the tab list is disabled.
+     * Whether the whole tab list is disabled: no tab can be selected by click or keyboard.
      * @default false
      */
     disabled?: boolean
 
     /**
-     * Whether arrow-key navigation wraps from the ends.
+     * Whether arrow-key navigation wraps from the last tab to the first and back. Disabled tabs are skipped.
      * @default true
      */
     loop?: boolean
 
     /**
-     * Callback when the active tab changes.
+     * Called with the tab's `value` when the user selects a different tab by click or keyboard.
+     * It does not fire for programmatic `value` changes, for the already-active tab, or while the
+     * tabs are `disabled`.
      */
     onValueChange?: (value: string) => void
 
     /**
-     * Array of tabs to display.
+     * Array of tabs to display, in order.
+     * @example
+     * ```tsx
+     * import { Tabs } from 'moraine'
+     *
+     * <Tabs
+     *   defaultValue="code"
+     *   items={[
+     *     { value: 'code', label: 'Code', icon: 'icon-code' },
+     *     { value: 'preview', label: 'Preview' },
+     *     { value: 'history', label: 'History', disabled: true },
+     *   ]}
+     * />
+     * ```
      */
     items?: Item[]
   }

@@ -30,7 +30,30 @@ interface NormalizedTabItem extends TabsT.Item {
 }
 
 /**
- * Tabbed navigation component with configurable orientation and variant styles.
+ * Tabbed navigation component with configurable orientation and variant styles, built from an
+ * `items` array. Use it to switch between peer panels within the same page context; use links
+ * when each destination needs its own URL, `Stepper` for a fixed sequence, and `NavigationMenu`
+ * for website destinations with expandable panels. Controlled with `value` and `onValueChange`,
+ * or uncontrolled with `defaultValue`. Each item needs a unique `value`; pass a component as
+ * `content` so a panel is only built while its tab is selected.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Tabs } from 'moraine'
+ *
+ * const [tab, setTab] = createSignal('account')
+ *
+ * <Tabs
+ *   value={tab()}
+ *   onValueChange={setTab}
+ *   items={[
+ *     { value: 'account', label: 'Account', content: () => <p>Profile settings</p> },
+ *     { value: 'security', label: 'Security', content: () => <p>Password and 2FA</p> },
+ *     { value: 'billing', label: 'Billing', disabled: true },
+ *   ]}
+ * />
+ * ```
  */
 export function Tabs(props: TabsProps): JSX.Element {
   const [local, rest] = splitProps(props, [
