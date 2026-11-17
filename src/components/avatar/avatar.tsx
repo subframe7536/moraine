@@ -34,6 +34,26 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
   return resolvedInitials || '\u00A0'
 }
 
+/**
+ * Compact identity cue for a person or resource: an image with a fallback while it loads or when
+ * it fails. Supply a meaningful `alt` for identity images; the fallback shows `text` (or initials
+ * derived from `alt`), or an `icon` instead. Use `AvatarGroup` to stack several people. It renders
+ * a `span` and uses the native image load and error events, so the `<img>` is present when
+ * rendered on the server.
+ *
+ * @example
+ * ```tsx
+ * import { Avatar } from 'moraine'
+ *
+ * <Avatar
+ *   src="/alex.png"
+ *   alt="Alex Rivera"
+ *   text="AR"
+ *   badge="i-lucide:check"
+ *   badgePosition="bottom-right"
+ * />
+ * ```
+ */
 export function Avatar(props: AvatarProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'src',
