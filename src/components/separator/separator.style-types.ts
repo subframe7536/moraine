@@ -6,7 +6,10 @@ export interface SeparatorStyleSlot<T = unknown> {
 }
 
 export interface SeparatorStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * `horizontal` draws a full-width line; `vertical` draws a full-height line for use between items in a row, and sets `aria-orientation`.
+   * @default 'horizontal'
+   */
   orientation?: Orientation
 }
 

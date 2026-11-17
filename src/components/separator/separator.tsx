@@ -6,7 +6,22 @@ import { useRecipe } from '../../provider'
 import { separatorDataAttributes, separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'
 
-/** Semantic divider with configurable horizontal or vertical orientation. */
+/**
+ * Visible line that divides related regions, rendered as a `div` with `role="separator"`. It is
+ * horizontal by default; set `orientation="vertical"` between items in a row. Inside a
+ * `ButtonGroup`, use `ButtonGroup.Separator` so orientation follows the group.
+ *
+ * @example
+ * ```tsx
+ * import { Separator } from 'moraine'
+ *
+ * <div class="flex h-6 items-center gap-3">
+ *   <span>Docs</span>
+ *   <Separator orientation="vertical" />
+ *   <span>Blog</span>
+ * </div>
+ * ```
+ */
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'class', 'style', 'classes', 'styles'])
   const {
