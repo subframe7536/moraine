@@ -11,7 +11,22 @@ import type { FieldBinding, FieldContextOptions, FieldPath } from './field-conte
 import { FieldProvider } from './field-context'
 import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
-/** Generic field layout and accessibility primitive. */
+
+/**
+ * Layout and accessibility wrapper that associates a control with its label, description, help,
+ * and error text. It registers the nested Moraine control, inherits `size` and disabled state
+ * into it, and wires the ARIA relationships; it does not validate or submit values. For schema
+ * binding use `form.Field` from `createForm`, and for local validation pass the message to `error`.
+ *
+ * @example
+ * ```tsx
+ * import { Field, Input } from 'moraine'
+ *
+ * <Field label="Email" description="We never share it." help="Use your work address.">
+ *   <Input name="email" type="email" />
+ * </Field>
+ * ```
+ */
 export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {

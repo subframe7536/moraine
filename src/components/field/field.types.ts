@@ -20,22 +20,35 @@ export namespace FieldT {
 
   /** Identity and state props shared by controls that bind to a Field. */
   export interface ControlBase {
-    /** The ID of the control element. */
+    /**
+     * The ID of the control's main focusable element, which a surrounding `Field` label points to
+     * with `for`. A unique ID is generated when omitted. The control's related parts (hidden
+     * input, label, description) derive their IDs from it, so keep it unique on the page.
+     */
     id?: string
-    /** The name of the control, used for form submission. */
+    /**
+     * The name of the control, used for native form submission. When omitted, the control uses
+     * the name of its form binding or a string `name` set on the surrounding `Field`.
+     */
     name?: string
     /**
-     * Whether the control is disabled.
+     * Whether the control is disabled: it cannot be interacted with and sets `aria-disabled`.
+     * When omitted, the control inherits `disabled` from the surrounding `Field`; an explicit
+     * `false` overrides the `Field`.
      * @default false
      */
     disabled?: boolean
     /**
-     * Whether the control is required.
+     * Whether the control is required, which sets `aria-required` (and the native `required`
+     * attribute where the control renders a native input). When omitted, the control inherits
+     * `required` from the surrounding `Field`.
      * @default false
      */
     required?: boolean
     /**
-     * Whether the control is read-only.
+     * Whether the control is read-only: the value is visible and focusable but cannot be changed,
+     * and `aria-readonly` is set. When omitted, the control inherits `readOnly` from the
+     * surrounding `Field`.
      * @default false
      */
     readOnly?: boolean
@@ -43,7 +56,10 @@ export namespace FieldT {
 
   /** Props passed to Field children when provided as a render function. */
   export interface RenderProps {
-    /** The current effective error for the field. */
+    /**
+     * The effective error: the `error` prop of the `Field` when set, otherwise the error of its
+     * form binding. `false` when the error is suppressed with `error={false}`.
+     */
     error?: JSX.Element
   }
 
@@ -54,30 +70,65 @@ export namespace FieldT {
      * @default 'div'
      */
     as?: T
-    /** Unique identifier for the field. */
+    /**
+     * Prefix for the IDs of the label, hint, description, help, and error elements, which are
+     * used for `aria-labelledby` and `aria-describedby`. It is not set on the root element.
+     * A unique ID is generated when omitted.
+     */
     id?: string
-    /** Optional standalone field name. */
+    /**
+     * Standalone field name, for fields not bound through `form.Field`. A string is inherited by
+     * nested controls as their native `name` when they set none; a path array such as
+     * `['user', 'email']` identifies the field but is not used as a native name.
+     */
     name?: Name
-    /** Label for the field. */
+    /**
+     * Label for the control. Rendered as a `<label>` pointing to the nested control and used as
+     * its `aria-labelledby`. Empty content (`''`, `null`, `false`) counts as no label.
+     */
     label?: JSX.Element
-    /** Visually hidden label used when no non-empty visible label is provided. */
+    /**
+     * Visually hidden label used as the accessible name when `label` has no content. Ignored when
+     * `label` is non-empty.
+     */
     hiddenLabel?: string
-    /** Description text shown below the label. */
+    /**
+     * Description rendered under the label, above the control. It is linked to the control with
+     * `aria-describedby`.
+     */
     description?: JSX.Element
-    /** Help text shown below the control when no error is present. */
+    /**
+     * Help text rendered under the control. It is hidden while an error is displayed and linked to
+     * the control with `aria-describedby`.
+     */
     help?: JSX.Element
-    /** Custom error message or force error state. */
+    /**
+     * Error message rendered under the control; it replaces `help` and marks the control with
+     * `aria-invalid`. When unset (`undefined` or `null`), the error of the form binding is used.
+     * `false` suppresses any error, including the bound one. Empty content such as `''` or
+     * `true` displays nothing.
+     */
     error?: JSX.Element
-    /** Hint text shown near the label. */
+    /**
+     * Hint rendered beside the label, such as "Optional". Only shown when the field has a label
+     * (visible or `hiddenLabel`).
+     */
     hint?: JSX.Element
     /**
-     * Whether the field is required.
+     * Whether nested controls inherit the required state (`aria-required`) and the label shows a
+     * required indicator. A control's own `required` prop takes precedence.
      * @default false
      */
     required?: boolean
-    /** Whether controls inherit a disabled state. */
+    /**
+     * Whether nested controls inherit a disabled state. A control's own `disabled` prop takes
+     * precedence.
+     */
     disabled?: boolean
-    /** Whether controls inherit a read-only state. */
+    /**
+     * Whether nested controls inherit a read-only state. A control's own `readOnly` prop takes
+     * precedence.
+     */
     readOnly?: boolean
     /**
      * Content, or a render function that receives the field state as props.
