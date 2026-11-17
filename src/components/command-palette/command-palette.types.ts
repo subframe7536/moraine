@@ -173,13 +173,13 @@ export namespace CommandPaletteT {
      */
     loading?: boolean
     /**
-     * Plain-text label of an item, used for matching; does not change visual labels.
+     * Plain-text label of an item, used for filtering; does not change rendered labels.
      * Defaults to the label, value, description, and keywords joined by spaces.
      */
-    getItemLabel?: (item: TItem, group: Group<TItem>) => string
+    getItemLabel?: (item: TItem) => string
     /**
-     * Filtering strategy or predicate receiving the raw item. `false` disables filtering.
-     * Items with `alwaysShow` stay visible.
+     * Filtering strategy, or a predicate receiving the search query and the item.
+     * `false` disables filtering. Items with `alwaysShow` stay visible.
      * @default 'contains'
      */
     filterMethod?:

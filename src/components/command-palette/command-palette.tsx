@@ -54,11 +54,10 @@ function buildItemLabel(item: CommandPaletteT.Item): string {
 
 function buildItemSearchText<TItem extends CommandPaletteT.Item>(
   item: TItem,
-  group: CommandPaletteT.Group<TItem>,
-  getItemLabel: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
+  getItemLabel: ((item: TItem) => string) | undefined,
 ): string {
   if (getItemLabel) {
-    return getItemLabel(item, group)
+    return getItemLabel(item)
   }
 
   return [item.label, item.value, item.description, item.keywords?.join(' ')]
@@ -68,7 +67,7 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
-  getItemLabel: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
+  getItemLabel: ((item: TItem) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
@@ -99,7 +98,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       return {
         key: createItemKey(item.value, group.id, index),
         label,
-        searchText: buildItemSearchText(item, group, getItemLabel),
+        searchText: buildItemSearchText(item, getItemLabel),
         disabled: Boolean(item.disabled),
         item,
         group,

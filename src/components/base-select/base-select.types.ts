@@ -90,8 +90,8 @@ export interface BaseSelectPopupProps {
  */
 export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
   /**
-   * Plain-text label of an item, used for filtering, typeahead, form-value matching, and plain-text
-   * display such as the Combobox input and MultiSelect tag title; does not change rendered labels.
+   * Plain-text label of an item, used for typeahead, filtering, form values, and plain-text
+   * displays such as an input value or tag title; does not change rendered labels.
    * Defaults to the string `label`, otherwise `String(value)`.
    */
   getItemLabel?: (item: TItem) => string

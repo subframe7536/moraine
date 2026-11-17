@@ -19,6 +19,7 @@ export interface SelectItem<
 export type SelectControlVariants = SelectControlStyleVariants
 /** Shared item-content slots for collection-backed Select-family controls. */
 export type SelectItemSlot<T = unknown> = SelectItemStyleSlot<T>
+/** Item passed to callbacks and render props; a string item arrives as `{ value, label }`. */
 export type NormalizedSelectItem<T extends string | BaseSelectT.Item> = T extends string
   ? { value: T; label: T }
   : T
@@ -64,7 +65,8 @@ export interface SearchProps<T extends BaseSelectT.Item> {
    */
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   /**
-   * Filtering strategy or predicate receiving the raw item. `false` disables filtering.
+   * Filtering strategy, or a predicate receiving the search query and the item. String items
+   * arrive as `{ value, label }`. `false` disables filtering.
    * @default 'contains'
    */
   filterMethod?:
