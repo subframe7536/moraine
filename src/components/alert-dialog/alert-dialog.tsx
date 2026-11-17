@@ -59,7 +59,36 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
   return { ...options, type }
 }
 
-/** Mount once under `MoraineProvider`. Its props are the defaults for every alert dialog. */
+/**
+ * Host for imperative confirm, info, warning, error, and success prompts. Mount it once under
+ * `MoraineProvider`: it renders no DOM of its own, and its props are the defaults for every dialog
+ * opened with `AlertDialog.confirm(...)`, `AlertDialog.show(...)`, and the other static methods.
+ * Use `Dialog` instead when the task has its own trigger, body, and footer. Calling a method
+ * before a host is mounted throws.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialog, Button } from 'moraine'
+ *
+ * <>
+ *   <AlertDialog maxWidth={420} />
+ *   <Button
+ *     onClick={async () => {
+ *       const handle = AlertDialog.confirm({
+ *         type: 'error',
+ *         title: 'Delete this project?',
+ *         description: 'This action cannot be undone.',
+ *       })
+ *       if ((await handle.result()) === 'action') {
+ *         console.log('deleted')
+ *       }
+ *     }}
+ *   >
+ *     Delete
+ *   </Button>
+ * </>
+ * ```
+ */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
   const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
