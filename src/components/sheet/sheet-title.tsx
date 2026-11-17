@@ -10,6 +10,25 @@ import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Accessible title of the surrounding `Sheet.Content`; its `id` is wired to the surface's
+ * `aria-labelledby` unless `Content` has its own `aria-label`. Place it inside `Sheet.Content`,
+ * usually within `Sheet.Header`. Renders an `h2` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content>
+ *     <Sheet.Header>
+ *       <Sheet.Title>Settings</Sheet.Title>
+ *     </Sheet.Header>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export function SheetTitle<T extends ValidComponent = 'h2'>(
   props: SheetT.TitleProps<T>,
 ): JSX.Element {

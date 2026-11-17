@@ -33,6 +33,24 @@ import { defaultSheetMessages } from './sheet.messages'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Portaled surface of the surrounding `Sheet`, rendered with `role="dialog"` together with its
+ * overlay. Pass `title` and `description` for the default header, or compose `Sheet.Header`,
+ * `Sheet.Body`, and `Sheet.Footer` yourself; children may also be a function receiving `close`.
+ * Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content title="Settings" description="Update your account.">
+ *     <Sheet.Body>Preferences</Sheet.Body>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export function SheetContent<T extends ValidComponent = 'div'>(
   props: SheetT.ContentProps<T>,
 ): JSX.Element {

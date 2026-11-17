@@ -9,6 +9,20 @@ import { useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Element that opens the surrounding `Sheet`. Renders a `button`; pass `as` to render another
+ * component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content title="Details" />
+ * </Sheet>
+ * ```
+ */
 export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {

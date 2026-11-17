@@ -10,6 +10,26 @@ import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Supporting text of the surrounding `Sheet.Content`; its `id` is wired to the surface's
+ * `aria-describedby`. Place it inside `Sheet.Content`, usually within `Sheet.Header` below
+ * `Sheet.Title`. Renders a `p` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content>
+ *     <Sheet.Header>
+ *       <Sheet.Title>Settings</Sheet.Title>
+ *       <Sheet.Description>Update your account.</Sheet.Description>
+ *     </Sheet.Header>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export function SheetDescription<T extends ValidComponent = 'p'>(
   props: SheetT.DescriptionProps<T>,
 ): JSX.Element {

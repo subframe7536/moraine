@@ -9,6 +9,22 @@ import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Main region of `Sheet.Content`, placed between the header and footer. Scrolls when its content
+ * overflows. Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content title="Settings">
+ *     <Sheet.Body>Preferences</Sheet.Body>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {

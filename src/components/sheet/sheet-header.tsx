@@ -30,6 +30,26 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
   }
 }
 
+/**
+ * Layout group for `Sheet.Title` and `Sheet.Description` inside `Sheet.Content`. Placing it
+ * explicitly replaces the header that `Content` generates from its `title` and `description` props.
+ * Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content>
+ *     <Sheet.Header>
+ *       <Sheet.Title>Settings</Sheet.Title>
+ *       <Sheet.Description>Update your account.</Sheet.Description>
+ *     </Sheet.Header>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export const SheetHeader: <T extends ValidComponent = 'div'>(
   props: SheetT.HeaderProps<T>,
 ) => JSX.Element = /* @__PURE__ */ createSheetHeader('explicit')

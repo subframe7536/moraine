@@ -9,6 +9,25 @@ import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
+/**
+ * Action area at the end of `Sheet.Content`, below `Sheet.Body`, typically holding buttons such as
+ * `Sheet.Close`. Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sheet } from 'moraine'
+ *
+ * <Sheet>
+ *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+ *   <Sheet.Content title="Settings">
+ *     <Sheet.Body>Preferences</Sheet.Body>
+ *     <Sheet.Footer>
+ *       <Sheet.Close as={Button}>Done</Sheet.Close>
+ *     </Sheet.Footer>
+ *   </Sheet.Content>
+ * </Sheet>
+ * ```
+ */
 export function SheetFooter<T extends ValidComponent = 'div'>(
   props: SheetT.FooterProps<T>,
 ): JSX.Element {

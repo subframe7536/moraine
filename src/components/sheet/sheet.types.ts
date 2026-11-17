@@ -26,19 +26,37 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends ModalT.Base {
-    /** Localized message overrides for this sheet instance. */
+    /**
+     * Overrides for the built-in strings of this sheet, merged over the `MoraineProvider` locale.
+     * Only `close` is used here: the accessible label of the corner close button.
+     * @example
+     * ```tsx
+     * import { Button, Sheet } from 'moraine'
+     *
+     * <Sheet translations={{ close: 'Fermer' }}>
+     *   <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+     *   <Sheet.Content title="Réglages">Préférences</Sheet.Content>
+     * </Sheet>
+     * ```
+     */
     translations?: Translations
-    /** Whether to render the overlay element.
+
+    /**
+     * Whether to render the styled backdrop behind the content. When `false` the content is shown
+     * without a backdrop; outside presses still follow `closeOnOverlayClick`.
      * @default true
      */
     overlay?: boolean
 
-    /** Whether to show a close button.
+    /**
+     * Whether to show the corner close button inside the content. Its accessible label comes from
+     * the `close` translation.
      * @default true
      */
     closable?: boolean
 
-    /** Icon name or custom content for the close button.
+    /**
+     * Name of the icon shown in the corner close button.
      * @default 'icon-close'
      */
     closeIcon?: IconT.Name
@@ -52,10 +70,17 @@ export namespace SheetT {
 
   export interface ContentBase<T extends ValidComponent = 'div'> {
     as?: T
-    /** Primary title displayed in the sheet header. */
+    /**
+     * Title rendered in a generated header, and used as the accessible name of the sheet
+     * (`aria-labelledby`, unless `aria-label` is set). Ignored when the children include an
+     * explicit `Sheet.Header`.
+     */
     title?: JSX.Element
 
-    /** Secondary description displayed below the title. */
+    /**
+     * Description rendered below the title in the generated header, and referenced by
+     * `aria-describedby`. Ignored when the children include an explicit `Sheet.Header`.
+     */
     description?: JSX.Element
 
     /**
