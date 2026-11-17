@@ -14,7 +14,7 @@ import {
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
+import { collatorMatches, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
@@ -55,10 +55,10 @@ function buildItemLabel(item: CommandPaletteT.Item): string {
 function buildItemSearchText<TItem extends CommandPaletteT.Item>(
   item: TItem,
   group: CommandPaletteT.Group<TItem>,
-  getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
+  getItemLabel: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
 ): string {
-  if (getItemSearchText) {
-    return getItemSearchText(item, group)
+  if (getItemLabel) {
+    return getItemLabel(item, group)
   }
 
   return [item.label, item.value, item.description, item.keywords?.join(' ')]
@@ -68,7 +68,7 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
-  getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
+  getItemLabel: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
@@ -99,7 +99,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       return {
         key: createItemKey(item.value, group.id, index),
         label,
-        searchText: buildItemSearchText(item, group, getItemSearchText),
+        searchText: buildItemSearchText(item, group, getItemLabel),
         disabled: Boolean(item.disabled),
         item,
         group,
@@ -134,8 +134,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'onClose',
     'closeOnSelect',
     'loading',
-    'getItemSearchText',
-    'filterGroups',
+    'getItemLabel',
+    'filterMethod',
     'descriptionPosition',
     'emptyRender',
     'footerRender',
@@ -267,33 +267,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
 
   const normalizedGroups = createMemo(() =>
-    createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
+    createNormalizedGroups<TItem>(groups(), merged.getItemLabel, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
     const term = currentSearchValue().trim()
-    if (merged.filterGroups) {
-      const filtered = merged.filterGroups({
-        groups: groups(),
-        searchValue: currentSearchValue(),
-      })
-      return createNormalizedGroups<TItem>(
-        filtered,
-        merged.getItemSearchText,
-        warnDuplicateValue,
-      ).filter((group) => group.items.length > 0)
-    }
-
-    if (term === '') {
+    const method = merged.filterMethod
+    if (method === false || term === '') {
       return normalizedGroups()
     }
 
     const collator = createSearchCollator(locale())
+    const matches = (item: NormalizedItem<TItem>): boolean =>
+      typeof method === 'function'
+        ? method(term, item.item)
+        : collatorMatches(collator, method ?? 'contains', item.searchText, term)
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {
-          items: group.items.filter(
-            (item) => item.alwaysShow || collatorIncludes(collator, item.searchText, term),
-          ),
+          items: group.items.filter((item) => item.alwaysShow || matches(item)),
         }),
       )
       .filter((group) => group.items.length > 0)

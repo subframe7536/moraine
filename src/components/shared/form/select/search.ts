@@ -1,12 +1,7 @@
 import { createMemo } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import {
-  collatorEndsWith,
-  collatorIncludes,
-  collatorStartsWith,
-  createSearchCollator,
-} from '../../../../provider/locale/collator'
+import { collatorMatches, createSearchCollator } from '../../../../provider/locale/collator'
 import { useLocale } from '../../../../provider/locale/locale-context'
 import type { BaseSelectT } from '../../../base-select/base-select.types'
 
@@ -45,14 +40,7 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
       if (typeof props.filterMethod === 'function') {
         return props.filterMethod(query, item)
       }
-      const text = labelString(item, resolve())
-      if (props.filterMethod === 'startsWith') {
-        return collatorStartsWith(collator, text, query)
-      }
-      if (props.filterMethod === 'endsWith') {
-        return collatorEndsWith(collator, text, query)
-      }
-      return collatorIncludes(collator, text, query)
+      return collatorMatches(collator, props.filterMethod ?? 'contains', labelString(item, resolve()), query)
     })
   })
   return { ...search, view }

@@ -70,6 +70,22 @@ export function collatorIncludes(collator: Intl.Collator, value: string, query: 
   return false
 }
 
+/** Matches `value` against `query` using a named text-filter strategy. */
+export function collatorMatches(
+  collator: Intl.Collator,
+  method: 'contains' | 'startsWith' | 'endsWith',
+  value: string,
+  query: string,
+): boolean {
+  if (method === 'startsWith') {
+    return collatorStartsWith(collator, value, query)
+  }
+  if (method === 'endsWith') {
+    return collatorEndsWith(collator, value, query)
+  }
+  return collatorIncludes(collator, value, query)
+}
+
 export function collatorEquals(collator: Intl.Collator, left: string, right: string): boolean {
   return collator.compare(normalize(left), normalize(right)) === 0
 }

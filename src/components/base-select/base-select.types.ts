@@ -43,7 +43,11 @@ export interface BaseSelectDisclosureProps {
  * @internal
  */
 export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
-  /** Machine-readable text for matching; does not change visual labels. */
+  /**
+   * Plain-text label of an item, used for filtering, typeahead, form-value matching, and plain-text
+   * display such as the Combobox input and MultiSelect tag title; does not change rendered labels.
+   * Defaults to the string `label`, otherwise `String(value)`.
+   */
   getItemLabel?: (item: TItem) => string
 
   /** Additional disabled policy evaluated against the current selection. */

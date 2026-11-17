@@ -172,10 +172,22 @@ export namespace CommandPaletteT {
      * @default false
      */
     loading?: boolean
-    /** Custom search text builder for built-in filtering. */
-    getItemSearchText?: (item: TItem, group: Group<TItem>) => string
-    /** Custom filter function that fully controls which groups and items are visible. */
-    filterGroups?: (args: { groups: Group<TItem>[]; searchValue: string }) => Group<TItem>[]
+    /**
+     * Plain-text label of an item, used for matching; does not change visual labels.
+     * Defaults to the label, value, description, and keywords joined by spaces.
+     */
+    getItemLabel?: (item: TItem, group: Group<TItem>) => string
+    /**
+     * Filtering strategy or predicate receiving the raw item. `false` disables filtering.
+     * Items with `alwaysShow` stay visible.
+     * @default 'contains'
+     */
+    filterMethod?:
+      | false
+      | 'contains'
+      | 'startsWith'
+      | 'endsWith'
+      | ((query: string, item: TItem) => boolean)
     /** Content or render function for the empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Content or render function for the footer. */

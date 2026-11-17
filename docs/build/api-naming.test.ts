@@ -39,6 +39,10 @@ const BANNED_PROPS = new Set([
   'itemToLabelString',
   'filterItem',
   'filterItems',
+  'allowClear',
+  'textLabel',
+  'getItemSearchText',
+  'filterGroups',
 ])
 
 // Item predicate callbacks may keep the `is` prefix; component booleans may not.

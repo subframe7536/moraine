@@ -186,12 +186,11 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           value,
           item,
           label,
-          title:
-            item && baseSelectProps.getItemLabel
-              ? baseSelectProps.getItemLabel(item)
-              : typeof label === 'string'
-                ? label
-                : String(value),
+          title: item
+            ? labelString(item, baseSelectProps.getItemLabel)
+            : typeof label === 'string'
+              ? label
+              : String(value),
           removable: !state.locked() && (!item || !state.itemDisabled(item)),
         }
       },

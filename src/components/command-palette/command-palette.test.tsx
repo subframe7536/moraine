@@ -426,7 +426,7 @@ describe('CommandPalette', () => {
     const screen = render(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
-        filterGroups={({ groups }) => groups}
+        filterMethod={false}
         onSelect={onSelect}
         onClose={onClose}
         inputProps={{ onCompositionStart, onCompositionEnd }}
@@ -1040,11 +1040,11 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('supports getItemSearchText override', async () => {
+  test('supports getItemLabel override', async () => {
     render(() => (
       <CommandPalette
         searchValue="custom-hit"
-        getItemSearchText={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
+        getItemLabel={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
         groups={[
           {
             id: 'g',
@@ -1063,34 +1063,37 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('supports filterGroups override and keeps visibleGroups in sync', async () => {
+  test('supports a filterMethod predicate', async () => {
     render(() => (
       <CommandPalette
-        searchValue="ignored"
+        searchValue="nav"
         groups={GROUPS}
-        filterGroups={({ groups }) => groups.filter((group) => group.id === 'navigation')}
+        filterMethod={(query, item) => item.value === 'go-dashboard' && query === 'nav'}
         footerRender={(ctx) => <span>Visible {ctx.visibleGroups.length}</span>}
       />
     ))
 
     await waitFor(() => {
-      expect(body().queryByText('Actions')).toBeNull()
-      expect(body().getByText('Navigation')).toBeTruthy()
-      expect(body().getByText('Visible 1')).toBeTruthy()
+      expect(body().getByText('Go to Dashboard')).toBeTruthy()
+      expect(body().queryByText('New File')).toBeNull()
     })
   })
 
-  test('renders the items returned by filterGroups in the order it returns them', async () => {
+  test.each([
+    ['startsWith', 'Alpha', 'Beta'],
+    ['endsWith', 'Beta', 'Alpha'],
+  ] as const)('filters with filterMethod %s', async (method, visible, hidden) => {
     render(() => (
       <CommandPalette
-        groups={GROUPS}
-        filterGroups={() => [
+        searchValue={method === 'startsWith' ? 'alp' : 'ta'}
+        filterMethod={method}
+        getItemLabel={(item) => item.label ?? item.value}
+        groups={[
           {
-            id: 'ranked',
-            label: 'Ranked',
+            id: 'g',
             items: [
-              { value: 'z-last', label: 'Zeta' },
-              { value: 'a-first', label: 'Alpha' },
+              { value: 'a', label: 'Alpha' },
+              { value: 'b', label: 'Beta' },
             ],
           },
         ]}
@@ -1098,25 +1101,19 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const options = body().getAllByRole('option')
-      expect(options.map((option) => option.textContent)).toEqual([
-        expect.stringContaining('Zeta'),
-        expect.stringContaining('Alpha'),
-      ])
+      expect(body().getByText(visible)).toBeTruthy()
+      expect(body().queryByText(hidden)).toBeNull()
     })
   })
 
-  test('skips built-in filtering when custom filterGroups returns all groups', async () => {
-    render(() => (
-      <CommandPalette groups={GROUPS} searchValue="missing" filterGroups={({ groups }) => groups} />
-    ))
+  test('skips filtering when filterMethod is false', async () => {
+    render(() => <CommandPalette groups={GROUPS} searchValue="missing" filterMethod={false} />)
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
       expect(body().getByText('Go to Dashboard')).toBeTruthy()
     })
   })
-
   test('forwards input, listbox, and item props', async () => {
     const listboxRef = vi.fn()
     const itemRef = vi.fn()
