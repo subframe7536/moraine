@@ -12,7 +12,24 @@ import { useTextControlValue } from '../shared/form/use-text-control-value'
 
 import { inputDataAttributes, inputRecipe } from './input.recipe'
 import type { InputProps, InputT } from './input.types'
-/** Native text input with value modifiers and form field integration. */
+/**
+ * Native single-line text input with value modifiers and `Field` integration. Use `Textarea` for
+ * multi-line text and `NumberInput` for a constrained numeric stepper. Wrap it in `Field` for a
+ * label and validation message, or in `InputGroup` for adjacent addons. It is controlled with
+ * `value` and `onValueChange`, or uncontrolled with `defaultValue`.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, Input } from 'moraine'
+ *
+ * const [query, setQuery] = createSignal('')
+ *
+ * <Field label="Find a project">
+ *   <Input value={query()} onValueChange={setQuery} placeholder="Search projects..." />
+ * </Field>
+ * ```
+ */
 export function Input<M extends InputModifiers | undefined = InputModifiers | undefined>(
   props: InputProps<M>,
 ): JSX.Element {
