@@ -69,7 +69,31 @@ function normalizeCheckboxGroupItem<TTrue = boolean, TFalse = boolean>(
   }
 }
 
-/** Multi-select checkbox group with card, list, and table layout variants. */
+/**
+ * Group of checkboxes whose value is the array of selected item values, with card, list, and table
+ * layout variants. Use it when several choices submit as one array, individual `Checkbox` controls
+ * when the fields are independent, and `RadioGroup` when only one option may be selected. Pair
+ * `value` with `onValueChange` for controlled selection or use `defaultValue`; each checkbox keeps
+ * its own tab stop, so the group does not use radio-style arrow navigation.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { CheckboxGroup } from 'moraine'
+ *
+ * const [channels, setChannels] = createSignal<string[]>(['email'])
+ *
+ * <CheckboxGroup
+ *   legend="Notification channels"
+ *   items={[
+ *     { value: 'email', label: 'Email' },
+ *     { value: 'sms', label: 'SMS' },
+ *   ]}
+ *   value={channels()}
+ *   onValueChange={setChannels}
+ * />
+ * ```
+ */
 export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   props: CheckboxGroupProps<TTrue, TFalse>,
 ): JSX.Element {
