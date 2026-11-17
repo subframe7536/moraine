@@ -93,10 +93,30 @@ export namespace FormT {
     FormischFormProps,
     'children' | 'class' | 'onSubmit' | 'style' | 'of'
   > {
-    /** Localized message overrides for this form instance. */
+    /** Localized message overrides for this form instance. `unknownError` is the form error recorded when a submit handler throws an error without a `message`. */
     translations?: Translations
     children?: JSX.Element
-    /** Called with validated schema output and the native submit event. */
+    /**
+     * Called when the form is submitted and the schema validates. Receives the schema output
+     * (after any `valibot` transforms, not the raw input) and the native `SubmitEvent`. The native
+     * submit is always prevented, and invalid submits focus the first invalid field without calling
+     * this handler. `form.isSubmitting` stays `true` until a returned promise settles; a thrown
+     * or rejected error is stored in the form `errors` instead of propagating.
+     * @example
+     * ```tsx
+     * import { createForm, Button, Field, Input } from 'moraine'
+     * import * as v from 'valibot'
+     *
+     * const form = createForm({ schema: v.object({ email: v.pipe(v.string(), v.email()) }) })
+     *
+     * <form.Form onSubmit={async (output) => {
+     *   await fetch('/api/subscribe', { method: 'POST', body: JSON.stringify(output) })
+     * }}>
+     *   <form.Field name="email" label="Email"><Input type="email" /></form.Field>
+     *   <Button type="submit">Subscribe</Button>
+     * </form.Form>
+     * ```
+     */
     onSubmit?: (output: InferOutput<TSchema>, event: SubmitEvent) => unknown
   }
 
@@ -112,7 +132,22 @@ export namespace FormT {
     TSchema extends Schema = FormSchema,
     T extends ValidComponent = 'div',
   > = Omit<StandaloneFieldProps<T>, 'name'> & {
-    /** Schema field name this field binds to. */
+    /**
+     * Schema field this `Field` binds to. A string is a top-level key of the schema, and an
+     * array is a path to a nested object property or array item, such as `['profile', 'name']`
+     * or `['tags', 0]`. A dotted string like `'profile.name'` is read as one top-level key.
+     * @example
+     * ```tsx
+     * import { createForm, Field, Input } from 'moraine'
+     * import * as v from 'valibot'
+     *
+     * const form = createForm({ schema: v.object({ profile: v.object({ name: v.string() }) }) })
+     *
+     * <form.Form>
+     *   <form.Field name={['profile', 'name']} label="Name"><Input /></form.Field>
+     * </form.Form>
+     * ```
+     */
     name: FieldName<TSchema>
   }
 }

@@ -10,9 +10,9 @@ import type { SelectControlStyleVariants, SelectItemStyleSlot } from './style-ty
 export interface SelectItem<
   V extends BaseSelectValue = BaseSelectValue,
 > extends BaseSelectT.Item<V> {
-  /** Leading item icon. */
+  /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */
   icon?: IconT.Name
-  /** Secondary item description. */
+  /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */
   description?: JSX.Element
 }
 /** Shared visual variants for the Select-family field controls. */
@@ -28,7 +28,13 @@ export interface SelectGroup<T extends string | BaseSelectT.Item> {
   /** Structural group discriminator. */
   type: 'group'
   value?: never
+  /** Heading rendered above the group's items. Not selectable. */
   label: JSX.Element
+  /**
+   * Items in the group. Item values must be unique across the whole collection, not just the
+   * group: a repeated value is ignored (the first occurrence wins). A group with no remaining
+   * items, or none matching the current search, renders nothing.
+   */
   items: T[]
 }
 export interface SelectSeparator {
@@ -48,26 +54,59 @@ export interface SelectView<T extends BaseSelectT.Item> {
 }
 export type SelectVirtualizer<T extends BaseSelectT.Item> = ListVirtualizer<SelectRow<T>>
 export interface SearchProps<T extends BaseSelectT.Item> {
-  /** Controlled search text. */
+  /**
+   * Controlled search text. `undefined` keeps the text uncontrolled. The component also resets
+   * the text to `''` when the popup finishes closing, after a native form reset, and (in
+   * `MultiSelect`) after the selection changes; in controlled mode these resets are reported
+   * through `onSearchValueChange('')` and you decide whether to apply them.
+   */
   searchValue?: string
   /**
-   * Initial search text.
+   * Initial search text when `searchValue` is not set.
    * @default ''
    */
   defaultSearchValue?: string
-  /** Called when search text changes. */
+  /**
+   * Called with the new search text when it changes, including the component's own resets to
+   * `''`. The text is already truncated to `searchMaxLength`. During IME composition it fires
+   * once the composition ends.
+   */
   onSearchValueChange?: (value: string) => void
-  /** Maximum committed search length. */
+  /**
+   * Maximum number of characters in the search text. Applied as the input's `maxLength` and by
+   * truncating text the user commits; a controlled `searchValue` is not truncated. Unlimited when
+   * omitted.
+   */
   searchMaxLength?: number
   /**
-   * The autocomplete attribute for the search input.
+   * Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only
+   * when `search` or `createItem` is set.
    * @default 'off'
    */
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   /**
-   * Filtering strategy, or a predicate receiving the search query and the item. String items
-   * arrive as `{ value, label }`. `false` disables filtering.
+   * How items are matched against the search text; filtering runs only while the text is not
+   * empty. The named strategies compare the item's plain-text label (see `getItemLabel`)
+   * ignoring case and accents using the active locale. A predicate receives the search text and
+   * the item (string items arrive as `{ value, label }`) and returns whether the item stays
+   * visible; it replaces the built-in matching. `false` always shows every item (use it when you
+   * filter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering
+   * applies only when `search` or `createItem` is set.
    * @default 'contains'
+   * @example
+   * ```tsx
+   * import { Combobox } from 'moraine'
+   *
+   * <Combobox
+   *   items={[
+   *     { label: 'Apple', value: 'apple', description: 'Red fruit' },
+   *     { label: 'Lime', value: 'lime', description: 'Green fruit' },
+   *   ]}
+   *   filterMethod={(query, item) =>
+   *     `${item.value} ${item.description}`.toLowerCase().includes(query.toLowerCase())
+   *   }
+   * />
+   * ```
    */
   filterMethod?:
     | false
@@ -77,22 +116,80 @@ export interface SearchProps<T extends BaseSelectT.Item> {
     | ((query: string, item: T) => boolean)
 }
 export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.PopupProps {
-  /** Renderer for each collection item. */
+  /**
+   * Replaces the default content of every item row (icon, label, description, and selected
+   * check). The row element itself (`role="option"`, click and hover handling) stays owned by the
+   * component. Receives `{ item, selected, highlighted, disabled }`; for `Select` and `Combobox`
+   * string items arrive as `{ value, label }`. Declare the parameter even when unused: a
+   * zero-argument function is called as an accessor, not mounted as a component.
+   * @example
+   * ```tsx
+   * import { Select } from 'moraine'
+   *
+   * <Select
+   *   items={[
+   *     { label: 'Free', value: 'free' },
+   *     { label: 'Pro', value: 'pro' },
+   *   ]}
+   *   itemRender={(state) => (
+   *     <span>
+   *       {state.item.label}
+   *       {state.selected ? ' ✓' : ''}
+   *     </span>
+   *   )}
+   * />
+   * ```
+   */
   itemRender?: Component<BaseSelectT.ItemRenderProps<T>>
-  /** Additional row attributes. */
+  /**
+   * Returns extra attributes spread on each item row, computed per item from the same state as
+   * `itemRender`. `class`, `style`, `ref`, and the `onClick`, `onPointerMove`, and `onPointerDown`
+   * handlers are merged with the component's own; calling `event.preventDefault()` in `onClick`
+   * stops the selection. `id`, `tabIndex`, `aria-selected`, and `aria-disabled` stay
+   * component-owned.
+   * @example
+   * ```tsx
+   * import { Select } from 'moraine'
+   *
+   * <Select
+   *   items={['Apple', 'Pear']}
+   *   itemProps={(state) => ({ 'data-testid': `option-${state.item.value}` })}
+   * />
+   * ```
+   */
   itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
-  /** Additional listbox attributes. */
+  /**
+   * Extra attributes spread on the listbox `div` inside the popup, such as `aria-label`, `data-*`
+   * or an `onScroll` handler (calling `event.preventDefault()` there skips `onScrollBottom`).
+   * `id` and `tabIndex` stay component-owned.
+   */
   listboxProps?: ElementProps<HTMLDivElement>
   /**
-   * Renders only the visible rows, such as `createListVirtualizer()`. Rows include group labels
-   * and separators. The listbox is the scroll container, and keyboard highlight scrolls through
-   * the virtualizer.
+   * Renders only the visible rows, such as `createListVirtualizer()` from `moraine/virtualizer`
+   * typed over `ComboboxT.Row`. Rows include group labels and separators. The listbox is the
+   * scroll container, items get `aria-posinset` and `aria-setsize`, and keyboard highlight scrolls
+   * through the virtualizer. Not available on `Select`.
+   * @example
+   * ```tsx
+   * import { Combobox } from 'moraine'
+   * import type { ComboboxT } from 'moraine'
+   * import { createListVirtualizer } from 'moraine/virtualizer'
+   *
+   * const items = Array.from({ length: 5000 }, (_, index) => `Item ${index}`)
+   * const virtualizer = createListVirtualizer<ComboboxT.Row<string>>({ estimateSize: () => 32 })
+   *
+   * <Combobox items={items} virtualizer={virtualizer} />
+   * ```
    */
   virtualizer?: SelectVirtualizer<T>
-  /** Called once when scrolling reaches the bottom. */
+  /**
+   * Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,
+   * for example to load the next page. It fires again only after the user scrolls away from the
+   * bottom and back.
+   */
   onScrollBottom?: () => void
   /**
-   * Bottom threshold in pixels.
+   * Distance from the end of the listbox, in pixels, within which `onScrollBottom` fires.
    * @default 20
    */
   scrollBottomThreshold?: number
