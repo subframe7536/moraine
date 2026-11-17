@@ -29,7 +29,29 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
   return a === b
 }
 
-/** Drag-and-drop file upload component with progress tracking and file list management. */
+/**
+ * Drag-and-drop file upload control that collects local files, validates them, and lists the
+ * selection. Selection and validation (`accept`, `minSize`, `maxSize`, `maxFiles`) happen in the
+ * component; sending files to a server belongs to the caller. Use `multiple` for several files,
+ * `variant="button"` for a compact picker, and `onValueChange` / `onReject` to react to accepted
+ * and rejected files. Wrap it in `Field` or `form.Field` for a label and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { FileUpload } from 'moraine'
+ *
+ * <FileUpload
+ *   multiple
+ *   accept="image/png,image/jpeg"
+ *   maxFiles={3}
+ *   maxSize={1024 * 1024}
+ *   label="Drop images here"
+ *   description="PNG or JPEG up to 1 MB each"
+ *   onValueChange={(files) => console.log(files)}
+ *   onReject={(rejected) => console.warn(rejected)}
+ * />
+ * ```
+ */
 export function FileUpload<Multiple extends boolean = false>(
   props: FileUploadProps<Multiple>,
 ): JSX.Element {
