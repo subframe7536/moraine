@@ -8,7 +8,22 @@ import { useButtonGroupContext } from './button-group-context'
 import { buttonGroupRecipe } from './button-group.recipe'
 import type { ButtonGroupT } from './button-group.types'
 
-/** Explicit semantic divider for adjacent ButtonGroup parts. */
+/**
+ * Explicit divider between adjacent buttons of a `ButtonGroup`. Place it between the group's
+ * children where a visible boundary is useful. Its orientation is perpendicular to the group
+ * axis (vertical in a horizontal group). Renders a `div` with `role="separator"`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, ButtonGroup } from 'moraine'
+ *
+ * <ButtonGroup aria-label="Clipboard actions">
+ *   <Button>Copy</Button>
+ *   <ButtonGroup.Separator />
+ *   <Button>Paste</Button>
+ * </ButtonGroup>
+ * ```
+ */
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['class', 'style'])
   const group = useButtonGroupContext()

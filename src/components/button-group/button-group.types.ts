@@ -16,11 +16,18 @@ export namespace ButtonGroupT {
 
   /** Base props for the ButtonGroup component. */
   export interface Base {
-    /** Optional identifier for the group root. */
+    /** `id` attribute of the group root element, for example to reference it from `aria-labelledby`. */
     id?: string
-    /** ARIA role for the group root. */
+    /**
+     * ARIA role of the group root. Use `'toolbar'` only when you also provide the toolbar keyboard
+     * behavior yourself; the group adds none.
+     * @default 'group'
+     */
     role?: JSX.AriaAttributes['role']
-    /** Buttons or compatible controls rendered as a cohesive group. */
+    /**
+     * Buttons rendered as one joined set, optionally with `ButtonGroup.Separator` between them.
+     * Descendant `Button`s inherit the group's `size`, `variant` and `tone` unless they set their own.
+     */
     children?: JSX.Element
   }
 
