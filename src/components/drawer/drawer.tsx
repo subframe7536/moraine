@@ -22,7 +22,27 @@ import { DrawerTitle } from './drawer-title'
 import { DrawerTrigger } from './drawer-trigger'
 import type { DrawerProps, DrawerT } from './drawer.types'
 
-/** Sheet-like surface with swipe-to-dismiss gestures and snap points. */
+/**
+ * Edge surface the user dismisses with a swipe along its edge, optionally resting at snap points.
+ * Use `Sheet` for an edge panel without gestures, `Dialog` for a centered labeled task, and `Modal`
+ * to compose backdrop and content yourself. Open state is controlled with `open`/`onOpenChange` or
+ * uncontrolled with `defaultOpen`, and `side` defaults to `bottom`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content title="Details">
+ *     <Drawer.Body>Drawer content</Drawer.Body>
+ *     <Drawer.Footer>
+ *       <Drawer.Close as={Button}>Done</Drawer.Close>
+ *     </Drawer.Footer>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export function Drawer(props: DrawerProps): JSX.Element {
   const [modalProps, drawerProps] = splitProps(props, MODAL_ROOT_KEYS)
   const defaultSnapPoint = (): DrawerT.SnapPoint | null =>

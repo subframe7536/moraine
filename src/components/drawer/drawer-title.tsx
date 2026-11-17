@@ -10,6 +10,25 @@ import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
+/**
+ * Accessible title of the surrounding `Drawer.Content`; its `id` is wired to the surface's
+ * `aria-labelledby` unless `Content` has its own `aria-label`. Place it inside `Drawer.Content`,
+ * usually within `Drawer.Header`. Renders an `h2` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content>
+ *     <Drawer.Header>
+ *       <Drawer.Title>Settings</Drawer.Title>
+ *     </Drawer.Header>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export function DrawerTitle<T extends ValidComponent = 'h2'>(
   props: DrawerT.TitleProps<T>,
 ): JSX.Element {

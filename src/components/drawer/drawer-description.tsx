@@ -10,6 +10,26 @@ import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
+/**
+ * Supporting text of the surrounding `Drawer.Content`; its `id` is wired to the surface's
+ * `aria-describedby`. Place it inside `Drawer.Content`, usually within `Drawer.Header` below
+ * `Drawer.Title`. Renders a `p` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content>
+ *     <Drawer.Header>
+ *       <Drawer.Title>Settings</Drawer.Title>
+ *       <Drawer.Description>Update your account.</Drawer.Description>
+ *     </Drawer.Header>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export function DrawerDescription<T extends ValidComponent = 'p'>(
   props: DrawerT.DescriptionProps<T>,
 ): JSX.Element {

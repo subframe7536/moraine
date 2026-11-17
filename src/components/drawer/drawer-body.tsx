@@ -9,6 +9,23 @@ import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
+/**
+ * Main region of `Drawer.Content`, placed between the header and footer. Scrolls once the content
+ * height is bounded, and a mouse press inside it does not start a swipe, so text stays selectable.
+ * Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content title="Settings">
+ *     <Drawer.Body>Preferences</Drawer.Body>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export function DrawerBody<T extends ValidComponent = 'div'>(
   props: DrawerT.BodyProps<T>,
 ): JSX.Element {

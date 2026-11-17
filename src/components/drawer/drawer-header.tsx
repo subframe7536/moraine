@@ -31,6 +31,26 @@ function createDrawerHeader(headerKind: 'explicit' | 'shorthand') {
   }
 }
 
+/**
+ * Layout group for `Drawer.Title` and `Drawer.Description` inside `Drawer.Content`. Placing it
+ * explicitly replaces the header that `Content` generates from its `title` and `description` props.
+ * Renders a `div` by default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content>
+ *     <Drawer.Header>
+ *       <Drawer.Title>Settings</Drawer.Title>
+ *       <Drawer.Description>Update your account.</Drawer.Description>
+ *     </Drawer.Header>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export const DrawerHeader: <T extends ValidComponent = 'div'>(
   props: DrawerT.HeaderProps<T>,
 ) => JSX.Element = /* @__PURE__ */ createDrawerHeader('explicit')

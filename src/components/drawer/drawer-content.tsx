@@ -42,6 +42,25 @@ import { defaultDrawerMessages } from './drawer.messages'
 import { DRAWER_MOTION, drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
 
+/**
+ * Portaled surface of the surrounding `Drawer`, rendered with `role="dialog"` together with its
+ * overlay and, for `top` and `bottom` sides, a grab handle. Pass `title` and `description` for the
+ * default header, or compose `Drawer.Header`, `Drawer.Body`, and `Drawer.Footer` yourself; children
+ * may also be a function receiving `close`. It handles the swipe gesture and renders a `div` by
+ * default; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Drawer } from 'moraine'
+ *
+ * <Drawer>
+ *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+ *   <Drawer.Content title="Settings" description="Update your account.">
+ *     <Drawer.Body>Preferences</Drawer.Body>
+ *   </Drawer.Content>
+ * </Drawer>
+ * ```
+ */
 export function DrawerContent<T extends ValidComponent = 'div'>(
   props: DrawerT.ContentProps<T>,
 ): JSX.Element {

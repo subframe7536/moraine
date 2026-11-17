@@ -32,43 +32,103 @@ export namespace DrawerT {
    * Base props for the Drawer component.
    */
   export interface Base extends ModalT.Base {
-    /** Localized message overrides for this drawer instance. */
+    /**
+     * Overrides for the built-in strings of this drawer, merged over the `MoraineProvider` locale.
+     * Only `close` is used here: the accessible label of the corner close button.
+     * @example
+     * ```tsx
+     * import { Button, Drawer } from 'moraine'
+     *
+     * <Drawer translations={{ close: 'Fermer' }}>
+     *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+     *   <Drawer.Content title="Réglages">Préférences</Drawer.Content>
+     * </Drawer>
+     * ```
+     */
     translations?: Translations
-    /** Whether to render the overlay element.
+
+    /**
+     * Whether to render the styled backdrop behind the content. When `false` the content is shown
+     * without a backdrop; outside presses still follow `closeOnOverlayClick`.
      * @default true
      */
     overlay?: boolean
 
-    /** Whether to show a close button.
+    /**
+     * Whether to show the corner close button inside the content. Its accessible label comes from
+     * the `close` translation.
      * @default true
      */
     closable?: boolean
 
-    /** Icon name or custom content for the close button.
+    /**
+     * Name of the icon shown in the corner close button.
      * @default 'icon-close'
      */
     closeIcon?: IconT.Name
 
-    /** Whether to render the decorative grab handle. Only rendered for `top` and `bottom` sides.
+    /**
+     * Whether to render the decorative grab handle. It is only rendered when `side` is `top` or
+     * `bottom`.
      * @default true
      */
     handle?: boolean
 
-    /** Snap points the drawer can rest at. Only honored for `top` and `bottom` sides. */
+    /**
+     * Visible heights the drawer can rest at, measured from the edge it opens from, in any order.
+     * Each is a number (`<= 1` is a fraction of the viewport height, `> 1` is pixels) or a `px` or
+     * `rem` string; heights are clamped to the drawer and the viewport. Releasing a swipe settles
+     * on the closest point (projected by the swipe velocity), and dragging past the lowest point
+     * dismisses the drawer. Only honored when `side` is `top` or `bottom`.
+     * @example
+     * ```tsx
+     * import { Button, Drawer } from 'moraine'
+     *
+     * <Drawer snapPoints={[0.4, '24rem', 1]}>
+     *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+     *   <Drawer.Content title="Details">Drawer content</Drawer.Content>
+     * </Drawer>
+     * ```
+     */
     snapPoints?: SnapPoint[]
 
-    /** Controlled active snap point. `null` selects the fully open position. */
+    /**
+     * Controlled active snap point, normally one of the `snapPoints` entries. `null` selects the
+     * fully open position and `undefined` leaves the state uncontrolled (see `defaultSnapPoint`). Update it
+     * from `onSnapPointChange`.
+     */
     snapPoint?: SnapPoint | null
 
-    /** Active snap point on mount.
+    /**
+     * Snap point the drawer opens at when `snapPoint` is not set. The drawer returns to it after
+     * each close.
      * @default snapPoints[0] ?? null
      */
     defaultSnapPoint?: SnapPoint | null
 
-    /** Called when the active snap point changes. */
+    /**
+     * Called with the new active snap point when a swipe settles on a different one, and with the
+     * default point after the drawer has finished closing, if the active point differed. `null`
+     * means fully open.
+     * @example
+     * ```tsx
+     * import { Button, Drawer } from 'moraine'
+     * import type { DrawerT } from 'moraine'
+     * import { createSignal } from 'solid-js'
+     *
+     * const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>(0.4)
+     *
+     * <Drawer snapPoints={[0.4, 1]} snapPoint={snapPoint()} onSnapPointChange={setSnapPoint}>
+     *   <Drawer.Trigger as={Button}>Open</Drawer.Trigger>
+     *   <Drawer.Content title="Details">Drawer content</Drawer.Content>
+     * </Drawer>
+     * ```
+     */
     onSnapPointChange?: (snapPoint: SnapPoint | null) => void
 
-    /** Whether a flick settles on the next adjacent snap point instead of the closest one.
+    /**
+     * Whether a fast flick settles on the next adjacent snap point (or dismisses past the lowest
+     * one) instead of projecting the swipe velocity onto the closest point.
      * @default false
      */
     snapToSequentialPoints?: boolean
@@ -82,10 +142,17 @@ export namespace DrawerT {
 
   export interface ContentBase<T extends ValidComponent = 'div'> {
     as?: T
-    /** Primary title displayed in the drawer header. */
+    /**
+     * Title rendered in a generated header, and used as the accessible name of the drawer
+     * (`aria-labelledby`, unless `aria-label` is set). Ignored when the children include an
+     * explicit `Drawer.Header`.
+     */
     title?: JSX.Element
 
-    /** Secondary description displayed below the title. */
+    /**
+     * Description rendered below the title in the generated header, and referenced by
+     * `aria-describedby`. Ignored when the children include an explicit `Drawer.Header`.
+     */
     description?: JSX.Element
 
     /**
