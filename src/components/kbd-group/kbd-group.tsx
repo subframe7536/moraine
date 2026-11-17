@@ -21,7 +21,7 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Base {
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
-    'separatorRender',
+    'separator',
     'size',
     'variant',
     'classes',
@@ -70,8 +70,8 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               />
               <Show when={index() < normalizedItems().length - 1}>
                 <Show
-                  when={typeof local.separatorRender === 'function' && local.separatorRender}
-                  fallback={(local.separatorRender as JSX.Element) ?? '+'}
+                  when={typeof local.separator === 'function' && local.separator}
+                  fallback={(local.separator as JSX.Element) ?? '+'}
                   keyed
                 >
                   {(Separator) => <Separator index={index()} />}

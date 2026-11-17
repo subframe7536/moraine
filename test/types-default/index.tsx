@@ -690,7 +690,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 ;<KbdGroup items={['meta', 'k']} />
 ;<KbdGroup
   items={[{ value: 'meta', translations: { meta: 'Command' } }, 'k']}
-  separatorRender="/"
+  separator="/"
   size="sm"
   variant="outline"
 />

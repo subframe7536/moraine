@@ -415,13 +415,13 @@ describe('render and polymorphic contracts', () => {
     view.unmount()
   })
 
-  test('KbdGroup separatorRender accepts string, number, and Component', () => {
+  test('KbdGroup separator accepts string, number, and Component', () => {
     const CustomSep = (props: { index: number }) => <span>#{props.index}</span>
-    const view1 = render(() => <KbdGroup items={['⌘', 'K']} separatorRender="~" />)
+    const view1 = render(() => <KbdGroup items={['⌘', 'K']} separator="~" />)
     expect(view1.container.textContent).toContain('~')
     view1.unmount()
 
-    const view2 = render(() => <KbdGroup items={['⌘', 'K']} separatorRender={CustomSep} />)
+    const view2 = render(() => <KbdGroup items={['⌘', 'K']} separator={CustomSep} />)
     expect(view2.container.textContent).toContain('#0')
     view2.unmount()
   })

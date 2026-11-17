@@ -161,7 +161,7 @@ describe('KbdGroup', () => {
 
   test('renders nothing for empty items and no separator for a single item', () => {
     const empty = render(() => <KbdGroup items={[]} />)
-    const single = render(() => <KbdGroup items={['K']} separatorRender="/" />)
+    const single = render(() => <KbdGroup items={['K']} separator="/" />)
 
     expect(empty.container.querySelector('[data-slot="kbd-group"]')).toBeNull()
     expect(single.container.querySelectorAll('[data-slot="kbd-group-item"]')).toHaveLength(1)
@@ -169,11 +169,11 @@ describe('KbdGroup', () => {
   })
 
   test('supports string shorthand and independent custom separators', () => {
-    const stringSeparator = render(() => <KbdGroup items={['Ctrl', 'K']} separatorRender="/" />)
+    const stringSeparator = render(() => <KbdGroup items={['Ctrl', 'K']} separator="/" />)
     const jsxSeparator = render(() => (
       <KbdGroup
         items={['Ctrl', 'Shift', 'P']}
-        separatorRender={(props) => (
+        separator={(props) => (
           <span data-testid="custom-separator" data-index={props.index}>
             ·
           </span>
@@ -203,9 +203,8 @@ describe('KbdGroup', () => {
       })
       return <span data-index={props.index}>{text()}</span>
     }
-    const [separator, setSeparator] =
-      createSignal<KbdGroupT.Base['separatorRender']>(SeparatorRender)
-    const view = render(() => <KbdGroup items={items()} separatorRender={separator()} />)
+    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(SeparatorRender)
+    const view = render(() => <KbdGroup items={items()} separator={separator()} />)
     const separators = [...view.container.querySelectorAll('span')]
     expect(separators).toHaveLength(2)
     expect(separators[0]).not.toBe(separators[1])

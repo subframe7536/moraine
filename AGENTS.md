@@ -195,7 +195,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
 - **Props:**
-  - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`). This rule applies to component props only; keys inside `items` collection objects are exempt (`content` on Tabs, Stepper, and Accordion items).
+  - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`). This rule applies to component props only; keys inside `items` collection objects are exempt (`content` on Tabs, Stepper, and Accordion items). `separator` is also exempt: it takes text or icon shorthand and also accepts a component (KbdGroup, Breadcrumb).
   - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `topRender` and `bottomRender`, not `contentTopRender` and `contentBottomRender`).
   - Controlled state uses the `x` / `defaultX` / `onXChange` triple. Every `on<X>Change` callback must have a matching `x` prop on the same part; the only exceptions are `onStatusChange` and `onOverflowChange`, which fire without a controlled value.
   - Positional icons use `leading` / `trailing`; a single primary icon uses `icon`; functional icons end with `Icon` (`closeIcon`, `clearIcon`, `removeIcon`, `loadingIcon`, `checkedIcon`, `prevIcon`). Any prop typed `IconT.Name` must be named `icon`, `leading`, `trailing`, `separator`, `badge`, or end with `Icon`.

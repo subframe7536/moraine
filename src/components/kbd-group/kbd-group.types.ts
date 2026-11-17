@@ -28,10 +28,10 @@ export namespace KbdGroupT {
     items: Item[]
 
     /**
-     * Separator content or custom renderer between keys. Accepts a string, number, or Component.
+     * Text between keys, or a component that receives the separator `index`.
      * @default '+'
      */
-    separatorRender?: string | number | Component<SeparatorRenderProps>
+    separator?: string | number | Component<SeparatorRenderProps>
   }
 
   /** Props for the KbdGroup component. */

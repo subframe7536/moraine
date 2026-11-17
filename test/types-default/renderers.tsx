@@ -31,8 +31,8 @@ import {
 ;<DropdownMenu.Content itemRender={<span />} />
 // @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<ContextMenu.Content itemRender={<span />} />
-// @ts-expect-error SeparatorRender accepts string | number | Component<SeparatorRenderProps>, not JSX.Element.
-;<KbdGroup items={['Ctrl', 'K']} separatorRender={<span />} />
+// @ts-expect-error KbdGroup separator accepts string | number | Component<SeparatorRenderProps>, not JSX.Element.
+;<KbdGroup items={['Ctrl', 'K']} separator={<span />} />
 // @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<Toast itemRender={<span />} />
 // @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
@@ -77,9 +77,9 @@ import {
 />
 ;<DropdownMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<ContextMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
-;<KbdGroup items={['Ctrl', 'K']} separatorRender={(props) => <span>{props.index}</span>} />
-;<KbdGroup items={['Ctrl', 'K']} separatorRender="/" />
-;<KbdGroup items={['Ctrl', 'K']} separatorRender={1} />
+;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
+;<KbdGroup items={['Ctrl', 'K']} separator="/" />
+;<KbdGroup items={['Ctrl', 'K']} separator={1} />
 ;<Toast itemRender={(props) => <span>{props.options.title}</span>} />
 ;<List items={['a', 'b']} itemRender={(props) => <span>{props.item}</span>} />
 ;<NavigationMenu.Link href="/test" linkRender={(props) => <a {...props}>{props.children}</a>} />

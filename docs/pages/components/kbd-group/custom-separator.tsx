@@ -4,7 +4,7 @@ export function CustomSeparator() {
   return (
     <KbdGroup
       items={['Ctrl', 'Shift', 'K']}
-      separatorRender={() => <span class="text-muted-foreground">/</span>}
+      separator={() => <span class="text-muted-foreground">/</span>}
     />
   )
 }
