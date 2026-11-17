@@ -61,9 +61,10 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     event.preventDefault()
     local.focusManager.requestFocus(event.currentTarget)
 
+    const handleSubmit = local.onSubmit
     submitFormWithoutFocus(
       local.of,
-      (output) => local.onSubmit?.(output as never, event),
+      (output) => handleSubmit?.(output as never, event),
       () => messages().unknownError,
     )
   }

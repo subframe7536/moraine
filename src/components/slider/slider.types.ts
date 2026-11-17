@@ -52,8 +52,8 @@ export namespace SliderT {
     /** Localized message overrides for this slider instance. */
     translations?: Translations
     /**
-     * Intl.NumberFormat options used to format values for ria-valuetext, such as
-     * { style: 'percent' }. Formatting uses the provider locale.
+     * `Intl.NumberFormat` options used to format values for `aria-valuetext`, such as
+     * `{ style: 'percent' }`. Formatting uses the provider locale.
      */
     formatOptions?: Intl.NumberFormatOptions
     /**
