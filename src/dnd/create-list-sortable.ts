@@ -28,20 +28,46 @@ export interface ListReorderEvent<TItem> {
 }
 
 export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDrop' | 'onDrop'> {
-  /** Items in rendered order, such as the `items` passed to `List`. */
+  /**
+   * Accessor for the items in rendered order, such as the `items` passed to `List`. A row's index
+   * in this array is its position; it is read at drop time, so it must return the current order.
+   */
   items: () => readonly TItem[]
-  /** Called when a drag moves an item to a new index. Update the items from it. */
+  /**
+   * Called once per drop that moves an item to a new index. It is not called for canceled drags
+   * or when the drop leaves the item where it was. Nothing is reordered for you: store
+   * `event.items`, a new array with the move applied, in your state.
+   * @example
+   * ```tsx
+   * import { List } from 'moraine'
+   * import { createListSortable } from 'moraine/dnd'
+   * import { createSignal } from 'solid-js'
+   *
+   * const [tasks, setTasks] = createSignal([{ label: 'Write' }, { label: 'Review' }])
+   * const sortable = createListSortable({ items: tasks, onReorder: (event) => setTasks(event.items) })
+   *
+   * <sortable.Provider>
+   *   <List
+   *     items={tasks()}
+   *     itemRender={(context) => <li {...sortable.useRow(context).props}>{context.item.label}</li>}
+   *   />
+   * </sortable.Provider>
+   * ```
+   */
   onReorder: (event: ListReorderEvent<TItem>) => void
   /**
-   * Stable item id. Pass it to look up rows by id, such as with `handleRefFor`.
+   * Stable id of an item. Pass it when rows must be found by id, such as with `handleRefFor`, or
+   * when ids must not change as items move. Without it a row's id is its index.
    * @default the item index
    */
   getId?: (item: TItem, index: number) => SortableId
-  /** Prevents dragging and dropping an item. Return true for every item to pause dragging. */
+  /** Prevents dragging an item and dropping on it while it returns `true`. Return `true` for every item to pause dragging. */
   isDisabled?: (item: TItem, index: number) => boolean
   /**
-   * Rejects a drop location, such as a row under another parent. Rejected targets show no
-   * indicator and do not drop.
+   * Rejects a drop location, such as a row that must stay in its group. Receives the dragged
+   * item, the item under it, and the side of `target` (`before` or `after`); return `false` to
+   * reject. It runs as the pointer moves and again at drop. Rejected targets show no indicator
+   * and do not drop.
    */
   canDrop?: (
     source: TItem,

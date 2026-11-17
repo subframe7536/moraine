@@ -31,16 +31,18 @@ import type {
 
 export interface SortableOptions {
   /**
-   * Input sensors. Pass an array to replace the defaults (pointer and keyboard) or a function
-   * to extend them.
+   * Input sensors from `@dnd-kit/dom`, such as `PointerSensor` and `KeyboardSensor`. Pass an array
+   * to replace the defaults (pointer and keyboard) or a function that receives the defaults and
+   * returns the list to use.
    */
   sensors?: DragDropManagerInput['sensors']
   /**
-   * Drag and drop plugins. Pass an array to replace the defaults (accessibility announcements,
-   * auto-scroll, cursor, drag feedback, and text selection prevention) or a function to extend them.
+   * Drag and drop plugins from `@dnd-kit/dom`. Pass an array to replace the defaults
+   * (accessibility announcements, auto-scroll, cursor, drag feedback, and text selection
+   * prevention) or a function that receives the defaults and returns the list to use.
    */
   plugins?: DragDropManagerInput['plugins']
-  /** Modifiers applied to every drag, such as axis or container restrictions. */
+  /** Movement modifiers from `@dnd-kit/dom`, applied to every drag, such as axis or container restrictions. */
   modifiers?: DragDropManagerInput['modifiers']
   /**
    * Axis the items are laid out along. `before` and `after` come from the pointer's position along
@@ -48,17 +50,25 @@ export interface SortableOptions {
    * @default 'vertical'
    */
   orientation?: SortableOrientation
-  /** Rejects a drop location; rejected targets show no indicator and do not drop. */
+  /**
+   * Decides whether the source may land at a location. It runs each time the location under the
+   * pointer or keyboard focus changes and again when the drag ends. Receives the candidate
+   * `{ sourceId, sourceIndex, targetId, targetIndex, position }`; return `false` to reject it.
+   * A rejected target shows no `data-drop-position` indicator and does not drop.
+   */
   canDrop?: (target: SortableDropTarget) => boolean
   /**
-   * Called once when a drag ends on an accepted target. Not called for canceled drags. Return the
-   * id the source has after the move when it differs from `sourceId`, so the drop animation finds
-   * its element.
+   * Called once when a drag ends on an accepted target; not called for canceled drags or when no
+   * target is accepted. Receives the same `{ sourceId, sourceIndex, targetId, targetIndex, position }`
+   * as `canDrop`. The sortable never reorders anything itself: apply the move to your own state here.
+   * Return the id the source has after the move when it differs from `sourceId`, so the drop
+   * animation finds its element.
    */
   onDrop?: (target: SortableDropTarget) => SortableId | void
   /**
-   * Animates the source from where it was released to its place after the drop or cancel. Pass
-   * `false` to place it at once.
+   * Animates the source from where it was released to its place after the drop or cancel.
+   * `duration` is in milliseconds and `easing` is any CSS easing function. Pass `false` to place
+   * it at once. The animation is also skipped when the user prefers reduced motion.
    * @default { duration: 200, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }
    */
   dropAnimation?: false | { duration?: number; easing?: string }

@@ -35,7 +35,10 @@ export interface SortableItemInput {
   id: () => SortableId
   /** Position in the rendered order. Keyboard dragging moves along this order. */
   index: () => number
-  /** Prevents dragging and dropping this item. */
+  /**
+   * Prevents dragging and dropping this item while it returns `true`.
+   * @default () => false
+   */
   disabled?: () => boolean
   /**
    * Positions this item accepts as a drop target.
@@ -83,14 +86,34 @@ export interface SortableVirtualRange {
 export interface Sortable {
   /** Wraps the component that renders the items. Mount it once per sortable. */
   readonly Provider: FlowComponent
-  /** Registers one item; call it inside the item's owner, under `Provider`. */
+  /**
+   * Registers one item; call it inside the item's owner, under `Provider`. Spread
+   * `item.attributes` and pass `item.ref` to the element. It throws when called outside
+   * `Provider` on the client; on the server it returns inert refs.
+   * @example
+   * ```tsx
+   * import { For } from 'solid-js'
+   * import { createSortable } from 'moraine/dnd'
+   *
+   * const sortable = createSortable({ onDrop: (drop) => console.log(drop.sourceId, drop.position) })
+   *
+   * <sortable.Provider>
+   *   <For each={['a', 'b', 'c']}>
+   *     {(id, index) => {
+   *       const item = sortable.useItem({ id: () => id, index })
+   *       return <li ref={item.ref} {...item.attributes}>{id}</li>
+   *     }}
+   *   </For>
+   * </sortable.Provider>
+   * ```
+   */
   useItem: (input: SortableItemInput) => SortableItem
   /**
    * Returns a ref that makes an element the drag handle of the item with `id`, for handles that
    * render outside the code that registers the item, such as a `DataTable` cell.
    */
   handleRefFor: (id: SortableId) => (element: HTMLElement) => void
-  /** Current drag; undefined when no drag is active. */
+  /** Current drag, including the drop location under the pointer; `undefined` when no drag is active. Reactive. */
   readonly state: Accessor<SortableDragState | undefined>
   /**
    * Pass to a virtualizer's `rangeExtractor` option to keep the drag source mounted while it is

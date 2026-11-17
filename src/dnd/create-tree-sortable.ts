@@ -34,20 +34,27 @@ export interface TreeMoveEvent<T> {
 }
 
 export interface TreeSortableOptions<T> extends Omit<SortableOptions, 'canDrop' | 'onDrop'> {
-  /** Called when a drag moves an item. Update the tree items from it. */
+  /**
+   * Called once per drop that moves an item to a new place; not called for canceled drags or
+   * drops that leave it where it was. Nothing is moved for you: update your tree items from the
+   * event, for example with `moveTreeNode(items, event, access)`. A collapsed target that the
+   * source was dropped inside is expanded afterwards.
+   */
   onMove: (event: TreeMoveEvent<T>) => void
   /**
-   * Whether an item accepts children, so dropping on the middle of its row moves the source
-   * inside it.
+   * Whether an item accepts children. When it returns `false` the item accepts drops only before
+   * or after its row; otherwise dropping on the middle of its row moves the source inside it.
    * @default () => true
    */
   canNest?: (item: TreeT.ItemInstance<T>) => boolean
   /**
-   * Rejects a move, such as one into a read-only folder. Moves into the source itself or its
-   * descendants are always rejected.
+   * Rejects a move, such as one into a read-only folder. Receives the resolved move (the
+   * `TreeMoveEvent` fields except `fromIndex` and `fromParentKey`); return `false` to reject. It
+   * runs as the pointer moves and again at drop. Moves into the source itself or its descendants
+   * are always rejected.
    */
   canDrop?: (move: Omit<TreeMoveEvent<T>, 'fromIndex' | 'fromParentKey'>) => boolean
-  /** Prevents dragging and dropping an item. */
+  /** Prevents dragging an item and dropping on it while it returns `true`. Items that are disabled in the tree are always excluded. */
   isDisabled?: (item: TreeT.ItemInstance<T>) => boolean
   /**
    * Milliseconds the source hovers inside a collapsed item before it expands, loading lazy
