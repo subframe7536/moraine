@@ -47,6 +47,15 @@ announcement where one is required. Variants (`solid`, `soft`, `subtle`, `outlin
 </Badge>
 ```
 
+### Label prop
+
+Pass `label` instead of `children` when the text comes from data. `label` takes precedence over
+`children` when both are set.
+
+```tsx
+<Badge label="Needs review" variant="soft" />
+```
+
 ### Interactive root
 
 For a clickable badge, set `as` to a semantic element and pass that element's required attributes.

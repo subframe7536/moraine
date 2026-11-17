@@ -69,6 +69,16 @@ changing how the value snaps.
 <Slider value={value()} min={0} max={100} marker={25} onValueChange={setValue} />
 ```
 
+### Value text format
+
+`formatOptions` accepts `Intl.NumberFormat` options and formats each thumb's `aria-valuetext` with
+the provider locale. BoldSlider also uses it for the visible value unless `valueLabel` is a
+formatter.
+
+```tsx
+<Slider defaultValue={50} formatOptions={{ style: 'unit', unit: 'percent' }} aria-label="Zoom" />
+```
+
 ### Forms
 
 Add `name` for native form submission, or place the slider inside `form.Field` from

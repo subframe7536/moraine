@@ -25,6 +25,16 @@ export default function ProgressPlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
+        {
+          kind: 'select',
+          prop: 'orientation',
+          label: 'Orientation',
+          defaultValue: 'horizontal',
+          options: [
+            { label: 'Horizontal', value: 'horizontal' },
+            { label: 'Vertical', value: 'vertical' },
+          ],
+        },
         { kind: 'switch', prop: 'valueLabel', label: 'Value', defaultValue: true },
       ]}
     >
@@ -33,6 +43,7 @@ export default function ProgressPlayground() {
           label={props.label}
           value={props.value}
           size={props.size}
+          orientation={props.orientation}
           valueLabel={props.valueLabel}
           aria-label="Upload progress"
         />

@@ -142,6 +142,20 @@ reports every open or close request from pointer, keyboard, or click interaction
 />
 ```
 
+### Dismissal and positioning
+
+Escape and outside interaction close the menu by default. Set `closeOnEscape={false}` or
+`closeOnOutsideClick={false}` to keep it open and receive `onClosePrevented` for each blocked
+attempt. `modal` hides the rest of the page from assistive technology and blocks outside pointer
+events while the menu is open. `placement`, `align`, `gutter`, `shift`, `flip`, and `slide` tune
+where the content opens.
+
+```tsx
+<DropdownMenu closeOnOutsideClick={false} onClosePrevented={() => setHint(true)} flip={false}>
+  {/* Trigger and Content */}
+</DropdownMenu>
+```
+
 ### Keyboard interaction
 
 | Key                                                        | Description                                           |

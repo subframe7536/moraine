@@ -65,6 +65,27 @@ keeps the label and hides the value.
 <Progress value={40} valueLabel={({ percent }) => `${percent}% complete`} aria-label="Export" />
 ```
 
+### Orientation
+
+Progress fills left to right by default. Set `orientation="vertical"` for a bar that fills from the
+bottom, for example a battery or level meter. The vertical bar grows to its container height with a
+minimum of 9rem.
+
+```tsx
+<Progress value={72} orientation="vertical" aria-label="Battery level" />
+```
+
+### Number format
+
+`formatOptions` accepts `Intl.NumberFormat` options and formats the displayed value and
+`aria-valuetext` with the provider locale. A `percent` style formats the completed fraction; other
+styles format `value`. A `valueLabel` formatter still takes precedence.
+
+```tsx
+<Progress value={3} max={4} valueLabel formatOptions={{ style: 'percent' }} aria-label="Setup" />
+<Progress value={42} valueLabel formatOptions={{ style: 'unit', unit: 'megabyte' }} aria-label="Upload" />
+```
+
 ## Examples
 
 ### Upload a file or wait on a scan
@@ -79,3 +100,9 @@ Set `label` and `valueLabel` when the operation name and percentage should appea
 Keep `aria-label` as the accessible name.
 
 <Preview path="./semantics" />
+
+### Show horizontal and vertical meters
+
+Use `orientation="vertical"` for level meters that fill from the bottom.
+
+<Preview path="./orientation" />
