@@ -15,7 +15,7 @@ import type {
 import type { OverlayMenuStyleSlot } from './style-types'
 
 export interface OverlayMenuContentSlotProps {
-  /** Whether this content is inside a submenu. */
+  /** `true` when the content is rendered inside a submenu, `false` for the root menu. */
   sub: boolean
 }
 
@@ -29,22 +29,25 @@ export type OverlayMenuItemType =
 
 export interface OverlayMenuBaseItem {
   /**
-   * Primary label text or element.
+   * Text or element shown as the item's primary text. A string `label` is also what typeahead
+   * matches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,
+   * it replaces the default rendering of `label`, `description`, `icon` and `kbds`.
    */
   label?: JSX.Element
 
   /**
-   * Secondary description text displayed below the label.
+   * Secondary text shown below the label.
    */
   description?: JSX.Element
 
   /**
-   * Icon name or custom element to display at the start of the item.
+   * Name of the icon shown at the start of the item.
    */
   icon?: IconT.Name
 
   /**
-   * Array of keyboard shortcuts to display as keys.
+   * Keys shown as keycaps at the end of the item, for example `['Ctrl', 'S']`. Display only: it
+   * does not register a keyboard shortcut. Not shown on items that open a submenu.
    */
   kbds?: string[]
 
@@ -59,13 +62,15 @@ export interface OverlayMenuBaseItem {
   style?: JSX.CSSProperties
 
   /**
-   * Visual treatment of the menu item.
+   * Visual treatment of the menu item. `'danger'` uses the danger text color for destructive
+   * actions and sets `data-danger` on the item.
    * @default 'default'
    */
   variant?: 'default' | 'danger'
 
   /**
-   * Whether the item is non-interactive.
+   * Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and
+   * exposes `aria-disabled`.
    * @default false
    */
   disabled?: boolean
@@ -75,27 +80,47 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
   type?: 'item'
 
   /**
-   * Controlled open state for submenus.
+   * Controlled open state of the submenu. Only applies to items with `children`; leave it
+   * `undefined` to let the item manage its own state (see `defaultOpen`).
    */
   open?: boolean
 
   /**
-   * Initial open state for submenus.
+   * Initial open state of the submenu when `open` is not set.
+   * @default false
    */
   defaultOpen?: boolean
 
   /**
-   * Event handler called when the submenu requests an open or close change.
+   * Called with the next open state when the submenu opens (pointer hover delay, click or arrow
+   * key) or closes. Not called when `open` is changed from outside.
    */
   onOpenChange?: (open: boolean) => void
 
   /**
-   * Nested menu items for creating submenus.
+   * Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).
+   * A non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the
+   * menu's `submenuIcon` in place of `kbds`.
+   * @example
+   * ```tsx
+   * import { Button, DropdownMenu } from 'moraine'
+   *
+   * <DropdownMenu>
+   *   <DropdownMenu.Trigger as={Button}>Share</DropdownMenu.Trigger>
+   *   <DropdownMenu.Content
+   *     items={[
+   *       { label: 'Copy link', onSelect: () => console.log('copied') },
+   *       { label: 'Send to', children: [{ label: 'Email' }, { label: 'Slack' }] },
+   *     ]}
+   *   />
+   * </DropdownMenu>
+   * ```
    */
   children?: OverlayMenuItem[]
 
   /**
-   * Event handler called when the item is activated.
+   * Called when the item is activated by click, Enter or Space, before the whole menu closes and
+   * focus returns to the trigger. Not called for disabled items or items that open a submenu.
    */
   onSelect?: () => void
 }
@@ -104,22 +129,24 @@ export interface OverlayMenuCheckboxItem extends OverlayMenuBaseItem {
   type: 'checkbox'
 
   /**
-   * Controlled checked state for checkbox items.
+   * Controlled checked state. Leave it `undefined` to let the item manage its own state (see
+   * `defaultChecked`); when set, update it from `onCheckedChange`.
    */
   checked?: boolean
 
   /**
-   * Initial checked state for uncontrolled checkbox items.
+   * Initial checked state when `checked` is not set.
+   * @default false
    */
   defaultChecked?: boolean
 
   /**
-   * Event handler called when a checkbox item's state changes.
+   * Called with the next checked state each time the user toggles the item. The menu stays open.
    */
   onCheckedChange?: (checked: boolean) => void
 
   /**
-   * Event handler called when the item is activated.
+   * Called after `onCheckedChange` each time the item is toggled. The menu stays open.
    */
   onSelect?: () => void
 }
@@ -128,12 +155,13 @@ export interface OverlayMenuRadioItem extends OverlayMenuBaseItem {
   type: 'radio'
 
   /**
-   * Value this item selects in its parent radio group.
+   * Value this item selects in its parent radio group; the item shows as checked while the
+   * group's selected value equals it.
    */
   value: string
 
   /**
-   * Event handler called when the item is activated.
+   * Called after the group's `onValueChange` each time the item is chosen. The menu stays open.
    */
   onSelect?: () => void
 }
@@ -142,22 +170,24 @@ export interface OverlayMenuRadioGroupItem extends OverlayMenuBaseItem {
   type: 'radio-group'
 
   /**
-   * Radio items in this group. Selecting one unchecks the others.
+   * Radio items in this group. Selecting one unchecks the others. The group's `label`, when set,
+   * is rendered as its heading.
    */
   items?: OverlayMenuRadioItem[]
 
   /**
-   * Controlled selected value, matched against each radio item's `value`.
+   * Controlled selected value, matched against each radio item's `value`. Leave it `undefined`
+   * to let the group manage its own state (see `defaultValue`).
    */
   value?: string
 
   /**
-   * Initial selected value for uncontrolled radio groups.
+   * Initial selected value when `value` is not set.
    */
   defaultValue?: string
 
   /**
-   * Event handler called with the value of the selected radio item.
+   * Called with the `value` of the radio item the user chose. The menu stays open.
    */
   onValueChange?: (value: string) => void
 }
@@ -166,7 +196,8 @@ export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
   type: 'group'
 
   /**
-   * Child items in this group.
+   * Child items in this group. The group's `label`, when set, is rendered as a non-interactive
+   * heading above the items.
    */
   items?: OverlayMenuItem[]
 }
@@ -189,10 +220,15 @@ export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => Com
  * Props provided to custom menu item render components.
  */
 export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
+  /** The item being rendered; a radio item (`type: 'radio'`) for entries of a radio group. */
   item: TItem | OverlayMenuRadioItem
+  /** Nesting level of the menu that holds the item: `0` for the root menu, plus one per submenu level. */
   depth: number
+  /** Whether the item is a checkbox item. */
   isCheckbox: boolean
+  /** Whether the item is a radio item. */
   isRadio: boolean
+  /** Whether the item opens a submenu. */
   hasChildren: boolean
 }
 

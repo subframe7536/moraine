@@ -36,7 +36,7 @@ export interface PopperContentAttributes {
 
 export interface PopperProps {
   /**
-   * Initial open state when uncontrolled.
+   * Initial open state when uncontrolled. Ignored while `open` is set.
    * @default false
    */
   defaultOpen?: boolean
@@ -47,13 +47,35 @@ export interface PopperProps {
    */
   disabled?: boolean
 
-  /** Unique identifier used to derive the content id. */
+  /**
+   * Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when
+   * omitted.
+   */
   id?: string
 
-  /** Called whenever the open state changes. */
+  /**
+   * Called with the next open state when an interaction (trigger press, hover or focus delay,
+   * Escape, outside press) requests a change. It is not called when `open` is changed from outside,
+   * and it does not apply the change itself when `open` is controlled: update `open` in the handler.
+   * @example
+   * ```tsx
+   * import { Button, Popover } from 'moraine'
+   * import { createSignal } from 'solid-js'
+   *
+   * const [open, setOpen] = createSignal(false)
+   *
+   * <Popover open={open()} onOpenChange={setOpen}>
+   *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+   *   <Popover.Content>More information</Popover.Content>
+   * </Popover>
+   * ```
+   */
   onOpenChange?: (open: boolean) => void
 
-  /** Controlled open state. */
+  /**
+   * Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component
+   * manage its own state (see `defaultOpen`). `disabled` forces the content closed regardless.
+   */
   open?: boolean
 
   /** Composed trigger and content primitives. */
@@ -94,13 +116,16 @@ export interface PopperContentOptions {
   detachedPadding?: number
 
   /**
-   * Whether Escape dismisses the content.
+   * Whether pressing Escape closes the content. When `false` the key press is blocked, the content
+   * stays open and `onClosePrevented` is called.
    * @default true
    */
   closeOnEscape?: boolean
 
   /**
-   * Whether outside interaction, pointer or focus, dismisses the content.
+   * Whether a pointer press outside the content and its trigger, or focus moving outside, closes
+   * the content (focus does not dismiss hover-opened popovers). When `false` the attempt is blocked,
+   * the content stays open and `onClosePrevented` is called.
    * @default true
    */
   closeOnOutsideClick?: boolean
@@ -112,13 +137,26 @@ export interface PopperContentOptions {
   fitViewport?: boolean
 
   /**
-   * Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.
+   * Whether the content moves to another side when the preferred `placement` does not fit in the
+   * viewport. `false` keeps the side fixed. A string is a space-delimited list of fallback
+   * placements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with
+   * `-start` or `-end`; any other entry throws an error.
    * @default true
+   * @example
+   * ```tsx
+   * import { Button, Popover } from 'moraine'
+   *
+   * <Popover placement="bottom" flip="top bottom-end">
+   *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
+   *   <Popover.Content>More information</Popover.Content>
+   * </Popover>
+   * ```
    */
   flip?: boolean | string
 
   /**
-   * Whether content remains mounted while closed.
+   * Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for
+   * example to measure it or keep its state. Has no effect while `disabled`.
    * @default false
    */
   forceMount?: boolean
@@ -143,7 +181,10 @@ export interface PopperContentOptions {
    */
   modal?: boolean
 
-  /** Called when a dismissal attempt is blocked. */
+  /**
+   * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press or focus
+   * move (`closeOnOutsideClick` is `false`) tried to close the content and was blocked.
+   */
   onClosePrevented?: () => void
 
   /** Called when Escape is pressed while the content is active. */
@@ -171,24 +212,29 @@ export interface PopperContentOptions {
   overflowPadding?: number
 
   /**
-   * Preferred content placement relative to the trigger.
+   * Side of the trigger the content opens on. The rendered side can differ when `flip` moves it to
+   * fit the viewport; read it from `data-side` on the content.
    * @default 'bottom'
    */
   placement?: OverlayPlacement
 
-  /** Alignment along the cross axis.
+  /**
+   * Alignment of the content along the trigger edge: `'start'` and `'end'` line up the content
+   * edge with the matching trigger edge, `'center'` centers it. Combines with `placement`.
    * @default 'center'
    */
   align?: OverlayAlign
 
   /**
-   * Whether body scroll should be locked while the content is present.
+   * Whether body scroll is locked while the content is present. A modal content always locks it.
    * @default false
    */
   preventScroll?: boolean
 
   /**
-   * Whether focus returns to the trigger after the content closes.
+   * Whether focus returns to the trigger when the content closes. Focus is not restored when a
+   * non-modal content is dismissed by an outside press or focus move, since focus already went
+   * elsewhere. Hover-opened popovers (`openOnHover`) default to not restoring focus.
    * @default true
    */
   restoreFocusOnClose?: boolean
@@ -203,13 +249,16 @@ export interface PopperContentOptions {
   sameWidth?: boolean
 
   /**
-   * Cross-axis offset in pixels from the resolved placement.
+   * Offset in pixels along the trigger edge (horizontal for `top` and `bottom` placements,
+   * vertical for `left` and `right`), added to the position given by `align`.
    * @default 0
    */
   shift?: number
 
   /**
-   * Whether the content may slide along its main axis to remain visible.
+   * Whether the content slides along the trigger edge (horizontally for `top` and `bottom`
+   * placements, vertically for `left` and `right`) to stay inside the viewport, keeping
+   * `overflowPadding` from the edge, instead of overflowing.
    * @default true
    */
   slide?: boolean
