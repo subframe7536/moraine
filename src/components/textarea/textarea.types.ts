@@ -23,69 +23,93 @@ export namespace TextareaT {
    */
   export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
     extends FieldT.ControlBase {
-    /** The current value (controlled). */
+    /**
+     * The current value (controlled). `undefined` leaves the textarea uncontrolled; the displayed
+     * text is restored to this value after every edit, so update it from `onValueChange`.
+     */
     value?: Value
-    /** The default value (uncontrolled). */
+    /** Initial value for uncontrolled usage. Also the value restored when the owning form is reset. */
     defaultValue?: Value
 
     /**
-     * Placeholder text for the textarea.
+     * Hint text shown while the textarea is empty. It is not a substitute for a label.
      */
     placeholder?: string
 
     /**
-     * Whether to automatically focus the textarea on mount.
+     * Whether the textarea is focused after mounting, by script rather than the native `autofocus`
+     * attribute. Focus is skipped when the textarea is disabled, and `autofocusDelay` postpones it.
      * @default false
      */
     autofocus?: boolean
 
     /**
-     * Delay in milliseconds before focusing the textarea.
+     * Delay in milliseconds between mount and focusing the textarea. Only used with `autofocus`.
      * @default 0
      */
     autofocusDelay?: number
 
     /**
-     * Maximum character length for the textarea.
+     * Native `maxlength`: the maximum number of characters the user can type. Numeric strings are accepted.
      */
     maxLength?: number | string
 
     /**
-     * Whether the textarea should automatically resize based on content.
+     * Whether the height grows with the content. The textarea shows at least `rows` rows and, when
+     * `maxRows` is set, at most `maxRows` rows before it scrolls. Overflow is hidden while it fits.
      * @default false
      */
     autoResize?: boolean
 
     /**
-     * Delay in milliseconds before triggering autoresize on mount.
+     * Delay in milliseconds before the first autoresize after mount. Later resizes run without it. Only used with `autoResize`.
      * @default 0
      */
     autoResizeDelay?: number
 
     /**
-     * Default number of rows.
+     * Number of visible text rows. With `autoResize` it is the minimum height in rows.
      * @default 3
      */
     rows?: number
 
     /**
-     * Maximum number of rows allowed during autoresize.
+     * Maximum number of rows the textarea grows to with `autoResize`; longer content scrolls.
+     * `0` means unlimited. Ignored without `autoResize`.
      * @default 0
      */
     maxRows?: number
 
     /**
-     * Modifiers for input processing (e.g., lazy, trim, number).
+     * Transforms the text before it reaches `onValueChange` and form state, and sets the callback's
+     * value type.
+     *
+     * - `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur).
+     * - `lazy`: updates the value on `change` instead of on every keystroke.
+     * - `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.
+     * - `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.
+     * @example
+     * ```tsx
+     * import { Textarea } from 'moraine'
+     *
+     * <Textarea
+     *   modifiers={{ trim: true, lazy: true, empty: 'undefined' }}
+     *   onValueChange={(note) => console.log(note)} // string | undefined, once per blur
+     * />
+     * ```
      */
     modifiers?: M
 
     /**
-     * Ref for the native textarea element.
+     * Ref callback or variable that receives the native `<textarea>` element.
      */
     ref?: Ref<HTMLTextAreaElement>
 
     /**
-     * Callback when the textarea value changes during input.
+     * Called with the new value, after `modifiers` are applied, as the user edits. It fires on
+     * every keystroke, or on `change` (blur) with `modifiers.lazy`. Its argument type follows
+     * `modifiers`: `string` by default, `number` with `number`, and may include `null` or
+     * `undefined` through `empty`.
      */
     onValueChange?: (value: ModifierValue<M>) => void
 
@@ -95,7 +119,7 @@ export namespace TextareaT {
     onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
 
     /**
-     * Native input event handler.
+     * Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`.
      */
     onInput?: JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>
 

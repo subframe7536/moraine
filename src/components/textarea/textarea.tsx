@@ -29,7 +29,31 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
   return Math.ceil((el.scrollHeight - padding) / lineHeight)
 }
 
-/** Multi-line text input with autoresize support and form field integration. */
+/**
+ * Multi-line text input with autoresize support and form field integration. Use it for
+ * multi-line native text entry, `Input` for a single line, and `InputGroup` to place controls
+ * around it. Controlled with `value` and `onValueChange`, or uncontrolled with `defaultValue`;
+ * wrap it in `Field` for a label, description, and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, Textarea } from 'moraine'
+ *
+ * const [message, setMessage] = createSignal('')
+ *
+ * <Field label="Message">
+ *   <Textarea
+ *     value={message()}
+ *     onValueChange={setMessage}
+ *     placeholder="Write a message"
+ *     autoResize
+ *     rows={2}
+ *     maxRows={6}
+ *   />
+ * </Field>
+ * ```
+ */
 export function Textarea<M extends InputModifiers | undefined = InputModifiers | undefined>(
   props: TextareaProps<M>,
 ): JSX.Element {
