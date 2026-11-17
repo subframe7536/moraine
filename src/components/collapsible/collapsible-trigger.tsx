@@ -11,7 +11,22 @@ import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
-/** Interactive trigger button for expanding/collapsing collapsible content. */
+/**
+ * Button inside `Collapsible` that toggles its content and exposes `aria-expanded` and
+ * `aria-controls`. Place it inside `Collapsible`; it renders a `button` by default (an `a` when
+ * `href` is given), or pass `as` to render another element or component. `disabled` blocks only
+ * this trigger.
+ *
+ * @example
+ * ```tsx
+ * import { Collapsible } from 'moraine'
+ *
+ * <Collapsible>
+ *   <Collapsible.Trigger>Details</Collapsible.Trigger>
+ *   <Collapsible.Content>More information</Collapsible.Content>
+ * </Collapsible>
+ * ```
+ */
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {

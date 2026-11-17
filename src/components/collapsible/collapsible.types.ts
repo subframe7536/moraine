@@ -21,41 +21,53 @@ export namespace CollapsibleT {
    */
   export interface Base {
     /**
-     * Unique identifier for the collapsible root element.
+     * Unique identifier for the collapsible root element. The trigger and content derive their
+     * IDs from it (`{id}-trigger`, `{id}-content`) for `aria-controls` and `aria-labelledby`. A
+     * unique ID is generated when omitted.
      */
     id?: string
 
     /**
-     * Whether the collapsible is open (controlled).
+     * Whether the collapsible is open (controlled). Leave it `undefined` for uncontrolled state
+     * and update it from `onOpenChange`.
      */
     open?: boolean
 
     /**
-     * Whether the collapsible is open by default (uncontrolled).
+     * Whether the collapsible is open initially when uncontrolled.
      * @default false
      */
     defaultOpen?: boolean
 
     /**
-     * Callback when the open state changes.
+     * Called with the next open state when the user toggles the collapsible with the trigger, or
+     * when in-page search reveals `forceMount`ed content. It is not called while `disabled`, nor
+     * when `open` changes from outside. When `open` is controlled, the state only changes if you
+     * update `open`.
      */
     onOpenChange?: (open: boolean) => void
 
     /**
-     * Whether the collapsible is disabled.
+     * Whether the collapsible is disabled: its triggers cannot toggle it and `onOpenChange` is not
+     * called. The current open state is kept.
      * @default false
      */
     disabled?: boolean
 
     /**
-     * Whether to keep content mounted until its height transition completes.
+     * Whether to animate the content height when opening and closing. The content is measured in
+     * pixels and exposed as the `--mo-collapsible-content-height` CSS variable on the root, and
+     * on close it stays mounted until the animation ends. Animations are skipped with
+     * `prefers-reduced-motion`.
      * @default false
      */
     transition?: boolean
 
     /**
      * Whether closed content stays mounted. When `false`, content mounts on first open and
-     * unmounts once it closes; when `true`, content mounts even before the first open.
+     * unmounts once it closes; when `true`, content mounts even before the first open and stays
+     * hidden (and `inert`) while closed. Mounted closed content can be found by browser
+     * in-page search, which opens the collapsible.
      * @default false
      */
     forceMount?: boolean

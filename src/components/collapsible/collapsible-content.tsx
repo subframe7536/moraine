@@ -16,7 +16,22 @@ import {
 } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
-/** Panel containing the expandable collapsible content. */
+/**
+ * Panel inside `Collapsible` holding the expandable content, labelled by the trigger. Place it
+ * inside `Collapsible`; it renders a `div` by default and `as` applies to that inner element. By
+ * default the content mounts on first open and unmounts after it closes; set `forceMount` on
+ * `Collapsible` to keep state inside it.
+ *
+ * @example
+ * ```tsx
+ * import { Collapsible } from 'moraine'
+ *
+ * <Collapsible defaultOpen>
+ *   <Collapsible.Trigger>Details</Collapsible.Trigger>
+ *   <Collapsible.Content>More information</Collapsible.Content>
+ * </Collapsible>
+ * ```
+ */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {

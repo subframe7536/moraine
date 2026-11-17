@@ -13,7 +13,25 @@ import { CollapsibleTrigger } from './collapsible-trigger'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleProps } from './collapsible.types'
 
-/** Expandable content section with optional height transitions. */
+/**
+ * Single disclosure whose `Collapsible.Trigger` and `Collapsible.Content` belong to the surrounding
+ * layout, with optional height transitions. Use `Accordion` when several disclosures share
+ * selection rules. Pair `open` with `onOpenChange` for controlled state or use `defaultOpen`; the
+ * content shell stays mounted so the trigger's `aria-controls` always points to a real element.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Collapsible } from 'moraine'
+ *
+ * const [open, setOpen] = createSignal(false)
+ *
+ * <Collapsible open={open()} onOpenChange={setOpen}>
+ *   <Collapsible.Trigger>Advanced settings</Collapsible.Trigger>
+ *   <Collapsible.Content>Telemetry endpoints</Collapsible.Content>
+ * </Collapsible>
+ * ```
+ */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
