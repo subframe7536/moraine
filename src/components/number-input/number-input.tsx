@@ -49,7 +49,26 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
 }
 
-/** Numeric input with increment/decrement controls, step, and min/max constraints. */
+/**
+ * Numeric field with increment and decrement buttons, `step` and `min`/`max` constraints, and
+ * locale-aware formatting. Use it for a numeric field with step controls; use a plain `Input`
+ * when free-form numeric text is required and `Slider` when the value is chosen spatially. The
+ * value is a plain `number | undefined`, uncontrolled with `defaultValue` or controlled through
+ * `value` and `onValueChange`; clearing the input emits `undefined`. Wrap it in `Field` for a
+ * label, description, and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, NumberInput } from 'moraine'
+ *
+ * const [quantity, setQuantity] = createSignal<number | undefined>(1)
+ *
+ * <Field label="Quantity">
+ *   <NumberInput value={quantity()} onValueChange={setQuantity} min={0} max={10} step={1} />
+ * </Field>
+ * ```
+ */
 export function NumberInput(props: NumberInputProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
