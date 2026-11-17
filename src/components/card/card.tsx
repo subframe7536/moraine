@@ -15,7 +15,26 @@ import { CardTitle } from './card-title'
 import { cardRecipe } from './card.recipe'
 import type { CardT } from './card.types'
 
-/** Static surface and shared presentation for its parts. */
+/**
+ * Static surface that groups related content and actions, composed from `Card.Header`,
+ * `Card.Body`, `Card.Footer`, and other parts. The parts are structural and add no interactive
+ * behavior or ARIA relationships; `Card.Title` renders a `div` by default, so pass `as` to use a
+ * heading element when the page needs one.
+ *
+ * @example
+ * ```tsx
+ * import { Card } from 'moraine'
+ *
+ * <Card>
+ *   <Card.Header>
+ *     <Card.Title>Project</Card.Title>
+ *     <Card.Description>Summary of your project.</Card.Description>
+ *   </Card.Header>
+ *   <Card.Body>Project details</Card.Body>
+ *   <Card.Footer>Updated today</Card.Footer>
+ * </Card>
+ * ```
+ */
 export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): JSX.Element {
   const [local, rest] = splitProps(props, [
     'as',
