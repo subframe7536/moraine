@@ -24,12 +24,31 @@ export namespace KbdGroupT {
   }
 
   export interface Base {
-    /** Keyboard keys displayed as one simultaneous shortcut. */
+    /**
+     * Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved
+     * like `Kbd` `value`, or a `Kbd` props object to customize one key. The group renders nothing when empty.
+     * @example
+     * ```tsx
+     * import { KbdGroup } from 'moraine'
+     *
+     * <KbdGroup items={['meta', { value: 'K', 'aria-label': 'letter K' }]} />
+     * ```
+     */
     items: Item[]
 
     /**
-     * Text between keys, or a component that receives the separator `index`.
+     * Text between keys, or a component rendered between each pair of keys. The component receives the
+     * `index` of the key it follows.
      * @default '+'
+     * @example
+     * ```tsx
+     * import { KbdGroup } from 'moraine'
+     *
+     * <KbdGroup
+     *   items={['g', 'i']}
+     *   separator={(props) => <span aria-hidden="true">then {props.index}</span>}
+     * />
+     * ```
      */
     separator?: string | number | Component<SeparatorRenderProps>
   }

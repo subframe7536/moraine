@@ -17,7 +17,22 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string' ? { value: item } : item
 }
 
-/** Data-driven renderer for one simultaneous keyboard shortcut. */
+/**
+ * Data-driven display of keys pressed together as one shortcut, rendering a `Kbd` per item with
+ * a separator between them. Items are key strings or `Kbd` prop objects such as
+ * `{ value: 'meta', translations: { meta: 'Command' } }`. It renders notation only, so the
+ * application owns the shortcut listener; use `Kbd` for a single keycap.
+ *
+ * @example
+ * ```tsx
+ * import { KbdGroup } from 'moraine'
+ *
+ * <>
+ *   <KbdGroup items={['meta', 'K']} />
+ *   <KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
+ * </>
+ * ```
+ */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
