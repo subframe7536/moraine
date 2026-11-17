@@ -34,9 +34,9 @@ export namespace SelectT {
   export interface Item<
     Val extends string | number = string | number,
   > extends BaseSelectT.Item<Val> {
-    /** Leading item icon. */
+    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */
     icon?: IconT.Name
-    /** Secondary item description. */
+    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */
     description?: JSX.Element
   }
   export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
@@ -45,9 +45,9 @@ export namespace SelectT {
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
-    /** Currently selected value. */
+    /** Currently selected value, or `undefined` when nothing is selected. */
     selectedValue: NormalizedItem<TItem>['value'] | undefined
-    /** Close the select popup. */
+    /** Closes the popup. */
     close: () => void
   }
 
@@ -59,41 +59,110 @@ export namespace SelectT {
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       Omit<ContentProps<NormalizedItem<TItem>>, 'virtualizer'> {
-    /** Initial committed value when uncontrolled. */
+    /**
+     * Initial selected value when `value` is not set. Read once on creation; a native form reset
+     * restores it.
+     */
     defaultValue?: NormalizedItem<TItem>['value']
-    /** Localized message overrides for this select instance. */
+    /**
+     * Overrides the built-in messages (`clear`, `placeholder`) for this instance, merged over
+     * the messages from the provider and locale.
+     * @example
+     * ```tsx
+     * import { Select } from 'moraine'
+     *
+     * <Select
+     *   items={['Small', 'Large']}
+     *   clearable
+     *   translations={{ clear: 'Remove size', placeholder: 'Pick a size' }}
+     * />
+     * ```
+     */
     translations?: Translations
     /**
      * Controlled selected value. `undefined` keeps the selection uncontrolled; `null` keeps it
-     * controlled and empty.
+     * controlled and empty. A value that matches no item is displayed as `String(value)`. In
+     * controlled mode the selection changes only when you update this prop in `onValueChange`.
      */
     value?: NormalizedItem<TItem>['value'] | null
-    /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
+    /**
+     * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
+     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values
+     * must be unique across the whole collection; a repeated value is ignored and logs an error
+     * in development.
+     * @example
+     * ```tsx
+     * import { Select } from 'moraine'
+     *
+     * <Select
+     *   items={[
+     *     { label: 'Apple', value: 'apple' },
+     *     { type: 'separator' },
+     *     {
+     *       type: 'group',
+     *       label: 'Citrus',
+     *       items: [
+     *         { label: 'Lemon', value: 'lemon' },
+     *         { label: 'Lime', value: 'lime', disabled: true },
+     *       ],
+     *     },
+     *     { label: 'Pear', value: 'pear' },
+     *   ]}
+     * />
+     * ```
+     */
     items?: Entry<TItem>[]
-    /** Called when the selection changes; `null` when the selection is cleared. */
+    /**
+     * Called with the new item `value` when the user changes the selection, or with `null` when
+     * it is cleared. Not called for prop updates, when the same item is chosen again, or while
+     * the select is disabled or read-only.
+     */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | null) => void
-    /** Content or render function for the empty state. */
+    /**
+     * Content shown in the popup when `items` is empty; nothing is rendered when omitted. A
+     * function receives `{ selectedValue, close }`.
+     * @example
+     * ```tsx
+     * import { Select } from 'moraine'
+     *
+     * <Select
+     *   items={[]}
+     *   emptyRender={(state) => <button onClick={() => state.close()}>No options. Close</button>}
+     * />
+     * ```
+     */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
-     * Placeholder text shown when no value is selected.
+     * Text shown in the trigger while no value is selected. Takes precedence over the
+     * `placeholder` translation.
      * @default ''
      */
     placeholder?: string
-    /** Whether the select is in a loading state. */
+    /**
+     * Replaces the `trailing` icon with `loadingIcon` and hides the clear button. It does not
+     * disable the select.
+     */
     loading?: boolean
-    /** Show a pointer clear affordance when a value is selected. */
+    /**
+     * Shows a clear button while a value is selected (hidden during `loading`). Backspace or
+     * Delete on the focused trigger clears too. Clearing calls `onValueChange(null)`, then
+     * `onClear`, and returns focus to the trigger.
+     */
     clearable?: boolean
-    /** Called when clear is triggered. */
+    /**
+     * Called after a clear action (see `clearable`), following `onValueChange(null)`. Not called
+     * while the select is disabled or read-only.
+     */
     onClear?: () => void
     /**
-     * Icon shown during loading state.
+     * Icon shown instead of `trailing` while `loading`.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
-    /** Icon shown before the input/value area. */
+    /** Icon rendered before the selected value or placeholder. */
     leading?: IconT.Name
     /**
-     * Icon for the dropdown trigger.
+     * Icon at the end of the trigger; replaced by `loadingIcon` while `loading`.
      * @default 'icon-chevron-down'
      */
     trailing?: IconT.Name

@@ -26,7 +26,33 @@ import { defaultSelectMessages } from './select.messages'
 import { selectDataAttributes, selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types'
 
-/** Single, non-editable collection selection. */
+/**
+ * Single, non-editable collection selection from a popup list. Items may be strings or
+ * `{ value, label }` objects, optionally grouped. Use `Combobox` when users need to type a query,
+ * `MultiSelect` for several values, and `BaseSelect` to compose the listbox yourself.
+ * Wrap it in `Field` for a label, description, and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, Select } from 'moraine'
+ *
+ * const [size, setSize] = createSignal<string | null>('md')
+ *
+ * <Field label="Size">
+ *   <Select
+ *     items={[
+ *       { label: 'Small', value: 'sm' },
+ *       { label: 'Medium', value: 'md' },
+ *       { label: 'Large', value: 'lg' },
+ *     ]}
+ *     value={size()}
+ *     onValueChange={setSize}
+ *     placeholder="Choose a size"
+ *   />
+ * </Field>
+ * ```
+ */
 export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   props: SelectProps<T>,
 ): JSX.Element {
