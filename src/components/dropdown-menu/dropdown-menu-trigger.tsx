@@ -14,6 +14,21 @@ import { useDropdownMenuContext } from './dropdown-menu-context'
 import { dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuT } from './dropdown-menu.types'
 
+/**
+ * Element that opens and closes the surrounding `DropdownMenu`, wiring click, keyboard (Enter,
+ * Space, ArrowDown, ArrowUp), and ARIA behavior. Place it inside `DropdownMenu`; it renders a
+ * `button` by default, or pass `as` to render another component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, DropdownMenu } from 'moraine'
+ *
+ * <DropdownMenu>
+ *   <DropdownMenu.Trigger as={Button}>Account options</DropdownMenu.Trigger>
+ *   <DropdownMenu.Content items={[{ label: 'Edit profile' }]} />
+ * </DropdownMenu>
+ * ```
+ */
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {

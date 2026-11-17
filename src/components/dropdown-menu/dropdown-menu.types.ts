@@ -35,39 +35,102 @@ export namespace DropdownMenuT {
    * Base props for the DropdownMenu root component.
    */
   export interface Base {
-    /** Unique identifier for the menu. */
+    /**
+     * Base for the generated trigger and content ids; the content id is `<id>-content`. Generated
+     * when omitted.
+     */
     id?: string
-    /** Controlled open state. */
+    /**
+     * Controlled open state. While `undefined` the menu is uncontrolled and follows `defaultOpen`;
+     * update it from `onOpenChange`.
+     */
     open?: boolean
-    /** Initial open state when uncontrolled. @default false */
+    /**
+     * Initial open state when uncontrolled. Ignored when `open` is set.
+     * @default false
+     */
     defaultOpen?: boolean
-    /** Called whenever the open state changes. */
+    /**
+     * Called with the next open state when the user opens or closes the menu, and when `disabled`
+     * becomes `true` while it is open. It fires in controlled and uncontrolled mode alike, so a
+     * controlled menu must write the value back to `open`.
+     */
     onOpenChange?: (open: boolean) => void
-    /** Whether trigger interactions should be ignored. @default false */
+    /**
+     * Disables the trigger so the menu cannot be opened, and closes the menu if it is open.
+     * @default false
+     */
     disabled?: boolean
-    /** Preferred side relative to the anchor. @default 'bottom' */
+    /**
+     * Preferred side of the trigger the content opens on (`'top'`, `'right'`, `'bottom'` or `'left'`).
+     * The content may move to another side when `flip` is enabled and the preferred side lacks space.
+     * @default 'bottom'
+     */
     placement?: OverlayPlacement
-    /** Alignment along the cross axis. @default 'start' */
+    /**
+     * Alignment of the content along the cross axis relative to the anchor: `'start'`, `'center'` or `'end'`.
+     * @default 'start'
+     */
     align?: OverlayAlign
-    /** Gap between the anchor and the content. @default 4 */
+    /**
+     * Distance in pixels between the anchor and the content along the placement axis.
+     * @default 4
+     */
     gutter?: number
-    /** Cross-axis or alignment offset relative to the anchor. @default 0 */
+    /**
+     * Offset in pixels along the cross axis, applied on top of `align`.
+     * @default 0
+     */
     shift?: number
-    /** Whether body scroll should be locked while the menu is open. @default true */
+    /**
+     * Locks body scroll while the menu is open and renders the `overlay` slot element behind the
+     * content. Set `false` to keep the page scrollable.
+     * @default true
+     */
     preventScroll?: boolean
-    /** Padding applied to the overflow area when calculating position. @default 4 */
+    /**
+     * Minimum distance in pixels kept between the content and the viewport edge when `flip` and
+     * `slide` position it.
+     * @default 4
+     */
     overflowPadding?: number
-    /** Whether to flip placement when the preferred side lacks space. @default true */
+    /**
+     * Whether the content moves to the opposite side when the preferred `placement` does not fit.
+     * A space-delimited string such as `'top left'` is an ordered list of fallback placements
+     * (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`); an
+     * invalid entry throws.
+     * @default true
+     */
     flip?: boolean | string
-    /** Whether the content may slide along its main axis to remain visible. @default true */
+    /**
+     * Whether the content may slide along the edge of the anchor so it stays inside the viewport
+     * instead of being clipped.
+     * @default true
+     */
     slide?: boolean
-    /** Whether Escape dismisses the menu. @default true */
+    /**
+     * Whether pressing Escape closes the menu. When `false`, Escape is ignored and `onClosePrevented`
+     * is called.
+     * @default true
+     */
     closeOnEscape?: boolean
-    /** Whether outside interaction dismisses the menu. @default true */
+    /**
+     * Whether a pointer press or focus move outside the menu closes it. When `false`, the attempt
+     * is ignored and `onClosePrevented` is called.
+     * @default true
+     */
     closeOnOutsideClick?: boolean
-    /** Called when a dismissal attempt is blocked. */
+    /**
+     * Called when Escape or an outside interaction tries to close the menu but `closeOnEscape` or
+     * `closeOnOutsideClick` is `false`.
+     */
     onClosePrevented?: () => void
-    /** Whether outside content is hidden from assistive technology and outside pointer events are blocked. @default false */
+    /**
+     * Whether the menu is modal: while it is open, content outside it is hidden from assistive
+     * technology and the native default action of outside pointer presses is prevented. Outside
+     * presses still dismiss the menu unless `closeOnOutsideClick` is `false`.
+     * @default false
+     */
     modal?: boolean
     /** Composed trigger and content primitives. */
     children?: JSX.Element
@@ -78,17 +141,87 @@ export namespace DropdownMenuT {
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export interface ContentBase {
-    /** Items rendered in the menu body. Supports flat array, explicit group objects, or array-of-arrays. */
+    /**
+     * Items rendered in the menu body. Each entry is an item object or an array of items; consecutive
+     * plain entries form one group, and every array starts a new group, with a separator drawn
+     * between groups. An item's `type` is `'item'` (the default), `'checkbox'`, `'radio-group'`
+     * (with radio `items`), `'group'` (with a `label` and child `items`) or `'separator'`. An `'item'`
+     * with `children` opens a submenu, and `onSelect` runs when an item is activated.
+     * @example
+     * ```tsx
+     * import { createSignal } from 'solid-js'
+     * import { DropdownMenu } from 'moraine'
+     *
+     * const [showHidden, setShowHidden] = createSignal(false)
+     *
+     * <DropdownMenu>
+     *   <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+     *   <DropdownMenu.Content
+     *     items={[
+     *       [{ label: 'Rename', onSelect: () => console.log('rename') }, { label: 'Delete', variant: 'danger' }],
+     *       [{ type: 'checkbox', label: 'Show hidden', checked: showHidden(), onCheckedChange: setShowHidden }],
+     *       { label: 'Share', children: [{ label: 'Copy link' }] },
+     *     ]}
+     *   />
+     * </DropdownMenu>
+     * ```
+     */
     items?: (Item | Item[])[]
-    /** Renderer for each menu item. */
+    /**
+     * Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu
+     * indicator and checkmark); the row keeps its role, keyboard handling and selection. It is
+     * mounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in
+     * submenus), `isCheckbox`, `isRadio` and `hasChildren`.
+     * @example
+     * ```tsx
+     * import { DropdownMenu } from 'moraine'
+     *
+     * <DropdownMenu>
+     *   <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+     *   <DropdownMenu.Content
+     *     items={[{ label: 'Rename' }, { label: 'Share', children: [{ label: 'Copy link' }] }]}
+     *     itemRender={(props) => (
+     *       <span>
+     *         {props.item.label}
+     *         {props.hasChildren ? ' ›' : ''}
+     *       </span>
+     *     )}
+     *   />
+     * </DropdownMenu>
+     * ```
+     */
     itemRender?: Component<ItemRenderProps>
-    /** Content rendered before the resolved item groups. */
+    /**
+     * Content rendered above the item groups, in the root menu and in every submenu. A function is
+     * mounted as a component and receives `{ sub }`, which is `true` inside a submenu.
+     * @example
+     * ```tsx
+     * import { DropdownMenu } from 'moraine'
+     *
+     * <DropdownMenu>
+     *   <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+     *   <DropdownMenu.Content
+     *     items={[{ label: 'Rename' }]}
+     *     topRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}
+     *   />
+     * </DropdownMenu>
+     * ```
+     */
     topRender?: JSX.Element | Component<TopRenderProps>
-    /** Content rendered after the resolved item groups. */
+    /**
+     * Content rendered below the item groups, in the root menu and in every submenu. A function is
+     * mounted as a component and receives `{ sub }`, which is `true` inside a submenu.
+     */
     bottomRender?: JSX.Element | Component<BottomRenderProps>
-    /** Icon used for checked checkbox items. @default 'icon-check' */
+    /**
+     * Icon shown on checked checkbox and radio items.
+     * @default 'icon-check'
+     */
     checkedIcon?: IconT.Name
-    /** Icon used for submenu trigger items. @default 'icon-chevron-right' */
+    /**
+     * Icon shown at the end of items that open a submenu.
+     * @default 'icon-chevron-right'
+     */
     submenuIcon?: IconT.Name
   }
 

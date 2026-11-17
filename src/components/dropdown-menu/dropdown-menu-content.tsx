@@ -8,6 +8,29 @@ import { useDropdownMenuContext } from './dropdown-menu-context'
 import { dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuT } from './dropdown-menu.types'
 
+/**
+ * Popup list of actions for the surrounding `DropdownMenu`, described by the `items` model: items,
+ * groups, separators, checkbox and radio items, and nested submenus. Place it inside
+ * `DropdownMenu`; it renders in an overlay when open. Use `topRender`, `bottomRender`, and
+ * `itemRender` for custom headers, footers, and item presentation.
+ *
+ * @example
+ * ```tsx
+ * import { Button, DropdownMenu } from 'moraine'
+ *
+ * <DropdownMenu>
+ *   <DropdownMenu.Trigger as={Button}>Actions</DropdownMenu.Trigger>
+ *   <DropdownMenu.Content
+ *     items={[
+ *       { label: 'Edit profile' },
+ *       { label: 'Billing details' },
+ *       { type: 'separator' },
+ *       { label: 'Sign out' },
+ *     ]}
+ *   />
+ * </DropdownMenu>
+ * ```
+ */
 export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
