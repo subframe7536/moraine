@@ -30,7 +30,34 @@ import { useComboboxSearch } from '../shared/form/select/search'
 import { defaultComboboxMessages } from './combobox.messages'
 import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
 import type { ComboboxProps, ComboboxT } from './combobox.types'
-/** Single collection selection with an editable query input. */
+/**
+ * Single collection selection with an editable query input. Items may be strings or
+ * `{ value, label }` objects, optionally grouped. Use `Combobox` when users should type to find one
+ * item, `Select` for a non-editable choice, `MultiSelect` for several values, and `BaseSelect` to
+ * compose the listbox yourself. Pair `value` with `onValueChange` for controlled selection (`null`
+ * means empty); query text is never committed as a value. Wrap it in `Field` for a label,
+ * description, and validation message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Combobox, Field } from 'moraine'
+ *
+ * const [fruit, setFruit] = createSignal<string | null>(null)
+ *
+ * <Field label="Fruit">
+ *   <Combobox
+ *     items={[
+ *       { label: 'Apple', value: 'apple' },
+ *       { label: 'Pear', value: 'pear' },
+ *     ]}
+ *     value={fruit()}
+ *     onValueChange={setFruit}
+ *     placeholder="Search fruit"
+ *   />
+ * </Field>
+ * ```
+ */
 export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.Item>(
   props: ComboboxProps<T>,
 ): JSX.Element {

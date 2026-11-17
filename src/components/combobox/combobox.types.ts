@@ -37,9 +37,9 @@ export namespace ComboboxT {
   export interface Item<
     Val extends string | number = string | number,
   > extends BaseSelectT.Item<Val> {
-    /** Leading item icon. */
+    /** Icon rendered before the label in the default item content. Ignored when `itemRender` is set. */
     icon?: IconT.Name
-    /** Secondary item description. */
+    /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */
     description?: JSX.Element
   }
   export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
@@ -71,50 +71,107 @@ export namespace ComboboxT {
       BaseSelectResetProps,
       SearchProps<NormalizedItem<TItem>>,
       ContentProps<NormalizedItem<TItem>> {
-    /** Initial committed value when uncontrolled. */
+    /**
+     * Initial selected value when `value` is not set. Read once on creation; a native form reset
+     * restores it.
+     */
     defaultValue?: NormalizedItem<TItem>['value']
-    /** Localized message overrides for this combobox instance. */
+    /**
+     * Overrides the built-in messages (`clear`, `loading`, `toggle`, `empty`, `placeholder`) for
+     * this instance, merged over the messages from the provider and locale. `empty` is the
+     * default text of the empty state.
+     */
     translations?: Translations
     /**
      * Controlled committed value. `undefined` keeps the selection uncontrolled; `null` keeps it
-     * controlled and empty.
+     * controlled and empty. Typed search text is never a value; it lives in `searchValue`. In
+     * controlled mode the selection changes only when you update this prop in `onValueChange`.
      */
     value?: NormalizedItem<TItem>['value'] | null
-    /** String shorthand or object items, optionally grouped. Item values must be unique. */
+    /**
+     * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
+     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values
+     * must be unique across the whole collection; a repeated value is ignored and logs an error
+     * in development. Filtering by the search text hides non-matching items from the list but
+     * never changes the selection.
+     * @example
+     * ```tsx
+     * import { Combobox } from 'moraine'
+     *
+     * <Combobox
+     *   items={[
+     *     { type: 'group', label: 'Fruit', items: ['Apple', { label: 'Pear', value: 'pear' }] },
+     *     { type: 'separator' },
+     *     { type: 'group', label: 'Veg', items: [{ label: 'Leek', value: 'leek' }] },
+     *   ]}
+     * />
+     * ```
+     */
     items?: Entry<TItem>[]
-    /** Called when the committed selection changes; `null` when the selection is cleared. */
+    /**
+     * Called with the new item `value` when the user commits a different item, or with `null`
+     * when the selection is cleared. Typing alone does not call it (see `onSearchValueChange`).
+     * Not called for prop updates, when the same item is chosen again, or while disabled or
+     * read-only.
+     */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | null) => void
-    /** Content or render function for the filtered empty state. */
+    /**
+     * Content shown in the popup when no item matches the search text. A function receives
+     * `{ searchValue, hasMatches, selectedValue, close }`. Defaults to the `empty` translation
+     * (`'No items'`).
+     * @example
+     * ```tsx
+     * import { Combobox } from 'moraine'
+     *
+     * <Combobox
+     *   items={['Apple', 'Pear']}
+     *   emptyRender={(state) => <span>No fruit matches "{state.searchValue}"</span>}
+     * />
+     * ```
+     */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
-    /** Placeholder shown when there is no selected value or query. */
+    /**
+     * Native placeholder of the input, so it shows whenever the input text is empty. Takes
+     * precedence over the `placeholder` translation.
+     */
     placeholder?: string
-    /** Whether the control is loading. */
+    /**
+     * Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it
+     * `aria-busy`. Typing and the clear button keep working.
+     */
     loading?: boolean
-    /** Show a clear action when a value or query exists. */
+    /**
+     * Shows a clear button while there is a selected value or search text. Escape (with the popup
+     * closed) and Backspace or Delete (with an empty input) clear too. Clearing resets the
+     * selection (`onValueChange(null)` if one existed) and the search text, calls `onClear`, and
+     * returns focus to the input.
+     */
     clearable?: boolean
-    /** Called once when clear is triggered. */
+    /** Called once after a clear action (see `clearable`), following `onValueChange(null)`. */
     onClear?: () => void
     /**
-     * Whether ordinary control/input pointer clicks open the popup.
+     * Whether a pointer click on the control (outside the toggle and clear buttons) opens the
+     * popup. Typing non-blank text, `ArrowDown`, and the toggle button open it regardless.
      * @default false
      */
     openOnControlClick?: boolean
-    /** Optional inner input element ref. */
+    /** Receives the inner `<input>` element, for example to focus it programmatically. */
     inputRef?: Ref<HTMLInputElement>
     /**
-     * Loading icon.
+     * Icon shown instead of `trailing` while `loading`.
      * @default 'icon-loading'
      */
     loadingIcon?: IconT.Name
-    /** Leading icon. */
+    /** Icon rendered before the input. */
     leading?: IconT.Name
     /**
-     * Popup toggle icon.
+     * Icon of the toggle button that opens and closes the popup; replaced by `loadingIcon` while
+     * `loading`.
      * @default 'icon-chevron-down'
      */
     trailing?: IconT.Name
     /**
-     * Clear icon.
+     * Icon of the clear button.
      * @default 'icon-close'
      */
     clearIcon?: IconT.Name
