@@ -39,7 +39,33 @@ interface NormalizedRadioGroupItem {
   disabled: boolean
 }
 
-/** Single-select radio group with card, list, and table layout variants. */
+/**
+ * Single-choice group of radio items rendered from an `items` array of strings or
+ * `{ value, label, description, disabled }` objects. Use it for one choice from a small visible
+ * set; use `Select` for a longer or space-constrained collection and `CheckboxGroup` when several
+ * options may be selected. The value is a string, uncontrolled with `defaultValue` or controlled
+ * through `value` and `onValueChange`. Wrap it in `Field` for a label, description, and validation
+ * message.
+ *
+ * @example
+ * ```tsx
+ * import { createSignal } from 'solid-js'
+ * import { Field, RadioGroup } from 'moraine'
+ *
+ * const [visibility, setVisibility] = createSignal('public')
+ *
+ * <Field label="Visibility">
+ *   <RadioGroup
+ *     items={[
+ *       { value: 'public', label: 'Public' },
+ *       { value: 'private', label: 'Private' },
+ *     ]}
+ *     value={visibility()}
+ *     onValueChange={setVisibility}
+ *   />
+ * </Field>
+ * ```
+ */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',

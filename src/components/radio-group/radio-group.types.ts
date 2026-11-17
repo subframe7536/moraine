@@ -21,12 +21,13 @@ export namespace RadioGroupT {
    */
   export interface Item {
     /**
-     * Value of the radio item.
+     * Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to
+     * the item's index as a string when omitted, so set it explicitly for stable values.
      */
     value?: string
 
     /**
-     * Label for the radio item.
+     * Label for the radio item. It names the radio input for assistive technology.
      */
     label?: JSX.Element
 
@@ -36,7 +37,8 @@ export namespace RadioGroupT {
     description?: JSX.Element
 
     /**
-     * Whether the item is disabled.
+     * Whether this item is disabled. It cannot be selected or focused with the keyboard, and the
+     * other items stay interactive.
      */
     disabled?: boolean
   }
@@ -45,9 +47,15 @@ export namespace RadioGroupT {
    * Base props for the RadioGroup component.
    */
   export interface Base extends FieldT.ControlBase {
-    /** The current value (controlled). */
+    /**
+     * The value of the selected item (controlled). Leave it `undefined` for uncontrolled usage; an
+     * empty string or a value matching no item leaves every item unselected.
+     */
     value?: string
-    /** The default value (uncontrolled). */
+    /**
+     * The initially selected value (uncontrolled). When omitted, no item is selected and the form
+     * submits nothing for the group.
+     */
     defaultValue?: string
 
     /**
@@ -57,18 +65,32 @@ export namespace RadioGroupT {
     form?: string
 
     /**
-     * Array of items to render in the group.
+     * Items to render, either plain strings (used as both `value` and `label`) or `Item` objects.
+     * @example
+     * ```tsx
+     * import { RadioGroup } from 'moraine'
+     *
+     * <RadioGroup
+     *   items={[
+     *     'Free',
+     *     { value: 'pro', label: 'Pro', description: 'Billed monthly' },
+     *     { value: 'team', label: 'Team', disabled: true },
+     *   ]}
+     * />
+     * ```
      */
     items?: (string | Item)[]
 
     /**
-     * Whether keyboard navigation loops around when reaching the ends.
+     * Whether arrow-key navigation wraps from the last item to the first and back. Disabled items are skipped.
      * @default true
      */
     loop?: boolean
 
     /**
-     * Callback when the selected value changes.
+     * Called when the user selects a different item, with that item's `value`. It does not fire for
+     * programmatic changes to `value`, for re-selecting the current item, or while the group is
+     * `disabled` or `readOnly`.
      */
     onValueChange?: (value: string) => void
   }

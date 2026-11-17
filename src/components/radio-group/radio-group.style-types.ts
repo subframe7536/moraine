@@ -29,7 +29,10 @@ export interface RadioGroupStyleSlot<T = unknown> {
 }
 
 export interface RadioGroupStyleVariants {
-  /** Layout axis used by the component Recipe. */
+  /**
+   * Direction items are laid out in.
+   * @default 'vertical'
+   */
   orientation?: Orientation
 
   /** Visual size of the component.
