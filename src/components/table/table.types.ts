@@ -13,7 +13,7 @@ export namespace TableT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Base {
-    /** Ref forwarded to the wrapper element around the table. */
+    /** Receives the `<div>` that wraps the `<table>` and scrolls it horizontally. Use `ref` for the `<table>` itself. */
     wrapperRef?: Ref<HTMLDivElement>
     /** Table parts and direct content. */
     children?: JSX.Element
@@ -29,21 +29,25 @@ export namespace TableT {
   export type FooterProps = BaseProps<'tfoot', object, never, never, never, 'tfoot', true>
 
   export interface RowBase {
-    /** Whether this row is selected. */
+    /**
+     * Highlights the row as selected through `data-selected`. This is presentation only and sets no
+     * `aria-selected`, so expose the state to assistive technology with a labelled control in the row.
+     * @default false
+     */
     selected?: boolean
     children?: JSX.Element
   }
   export type RowProps = BaseProps<'tr', RowBase, never, never, never>
 
   export interface HeadBase {
-    /** Text alignment for the column header. @default 'start' */
+    /** Text alignment for the column header. `start` and `end` follow the writing direction, so use `end` for numeric columns. @default 'start' */
     align?: 'start' | 'center' | 'end'
     children?: JSX.Element
   }
   export type HeadProps = BaseProps<'th', HeadBase, never, never, never>
 
   export interface CellBase {
-    /** Text alignment for the cell. @default 'start' */
+    /** Text alignment for the cell. `start` and `end` follow the writing direction, so use `end` for numeric columns. @default 'start' */
     align?: 'start' | 'center' | 'end'
     children?: JSX.Element
   }
