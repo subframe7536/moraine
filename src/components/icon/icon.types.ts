@@ -34,6 +34,16 @@ export namespace IconT {
      * Non-string values can be JSX nodes or Solid components. They render inside the host and
      * fill it; components are rendered without props, and every Icon prop goes to the host.
      * Wrap Icon in Solid control flow instead of passing a control-flow node as `name`.
+     * @example
+     * ```tsx
+     * import { Icon } from 'moraine'
+     *
+     * <div class="flex gap-2 text-xl">
+     *   <Icon name="i-lucide-search" />
+     *   <Icon name={<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>} />
+     *   <Icon name={() => <span>★</span>} />
+     * </div>
+     * ```
      */
     name: Name
   }

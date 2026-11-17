@@ -8,7 +8,24 @@ import type { ValidComponent } from '../../shared/types'
 import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
 
-/** Renders an icon from a UnoCSS icon class, JSX element, or Solid component inside a `span` host. */
+/**
+ * Renders an icon from a UnoCSS icon class, JSX element, or Solid component inside a `span` host.
+ * Use it for decoration or a named symbol next to text; an icon is hidden from assistive
+ * technology unless it has `aria-label` or `aria-labelledby`, so name it when it alone conveys
+ * meaning. It follows the inherited `font-size`, and string names only render when your UnoCSS or
+ * Tailwind setup generates the matching CSS.
+ *
+ * @example
+ * ```tsx
+ * import { Icon } from 'moraine'
+ *
+ * <p class="flex items-center gap-2 text-lg">
+ *   <Icon name="i-lucide:check" class="text-green-600" />
+ *   <Icon name="icon-search" aria-label="Search" />
+ *   Deploy succeeded
+ * </p>
+ * ```
+ */
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'name',
