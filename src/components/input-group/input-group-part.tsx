@@ -50,10 +50,45 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
   }
 }
 
+/**
+ * Addon rendered before the control of an `InputGroup`, such as an icon, prefix text, or button;
+ * it must be placed inside `InputGroup` before the `Input` or `Textarea`, otherwise it throws.
+ * It renders a `div` by default. Set `compact` to reduce its padding next to the control.
+ *
+ * @example
+ * ```tsx
+ * import { Icon, Input, InputGroup } from 'moraine'
+ *
+ * <InputGroup>
+ *   <InputGroup.Leading compact>
+ *     <Icon name="i-lucide:search" />
+ *   </InputGroup.Leading>
+ *   <Input aria-label="Search" placeholder="Search..." />
+ * </InputGroup>
+ * ```
+ */
 export const InputGroupLeading: <T extends ValidComponent = 'div'>(
   props: InputGroupT.LeadingProps<T>,
 ) => JSX.Element = /* @__PURE__ */ createInputGroupPart('leading')
 
+/**
+ * Addon rendered after the control of an `InputGroup`, such as a unit, status icon, or action
+ * button; it must be placed inside `InputGroup` after the `Input` or `Textarea`, otherwise it
+ * throws. It renders a `div` by default. Set `compact` to reduce its padding, for example for an
+ * icon-only `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Input, InputGroup } from 'moraine'
+ *
+ * <InputGroup>
+ *   <Input aria-label="Website" placeholder="example.com" />
+ *   <InputGroup.Trailing compact>
+ *     <Button size="icon-sm" variant="ghost" aria-label="Clear" />
+ *   </InputGroup.Trailing>
+ * </InputGroup>
+ * ```
+ */
 export const InputGroupTrailing: <T extends ValidComponent = 'div'>(
   props: InputGroupT.TrailingProps<T>,
 ) => JSX.Element = /* @__PURE__ */ createInputGroupPart('trailing')

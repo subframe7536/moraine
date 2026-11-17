@@ -12,7 +12,26 @@ import { InputGroupProvider } from './input-group-context'
 import { InputGroupLeading, InputGroupTrailing } from './input-group-part'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupProps } from './input-group.types'
-/** Shared frame for one independently exported Input or Textarea and supporting content. */
+/**
+ * Shared frame that gives one `Input` or `Textarea` and its `InputGroup.Leading` and
+ * `InputGroup.Trailing` addons a single visual boundary. Place the leading parts first, then the
+ * control, then the trailing parts. The inner control still owns the value, form props, and
+ * accessible name; the group registers no form field, so wrap it in `Field` for a label. Clicking
+ * non-interactive group space focuses the control.
+ *
+ * @example
+ * ```tsx
+ * import { Field, Input, InputGroup } from 'moraine'
+ *
+ * <Field label="Website">
+ *   <InputGroup>
+ *     <InputGroup.Leading>https://</InputGroup.Leading>
+ *     <Input placeholder="example.com" />
+ *     <InputGroup.Trailing>.com</InputGroup.Trailing>
+ *   </InputGroup>
+ * </Field>
+ * ```
+ */
 export function InputGroup(props: InputGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'children',
