@@ -54,10 +54,43 @@ const VIRTUAL_CONFLICT_WARNINGS = {
 type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
 
 /**
- * Data-driven table presenter powered by `createDataTable`.
+ * Data-driven table that renders a `createDataTable` instance passed as `table`; behavior (sorting,
+ * row selection, pagination, expansion, column pinning and resizing, server-driven data) lives on
+ * the instance and `DataTable` props configure presentation. Use `Table` for a static table you
+ * compose by hand, or compose `Table` parts with `FlexRender` for a fully custom grid. Create the
+ * instance inside a component and pass a getter for `data` that changes; native `table`
+ * attributes such as `aria-label` are forwarded to the `table` element.
  *
- * Table behavior and state live on a `createDataTable()` instance passed via `table`.
- * `DataTable` props configure presentation, slots, and render parts.
+ * @example
+ * ```tsx
+ * import { DataTable, createDataTable } from 'moraine/data-table'
+ * import type { DataTableT } from 'moraine/data-table'
+ *
+ * interface User {
+ *   id: string
+ *   name: string
+ *   role: string
+ * }
+ *
+ * const users: User[] = [
+ *   { id: '1', name: 'Alice', role: 'Engineer' },
+ *   { id: '2', name: 'Bob', role: 'Designer' },
+ * ]
+ *
+ * const columns: DataTableT.Column<User>[] = [
+ *   { accessorKey: 'name', header: 'Name' },
+ *   { accessorKey: 'role', header: 'Role' },
+ * ]
+ *
+ * const table = createDataTable({
+ *   data: users,
+ *   columns,
+ *   getRowId: (user) => user.id,
+ *   selection: 'multiple',
+ * })
+ *
+ * <DataTable table={table} aria-label="Users" />
+ * ```
  */
 export function DataTable<TData extends RowData = RowData>(
   props: DataTableT.Props<TData>,

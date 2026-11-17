@@ -41,8 +41,55 @@ export type FlexRenderProps<
     }
 
 /**
- * Component wrapper of `flexRender` for rendering headers, cells, or footers.
- * Exactly one prop (`cell`, `header`, or `footer`) should be passed.
+ * Component wrapper of `flexRender` that renders a column's `header`, `cell`, or `footer` template
+ * (component, render function, or static JSX) with the right context. Pass exactly one of `cell`,
+ * `header`, or `footer`. Use it when composing your own table markup, such as `Table` parts, from
+ * a table instance; `DataTable` already renders its headers, cells, and footers with it.
+ *
+ * @example
+ * ```tsx
+ * import { For } from 'solid-js'
+ * import { Table } from 'moraine'
+ * import { FlexRender, createDataTable } from 'moraine/data-table'
+ *
+ * const table = createDataTable({
+ *   data: [{ name: 'Alice' }, { name: 'Bob' }],
+ *   columns: [{ accessorKey: 'name', header: 'Name' }],
+ * })
+ *
+ * <Table>
+ *   <Table.Header>
+ *     <For each={table.getHeaderGroups()}>
+ *       {(headerGroup) => (
+ *         <Table.Row>
+ *           <For each={headerGroup.headers}>
+ *             {(header) => (
+ *               <Table.Head>
+ *                 <FlexRender header={header} />
+ *               </Table.Head>
+ *             )}
+ *           </For>
+ *         </Table.Row>
+ *       )}
+ *     </For>
+ *   </Table.Header>
+ *   <Table.Body>
+ *     <For each={table.getRowModel().rows}>
+ *       {(row) => (
+ *         <Table.Row>
+ *           <For each={row.getVisibleCells()}>
+ *             {(cell) => (
+ *               <Table.Cell>
+ *                 <FlexRender cell={cell} />
+ *               </Table.Cell>
+ *             )}
+ *           </For>
+ *         </Table.Row>
+ *       )}
+ *     </For>
+ *   </Table.Body>
+ * </Table>
+ * ```
  */
 export function FlexRender<
   TFeatures extends TableFeatures,
