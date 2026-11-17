@@ -37,7 +37,29 @@ function shouldCloseOnSelect(
   return options.closeOnSelect ?? Boolean(options.href)
 }
 
-/** Interactive button or link of a sidebar menu item. */
+/**
+ * Interactive navigation button of a `Sidebar.MenuItem`, with optional `leading` and `trailing`
+ * icons and an `active` highlight. Renders a `button`, or an `a` when `href` is set; pass `as` to
+ * render a custom link component. On mobile, a button with `href` closes the drawer when activated
+ * unless `closeOnSelect` is `false`.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Menu>
+ *       <Sidebar.MenuItem>
+ *         <Sidebar.MenuButton href="/settings" leading="i-lucide:settings" active>
+ *           Settings
+ *         </Sidebar.MenuButton>
+ *       </Sidebar.MenuItem>
+ *     </Sidebar.Menu>
+ *   </Sidebar.Panel>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   props: SidebarT.MenuButtonProps<T>,
 ): JSX.Element {

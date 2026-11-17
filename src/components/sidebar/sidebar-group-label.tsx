@@ -7,7 +7,23 @@ import type { ValidComponent } from '../../shared/types'
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarT } from './sidebar.types'
 
-/** Section heading within a sidebar group. */
+/**
+ * Section heading placed first inside a `Sidebar.Group`. Renders a `div` by default; pass
+ * `as="h2"` or another tag when the page needs a real heading.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Group>
+ *       <Sidebar.GroupLabel as="h2">Navigation</Sidebar.GroupLabel>
+ *     </Sidebar.Group>
+ *   </Sidebar.Panel>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   props: SidebarT.GroupLabelProps<T>,
 ): JSX.Element {

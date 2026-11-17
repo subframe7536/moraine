@@ -7,7 +7,25 @@ import type { ValidComponent } from '../../shared/types'
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarT } from './sidebar.types'
 
-/** Main application content region beside the sidebar panel. */
+/**
+ * Main application content region beside `Sidebar.Panel`. Renders a `main` landmark by default, so
+ * keep page content inside it instead of adding another `main`; pass `as` to render another
+ * element.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Content>Navigation</Sidebar.Content>
+ *   </Sidebar.Panel>
+ *   <Sidebar.Inset>
+ *     <h1>Dashboard</h1>
+ *   </Sidebar.Inset>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarInset<T extends ValidComponent = 'main'>(
   props: SidebarT.InsetProps<T>,
 ): JSX.Element {

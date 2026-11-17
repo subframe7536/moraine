@@ -10,7 +10,27 @@ import { useSidebarContext } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
 
-/** Interactive trigger button for toggling sidebar visibility. */
+/**
+ * Button that toggles the surrounding `Sidebar` between expanded and collapsed, or opens and closes
+ * the mobile drawer. It can be placed anywhere inside `Sidebar`, and reports through the root
+ * `onOpenChange`. Renders a `button`; pass `as` to render another component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Content>Navigation</Sidebar.Content>
+ *   </Sidebar.Panel>
+ *   <Sidebar.Inset>
+ *     <Sidebar.Trigger as={Button} variant="ghost" aria-label="Toggle sidebar">
+ *       Menu
+ *     </Sidebar.Trigger>
+ *   </Sidebar.Inset>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarTrigger<T extends ValidComponent = 'button'>(
   props: SidebarT.TriggerProps<T>,
 ): JSX.Element {

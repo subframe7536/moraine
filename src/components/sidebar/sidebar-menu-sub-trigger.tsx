@@ -11,7 +11,30 @@ import type { SidebarT } from './sidebar.types'
 
 const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'i-lucide:chevron-right'
 
-/** Menu button that expands or collapses the enclosing `MenuSub`. */
+/**
+ * Menu button that expands or collapses the enclosing `Sidebar.MenuSub`; place it before the
+ * `Sidebar.MenuSubContent`. It takes the same `leading` icon as `Sidebar.MenuButton` and shows a
+ * chevron that rotates while expanded. Renders a `button` by default; pass `as` to render another
+ * component.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Menu>
+ *       <Sidebar.MenuItem>
+ *         <Sidebar.MenuSub>
+ *           <Sidebar.MenuSubTrigger leading="i-lucide:route">Routing</Sidebar.MenuSubTrigger>
+ *           <Sidebar.MenuSubContent />
+ *         </Sidebar.MenuSub>
+ *       </Sidebar.MenuItem>
+ *     </Sidebar.Menu>
+ *   </Sidebar.Panel>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
   props: SidebarT.MenuSubTriggerProps<T>,
 ): JSX.Element {

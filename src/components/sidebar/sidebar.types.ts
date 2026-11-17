@@ -40,7 +40,19 @@ export namespace SidebarT {
   }
 
   export interface Base {
-    /** Localized message overrides for this sidebar instance. */
+    /**
+     * Localized labels for this sidebar (`label` for the mobile drawer and `resize` for the rail
+     * separator). Merged per key over the provider messages and English defaults.
+     * @example
+     * ```tsx
+     * import { Sidebar } from 'moraine'
+     *
+     * <Sidebar translations={{ label: 'Navegación', resize: 'Cambiar tamaño' }}>
+     *   <Sidebar.Panel />
+     *   <Sidebar.Rail />
+     * </Sidebar>
+     * ```
+     */
     translations?: Translations
     /**
      * Controlled open state of the active layout: the desktop panel, or the mobile drawer when
@@ -59,7 +71,10 @@ export namespace SidebarT {
      * the layout switches.
      */
     onOpenChange?: (open: boolean) => void
-    /** Controlled mobile mode. When omitted, `matchMedia` uses `breakpoint`. */
+    /**
+     * Controlled mobile mode: `true` renders the panel in a drawer, `false` inline. When omitted,
+     * a `matchMedia` query on `breakpoint` decides, and the server renders the desktop layout.
+     */
     mobile?: boolean
     /**
      * Controlled desktop panel width in pixels. When `undefined` the
@@ -67,9 +82,15 @@ export namespace SidebarT {
      * default (`var(--sidebar-width, clamp(14rem, 25%, 20rem))`) applies.
      */
     width?: number
-    /** Initial desktop panel width in pixels for uncontrolled usage. */
+    /**
+     * Initial desktop panel width in pixels for uncontrolled usage. Ignored while `width` is
+     * controlled. When omitted, the recipe default width applies until the rail is resized.
+     */
     defaultWidth?: number
-    /** Called with the pixel width on every width change. */
+    /**
+     * Called with the new pixel width on every width change, including each step of a
+     * `Sidebar.Rail` drag; use `onWidthCommit` to persist only the final value.
+     */
     onWidthChange?: (width: number) => void
     /**
      * Called once per completed interaction with the final pixel width:
@@ -87,7 +108,10 @@ export namespace SidebarT {
      * @default 768
      */
     breakpoint?: number
-    /** Stable identifier used for associating Trigger `aria-controls` with Panel. */
+    /**
+     * Id applied to the panel and referenced by `aria-controls` on `Sidebar.Trigger` and
+     * `Sidebar.Rail`. A unique id is generated when omitted.
+     */
     panelId?: string
     children?: JSX.Element
   }
@@ -110,9 +134,9 @@ export namespace SidebarT {
     as?: T
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     /**
-     * Accessible name for the mobile navigation Drawer. Native aria-label takes precedence;
-     * title is used when neither native aria-label nor this prop is provided.
-     * Localized via MoraineProvider messages when omitted. English default is `Sidebar navigation`.
+     * Accessible name of the panel: set on the desktop panel element and on the mobile drawer
+     * content. In the mobile drawer, falls back to the `title` attribute, then to the localized
+     * `label` message (English default `Sidebar navigation`).
      */
     'aria-label'?: string
   }
@@ -248,17 +272,25 @@ export namespace SidebarT {
 
   export type MenuButtonBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
-    /** Renders the button as a link. */
+    /**
+     * Link target. Makes the button render as an `<a>` (unless `as` picks another element or
+     * component, which still receives `href`). A disabled `<a>` has its `href` removed.
+     */
     href?: string
-    /** Whether the button is highlighted as the current item. */
+    /**
+     * Whether the button is highlighted as the current item. On a link (`href` set or rendered as
+     * `<a>`) it also sets `aria-current="page"` unless you pass your own `aria-current`.
+     */
     active?: boolean
     /** Icon rendered before the label. */
     leading?: IconT.Name
     /** Icon rendered after the label. */
     trailing?: IconT.Name
     /**
-     * Whether activating this button on mobile closes the drawer.
-     * When omitted, buttons with `href` close the drawer.
+     * Whether activating this button on mobile closes the drawer. Has no effect on desktop, when
+     * the button is disabled, or when the click handler calls `preventDefault()`; modified and
+     * non-primary clicks never close it. When omitted, buttons with `href` close the drawer and
+     * others stay open.
      */
     closeOnSelect?: boolean
   }

@@ -37,7 +37,25 @@ interface RailDragSession {
   baselineWidth: number | undefined
 }
 
-/** Drag separator between `Sidebar.Panel` and `Sidebar.Inset` that resizes the panel. */
+/**
+ * Drag separator that makes the desktop panel resizable between `minWidth` and `maxWidth`. Place it
+ * directly between `Sidebar.Panel` and `Sidebar.Inset` inside `Sidebar`; it renders nothing on
+ * mobile. Dragging below half of `minWidth` closes the sidebar, and a click without movement or
+ * `Enter` toggles it.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar defaultWidth={280} minWidth={200} maxWidth={400}>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Content>Navigation</Sidebar.Content>
+ *   </Sidebar.Panel>
+ *   <Sidebar.Rail />
+ *   <Sidebar.Inset>Content</Sidebar.Inset>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, [

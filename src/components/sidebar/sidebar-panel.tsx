@@ -13,7 +13,23 @@ import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
 
-/** Sidebar panel that renders inline on desktop and inside a Drawer on mobile. */
+/**
+ * Container for the sidebar's regions. Renders an `aside` inline on desktop and moves the same
+ * content into a mobile `Drawer` on smaller viewports, so keep one navigation tree inside it. Place
+ * it directly inside `Sidebar`, before `Sidebar.Inset`.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel aria-label="Main navigation">
+ *     <Sidebar.Content>Navigation</Sidebar.Content>
+ *   </Sidebar.Panel>
+ *   <Sidebar.Inset>Content</Sidebar.Inset>
+ * </Sidebar>
+ * ```
+ */
 export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {

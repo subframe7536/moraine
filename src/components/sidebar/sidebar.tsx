@@ -28,7 +28,40 @@ import type { SidebarProps, SidebarT } from './sidebar.types'
 
 const SIDEBAR_DEFAULT_BREAKPOINT = 768
 
-/** Responsive sidebar layout with a mobile Drawer fallback. */
+/**
+ * Responsive application-shell sidebar: `Sidebar.Panel` renders inline on desktop and moves into a
+ * mobile `Drawer` below `breakpoint`. Use it for persistent app navigation, `Drawer` for a
+ * standalone drawer that is not a layout region, and `NavigationMenu` for a website header of
+ * links. It is the state provider for all `Sidebar.*` parts; `open`, `defaultOpen`, and
+ * `onOpenChange` drive whichever layout is active, and `Sidebar.useContext()` reads that state from
+ * descendants.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from 'moraine'
+ *
+ * <Sidebar>
+ *   <Sidebar.Panel>
+ *     <Sidebar.Content>
+ *       <Sidebar.Group>
+ *         <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
+ *         <Sidebar.Menu>
+ *           <Sidebar.MenuItem>
+ *             <Sidebar.MenuButton leading="i-lucide:home" active>
+ *               Home
+ *             </Sidebar.MenuButton>
+ *           </Sidebar.MenuItem>
+ *           <Sidebar.MenuItem>
+ *             <Sidebar.MenuButton leading="i-lucide:settings">Settings</Sidebar.MenuButton>
+ *           </Sidebar.MenuItem>
+ *         </Sidebar.Menu>
+ *       </Sidebar.Group>
+ *     </Sidebar.Content>
+ *   </Sidebar.Panel>
+ *   <Sidebar.Inset>Content</Sidebar.Inset>
+ * </Sidebar>
+ * ```
+ */
 export function Sidebar(props: SidebarProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'breakpoint',
