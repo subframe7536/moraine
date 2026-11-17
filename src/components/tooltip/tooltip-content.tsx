@@ -47,6 +47,9 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       forceMount={behavior.options.forceMount}
       initialPosition={behavior.initialPosition()}
       gutter={behavior.options.gutter}
+      shift={behavior.options.shift}
+      flip={behavior.options.flip}
+      slide={behavior.options.slide}
       overflowPadding={behavior.options.overflowPadding}
       role="tooltip"
       restoreFocusOnClose={false}

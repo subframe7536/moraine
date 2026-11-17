@@ -1,7 +1,12 @@
 import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type {
+  OverlayAlign,
+  OverlayPlacement,
+  SlotClassValue,
+  SlotStyleValue,
+} from '../../theme/style-types'
 import type { FieldT } from '../field'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
@@ -26,6 +31,59 @@ export interface BaseSelectDisclosureProps {
   onOpenChange?: (open: boolean) => void
 }
 
+/**
+ * Popup positioning and dismissal shared by BaseSelect and its visual wrappers.
+ * @internal
+ */
+export interface BaseSelectPopupProps {
+  /**
+   * Preferred popup placement relative to the anchor.
+   * @default 'bottom'
+   */
+  placement?: OverlayPlacement
+  /**
+   * Alignment along the cross axis.
+   * @default 'start'
+   */
+  align?: OverlayAlign
+  /**
+   * Gap in pixels between anchor and popup.
+   * @default 4
+   */
+  gutter?: number
+  /**
+   * Cross-axis offset in pixels from the resolved placement.
+   * @default 0
+   */
+  shift?: number
+  /**
+   * Whether to flip placement when the preferred side lacks space.
+   * @default true
+   */
+  flip?: boolean | string
+  /**
+   * Whether the popup may slide along its main axis to remain visible.
+   * @default true
+   */
+  slide?: boolean
+  /**
+   * Viewport collision padding in pixels.
+   * @default 4
+   */
+  overflowPadding?: number
+  /**
+   * Whether Escape dismisses the popup.
+   * @default true
+   */
+  closeOnEscape?: boolean
+  /**
+   * Whether outside interaction, pointer or focus, dismisses the popup.
+   * @default true
+   */
+  closeOnOutsideClick?: boolean
+  /** Called when a dismissal attempt is blocked. */
+  onClosePrevented?: () => void
+}
 /**
  * Item policies used by navigation, filtering, and selection.
  * @internal
@@ -96,6 +154,7 @@ export namespace BaseSelectT {
 
   export type Value = BaseSelectValue
   export type DisclosureProps = BaseSelectDisclosureProps
+  export type PopupProps = BaseSelectPopupProps
   export type ItemBehaviorProps<TItem extends Item> = BaseSelectItemBehaviorProps<TItem>
   export type CloseOnSelectOption = BaseSelectCloseOnSelectOption
   export type ResetProps = BaseSelectResetProps
@@ -164,6 +223,7 @@ export namespace BaseSelectT {
     extends
       FieldT.ControlBase,
       BaseSelectDisclosureProps,
+      BaseSelectPopupProps,
       BaseSelectItemBehaviorProps<TItem>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
@@ -187,16 +247,6 @@ export namespace BaseSelectT {
     serializeValue?: (value: TItem['value']) => string | undefined
     /** Called once after an open popup completes its exit. */
     onExitComplete?: () => void
-    /**
-     * Gap between anchor and popup.
-     * @default 4
-     */
-    gutter?: number
-    /**
-     * Viewport collision padding.
-     * @default 4
-     */
-    overflowPadding?: number
     /** Composed trigger and popup parts. */
     children?: JSX.Element
   }

@@ -254,6 +254,40 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   overflowPadding?: number
 
   /**
+   * Whether to flip placement when the preferred side lacks space.
+   * @default true
+   */
+  flip?: boolean | string
+
+  /**
+   * Whether the menu may slide along its main axis to remain visible.
+   * @default true
+   */
+  slide?: boolean
+
+  /**
+   * Whether Escape dismisses the menu.
+   * @default true
+   */
+  closeOnEscape?: boolean
+
+  /**
+   * Whether outside interaction, pointer or focus, dismisses the menu.
+   * @default true
+   */
+  closeOnOutsideClick?: boolean
+
+  /** Called when a dismissal attempt is blocked. */
+  onClosePrevented?: () => void
+
+  /**
+   * Whether outside content is hidden from assistive technology and outside pointer events have
+   * their native default action prevented while the menu is open.
+   * @default false
+   */
+  modal?: boolean
+
+  /**
    * Whether body scroll should be locked while the menu is open.
    * @default true
    */

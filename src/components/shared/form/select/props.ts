@@ -15,8 +15,16 @@ type SharedBaseSelectForwardProp = keyof Pick<
   | 'defaultOpen'
   | 'onOpenChange'
   | 'isItemDisabled'
+  | 'placement'
+  | 'align'
   | 'gutter'
+  | 'shift'
+  | 'flip'
+  | 'slide'
   | 'overflowPadding'
+  | 'closeOnEscape'
+  | 'closeOnOutsideClick'
+  | 'onClosePrevented'
 >
 
 /** BaseSelect ownership shared by the Select-family visual wrappers. */
@@ -31,8 +39,16 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'defaultOpen',
   'onOpenChange',
   'isItemDisabled',
+  'placement',
+  'align',
   'gutter',
+  'shift',
+  'flip',
+  'slide',
   'overflowPadding',
+  'closeOnEscape',
+  'closeOnOutsideClick',
+  'onClosePrevented',
 ] as const satisfies readonly SharedBaseSelectForwardProp[]
 
 /** Single-value Select wrappers may additionally configure closing after selection. */

@@ -8,6 +8,7 @@ import { createTransitionPresence } from '../../shared/transition-presence'
 import { callRef } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
+import { resolveFloatingPlacement } from '../shared/overlay/placement'
 import { acquireBodyScrollLock } from '../shared/overlay/scroll-lock'
 
 import { useSelectContext } from './base-select-context'
@@ -49,12 +50,16 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     contentElement: content,
     floatingElement: positioner,
     getReferenceElement: () => state.anchor() ?? state.focusOwner(),
-    gutter: () => state.gutter?.() ?? 4,
+    flip: () => state.props.flip ?? true,
+    gutter: () => state.props.gutter ?? 4,
     onPositionedChange: () => undefined,
     onPlacementChange: (placement) => setSide(placement.split('-')[0] ?? 'bottom'),
     open: presence.present,
-    overflowPadding: () => state.overflowPadding?.() ?? 4,
-    placement: () => 'bottom-start',
+    overflowPadding: () => state.props.overflowPadding ?? 4,
+    placement: () =>
+      resolveFloatingPlacement(state.props.placement ?? 'bottom', state.props.align ?? 'start'),
+    shift: () => state.props.shift ?? 0,
+    slide: () => state.props.slide ?? true,
   })
   createEffect(
     on(presence.present, (present) => {
@@ -75,18 +80,18 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
       ),
     onPointerOutside: (event) => {
       if (state.open() && !event.defaultPrevented) {
-        state.setOpen(false)
+        state.dismiss(state.props.closeOnOutsideClick)
       }
     },
     onFocusOutside: (event) => {
       if (state.open() && !event.defaultPrevented) {
-        state.setOpen(false)
+        state.dismiss(state.props.closeOnOutsideClick)
       }
     },
     onEscape: (event) => {
       if (state.open() && !event.defaultPrevented) {
         event.preventDefault()
-        state.setOpen(false)
+        state.dismiss(state.props.closeOnEscape)
       }
     },
     contentElement: content,

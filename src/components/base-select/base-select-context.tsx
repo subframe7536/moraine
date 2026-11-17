@@ -293,11 +293,20 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
   }
 
+  /** Closes the popup unless the dismissal is disabled, in which case it reports the attempt. */
+  function dismiss(enabled = true): void {
+    if (enabled) {
+      setOpen(false)
+    } else {
+      props.onClosePrevented?.()
+    }
+  }
+
   const keyDown = createKeyDownHandler<HTMLElement, [boolean?]>({
     disabled: () => field.disabled(),
     keys: (_event, textInput) => ({
       Tab: { preventDefault: false, handle: () => setOpen(false) },
-      Escape: { when: () => open(), handle: () => setOpen(false) },
+      Escape: { when: () => open(), handle: () => dismiss(props.closeOnEscape) },
       ArrowDown: () => moveHighlight(1),
       ArrowUp: () => moveHighlight(-1),
       Home: {
@@ -470,8 +479,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     field,
     slotOverrides,
     slotName,
-    gutter: () => props.gutter,
-    overflowPadding: () => props.overflowPadding,
+    dismiss,
     onExitComplete: () => props.onExitComplete?.(),
     get styleSize() {
       return variants.size

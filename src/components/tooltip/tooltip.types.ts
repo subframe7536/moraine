@@ -23,7 +23,16 @@ export namespace TooltipT {
    */
   export interface Base extends Pick<
     PopperProps & PopperContentOptions,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'align' | 'forceMount'
+    | 'id'
+    | 'open'
+    | 'defaultOpen'
+    | 'onOpenChange'
+    | 'disabled'
+    | 'align'
+    | 'shift'
+    | 'flip'
+    | 'slide'
+    | 'forceMount'
   > {
     /**
      * Preferred content placement relative to the trigger.

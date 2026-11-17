@@ -36,6 +36,9 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       placement={behavior.options.placement ?? 'bottom'}
       forceMount={behavior.options.forceMount}
       gutter={behavior.options.gutter}
+      shift={behavior.options.shift}
+      flip={behavior.options.flip}
+      slide={behavior.options.slide}
       overflowPadding={behavior.options.overflowPadding}
       inline={behavior.inlinePoint()}
       restoreFocusOnClose={false}

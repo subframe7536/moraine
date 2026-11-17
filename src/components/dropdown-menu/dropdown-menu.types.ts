@@ -57,6 +57,18 @@ export namespace DropdownMenuT {
     preventScroll?: boolean
     /** Padding applied to the overflow area when calculating position. @default 4 */
     overflowPadding?: number
+    /** Whether to flip placement when the preferred side lacks space. @default true */
+    flip?: boolean | string
+    /** Whether the content may slide along its main axis to remain visible. @default true */
+    slide?: boolean
+    /** Whether Escape dismisses the menu. @default true */
+    closeOnEscape?: boolean
+    /** Whether outside interaction dismisses the menu. @default true */
+    closeOnOutsideClick?: boolean
+    /** Called when a dismissal attempt is blocked. */
+    onClosePrevented?: () => void
+    /** Whether outside content is hidden from assistive technology and outside pointer events are blocked. @default false */
+    modal?: boolean
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }

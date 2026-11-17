@@ -96,6 +96,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     deferPositioned: true,
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
+    flip: () => props.flip ?? true,
+    slide: () => props.slide ?? true,
     gutter: () => props.gutter ?? 4,
     shift: () => props.shift ?? 0,
     onPositionedChange: setIsPositioned,
@@ -230,9 +232,15 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   )
   const onContentKeyDown = (event: KeyboardEvent): void => {
     const { defaultPrevented } = callHandler(event, props.elementAttrs?.onKeyDown)
-    if (!defaultPrevented) {
-      dispatchLayerKeyDown(event)
+    if (defaultPrevented) {
+      return
     }
+    if (event.key === 'Escape' && props.depth === 0 && props.closeOnEscape === false) {
+      event.preventDefault()
+      props.onClosePrevented?.()
+      return
+    }
+    dispatchLayerKeyDown(event)
   }
 
   // The content binding comes from the owning menu; the layer adds its own `data-*` state.

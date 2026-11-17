@@ -81,6 +81,22 @@ export function createDropdownMenu(props: DropdownMenuProps) {
       get overflowPadding() {
         return props.overflowPadding
       },
+      get flip() {
+        return props.flip
+      },
+      get slide() {
+        return props.slide
+      },
+      get closeOnEscape() {
+        return props.closeOnEscape
+      },
+      get closeOnOutsideClick() {
+        return props.closeOnOutsideClick
+      },
+      get modal() {
+        return props.modal
+      },
+      onClosePrevented: () => props.onClosePrevented?.(),
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),
     },
   }

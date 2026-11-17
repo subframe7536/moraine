@@ -1790,6 +1790,31 @@ describe('DropdownMenu', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
+  test('blocks Escape and outside presses when dismissal is disabled', async () => {
+    const onClosePrevented = vi.fn()
+    render(() => (
+      <DropdownMenu
+        defaultOpen
+        preventScroll={false}
+        closeOnEscape={false}
+        closeOnOutsideClick={false}
+        onClosePrevented={onClosePrevented}
+      >
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open' }]} />
+      </DropdownMenu>
+    ))
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+
+    fireEvent.keyDown(content, { key: 'Escape' })
+    expect(onClosePrevented).toHaveBeenCalledTimes(1)
+    expect(document.body.querySelector('[role="menu"]')).not.toBeNull()
+  })
+
   test('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
     const onOpenSelect = vi.fn()
     render(() => (

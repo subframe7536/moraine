@@ -74,7 +74,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
     | 'endsWith'
     | ((query: string, item: T) => boolean)
 }
-export interface ContentProps<T extends BaseSelectT.Item> {
+export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.PopupProps {
   /** Renderer for each collection item. */
   itemRender?: Component<BaseSelectT.ItemRenderProps<T>>
   /** Additional row attributes. */
@@ -94,14 +94,4 @@ export interface ContentProps<T extends BaseSelectT.Item> {
    * @default 20
    */
   scrollBottomThreshold?: number
-  /**
-   * Anchor gap in pixels.
-   * @default 4
-   */
-  gutter?: number
-  /**
-   * Collision padding in pixels.
-   * @default 4
-   */
-  overflowPadding?: number
 }

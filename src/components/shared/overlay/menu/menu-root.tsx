@@ -6,6 +6,7 @@ import { Portal } from 'solid-js/web'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
+import { acquireAriaHideOutside } from '../aria-hide'
 import { containsComposed, isNode } from '../dom'
 import { focusTrigger, focusWithoutScrolling, getFocusableElements } from '../focus'
 import { useOverlayInteraction } from '../interaction'
@@ -98,6 +99,28 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     ),
   )
 
+  createEffect(
+    on(
+      [contentPresence.present, () => rootLayerState()?.contentElement(), () => props.modal],
+      ([present, content, modal]) => {
+        if (!present || !modal || !content) {
+          return
+        }
+        let active = true
+        let release: (() => void) | undefined
+        queueMicrotask(() => {
+          if (active && content.isConnected) {
+            release = acquireAriaHideOutside(content)
+          }
+        })
+        onCleanup(() => {
+          active = false
+          release?.()
+        })
+      },
+    ),
+  )
+
   const containsTarget = (node: Node): boolean => {
     if (props.triggerElement?.contains(node)) {
       return true
@@ -121,6 +144,15 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     props.onClose()
   }
 
+  /** Closes unless the dismissal is disabled, in which case it reports the blocked attempt. */
+  const closeOrPrevent = (enabled = true, options?: OverlayMenuCloseOptions): void => {
+    if (enabled) {
+      closeRoot(options)
+    } else {
+      props.onClosePrevented?.()
+    }
+  }
+
   const closeOnTab = (direction: 'forward' | 'backward'): void => {
     setPendingFocusOnClose(direction === 'backward' ? 'trigger' : 'next')
     rootLayerState()?.closeSubmenus()
@@ -132,13 +164,16 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     contentElement: () => rootLayerState()?.contentElement(),
     triggerElement: () => props.triggerElement,
     onPointerOutside: (event) => {
+      if (props.modal) {
+        event.preventDefault()
+      }
       if (props.open && !event.defaultPrevented) {
-        closeRoot()
+        closeOrPrevent(props.closeOnOutsideClick)
       }
     },
     onFocusOutside: (event) => {
       if (props.open && !event.defaultPrevented) {
-        closeRoot()
+        closeOrPrevent(props.closeOnOutsideClick)
       }
     },
     onEscape: (event, context) => {
@@ -148,7 +183,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
       }
 
       event.preventDefault()
-      closeRoot()
+      closeOrPrevent(props.closeOnEscape)
     },
     enabled: contentPresence.present,
     requireContent: true,

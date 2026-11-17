@@ -29,6 +29,9 @@ export namespace HoverCardT {
     | 'disabled'
     | 'placement'
     | 'align'
+    | 'shift'
+    | 'flip'
+    | 'slide'
     | 'forceMount'
   > {
     /**

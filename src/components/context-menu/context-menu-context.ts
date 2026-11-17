@@ -552,6 +552,22 @@ export function createContextMenu(props: ContextMenuProps) {
       get overflowPadding() {
         return merged.overflowPadding
       },
+      get flip() {
+        return merged.flip
+      },
+      get slide() {
+        return merged.slide
+      },
+      get closeOnEscape() {
+        return merged.closeOnEscape
+      },
+      get closeOnOutsideClick() {
+        return merged.closeOnOutsideClick
+      },
+      get modal() {
+        return merged.modal
+      },
+      onClosePrevented: () => merged.onClosePrevented?.(),
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),
       getAnchorRect,
       onContentPointerDown,
