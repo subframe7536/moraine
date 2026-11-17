@@ -19,22 +19,48 @@ export namespace ModalT {
   }
 
   export interface Base {
-    /** Unique identifier used to derive the content id. */
+    /**
+     * Unique identifier used to derive the content id, which becomes `<id>-content`. Generated
+     * when omitted.
+     */
     id?: string
 
-    /** Controlled open state. */
+    /**
+     * Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component
+     * manage its own state (see `defaultOpen`).
+     */
     open?: boolean
 
     /**
-     * Initial open state when uncontrolled.
+     * Initial open state when uncontrolled. Ignored while `open` is set.
      * @default false
      */
     defaultOpen?: boolean
 
-    /** Called whenever the open state changes. */
+    /**
+     * Called with the next open state when the trigger, a close part, Escape or an outside press
+     * requests a change. It is not called when `open` is changed from outside, and it does not
+     * apply the change itself when `open` is controlled: update `open` in the handler.
+     * @example
+     * ```tsx
+     * import { Button, Dialog } from 'moraine'
+     * import { createSignal } from 'solid-js'
+     *
+     * const [open, setOpen] = createSignal(false)
+     *
+     * <Dialog open={open()} onOpenChange={setOpen}>
+     *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+     *   <Dialog.Content title="Settings">Preferences</Dialog.Content>
+     * </Dialog>
+     * ```
+     */
     onOpenChange?: (open: boolean) => void
 
-    /** Called after the modal has fully finished its exit motion. */
+    /**
+     * Called once after a close has finished: the exit motion is over and the content is
+     * unmounted. With `transition` set to `false` there is no motion to wait for. It is not called
+     * when the content is removed while still open.
+     */
     onExitComplete?: () => void
 
     /**
@@ -46,7 +72,7 @@ export namespace ModalT {
     transition?: boolean
 
     /**
-     * Whether an outside pointer press on the overlay dismisses the shell.
+     * Whether a pointer press outside the content, such as on the backdrop, dismisses the shell.
      * `false` blocks the press and reports it through `onClosePrevented`.
      * @default true
      */
@@ -59,7 +85,10 @@ export namespace ModalT {
      */
     closeOnEscape?: boolean
 
-    /** Called when a dismissal attempt is blocked. */
+    /**
+     * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press
+     * (`closeOnOverlayClick` is `false`) tried to close the shell and was blocked.
+     */
     onClosePrevented?: () => void
 
     /**
@@ -72,26 +101,67 @@ export namespace ModalT {
      * Whether the surface contains focus, restores focus on close, hides outside content from
      * assistive technology, and prevents the native default action of outside pointer events.
      * Outside pointer dismissal is controlled by `closeOnOverlayClick`.
-     * Escape dismissal is controlled by `closeOnEscape`.
+     * Escape dismissal is controlled by `closeOnEscape`. When `false`, focus is neither trapped,
+     * moved on open nor restored on close, so `initialFocus` and `finalFocus` have no effect.
      * @default true
      */
     modal?: boolean
 
-    /** Default destination for Modal.Portal; defaults to the trigger document body. */
+    /**
+     * DOM node that `Modal.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,
+     * for example a container element or a shadow root. A `mount` on `Modal.Portal` takes
+     * precedence. Defaults to the `body` of the trigger's document.
+     * @example
+     * ```tsx
+     * import { Button, Dialog } from 'moraine'
+     *
+     * const container = document.getElementById('overlay-root') ?? document.body
+     *
+     * <Dialog mount={container}>
+     *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+     *   <Dialog.Content title="Settings">Preferences</Dialog.Content>
+     * </Dialog>
+     * ```
+     */
     mount?: Node
 
     /**
-     * Element (or accessor resolving to one) that receives focus when the shell
-     * opens, or `false` to skip the open-time focus move. Defaults to the first
-     * focusable element inside the content, preferring an `[autofocus]` or
-     * `[data-autofocus]` descendant.
+     * Element (or accessor resolving to one) that receives focus when the shell opens, or `false`
+     * to skip the open-time focus move. Defaults to the first focusable element inside the
+     * content, preferring an `[autofocus]` or `[data-autofocus]` descendant, and to the content
+     * itself when opened by touch. An accessor that returns `undefined` falls back to the default.
+     * Only applies while `modal` is `true`.
+     * @example
+     * ```tsx
+     * import { Button, Dialog } from 'moraine'
+     * import { createSignal } from 'solid-js'
+     *
+     * const [input, setInput] = createSignal<HTMLInputElement>()
+     *
+     * <Dialog initialFocus={() => input()}>
+     *   <Dialog.Trigger as={Button}>Rename</Dialog.Trigger>
+     *   <Dialog.Content title="Rename">
+     *     <input ref={setInput} />
+     *   </Dialog.Content>
+     * </Dialog>
+     * ```
      */
     initialFocus?: HTMLElement | (() => HTMLElement | undefined) | false
 
     /**
-     * Element (or accessor resolving to one) that receives focus after the shell
-     * closes, or `false` to skip the close-time focus restore. Defaults to the
-     * trigger, then the element focused when the shell opened.
+     * Element (or accessor resolving to one) that receives focus after the shell closes, or
+     * `false` to skip the close-time focus restore. Defaults to the trigger, then the element
+     * focused when the shell opened. An accessor that returns `undefined` restores no focus. Only
+     * applies while `modal` is `true`.
+     * @example
+     * ```tsx
+     * import { Button, Dialog } from 'moraine'
+     *
+     * <Dialog finalFocus={() => document.getElementById('search') ?? undefined}>
+     *   <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+     *   <Dialog.Content title="Settings">Preferences</Dialog.Content>
+     * </Dialog>
+     * ```
      */
     finalFocus?: HTMLElement | (() => HTMLElement | undefined) | false
 
@@ -102,7 +172,10 @@ export namespace ModalT {
   export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export interface PortalBase {
-    /** Destination for the modal parts; defaults to the trigger document body. */
+    /**
+     * DOM node the overlay and content render into. Takes precedence over `mount` on `Modal`;
+     * defaults to the `body` of the trigger's document.
+     */
     mount?: Node
     /** Overlay and content parts rendered in the same portal. */
     children?: JSX.Element
@@ -123,7 +196,11 @@ export namespace ModalT {
      */
     overlay?: boolean
 
-    /** Whether the overlay should scroll its content. */
+    /**
+     * Whether the overlay element itself scrolls, so content taller than the viewport scrolls
+     * inside the backdrop (with padding) while `preventScroll` keeps the page itself from
+     * scrolling. Has no effect when `overlay` is `false`.
+     */
     scrollable?: boolean
 
     /** Optional elements rendered inside the overlay. */

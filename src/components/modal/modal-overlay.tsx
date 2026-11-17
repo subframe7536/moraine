@@ -9,7 +9,24 @@ import { useModalContext } from './modal-context'
 import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
-/** Backdrop layer for modal dialogs. */
+/**
+ * Backdrop layer of a `Modal`. Place it inside `Modal.Portal` before `Modal.Content`; omit it when
+ * the host surface already provides context. Renders a `div`; set `overlay={false}` to render an
+ * unstyled container for its children instead of the backdrop.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Modal } from 'moraine'
+ *
+ * <Modal>
+ *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
+ *   <Modal.Portal>
+ *     <Modal.Overlay />
+ *     <Modal.Content aria-label="Details">Modal content</Modal.Content>
+ *   </Modal.Portal>
+ * </Modal>
+ * ```
+ */
 export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'class',

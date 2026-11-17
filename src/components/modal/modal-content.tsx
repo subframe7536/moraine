@@ -11,7 +11,27 @@ import { useModalContext } from './modal-context'
 import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
-/** Standalone Modal content surface. */
+/**
+ * Surface of a `Modal` that holds the modal's content and carries the `dialog` role. Place it
+ * inside `Modal.Portal`, next to `Modal.Overlay`; one `Modal` root owns one active content. Give
+ * it an accessible name with `aria-label` or `aria-labelledby`. Children can be JSX or a function
+ * that receives `close`. Renders a `div`; pass `as` to change the element.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Modal } from 'moraine'
+ *
+ * <Modal>
+ *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
+ *   <Modal.Portal>
+ *     <Modal.Overlay />
+ *     <Modal.Content aria-label="Custom surface">
+ *       {(context) => <Button onClick={context.close}>Close</Button>}
+ *     </Modal.Content>
+ *   </Modal.Portal>
+ * </Modal>
+ * ```
+ */
 export function ModalContent<T extends ValidComponent = 'div'>(
   props: ModalT.ContentProps<T>,
 ): JSX.Element {

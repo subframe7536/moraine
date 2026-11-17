@@ -9,7 +9,26 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useModalContext } from './modal-context'
 import type { ModalT } from './modal.types'
 
-/** Closes the current modal without registering another trigger or focus target. */
+/**
+ * Control that closes the surrounding `Modal`. Place it anywhere inside the `Modal` root, usually
+ * within `Modal.Content`. Renders a `button`; pass `as` to render another component such as
+ * `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Modal } from 'moraine'
+ *
+ * <Modal>
+ *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
+ *   <Modal.Portal>
+ *     <Modal.Overlay />
+ *     <Modal.Content aria-label="Details">
+ *       <Modal.Close as={Button}>Close</Modal.Close>
+ *     </Modal.Content>
+ *   </Modal.Portal>
+ * </Modal>
+ * ```
+ */
 export function ModalClose<T extends ValidComponent = 'button'>(
   props: ModalT.CloseProps<T>,
 ): JSX.Element {

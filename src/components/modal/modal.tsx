@@ -21,7 +21,29 @@ import { ModalPortal } from './modal-portal'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
 
-/** Low-level modal primitives for composing custom dialog surfaces. */
+/**
+ * Low-level modal primitive that renders no element and shares open state, focus containment, and
+ * dismissal between its parts. Use `Modal` when you compose the trigger, backdrop, and content
+ * yourself; use `Dialog` for a structured title, description, body, and footer, `Sheet` for a
+ * drawer from a viewport edge, and `Popover` for anchored interactive content. Open state is
+ * uncontrolled by default (`defaultOpen`) or controlled with `open` and `onOpenChange`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Modal } from 'moraine'
+ *
+ * <Modal>
+ *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
+ *   <Modal.Portal>
+ *     <Modal.Overlay />
+ *     <Modal.Content aria-label="Details">
+ *       Modal content
+ *       <Modal.Close as={Button}>Close</Modal.Close>
+ *     </Modal.Content>
+ *   </Modal.Portal>
+ * </Modal>
+ * ```
+ */
 export function Modal(props: ModalProps): JSX.Element {
   const rootId = createId(() => props.id, 'modal')
   const contentId = () => `${rootId()}-content`

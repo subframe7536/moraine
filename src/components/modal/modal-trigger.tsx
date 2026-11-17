@@ -11,7 +11,22 @@ import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 import { useModalContext } from './modal-context'
 import type { ModalT } from './modal.types'
 
-/** Interactive modal trigger with Button-compatible polymorphic behavior. */
+/**
+ * Element that opens the surrounding `Modal`; when `modal` is `false` it toggles the open state
+ * instead. Renders a `button`; pass `as` to render another component such as `Button`.
+ *
+ * @example
+ * ```tsx
+ * import { Button, Modal } from 'moraine'
+ *
+ * <Modal>
+ *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
+ *   <Modal.Portal>
+ *     <Modal.Content aria-label="Details">Modal content</Modal.Content>
+ *   </Modal.Portal>
+ * </Modal>
+ * ```
+ */
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
