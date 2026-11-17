@@ -7,7 +7,27 @@ import { Avatar } from '../avatar/avatar'
 import { avatarGroupRecipe } from './avatar-group.recipe'
 import type { AvatarGroupProps } from './avatar-group.types'
 
-/** Group of overlapping avatars with optional overflow count. */
+/**
+ * Group of overlapping avatars with optional overflow count, for showing a small set of people in
+ * a bounded space. Each entry in `items` takes the `Avatar` props. Use `Avatar` for a single
+ * person. It renders nothing for an empty `items` array, and `max` caps the visible avatars,
+ * replacing the rest with a `+N` count.
+ *
+ * @example
+ * ```tsx
+ * import { AvatarGroup } from 'moraine'
+ *
+ * <AvatarGroup
+ *   max={3}
+ *   items={[
+ *     { src: '/alex.png', alt: 'Alex', text: 'A' },
+ *     { alt: 'Blake', text: 'B' },
+ *     { alt: 'Casey', text: 'C' },
+ *     { alt: 'Drew', text: 'D' },
+ *   ]}
+ * />
+ * ```
+ */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',

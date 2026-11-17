@@ -19,12 +19,29 @@ export namespace AvatarGroupT {
   /** Base props for the AvatarGroup component. */
   export interface Base {
     /**
-     * Array of avatars to render in the group.
+     * Avatars to render, in order. Each entry accepts the `Avatar` props (`src`, `alt`, `text`,
+     * `icon`, `badge`, `badgePosition`, `onStatusChange`) except `slotName`. An entry's `size` is
+     * overridden by the group `size`. An empty array renders nothing.
+     * @example
+     * ```tsx
+     * import { AvatarGroup } from 'moraine'
+     *
+     * <AvatarGroup
+     *   items={[
+     *     { src: '/alex.png', alt: 'Alex Rivera' },
+     *     { text: 'BK', alt: 'Blake Kim', badge: 'icon-success' },
+     *   ]}
+     * />
+     * ```
      * @default []
      */
     items?: Item[]
 
-    /** Maximum number of avatars to show. */
+    /**
+     * Maximum number of avatars shown. The remaining ones are replaced by a single `+N` count
+     * element. Fractions are rounded down and negative values show none. All items are shown when
+     * `undefined`.
+     */
     max?: number
   }
 
