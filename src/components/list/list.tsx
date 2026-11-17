@@ -11,7 +11,29 @@ import { VirtualContent } from '../../virtualizer/virtual-content'
 import { listRecipe } from './list.recipe'
 import type { ListProps } from './list.types'
 
-/** Headless polymorphic list with optional virtualization. */
+/**
+ * Headless polymorphic list that renders caller-defined rows from `items` through `itemRender`,
+ * with optional virtualization. Use it when you own each row's markup and need a stable collection
+ * surface; rows are not passed as `children`. It renders a `ul` with `role="list"` by default, so
+ * render list-item semantics in each row or change the root with `as`. `emptyRender` is shown when
+ * `items` is empty, and `virtualizer` (from `moraine/virtualizer`) renders only the visible rows.
+ *
+ * @example
+ * ```tsx
+ * import { List } from 'moraine'
+ *
+ * const inbox = [
+ *   { id: '1', title: 'Deploy failed on main' },
+ *   { id: '2', title: 'Review requested on #482' },
+ * ]
+ *
+ * <List
+ *   items={inbox}
+ *   emptyRender={<li>Inbox is empty</li>}
+ *   itemRender={(row) => <li>{row.item.title}</li>}
+ * />
+ * ```
+ */
 export function List<TItem, T extends ValidComponent = 'ul'>(
   props: ListProps<TItem, T>,
 ): JSX.Element {

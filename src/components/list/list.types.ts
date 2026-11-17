@@ -35,13 +35,47 @@ export namespace ListT {
   export interface EmptyRenderProps {}
 
   export type Base<TItem> = {
-    /** Content or render function rendered inside the list when the collection is empty. */
+    /**
+     * Content or component rendered inside the list root when `items` is empty or `undefined`.
+     * Without it, an empty list renders no children. Render a list item here when the root is a `ul`.
+     */
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
-    /** Reactive collection rendered by the list. */
+    /** Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`. */
     items?: readonly TItem[]
-    /** Renders one collection item. */
+    /**
+     * Renders one row for an item. Receives the `item`, its `index` in the complete `items`
+     * collection, and, when a `virtualizer` is set, `props` to spread onto the row's outer element.
+     * @example
+     * ```tsx
+     * import { List } from 'moraine'
+     *
+     * <List
+     *   items={['Inbox', 'Sent']}
+     *   itemRender={(row) => <li data-index={row.index}>{row.item}</li>}
+     * />
+     * ```
+     */
     itemRender: Component<ItemRenderProps<TItem>>
-    /** Renders only the visible items. The list root is the scroll container. */
+    /**
+     * Virtualizer from `moraine/virtualizer` that mounts only the visible rows; create it with
+     * `createListVirtualizer()`. The list root becomes the scroll container, so give it a bounded
+     * height, and each row must spread `props` from `itemRender` onto its outer element.
+     * @example
+     * ```tsx
+     * import { List } from 'moraine'
+     * import { createListVirtualizer } from 'moraine/virtualizer'
+     *
+     * const items = Array.from({ length: 10_000 }, (_, i) => `Row ${i}`)
+     * const virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })
+     *
+     * <List
+     *   class="h-80 overflow-auto"
+     *   items={items}
+     *   virtualizer={virtualizer}
+     *   itemRender={(row) => <li {...row.props}>{row.item}</li>}
+     * />
+     * ```
+     */
     virtualizer?: Virtualizer<TItem>
   }
 
