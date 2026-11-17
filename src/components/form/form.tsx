@@ -1,13 +1,16 @@
 import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid'
-import { createForm as createFormischForm, reset as resetForm } from '@formisch/solid'
+import {
+  createForm as createFormischForm,
+  Form as FormischForm,
+  reset as resetForm,
+} from '@formisch/solid'
 import type { JSX } from 'solid-js'
-import { createSignal, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler } from '../../shared/utils'
 import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form/form-reset-scheduler'
 
@@ -15,22 +18,27 @@ import { useFormischFieldBinding } from './form-field-binding'
 import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
-import { getFormElement, setFormElement, submitFormWithoutFocus } from './formisch-store'
-import { createInvalidFocusManager } from './invalid-focus-manager'
-import type { InvalidFocusManager } from './invalid-focus-manager'
+
 interface InternalFormProps<TSchema extends Schema> extends FormProps<TSchema> {
-  focusManager: InvalidFocusManager
   of: FormT.Store<TSchema>
 }
 
+function hasErrorMessage(error: unknown): boolean {
+  return Boolean(
+    error && typeof error === 'object' && 'message' in error && typeof error.message === 'string',
+  )
+}
+
+/**
+ * Renders Formisch's own `Form`, which owns submission: it prevents the native submit, validates,
+ * focuses the first invalid field, tracks `isSubmitting`, and records handler errors on the store.
+ */
 function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JSX.Element {
   const [local, formProps] = splitProps(props, [
     'class',
     'style',
     'classes',
     'styles',
-    'ref',
-    'focusManager',
     'of',
     'onSubmit',
     'onReset',
@@ -42,14 +50,9 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     data: { root: formDataAttributes.root({ submitting: () => local.of.isSubmitting }) },
   })
   const messages = useMessages('form', defaultFormMessages, () => local.translations)
-  const [element, setElement] = createSignal<HTMLFormElement>()
-  bindElement(
-    element,
-    publishElement(
-      () => getFormElement(local.of),
-      (next) => setFormElement(local.of, next),
-    ),
-  )
+
+  // Moraine also accepts root collection schemas, which Formisch's component typings exclude.
+  const formStore = () => local.of as FormStore
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -57,31 +60,26 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     scheduleFormReset(event, () => resetForm(form), 'form')
   }
 
-  const onSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (event) => {
-    event.preventDefault()
-    local.focusManager.requestFocus(event.currentTarget)
-
-    const handleSubmit = local.onSubmit
-    submitFormWithoutFocus(
-      local.of,
-      (output) => handleSubmit?.(output as never, event),
-      () => messages().unknownError,
-    )
+  const onSubmit = async (output: unknown, event: SubmitEvent): Promise<void> => {
+    try {
+      await local.onSubmit?.(output, event)
+    } catch (error) {
+      // Formisch stores `error.message`; give message-less errors a localized fallback.
+      throw hasErrorMessage(error) ? error : new Error(messages().unknownError)
+    }
   }
 
   return (
-    <form
+    <FormischForm
       data-slot="form"
       {...rootSlot}
       {...formProps}
-      ref={(element) => {
-        setElement(element)
-        callRef(local.ref, element)
-      }}
-      novalidate
+      of={formStore()}
       onSubmit={onSubmit}
       onReset={onReset}
-    />
+    >
+      {formProps.children}
+    </FormischForm>
   )
 }
 
@@ -90,12 +88,8 @@ export function createForm<TSchema extends Schema>(
   config: FormT.Config<TSchema>,
 ): FormT.Instance<TSchema> {
   const store = createFormischForm(config as FormConfig) as FormT.Store<TSchema>
-  const focusManager = createInvalidFocusManager()
-  focusManager.attach(store)
 
-  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => (
-    <FormRoot {...props} focusManager={focusManager} of={store} />
-  )
+  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => <FormRoot {...props} of={store} />
 
   const BoundField = <T extends ValidComponent = 'div'>(
     props: FormT.FieldProps<TSchema, T>,
@@ -103,7 +97,6 @@ export function createForm<TSchema extends Schema>(
     const binding = useFormischFieldBinding(
       store as FormStore,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
-      focusManager,
     )
     return <FieldInternal {...props} binding={binding} />
   }

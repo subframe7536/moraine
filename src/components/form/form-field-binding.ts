@@ -1,25 +1,21 @@
 import type { FieldElement, FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import { useField } from '@formisch/solid'
 import type { Accessor } from 'solid-js'
-import { createMemo, onCleanup, untrack } from 'solid-js'
 
 import type { FieldBinding } from '../field/field-context'
 
-import type { InvalidFocusManager } from './invalid-focus-manager'
-
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
+/**
+ * Adapts a Formisch field to the Field binding contract. Native events go through
+ * `field.props`; values from non-native controls go through `field.onInput`.
+ */
 export function useFormischFieldBinding<TSchema extends FormSchema>(
   form: FormStore<TSchema>,
   path: Accessor<RequiredPath>,
-  invalidFocusManager?: Pick<InvalidFocusManager, 'register'>,
 ): FieldBinding {
   // Formisch tracks its getter config and updates the field when the path changes.
   const field = (useField as unknown as LooseUseField)(form, () => ({ path: path() }))
-  const invalid = createMemo(() => Boolean(field.errors?.length))
-  const invalidFocusRegistration = untrack(() => invalidFocusManager?.register(invalid))
-
-  onCleanup(() => invalidFocusRegistration?.unregister())
 
   return {
     get name() {
@@ -44,8 +40,8 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
       }
     },
     controlRef(element) {
-      invalidFocusRegistration?.setControl(element)
       if (element) {
+        // Registers the control for Formisch's invalid-submit focus and `focus(form, { path })`.
         // Formisch only types native controls, but its registry focuses any HTMLElement.
         field.props.ref(element as FieldElement)
       }

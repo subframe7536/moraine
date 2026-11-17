@@ -1,6 +1,6 @@
 import { focus, getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -178,40 +178,6 @@ describe('Form', () => {
     expect(onSubmit).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(input)
     expect(screen.container.querySelector('form')?.hasAttribute('novalidate')).toBe(true)
-  })
-
-  test('re-reads live DOM order when invalid fields are reordered between submissions', async () => {
-    const schema = v.object({
-      first: v.pipe(v.string(), v.nonEmpty('First is required.')),
-      second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
-    })
-    const labels = { first: 'First', second: 'Second' } as const
-    const [order, setOrder] = createSignal<('first' | 'second')[]>(['first', 'second'])
-    const { screen } = renderWithOwner(
-      () => createForm({ schema, initialInput: { first: '', second: '' } }),
-      (form) => (
-        <form.Form>
-          <For each={order()}>
-            {(name) => (
-              <form.Field name={name} label={labels[name]}>
-                <Input />
-              </form.Field>
-            )}
-          </For>
-        </form.Form>
-      ),
-    )
-
-    fireEvent.submit(screen.container.querySelector('form')!)
-
-    await waitFor(() => expect(screen.getByText('First is required.')).not.toBeNull())
-    expect(document.activeElement).toBe(screen.getByLabelText('First'))
-
-    setOrder(['second', 'first'])
-    fireEvent.submit(screen.container.querySelector('form')!)
-
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
-    expect(document.activeElement).toBe(screen.getByLabelText('Second'))
   })
 
   test('rechecks whether invalid controls are enabled between submissions', async () => {
@@ -409,7 +375,7 @@ describe('Form', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(['Changed'], expect.anything()))
   })
 
-  test('focuses only the first invalid control during submit', async () => {
+  test('focuses only the first invalid field in schema order during submit', async () => {
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
@@ -431,9 +397,9 @@ describe('Form', () => {
     )
 
     fireEvent.submit(screen.container.querySelector('form')!)
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
-    expect(secondFocus).toHaveBeenCalledTimes(1)
-    expect(firstFocus).not.toHaveBeenCalled()
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('First')))
+    expect(firstFocus).toHaveBeenCalledTimes(1)
+    expect(secondFocus).not.toHaveBeenCalled()
   })
 
   test('focuses an invalid control that is outside the tab order', async () => {
@@ -454,60 +420,6 @@ describe('Form', () => {
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Code')))
-  })
-
-  test('does not focus an invalid detached field when submitting a form root', async () => {
-    const schema = v.object({
-      outside: v.pipe(v.string(), v.nonEmpty('Outside is required.')),
-      inside: v.pipe(v.string(), v.nonEmpty('Inside is required.')),
-    })
-    const { screen } = renderWithOwner(
-      () => createForm({ schema, initialInput: { outside: '', inside: '' } }),
-      (form) => (
-        <>
-          <form.Field name="outside" label="Outside">
-            <Input />
-          </form.Field>
-          <form.Form>
-            <form.Field name="inside" label="Inside">
-              <Input />
-            </form.Field>
-          </form.Form>
-        </>
-      ),
-    )
-
-    fireEvent.submit(screen.container.querySelector('form')!)
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Inside')))
-  })
-
-  test('keeps invalid focus within the submitted root of a shared store', async () => {
-    const schema = v.object({
-      first: v.pipe(v.string(), v.nonEmpty('First is required.')),
-      second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
-    })
-    const { screen } = renderWithOwner(
-      () => createForm({ schema, initialInput: { first: '', second: '' } }),
-      (form) => (
-        <>
-          <form.Form aria-label="A">
-            <form.Field name="first" label="First">
-              <Input />
-            </form.Field>
-          </form.Form>
-          <form.Form aria-label="B">
-            <form.Field name="second" label="Second">
-              <Input />
-            </form.Field>
-          </form.Form>
-        </>
-      ),
-    )
-
-    fireEvent.submit(screen.getByRole('form', { name: 'A' }))
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('First')))
-    fireEvent.submit(screen.getByRole('form', { name: 'B' }))
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
   })
 
   test('focuses the first slider thumb before a later invalid text input', async () => {
@@ -597,7 +509,7 @@ describe('Form', () => {
     await waitFor(() => expect(document.activeElement).toBe(enabledCheckbox))
   })
 
-  test('uses DOM order for nested invalid paths and skips disabled controls', async () => {
+  test('skips disabled controls when focusing nested invalid paths', async () => {
     const schema = v.object({
       profile: v.object({ name: v.pipe(v.string(), v.nonEmpty('Name is required.')) }),
       title: v.pipe(v.string(), v.nonEmpty('Title is required.')),
@@ -622,7 +534,7 @@ describe('Form', () => {
     expect(document.activeElement).toBe(screen.getByLabelText('Title'))
   })
 
-  test('focuses the visual first invalid field inside an iframe document', async () => {
+  test('focuses the first invalid field inside an iframe document', async () => {
     const schema = v.object({
       first: v.pipe(v.string(), v.nonEmpty('First is required.')),
       second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
@@ -654,7 +566,7 @@ describe('Form', () => {
       await waitFor(() =>
         expect(frameDocument.querySelector('[data-slot="field-error"]')).not.toBeNull(),
       )
-      expect(frameDocument.activeElement).toBe(screen.getByLabelText('Second'))
+      expect(frameDocument.activeElement).toBe(screen.getByLabelText('First'))
     } finally {
       frame.remove()
     }

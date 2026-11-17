@@ -84,10 +84,11 @@ export function NotificationForm() {
 
 ### Submission
 
-`form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
-validated output. Native `action` and `method` attributes do not enable a browser navigation
-submit. The returned store also supports Formisch's public methods and helpers, including
-programmatic field focus.
+`form.Form` renders Formisch's `Form`: it prevents native navigation, validates the schema, focuses
+the first invalid field in schema order, and calls `onSubmit` with the validated output. Native
+`action` and `method` attributes do not enable a browser navigation submit. The returned store also
+supports Formisch's public methods and helpers, including `submit(form)` and programmatic field
+focus.
 
 `form.Form` does not automatically disable child controls during submission. Read
 `form.isSubmitting` to derive button loading or disabled state while an async submit is in flight.
