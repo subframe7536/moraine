@@ -22,32 +22,34 @@ export namespace CopyButtonT {
 
   export interface ChildrenRenderProps {
     /**
-     * Whether the button is currently in copied state.
+     * Whether the last copy succeeded and the `copiedDuration` window is still active.
      */
     isCopied: boolean
 
     /**
-     * Whether the button is currently in error state.
+     * Whether the last copy failed and the `copiedDuration` window is still active.
      */
     isError: boolean
 
     /**
-     * Current copy state: 'idle' | 'copied' | 'failed'.
+     * Current copy state: `'idle'`, `'copied'` (after a successful copy), or `'failed'`.
      */
     state: CopyState
 
     /**
-     * Triggers copy operation with automatic fallback to command.
+     * Starts a copy programmatically. Copies `val`, or the button's `value` when omitted, and
+     * resolves to `true` on success or `false` on failure.
      */
     copy: (val?: CopySource) => Promise<boolean>
 
     /**
-     * Whether clipboard operations are supported in the current environment.
+     * Whether `navigator.clipboard` or `document.execCommand` is available. Always `false` during
+     * server rendering.
      */
     isSupported: boolean
 
     /**
-     * Whether the button is currently in loading state.
+     * Currently always `false`; the button has no loading state.
      */
     loading: boolean
   }
@@ -63,12 +65,29 @@ export namespace CopyButtonT {
     as?: T
 
     /**
-     * Value to copy to the clipboard. Accepts a string, ClipboardItem, ClipboardItem[], or an accessor returning either.
+     * What to copy on click: a string, a `ClipboardItem`, a `ClipboardItem[]`, a `Promise` of
+     * either, or a function returning one. A function is called on every click and a promise is
+     * awaited first; if it rejects or throws, the copy fails and `onError` receives the error.
+     * Non-string data is written with `navigator.clipboard.write`; the `execCommand` fallback can
+     * only copy text.
+     * @example
+     * ```tsx
+     * import { CopyButton } from 'moraine'
+     *
+     * <CopyButton
+     *   value={async () => (await fetch('/api/share-link')).text()}
+     *   onError={(error) => console.error(error)}
+     * >
+     *   Copy share link
+     * </CopyButton>
+     * ```
      */
     value: CopySource
 
     /**
-     * Duration in milliseconds to hold the 'copied' state before returning to 'idle'.
+     * Duration in milliseconds to hold the `'copied'` or `'failed'` state before returning to
+     * `'idle'`. While the `'copied'` state is active the icon switches to `copiedIcon` and the
+     * default `aria-label` changes to the localized "copied" message.
      * @default 2000
      */
     copiedDuration?: number
@@ -85,35 +104,40 @@ export namespace CopyButtonT {
     slotName?: string
 
     /**
-     * Icon displayed in the idle state. Pass `false` to disable icon display.
+     * Icon displayed in the idle and failed states. Pass `false` (or `null`) to hide the icon;
+     * without children the button then has no visible content.
      * @default 'icon-copy'
      */
     icon?: IconT.Name
 
     /**
-     * Icon displayed when copied.
+     * Icon displayed during the `'copied'` state, in place of `icon`.
      * @default 'icon-check'
      */
     copiedIcon?: IconT.Name
 
     /**
-     * Position of the copy indicator icon relative to the label.
+     * Position of the copy indicator icon relative to the label. Has no effect without children.
      * @default 'leading'
      */
     iconPosition?: 'leading' | 'trailing'
 
     /**
-     * Callback fired when copy succeeds.
+     * Called after the copy succeeds, with the resolved data that was written (after awaiting a
+     * promise or calling a function `value`).
      */
     onCopy?: (data: CopyData) => void
 
     /**
-     * Callback fired when copy fails.
+     * Called when the copy fails, with the thrown or rejected error, or an `Error` when the
+     * clipboard could not be written. The button then has `aria-invalid` until `copiedDuration`
+     * elapses.
      */
     onError?: (error: unknown) => void
 
     /**
-     * Callback fired when copy status changes.
+     * Called on every state change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,
+     * and `'idle'` again after `copiedDuration`. `isCopied` is `true` only for `'copied'`.
      */
     onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
 

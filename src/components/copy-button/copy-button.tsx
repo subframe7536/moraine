@@ -19,7 +19,20 @@ import type { CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
 
-/** Copy button with auto fallback to command and icon opacity transitions. */
+/**
+ * Button that copies a string or `ClipboardItem` (`value`) to the clipboard and briefly shows a
+ * copied state. It writes through `navigator.clipboard` and falls back to
+ * `document.execCommand('copy')` when the API is missing or fails. Pass children for a labeled
+ * button; without children it renders a square icon-only button. It renders a `button` by default
+ * and accepts `as`.
+ *
+ * @example
+ * ```tsx
+ * import { CopyButton } from 'moraine'
+ *
+ * <CopyButton value="npm i moraine">Copy install command</CopyButton>
+ * ```
+ */
 export function CopyButton<T extends ValidComponent = 'button'>(
   props: CopyButtonProps<T>,
 ): JSX.Element {
