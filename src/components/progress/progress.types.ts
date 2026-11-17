@@ -21,22 +21,24 @@ export namespace ProgressT {
 
   /** Base props for the Progress component. */
   export interface Base {
-    /** Localized message overrides for this progress instance. */
+    /** Localized message overrides for this progress instance, such as the `aria-valuetext` announced while indeterminate. */
     translations?: Translations
     /**
-     * The current value of the progress bar. If undefined, it is indeterminate.
+     * The current value, from `0` to `max`; values outside that range are clamped. Leave it `undefined`
+     * (or non-finite) for indeterminate progress, which sets no `aria-valuenow`.
      * @default undefined
      */
     value?: number
 
     /**
-     * The maximum value of the progress bar.
+     * The value that counts as complete. A negative or non-finite number falls back to `100`.
      * @default 100
      */
     max?: number
 
     /**
-     * Content for the label slot. Also used as the default `aria-label` when it is a string.
+     * Content for the label slot. Also used as the default `aria-label` when it is a string; an
+     * explicit `aria-label` takes precedence.
      */
     label?: JSX.Element
 
@@ -49,8 +51,20 @@ export namespace ProgressT {
 
     /**
      * Whether to show the value slot for determinate progress, or a formatter for it.
-     * The formatter result also supplies `aria-valuetext`.
+     * The formatter receives the clamped `value`, `max` and `percent` (`0`-`100`, rounded to 2 decimals)
+     * and returns the text; the result also supplies `aria-valuetext`. Nothing is shown while indeterminate.
      * @default false
+     * @example
+     * ```tsx
+     * import { Progress } from 'moraine'
+     *
+     * <Progress
+     *   value={3}
+     *   max={8}
+     *   label="Files"
+     *   valueLabel={({ value, max }) => `${value} of ${max}`}
+     * />
+     * ```
      */
     valueLabel?: boolean | ((props: { percent: number; value: number; max: number }) => string)
   }

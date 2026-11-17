@@ -22,7 +22,20 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-/** Determinate or indeterminate progress indicator with an optional label and value. */
+/**
+ * Progress bar for measurable task completion, or for work whose end is not yet known. Pass a
+ * numeric `value` for determinate progress and omit it for indeterminate progress; only use a
+ * determinate value when it represents real progress. Use `Skeleton` for a loading placeholder of
+ * content structure. Give it an `aria-label` (or a `label` string) when the surrounding context
+ * does not name the operation.
+ *
+ * @example
+ * ```tsx
+ * import { Progress } from 'moraine'
+ *
+ * <Progress value={40} max={100} label="Uploading design.fig" valueLabel />
+ * ```
+ */
 export function Progress(props: ProgressProps): JSX.Element {
   const [local, style, rest] = splitProps(
     props,
