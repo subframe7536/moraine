@@ -13,7 +13,25 @@ import { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
 import type { BreadcrumbProps } from './breadcrumb.types'
 
-/** Breadcrumb navigation trail with separator icons and optional wrapping. */
+/**
+ * Breadcrumb navigation trail with separator icons and optional wrapping, showing where a
+ * resource sits in a navigation hierarchy. Keep ancestors as links with `href`; the last item is
+ * the current page by default (or mark another with `active`) and renders as a non-link `span`
+ * with `aria-current="page"`. Use `Tabs` for in-page section switching. It renders a `nav`.
+ *
+ * @example
+ * ```tsx
+ * import { Breadcrumb } from 'moraine'
+ *
+ * <Breadcrumb
+ *   items={[
+ *     { label: 'Home', href: '/', icon: 'i-lucide:home' },
+ *     { label: 'Components', href: '/button' },
+ *     { label: 'Breadcrumb' },
+ *   ]}
+ * />
+ * ```
+ */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',

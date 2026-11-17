@@ -24,42 +24,45 @@ export namespace BreadcrumbT {
    */
   export interface Item {
     /**
-     * Label to display for the breadcrumb item.
+     * Text or content of the item. Nothing is rendered for an empty label.
      */
     label?: JSX.Element
 
     /**
-     * Icon to display next to the label.
+     * Name of an icon rendered before the label.
      */
     icon?: IconT.Name
 
     /**
-     * The destination URL for this item.
+     * Link destination. Applied only to an interactive item: the current page and disabled items
+     * render without `href`, `target`, `rel` and `onClick`.
      */
     href?: string
 
     /**
-     * Where to display the linked URL.
+     * Browsing context for the link, such as `'_blank'`. Ignored for the current page and disabled items.
      */
     target?: string
 
     /**
-     * Relationship of the linked URL to the current document.
+     * Link relationship, such as `'noopener'`. Ignored for the current page and disabled items.
      */
     rel?: string
 
     /**
-     * Whether the item is the current active page.
+     * Marks this item as the current page, rendered as a non-link with `aria-current="page"`. When
+     * no item sets it, the last item is the current page. The first item with `active` wins.
      */
     active?: boolean
 
     /**
-     * Whether the item is disabled.
+     * Whether the item is disabled: it renders as a non-interactive element with
+     * `aria-disabled="true"` and without `href` or `onClick`. Has no effect on the current page.
      */
     disabled?: boolean
 
     /**
-     * Callback when the item is clicked.
+     * Click handler for the item's link. Not attached to the current page or disabled items.
      */
     onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>
   }
@@ -80,7 +83,10 @@ export namespace BreadcrumbT {
    * Base props for the Breadcrumb component.
    */
   export interface Base {
-    /** Localized message overrides for this breadcrumb instance. */
+    /**
+     * Overrides the built-in strings for this instance. The only key is `label`, the default
+     * `aria-label` of the `<nav>` (default `'breadcrumb'`). An explicit `aria-label` prop wins.
+     */
     translations?: Translations
     /**
      * Ref forwarded to the root `<nav>` element.
@@ -88,18 +94,48 @@ export namespace BreadcrumbT {
     ref?: Ref<HTMLElement>
 
     /**
-     * Array of breadcrumb items to display.
+     * Items of the trail, from the root to the current page. Separators are rendered between
+     * consecutive items automatically.
+     * @example
+     * ```tsx
+     * import { Breadcrumb } from 'moraine'
+     *
+     * <Breadcrumb
+     *   items={[
+     *     { label: 'Home', href: '/' },
+     *     { label: 'Docs', href: '/docs', target: '_blank', rel: 'noopener' },
+     *     { label: 'Archive', disabled: true },
+     *     { label: 'Current page' },
+     *   ]}
+     * />
+     * ```
      */
     items?: Item[]
 
     /**
-     * Icon name for the separator between items.
+     * Name of the icon rendered between consecutive items. The separator is hidden from assistive
+     * technology.
      * @default 'icon-chevron-right'
      */
     separator?: IconT.Name
 
     /**
-     * Renderer for each breadcrumb item.
+     * Component rendered for every item, replacing its default link or page element (the `<li>` and
+     * separator are kept). Use it to integrate a router link. Receives `{ item, index, current,
+     * disabled }`; you are responsible for `aria-current` and disabled handling.
+     * @example
+     * ```tsx
+     * import { Breadcrumb } from 'moraine'
+     *
+     * <Breadcrumb
+     *   items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}
+     *   itemRender={(ctx) => (
+     *     <a href={ctx.item.href} aria-current={ctx.current ? 'page' : undefined}>
+     *       {ctx.item.label}
+     *     </a>
+     *   )}
+     * />
+     * ```
      */
     itemRender?: Component<ItemRenderProps>
   }
