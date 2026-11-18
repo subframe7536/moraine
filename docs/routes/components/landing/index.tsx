@@ -23,7 +23,7 @@ function InstallCommand(props: { state: CopyStatus; onClick: () => void; class?:
       title={
         props.state === 'copied'
           ? 'Copied to clipboard'
-          : props.state === 'failed'
+          : props.state === 'error'
             ? 'Copy failed; try again'
             : 'Click to copy'
       }
@@ -119,7 +119,7 @@ export function LandingPage() {
             <span class="sr-only" aria-live="polite">
               {clipboard.status() === 'copied'
                 ? 'Install command copied'
-                : clipboard.status() === 'failed'
+                : clipboard.status() === 'error'
                   ? 'Copy failed; try again'
                   : ''}
             </span>

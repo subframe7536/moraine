@@ -130,7 +130,7 @@ describe('createCopy', () => {
     const clipboard = setup({ onCopyError })
     const success = await clipboard.copy('will fail')
     expect(success).toBe(false)
-    expect(clipboard.status()).toBe('failed')
+    expect(clipboard.status()).toBe('error')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(true)
     expect(onCopyError).toHaveBeenCalled()
@@ -146,16 +146,10 @@ describe('createCopy', () => {
     const clipboard = setup({ onStatusChange })
 
     await clipboard.copy('status check')
-    expect(onStatusChange).toHaveBeenCalledWith({
-      isCopied: true,
-      status: 'copied',
-    })
+    expect(onStatusChange).toHaveBeenCalledWith('copied')
 
     vi.advanceTimersByTime(1000)
-    expect(onStatusChange).toHaveBeenCalledWith({
-      isCopied: false,
-      status: 'idle',
-    })
+    expect(onStatusChange).toHaveBeenCalledWith('idle')
   })
 
   test('reset returns to idle and prevents the pending reset from reporting again', async () => {

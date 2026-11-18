@@ -6,7 +6,7 @@ export type CopyData = string | ClipboardItem | ClipboardItem[]
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 
-export type CopyStatus = 'idle' | 'copied' | 'failed'
+export type CopyStatus = 'idle' | 'copied' | 'error'
 
 export interface CreateCopyOptions {
   /**
@@ -21,7 +21,7 @@ export interface CreateCopyOptions {
   value?: CopySource
 
   /**
-   * Delay in milliseconds before the 'copied' or 'failed' status returns to 'idle'.
+   * Delay in milliseconds before the 'copied' or 'error' status returns to 'idle'.
    * @default 2000
    */
   resetDelay?: number | (() => number | undefined)
@@ -37,9 +37,9 @@ export interface CreateCopyOptions {
   onCopyError?: (error: unknown) => void
 
   /**
-   * Callback invoked when the copy status changes.
+   * Callback invoked with the new status whenever the copy status changes.
    */
-  onStatusChange?: (details: { isCopied: boolean; status: CopyStatus }) => void
+  onStatusChange?: (status: CopyStatus) => void
 }
 
 export interface CreateCopyReturn {
@@ -54,7 +54,7 @@ export interface CreateCopyReturn {
   isError: Accessor<boolean>
 
   /**
-   * Current copy status: 'idle' | 'copied' | 'failed'.
+   * Current copy status: 'idle' | 'copied' | 'error'.
    */
   status: Accessor<CopyStatus>
 
@@ -212,10 +212,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
 
   function notifyStatus(nextStatus: CopyStatus) {
     setStatus(nextStatus)
-    options.onStatusChange?.({
-      isCopied: nextStatus === 'copied',
-      status: nextStatus,
-    })
+    options.onStatusChange?.(nextStatus)
   }
 
   function reset() {
@@ -225,7 +222,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   }
 
   const isCopied = createMemo(() => status() === 'copied')
-  const isError = createMemo(() => status() === 'failed')
+  const isError = createMemo(() => status() === 'error')
 
   function resolveDuration(): number {
     const val = typeof options.resetDelay === 'function' ? options.resetDelay() : options.resetDelay
@@ -299,7 +296,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
       }
 
       setError(err)
-      notifyStatus('failed')
+      notifyStatus('error')
       options.onCopyError?.(err)
 
       const duration = resolveDuration()

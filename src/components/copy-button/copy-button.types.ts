@@ -24,15 +24,16 @@ export namespace CopyButtonT {
     /**
      * Whether the last copy succeeded and the `resetDelay` window is still active.
      */
-    isCopied: boolean
+    copied: boolean
 
     /**
      * Whether the last copy failed and the `resetDelay` window is still active.
      */
-    isError: boolean
+    error: boolean
 
     /**
-     * Current copy status: `'idle'`, `'copied'` (after a successful copy), or `'failed'`.
+     * Current copy status: `'idle'`, `'copied'` (after a successful copy), or `'error'` (after a
+     * failed copy).
      */
     status: CopyStatus
 
@@ -46,12 +47,7 @@ export namespace CopyButtonT {
      * Whether `navigator.clipboard` or `document.execCommand` is available. Always `false` during
      * server rendering.
      */
-    isSupported: boolean
-
-    /**
-     * Currently always `false`; the button has no loading state.
-     */
-    loading: boolean
+    supported: boolean
   }
 
   /**
@@ -85,7 +81,7 @@ export namespace CopyButtonT {
     value: CopySource
 
     /**
-     * Delay in milliseconds before the `'copied'` or `'failed'` status returns to `'idle'`. While
+     * Delay in milliseconds before the `'copied'` or `'error'` status returns to `'idle'`. While
      * the `'copied'` status is active the icon switches to `copiedIcon` and the default
      * `aria-label` changes to the localized "copied" message.
      * @default 2000
@@ -98,7 +94,7 @@ export namespace CopyButtonT {
     disabled?: boolean
 
     /**
-     * Icon displayed in the idle and failed states. Pass `false` (or `null`) to hide the icon;
+     * Icon displayed in the `'idle'` and `'error'` states. Pass `false` (or `null`) to hide the icon;
      * without children the button then has no visible content.
      * @default 'icon-copy'
      */
@@ -130,10 +126,18 @@ export namespace CopyButtonT {
     onCopyError?: (error: unknown) => void
 
     /**
-     * Called on every status change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,
-     * and `'idle'` again after `resetDelay`. `isCopied` is `true` only for `'copied'`.
+     * Called with the new status on every status change: `'idle'` when a copy starts, then
+     * `'copied'` or `'error'`, and `'idle'` again after `resetDelay`.
+     * @example
+     * ```tsx
+     * import { CopyButton } from 'moraine'
+     *
+     * <CopyButton value="npm i moraine" onStatusChange={(status) => console.log(status)}>
+     *   Copy install command
+     * </CopyButton>
+     * ```
      */
-    onStatusChange?: (details: { isCopied: boolean; status: CopyStatus }) => void
+    onStatusChange?: (status: CopyStatus) => void
 
     /**
      * Content or render function receiving the copy state.

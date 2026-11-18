@@ -14,7 +14,7 @@ export function IconGallery() {
           const message = () =>
             clipboard.status() === 'copied'
               ? 'Copied'
-              : clipboard.status() === 'failed'
+              : clipboard.status() === 'error'
                 ? 'Copy failed'
                 : undefined
 

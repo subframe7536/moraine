@@ -70,7 +70,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon displayed in the idle and failed states. Pass `false` (or `null`) to hide the icon;\nwithout children the button then has no visible content.",
+          "description": "Icon displayed in the `'idle'` and `'error'` states. Pass `false` (or `null`) to hide the icon;\nwithout children the button then has no visible content.",
           "default": {
             "kind": "literal",
             "value": "icon-copy"
@@ -101,14 +101,17 @@
         {
           "name": "onStatusChange",
           "optional": true,
-          "type": "(details: { isCopied: boolean; status: CopyStatus }) => void",
-          "description": "Called on every status change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,\nand `'idle'` again after `resetDelay`. `isCopied` is `true` only for `'copied'`."
+          "type": "(status: CopyStatus) => void",
+          "description": "Called with the new status on every status change: `'idle'` when a copy starts, then\n`'copied'` or `'error'`, and `'idle'` again after `resetDelay`.",
+          "examples": [
+            "import { CopyButton } from 'moraine'\n\n<CopyButton value=\"npm i moraine\" onStatusChange={(status) => console.log(status)}>\n  Copy install command\n</CopyButton>"
+          ]
         },
         {
           "name": "resetDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before the `'copied'` or `'failed'` status returns to `'idle'`. While\nthe `'copied'` status is active the icon switches to `copiedIcon` and the default\n`aria-label` changes to the localized \"copied\" message.",
+          "description": "Delay in milliseconds before the `'copied'` or `'error'` status returns to `'idle'`. While\nthe `'copied'` status is active the icon switches to `copiedIcon` and the default\n`aria-label` changes to the localized \"copied\" message.",
           "default": {
             "kind": "literal",
             "value": 2000

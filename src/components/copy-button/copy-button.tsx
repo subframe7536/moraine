@@ -89,10 +89,10 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       return value
     }
     return renderWithProps(value, {
-      get isCopied() {
+      get copied() {
         return clipboard.isCopied()
       },
-      get isError() {
+      get error() {
         return clipboard.isError()
       },
       get status() {
@@ -101,11 +101,8 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       get copy() {
         return clipboard.copy
       },
-      get isSupported() {
+      get supported() {
         return clipboard.isSupported()
-      },
-      get loading() {
-        return false
       },
     })
   })

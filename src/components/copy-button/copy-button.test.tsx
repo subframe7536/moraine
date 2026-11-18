@@ -68,7 +68,7 @@ describe('CopyButton', () => {
   test('supports render-prop children receiving reactive copy state', async () => {
     const screen = render(() => (
       <CopyButton value="render-prop-data">
-        {(state) => <span>{state.isCopied ? 'Copied URL' : 'Copy URL'}</span>}
+        {(state) => <span>{state.copied ? 'Copied URL' : 'Copy URL'}</span>}
       </CopyButton>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
@@ -142,16 +142,10 @@ describe('CopyButton', () => {
     await flushMicrotasks()
 
     expect(onCopySuccess).toHaveBeenCalledWith('callback-test')
-    expect(onStatusChange).toHaveBeenCalledWith({
-      isCopied: true,
-      status: 'copied',
-    })
+    expect(onStatusChange).toHaveBeenCalledWith('copied')
 
     vi.advanceTimersByTime(1500)
-    expect(onStatusChange).toHaveBeenCalledWith({
-      isCopied: false,
-      status: 'idle',
-    })
+    expect(onStatusChange).toHaveBeenCalledWith('idle')
   })
 
   test('omits icon when icon={false}', () => {

@@ -42,8 +42,7 @@ describe('CopyButton SSR hydration', () => {
           <CopyButton value="render-prop-server">
             {(state) => (
               <span>
-                {state.isCopied ? 'Copied' : 'Idle'} /{' '}
-                {state.isSupported ? 'Supported' : 'Unsupported'}
+                {state.copied ? 'Copied' : 'Idle'} / {state.supported ? 'Supported' : 'Unsupported'}
               </span>
             )}
           </CopyButton>

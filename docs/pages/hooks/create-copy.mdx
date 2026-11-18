@@ -5,7 +5,7 @@ search:
   tags: [createCopy, copy, clipboard, execCommand, headless, feedback, timeout]
 ---
 
-`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `failed` status for a set delay before returning to `idle`. For a ready-made button, use `CopyButton`.
+`createCopy` writes strings or `ClipboardItem` values to the clipboard and tracks the result as reactive state. It writes through the Clipboard API, falls back to `document.execCommand('copy')` when that API is missing or the write fails, and holds a `copied` or `error` status for a set delay before returning to `idle`. For a ready-made button, use `CopyButton`.
 
 ## Import
 
@@ -18,7 +18,7 @@ import { createCopy } from 'moraine/utils'
 - Writes strings with `navigator.clipboard.writeText` and `ClipboardItem` values with `navigator.clipboard.write`. It falls back to `document.execCommand('copy')` when the matching method is missing or the write throws.
 - Accepts a `string`, `ClipboardItem`, `ClipboardItem[]`, a `Promise` of any of these, or a function returning them.
 - In the fallback path, extracts plain text from a `ClipboardItem`, or serializes the data with `JSON.stringify` when no text type is present.
-- Exposes `isCopied()`, `isError()`, and `status()` (`'idle' | 'copied' | 'failed'`). Both active states reset to `idle` after `resetDelay` milliseconds.
+- Exposes `isCopied()`, `isError()`, and `status()` (`'idle' | 'copied' | 'error'`). Both active states reset to `idle` after `resetDelay` milliseconds.
 - A newer `copy()` call supersedes an earlier pending one. The superseded call resolves to `false` and sets no state.
 - Resolves `copy()` to `false` without touching the clipboard on the server, after the owner disposes, or when there is no source (neither the argument nor `options.value`).
 
@@ -40,7 +40,7 @@ interface CreateCopyOptions {
   value?: CopySource
 
   /**
-   * Delay in milliseconds before the 'copied' or 'failed' status returns to 'idle'.
+   * Delay in milliseconds before the 'copied' or 'error' status returns to 'idle'.
    * @default 2000
    */
   resetDelay?: number | (() => number | undefined)
@@ -56,9 +56,9 @@ interface CreateCopyOptions {
   onCopyError?: (error: unknown) => void
 
   /**
-   * Callback invoked when the copy status changes.
+   * Callback invoked with the new status whenever the copy status changes.
    */
-  onStatusChange?: (details: { isCopied: boolean; status: CopyStatus }) => void
+  onStatusChange?: (status: CopyStatus) => void
 }
 
 interface CreateCopyReturn {
@@ -66,7 +66,7 @@ interface CreateCopyReturn {
   isCopied: Accessor<boolean>
   /** Whether the last copy failed and its duration is still active. */
   isError: Accessor<boolean>
-  status: Accessor<'idle' | 'copied' | 'failed'>
+  status: Accessor<CopyStatus>
   /** Copies `data`, or `options.value` when omitted. Resolves to whether the copy succeeded. */
   copy: (data?: CopySource) => Promise<boolean>
   /** Returns to `idle`, clears the error, and cancels the pending reset timer. */
@@ -77,6 +77,7 @@ interface CreateCopyReturn {
   isSupported: Accessor<boolean>
 }
 
+type CopyStatus = 'idle' | 'copied' | 'error'
 type CopyData = string | ClipboardItem | ClipboardItem[]
 type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 ```

@@ -25,7 +25,7 @@ import Playground from './playground'
 
 Use CopyButton to copy a string or `ClipboardItem` to the clipboard from a single control. It writes
 through `navigator.clipboard` and falls back to `document.execCommand('copy')` when the Clipboard API
-is missing or the write fails. After a copy it holds a `copied` or `failed` state for `resetDelay`,
+is missing or the write fails. After a copy it holds a `copied` or `error` state for `resetDelay`,
 then returns to `idle`.
 
 ```tsx
@@ -51,7 +51,7 @@ the copy fails and `onCopyError` receives the error. The `execCommand` fallback 
 Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
 button at the matching icon size. `iconPosition` places the icon before (`leading`, default) or after
 (`trailing`) the label. Children can also be a function that receives the copy state, including
-`isCopied`, `isError`, and `status`.
+`copied`, `error`, `status`, `supported`, and `copy`.
 
 ```tsx
 <CopyButton value="npm i moraine">Copy Install Command</CopyButton>
@@ -72,8 +72,9 @@ Inside a [ButtonGroup](/components/button-group), it inherits the group's `size`
 
 ### Feedback duration and icons
 
-`resetDelay` sets how long the `copied` or `failed` state holds, in milliseconds; it defaults to 2000. Set `icon` for the idle glyph and `copiedIcon` for the copied glyph. Pass `icon={false}` to hide
-the icon. Use `onCopySuccess`, `onCopyError`, and `onStatusChange` to react to the result.
+`resetDelay` sets how long the `copied` or `error` state holds, in milliseconds; it defaults to 2000. Set `icon` for the idle glyph and `copiedIcon` for the copied glyph. Pass `icon={false}` to hide
+the icon. Use `onCopySuccess`, `onCopyError`, and `onStatusChange` (which receives the new status) to react
+to the result.
 
 ```tsx
 <CopyButton
@@ -119,7 +120,7 @@ visible.
 
 ### Change the label while copied
 
-Pass a function child to read `state.isCopied` and show different label text after a copy. Set
+Pass a function child to read `state.copied` and show different label text after a copy. Set
 `iconPosition="trailing"` to move the icon after the label.
 
 <Preview path="./with-label" />

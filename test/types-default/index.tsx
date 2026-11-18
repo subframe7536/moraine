@@ -354,7 +354,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<CopyButton value="code snippet" iconPosition="trailing" />
 // @ts-expect-error CopyButton has no leading or trailing props.
 ;<CopyButton value="code snippet" leading="icon-copy" />
-;<CopyButton value="code snippet">{(state) => (state.isCopied ? 'Copied' : 'Copy')}</CopyButton>
+;<CopyButton value="code snippet">{(state) => (state.copied ? 'Copied' : 'Copy')}</CopyButton>
 // @ts-expect-error value is required
 ;<CopyButton />
 {
