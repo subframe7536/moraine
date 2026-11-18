@@ -81,7 +81,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 size={variants.size}
                 variant={variants.variant}
                 {...itemSlot}
-                slotName="kbd-group-item"
+                data-slot="kbd-group-item"
               />
               <Show when={index() < normalizedItems().length - 1}>
                 <Show

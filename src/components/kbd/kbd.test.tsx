@@ -75,15 +75,9 @@ describe('Kbd', () => {
     expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
   })
 
-  test('falls back to the default data-slot when slotName is empty', () => {
-    const view = render(() => <Kbd value="K" slotName="" />)
-
-    expect(view.container.querySelector('kbd')?.getAttribute('data-slot')).toBe('kbd')
-  })
-
   test('supports a custom slot, class, and style overrides', () => {
     const view = render(() => (
-      <Kbd value="K" slotName="shortcut" class="shortcut-class" style={{ width: '200px' }} />
+      <Kbd value="K" data-slot="shortcut" class="shortcut-class" style={{ width: '200px' }} />
     ))
     const root = view.container.querySelector<HTMLElement>('[data-slot="shortcut"]')
 

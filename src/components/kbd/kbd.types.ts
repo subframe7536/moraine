@@ -63,11 +63,6 @@ export namespace KbdT {
     symbol?: boolean
     /** Accessible label for the keycap. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set. */
     'aria-label'?: string
-    /**
-     * Value of the keycap's `data-slot` attribute, for styling hooks. `KbdGroup` sets it to `kbd-group-item` for its keys.
-     * @default 'kbd'
-     */
-    slotName?: string
   }
 
   /** Props for the Kbd component. */

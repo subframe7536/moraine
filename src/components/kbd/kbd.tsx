@@ -29,7 +29,6 @@ export function Kbd(props: KbdProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'value',
     'symbol',
-    'slotName',
     'size',
     'variant',
     'class',
@@ -62,7 +61,7 @@ export function Kbd(props: KbdProps): JSX.Element {
 
   return (
     <Show when={text()}>
-      <kbd data-slot={local.slotName || 'kbd'} aria-label={label()} {...rootSlot} {...rest}>
+      <kbd data-slot="kbd" aria-label={label()} {...rootSlot} {...rest}>
         {text()}
       </kbd>
     </Show>

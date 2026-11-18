@@ -44,16 +44,6 @@
           }
         },
         {
-          "name": "slotName",
-          "optional": true,
-          "type": "string",
-          "description": "Value of the keycap's `data-slot` attribute, for styling hooks. `KbdGroup` sets it to `kbd-group-item` for its keys.",
-          "default": {
-            "kind": "literal",
-            "value": "kbd"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
