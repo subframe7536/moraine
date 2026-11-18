@@ -123,7 +123,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={!behavior.options.openOnHover}
-      restoreFocusOnClose={behavior.options.restoreFocusOnClose ?? !behavior.options.openOnHover}
+      finalFocus={behavior.options.finalFocus ?? (behavior.options.openOnHover ? false : undefined)}
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
       role="dialog"
       onPointerDownOutside={(event) => {

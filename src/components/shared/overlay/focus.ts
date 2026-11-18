@@ -106,6 +106,19 @@ export function focusWithoutScrolling(element: HTMLElement | undefined): void {
   }
 }
 
+/**
+ * Resolves an `initialFocus` / `finalFocus` prop value to an element: an element resolves to
+ * itself, an accessor to its result, and `false` or `undefined` to nothing.
+ */
+export function resolveFocusTarget(
+  target: HTMLElement | (() => HTMLElement | undefined) | false | undefined,
+): HTMLElement | undefined {
+  if (typeof target === 'function') {
+    return target()
+  }
+  return target === false ? undefined : target
+}
+
 export function focusContent(container: HTMLElement | undefined): void {
   if (!container) {
     return

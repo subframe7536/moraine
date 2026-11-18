@@ -62,7 +62,7 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       slide={behavior.options.slide}
       overflowPadding={behavior.options.overflowPadding}
       inline={behavior.inlinePoint()}
-      restoreFocusOnClose={false}
+      finalFocus={false}
       closeOnOutsideFocus={false}
       onEscapeKeyDown={behavior.markInstantClose}
       onPointerDownOutside={behavior.markInstantClose}

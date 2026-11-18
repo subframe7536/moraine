@@ -113,7 +113,7 @@ export function NavigationMenuPanel(): JSX.Element {
       positionerStyle={size()}
       interactionEnabled={context.open()}
       containsTarget={(target) => Boolean(context.rootElement()?.contains(target))}
-      restoreFocusOnClose={false}
+      finalFocus={false}
       onEscapeKeyDown={(event) => {
         if (!event.defaultPrevented) {
           event.preventDefault()

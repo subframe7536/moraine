@@ -393,10 +393,33 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
   })
 
-  test('supports explicit restoreFocusOnClose prop override', async () => {
+  test('focuses the finalFocus target instead of the trigger after close', async () => {
+    const target = document.createElement('button')
+    document.body.append(target)
+    const screen = render(() => (
+      <Popover finalFocus={() => target}>
+        <Popover.Trigger as="button" type="button">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Content'}</Popover.Content>
+      </Popover>
+    ))
+    fireEvent.click(screen.getByRole('button'))
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')
+    expect(content).not.toBeNull()
+
+    content!.focus()
+    fireEvent.keyDown(content!, { key: 'Escape' })
+    await finishExitMotion(content)
+
+    expect(document.activeElement).toBe(target)
+    target.remove()
+  })
+
+  test('skips the close-time focus restore when finalFocus is false', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Popover restoreFocusOnClose={false} onOpenChange={onOpenChange}>
+      <Popover finalFocus={false} onOpenChange={onOpenChange}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>

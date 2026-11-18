@@ -8,7 +8,12 @@ import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 import { acquireAriaHideOutside } from '../shared/overlay/aria-hide'
 import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../shared/overlay/dom'
-import { focusContent, focusTrigger, focusWithoutScrolling } from '../shared/overlay/focus'
+import {
+  focusContent,
+  focusTrigger,
+  focusWithoutScrolling,
+  resolveFocusTarget,
+} from '../shared/overlay/focus'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { acquireBodyScrollLock } from '../shared/overlay/scroll-lock'
 
@@ -84,15 +89,6 @@ export function Modal(props: ModalProps): JSX.Element {
       (isHTMLElement(activeElement) && activeElement !== ownerDocument.body
         ? activeElement
         : undefined)
-  }
-
-  const resolveFocusTarget = (
-    target: ModalProps['initialFocus'] | ModalProps['finalFocus'],
-  ): HTMLElement | undefined => {
-    if (typeof target === 'function') {
-      return target()
-    }
-    return target === false ? undefined : target
   }
 
   const focusInto = (content: HTMLElement | undefined, openedByTouch = false): void => {

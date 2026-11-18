@@ -70,7 +70,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       slide={behavior.options.slide}
       overflowPadding={behavior.options.overflowPadding}
       role="tooltip"
-      restoreFocusOnClose={false}
+      finalFocus={false}
       positionerClass={
         behavior.instantMotion() ? TOOLTIP_INSTANT_POSITIONER_CLASS : TOOLTIP_POSITIONER_CLASS
       }

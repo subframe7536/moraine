@@ -29,7 +29,7 @@ import { dataSlotName } from '../../../theme/data-slot'
 
 import { acquireAriaHideOutside } from './aria-hide'
 import { useFloatingPosition, usePositionerZIndex } from './floating'
-import { containFocusInContainer, focusContent, focusTrigger } from './focus'
+import { containFocusInContainer, focusContent, focusTrigger, resolveFocusTarget } from './focus'
 import { useOverlayInteraction } from './interaction'
 import { resolveFloatingPlacement } from './placement'
 import { popperDataAttributes } from './popper.recipe'
@@ -232,7 +232,6 @@ export function PopperContent(
       overflowPadding: 4,
       placement: 'bottom' as const,
       align: 'center' as const,
-      restoreFocusOnClose: true,
       sameWidth: false,
       shift: 0,
       slide: true,
@@ -438,8 +437,12 @@ export function PopperContent(
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (options.restoreFocusOnClose && restoreFocusAfterClose && context.isTop()) {
-        focusTrigger(triggerElement())
+      if (restoreFocusAfterClose && context.isTop()) {
+        focusTrigger(
+          options.finalFocus === undefined
+            ? triggerElement()
+            : resolveFocusTarget(options.finalFocus),
+        )
       }
     },
   })

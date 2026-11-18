@@ -36,7 +36,7 @@ export namespace PopoverT {
     | 'closeOnEscape'
     | 'closeOnOutsideClick'
     | 'onClosePrevented'
-    | 'restoreFocusOnClose'
+    | 'finalFocus'
   > {
     /**
      * Whether the content traps focus, hides outside content from assistive technology, prevents
@@ -66,7 +66,7 @@ export namespace PopoverT {
      * focus, and closes it `closeDelay` ms after the pointer or focus leaves the trigger and content.
      * Clicking the trigger then only opens it instead of toggling. Touch hover is ignored. Outside
      * focus no longer dismisses the content, and focus is not restored to the trigger on close
-     * unless `restoreFocusOnClose` is set.
+     * unless `finalFocus` is set.
      * @default false
      */
     openOnHover?: boolean

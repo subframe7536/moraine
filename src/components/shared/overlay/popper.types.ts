@@ -232,12 +232,22 @@ export interface PopperContentOptions {
   preventScroll?: boolean
 
   /**
-   * Whether focus returns to the trigger when the content closes. Focus is not restored when a
-   * non-modal content is dismissed by an outside press or focus move, since focus already went
-   * elsewhere. Hover-opened popovers (`openOnHover`) default to not restoring focus.
-   * @default true
+   * Element (or accessor resolving to one) that receives focus after the content closes, or
+   * `false` to skip the close-time focus restore. Defaults to the trigger. An accessor that
+   * returns `undefined` restores no focus. Focus is not restored when a non-modal content is
+   * dismissed by an outside press or focus move, since focus already went elsewhere. Hover-opened
+   * popovers (`openOnHover`) default to not restoring focus.
+   * @example
+   * ```tsx
+   * import { Button, Popover } from 'moraine'
+   *
+   * <Popover finalFocus={() => document.getElementById('search') ?? undefined}>
+   *   <Popover.Trigger as={Button}>Filters</Popover.Trigger>
+   *   <Popover.Content>Filter options</Popover.Content>
+   * </Popover>
+   * ```
    */
-  restoreFocusOnClose?: boolean
+  finalFocus?: HTMLElement | (() => HTMLElement | undefined) | false
 
   /** Semantic role applied to the positioned content. */
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
