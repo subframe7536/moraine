@@ -28,8 +28,8 @@ export namespace ContextMenuT {
 
   export type Item = OverlayMenuItem
   export type ItemRenderProps = OverlayMenuItemRenderProps
-  export type TopRenderProps = OverlayMenuContentSlotProps
-  export type BottomRenderProps = OverlayMenuContentSlotProps
+  export type HeaderRenderProps = OverlayMenuContentSlotProps
+  export type FooterRenderProps = OverlayMenuContentSlotProps
 
   /**
    * Base props for the ContextMenu root component.
@@ -209,17 +209,17 @@ export namespace ContextMenuT {
      *   <ContextMenu.Trigger>Open</ContextMenu.Trigger>
      *   <ContextMenu.Content
      *     items={[{ label: 'Rename' }]}
-     *     topRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}
+     *     headerRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}
      *   />
      * </ContextMenu>
      * ```
      */
-    topRender?: JSX.Element | Component<TopRenderProps>
+    headerRender?: JSX.Element | Component<HeaderRenderProps>
     /**
      * Content rendered below the item groups, in the root menu and in every submenu. A function is
      * mounted as a component and receives `{ sub }`, which is `true` inside a submenu.
      */
-    bottomRender?: JSX.Element | Component<BottomRenderProps>
+    footerRender?: JSX.Element | Component<FooterRenderProps>
     /**
      * Icon shown on checked checkbox and radio items.
      * @default 'icon-check'

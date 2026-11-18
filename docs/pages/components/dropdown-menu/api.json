@@ -261,12 +261,6 @@
       "defaultElement": "div",
       "props": [
         {
-          "name": "bottomRender",
-          "optional": true,
-          "type": "JSX.Element | Component<BottomRenderProps>",
-          "description": "Content rendered below the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu."
-        },
-        {
           "name": "checkedIcon",
           "optional": true,
           "type": "IconT.Name",
@@ -281,6 +275,21 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "footerRender",
+          "optional": true,
+          "type": "JSX.Element | Component<FooterRenderProps>",
+          "description": "Content rendered below the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu."
+        },
+        {
+          "name": "headerRender",
+          "optional": true,
+          "type": "JSX.Element | Component<HeaderRenderProps>",
+          "description": "Content rendered above the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu.",
+          "examples": [
+            "import { DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[{ label: 'Rename' }]}\n    headerRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}\n  />\n</DropdownMenu>"
+          ]
         },
         {
           "name": "itemRender",
@@ -316,15 +325,6 @@
             "kind": "literal",
             "value": "icon-chevron-right"
           }
-        },
-        {
-          "name": "topRender",
-          "optional": true,
-          "type": "JSX.Element | Component<TopRenderProps>",
-          "description": "Content rendered above the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu.",
-          "examples": [
-            "import { DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[{ label: 'Rename' }]}\n    topRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}\n  />\n</DropdownMenu>"
-          ]
         }
       ]
     }

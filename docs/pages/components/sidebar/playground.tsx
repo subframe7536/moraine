@@ -147,7 +147,7 @@ export default function SidebarPlayground() {
                       />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content
-                      topRender={
+                      headerRender={
                         <div class="text-xs text-muted-foreground font-medium px-2 py-1.5">
                           Teams
                         </div>
@@ -248,7 +248,7 @@ export default function SidebarPlayground() {
                       />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content
-                      topRender={
+                      headerRender={
                         <div class="p-2 border-b border-border/50 flex gap-2 items-center">
                           <Avatar
                             alt={data.user.name}

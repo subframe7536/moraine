@@ -390,11 +390,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           layer.resetTypeahead()
         }}
       >
-        <Show when={props.topRender} keyed>
+        <Show when={props.headerRender} keyed>
           {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
         <For each={groups()}>{(group) => <MenuGroup group={group} />}</For>
-        <Show when={props.bottomRender} keyed>
+        <Show when={props.footerRender} keyed>
           {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
       </div>

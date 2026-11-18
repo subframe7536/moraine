@@ -888,8 +888,8 @@ describe('DropdownMenu', () => {
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          topRender={contentTop}
-          bottomRender={contentBottom}
+          headerRender={contentTop}
+          footerRender={contentBottom}
           items={[
             {
               type: 'group',

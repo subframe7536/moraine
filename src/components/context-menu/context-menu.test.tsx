@@ -1095,8 +1095,8 @@ describe('ContextMenu', () => {
       >
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
-          topRender={contentTop}
-          bottomRender={contentBottom}
+          headerRender={contentTop}
+          footerRender={contentBottom}
           items={[
             {
               type: 'group',

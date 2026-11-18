@@ -66,7 +66,7 @@ describe.each([
           <Root.Trigger>Trigger</Root.Trigger>
           {createComponent(Root.Content, {
             items: [{ label: 'Action' }],
-            topRender: top,
+            headerRender: top,
           })}
         </Root>
       </MoraineProvider>

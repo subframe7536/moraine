@@ -369,12 +369,12 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   /**
    * Content rendered before the resolved item groups.
    */
-  topRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
+  headerRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
 
   /**
    * Content rendered after the resolved item groups.
    */
-  bottomRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
+  footerRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
 
   /**
    * Renderer for each menu item.

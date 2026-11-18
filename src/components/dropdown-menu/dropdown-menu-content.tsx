@@ -11,7 +11,7 @@ import type { DropdownMenuT } from './dropdown-menu.types'
 /**
  * Popup list of actions for the surrounding `DropdownMenu`, described by the `items` model: items,
  * groups, separators, checkbox and radio items, and nested submenus. Place it inside
- * `DropdownMenu`; it renders in an overlay when open. Use `topRender`, `bottomRender`, and
+ * `DropdownMenu`; it renders in an overlay when open. Use `headerRender`, `footerRender`, and
  * `itemRender` for custom headers, footers, and item presentation.
  *
  * @example
@@ -35,8 +35,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
   const [local, rest] = splitProps(props, [
     'items',
     'itemRender',
-    'topRender',
-    'bottomRender',
+    'headerRender',
+    'footerRender',
     'checkedIcon',
     'submenuIcon',
     'class',
@@ -59,8 +59,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      topRender={merged.topRender}
-      bottomRender={merged.bottomRender}
+      headerRender={merged.headerRender}
+      footerRender={merged.footerRender}
     />
   )
 }
