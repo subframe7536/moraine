@@ -88,10 +88,10 @@ export namespace CheckboxGroupT {
     items?: (string | Item<TTrue, TFalse>)[]
 
     /**
-     * Where the checkbox control sits relative to the label for every item (`'start'`, `'end'`,
-     * or `'hidden'` to visually hide the control, as in selectable cards).
+     * Where the checkbox control sits relative to the label for every item (`'leading'`,
+     * `'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).
      */
-    indicator?: CheckboxProps<TTrue, TFalse>['indicator']
+    indicatorPosition?: CheckboxProps<TTrue, TFalse>['indicatorPosition']
 
     /** Checked icon for all items; an item's own `checkedIcon` takes precedence. */
     checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']

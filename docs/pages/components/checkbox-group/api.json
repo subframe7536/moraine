@@ -76,10 +76,10 @@
           "description": "Indeterminate icon for all items; an item's own `indeterminateIcon` takes precedence."
         },
         {
-          "name": "indicator",
+          "name": "indicatorPosition",
           "optional": true,
-          "type": "'start' | 'end' | 'hidden'",
-          "description": "Where the checkbox control sits relative to the label for every item (`'start'`, `'end'`,\nor `'hidden'` to visually hide the control, as in selectable cards)."
+          "type": "'leading' | 'trailing' | 'hidden'",
+          "description": "Where the checkbox control sits relative to the label for every item (`'leading'`,\n`'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards)."
         },
         {
           "name": "items",

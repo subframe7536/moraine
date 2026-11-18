@@ -119,11 +119,12 @@ toggles when clicked, and `table` joins bordered cards into one connected block.
 (`vertical` by default, or `horizontal`) sets the layout direction, and `size` accepts `sm`, `md`
 (default), or `lg`.
 
-`indicator` places the check mark at `start` (default) or `end`, or hides it visually with `hidden`.
+`indicatorPosition` places the check mark at the `leading` (default) or `trailing` edge, or hides it
+visually with `hidden`.
 
 ```tsx
-<CheckboxGroup indicator="end" items={items} />
-<CheckboxGroup indicator="hidden" items={items} />
+<CheckboxGroup indicatorPosition="trailing" items={items} />
+<CheckboxGroup indicatorPosition="hidden" items={items} />
 ```
 
 ## Examples
@@ -150,7 +151,7 @@ Bind the array to `form.Field` and reject an empty selection with a `minLength` 
 
 ### Put the check at the end of alert cards
 
-`indicator="end"` places the check after the label on `variant="card"`. Use it when the card reads as
+`indicatorPosition="trailing"` places the check after the label on `variant="card"`. Use it when the card reads as
 a row with the control on the trailing edge.
 
 <Preview path="./indicator" />

@@ -107,7 +107,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'readOnly',
     'legend',
     'items',
-    'indicator',
+    'indicatorPosition',
     'checkedIcon',
     'indeterminateIcon',
     'onValueChange',
@@ -348,7 +348,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 }
                 size={variants.size}
                 variant={variants.variant === 'table' ? 'card' : variants.variant}
-                indicator={merged.indicator}
+                indicatorPosition={merged.indicatorPosition}
                 checkedIcon={item().checkedIcon ?? merged.checkedIcon}
                 indeterminateIcon={item().indeterminateIcon ?? merged.indeterminateIcon}
                 {...overrides({

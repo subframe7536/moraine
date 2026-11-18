@@ -80,13 +80,13 @@ while `disabled` or `readOnly`, and toggling from `'indeterminate'` checks the b
 
 `label` and `description` render beside the control and link to it for assistive technology. Set
 `variant="card"` to draw a bordered card whose whole surface toggles the checkbox, except for
-interactive content inside it. `indicator` places the control at the `start` (default) or `end`, or
-hides it visually with `hidden`. `size` accepts `sm`, `md` (default), or `lg`.
+interactive content inside it. `indicatorPosition` places the control at the `leading` (default) or
+`trailing` edge, or hides it visually with `hidden`. `size` accepts `sm`, `md` (default), or `lg`.
 
 ```tsx
 <Checkbox
   variant="card"
-  indicator="end"
+  indicatorPosition="trailing"
   label="Email alerts"
   description="Get a message when a build fails."
 />

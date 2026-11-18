@@ -70,15 +70,15 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
-    indicator: 'start',
+    indicatorPosition: 'leading',
   },
   variants: {
     variant: {
       card: { root: 'border border-border rounded-md cursor-pointer' },
     },
-    indicator: {
-      start: { root: 'flex-row', wrapper: 'ms-2' },
-      end: { root: 'flex-row-reverse', wrapper: 'me-2' },
+    indicatorPosition: {
+      leading: { root: 'flex-row', wrapper: 'ms-2' },
+      trailing: { root: 'flex-row-reverse', wrapper: 'me-2' },
     },
     size: {
       sm: {

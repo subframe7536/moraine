@@ -31,10 +31,10 @@ export interface CheckboxStyleVariants {
   /** Visual treatment of the component.
    */
   variant?: 'card' | 'list'
-  /** Placement of the selection indicator.
-   * @default 'start'
+  /** Placement of the selection indicator relative to the label.
+   * @default 'leading'
    */
-  indicator?: 'start' | 'end' | 'hidden'
+  indicatorPosition?: 'leading' | 'trailing' | 'hidden'
 }
 
 export type CheckboxStyleConfig = ComponentStyleConfig<CheckboxStyleSlot, CheckboxStyleVariants>

@@ -112,13 +112,13 @@
           }
         },
         {
-          "name": "indicator",
+          "name": "indicatorPosition",
           "optional": true,
-          "type": "'start' | 'end' | 'hidden'",
-          "description": "Placement of the selection indicator.",
+          "type": "'leading' | 'trailing' | 'hidden'",
+          "description": "Placement of the selection indicator relative to the label.",
           "default": {
             "kind": "literal",
-            "value": "start"
+            "value": "leading"
           }
         },
         {

@@ -347,8 +347,8 @@ export namespace NeverT {
     )
     const cbItem = await extractor.extractItem(checkboxGroupModule!, 'CheckboxGroupT')
 
-    const indicatorProp = cbPart.props.find((p) => p.name === 'indicator')
-    expect(indicatorProp?.type).toBe("'start' | 'end' | 'hidden'")
+    const indicatorProp = cbPart.props.find((p) => p.name === 'indicatorPosition')
+    expect(indicatorProp?.type).toBe("'leading' | 'trailing' | 'hidden'")
 
     const checkedIconProp = cbPart.props.find((p) => p.name === 'checkedIcon')
     expect(checkedIconProp?.type).toBe('IconT.Name')

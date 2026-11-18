@@ -21,7 +21,7 @@ export function Indicator() {
       <CheckboxGroup
         legend="Activity alerts"
         variant="card"
-        indicator="end"
+        indicatorPosition="trailing"
         items={NOTIFICATIONS}
         defaultValue={['mentions', 'review']}
       />
