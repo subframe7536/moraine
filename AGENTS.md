@@ -30,7 +30,7 @@ render props (such as `itemRender`) instead of component props.
 - `pnpm run build` - Build the library using tsdown (outputs to dist/).
 - `pnpm run dev` - Build the library and start the documentation/development Vite server.
 - `pnpm run docs:build` - Build the documentation site from `src/`.
-- `pnpm run typecheck` - Run TypeScript type checking.
+- `pnpm run typecheck` - Run TypeScript type checking with `tsrs` (a Rust port of `tsc`; the `typescript` package is not installed). Build declarations also use the `tsrs` generator.
 
 ### Linting & Formatting
 

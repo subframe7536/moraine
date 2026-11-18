@@ -67,9 +67,7 @@ export default defineConfig([
       ],
     },
     dts: {
-      tsc: {
-        parallel: true,
-      },
+      generator: 'tsrs',
     },
     exports: packageExports,
   },
