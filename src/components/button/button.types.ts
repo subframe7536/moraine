@@ -40,12 +40,6 @@ export namespace ButtonT {
     disabled?: boolean
 
     /**
-     * Value of the root `data-slot` attribute. Used by components that compose `Button` to
-     * identify their own buttons.
-     * @default 'button'
-     */
-    slotName?: string
-    /**
      * Shows the loading indicator. While loading the button sets `aria-busy`, ignores clicks and
      * keyboard activation, and stays focusable. Combine with `autoLoading` to also show loading
      * while an async click handler is pending.

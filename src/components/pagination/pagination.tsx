@@ -273,7 +273,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         <Show when={merged.controls}>
           <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
-              slotName="pagination-prev"
+              data-slot="pagination-prev"
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.prevText)}
@@ -325,7 +325,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     })
                     return (
                       <Button
-                        slotName="pagination-item"
+                        data-slot="pagination-item"
                         variant={isActive() ? variants.activeVariant : variants.variant}
                         tone={variants.tone}
                         size={getSize(variants.size)}
@@ -348,7 +348,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         <Show when={merged.controls}>
           <li data-slot="pagination-list-item" {...listItemSlot}>
             <Button
-              slotName="pagination-next"
+              data-slot="pagination-next"
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.nextText)}

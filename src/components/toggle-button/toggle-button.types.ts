@@ -20,10 +20,7 @@ export namespace ToggleButtonT {
     loading: boolean
   }
 
-  export type Base<T extends ValidComponent = 'button'> = Omit<
-    ButtonT.Base<T>,
-    'slotName' | 'children'
-  > & {
+  export type Base<T extends ValidComponent = 'button'> = Omit<ButtonT.Base<T>, 'children'> & {
     /** Controlled pressed state. Leave it `undefined` for uncontrolled usage; when set, clicks only call `onPressedChange` and the button follows what you pass back. */
     pressed?: boolean
     /** Initial uncontrolled toggle state. @default false */

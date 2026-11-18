@@ -116,16 +116,6 @@
           }
         },
         {
-          "name": "slotName",
-          "optional": true,
-          "type": "string",
-          "description": "Value of the root `data-slot` attribute. Used by components that compose `Button` to\nidentify their own buttons.",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

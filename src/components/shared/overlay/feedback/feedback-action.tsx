@@ -14,7 +14,7 @@ export function FeedbackActionButton(props: {
   size?: ButtonT.Variants['size']
   loading?: boolean
   disabled?: boolean
-  slotName?: string
+  slotName: string
   class?: SlotClassValue
   style?: SlotStyleValue
   'aria-label'?: string
@@ -23,7 +23,7 @@ export function FeedbackActionButton(props: {
   const label = () => props.action?.label ?? props.label
   return (
     <Button
-      slotName={props.slotName}
+      data-slot={props.slotName}
       size={props.size}
       variant={props.action?.variant ?? props.variant}
       tone={props.action?.tone ?? props.tone}

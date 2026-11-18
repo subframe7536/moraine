@@ -444,7 +444,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
             <Show when={options().closable && !isLoading()}>
               <Button
                 data-slot="toast-close"
-                slotName="toast-close"
                 size="icon-md"
                 variant="ghost"
                 tone="neutral"

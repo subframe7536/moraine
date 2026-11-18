@@ -55,7 +55,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'styles',
     'class',
     'style',
-    'slotName',
     'ref',
     'disabled',
     'loading',
@@ -165,7 +164,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   return (
     <Dynamic
       component={tag()}
-      data-slot={local.slotName || 'button'}
+      data-slot="button"
       aria-busy={isLoading() ? true : undefined}
       {...rootSlot}
       {...binding}
