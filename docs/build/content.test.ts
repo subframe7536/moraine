@@ -107,9 +107,7 @@ test('copyable Usage examples compile against the public component API', async (
   const configContent = JSON.stringify({
     extends: path.join(PROJECT_ROOT, 'tsconfig.json'),
     compilerOptions: {
-      incremental: true,
-      tsBuildInfoFile: path.join(CACHE_DIR, '.tsbuildinfo'),
-      assumeChangesOnlyAffectDirectDependencies: true,
+      incremental: false,
       paths: {
         moraine: [path.join(PROJECT_ROOT, 'src/index.ts')],
         'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
@@ -125,7 +123,7 @@ test('copyable Usage examples compile against the public component API', async (
   }
 
   const require = createRequire(import.meta.url)
-  const compiler = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin/tsc')
+  const compiler = path.join(path.dirname(require.resolve('tsrs/package.json')), 'bin/tsrs')
 
   try {
     // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
