@@ -80,7 +80,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
   searchMaxLength?: number
   /**
    * Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only
-   * when `search` or `createItem` is set.
+   * when `searchable` or `createItem` is set.
    * @default 'off'
    */
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
@@ -91,7 +91,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
    * the item (string items arrive as `{ value, label }`) and returns whether the item stays
    * visible; it replaces the built-in matching. `false` always shows every item (use it when you
    * filter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering
-   * applies only when `search` or `createItem` is set.
+   * applies only when `searchable` or `createItem` is set.
    * @default 'contains'
    * @example
    * ```tsx

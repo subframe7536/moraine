@@ -18,7 +18,7 @@ export function ClearAndDisabled() {
         <MultiSelect
           items={MODULES}
           defaultValue={['core', 'analytics']}
-          search
+          searchable
           openOnControlClick
           placeholder="Select optional modules..."
         />

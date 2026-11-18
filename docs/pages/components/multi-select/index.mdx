@@ -108,11 +108,17 @@ export function Example() {
 `value` is the array of selected item values, in selection order. An empty array means no
 selection, and an empty string can be an item value. Pair `value` with `onValueChange` for controlled
 selection, or use `defaultValue` for an initial uncontrolled selection. `onValueChange` receives the
-full new array and clears the search text afterward. Without `search`, printable keys trigger
-collection typeahead. Set `search` to let users type in the field to filter options.
+full new array and clears the search text afterward. Without `searchable`, printable keys trigger
+collection typeahead. Set `searchable` to let users type in the field to filter options.
 
 ```tsx
-<MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} clearable />
+<MultiSelect
+  searchable
+  items={frameworks}
+  value={selected()}
+  onValueChange={setSelected}
+  clearable
+/>
 ```
 
 `clearable` shows a clear button while there are selected values or search text. It does not always
@@ -123,18 +129,18 @@ value instead.
 
 ### Search and item creation
 
-`search` and `createItem` decide whether the field is editable. Filtering follows editability, so
+`searchable` and `createItem` decide whether the field is editable. Filtering follows editability, so
 the four combinations behave as follows:
 
-| `search` | `createItem` | Field                         | Filters options | Creates items | `openOnControlClick` default |
-| -------- | ------------ | ----------------------------- | --------------- | ------------- | ---------------------------- |
-| unset    | unset        | Trigger button, no text input | No              | No            | `true`                       |
-| `true`   | unset        | Editable input                | Yes             | No            | `false`                      |
-| unset    | set          | Editable input                | Yes             | Yes           | `false`                      |
-| `true`   | set          | Editable input                | Yes             | Yes           | `false`                      |
+| `searchable` | `createItem` | Field                         | Filters options | Creates items | `openOnControlClick` default |
+| ------------ | ------------ | ----------------------------- | --------------- | ------------- | ---------------------------- |
+| unset        | unset        | Trigger button, no text input | No              | No            | `true`                       |
+| `true`       | unset        | Editable input                | Yes             | No            | `false`                      |
+| unset        | set          | Editable input                | Yes             | Yes           | `false`                      |
+| `true`       | set          | Editable input                | Yes             | Yes           | `false`                      |
 
-`search` alone filters the collection as the user types. `createItem` makes the input editable and
-enables creation. It also filters the list, so `search` adds nothing once `createItem` is set.
+`searchable` alone filters the collection as the user types. `createItem` makes the input editable and
+enables creation. It also filters the list, so `searchable` adds nothing once `createItem` is set.
 `filterMethod` and `autocomplete` have no effect on a non-editable control.
 
 `openOnControlClick` defaults to the opposite of editability. A non-editable control opens its popup
@@ -145,7 +151,7 @@ or ArrowDown. Set `openOnControlClick` explicitly to change either default.
 
 `createItem` receives the trimmed query text when the user commits text that matches no existing item
 by label or value, and returns the `TItem` to select. The item is added to the top of the option list
-until a native form reset. Nothing is created when the value is already selected or `maxCount` is
+until a native form reset. Nothing is created when the value is already selected or `maxValues` is
 reached. Commit text with Enter, a token separator, or paste; all go through the same creation path.
 `tokenSeparators` defaults to `[',']`.
 
@@ -198,11 +204,11 @@ Search teammates and keep each selection as a tag. Put the email or role in `des
 
 ### Cap selection and visible tags
 
-`maxCount` blocks additional selections by disabling unselected options. `maxVisible` is visual:
+`maxValues` blocks additional selections by disabling unselected options. `maxVisible` is visual:
 surplus selections stay committed and collapse into a `+N` summary. Use `tagOverflowRender` to
 render the hidden tags yourself, for example in a tooltip.
 
-<Preview path="./max-count-max-visible" />
+<Preview path="./max-values-max-visible" />
 
 ### Create a missing topic
 

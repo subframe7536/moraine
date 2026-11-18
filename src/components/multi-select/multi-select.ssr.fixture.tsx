@@ -7,7 +7,7 @@ export function renderMultiSelectFixture(): string {
     <MultiSelect
       id="fruits"
       name="fruits"
-      search
+      searchable
       defaultValue={['apple']}
       items={[
         { value: 'apple', label: 'Apple', description: 'Crisp' },

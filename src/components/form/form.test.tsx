@@ -315,7 +315,7 @@ describe('Form', () => {
           </form.Field>
           <form.Field name="tags">
             <MultiSelect
-              search
+              searchable
               items={[
                 { value: 'One', label: 'One' },
                 { value: 'Two', label: 'Two' },

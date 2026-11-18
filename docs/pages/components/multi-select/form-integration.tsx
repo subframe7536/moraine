@@ -36,7 +36,7 @@ export function FormIntegration() {
           <MultiSelect
             items={TOPICS}
             placeholder="Select topics..."
-            search
+            searchable
             openOnControlClick
             clearable
           />

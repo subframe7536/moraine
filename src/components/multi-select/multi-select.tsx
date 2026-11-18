@@ -65,7 +65,7 @@ import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
  *     value={skills()}
  *     onValueChange={setSkills}
  *     placeholder="Choose skills"
- *     search
+ *     searchable
  *     clearable
  *   />
  * </Field>
@@ -112,7 +112,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], created(), prev),
   )
-  const editable = () => local.search === true || local.createItem !== undefined
+  const editable = () => local.searchable === true || local.createItem !== undefined
   const search = useComboboxSearch(
     local,
     editable,
@@ -122,7 +122,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
 
   function Control(): JSX.Element {
     const state = useSelectContext<T>()
-    const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
+    const atMax = () => local.maxValues !== undefined && state.value().length >= local.maxValues
 
     function resolveInputItem(input: string): T | undefined {
       const normalized = input.trim()
@@ -536,7 +536,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 get selectedValues() {
                   return state.value()
                 },
-                get isAtMaxCount() {
+                get isAtMaxValues() {
                   return atMax()
                 },
                 create,
@@ -570,8 +570,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       }}
       isItemDisabled={(item, values) =>
         baseSelectProps.isItemDisabled?.(item, values) === true ||
-        (local.maxCount !== undefined &&
-          values.length >= local.maxCount &&
+        (local.maxValues !== undefined &&
+          values.length >= local.maxValues &&
           !values.some((value) => sameValue(value, item.value)))
       }
       multiple

@@ -34,7 +34,7 @@
           "name": "autocomplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
-          "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `search` or `createItem` is set.",
+          "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `searchable` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "off"
@@ -96,7 +96,7 @@
           "name": "createItem",
           "optional": true,
           "type": "(input: string) => TItem",
-          "description": "Creates an item from free text. It is called with the trimmed text when the user commits\ntext that matches no existing item by label or value (ignoring case and accents), by\npressing `Enter`, completing a token separator, pasting, or calling `create` from\n`emptyRender`. The returned item (its `value` must be a string or number) is selected and\nadded to the top of the option list until the form is reset. Nothing is created once\n`maxCount` is reached or when the value is already selected. Providing it also enables the\neditable search input, like `search`.",
+          "description": "Creates an item from free text. It is called with the trimmed text when the user commits\ntext that matches no existing item by label or value (ignoring case and accents), by\npressing `Enter`, completing a token separator, pasting, or calling `create` from\n`emptyRender`. The returned item (its `value` must be a string or number) is selected and\nadded to the top of the option list until the form is reset. Nothing is created once\n`maxValues` is reached or when the value is already selected. Providing it also enables the\neditable search input, like `searchable`.",
           "examples": [
             "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  createItem={(input) => ({ label: input, value: input.toLowerCase() })}\n/>"
           ]
@@ -141,7 +141,7 @@
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
-          "description": "Content shown in the popup when no item matches the search text or `items` is empty. A\nfunction receives `{ searchValue, hasMatches, selectedValues, isAtMaxCount, create, close }`,\nwhere `create(value?)` runs `createItem` for `value` (default: the current search text) and\nreturns whether an item was added. Defaults to the `create` translation (`Press Enter to\ncreate “text”`) when `createItem` is set and text was typed, otherwise to the `empty`\ntranslation.",
+          "description": "Content shown in the popup when no item matches the search text or `items` is empty. A\nfunction receives `{ searchValue, hasMatches, selectedValues, isAtMaxValues, create, close }`,\nwhere `create(value?)` runs `createItem` for `value` (default: the current search text) and\nreturns whether an item was added. Defaults to the `create` translation (`Press Enter to\ncreate “text”`) when `createItem` is set and text was typed, otherwise to the `empty`\ntranslation.",
           "examples": [
             "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[{ label: 'Design', value: 'design' }]}\n  createItem={(input) => ({ label: input, value: input })}\n  emptyRender={(state) => (\n    <button type=\"button\" onClick={() => state.create()}>\n      Add \"{state.searchValue}\"\n    </button>\n  )}\n/>"
           ]
@@ -150,7 +150,7 @@
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "How items are matched against the search text; filtering runs only while the text is not\nempty. The named strategies compare the item's plain-text label (see `getItemLabel`)\nignoring case and accents using the active locale. A predicate receives the search text and\nthe item (string items arrive as `{ value, label }`) and returns whether the item stays\nvisible; it replaces the built-in matching. `false` always shows every item (use it when you\nfilter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering\napplies only when `search` or `createItem` is set.",
+          "description": "How items are matched against the search text; filtering runs only while the text is not\nempty. The named strategies compare the item's plain-text label (see `getItemLabel`)\nignoring case and accents using the active locale. A predicate receives the search text and\nthe item (string items arrive as `{ value, label }`) and returns whether the item stays\nvisible; it replaces the built-in matching. `false` always shows every item (use it when you\nfilter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering\napplies only when `searchable` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "contains"
@@ -266,7 +266,7 @@
           }
         },
         {
-          "name": "maxCount",
+          "name": "maxValues",
           "optional": true,
           "type": "number",
           "description": "Maximum number of selected values. Once reached, unselected options are disabled and typed\ntext is not committed; selected ones can still be removed. It does not truncate a larger\n`value`."
@@ -335,7 +335,7 @@
           "name": "openOnControlClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether a pointer click on the control (outside its buttons) opens the popup. Defaults\nto `false` when editable (`search` or `createItem` set) and `true` otherwise. Typing\nnon-blank text, `ArrowDown`, and the toggle button open it regardless."
+          "description": "Whether a pointer click on the control (outside its buttons) opens the popup. Defaults\nto `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing\nnon-blank text, `ArrowDown`, and the toggle button open it regardless."
         },
         {
           "name": "overflowPadding",
@@ -408,7 +408,7 @@
           }
         },
         {
-          "name": "search",
+          "name": "searchable",
           "optional": true,
           "type": "boolean",
           "description": "Adds an editable input to the control so typing filters the options, using `filterMethod`.\nIt is also enabled implicitly by `createItem`. When neither is set the control is a\nnon-editable trigger: there is no input, and `filterMethod` and `autocomplete` have no\neffect.",

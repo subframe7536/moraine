@@ -68,8 +68,8 @@ describe('MultiSelect', () => {
   })
 
   test.each([
-    { search: true, createItem: undefined },
-    { search: false, createItem: (value: string) => ({ value, label: value }) },
+    { searchable: true, createItem: undefined },
+    { searchable: false, createItem: (value: string) => ({ value, label: value }) },
   ])('is editable when search or createItem enables it', (props) => {
     const screen = render(() => <MultiSelect items={ITEMS} {...props} />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -77,12 +77,12 @@ describe('MultiSelect', () => {
   })
 
   test('matches autocomplete semantics to editable read-only state', () => {
-    const editable = render(() => <MultiSelect items={ITEMS} search />)
+    const editable = render(() => <MultiSelect items={ITEMS} searchable />)
     const editableInput = editable.getByRole<HTMLInputElement>('combobox')
     expect(editableInput.getAttribute('aria-autocomplete')).toBe('list')
     expect(editableInput.getAttribute('autocomplete')).toBe('off')
 
-    const readOnly = render(() => <MultiSelect items={ITEMS} search readOnly />)
+    const readOnly = render(() => <MultiSelect items={ITEMS} searchable readOnly />)
     const readOnlyInput = readOnly.getByRole<HTMLInputElement>('combobox')
     expect(readOnlyInput.readOnly).toBe(true)
     expect(readOnlyInput.getAttribute('aria-readonly')).toBe('true')
@@ -91,7 +91,7 @@ describe('MultiSelect', () => {
   })
 
   test('supports custom autocomplete attribute on editable input', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} search autocomplete="off email" />)
+    const screen = render(() => <MultiSelect items={ITEMS} searchable autocomplete="off email" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.getAttribute('autocomplete')).toBe('off email')
   })
@@ -108,7 +108,7 @@ describe('MultiSelect', () => {
   })
 
   test('control click does not open by default when editable', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} search />)
+    const screen = render(() => <MultiSelect items={ITEMS} searchable />)
     const input = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     fireEvent.click(control)
@@ -127,7 +127,7 @@ describe('MultiSelect', () => {
     expect(inputDisabled.getAttribute('aria-expanded')).toBe('false')
 
     // Editable with openOnControlClick={true} -> opens
-    const screenEnabled = render(() => <MultiSelect items={ITEMS} search openOnControlClick />)
+    const screenEnabled = render(() => <MultiSelect items={ITEMS} searchable openOnControlClick />)
     const controlEnabled = screenEnabled.container.querySelector(
       '[data-slot="multi-select-control"]',
     )!
@@ -163,7 +163,7 @@ describe('MultiSelect', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
-        search
+        searchable
         items={ITEMS}
         defaultOpen
         onSearchValueChange={onSearchValueChange}
@@ -241,14 +241,14 @@ describe('MultiSelect', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('maxCount blocks additions but allows removal', () => {
+  test('maxValues blocks additions but allows removal', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
-        search
+        searchable
         items={ITEMS}
         defaultValue={['apple']}
-        maxCount={1}
+        maxValues={1}
         defaultOpen
         onValueChange={onChange}
       />
@@ -272,7 +272,7 @@ describe('MultiSelect', () => {
       <form>
         <Field id="fruits" description="Choose every fruit you want">
           <MultiSelect
-            search
+            searchable
             name="fruit"
             items={items}
             value={values()}
@@ -402,13 +402,13 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
   })
 
-  test('deduplicates token commits and applies maxCount to created items', () => {
+  test('deduplicates token commits and applies maxValues to created items', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
         defaultValue={['alpha']}
         createItem={(input) => ({ value: input, label: input })}
-        maxCount={2}
+        maxValues={2}
         onValueChange={onChange}
       />
     ))
@@ -726,7 +726,7 @@ describe('MultiSelect', () => {
   })
 
   test('an editable MultiSelect is a single text input inside the control', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} search />)
+    const screen = render(() => <MultiSelect items={ITEMS} searchable />)
     const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const input = screen.getByRole('combobox')
 
@@ -760,7 +760,7 @@ describe('MultiSelect', () => {
   test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={ITEMS} defaultValue={['apple']} onValueChange={onChange} />
+      <MultiSelect searchable items={ITEMS} defaultValue={['apple']} onValueChange={onChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'apple' } })
@@ -789,7 +789,7 @@ describe('MultiSelect', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
-        search
+        searchable
         items={ITEMS}
         defaultValue={['apple']}
         onValueChange={onChange}

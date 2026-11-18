@@ -80,7 +80,7 @@ export namespace MultiSelectT {
     /** Currently selected values. */
     selectedValues: readonly TItem['value'][]
     /** Whether the maximum selection count has been reached. */
-    isAtMaxCount: boolean
+    isAtMaxValues: boolean
     /** Create a new tag (requires `createItem`). Returns true if successfully created. */
     create: (value?: string) => boolean
     /** Close the dropdown menu. */
@@ -174,8 +174,8 @@ export namespace MultiSelectT {
      * pressing `Enter`, completing a token separator, pasting, or calling `create` from
      * `emptyRender`. The returned item (its `value` must be a string or number) is selected and
      * added to the top of the option list until the form is reset. Nothing is created once
-     * `maxCount` is reached or when the value is already selected. Providing it also enables the
-     * editable search input, like `search`.
+     * `maxValues` is reached or when the value is already selected. Providing it also enables the
+     * editable search input, like `searchable`.
      * @example
      * ```tsx
      * import { MultiSelect } from 'moraine'
@@ -192,7 +192,7 @@ export namespace MultiSelectT {
      * text is not committed; selected ones can still be removed. It does not truncate a larger
      * `value`.
      */
-    maxCount?: number
+    maxValues?: number
     /**
      * Maximum number of tags rendered in the control. The remaining selected values collapse into
      * a `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides
@@ -248,7 +248,7 @@ export namespace MultiSelectT {
     tagOverflowRender?: JSX.Element | Component<TagOverflowRenderProps<TItem>>
     /**
      * Content shown in the popup when no item matches the search text or `items` is empty. A
-     * function receives `{ searchValue, hasMatches, selectedValues, isAtMaxCount, create, close }`,
+     * function receives `{ searchValue, hasMatches, selectedValues, isAtMaxValues, create, close }`,
      * where `create(value?)` runs `createItem` for `value` (default: the current search text) and
      * returns whether an item was added. Defaults to the `create` translation (`Press Enter to
      * create “text”`) when `createItem` is set and text was typed, otherwise to the `empty`
@@ -305,7 +305,7 @@ export namespace MultiSelectT {
     removeIcon?: IconT.Name
     /**
      * Whether a pointer click on the control (outside its buttons) opens the popup. Defaults
-     * to `false` when editable (`search` or `createItem` set) and `true` otherwise. Typing
+     * to `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing
      * non-blank text, `ArrowDown`, and the toggle button open it regardless.
      */
     openOnControlClick?: boolean
@@ -316,7 +316,7 @@ export namespace MultiSelectT {
      * effect.
      * @default false
      */
-    search?: boolean
+    searchable?: boolean
     /** Optional editable inner input element ref. Not assigned in non-editable mode. */
     inputRef?: Ref<HTMLInputElement>
   }

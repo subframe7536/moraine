@@ -18,7 +18,7 @@ export function CreateNewTags() {
         Topics (Select existing or type to create)
       </label>
       <MultiSelect
-        search
+        searchable
         items={INITIAL_TOPICS}
         value={tags()}
         onValueChange={setTags}

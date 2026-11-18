@@ -41,7 +41,7 @@ export function UserChips() {
       <MultiSelect
         items={TEAM_MEMBERS}
         defaultValue={['sarah', 'alex']}
-        search
+        searchable
         openOnControlClick
         placeholder="Assign teammates..."
         clearable

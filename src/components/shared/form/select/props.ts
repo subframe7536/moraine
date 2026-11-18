@@ -105,11 +105,11 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
 /** Local props intercepted by MultiSelect. */
 export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   ...COMBOBOX_LOCAL_PROP_KEYS,
-  'search',
+  'searchable',
   'tagRender',
   'tagOverflowRender',
   'createItem',
-  'maxCount',
+  'maxValues',
   'maxVisible',
   'removeIcon',
   'tokenSeparators',

@@ -42,7 +42,7 @@ export function GroupedItems() {
         items={PERMISSION_GROUPS}
         value={selected()}
         onValueChange={setSelected}
-        search
+        searchable
         openOnControlClick
         clearable
       />

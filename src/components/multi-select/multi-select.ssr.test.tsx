@@ -15,7 +15,7 @@ test('hydrates MultiSelect with one input and stable secondary trigger', () => {
       createComponent(MultiSelect, {
         id: 'fruits',
         name: 'fruits',
-        search: true,
+        searchable: true,
         defaultValue: ['apple'],
         onValueChange: onChange,
         items: [

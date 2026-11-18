@@ -57,7 +57,7 @@ export default function MultiSelectPlayground() {
           ],
         },
         { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
-        { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
+        { kind: 'switch', prop: 'searchable', label: 'Searchable', defaultValue: true },
         {
           kind: 'switch',
           prop: 'openOnControlClick',
@@ -77,7 +77,7 @@ export default function MultiSelectPlayground() {
           placeholder="Select topics..."
           variant={props.variant}
           size={props.size}
-          search={props.search}
+          searchable={props.searchable}
           openOnControlClick={props.openOnControlClick}
           disabled={props.disabled}
           class="max-w-96 min-w-40 w-60%"

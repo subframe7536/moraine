@@ -10,19 +10,19 @@ const TECH_STACK: MultiSelectT.Item[] = [
   { label: 'Docker', value: 'docker', icon: 'i-lucide:container' },
 ]
 
-export function MaxCountMaxVisible() {
+export function MaxValuesMaxVisible() {
   return (
     <div class="gap-6 grid max-w-2xl w-full sm:grid-cols-2">
       <div class="space-y-1.5">
         <label class="text-xs text-muted-foreground font-medium block">
-          Selection Limit (maxCount = 2)
+          Selection Limit (maxValues = 2)
         </label>
         <MultiSelect
           items={TECH_STACK}
-          maxCount={2}
+          maxValues={2}
           placeholder="Select up to 2 skills..."
           defaultValue={['solid']}
-          search
+          searchable
           openOnControlClick
         />
         <p class="text-xs text-muted-foreground">
@@ -59,7 +59,7 @@ export function MaxCountMaxVisible() {
             </Tooltip>
           )}
           placeholder="Select tags..."
-          search
+          searchable
           openOnControlClick
         />
         <p class="text-xs text-muted-foreground">

@@ -604,7 +604,7 @@ describe('canonical collection and search view', () => {
             when={multiple}
             fallback={<Combobox items={items} defaultValue={1} name="choice" defaultOpen />}
           >
-            <MultiSelect search items={items} defaultValue={[1]} name="choice" defaultOpen />
+            <MultiSelect searchable items={items} defaultValue={[1]} name="choice" defaultOpen />
           </Show>
         </form>
       ))
@@ -635,7 +635,7 @@ test('virtual rows remain a small view of canonical selection and compose both r
   const screen = render(() => (
     <form>
       <MultiSelect
-        search
+        searchable
         name="virtual"
         items={[{ type: 'group', label: 'All items', items: leaves }]}
         defaultValue={[3999]}

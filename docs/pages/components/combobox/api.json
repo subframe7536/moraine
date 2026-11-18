@@ -34,7 +34,7 @@
           "name": "autocomplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
-          "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `search` or `createItem` is set.",
+          "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `searchable` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "off"
@@ -143,7 +143,7 @@
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: NormalizedItem<TItem>) => boolean)",
-          "description": "How items are matched against the search text; filtering runs only while the text is not\nempty. The named strategies compare the item's plain-text label (see `getItemLabel`)\nignoring case and accents using the active locale. A predicate receives the search text and\nthe item (string items arrive as `{ value, label }`) and returns whether the item stays\nvisible; it replaces the built-in matching. `false` always shows every item (use it when you\nfilter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering\napplies only when `search` or `createItem` is set.",
+          "description": "How items are matched against the search text; filtering runs only while the text is not\nempty. The named strategies compare the item's plain-text label (see `getItemLabel`)\nignoring case and accents using the active locale. A predicate receives the search text and\nthe item (string items arrive as `{ value, label }`) and returns whether the item stays\nvisible; it replaces the built-in matching. `false` always shows every item (use it when you\nfilter on the server). Groups with no visible items are hidden. In `MultiSelect`, filtering\napplies only when `searchable` or `createItem` is set.",
           "default": {
             "kind": "literal",
             "value": "contains"

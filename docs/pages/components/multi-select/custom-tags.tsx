@@ -40,7 +40,7 @@ export function CustomTags() {
       <MultiSelect<LabelItem>
         items={LABELS}
         defaultValue={['bug', 'perf']}
-        search
+        searchable
         openOnControlClick
         placeholder="Select labels..."
         tagRender={(props) => {

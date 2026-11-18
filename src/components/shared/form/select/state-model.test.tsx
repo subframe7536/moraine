@@ -47,7 +47,13 @@ describe('Select family state ownership', () => {
     const screen = render(() => (
       <form>
         <Combobox name="single" items={items} value="US" defaultOpen />
-        <MultiSelect name="multiple" search items={items} value={['US', 'remote']} defaultOpen />
+        <MultiSelect
+          name="multiple"
+          searchable
+          items={items}
+          value={['US', 'remote']}
+          defaultOpen
+        />
       </form>
     ))
     for (const input of screen.getAllByRole('combobox')) {

@@ -18,7 +18,7 @@ export function Virtualization() {
     <div class="max-w-md w-full">
       <MultiSelect
         items={OPTIONS}
-        search
+        searchable
         openOnControlClick
         placeholder="Search across 10,000 options..."
         virtualizer={virtualizer}
