@@ -81,13 +81,13 @@ export interface ListSortableRowContext<TRowProps extends object> {
   /** Current index in the items. */
   readonly index: number
   /** Attributes the host already provides for the row element, such as virtual row props. */
-  readonly props?: TRowProps
+  readonly rowProps?: TRowProps
 }
 
 /** One registered list row. */
 export interface ListSortableRow<TRowProps extends object> extends Omit<SortableItem, 'ref'> {
   /**
-   * Attributes to spread onto the row element: the context `props` with the drag ref composed
+   * Attributes to spread onto the row element: the context `rowProps` with the drag ref composed
    * into their `ref`, plus `data-dragging` and `data-drop-position`.
    */
   readonly props: Omit<TRowProps, 'ref'> &
@@ -186,9 +186,9 @@ export function createListSortable<TItem>(
       },
     })
     const hostRef = (): ((element: HTMLElement) => void) | undefined =>
-      (context.props as { ref?: (element: HTMLElement) => void } | undefined)?.ref
+      (context.rowProps as { ref?: (element: HTMLElement) => void } | undefined)?.ref
     const props = mergeProps(
-      () => context.props ?? {},
+      () => context.rowProps ?? {},
       {
         ref: (element: HTMLElement) => {
           hostRef()?.(element)

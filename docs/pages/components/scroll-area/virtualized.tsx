@@ -12,7 +12,7 @@ export function Virtualized() {
       items={LOG_LINES}
       virtualizer={virtualizer}
       itemRender={(props) => (
-        <div {...props.props} class="text-sm px-3 py-1.5 flex gap-3 tabular-nums">
+        <div {...props.rowProps} class="text-sm px-3 py-1.5 flex gap-3 tabular-nums">
           <span class="text-muted-foreground w-12">{props.index + 1}</span>
           <span>{props.item}</span>
         </div>

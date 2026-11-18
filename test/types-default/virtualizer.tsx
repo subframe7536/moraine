@@ -13,7 +13,7 @@ const items: Item[] = []
 ;<List
   items={items}
   virtualizer={createListVirtualizer<Item>({ estimateSize: () => 36 })}
-  itemRender={(context) => <li {...context.props}>{context.item.label}</li>}
+  itemRender={(context) => <li {...context.rowProps}>{context.item.label}</li>}
 />
 
 const tree = createTree<Item>({

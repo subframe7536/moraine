@@ -137,7 +137,7 @@ Pass `items` and an `itemRender` component to render a collection; `itemRender` 
 and `items` has no effect without it. `itemRender` is mounted as a component, so read `props.item`
 and `props.index` lazily instead of destructuring them. Add a `virtualizer` from
 `createListVirtualizer()` to render only the visible items; the viewport is its scroll container.
-Spread `props.props` on each row so the virtualizer can position and measure it. Create the
+Spread `props.rowProps` on each row so the virtualizer can position and measure it. Create the
 virtualizer with `horizontal` for `orientation="horizontal"`.
 
 ```tsx
@@ -149,7 +149,7 @@ const virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })
   class="h-80"
   items={lines}
   virtualizer={virtualizer}
-  itemRender={(props) => <div {...props.props}>{props.item}</div>}
+  itemRender={(props) => <div {...props.rowProps}>{props.item}</div>}
 />
 ```
 

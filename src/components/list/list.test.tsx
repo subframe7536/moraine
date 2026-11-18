@@ -160,7 +160,7 @@ describe('List', () => {
         role="feed"
         items={['Apple']}
         virtualizer={{ virtualRender: VirtualRender, scrollToIndex: () => {} }}
-        itemRender={(context) => <div {...context.props}>{context.item}</div>}
+        itemRender={(context) => <div {...context.rowProps}>{context.item}</div>}
       />
     ))
     const row = screen.getByText('Apple')
@@ -186,7 +186,7 @@ describe('List', () => {
           virtualizer={
             virtual() ? { virtualRender: VirtualRender, scrollToIndex: () => {} } : undefined
           }
-          itemRender={(context) => <li {...context.props}>{context.item}</li>}
+          itemRender={(context) => <li {...context.rowProps}>{context.item}</li>}
         />
         <button type="button" onClick={() => setVirtual((value) => !value)}>
           Toggle
@@ -223,7 +223,7 @@ describe('List', () => {
         role="list"
         items={items}
         virtualizer={virtualRendering}
-        itemRender={(context) => <div {...context.props}>{context.item}</div>}
+        itemRender={(context) => <div {...context.rowProps}>{context.item}</div>}
       />
     ))
 
@@ -254,7 +254,7 @@ describe('List', () => {
           dir="rtl"
           items={[20, 35, 25]}
           virtualizer={virtualRendering}
-          itemRender={(context) => <div {...context.props}>{context.item}</div>}
+          itemRender={(context) => <div {...context.rowProps}>{context.item}</div>}
         />
       )
     })
@@ -288,7 +288,7 @@ describe('List', () => {
         items={items}
         virtualizer={virtualRendering}
         itemRender={(context) => (
-          <div {...context.props} role="listitem" data-size={context.item.size}>
+          <div {...context.rowProps} role="listitem" data-size={context.item.size}>
             {context.item.label}
           </div>
         )}

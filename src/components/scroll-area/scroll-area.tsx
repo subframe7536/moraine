@@ -362,7 +362,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
                 scrollElement={viewport()}
                 render={(item, index, rowProps) => {
                   const ItemRender = itemRender()
-                  return <ItemRender item={item} index={index} props={rowProps} />
+                  return <ItemRender item={item} index={index} rowProps={rowProps} />
                 }}
                 fallback={
                   <For each={local.items}>

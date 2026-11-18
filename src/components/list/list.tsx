@@ -112,7 +112,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
             scrollElement={scrollElement()}
             render={(item, index, rowProps) => {
               const ItemRender = local.itemRender
-              return <ItemRender item={item} index={index} props={rowProps} />
+              return <ItemRender item={item} index={index} rowProps={rowProps} />
             }}
             fallback={
               <For each={local.items}>

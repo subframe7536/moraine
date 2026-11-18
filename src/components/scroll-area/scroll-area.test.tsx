@@ -400,7 +400,7 @@ describe('ScrollArea', () => {
 
   test('renders items with itemRender and mounts a virtualizer on the viewport', () => {
     const ItemRender: Component<ScrollAreaT.ItemRenderProps<string>> = (props) => (
-      <p data-virtual={props.props ? '' : undefined}>
+      <p data-virtual={props.rowProps ? '' : undefined}>
         {props.index}:{props.item}
       </p>
     )

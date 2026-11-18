@@ -30,7 +30,7 @@ export function DynamicHeight() {
       aria-label="Variable-height results"
       class="py-2 border border-border rounded-md h-80 w-full overflow-y-auto"
       itemRender={(context) => (
-        <div {...context.props} role="listitem">
+        <div {...context.rowProps} role="listitem">
           <div class="mx-2 px-3 py-2 border border-border rounded-md">
             <div class="font-medium">{context.item.label}</div>
             <div class="text-sm text-muted-foreground">

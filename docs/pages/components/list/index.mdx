@@ -71,7 +71,7 @@ const virtualizer = createListVirtualizer<Item>({
   as="div"
   items={items}
   virtualizer={virtualizer}
-  itemRender={(context) => <div {...context.props}>{context.item.label}</div>}
+  itemRender={(context) => <div {...context.rowProps}>{context.item.label}</div>}
 />
 ```
 
@@ -122,7 +122,7 @@ const sortable = createListSortable({ items, onReorder: (event) => setItems(even
 </sortable.Provider>
 ```
 
-`row.props` keeps the virtual row props from `context.props` and adds the drag ref,
+`row.props` keeps the virtual row props from `context.rowProps` and adds the drag ref,
 `data-dragging`, and `data-drop-position`. With a `virtualizer`, also pass
 `rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer` so the dragged row stays
 mounted while it is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for
@@ -140,7 +140,7 @@ want shown.
 ### Scroll a large search result set
 
 Use `createListVirtualizer` when tens of thousands of rows would otherwise mount at once. Spread
-`context.props` onto the measured row element.
+`context.rowProps` onto the measured row element.
 
 <Preview path="./virtualization" />
 

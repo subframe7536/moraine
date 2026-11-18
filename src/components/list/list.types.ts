@@ -25,7 +25,7 @@ export namespace ListT {
      * Attributes from the `virtualizer` for the outer row element: positioning style,
      * measurement ref, and `data-index`. Spread them onto the row; undefined without one.
      */
-    readonly props?: RowProps
+    readonly rowProps?: RowProps
   }
 
   /** Virtualizer accepted by the `virtualizer` prop, such as `createListVirtualizer()`. */

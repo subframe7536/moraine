@@ -679,8 +679,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   ): JSX.Element {
     const virtualGroupSlot = slotWith('group', {
       own: () => ({
-        class: props.props?.class,
-        style: props.props?.style,
+        class: props.rowProps?.class,
+        style: props.rowProps?.style,
       }),
     })
 
@@ -689,14 +689,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         when={props.item.type === 'label'}
         fallback={
           <Show when={visibleItemByKey().get(props.item.key)}>
-            {(item) => <VisibleItem item={item()} virtualProps={props.props} />}
+            {(item) => <VisibleItem item={item()} virtualProps={props.rowProps} />}
           </Show>
         }
       >
         <div
           role="presentation"
           data-slot="command-palette-group"
-          {...props.props}
+          {...props.rowProps}
           {...virtualGroupSlot}
         >
           <span data-slot="command-palette-group-label" {...groupLabelSlot}>

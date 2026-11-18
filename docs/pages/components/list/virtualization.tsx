@@ -24,7 +24,7 @@ export function Virtualization() {
       aria-label="Virtual results"
       class="border border-border rounded-md h-72 w-full overflow-y-auto"
       itemRender={(context) => (
-        <div {...context.props} role="listitem">
+        <div {...context.rowProps} role="listitem">
           <div class="px-3 border-b border-border flex h-9 items-center">{context.item.label}</div>
         </div>
       )}
