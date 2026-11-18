@@ -104,6 +104,12 @@
           "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
         },
         {
+          "name": "kbdVariant",
+          "optional": true,
+          "type": "'default' | 'outline' | 'invert'",
+          "description": "Visual variant of the shortcut keycaps that `Tooltip.Content` shows from `kbds` (`'default'`,\n`'outline'` or `'invert'`). When omitted, keycaps use `'invert'` if the tooltip itself has\n`variant=\"invert\"` and the default otherwise."
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -275,17 +281,11 @@
         {
           "name": "kbds",
           "optional": true,
-          "type": "string[]",
-          "description": "Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,\n`ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not\nregister it.",
+          "type": "KbdT.Key[]",
+          "description": "Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,\n`ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not\nregister it. Set `kbdVariant` on the `Tooltip` root to change the keycap style.",
           "examples": [
             "import { Button, Tooltip } from 'moraine'\n\n<Tooltip>\n  <Tooltip.Trigger as={Button}>Search</Tooltip.Trigger>\n  <Tooltip.Content kbds={['meta', 'k']}>Search the docs</Tooltip.Content>\n</Tooltip>"
           ]
-        },
-        {
-          "name": "kbdVariant",
-          "optional": true,
-          "type": "'default' | 'outline' | 'invert'",
-          "description": "Visual variant of the shortcut keycaps (`'default'`, `'outline'` or `'invert'`). When omitted,\nkeycaps use `'invert'` if the tooltip itself has `variant=\"invert\"` and the default otherwise."
         },
         {
           "name": "style",

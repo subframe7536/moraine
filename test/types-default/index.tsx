@@ -1211,6 +1211,9 @@ export type DefaultTagAssertions = [
 ;<HoverCard gutter={8} overflowPadding={12} />
 // @ts-expect-error Tooltip.Content takes its text as children, not a text prop.
 ;<Tooltip.Content text="Removed" />
+;<Tooltip kbdVariant="outline" />
+// @ts-expect-error Keycap style is configured on the Tooltip root, not on Tooltip.Content.
+;<Tooltip.Content kbdVariant="outline" />
 ;<DropdownMenu placement="bottom" align="end" />
 ;<ContextMenu placement="right" align="start" />
 // @ts-expect-error left is a side, not an alignment

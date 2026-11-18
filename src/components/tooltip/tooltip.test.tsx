@@ -246,6 +246,23 @@ describe('Tooltip', () => {
     expect(document.body.querySelectorAll('[data-slot="tooltip-kbds"]').length).toBe(1)
   })
 
+  test('styles keycaps from the root kbdVariant and falls back to invert for invert tooltips', () => {
+    const [kbdVariant, setKbdVariant] = createSignal<'outline' | undefined>('outline')
+    render(() => (
+      <Tooltip open variant="invert" kbdVariant={kbdVariant()}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content kbds={['S']}>Save</Tooltip.Content>
+      </Tooltip>
+    ))
+
+    const kbd = () => document.body.querySelector('[data-slot="kbd-group-item"]')
+    expect(kbd()?.className).toContain('border-b-2')
+    setKbdVariant(undefined)
+    expect(kbd()?.className).toContain('bg-muted-foreground')
+  })
+
   test('routes classes and styles to their slots', () => {
     render(() => (
       <Tooltip

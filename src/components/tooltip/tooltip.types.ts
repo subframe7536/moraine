@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, OverlayPlacement } from '../../theme/style-types'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
+import type { KbdT } from '../kbd/kbd.types'
 import type { PopperContentOptions, PopperProps } from '../shared/overlay/popper.types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
 
@@ -76,6 +77,13 @@ export namespace TooltipT {
      */
     skipDelay?: number
 
+    /**
+     * Visual variant of the shortcut keycaps that `Tooltip.Content` shows from `kbds` (`'default'`,
+     * `'outline'` or `'invert'`). When omitted, keycaps use `'invert'` if the tooltip itself has
+     * `variant="invert"` and the default otherwise.
+     */
+    kbdVariant?: KbdGroupT.Variants['variant']
+
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
@@ -88,7 +96,7 @@ export namespace TooltipT {
     /**
      * Keys shown as keycaps after the text, for example `['command', 's']`. Names such as `meta`,
      * `ctrl`, `shift` and `command` render as symbols. This only displays the shortcut; it does not
-     * register it.
+     * register it. Set `kbdVariant` on the `Tooltip` root to change the keycap style.
      * @example
      * ```tsx
      * import { Button, Tooltip } from 'moraine'
@@ -99,13 +107,7 @@ export namespace TooltipT {
      * </Tooltip>
      * ```
      */
-    kbds?: string[]
-
-    /**
-     * Visual variant of the shortcut keycaps (`'default'`, `'outline'` or `'invert'`). When omitted,
-     * keycaps use `'invert'` if the tooltip itself has `variant="invert"` and the default otherwise.
-     */
-    kbdVariant?: KbdGroupT.Variants['variant']
+    kbds?: KbdT.Key[]
 
     /**
      * Tooltip text or element. A string is wrapped in the `text` slot; other nodes render as given.

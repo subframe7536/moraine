@@ -19,22 +19,20 @@ import type { TooltipT } from './tooltip.types'
  * Floating panel of the surrounding `Tooltip`; renders a `div` with `role="tooltip"` in a
  * portaled positioner. Place it inside `Tooltip`, next to `Tooltip.Trigger`. String children
  * are rendered as text, other children render as given. `kbds` only displays shortcut keycaps
- * and does not register the shortcut.
+ * and does not register the shortcut; their style follows `kbdVariant` on the `Tooltip` root.
  *
  * @example
  * ```tsx
  * import { Button, Tooltip } from 'moraine'
  *
- * <Tooltip>
+ * <Tooltip kbdVariant="outline">
  *   <Tooltip.Trigger as={Button}>Save</Tooltip.Trigger>
- *   <Tooltip.Content kbds={['command', 's']} kbdVariant="outline">
- *     Save changes
- *   </Tooltip.Content>
+ *   <Tooltip.Content kbds={['command', 's']}>Save changes</Tooltip.Content>
  * </Tooltip>
  * ```
  */
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['kbds', 'kbdVariant', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['kbds', 'children', 'class', 'style'])
 
   const behavior = useTooltipContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -102,7 +100,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
                 <KbdGroup
                   data-slot="tooltip-kbds"
                   variant={
-                    local.kbdVariant ?? (variants.variant === 'invert' ? 'invert' : undefined)
+                    behavior.options.kbdVariant ??
+                    (variants.variant === 'invert' ? 'invert' : undefined)
                   }
                   size="sm"
                   items={keys()}

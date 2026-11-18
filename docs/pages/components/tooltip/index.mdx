@@ -84,17 +84,15 @@ colors.
 
 Tooltip opens from pointer hover and keyboard focus. `kbds` displays shortcut notation after the
 hint; it does not register that shortcut. Names such as `command`, `ctrl`, `shift`, and `meta`
-render as symbols. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`, or `invert`. When
+render as symbols. Set `kbdVariant` on `Tooltip` to `default`, `outline`, or `invert`. When
 omitted, keycaps use `invert` if the tooltip's `variant` is `invert`, and `default` otherwise.
 
 ```tsx
-<Tooltip>
+<Tooltip kbdVariant="outline">
   <Tooltip.Trigger as={Button} leading="i-lucide:save">
     Save
   </Tooltip.Trigger>
-  <Tooltip.Content kbds={['command', 's']} kbdVariant="outline">
-    Save changes
-  </Tooltip.Content>
+  <Tooltip.Content kbds={['command', 's']}>Save changes</Tooltip.Content>
 </Tooltip>
 ```
 
