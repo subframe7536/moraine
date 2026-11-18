@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
+import type { PresetWind3Theme } from '@subf/unocss'
 import { describe, expect, test } from 'vitest'
 
 import { baseSelectRecipe } from '../components/base-select/base-select.recipe'
@@ -885,8 +886,8 @@ describe('Wind3 semantic color and layout compatibility', () => {
         'size-6',
         '-mt-3',
       ])
-      const baseline = await createGenerator({ presets: [presetWind3()], theme })
-      const generator = await createGenerator({
+      const baseline = await createGenerator<PresetWind3Theme>({ presets: [presetWind3()], theme })
+      const generator = await createGenerator<PresetWind3Theme>({
         presets: [presetWind3(), presetMoraine({ wind3, spacing: '0.5rem' })],
         theme,
       })
@@ -938,8 +939,8 @@ describe('Wind3 semantic color and layout compatibility', () => {
       'hover:leading-6',
       'leading-wide',
     ])
-    const baseline = await createGenerator({ presets: [presetWind3()], theme })
-    const generator = await createGenerator({
+    const baseline = await createGenerator<PresetWind3Theme>({ presets: [presetWind3()], theme })
+    const generator = await createGenerator<PresetWind3Theme>({
       presets: [{ ...presetWind3(), name: 'host-wind' }, presetMoraine({ wind3: true })],
       theme,
     })
