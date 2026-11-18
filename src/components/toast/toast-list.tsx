@@ -17,11 +17,11 @@ export interface ToastListProps {
   filteredToasts: ToastRecord[]
   host: ToastHostDefaults
   store: ToastStore
-  expand?: boolean
+  expanded?: boolean
   hostPaused: boolean
   heights: Record<string | number, number>
   gap: number
-  visibleToasts: number
+  maxVisible: number
   itemRender?: Component<ToastT.ItemRenderProps>
   onHeight: (id: ToastT.Id, height: number) => void
 }
@@ -44,7 +44,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     }),
   )
 
-  const layoutExpanded = () => Boolean(props.expand) || isHovered()
+  const layoutExpanded = () => Boolean(props.expanded) || isHovered()
 
   const frontmostHeight = createMemo(() => {
     const currentHeights = props.heights
@@ -86,7 +86,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     if (toasts.length === 0) {
       return 0
     }
-    const count = Math.min(toasts.length, props.visibleToasts)
+    const count = Math.min(toasts.length, props.maxVisible)
     const gap = props.gap
     const frontHeight = frontmostHeight() || TOAST_FALLBACK_HEIGHT
     if (!layoutExpanded()) {
@@ -154,7 +154,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
                 index={meta().index}
                 offsetY={meta().offsetY}
                 toastsCount={activeCount()}
-                visibleToasts={props.visibleToasts}
+                maxVisible={props.maxVisible}
                 expanded={layoutExpanded()}
                 paused={isHovered() || isInteracting() || props.hostPaused}
                 host={props.host}

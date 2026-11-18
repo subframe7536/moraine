@@ -192,14 +192,14 @@ Toast.success({
 `<Toast />` options set defaults for every toast on that host, and call options override them.
 `placement` (`'top'` or `'bottom'`, default `'bottom'`) and `align` (default `'end'`) choose the
 corner; each placement and alignment pair gets its own stack. `type`, `size`, `variant`, `duration`,
-`closable`, `progress`, and `preventDuplicate` set per-toast defaults. `visibleToasts` (default 3)
+`closable`, `progress`, and `preventDuplicate` set per-toast defaults. `maxVisible` (default 3)
 limits each stack, and later toasts stay queued until earlier ones close. A collapsed stack expands
-while the pointer is over it; set `expand` to keep it expanded. `gap` (default 14 px) sets the
+while the pointer is over it; set `expanded` to keep it expanded. `gap` (default 14 px) sets the
 spacing between toasts. `translations` overrides the viewport label and the close and cancel
 labels.
 
 ```tsx
-<Toast placement="top" align="center" visibleToasts={5} closable progress />
+<Toast placement="top" align="center" maxVisible={5} closable progress />
 ```
 
 ### Promises

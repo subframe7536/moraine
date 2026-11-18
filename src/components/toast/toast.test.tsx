@@ -266,10 +266,10 @@ describe('Toast', () => {
     }
   })
 
-  it('auto-closes when expand is set', async () => {
+  it('auto-closes when expanded is set', async () => {
     vi.useFakeTimers()
     try {
-      render(() => <Toast duration={2000} expand />)
+      render(() => <Toast duration={2000} expanded />)
       await Promise.resolve()
 
       Toast.show({ title: 'Expanded auto dismiss' })
@@ -716,8 +716,8 @@ describe('Toast', () => {
     expect(s1).toBe(s2)
   })
 
-  it('applies inert and data-limited to toasts past visibleToasts limit', async () => {
-    render(() => <Toast visibleToasts={2} />)
+  it('applies inert and data-limited to toasts past maxVisible limit', async () => {
+    render(() => <Toast maxVisible={2} />)
 
     Toast.show({ title: 'One' })
     Toast.show({ title: 'Two' })
@@ -776,7 +776,7 @@ describe('Toast', () => {
   })
 
   it('updates list data attributes reactively', async () => {
-    render(() => <Toast expand />)
+    render(() => <Toast expanded />)
     Toast.show({ title: 'Data attrs' })
     await screen.findByText('Data attrs')
     const list = screen.getByRole('list')
@@ -897,7 +897,7 @@ describe('Toast', () => {
   })
 
   it('does not cause an extra drop for upper toasts when closing a toast in expanded mode', async () => {
-    render(() => <Toast expand />)
+    render(() => <Toast expanded />)
 
     Toast.show({ title: 'Toast 1' })
     const id2 = Toast.show({ title: 'Toast 2' })
@@ -1287,7 +1287,7 @@ describe('Toast', () => {
   })
 
   it('renders toasts for each placement in its own list', async () => {
-    render(() => <Toast expand />)
+    render(() => <Toast expanded />)
 
     Toast.show({ title: 'Bottom Toast', placement: 'bottom', align: 'end' })
     Toast.show({ title: 'Top Toast', placement: 'top', align: 'start' })

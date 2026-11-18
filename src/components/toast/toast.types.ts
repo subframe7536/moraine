@@ -226,7 +226,7 @@ export namespace ToastT {
      * the limit stay queued but are hidden until earlier ones close.
      * @default 3
      */
-    visibleToasts?: number
+    maxVisible?: number
 
     /**
      * Default auto-close duration in milliseconds for toasts on this host; a toast's own
@@ -254,7 +254,7 @@ export namespace ToastT {
      * the front toast and expand while the pointer is over them.
      * @default false
      */
-    expand?: boolean
+    expanded?: boolean
 
     /**
      * Whether toasts on this host skip content that matches the front toast by default; a toast's

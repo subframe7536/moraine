@@ -36,7 +36,7 @@ export interface ToastItemProps {
   toast: ToastRecord
   index: number
   toastsCount: number
-  visibleToasts: number
+  maxVisible: number
   offsetY: number
   expanded: boolean
   paused?: boolean
@@ -94,7 +94,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
 
   const isFront = () => props.index === 0
-  const isVisible = () => props.index < props.visibleToasts
+  const isVisible = () => props.index < props.maxVisible
   const isLoading = () => options().type === 'loading'
   const isTop = () => options().placement === 'top'
   const lift = () => (isTop() ? 1 : -1)

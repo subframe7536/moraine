@@ -58,7 +58,7 @@
           }
         },
         {
-          "name": "expand",
+          "name": "expanded",
           "optional": true,
           "type": "boolean",
           "description": "Whether the stacked toast list is always expanded. When `false`, stacks collapse behind\nthe front toast and expand while the pointer is over them.",
@@ -91,6 +91,16 @@
           "examples": [
             "import { Toast } from 'moraine'\n\n<Toast\n  itemRender={(ctx) => (\n    <div>\n      <strong>{ctx.options.title}</strong>\n      <button type=\"button\" onClick={() => ctx.close()}>\n        Dismiss\n      </button>\n    </div>\n  )}\n/>"
           ]
+        },
+        {
+          "name": "maxVisible",
+          "optional": true,
+          "type": "number",
+          "description": "Max number of toasts shown per stack (one stack per `placement` and `align`). Toasts beyond\nthe limit stay queued but are hidden until earlier ones close.",
+          "default": {
+            "kind": "literal",
+            "value": 3
+          }
         },
         {
           "name": "placement",
@@ -168,16 +178,6 @@
           "default": {
             "kind": "literal",
             "value": "default"
-          }
-        },
-        {
-          "name": "visibleToasts",
-          "optional": true,
-          "type": "number",
-          "description": "Max number of toasts shown per stack (one stack per `placement` and `align`). Toasts beyond\nthe limit stay queued but are hidden until earlier ones close.",
-          "default": {
-            "kind": "literal",
-            "value": 3
           }
         }
       ]

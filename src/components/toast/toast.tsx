@@ -43,11 +43,11 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'type',
     'variant',
     'itemRender',
-    'visibleToasts',
+    'maxVisible',
     'duration',
     'closable',
     'progress',
-    'expand',
+    'expanded',
     'preventDuplicate',
     'gap',
     'aria-label',
@@ -164,11 +164,11 @@ function ToastRoot(props: ToastProps): JSX.Element {
               filteredToasts={filteredToasts()}
               host={hostDefaults()}
               store={store}
-              expand={local.expand}
+              expanded={local.expanded}
               hostPaused={isDocumentHidden() || !isWindowFocused()}
               heights={heights}
               gap={local.gap ?? DEFAULT_TOAST_GAP}
-              visibleToasts={local.visibleToasts ?? 3}
+              maxVisible={local.maxVisible ?? 3}
               itemRender={local.itemRender}
               onHeight={updateHeight}
             />
