@@ -28,7 +28,9 @@ export interface NumberInputStyleVariants {
    * @default 'outline'
    */
   variant?: TextControlVariant
-  /** Text alignment; omitted values follow the control layout.
+  /**
+   * Text alignment of the input. When omitted, the text is start-aligned in a `horizontal` input
+   * without a decrement button (`decrement={false}`) and centered otherwise.
    */
   align?: 'start' | 'center' | 'end'
   /** Visual layout direction.

@@ -21,7 +21,7 @@ export function Controlled() {
           <NumberInput
             value={quantity()}
             onValueChange={(v) => {
-              if (v !== undefined) {
+              if (v !== null) {
                 setQuantity(v)
               }
             }}

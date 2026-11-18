@@ -1,8 +1,6 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 
-import { callHandler } from '../../shared/utils'
-
 export type ControlKind = 'increment' | 'decrement'
 
 export interface RepeatConfig {
@@ -15,9 +13,7 @@ export interface RepeatConfig {
 export interface CreateNumberInputPressOptions {
   isInteractive: (kind: ControlKind) => boolean
   onStep: (kind: ControlKind) => void
-  getUserOnClick: (
-    kind: ControlKind,
-  ) => JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined
+  emitStep: (kind: ControlKind, event: MouseEvent) => void
   focusInput: () => void
   getDocument: () => Document | undefined
   repeat: () => RepeatConfig | null
@@ -156,11 +152,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
     state.lastTriggeredAt = now
     state.repeatStarted = true
 
-    const userOnClick = options.getUserOnClick(kind)
-    if (userOnClick) {
-      callHandler(new MouseEvent('click', { bubbles: true, cancelable: true }), userOnClick)
-    }
-
+    options.emitStep(kind, new MouseEvent('click', { bubbles: true, cancelable: true }))
     options.onStep(kind)
     options.focusInput()
 
@@ -281,7 +273,7 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       return
     }
 
-    callHandler(event, options.getUserOnClick(kind))
+    options.emitStep(kind, event)
 
     if (!event.defaultPrevented && options.isInteractive(kind)) {
       options.onStep(kind)

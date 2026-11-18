@@ -290,7 +290,7 @@ export function DocsPlaygroundControlField(props: {
             size="sm"
             value={props.value as number}
             onValueChange={(value) => {
-              if (value !== undefined) {
+              if (value !== null) {
                 props.onChange(value)
               }
             }}

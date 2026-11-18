@@ -19,7 +19,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Text alignment; omitted values follow the control layout."
+          "description": "Text alignment of the input. When omitted, the text is start-aligned in a `horizontal` input\nwithout a decrement button (`decrement={false}`) and centered otherwise."
         },
         {
           "name": "autofocus",
@@ -82,8 +82,8 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "number | undefined",
-          "description": "Default numeric value for uncontrolled usage. `undefined` starts empty."
+          "type": "number | null",
+          "description": "Default numeric value for uncontrolled usage. Omit it or pass `null` to start empty."
         },
         {
           "name": "disabled",
@@ -189,28 +189,22 @@
           "description": "Called when the input loses focus, before the typed text is committed. Calling\n`preventDefault` skips that commit and the `Field` blur notification."
         },
         {
-          "name": "onDecrement",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
-          "description": "Called when the decrement button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."
-        },
-        {
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
           "description": "Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification."
         },
         {
-          "name": "onIncrement",
+          "name": "onStep",
           "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
-          "description": "Called when the increment button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."
+          "type": "(details: StepDetails) => void",
+          "description": "Called on each step: step button clicks, repeated steps while a button is held, keyboard\narrows (`ArrowUp` / `ArrowDown` / `PageUp` / `PageDown`), and wheel stepping. `details`\ncarries the direction (`type`), the trigger source (`emitter`), the step amount\n(`offset`), the stepped `value`, and the DOM `event`. For a button click it runs before\nthe step and calling `preventDefault` on the event cancels it; repeated, keyboard, and\nwheel steps cannot be cancelled. It is not called while the control is disabled or the\nstep is out of range. Use `onValueChange` to observe every value change."
         },
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: number | undefined) => void",
-          "description": "Called when the committed value changes, with the value clamped to `min` / `max`, or\n`undefined` when the input is cleared. Typing commits as soon as the text is a complete\nnumber; partial text such as `-` waits for blur or `Enter`. Not called when the value is unchanged."
+          "type": "(value: number | null) => void",
+          "description": "Called when the committed value changes, with the value clamped to `min` / `max`, or `null`\nwhen the input is cleared. Typing commits as soon as the text is a complete number; partial\ntext such as `-` waits for blur or `Enter`. Not called when the value is unchanged."
         },
         {
           "name": "orientation",
@@ -312,8 +306,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "number | undefined",
-          "description": "Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to\n`undefined` clears the displayed text. The displayed value is clamped to `min` / `max`; update\nit from `onValueChange`."
+          "type": "number | null",
+          "description": "Controlled numeric value. `undefined` keeps the input uncontrolled; `null` keeps it\ncontrolled and empty. The displayed value is clamped to `min` / `max`; update it from\n`onValueChange`."
         },
         {
           "name": "variant",

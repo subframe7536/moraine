@@ -1,8 +1,8 @@
 import { NumberInput } from '@src'
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 
 export function KeyboardStepping() {
-  const [value, setValue] = createSignal(4)
+  const [value, setValue] = createSignal<number | null>(4)
 
   return (
     <div class="max-w-sm space-y-3">
@@ -15,7 +15,12 @@ export function KeyboardStepping() {
         largeStep={5}
         onValueChange={setValue}
       />
-      <p class="text-sm text-muted-foreground">Current delay: {value()} seconds</p>
+      <p class="text-sm text-muted-foreground">
+        Current delay:{' '}
+        <Show when={value() !== null} fallback="not set">
+          {value()} seconds
+        </Show>
+      </p>
       <p class="text-xs text-muted-foreground">
         Arrow keys change by 0.5, PageUp/PageDown by 5, and Home/End jump to 0 or 60.
       </p>

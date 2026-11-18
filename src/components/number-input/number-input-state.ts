@@ -43,9 +43,9 @@ export function addDecimal(value: number, amount: number): number {
 }
 
 export interface CreateNumberInputOptions {
-  explicitControlledValue: Accessor<number | undefined>
+  explicitControlledValue: Accessor<number | null | undefined>
   fieldValue: Accessor<unknown>
-  initialDefaultValue: number | undefined
+  initialDefaultValue: number | null
   min: Accessor<number>
   max: Accessor<number>
   rawMin?: Accessor<number | undefined>
@@ -57,7 +57,7 @@ export interface CreateNumberInputOptions {
   formatOptions: Accessor<Intl.NumberFormatOptions | undefined>
   disabled: Accessor<boolean>
   readOnly: Accessor<boolean>
-  onValueChange?: (value: number | undefined) => void
+  onValueChange?: (value: number | null) => void
   setFormValue?: (value: number | undefined) => void
   resetNativeInvalid?: () => void
   emitChange?: () => void
@@ -65,7 +65,7 @@ export interface CreateNumberInputOptions {
 }
 
 export function createNumberInput(options: CreateNumberInputOptions) {
-  const [resolvedValue, setResolvedValue] = createControllableValue<number | undefined>({
+  const [resolvedValue, setResolvedValue] = createControllableValue<number | null>({
     value: () => {
       const controlledValue = options.explicitControlledValue()
       if (controlledValue !== undefined) {
@@ -86,26 +86,14 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     defaultValue: () => options.initialDefaultValue,
   })
 
-  createEffect(
-    on(
-      options.explicitControlledValue,
-      (value) => {
-        if (value === undefined) {
-          setResolvedValue(undefined)
-        }
-      },
-      { defer: true },
-    ),
-  )
-
   const currentValue = createMemo(() => {
     const value = resolvedValue()
-    return value === undefined ? undefined : clamp(value, options.min(), options.max())
+    return value === null ? null : clamp(value, options.min(), options.max())
   })
 
   const formattedValue = createMemo(() => {
     const value = currentValue()
-    return value === undefined
+    return value === null
       ? ''
       : formatLocaleNumber(value, options.locale(), options.formatOptions())
   })
@@ -153,17 +141,17 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   }
 
   function clearValue(): boolean {
-    if (options.disabled() || options.readOnly() || resolvedValue() === undefined) {
+    if (options.disabled() || options.readOnly() || resolvedValue() === null) {
       return false
     }
 
     if (options.explicitControlledValue() === undefined) {
-      setResolvedValue(undefined)
+      setResolvedValue(null)
       options.setFormValue?.(undefined)
     }
 
     options.resetNativeInvalid?.()
-    options.onValueChange?.(undefined)
+    options.onValueChange?.(null)
 
     options.emitChange?.()
     options.emitInput?.()
@@ -216,6 +204,10 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
 
     return false
+  }
+
+  function previewStep(amount: number): number {
+    return clamp(getSteppedValue(getStepBase(), amount), options.min(), options.max())
   }
 
   function incrementValue(amount = options.step()): boolean {
@@ -279,17 +271,19 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     }
   }
 
-  function reset(initialResetValue: number | undefined): void {
+  function reset(initialResetValue: number | null): void {
     const controlledValue = options.explicitControlledValue()
     const nextValue =
       controlledValue === undefined
         ? initialResetValue
-        : clamp(controlledValue, options.min(), options.max())
+        : controlledValue === null
+          ? null
+          : clamp(controlledValue, options.min(), options.max())
 
     if (controlledValue === undefined) {
       setResolvedValue(nextValue)
     }
-    options.setFormValue?.(nextValue)
+    options.setFormValue?.(nextValue ?? undefined)
     setDraftText(undefined)
     options.resetNativeInvalid?.()
   }
@@ -303,6 +297,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     commitValue,
     clearValue,
     stepBy,
+    previewStep,
     incrementValue,
     decrementValue,
     commitDraft,

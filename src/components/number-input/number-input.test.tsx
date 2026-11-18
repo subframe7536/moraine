@@ -50,15 +50,9 @@ describe('NumberInput', () => {
     ).toBe('decimal')
   })
   test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
-    const onIncrement = vi.fn()
+    const onStep = vi.fn()
     const screen = render(() => (
-      <NumberInput
-        defaultValue={1}
-        min={0}
-        max={10}
-        placeholder="Qty"
-        onIncrement={[onIncrement, 'increment-payload']}
-      />
+      <NumberInput defaultValue={1} min={0} max={10} placeholder="Qty" onStep={onStep} />
     ))
 
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -73,7 +67,55 @@ describe('NumberInput', () => {
     expect(decrement).not.toBeNull()
 
     fireEvent.click(increment)
-    expect(onIncrement).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
+    expect(onStep).toHaveBeenCalledWith({
+      type: 'increment',
+      emitter: 'button',
+      offset: 1,
+      value: 2,
+      event: expect.any(MouseEvent),
+    })
+  })
+
+  test('reports the emitter on keyboard and wheel steps and lets button clicks cancel', () => {
+    const onStep = vi.fn(
+      (details: { type: string; emitter: string; event: Event }) =>
+        details.emitter === 'button' &&
+        details.type === 'decrement' &&
+        details.event.preventDefault(),
+    )
+    const screen = render(() => <NumberInput defaultValue={5} wheel onStep={onStep} />)
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+    spinbutton.focus()
+    fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    spinbutton.dispatchEvent(
+      new WheelEvent('wheel', { deltaY: -1, bubbles: true, cancelable: true }),
+    )
+    expect(spinbutton.value).toBe('7')
+    expect(onStep).toHaveBeenCalledWith({
+      type: 'increment',
+      emitter: 'keyboard',
+      offset: 1,
+      value: 6,
+      event: expect.any(KeyboardEvent),
+    })
+    expect(onStep).toHaveBeenCalledWith({
+      type: 'increment',
+      emitter: 'wheel',
+      offset: 1,
+      value: 7,
+      event: expect.any(WheelEvent),
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Decrement' }))
+    expect(onStep).toHaveBeenCalledWith({
+      type: 'decrement',
+      emitter: 'button',
+      offset: 1,
+      value: 6,
+      event: expect.any(MouseEvent),
+    })
+    expect(spinbutton.value).toBe('7')
   })
 
   test('starts empty without a defaultValue and steps from zero', () => {
@@ -694,8 +736,8 @@ describe('NumberInput', () => {
     expect(spinbutton.value).toBe('1.')
   })
 
-  test('clears the displayed text when the parent resets a controlled value to undefined', async () => {
-    const [value, setValue] = createSignal<number | undefined>(undefined)
+  test('clears the displayed text when the parent sets a controlled value to null', async () => {
+    const [value, setValue] = createSignal<number | null>(null)
     const screen = render(() => <NumberInput value={value()} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
@@ -703,15 +745,15 @@ describe('NumberInput', () => {
     setValue(5)
     expect(spinbutton.value).toBe('5')
 
-    setValue(undefined)
+    setValue(null)
 
     expect(spinbutton.value).toBe('')
     expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
   })
 
-  test('mirrors a controlled clear back to the parent as undefined', async () => {
-    const [value, setValue] = createSignal<number | undefined>(5)
-    const onValueChange = vi.fn((next: number | undefined) => setValue(next))
+  test('mirrors a controlled clear back to the parent as null', async () => {
+    const [value, setValue] = createSignal<number | null>(5)
+    const onValueChange = vi.fn((next: number | null) => setValue(next))
     const screen = render(() => (
       <form>
         <NumberInput name="quantity" value={value()} onValueChange={onValueChange} />
@@ -723,7 +765,7 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '' } })
     fireEvent.blur(spinbutton)
 
-    expect(onValueChange).toHaveBeenLastCalledWith(undefined)
+    expect(onValueChange).toHaveBeenLastCalledWith(null)
     expect(spinbutton.value).toBe('')
     expect(new FormData(form).get('quantity')).toBe('')
   })
@@ -1196,12 +1238,12 @@ describe('NumberInput', () => {
     }
   })
 
-  test('calls onIncrement for repeated press steps without extra release click', async () => {
+  test('calls onStep for repeated press steps without extra release click', async () => {
     vi.useFakeTimers()
 
     try {
-      const onIncrement = vi.fn()
-      const screen = render(() => <NumberInput defaultValue={0} onIncrement={onIncrement} />)
+      const onStep = vi.fn()
+      const screen = render(() => <NumberInput defaultValue={0} onStep={onStep} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
@@ -1219,7 +1261,14 @@ describe('NumberInput', () => {
 
       const value = Number(spinbutton.value)
       expect(value).toBeGreaterThan(1)
-      expect(onIncrement).toHaveBeenCalledTimes(value)
+      expect(onStep).toHaveBeenCalledTimes(value)
+      expect(onStep).toHaveBeenLastCalledWith({
+        type: 'increment',
+        emitter: 'button',
+        offset: 1,
+        value,
+        event: expect.any(MouseEvent),
+      })
     } finally {
       vi.useRealTimers()
     }
@@ -1785,7 +1834,7 @@ describe('NumberInput', () => {
   })
 
   describe('clearing the input', () => {
-    test('keeps an empty display and emits undefined', () => {
+    test('keeps an empty display and emits null', () => {
       const onValueChange = vi.fn()
       const screen = render(() => (
         <form>
@@ -1801,7 +1850,7 @@ describe('NumberInput', () => {
       fireEvent.blur(spinbutton)
 
       expect(spinbutton.value).toBe('')
-      expect(onValueChange).toHaveBeenLastCalledWith(undefined)
+      expect(onValueChange).toHaveBeenLastCalledWith(null)
       expect(new FormData(form).get('quantity')).toBe('')
       expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
     })
@@ -1827,7 +1876,7 @@ describe('NumberInput', () => {
       fireEvent.input(spinbutton, { target: { value: '' } })
       fireEvent.blur(spinbutton)
 
-      expect(onValueChange).toHaveBeenLastCalledWith(undefined)
+      expect(onValueChange).toHaveBeenLastCalledWith(null)
       expect(getInput(form)).toEqual({ quantity: 5 })
     })
 

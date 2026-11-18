@@ -32,7 +32,7 @@ import { createNumberInputPress } from './number-input-press'
 import { clamp, createNumberInput } from './number-input-state'
 import { defaultNumberInputMessages } from './number-input.messages'
 import { numberInputDataAttributes, numberInputRecipe } from './number-input.recipe'
-import type { NumberInputProps } from './number-input.types'
+import type { NumberInputProps, NumberInputT } from './number-input.types'
 
 /** iPhone/iPad, including iPadOS that reports as MacIntel. */
 function isIOSUserAgent(): boolean {
@@ -53,16 +53,16 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  * Numeric field with increment and decrement buttons, `step` and `min`/`max` constraints, and
  * locale-aware formatting. Use it for a numeric field with step controls; use a plain `Input`
  * when free-form numeric text is required and `Slider` when the value is chosen spatially. The
- * value is a plain `number | undefined`, uncontrolled with `defaultValue` or controlled through
- * `value` and `onValueChange`; clearing the input emits `undefined`. Wrap it in `Field` for a
- * label, description, and validation message.
+ * value is a plain `number`, or `null` while the input is empty; it is uncontrolled with
+ * `defaultValue` or controlled through `value` and `onValueChange`, and clearing the input emits
+ * `null`. Wrap it in `Field` for a label, description, and validation message.
  *
  * @example
  * ```tsx
  * import { createSignal } from 'solid-js'
  * import { Field, NumberInput } from 'moraine'
  *
- * const [quantity, setQuantity] = createSignal<number | undefined>(1)
+ * const [quantity, setQuantity] = createSignal<number | null>(1)
  *
  * <Field label="Quantity">
  *   <NumberInput value={quantity()} onValueChange={setQuantity} min={0} max={10} step={1} />
@@ -99,8 +99,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'autofocusDelay',
     'onBlur',
     'onFocus',
-    'onIncrement',
-    'onDecrement',
+    'onStep',
     'repeat',
     'disabled',
     'required',
@@ -155,15 +154,17 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   )
   const formatOptions = () => merged.formatOptions
 
-  const initialDefaultValue = untrack(() => merged.defaultValue)
-  const initialValue = untrack(() => merged.value ?? initialDefaultValue)
+  const initialDefaultValue = untrack(() => merged.defaultValue ?? null)
+  const initialValue = untrack(() =>
+    merged.value === undefined ? initialDefaultValue : merged.value,
+  )
 
   const generatedId = createId(() => merged.id, 'number-input')
   const field = useFormField(merged, {
     get defaultId() {
       return generatedId()
     },
-    initialValue,
+    initialValue: initialValue ?? undefined,
   })
   const readOnly = field.readOnly
 
@@ -215,6 +216,12 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         if (value === undefined) {
           return
         }
+        if (value === null) {
+          if (formValue !== undefined) {
+            field.setFormValue(undefined)
+          }
+          return
+        }
         const boundedValue = clamp(value, min, max)
         if (
           !Object.is(
@@ -259,6 +266,33 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     required: field.required,
   }
 
+  function stepDetails(
+    kind: ControlKind,
+    emitter: 'button' | 'keyboard' | 'wheel',
+    event: Event,
+    offset: number,
+  ): NumberInputT.StepDetails {
+    return {
+      type: kind,
+      emitter,
+      event,
+      offset,
+      value: state.previewStep(kind === 'increment' ? offset : -offset),
+    }
+  }
+
+  function step(
+    kind: ControlKind,
+    emitter: 'keyboard' | 'wheel',
+    event: Event,
+    offset: number,
+  ): void {
+    const details = stepDetails(kind, emitter, event, offset)
+    if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
+      merged.onStep?.(details)
+    }
+  }
+
   function isControlInteractive(kind: ControlKind): boolean {
     const isIncrement = kind === 'increment'
     const value = state.currentValue()
@@ -267,8 +301,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       !readOnly() &&
       (isIncrement ? showIncrement() : showDecrement()) &&
       !(isIncrement
-        ? Boolean(merged.incrementDisabled) || (value !== undefined && value >= max())
-        : Boolean(merged.decrementDisabled) || (value !== undefined && value <= min()))
+        ? Boolean(merged.incrementDisabled) || (value !== null && value >= max())
+        : Boolean(merged.decrementDisabled) || (value !== null && value <= min()))
     )
   }
 
@@ -295,7 +329,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         state.decrementValue()
       }
     },
-    getUserOnClick: (kind) => (kind === 'increment' ? merged.onIncrement : merged.onDecrement),
+    emitStep: (kind, event) => merged.onStep?.(stepDetails(kind, 'button', event, stepValue())),
     focusInput: () => inputEl?.focus(),
     getDocument: () => inputEl?.ownerDocument,
     repeat: repeatConfig,
@@ -365,11 +399,11 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     }
 
     if (delta < 0) {
-      state.incrementValue(event.shiftKey ? largeStepValue() : stepValue())
+      step('increment', 'wheel', event, event.shiftKey ? largeStepValue() : stepValue())
       return
     }
 
-    state.decrementValue(event.shiftKey ? largeStepValue() : stepValue())
+    step('decrement', 'wheel', event, event.shiftKey ? largeStepValue() : stepValue())
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
@@ -418,10 +452,10 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({
     disabled: () => field.disabled() || readOnly(),
     keys: {
-      ArrowUp: () => state.incrementValue(),
-      ArrowDown: () => state.decrementValue(),
-      PageUp: () => state.incrementValue(largeStepValue()),
-      PageDown: () => state.decrementValue(largeStepValue()),
+      ArrowUp: (event) => step('increment', 'keyboard', event, stepValue()),
+      ArrowDown: (event) => step('decrement', 'keyboard', event, stepValue()),
+      PageUp: (event) => step('increment', 'keyboard', event, largeStepValue()),
+      PageDown: (event) => step('decrement', 'keyboard', event, largeStepValue()),
       Home: {
         when: () => merged.min !== undefined,
         handle: () => {
@@ -467,7 +501,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
           aria-hidden="true"
           name={field.name()}
           form={merged.form}
-          value={state.currentValue() !== undefined ? String(state.currentValue()) : ''}
+          value={state.currentValue() !== null ? String(state.currentValue()) : ''}
           required={field.required()}
           disabled={field.disabled()}
           readOnly={readOnly()}
@@ -495,7 +529,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         readonly={readOnly()}
         aria-valuemin={merged.min}
         aria-valuemax={merged.max}
-        aria-valuenow={state.currentValue()}
+        aria-valuenow={state.currentValue() ?? undefined}
         aria-valuetext={state.formattedValue()}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {

@@ -43,10 +43,10 @@ export function Example() {
 
 ### Values and boundaries
 
-`value`, `defaultValue`, and `onValueChange` all use `number | undefined`. `value={undefined}` keeps
-the input uncontrolled. Display text comes from `locale` (default: the provider locale, then
-`en-US`) and `formatOptions`, so the value stays a plain number. Clearing the input emits
-`undefined`. Typing commits as soon as the text is a complete number; partial text such as `-` waits
+`value`, `defaultValue`, and `onValueChange` all use `number | null`, where `null` is an empty
+input. `value={undefined}` keeps the input uncontrolled, and `value={null}` keeps it controlled and
+empty. Display text comes from `locale` (default: the provider locale, then `en-US`) and
+`formatOptions`, so the value stays a plain number. Clearing the input emits `null`. Typing commits as soon as the text is a complete number; partial text such as `-` waits
 for blur or Enter. Committed, stepped, and controlled values are clamped to `min` and `max`.
 `onValueChange` does not fire when the value is unchanged. Decimal steps are calculated to avoid
 typical floating-point display noise.
@@ -65,7 +65,14 @@ The default layout is horizontal: decrement button, input, increment button. Wit
 `orientation="vertical"`, both buttons move into a `controls` wrapper after the input. Either way,
 the input stays the `spinbutton` keyboard target. `increment={false}` or `decrement={false}` hides a
 button, and `incrementDisabled` or `decrementDisabled` disables it without blocking keyboard or
-wheel stepping. A button is also disabled at `max` or `min`.
+wheel stepping. A button is also disabled at `max` or `min`. Without `align`, the text is centered,
+except in a horizontal input with `decrement={false}`, where it is start-aligned.
+
+`onStep` runs on each step from the step buttons, the keyboard, and the wheel. Its `details`
+carry the direction (`type`), the trigger source (`emitter`), the step amount (`offset`), the
+stepped `value`, and the DOM `event`. For a button click it runs before the step and
+`preventDefault()` on the event cancels it; repeated, keyboard, and wheel steps cannot be
+cancelled. Use `onValueChange` to observe every change.
 
 `step` (default `1`) sets the amount for the buttons, ArrowUp and ArrowDown, and the mouse wheel.
 `largeStep` (default `step * 10`) sets the amount for PageUp and PageDown, and for the wheel while

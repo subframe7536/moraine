@@ -22,6 +22,24 @@ export namespace NumberInputT {
 
   export type PointerType = 'mouse' | 'touch' | 'pen'
 
+  export interface StepDetails {
+    /** Step direction. */
+    type: 'increment' | 'decrement'
+    /** What triggered the step: a step button, the keyboard, or the wheel. */
+    emitter: 'button' | 'keyboard' | 'wheel'
+    /**
+     * Step amount applied: `step`, or `largeStep` for `PageUp` / `PageDown` and Shift + wheel.
+     */
+    offset: number
+    /**
+     * The stepped value, the same value `onValueChange` reports for the step. For a button
+     * click cancelled with `preventDefault`, it is the value the step would have produced.
+     */
+    value: number
+    /** The DOM event behind the step; a synthetic `click` for hold-repeat steps. */
+    event: Event
+  }
+
   export interface RepeatOptions {
     /**
      * Delay in milliseconds between pressing and holding a button and the first step. A quick
@@ -62,16 +80,16 @@ export namespace NumberInputT {
     form?: string
 
     /**
-     * Controlled numeric value. `undefined` keeps the input uncontrolled, and setting it back to
-     * `undefined` clears the displayed text. The displayed value is clamped to `min` / `max`; update
-     * it from `onValueChange`.
+     * Controlled numeric value. `undefined` keeps the input uncontrolled; `null` keeps it
+     * controlled and empty. The displayed value is clamped to `min` / `max`; update it from
+     * `onValueChange`.
      */
-    value?: number | undefined
+    value?: number | null
 
     /**
-     * Default numeric value for uncontrolled usage. `undefined` starts empty.
+     * Default numeric value for uncontrolled usage. Omit it or pass `null` to start empty.
      */
-    defaultValue?: number | undefined
+    defaultValue?: number | null
 
     /**
      * Minimum allowed value. Typed, stepped, and controlled values are clamped to it; it anchors
@@ -128,11 +146,11 @@ export namespace NumberInputT {
     stepSnapping?: boolean
 
     /**
-     * Called when the committed value changes, with the value clamped to `min` / `max`, or
-     * `undefined` when the input is cleared. Typing commits as soon as the text is a complete
-     * number; partial text such as `-` waits for blur or `Enter`. Not called when the value is unchanged.
+     * Called when the committed value changes, with the value clamped to `min` / `max`, or `null`
+     * when the input is cleared. Typing commits as soon as the text is a complete number; partial
+     * text such as `-` waits for blur or `Enter`. Not called when the value is unchanged.
      */
-    onValueChange?: (value: number | undefined) => void
+    onValueChange?: (value: number | null) => void
 
     /**
      * Hint text shown in the visible input while it is empty.
@@ -211,18 +229,15 @@ export namespace NumberInputT {
     onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
-     * Called when the increment button is clicked, or on each step while it is held. On a click,
-     * calling `preventDefault` cancels the step; repeated steps receive a synthetic event and
-     * cannot be cancelled.
+     * Called on each step: step button clicks, repeated steps while a button is held, keyboard
+     * arrows (`ArrowUp` / `ArrowDown` / `PageUp` / `PageDown`), and wheel stepping. `details`
+     * carries the direction (`type`), the trigger source (`emitter`), the step amount
+     * (`offset`), the stepped `value`, and the DOM `event`. For a button click it runs before
+     * the step and calling `preventDefault` on the event cancels it; repeated, keyboard, and
+     * wheel steps cannot be cancelled. It is not called while the control is disabled or the
+     * step is out of range. Use `onValueChange` to observe every value change.
      */
-    onIncrement?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
-
-    /**
-     * Called when the decrement button is clicked, or on each step while it is held. On a click,
-     * calling `preventDefault` cancels the step; repeated steps receive a synthetic event and
-     * cannot be cancelled.
-     */
-    onDecrement?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+    onStep?: (details: StepDetails) => void
 
     /**
      * Press-and-hold repeat on the step buttons: `true` for the defaults, `false` to step only on
