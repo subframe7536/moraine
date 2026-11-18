@@ -47,6 +47,20 @@ const BANNED_PROPS = new Set([
   'textLabel',
   'getItemSearchText',
   'filterGroups',
+  // Disambiguated names: one concept, one prop name.
+  'maxTagCount',
+  'visibleToasts',
+  'restoreFocusOnClose',
+  'scrollBottomThreshold',
+  'topRender',
+  'bottomRender',
+  'closeOnClick',
+  'instantOpenDelay',
+  'keyboardDelta',
+  'copiedDuration',
+  'onCopy',
+  'onError',
+  'expand',
 ])
 
 // Item predicate callbacks may keep the `is` prefix; component booleans may not.
