@@ -35,7 +35,7 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | Component<RenderProps>",
+          "type": "JSX.Element | Component<ChildrenRenderProps>",
           "description": "Content, or a render function that receives the field state as props."
         },
         {

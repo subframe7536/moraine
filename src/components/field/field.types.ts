@@ -54,8 +54,8 @@ export namespace FieldT {
     readOnly?: boolean
   }
 
-  /** Props passed to Field children when provided as a render function. */
-  export interface RenderProps {
+  /** Props passed to Field `children` when provided as a render function. */
+  export interface ChildrenRenderProps {
     /**
      * The effective error: the `error` prop of the `Field` when set, otherwise the error of its
      * form binding. `false` when the error is suppressed with `error={false}`.
@@ -133,7 +133,7 @@ export namespace FieldT {
     /**
      * Content, or a render function that receives the field state as props.
      */
-    children?: JSX.Element | Component<RenderProps>
+    children?: JSX.Element | Component<ChildrenRenderProps>
   }
 
   /** Props for the Field component. */

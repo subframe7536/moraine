@@ -491,7 +491,9 @@ describe('Field', () => {
     const [error, setError] = createSignal<string | undefined>('Missing')
     const screen = render(() => (
       <Field label="Value" error={error()}>
-        {(state: FieldT.RenderProps) => <span data-testid="render-child">{state.error}</span>}
+        {(state: FieldT.ChildrenRenderProps) => (
+          <span data-testid="render-child">{state.error}</span>
+        )}
       </Field>
     ))
 

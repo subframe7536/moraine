@@ -401,7 +401,7 @@ export type RetainedNamespaceMembers = [
   ComboboxT.Row,
   MultiSelectT.TagRenderProps,
   SidebarT.Context,
-  FieldT.RenderProps,
+  FieldT.ChildrenRenderProps,
   ResizableT.HandleRenderProps,
   BaseDialogT.ContentRenderProps,
   BaseSelectT.TriggerRenderProps,
