@@ -283,6 +283,24 @@ describe('Switch', () => {
     })
   })
 
+  test('defaults the native value to a string or number trueValue, otherwise on', () => {
+    const screen = render(() => (
+      <form>
+        <Switch name="theme" trueValue="dark" falseValue="light" defaultChecked label="Theme" />
+        <Switch name="level" trueValue={2} falseValue={0} defaultChecked label="Level" />
+        <Switch name="enabled" defaultChecked label="Enabled" />
+        <Switch name="custom" value="yes" trueValue="dark" defaultChecked label="Custom" />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const data = new FormData(form)
+
+    expect(data.get('theme')).toBe('dark')
+    expect(data.get('level')).toBe('2')
+    expect(data.get('enabled')).toBe('on')
+    expect(data.get('custom')).toBe('yes')
+  })
+
   test('resets uncontrolled state to the initial default without emitting changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (

@@ -58,8 +58,9 @@ The focusable button has `role="switch"`; a hidden checkbox handles native form 
 changes or while the switch is `disabled`, `readOnly`, or `loading`.
 
 `trueValue` and `falseValue` map checked state to domain values for `checked`, callbacks, and
-schema-bound forms. Native form submission uses the separate `value` prop (default `'on'`) under
-`name` only while checked; an unchecked switch contributes no entry.
+schema-bound forms. Native form submission sends the `value` prop under `name` only while checked;
+an unchecked switch contributes no entry. `value` defaults to a string or number `trueValue`,
+otherwise `'on'`.
 
 ```tsx
 <Switch

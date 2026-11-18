@@ -125,10 +125,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       loadingIcon: 'icon-loading' as const,
       trueValue: true,
       falseValue: false,
-      value: 'on',
     },
     local,
   )
+  const nativeValue = () =>
+    merged.value ??
+    (typeof merged.trueValue === 'string' || typeof merged.trueValue === 'number'
+      ? String(merged.trueValue)
+      : 'on')
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
   const showLabel = () => hasContent(label())
@@ -347,7 +351,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         type="checkbox"
         name={field.name()}
         form={merged.form}
-        value={merged.value}
+        value={nativeValue()}
         checked={checked()}
         required={field.required()}
         disabled={field.disabled()}

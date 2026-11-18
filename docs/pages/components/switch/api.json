@@ -189,7 +189,7 @@
           "name": "trueValue",
           "optional": true,
           "type": "TTrue",
-          "description": "Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`\naccepts for the checked state. Use it to map the state to a domain value.",
+          "description": "Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`\naccepts for the checked state. Use it to map the state to a domain value. A string or number\n`trueValue` is also the native value submitted when `value` is not set.",
           "default": {
             "kind": "literal",
             "value": true
@@ -208,11 +208,7 @@
           "name": "value",
           "optional": true,
           "type": "string",
-          "description": "Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing\nis submitted while it is unchecked. This is separate from `trueValue`, which is what callbacks receive.",
-          "default": {
-            "kind": "literal",
-            "value": "on"
-          }
+          "description": "Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing\nis submitted while it is unchecked. Defaults to a string or number `trueValue`, otherwise\n`'on'`."
         }
       ]
     }

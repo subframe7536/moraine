@@ -35,8 +35,8 @@ export namespace SwitchT {
 
     /**
      * Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing
-     * is submitted while it is unchecked. This is separate from `trueValue`, which is what callbacks receive.
-     * @default 'on'
+     * is submitted while it is unchecked. Defaults to a string or number `trueValue`, otherwise
+     * `'on'`.
      */
     value?: string
 
@@ -53,7 +53,8 @@ export namespace SwitchT {
 
     /**
      * Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`
-     * accepts for the checked state. Use it to map the state to a domain value.
+     * accepts for the checked state. Use it to map the state to a domain value. A string or number
+     * `trueValue` is also the native value submitted when `value` is not set.
      * @default true
      * @example
      * ```tsx
