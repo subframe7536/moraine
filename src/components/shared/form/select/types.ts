@@ -183,7 +183,7 @@ export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.Po
    */
   virtualizer?: SelectVirtualizer<T>
   /**
-   * Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,
+   * Called once each time scrolling brings the listbox within `scrollThreshold` of its end,
    * for example to load the next page. It fires again only after the user scrolls away from the
    * bottom and back.
    */
@@ -192,5 +192,5 @@ export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.Po
    * Distance from the end of the listbox, in pixels, within which `onBottomReached` fires.
    * @default 20
    */
-  scrollBottomThreshold?: number
+  scrollThreshold?: number
 }

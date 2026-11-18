@@ -32,7 +32,7 @@ export function InfiniteScroll() {
             setLoadingMore(false)
           }, 1000)
         }}
-        scrollBottomThreshold={30}
+        scrollThreshold={30}
         loading={loadingMore()}
         placeholder="Scroll to load more..."
       />

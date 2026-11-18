@@ -160,7 +160,7 @@ describe('generateApiDoc', () => {
           'itemProps',
           'listboxProps',
           'onBottomReached',
-          'scrollBottomThreshold',
+          'scrollThreshold',
           'gutter',
           'overflowPadding',
         ]),

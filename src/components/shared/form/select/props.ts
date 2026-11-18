@@ -74,7 +74,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'itemProps',
   'listboxProps',
   'onBottomReached',
-  'scrollBottomThreshold',
+  'scrollThreshold',
   'emptyRender',
   'placeholder',
   'clearable',

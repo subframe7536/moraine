@@ -265,7 +265,7 @@ describe('Select', () => {
         itemProps={() => ({ 'data-item-prop': '' })}
         listboxProps={{ 'data-testid': 'forwarded-listbox' }}
         onBottomReached={onBottomReached}
-        scrollBottomThreshold={7}
+        scrollThreshold={7}
         gutter={8}
         overflowPadding={12}
       />

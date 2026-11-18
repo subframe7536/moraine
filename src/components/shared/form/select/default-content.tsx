@@ -202,7 +202,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
           const target = event.currentTarget
           const bottom =
             target.scrollTop + target.clientHeight >=
-            target.scrollHeight - (props.scrollBottomThreshold ?? 20)
+            target.scrollHeight - (props.scrollThreshold ?? 20)
           if (bottom && !atBottom) {
             props.onBottomReached?.()
           }

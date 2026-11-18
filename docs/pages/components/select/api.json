@@ -229,7 +229,7 @@
           "name": "onBottomReached",
           "optional": true,
           "type": "() => void",
-          "description": "Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
+          "description": "Called once each time scrolling brings the listbox within `scrollThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
         },
         {
           "name": "onClear",
@@ -318,7 +318,7 @@
           }
         },
         {
-          "name": "scrollBottomThreshold",
+          "name": "scrollThreshold",
           "optional": true,
           "type": "number",
           "description": "Distance from the end of the listbox, in pixels, within which `onBottomReached` fires.",
