@@ -32,9 +32,9 @@ export namespace FileUploadT {
   export type Messages = ComponentMessages<typeof defaultFileUploadMessages>
   export type Translations = Partial<Messages>
 
-  export type Value<Multiple extends boolean = boolean> = Multiple extends true
+  export type Value<TMultiple extends boolean = boolean> = TMultiple extends true
     ? File[]
-    : Multiple extends false
+    : TMultiple extends false
       ? File | null
       : File | File[] | null
 
@@ -50,15 +50,15 @@ export namespace FileUploadT {
   }
 
   /** Base props for the FileUpload component. */
-  export interface Base<Multiple extends boolean = false> extends FieldT.ControlBase {
+  export interface Base<TMultiple extends boolean = false> extends FieldT.ControlBase {
     /**
      * The selected file(s) (controlled): `File | null` in single mode, `File[]` when `multiple`.
      * `undefined` leaves the selection uncontrolled; pass `null` (single) or `[]` (multiple) for a
      * controlled empty selection. Update it from `onValueChange`.
      */
-    value?: Value<Multiple>
+    value?: Value<TMultiple>
     /** Initial selection for uncontrolled usage. Defaults to `null` in single mode and `[]` when `multiple`. */
-    defaultValue?: Value<Multiple>
+    defaultValue?: Value<TMultiple>
 
     /**
      * Localized message overrides for this file upload instance. `label` is the accessible name
@@ -92,14 +92,14 @@ export namespace FileUploadT {
      * selection and `value` is a `File[]`; otherwise a new file replaces the current one.
      * @default false
      */
-    multiple?: Multiple
+    multiple?: TMultiple
 
     /**
      * Called when files are added or removed. Receives the complete new selection, a `File[]`
      * when `multiple` and `File | null` otherwise (`null` once the file is removed). It is not
      * called for files rejected by validation or while the control is disabled or read-only.
      */
-    onValueChange?: (value: Value<Multiple>) => void
+    onValueChange?: (value: Value<TMultiple>) => void
 
     /**
      * Whether files can be dragged and dropped onto the control. When `false`, drag events are
@@ -139,7 +139,7 @@ export namespace FileUploadT {
      * limit are dropped and reported as `TOO_MANY_FILES` in `onReject`. Only accepted when
      * `multiple` is `true`; single mode always keeps one file. Unlimited by default.
      */
-    maxFiles?: Multiple extends true ? number : never
+    maxFiles?: TMultiple extends true ? number : never
 
     /** Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `FILE_TOO_SMALL`. */
     minSize?: number
@@ -193,9 +193,9 @@ export namespace FileUploadT {
   }
 
   /** Props for the FileUpload component. */
-  export type Props<Multiple extends boolean = false> = BaseProps<
+  export type Props<TMultiple extends boolean = false> = BaseProps<
     'div',
-    Base<Multiple>,
+    Base<TMultiple>,
     Variants,
     Classes,
     Styles
@@ -203,4 +203,4 @@ export namespace FileUploadT {
 }
 
 /** Props for the FileUpload component. */
-export type FileUploadProps<Multiple extends boolean = false> = FileUploadT.Props<Multiple>
+export type FileUploadProps<TMultiple extends boolean = false> = FileUploadT.Props<TMultiple>

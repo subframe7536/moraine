@@ -52,8 +52,8 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
  * />
  * ```
  */
-export function FileUpload<Multiple extends boolean = false>(
-  props: FileUploadProps<Multiple>,
+export function FileUpload<TMultiple extends boolean = false>(
+  props: FileUploadProps<TMultiple>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
@@ -147,7 +147,7 @@ export function FileUpload<Multiple extends boolean = false>(
     if (local.defaultValue !== undefined) {
       return local.defaultValue
     }
-    return (merged.multiple ? [] : null) as FileUploadT.Value<Multiple>
+    return (merged.multiple ? [] : null) as FileUploadT.Value<TMultiple>
   })
 
   const generatedId = createId(() => merged.id, 'file-upload')
@@ -180,7 +180,7 @@ export function FileUpload<Multiple extends boolean = false>(
     },
   )
 
-  const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<Multiple>>({
+  const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<TMultiple>>({
     value: () => local.value,
     defaultValue: () => initialDefaultValue,
     onValueChange: (val) => merged.onValueChange?.(val),
@@ -216,7 +216,7 @@ export function FileUpload<Multiple extends boolean = false>(
     input: hiddenInput,
     commit: (value) => {
       resetNativeInvalid()
-      setFormValue(value as FileUploadT.Value<Multiple>)
+      setFormValue(value as FileUploadT.Value<TMultiple>)
     },
     onReject: (rejected) => merged.onReject?.(rejected),
   })

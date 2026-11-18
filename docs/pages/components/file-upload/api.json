@@ -15,7 +15,7 @@
       "description": "Props for the FileUpload component.",
       "generics": [
         {
-          "name": "Multiple",
+          "name": "TMultiple",
           "constraint": "boolean",
           "default": "false"
         }
@@ -47,7 +47,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "Value<Multiple>",
+          "type": "Value<TMultiple>",
           "description": "Initial selection for uncontrolled usage. Defaults to `null` in single mode and `[]` when `multiple`."
         },
         {
@@ -136,7 +136,7 @@
         {
           "name": "maxFiles",
           "optional": true,
-          "type": "Multiple extends true ? number: never",
+          "type": "TMultiple extends true ? number: never",
           "description": "Maximum total number of selected files, counting files already selected. Files beyond the\nlimit are dropped and reported as `TOO_MANY_FILES` in `onReject`. Only accepted when\n`multiple` is `true`; single mode always keeps one file. Unlimited by default."
         },
         {
@@ -154,7 +154,7 @@
         {
           "name": "multiple",
           "optional": true,
-          "type": "Multiple",
+          "type": "TMultiple",
           "description": "Whether several files can be selected. When `true`, new files are appended to the current\nselection and `value` is a `File[]`; otherwise a new file replaces the current one.",
           "default": {
             "kind": "literal",
@@ -179,7 +179,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: Value<Multiple>) => void",
+          "type": "(value: Value<TMultiple>) => void",
           "description": "Called when files are added or removed. Receives the complete new selection, a `File[]`\nwhen `multiple` and `File | null` otherwise (`null` once the file is removed). It is not\ncalled for files rejected by validation or while the control is disabled or read-only."
         },
         {
@@ -236,7 +236,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "Value<Multiple>",
+          "type": "Value<TMultiple>",
           "description": "The selected file(s) (controlled): `File | null` in single mode, `File[]` when `multiple`.\n`undefined` leaves the selection uncontrolled; pass `null` (single) or `[]` (multiple) for a\ncontrolled empty selection. Update it from `onValueChange`."
         },
         {
