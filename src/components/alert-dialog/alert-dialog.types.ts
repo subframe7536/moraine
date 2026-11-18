@@ -251,7 +251,7 @@ export namespace AlertDialogT {
   export interface Handle extends FeedbackHandle<UpdateOptions> {}
 
   /** Props for `AlertDialog.custom` and `dialogRender`. */
-  export interface RenderProps {
+  export interface DialogRenderProps {
     id: Id
     /** Host defaults merged with the call options. Reflects later `update` calls. */
     options: Options
@@ -268,8 +268,6 @@ export namespace AlertDialogT {
     /** Id to place on the custom description so the dialog is described by `aria-describedby`. */
     descriptionId: string
   }
-
-  export type DialogRenderProps = RenderProps
 }
 
 /** Props for the AlertDialog host component. */

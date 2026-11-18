@@ -18,7 +18,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center'",
-          "description": "Centers the icon, title, and description, and stretches the actions into an equal row.",
+          "description": "Layout of the dialog content. `start` places the icon beside a start-aligned title and\ndescription, with the actions in the regular dialog footer. `center` stacks the icon above a\ncentered title and description, and stretches the action and cancel buttons into one row of\nequal-width buttons.",
           "default": {
             "kind": "literal",
             "value": "start"

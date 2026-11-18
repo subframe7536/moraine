@@ -697,7 +697,7 @@ describe('AlertDialog', () => {
   })
 
   test('custom render receives options and shares action semantics, and dialogRender is the fallback', async () => {
-    const dialogRender = vi.fn((props: AlertDialogT.RenderProps) => (
+    const dialogRender = vi.fn((props: AlertDialogT.DialogRenderProps) => (
       <p data-testid="host-render">{props.options.title}</p>
     ))
     render(() => <AlertDialog dialogRender={dialogRender} />)

@@ -19,7 +19,10 @@ export interface AlertDialogStyleSlot<T = unknown> {
 
 export interface AlertDialogStyleVariants {
   /**
-   * Centers the icon, title, and description, and stretches the actions into an equal row.
+   * Layout of the dialog content. `start` places the icon beside a start-aligned title and
+   * description, with the actions in the regular dialog footer. `center` stacks the icon above a
+   * centered title and description, and stretches the action and cancel buttons into one row of
+   * equal-width buttons.
    * @default 'start'
    */
   align?: 'start' | 'center'

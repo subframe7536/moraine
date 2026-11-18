@@ -31,7 +31,7 @@ export interface AlertDialogRecord {
   options: () => AlertDialogT.Options
   open: () => boolean
   pending: () => 'action' | 'cancel' | undefined
-  presentation: AlertDialogT.RenderProps
+  presentation: AlertDialogT.DialogRenderProps
   handle: AlertDialogT.Handle
   /** Settles with `api` and calls `onClose` without playing an exit. Used when the host unmounts. */
   abandon: () => void
@@ -140,7 +140,7 @@ export function createAlertDialogRecord(
     setCurrent((call) => mergeDefined(call, next))
   }
 
-  const presentation: AlertDialogT.RenderProps = {
+  const presentation: AlertDialogT.DialogRenderProps = {
     id,
     get options() {
       return options()
