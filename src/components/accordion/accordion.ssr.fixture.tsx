@@ -8,7 +8,7 @@ export function AccordionHydrationFixture(props: { onMount?: () => void; onClean
     <Accordion
       id="ssr-accordion"
       defaultValue={['first']}
-      trailing={
+      expandIcon={
         <svg data-testid="trailing">
           <path d="M0 0h1" />
         </svg>

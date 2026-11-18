@@ -58,6 +58,16 @@
           }
         },
         {
+          "name": "expandIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Name of the icon rendered after the label in every item's trigger, typically an expand\nindicator.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-down"
+          }
+        },
+        {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
@@ -133,16 +143,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": "IconT.Name",
-          "description": "Name of the icon rendered after the label in every item's trigger, typically an expand\nindicator.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-down"
-          }
         },
         {
           "name": "value",

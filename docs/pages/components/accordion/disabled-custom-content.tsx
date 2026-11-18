@@ -4,7 +4,7 @@ export function DisabledCustomContent() {
   return (
     <Accordion
       defaultValue={['setup']}
-      trailing="icon-plus"
+      expandIcon="icon-plus"
       items={[
         {
           value: 'setup',

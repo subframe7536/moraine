@@ -123,7 +123,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'items',
     'disabled',
     'forceMount',
-    'trailing',
+    'expandIcon',
     'headingLevel',
     'classes',
     'styles',
@@ -150,14 +150,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
       collapsible: true,
       loop: true,
       forceMount: false,
-      trailing: 'icon-chevron-down',
+      expandIcon: 'icon-chevron-down',
       headingLevel: 3 as const,
     },
     local,
   )
 
   const rootId = createId(() => merged.id, 'accordion')
-  const trailing = createMemo(() => merged.trailing)
+  const expandIcon = createMemo(() => merged.expandIcon)
   const headingTag = () => `h${merged.headingLevel}` as const
   const [selectedValues, setSelectedValues] = createControllableValue<string[]>({
     value: () => merged.value,
@@ -473,8 +473,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     )}
                   </Show>
 
-                  <Show when={trailing()}>
-                    <Icon name={trailing()} data-slot="accordion-trailing" {...trailingSlot} />
+                  <Show when={expandIcon()}>
+                    <Icon name={expandIcon()} data-slot="accordion-trailing" {...trailingSlot} />
                   </Show>
                 </button>
               </Dynamic>

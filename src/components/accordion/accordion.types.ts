@@ -168,7 +168,7 @@ export namespace AccordionT {
      * indicator.
      * @default 'icon-chevron-down'
      */
-    trailing?: IconT.Name
+    expandIcon?: IconT.Name
 
     /**
      * Heading level (1 to 6) of the element that wraps each trigger, rendered as `<h1>` to `<h6>`.
