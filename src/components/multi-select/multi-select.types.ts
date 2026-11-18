@@ -80,7 +80,7 @@ export namespace MultiSelectT {
     /** Currently selected values. */
     selectedValues: readonly TItem['value'][]
     /** Whether the maximum selection count has been reached. */
-    isAtMaxValues: boolean
+    atMaxValues: boolean
     /** Create a new tag (requires `createItem`). Returns true if successfully created. */
     create: (value?: string) => boolean
     /** Close the dropdown menu. */
@@ -248,7 +248,7 @@ export namespace MultiSelectT {
     tagOverflowRender?: JSX.Element | Component<TagOverflowRenderProps<TItem>>
     /**
      * Content shown in the popup when no item matches the search text or `items` is empty. A
-     * function receives `{ searchValue, hasMatches, selectedValues, isAtMaxValues, create, close }`,
+     * function receives `{ searchValue, hasMatches, selectedValues, atMaxValues, create, close }`,
      * where `create(value?)` runs `createItem` for `value` (default: the current search text) and
      * returns whether an item was added. Defaults to the `create` translation (`Press Enter to
      * create “text”`) when `createItem` is set and text was typed, otherwise to the `empty`

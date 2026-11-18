@@ -45,8 +45,8 @@ export namespace SelectT {
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
-    /** Currently selected value, or `undefined` when nothing is selected. */
-    selectedValue: NormalizedItem<TItem>['value'] | undefined
+    /** Currently selected value, or `null` when nothing is selected. */
+    selectedValue: NormalizedItem<TItem>['value'] | null
     /** Closes the popup. */
     close: () => void
   }

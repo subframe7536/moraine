@@ -57,8 +57,8 @@ export namespace ComboboxT {
     searchValue: string
     /** Whether the filtered collection has matches. */
     hasMatches: boolean
-    /** Currently selected value. */
-    selectedValue: NormalizedItem<TItem>['value'] | undefined
+    /** Currently selected value, or `null` when nothing is selected. */
+    selectedValue: NormalizedItem<TItem>['value'] | null
     /** Close the popup. */
     close: () => void
   }

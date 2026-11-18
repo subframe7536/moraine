@@ -536,7 +536,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 get selectedValues() {
                   return state.value()
                 },
-                get isAtMaxValues() {
+                get atMaxValues() {
                   return atMax()
                 },
                 create,

@@ -233,6 +233,16 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByText('Dismiss'))
     expect(screen2.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
     screen2.unmount()
+
+    const screen3 = render(() => (
+      <Select<string>
+        defaultOpen
+        items={[]}
+        emptyRender={(props) => <span>Value: {String(props.selectedValue)}</span>}
+      />
+    ))
+    expect(within(document.body).getByText('Value: null')).toBeTruthy()
+    screen3.unmount()
   })
 
   test('keeps the trigger structure while loading', () => {

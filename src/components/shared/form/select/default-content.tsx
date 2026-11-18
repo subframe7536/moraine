@@ -19,8 +19,8 @@ import { selectItemDataAttributes } from './select-field.recipe'
 import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 
 export interface SelectEmptyRenderProps<T extends SelectItem = SelectItem> {
-  /** Currently selected value. */
-  selectedValue: T['value'] | undefined
+  /** Currently selected value, or `null` when nothing is selected. */
+  selectedValue: T['value'] | null
   /** Close the select popup. */
   close: () => void
 }
@@ -222,8 +222,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
           <BaseSelect.Empty>
             {renderWithProps(empty, {
               get selectedValue() {
-                const current = state.value()
-                return current[0]
+                return state.value()[0] ?? null
               },
               close: () => state.setOpen(false),
             })}
