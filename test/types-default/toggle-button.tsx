@@ -19,8 +19,8 @@ defineTheme({
     defaultVariants: { variant: 'ghost', activeVariant: 'soft' },
   },
 })
-// @ts-expect-error ToggleButton does not support activeEffect and always uses 'none' internally.
-;<ToggleButton activeEffect="none" />
+// @ts-expect-error ToggleButton does not support pressEffect and always uses 'none' internally.
+;<ToggleButton pressEffect="none" />
 ;<ToggleButton as="a" href="/docs" />
 // @ts-expect-error ToggleButton<'a'> exposes anchor props and rejects button-only props.
 ;<ToggleButton as="a" formAction="/submit" />

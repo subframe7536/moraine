@@ -23,16 +23,6 @@
       "defaultElement": "button",
       "props": [
         {
-          "name": "activeEffect",
-          "optional": true,
-          "type": "'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)",
-          "description": "Press motion while the button is active.\n`'move-down'` and `'zoom-in'` skip the motion when the root has `aria-haspopup`.\nPass a function to return a class string from the rendered element.",
-          "default": {
-            "kind": "literal",
-            "value": "move-down"
-          }
-        },
-        {
           "name": "as",
           "optional": true,
           "type": "T",
@@ -103,6 +93,16 @@
           "default": {
             "kind": "literal",
             "value": "icon-loading"
+          }
+        },
+        {
+          "name": "pressEffect",
+          "optional": true,
+          "type": "'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)",
+          "description": "Press motion while the button is active.\n`'move-down'` and `'zoom-in'` skip the motion when the root has `aria-haspopup`.\nPass a function to return a class string from the rendered element.",
+          "default": {
+            "kind": "literal",
+            "value": "move-down"
           }
         },
         {

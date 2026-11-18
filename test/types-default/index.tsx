@@ -341,7 +341,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Avatar text="MR" icon="icon-user" />
 ;<AvatarGroup items={[{ text: 'MR', icon: 'icon-user' }]} />
 ;<Button
-  activeEffect="zoom-in"
+  pressEffect="zoom-in"
   onClick={(event) => {
     const button: HTMLButtonElement = event.currentTarget
     button.focus()
@@ -350,12 +350,12 @@ const divRef = (element: HTMLDivElement) => element.focus()
   Save
 </Button>
 ;<Button
-  activeEffect={(element) => (element.hasAttribute('aria-haspopup') ? '' : 'active:opacity-80')}
+  pressEffect={(element) => (element.hasAttribute('aria-haspopup') ? '' : 'active:opacity-80')}
 >
   Custom press
 </Button>
 // @ts-expect-error Only named press effects and class factories are supported.
-;<Button activeEffect="bounce" />
+;<Button pressEffect="bounce" />
 ;<ButtonGroup>
   <Button>Copy</Button>
   <ButtonGroup.Separator class="bg-input" style={{ opacity: 0.8 }} />

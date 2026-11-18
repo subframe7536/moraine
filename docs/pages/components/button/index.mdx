@@ -54,14 +54,14 @@ unless it sets its own.
 
 ### Press motion
 
-`activeEffect` controls the press motion. The default `move-down` shifts the button down by one pixel.
+`pressEffect` controls the press motion. The default `move-down` shifts the button down by one pixel.
 `zoom-in` scales it down slightly. Both skip the motion when the button has `aria-haspopup`, so overlay
 triggers stay still. Use `none` to disable the motion, or pass a function that receives the rendered
 element and returns a class string.
 
 ```tsx
-<Button activeEffect="zoom-in">Compress</Button>
-<Button activeEffect="none">Static</Button>
+<Button pressEffect="zoom-in">Compress</Button>
+<Button pressEffect="none">Static</Button>
 ```
 
 ### Loading

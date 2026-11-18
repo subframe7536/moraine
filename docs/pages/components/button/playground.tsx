@@ -51,7 +51,7 @@ export default function ButtonPlayground() {
         { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
         {
           kind: 'select',
-          prop: 'activeEffect',
+          prop: 'pressEffect',
           label: 'Active effect',
           defaultValue: 'move-down',
           options: [
@@ -70,7 +70,7 @@ export default function ButtonPlayground() {
             size={props.size}
             disabled={props.disabled}
             loading={props.loading}
-            activeEffect={props.activeEffect}
+            pressEffect={props.pressEffect}
             leading="i-lucide:rocket"
             trailing="icon-arrow-right"
           >
@@ -82,7 +82,7 @@ export default function ButtonPlayground() {
             size={`icon-${props.size}`}
             disabled={props.disabled}
             loading={props.loading}
-            activeEffect={props.activeEffect}
+            pressEffect={props.pressEffect}
           >
             <Icon name="icon-menu" />
           </Button>

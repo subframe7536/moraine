@@ -46,7 +46,7 @@ export interface ButtonStyleVariants {
    * Pass a function to return a class string from the rendered element.
    * @default 'move-down'
    */
-  activeEffect?: 'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)
+  pressEffect?: 'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)
 }
 
 export type ButtonStyleConfig = ComponentStyleConfig<ButtonStyleSlot, ButtonStyleVariants>

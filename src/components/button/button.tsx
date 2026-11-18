@@ -50,7 +50,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'variant',
     'tone',
     'size',
-    'activeEffect',
+    'pressEffect',
     'classes',
     'styles',
     'class',
@@ -76,13 +76,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
-  // Effects run after the root's attributes are applied, so `activeEffect` reads the caller's
+  // Effects run after the root's attributes are applied, so `pressEffect` reads the caller's
   // attributes even though the class binding is spread before them.
   const [effectElement, setEffectElement] = createSignal<HTMLElement>()
   createEffect(on(root.element, setEffectElement))
 
-  function customActiveEffectClass() {
-    const effect = local.activeEffect
+  function customPressEffectClass() {
+    const effect = local.pressEffect
     if (typeof effect !== 'function') {
       return
     }
@@ -108,7 +108,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     },
     context: () => ({ variants: group ?? undefined }),
     own: {
-      root: () => ({ class: customActiveEffectClass() }),
+      root: () => ({ class: customPressEffectClass() }),
       leading: () => ({ class: isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined }),
       trailing: () => ({ class: isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined }),
     },

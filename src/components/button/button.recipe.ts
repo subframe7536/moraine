@@ -11,8 +11,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ButtonStyleSlot, ButtonStyleVariants } from './button.style-types'
 
 export const BUTTON_LOADING_ICON_CLASS = 'opacity-80 cursor-wait animate-spin'
-export const BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:translate-y-px'
-export const BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:scale-98'
+export const BUTTON_MOVE_DOWN_PRESS_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:translate-y-px'
+export const BUTTON_ZOOM_IN_PRESS_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:scale-98'
 
 export const buttonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'loading'),
@@ -61,13 +61,13 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
       size: 'md',
       variant: 'solid',
       tone: 'primary',
-      activeEffect: 'move-down',
+      pressEffect: 'move-down',
     },
     variants: {
-      activeEffect: {
+      pressEffect: {
         none: { root: '' },
-        'move-down': { root: BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS },
-        'zoom-in': { root: BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS },
+        'move-down': { root: BUTTON_MOVE_DOWN_PRESS_EFFECT_CLASS },
+        'zoom-in': { root: BUTTON_ZOOM_IN_PRESS_EFFECT_CLASS },
       },
       variant: {
         ...BUTTON_ACTION_VARIANT,

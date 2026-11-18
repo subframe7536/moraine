@@ -127,7 +127,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       variant={pressed() ? variants.activeVariant : variants.variant}
       tone={pressed() ? variants.activeTone : variants.tone}
       size={variants.size}
-      activeEffect="none"
+      pressEffect="none"
       {...overrides({ root: 'root', leading: 'leading', label: 'label', trailing: 'trailing' })}
       onClick={handleClick}
       children={buttonChildren()}
