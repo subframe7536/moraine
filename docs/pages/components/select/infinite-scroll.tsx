@@ -21,7 +21,7 @@ export function InfiniteScroll() {
         classes={{
           listbox: 'max-h-100',
         }}
-        onScrollBottom={() => {
+        onBottomReached={() => {
           if (loadingMore()) {
             return
           }

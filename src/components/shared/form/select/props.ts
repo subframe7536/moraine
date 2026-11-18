@@ -73,7 +73,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'itemRender',
   'itemProps',
   'listboxProps',
-  'onScrollBottom',
+  'onBottomReached',
   'scrollBottomThreshold',
   'emptyRender',
   'placeholder',

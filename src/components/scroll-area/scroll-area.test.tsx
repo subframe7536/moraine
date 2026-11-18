@@ -140,14 +140,14 @@ describe('ScrollArea', () => {
 
   test('reports overflowing edges, distances, and reached edges without shadows', async () => {
     const onOverflowChange = vi.fn()
-    const onScrollTop = vi.fn()
-    const onScrollBottom = vi.fn()
+    const onTopReached = vi.fn()
+    const onBottomReached = vi.fn()
     const screen = render(() => (
       <ScrollArea
         scrollThreshold={10}
         onOverflowChange={onOverflowChange}
-        onScrollTop={onScrollTop}
-        onScrollBottom={onScrollBottom}
+        onTopReached={onTopReached}
+        onBottomReached={onBottomReached}
       />
     ))
     const { root, viewport } = parts(screen.container)
@@ -173,31 +173,31 @@ describe('ScrollArea', () => {
     viewport.scrollTop = 195
     fireEvent.scroll(viewport)
     expect(edges(root, 'y')).toEqual([true, false])
-    expect(onScrollBottom).toHaveBeenCalledTimes(1)
+    expect(onBottomReached).toHaveBeenCalledTimes(1)
 
     viewport.scrollTop = 0
     fireEvent.scroll(viewport)
-    expect(onScrollTop).toHaveBeenCalledTimes(1)
+    expect(onTopReached).toHaveBeenCalledTimes(1)
 
     // Content that stops overflowing does not count as reaching an edge.
     setDimensions(viewport, { scrollHeight: 100 })
     fireEvent.scroll(viewport)
     expect(edges(root, 'y')).toEqual([false, false])
     expect(root.hasAttribute('data-overflow-y')).toBe(false)
-    expect(onScrollBottom).toHaveBeenCalledTimes(1)
+    expect(onBottomReached).toHaveBeenCalledTimes(1)
   })
 
   test.each(['ltr', 'rtl'] as const)(
     'tracks logical horizontal edges in %s content',
     async (direction) => {
-      const onScrollLeft = vi.fn()
-      const onScrollRight = vi.fn()
+      const onLeftReached = vi.fn()
+      const onRightReached = vi.fn()
       const screen = render(() => (
         <ScrollArea
           orientation="horizontal"
           styles={{ viewport: { direction } }}
-          onScrollLeft={onScrollLeft}
-          onScrollRight={onScrollRight}
+          onLeftReached={onLeftReached}
+          onRightReached={onRightReached}
         />
       ))
       const { root, viewport } = parts(screen.container)
@@ -216,8 +216,8 @@ describe('ScrollArea', () => {
       fireEvent.scroll(viewport)
       expect(edges(root, 'x')).toEqual([true, false])
       expect(edges(root, 'y')).toEqual([false, false])
-      expect(direction === 'rtl' ? onScrollLeft : onScrollRight).toHaveBeenCalledTimes(1)
-      expect(direction === 'rtl' ? onScrollRight : onScrollLeft).not.toHaveBeenCalled()
+      expect(direction === 'rtl' ? onLeftReached : onRightReached).toHaveBeenCalledTimes(1)
+      expect(direction === 'rtl' ? onRightReached : onLeftReached).not.toHaveBeenCalled()
     },
   )
 

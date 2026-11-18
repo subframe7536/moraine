@@ -107,7 +107,7 @@ export namespace ScrollAreaT {
     virtualizer?: Virtualizer<TItem>
     /** Length in pixels of the edge fade shadows while the `shadow` variant is enabled. Negative values count as `0`. @default 40 */
     shadowSize?: number
-    /** Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `onScroll*` callbacks respond. Negative values count as `0`. @default 0 */
+    /** Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `on*Reached` callbacks respond. Negative values count as `0`. @default 0 */
     scrollThreshold?: number
     /** Milliseconds `hover` and `scroll` scrollbars stay visible after pointer or scroll activity ends. Other scrollbar modes ignore it. @default 600 */
     scrollHideDelay?: number
@@ -137,13 +137,13 @@ export namespace ScrollAreaT {
     /** Called with the new `Overflow` whenever content starts or stops extending beyond an edge, for example while scrolling or after a resize. */
     onOverflowChange?: (overflow: Overflow) => void
     /** Called once each time scrolling returns to the top edge (within `scrollThreshold`) of an overflowing vertical axis; not called for the initial position. */
-    onScrollTop?: () => void
+    onTopReached?: () => void
     /** Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an overflowing vertical axis, such as to load more items. */
-    onScrollBottom?: () => void
+    onBottomReached?: () => void
     /** Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end. */
-    onScrollLeft?: () => void
+    onLeftReached?: () => void
     /** Called once each time scrolling reaches the right edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical start. */
-    onScrollRight?: () => void
+    onRightReached?: () => void
   }
 
   export type Props<TItem = unknown> = BaseProps<'div', Base<TItem>, Variants, Classes, Styles>

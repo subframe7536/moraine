@@ -25,6 +25,10 @@ const BANNED_PROPS = new Set([
   'edgeThreshold',
   'onReachStart',
   'onReachEnd',
+  'onScrollTop',
+  'onScrollBottom',
+  'onScrollLeft',
+  'onScrollRight',
   // Replaced names kept out by the naming conventions below.
   'showValue',
   'showControls',

@@ -22,7 +22,7 @@ export function Infinite() {
   return (
     <ScrollArea
       scrollThreshold={48}
-      onScrollBottom={loadMore}
+      onBottomReached={loadMore}
       class="h-64 max-w-sm w-full"
       classes={{ content: 'pe-3' }}
       role="region"

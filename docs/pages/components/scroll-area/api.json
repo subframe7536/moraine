@@ -53,31 +53,31 @@
           "description": "Reactive collection rendered with `itemRender`. Has no effect without `itemRender`."
         },
         {
+          "name": "onBottomReached",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an overflowing vertical axis, such as to load more items."
+        },
+        {
+          "name": "onLeftReached",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end."
+        },
+        {
           "name": "onOverflowChange",
           "optional": true,
           "type": "(overflow: Overflow) => void",
           "description": "Called with the new `Overflow` whenever content starts or stops extending beyond an edge, for example while scrolling or after a resize."
         },
         {
-          "name": "onScrollBottom",
-          "optional": true,
-          "type": "() => void",
-          "description": "Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an overflowing vertical axis, such as to load more items."
-        },
-        {
-          "name": "onScrollLeft",
-          "optional": true,
-          "type": "() => void",
-          "description": "Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end."
-        },
-        {
-          "name": "onScrollRight",
+          "name": "onRightReached",
           "optional": true,
           "type": "() => void",
           "description": "Called once each time scrolling reaches the right edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical start."
         },
         {
-          "name": "onScrollTop",
+          "name": "onTopReached",
           "optional": true,
           "type": "() => void",
           "description": "Called once each time scrolling returns to the top edge (within `scrollThreshold`) of an overflowing vertical axis; not called for the initial position."
@@ -116,7 +116,7 @@
           "name": "scrollThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `onScroll*` callbacks respond. Negative values count as `0`.",
+          "description": "Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `on*Reached` callbacks respond. Negative values count as `0`.",
           "default": {
             "kind": "literal",
             "value": 0

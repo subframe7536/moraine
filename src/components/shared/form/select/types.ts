@@ -160,7 +160,7 @@ export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.Po
   itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
   /**
    * Extra attributes spread on the listbox `div` inside the popup, such as `aria-label`, `data-*`
-   * or an `onScroll` handler (calling `event.preventDefault()` there skips `onScrollBottom`).
+   * or an `onScroll` handler (calling `event.preventDefault()` there skips `onBottomReached`).
    * `id` and `tabIndex` stay component-owned.
    */
   listboxProps?: ElementProps<HTMLDivElement>
@@ -187,9 +187,9 @@ export interface ContentProps<T extends BaseSelectT.Item> extends BaseSelectT.Po
    * for example to load the next page. It fires again only after the user scrolls away from the
    * bottom and back.
    */
-  onScrollBottom?: () => void
+  onBottomReached?: () => void
   /**
-   * Distance from the end of the listbox, in pixels, within which `onScrollBottom` fires.
+   * Distance from the end of the listbox, in pixels, within which `onBottomReached` fires.
    * @default 20
    */
   scrollBottomThreshold?: number

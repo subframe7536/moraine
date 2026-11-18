@@ -256,7 +256,7 @@ describe('Select', () => {
   })
 
   test('forwards shared content behavior through the reactive local props proxy', async () => {
-    const onScrollBottom = vi.fn()
+    const onBottomReached = vi.fn()
     const screen = render(() => (
       <Select
         items={ITEMS}
@@ -264,7 +264,7 @@ describe('Select', () => {
         itemRender={(state) => `Rendered ${state.item.label}`}
         itemProps={() => ({ 'data-item-prop': '' })}
         listboxProps={{ 'data-testid': 'forwarded-listbox' }}
-        onScrollBottom={onScrollBottom}
+        onBottomReached={onBottomReached}
         scrollBottomThreshold={7}
         gutter={8}
         overflowPadding={12}
@@ -281,7 +281,7 @@ describe('Select', () => {
       scrollHeight: { configurable: true, value: 100 },
     })
     fireEvent.scroll(listbox)
-    expect(onScrollBottom).toHaveBeenCalledOnce()
+    expect(onBottomReached).toHaveBeenCalledOnce()
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('true')
   })
 

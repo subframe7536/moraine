@@ -159,7 +159,7 @@ describe('generateApiDoc', () => {
           'itemRender',
           'itemProps',
           'listboxProps',
-          'onScrollBottom',
+          'onBottomReached',
           'scrollBottomThreshold',
           'gutter',
           'overflowPadding',

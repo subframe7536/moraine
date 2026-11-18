@@ -201,7 +201,7 @@
           "name": "listboxProps",
           "optional": true,
           "type": "ElementProps<HTMLDivElement>",
-          "description": "Extra attributes spread on the listbox `div` inside the popup, such as `aria-label`, `data-*`\nor an `onScroll` handler (calling `event.preventDefault()` there skips `onScrollBottom`).\n`id` and `tabIndex` stay component-owned."
+          "description": "Extra attributes spread on the listbox `div` inside the popup, such as `aria-label`, `data-*`\nor an `onScroll` handler (calling `event.preventDefault()` there skips `onBottomReached`).\n`id` and `tabIndex` stay component-owned."
         },
         {
           "name": "loading",
@@ -226,6 +226,12 @@
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
+          "name": "onBottomReached",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
+        },
+        {
           "name": "onClear",
           "optional": true,
           "type": "() => void",
@@ -248,12 +254,6 @@
           "optional": true,
           "type": "() => void",
           "description": "Called after a native `<form>` reset has restored the initial selection (and, in `Combobox`\nand `MultiSelect`, cleared the search text). It runs in a microtask after the `reset` event\nand is skipped when the event was default-prevented. In controlled mode the selection stays\nat `value`, so use this callback to reset your own state."
-        },
-        {
-          "name": "onScrollBottom",
-          "optional": true,
-          "type": "() => void",
-          "description": "Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
         },
         {
           "name": "onValueChange",
@@ -321,7 +321,7 @@
           "name": "scrollBottomThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance from the end of the listbox, in pixels, within which `onScrollBottom` fires.",
+          "description": "Distance from the end of the listbox, in pixels, within which `onBottomReached` fires.",
           "default": {
             "kind": "literal",
             "value": 20

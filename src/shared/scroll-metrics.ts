@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { createSignal } from 'solid-js'
 
-import { bindElement } from '../../shared/element-binding'
-import { createEventListener } from '../../shared/event-listener'
+import { bindElement } from './element-binding'
+import { createEventListener } from './event-listener'
 
 export interface AxisMetrics {
   /** Visible size in px. */

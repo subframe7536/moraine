@@ -12,11 +12,11 @@ import {
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
+import type { AxisMetrics } from '../../shared/scroll-metrics'
 import { callHandler, callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
-import { EMPTY_AXIS_METRICS, createScrollMetrics } from './scroll-area-metrics'
-import type { AxisMetrics } from './scroll-area-metrics'
 import {
   SCROLL_AREA_THUMB_MIN_SIZE,
   scrollAreaDataAttributes,
@@ -127,10 +127,10 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     'scrollThreshold',
     'scrollHideDelay',
     'onOverflowChange',
-    'onScrollTop',
-    'onScrollBottom',
-    'onScrollLeft',
-    'onScrollRight',
+    'onTopReached',
+    'onBottomReached',
+    'onLeftReached',
+    'onRightReached',
     'onScroll',
     'onPointerEnter',
     'onPointerLeave',
@@ -253,19 +253,19 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
           const reachedEnd = previous[axis].end && !current[axis].end
           if (axis === 'y') {
             if (reachedStart) {
-              local.onScrollTop?.()
+              local.onTopReached?.()
             }
             if (reachedEnd) {
-              local.onScrollBottom?.()
+              local.onBottomReached?.()
             }
           } else {
             // `start`/`end` are logical: in RTL they sit at the right and left edges.
             const rtl = metrics().rtl
             if (reachedStart) {
-              ;(rtl ? local.onScrollRight : local.onScrollLeft)?.()
+              ;(rtl ? local.onRightReached : local.onLeftReached)?.()
             }
             if (reachedEnd) {
-              ;(rtl ? local.onScrollLeft : local.onScrollRight)?.()
+              ;(rtl ? local.onLeftReached : local.onRightReached)?.()
             }
           }
         }
