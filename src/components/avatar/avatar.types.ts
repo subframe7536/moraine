@@ -46,14 +46,6 @@ export namespace AvatarT {
     icon?: IconT.Name
 
     /**
-     * Root `data-slot` attribute value, also the prefix of the child slot names (for example
-     * `avatar-image`, `avatar-fallback`, `avatar-badge`). Used by composing components to rename the
-     * slots.
-     * @default 'avatar'
-     */
-    slotName?: string
-
-    /**
      * Called whenever the image status changes, including once after mount with the initial status
      * (`loading` when `src` is set, otherwise `error`). The status is `loaded` once the image has
      * loaded and `error` when it fails or `src` is empty. It is not called on the server.

@@ -68,7 +68,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
             <Avatar
               {...item}
               size={size()}
-              slotName="avatar-group-item"
+              data-slot="avatar-group-item"
               {...itemSlot}
               {...overrides({
                 image: 'image',

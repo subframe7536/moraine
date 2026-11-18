@@ -75,16 +75,6 @@
           }
         },
         {
-          "name": "slotName",
-          "optional": true,
-          "type": "string",
-          "description": "Root `data-slot` attribute value, also the prefix of the child slot names (for example\n`avatar-image`, `avatar-fallback`, `avatar-badge`). Used by composing components to rename the\nslots.",
-          "default": {
-            "kind": "literal",
-            "value": "avatar"
-          }
-        },
-        {
           "name": "src",
           "optional": true,
           "type": "string",

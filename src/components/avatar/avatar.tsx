@@ -60,7 +60,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
     'alt',
     'badge',
     'badgePosition',
-    'slotName',
     'text',
     'icon',
     'onStatusChange',
@@ -86,7 +85,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
     },
   })
 
-  const slotName = () => local.slotName || 'avatar'
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
   const text = createMemo(() => local.text)
@@ -141,13 +139,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
   return (
     <span
-      data-slot={slotName()}
+      data-slot="avatar"
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rootSlot}
       {...rest}
     >
       <img
-        data-slot={`${slotName()}-image`}
+        data-slot="avatar-image"
         {...imageSlot}
         ref={(element) => {
           imageElement = element
@@ -168,7 +166,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       />
 
       <span
-        data-slot={`${slotName()}-fallback`}
+        data-slot="avatar-fallback"
         {...fallbackSlot}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
@@ -186,7 +184,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
-              data-slot={`${slotName()}-fallback-content`}
+              data-slot="avatar-fallback-content"
               {...fallbackContentSlot}
             />
           )}
@@ -195,7 +193,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot={`${slotName()}-badge`} {...badgeSlot}>
+          <span data-slot="avatar-badge" {...badgeSlot}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}

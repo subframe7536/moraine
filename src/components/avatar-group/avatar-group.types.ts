@@ -14,13 +14,13 @@ export namespace AvatarGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Item = Omit<AvatarT.Base, 'slotName'> & AvatarT.Variants
+  export type Item = AvatarT.Base & AvatarT.Variants
 
   /** Base props for the AvatarGroup component. */
   export interface Base {
     /**
      * Avatars to render, in order. Each entry accepts the `Avatar` props (`src`, `alt`, `text`,
-     * `icon`, `badge`, `badgePosition`, `onStatusChange`) except `slotName`. An entry's `size` is
+     * `icon`, `badge`, `badgePosition`, `onStatusChange`). An entry's `size` is
      * overridden by the group `size`. An empty array renders nothing.
      * @example
      * ```tsx

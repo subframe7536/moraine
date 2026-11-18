@@ -107,10 +107,10 @@ describe('Avatar', () => {
     expect(screen.getByText('MR')).not.toBeNull()
   })
 
-  test('falls back to the default data-slot when slotName is empty', () => {
-    const view = render(() => <Avatar text="MR" slotName="" />)
+  test('keeps child slot names when the root data-slot is overridden', () => {
+    const view = render(() => <Avatar text="MR" data-slot="custom-avatar" />)
 
-    expect(view.container.querySelector('[data-slot="avatar"]')).not.toBeNull()
+    expect(view.container.querySelector('[data-slot="custom-avatar"]')).not.toBeNull()
     expect(view.container.querySelector('[data-slot="avatar-fallback"]')).not.toBeNull()
   })
 
@@ -411,7 +411,7 @@ describe('Avatar', () => {
     const count = screen.container.querySelector('[data-slot="avatar-group-count"]')
     const fallbacks = Array.from(
       screen.container.querySelectorAll(
-        '[data-slot="avatar-group-item"] [data-slot="avatar-group-item-fallback"]',
+        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
       ),
     )
 
@@ -429,7 +429,7 @@ describe('Avatar', () => {
 
     const fallbacks = Array.from(
       screen.container.querySelectorAll(
-        '[data-slot="avatar-group-item"] [data-slot="avatar-group-item-fallback"]',
+        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
       ),
     )
 
@@ -528,15 +528,11 @@ describe('Avatar', () => {
         }}
       />
     ))
-    const image = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-group-item-image"]',
-    )
+    const image = screen.container.querySelector<HTMLElement>('[data-slot="avatar-image"]')
     const content = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-group-item-fallback-content"]',
+      '[data-slot="avatar-fallback-content"]',
     )
-    const badge = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-group-item-badge"]',
-    )
+    const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
 
     expect(image?.className).toContain('group-image')
     expect(image?.style.width).toBe('21px')
@@ -557,9 +553,7 @@ describe('Avatar', () => {
 
     const root = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group"]')
     const item = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group-item"]')
-    const fallback = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-group-item-fallback"]',
-    )
+    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')
 
     expect(root?.className).toContain('group-root')
     expect(item?.className).toContain('group-item')
