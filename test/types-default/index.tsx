@@ -349,7 +349,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <Button>Paste</Button>
 </ButtonGroup>
 ;<CopyButton value="code snippet" />
-;<CopyButton value="code snippet" copiedDuration={1500} icon="icon-copy" copiedIcon="icon-check" />
+;<CopyButton value="code snippet" resetDelay={1500} icon="icon-copy" copiedIcon="icon-check" />
 ;<CopyButton value="code snippet" icon={false} />
 ;<CopyButton value="code snippet" iconPosition="trailing" />
 // @ts-expect-error CopyButton has no leading or trailing props.
@@ -358,7 +358,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 // @ts-expect-error value is required
 ;<CopyButton />
 {
-  const copyHook = createCopy({ value: 'snippet', copiedDuration: 1000 })
+  const copyHook = createCopy({ value: 'snippet', resetDelay: 1000 })
   void copyHook.copy()
 }
 ;<Button

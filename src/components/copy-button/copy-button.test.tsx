@@ -100,8 +100,8 @@ describe('CopyButton', () => {
 
   test('sets aria-invalid on copy failure and clears it after the copied duration', async () => {
     writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
-    const onError = vi.fn()
-    const screen = render(() => <CopyButton value="failed-copy" onError={onError} />)
+    const onCopyError = vi.fn()
+    const screen = render(() => <CopyButton value="failed-copy" onCopyError={onCopyError} />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
 
     expect(button.hasAttribute('aria-invalid')).toBe(false)
@@ -109,7 +109,7 @@ describe('CopyButton', () => {
     fireEvent.click(button)
     await flushMicrotasks()
 
-    expect(onError).toHaveBeenCalled()
+    expect(onCopyError).toHaveBeenCalled()
     expect(button.getAttribute('aria-invalid')).toBe('true')
     expect(button.hasAttribute('data-copied')).toBe(false)
 
@@ -126,14 +126,14 @@ describe('CopyButton', () => {
     expect(writeText).not.toHaveBeenCalled()
   })
 
-  test('calls onCopy and onStatusChange callbacks', async () => {
-    const onCopy = vi.fn()
+  test('calls onCopySuccess and onStatusChange callbacks', async () => {
+    const onCopySuccess = vi.fn()
     const onStatusChange = vi.fn()
     const screen = render(() => (
       <CopyButton
         value="callback-test"
-        copiedDuration={1500}
-        onCopy={onCopy}
+        resetDelay={1500}
+        onCopySuccess={onCopySuccess}
         onStatusChange={onStatusChange}
       />
     ))
@@ -141,16 +141,16 @@ describe('CopyButton', () => {
     fireEvent.click(button)
     await flushMicrotasks()
 
-    expect(onCopy).toHaveBeenCalledWith('callback-test')
+    expect(onCopySuccess).toHaveBeenCalledWith('callback-test')
     expect(onStatusChange).toHaveBeenCalledWith({
       isCopied: true,
-      state: 'copied',
+      status: 'copied',
     })
 
     vi.advanceTimersByTime(1500)
     expect(onStatusChange).toHaveBeenCalledWith({
       isCopied: false,
-      state: 'idle',
+      status: 'idle',
     })
   })
 

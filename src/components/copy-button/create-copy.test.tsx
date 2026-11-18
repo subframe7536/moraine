@@ -29,26 +29,26 @@ afterEach(() => {
 function setup(options = {}) {
   return createRoot((cleanup) => {
     dispose = cleanup
-    return createCopy({ copiedDuration: 1000, ...options })
+    return createCopy({ resetDelay: 1000, ...options })
   })
 }
 
 describe('createCopy', () => {
-  test('copies strings and resets feedback after copiedDuration', async () => {
+  test('copies strings and resets feedback after resetDelay', async () => {
     const clipboard = setup()
-    expect(clipboard.state()).toBe('idle')
+    expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(false)
 
     const success = await clipboard.copy('hello world')
     expect(success).toBe(true)
     expect(writeText).toHaveBeenCalledWith('hello world')
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
     expect(clipboard.isCopied()).toBe(true)
     expect(clipboard.isError()).toBe(false)
 
     vi.advanceTimersByTime(1000)
-    expect(clipboard.state()).toBe('idle')
+    expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(false)
   })
@@ -60,7 +60,7 @@ describe('createCopy', () => {
     const success = await clipboard.copy(item)
     expect(success).toBe(true)
     expect(write).toHaveBeenCalledWith([item])
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
   })
 
   test('falls back to command when navigator.clipboard is unavailable', async () => {
@@ -72,7 +72,7 @@ describe('createCopy', () => {
     const success = await clipboard.copy('fallback string')
     expect(success).toBe(true)
     expect(execCommand).toHaveBeenCalledWith('copy')
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
   })
 
   test('falls back to command when navigator.clipboard.writeText rejects', async () => {
@@ -84,7 +84,7 @@ describe('createCopy', () => {
     const success = await clipboard.copy('fallback text')
     expect(success).toBe(true)
     expect(execCommand).toHaveBeenCalledWith('copy')
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
   })
 
   test('extracts text/plain from ClipboardItem on legacy fallback', async () => {
@@ -103,7 +103,7 @@ describe('createCopy', () => {
     const success = await clipboard.copy(mockItem)
     expect(success).toBe(true)
     expect(execCommand).toHaveBeenCalledWith('copy')
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
   })
 
   test('copies the JSON form of a ClipboardItem without a text type on legacy fallback', async () => {
@@ -119,24 +119,24 @@ describe('createCopy', () => {
     const success = await clipboard.copy(nonTextData)
     expect(success).toBe(true)
     expect(copiedContent).toBe(JSON.stringify(nonTextData))
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
   })
 
   test('reports failure when modern API and execCommand both fail', async () => {
     writeText.mockRejectedValue(new Error('Modern writeText failed'))
     document.execCommand = vi.fn().mockReturnValue(false)
 
-    const onError = vi.fn()
-    const clipboard = setup({ onError })
+    const onCopyError = vi.fn()
+    const clipboard = setup({ onCopyError })
     const success = await clipboard.copy('will fail')
     expect(success).toBe(false)
-    expect(clipboard.state()).toBe('failed')
+    expect(clipboard.status()).toBe('failed')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(true)
-    expect(onError).toHaveBeenCalled()
+    expect(onCopyError).toHaveBeenCalled()
 
     vi.advanceTimersByTime(1000)
-    expect(clipboard.state()).toBe('idle')
+    expect(clipboard.status()).toBe('idle')
     expect(clipboard.isCopied()).toBe(false)
     expect(clipboard.isError()).toBe(false)
   })
@@ -148,13 +148,13 @@ describe('createCopy', () => {
     await clipboard.copy('status check')
     expect(onStatusChange).toHaveBeenCalledWith({
       isCopied: true,
-      state: 'copied',
+      status: 'copied',
     })
 
     vi.advanceTimersByTime(1000)
     expect(onStatusChange).toHaveBeenCalledWith({
       isCopied: false,
-      state: 'idle',
+      status: 'idle',
     })
   })
 
@@ -162,10 +162,10 @@ describe('createCopy', () => {
     const onStatusChange = vi.fn()
     const clipboard = setup({ onStatusChange })
     await clipboard.copy('test')
-    expect(clipboard.state()).toBe('copied')
+    expect(clipboard.status()).toBe('copied')
 
     clipboard.reset()
-    expect(clipboard.state()).toBe('idle')
+    expect(clipboard.status()).toBe('idle')
     onStatusChange.mockClear()
 
     vi.advanceTimersByTime(1000)

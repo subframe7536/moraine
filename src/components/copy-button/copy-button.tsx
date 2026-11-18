@@ -49,14 +49,14 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'ref',
       'as',
       'value',
-      'copiedDuration',
+      'resetDelay',
       'disabled',
       'slotName',
       'icon',
       'copiedIcon',
       'iconPosition',
-      'onCopy',
-      'onError',
+      'onCopySuccess',
+      'onCopyError',
       'onStatusChange',
       'variant',
       'tone',
@@ -74,9 +74,9 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const clipboard = createCopy({
     ownerDocument: () => root.element()?.ownerDocument,
     value: () => (typeof local.value === 'function' ? local.value() : local.value),
-    copiedDuration: () => local.copiedDuration,
-    onCopy: (data) => local.onCopy?.(data),
-    onError: (err) => local.onError?.(err),
+    resetDelay: () => local.resetDelay,
+    onCopySuccess: (data) => local.onCopySuccess?.(data),
+    onCopyError: (err) => local.onCopyError?.(err),
     onStatusChange: (status) => local.onStatusChange?.(status),
   })
 
@@ -96,8 +96,8 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       get isError() {
         return clipboard.isError()
       },
-      get state() {
-        return clipboard.state()
+      get status() {
+        return clipboard.status()
       },
       get copy() {
         return clipboard.copy

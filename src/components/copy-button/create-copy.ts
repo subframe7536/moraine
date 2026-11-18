@@ -6,7 +6,7 @@ export type CopyData = string | ClipboardItem | ClipboardItem[]
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 
-export type CopyState = 'idle' | 'copied' | 'failed'
+export type CopyStatus = 'idle' | 'copied' | 'failed'
 
 export interface CreateCopyOptions {
   /**
@@ -21,25 +21,25 @@ export interface CreateCopyOptions {
   value?: CopySource
 
   /**
-   * Duration in milliseconds to hold the 'copied' state before returning to 'idle'.
+   * Delay in milliseconds before the 'copied' or 'failed' status returns to 'idle'.
    * @default 2000
    */
-  copiedDuration?: number | (() => number | undefined)
+  resetDelay?: number | (() => number | undefined)
 
   /**
    * Callback invoked when a copy succeeds.
    */
-  onCopy?: (data: CopyData) => void
+  onCopySuccess?: (data: CopyData) => void
 
   /**
    * Callback invoked when a copy fails.
    */
-  onError?: (error: unknown) => void
+  onCopyError?: (error: unknown) => void
 
   /**
    * Callback invoked when the copy status changes.
    */
-  onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
+  onStatusChange?: (details: { isCopied: boolean; status: CopyStatus }) => void
 }
 
 export interface CreateCopyReturn {
@@ -54,9 +54,9 @@ export interface CreateCopyReturn {
   isError: Accessor<boolean>
 
   /**
-   * Current copy state: 'idle' | 'copied' | 'failed'.
+   * Current copy status: 'idle' | 'copied' | 'failed'.
    */
-  state: Accessor<CopyState>
+  status: Accessor<CopyStatus>
 
   /**
    * Triggers copy operation with automatic fallback to command.
@@ -64,7 +64,7 @@ export interface CreateCopyReturn {
   copy: (data?: CopySource) => Promise<boolean>
 
   /**
-   * Resets the state back to 'idle' and clears active timers.
+   * Resets the status back to 'idle' and clears active timers.
    */
   reset: () => void
 
@@ -198,7 +198,7 @@ export async function writeClipboardWithFallback(
 }
 
 export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
-  const [state, setState] = createSignal<CopyState>('idle')
+  const [status, setStatus] = createSignal<CopyStatus>('idle')
   const [error, setError] = createSignal<unknown>(undefined)
 
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -210,11 +210,11 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     clearTimeout(timer)
   })
 
-  function notifyStatus(nextState: CopyState) {
-    setState(nextState)
+  function notifyStatus(nextStatus: CopyStatus) {
+    setStatus(nextStatus)
     options.onStatusChange?.({
-      isCopied: nextState === 'copied',
-      state: nextState,
+      isCopied: nextStatus === 'copied',
+      status: nextStatus,
     })
   }
 
@@ -224,14 +224,11 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     setError(undefined)
   }
 
-  const isCopied = createMemo(() => state() === 'copied')
-  const isError = createMemo(() => state() === 'failed')
+  const isCopied = createMemo(() => status() === 'copied')
+  const isError = createMemo(() => status() === 'failed')
 
   function resolveDuration(): number {
-    const val =
-      typeof options.copiedDuration === 'function'
-        ? options.copiedDuration()
-        : options.copiedDuration
+    const val = typeof options.resetDelay === 'function' ? options.resetDelay() : options.resetDelay
     return val ?? 2000
   }
 
@@ -286,7 +283,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
       }
 
       notifyStatus('copied')
-      options.onCopy?.(resolvedData)
+      options.onCopySuccess?.(resolvedData)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {
@@ -303,7 +300,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
 
       setError(err)
       notifyStatus('failed')
-      options.onError?.(err)
+      options.onCopyError?.(err)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {
@@ -319,7 +316,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   return {
     isCopied,
     isError,
-    state,
+    status,
     copy,
     reset,
     error,

@@ -26,5 +26,5 @@ export type {
   CreateCopyReturn,
   CopyData,
   CopySource,
-  CopyState,
+  CopyStatus,
 } from './components/copy-button/create-copy'

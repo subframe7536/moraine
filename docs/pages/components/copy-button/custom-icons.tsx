@@ -10,7 +10,7 @@ export function CustomIcons() {
         value={token}
         icon="i-lucide:clipboard"
         copiedIcon="i-lucide:check-check"
-        copiedDuration={3000}
+        resetDelay={3000}
         aria-label="Copy personal access token"
       />
     </div>

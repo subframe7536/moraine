@@ -10,11 +10,11 @@ export function IconGallery() {
     <div class="gap-2 grid grid-cols-3 lg:grid-cols-6 sm:grid-cols-4">
       <For each={DEFAULT_ICON_SHORTCUTS}>
         {([name]) => {
-          const clipboard = createCopy({ copiedDuration: 1800 })
+          const clipboard = createCopy({ resetDelay: 1800 })
           const message = () =>
-            clipboard.state() === 'copied'
+            clipboard.status() === 'copied'
               ? 'Copied'
-              : clipboard.state() === 'failed'
+              : clipboard.status() === 'failed'
                 ? 'Copy failed'
                 : undefined
 

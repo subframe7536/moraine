@@ -5,14 +5,14 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
-import type { CopyData, CopySource, CopyState } from './create-copy'
+import type { CopyData, CopySource, CopyStatus } from './create-copy'
 
 export namespace CopyButtonT {
   export type Kind = 'single'
 
   export type Data = CopyData
   export type Source = CopySource
-  export type State = CopyState
+  export type Status = CopyStatus
 
   export type Slot<T = unknown> = CopyButtonStyleSlot<T>
   export type Variants = CopyButtonStyleVariants
@@ -22,19 +22,19 @@ export namespace CopyButtonT {
 
   export interface ChildrenRenderProps {
     /**
-     * Whether the last copy succeeded and the `copiedDuration` window is still active.
+     * Whether the last copy succeeded and the `resetDelay` window is still active.
      */
     isCopied: boolean
 
     /**
-     * Whether the last copy failed and the `copiedDuration` window is still active.
+     * Whether the last copy failed and the `resetDelay` window is still active.
      */
     isError: boolean
 
     /**
-     * Current copy state: `'idle'`, `'copied'` (after a successful copy), or `'failed'`.
+     * Current copy status: `'idle'`, `'copied'` (after a successful copy), or `'failed'`.
      */
-    state: CopyState
+    status: CopyStatus
 
     /**
      * Starts a copy programmatically. Copies `val`, or the button's `value` when omitted, and
@@ -67,7 +67,7 @@ export namespace CopyButtonT {
     /**
      * What to copy on click: a string, a `ClipboardItem`, a `ClipboardItem[]`, a `Promise` of
      * either, or a function returning one. A function is called on every click and a promise is
-     * awaited first; if it rejects or throws, the copy fails and `onError` receives the error.
+     * awaited first; if it rejects or throws, the copy fails and `onCopyError` receives the error.
      * Non-string data is written with `navigator.clipboard.write`; the `execCommand` fallback can
      * only copy text.
      * @example
@@ -76,7 +76,7 @@ export namespace CopyButtonT {
      *
      * <CopyButton
      *   value={async () => (await fetch('/api/share-link')).text()}
-     *   onError={(error) => console.error(error)}
+     *   onCopyError={(error) => console.error(error)}
      * >
      *   Copy share link
      * </CopyButton>
@@ -85,12 +85,12 @@ export namespace CopyButtonT {
     value: CopySource
 
     /**
-     * Duration in milliseconds to hold the `'copied'` or `'failed'` state before returning to
-     * `'idle'`. While the `'copied'` state is active the icon switches to `copiedIcon` and the
-     * default `aria-label` changes to the localized "copied" message.
+     * Delay in milliseconds before the `'copied'` or `'failed'` status returns to `'idle'`. While
+     * the `'copied'` status is active the icon switches to `copiedIcon` and the default
+     * `aria-label` changes to the localized "copied" message.
      * @default 2000
      */
-    copiedDuration?: number
+    resetDelay?: number
 
     /**
      * Disabled state, including for non-button polymorphic roots.
@@ -126,20 +126,20 @@ export namespace CopyButtonT {
      * Called after the copy succeeds, with the resolved data that was written (after awaiting a
      * promise or calling a function `value`).
      */
-    onCopy?: (data: CopyData) => void
+    onCopySuccess?: (data: CopyData) => void
 
     /**
      * Called when the copy fails, with the thrown or rejected error, or an `Error` when the
-     * clipboard could not be written. The button then has `aria-invalid` until `copiedDuration`
+     * clipboard could not be written. The button then has `aria-invalid` until `resetDelay`
      * elapses.
      */
-    onError?: (error: unknown) => void
+    onCopyError?: (error: unknown) => void
 
     /**
-     * Called on every state change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,
-     * and `'idle'` again after `copiedDuration`. `isCopied` is `true` only for `'copied'`.
+     * Called on every status change: `'idle'` when a copy starts, then `'copied'` or `'failed'`,
+     * and `'idle'` again after `resetDelay`. `isCopied` is `true` only for `'copied'`.
      */
-    onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
+    onStatusChange?: (details: { isCopied: boolean; status: CopyStatus }) => void
 
     /**
      * Content or render function receiving the copy state.

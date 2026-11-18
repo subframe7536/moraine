@@ -1,7 +1,7 @@
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon, cn } from '../../../../src'
 import { createCopy } from '../../../../src/utils'
-import type { CopyState } from '../../../../src/utils'
+import type { CopyStatus } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 import { ComponentRadar } from './component-radar'
@@ -9,7 +9,7 @@ import { StylingShowcase } from './styling-showcase'
 
 const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-4 max-sm:h-10'
 
-function InstallCommand(props: { state: CopyState; onClick: () => void; class?: string }) {
+function InstallCommand(props: { state: CopyStatus; onClick: () => void; class?: string }) {
   return (
     <button
       type="button"
@@ -96,7 +96,7 @@ export function LandingPage() {
           </Button>
         </div>
 
-        <InstallCommand state={clipboard.state()} onClick={handleCopy} class="mt-6" />
+        <InstallCommand state={clipboard.status()} onClick={handleCopy} class="mt-6" />
       </section>
 
       <StylingShowcase />
@@ -114,12 +114,12 @@ export function LandingPage() {
               freedom.
             </p>
 
-            <InstallCommand class="mt-6" state={clipboard.state()} onClick={handleCopy} />
+            <InstallCommand class="mt-6" state={clipboard.status()} onClick={handleCopy} />
 
             <span class="sr-only" aria-live="polite">
-              {clipboard.state() === 'copied'
+              {clipboard.status() === 'copied'
                 ? 'Install command copied'
-                : clipboard.state() === 'failed'
+                : clipboard.status() === 'failed'
                   ? 'Copy failed; try again'
                   : ''}
             </span>

@@ -75,7 +75,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
         </Button>
         <CopyButton
           value={fetchMarkdownSource}
-          copiedDuration={1600}
+          resetDelay={1600}
           aria-label="Copy markdown source"
           variant="outline"
           size="sm"
