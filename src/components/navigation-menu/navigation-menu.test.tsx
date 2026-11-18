@@ -637,13 +637,13 @@ describe('NavigationMenu', () => {
                 target="_blank"
                 rel="noreferrer"
                 ref={(element) => (forwarded = element)}
-                closeOnClick
+                closeOnSelect
                 onClick={(event) => event.preventDefault()}
               >
                 Cancelled
               </NavigationMenu.Link>
               <NavigationMenu.Link href="#kept">Keep open</NavigationMenu.Link>
-              <NavigationMenu.Link href="#close" closeOnClick>
+              <NavigationMenu.Link href="#close" closeOnSelect>
                 Close
               </NavigationMenu.Link>
             </NavigationMenu.Content>

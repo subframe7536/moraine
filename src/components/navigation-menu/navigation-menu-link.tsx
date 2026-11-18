@@ -17,7 +17,7 @@ import type { NavigationMenuT } from './navigation-menu.types'
 /**
  * Navigation destination, rendered as an `a`. Place it inside `NavigationMenu.Content` or
  * directly inside a `NavigationMenu.Item`. `active` marks the current page with
- * `aria-current="page"`, `closeOnClick` also closes the panel on activation, and `linkRender`
+ * `aria-current="page"`, `closeOnSelect` also closes the panel on activation, and `linkRender`
  * swaps in a router link component.
  *
  * @example
@@ -42,7 +42,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'id',
     'active',
     'disabled',
-    'closeOnClick',
+    'closeOnSelect',
     'linkRender',
     'href',
     'class',
@@ -64,7 +64,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         onClick: (event) => {
           if (disabled()) {
             event.preventDefault()
-          } else if (local.closeOnClick) {
+          } else if (local.closeOnSelect) {
             context.close()
           }
         },

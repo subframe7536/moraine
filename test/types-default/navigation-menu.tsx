@@ -18,7 +18,7 @@ const RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />
     <NavigationMenu.Item value="product">
       <NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
       <NavigationMenu.Content>
-        <NavigationMenu.Link linkRender={RouterLink} href="/docs" active closeOnClick>
+        <NavigationMenu.Link linkRender={RouterLink} href="/docs" active closeOnSelect>
           Docs
         </NavigationMenu.Link>
       </NavigationMenu.Content>

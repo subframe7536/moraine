@@ -28,10 +28,10 @@ export function Controlled() {
             <NavigationMenu.Trigger>Account</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-48">
-                <NavigationMenu.Link href="#profile" closeOnClick>
+                <NavigationMenu.Link href="#profile" closeOnSelect>
                   Profile
                 </NavigationMenu.Link>
-                <NavigationMenu.Link href="#settings" closeOnClick>
+                <NavigationMenu.Link href="#settings" closeOnSelect>
                   Settings
                 </NavigationMenu.Link>
               </div>

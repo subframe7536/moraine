@@ -122,7 +122,7 @@ export namespace NavigationMenuT {
      * `preventDefault()`.
      * @default false
      */
-    closeOnClick?: boolean
+    closeOnSelect?: boolean
     /**
      * Renders the link with a custom component, such as a router link, instead of `<a>`. It is
      * mounted as a component and receives the merged anchor props (`href`, `class`, `ref`, ARIA

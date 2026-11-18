@@ -9,10 +9,10 @@ export function Orientation() {
             <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-40">
-                <NavigationMenu.Link href="#overview" closeOnClick>
+                <NavigationMenu.Link href="#overview" closeOnSelect>
                   Overview
                 </NavigationMenu.Link>
-                <NavigationMenu.Link href="#features" closeOnClick>
+                <NavigationMenu.Link href="#features" closeOnSelect>
                   Features
                 </NavigationMenu.Link>
               </div>
@@ -22,10 +22,10 @@ export function Orientation() {
             <NavigationMenu.Trigger>Resources</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-40">
-                <NavigationMenu.Link href="#guides" closeOnClick>
+                <NavigationMenu.Link href="#guides" closeOnSelect>
                   Guides
                 </NavigationMenu.Link>
-                <NavigationMenu.Link href="#support" closeOnClick>
+                <NavigationMenu.Link href="#support" closeOnSelect>
                   Support
                 </NavigationMenu.Link>
               </div>

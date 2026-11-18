@@ -375,7 +375,7 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "closeOnClick",
+          "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
           "description": "Closes the open panel when the link is clicked, unless a click handler calls\n`preventDefault()`.",

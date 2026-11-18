@@ -32,10 +32,10 @@ import type { NavigationMenuT } from './navigation-menu.types'
  *     <NavigationMenu.Item value="products">
  *       <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
  *       <NavigationMenu.Content>
- *         <NavigationMenu.Link href="/overview" closeOnClick>
+ *         <NavigationMenu.Link href="/overview" closeOnSelect>
  *           Overview
  *         </NavigationMenu.Link>
- *         <NavigationMenu.Link href="/pricing" closeOnClick>
+ *         <NavigationMenu.Link href="/pricing" closeOnSelect>
  *           Pricing
  *         </NavigationMenu.Link>
  *       </NavigationMenu.Content>
