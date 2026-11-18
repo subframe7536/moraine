@@ -67,6 +67,28 @@
           "description": "Collection to render, one `itemRender` call per entry. Treated as empty when `undefined`."
         },
         {
+          "name": "onBottomReached",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an\noverflowing list, such as to load more items. It fires again only after the user scrolls\naway and back."
+        },
+        {
+          "name": "onTopReached",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time scrolling returns to the top edge (within `scrollThreshold`) of an\noverflowing list; not called for the initial position."
+        },
+        {
+          "name": "scrollThreshold",
+          "optional": true,
+          "type": "number",
+          "description": "Distance in pixels from an edge within which it counts as reached. Negative values count\nas `0`.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

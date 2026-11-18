@@ -314,4 +314,73 @@ describe('List', () => {
       )
     })
   })
+
+  test('fires edge callbacks on transitions of an overflowing list only', async () => {
+    const onTopReached = vi.fn()
+    const onBottomReached = vi.fn()
+    const screen = render(() => (
+      <List
+        items={['A', 'B', 'C']}
+        scrollThreshold={10}
+        onTopReached={onTopReached}
+        onBottomReached={onBottomReached}
+        itemRender={(context) => <li>{context.item}</li>}
+      />
+    ))
+    const list = screen.getByRole('list')
+    for (const [name, value] of Object.entries({ clientHeight: 100, scrollHeight: 300 })) {
+      Object.defineProperty(list, name, { configurable: true, value })
+    }
+    await Promise.resolve()
+
+    // The initial position does not count as reaching an edge.
+    list.scrollTop = 0
+    fireEvent.scroll(list)
+    expect(onTopReached).not.toHaveBeenCalled()
+
+    list.scrollTop = 195
+    fireEvent.scroll(list)
+    expect(onBottomReached).toHaveBeenCalledTimes(1)
+
+    // Staying at the edge does not fire again.
+    list.scrollTop = 200
+    fireEvent.scroll(list)
+    expect(onBottomReached).toHaveBeenCalledTimes(1)
+
+    list.scrollTop = 50
+    fireEvent.scroll(list)
+    list.scrollTop = 0
+    fireEvent.scroll(list)
+    expect(onTopReached).toHaveBeenCalledTimes(1)
+
+    // Content that stops overflowing does not count as reaching an edge.
+    Object.defineProperty(list, 'scrollHeight', { configurable: true, value: 100 })
+    fireEvent.scroll(list)
+    expect(onBottomReached).toHaveBeenCalledTimes(1)
+    expect(onTopReached).toHaveBeenCalledTimes(1)
+  })
+
+  test('fires onBottomReached again after scrolling away and back', async () => {
+    const onBottomReached = vi.fn()
+    const screen = render(() => (
+      <List
+        items={['A', 'B', 'C']}
+        onBottomReached={onBottomReached}
+        itemRender={(context) => <li>{context.item}</li>}
+      />
+    ))
+    const list = screen.getByRole('list')
+    for (const [name, value] of Object.entries({ clientHeight: 100, scrollHeight: 300 })) {
+      Object.defineProperty(list, name, { configurable: true, value })
+    }
+    await Promise.resolve()
+
+    list.scrollTop = 200
+    fireEvent.scroll(list)
+    list.scrollTop = 100
+    fireEvent.scroll(list)
+    list.scrollTop = 200
+    fireEvent.scroll(list)
+    expect(onBottomReached).toHaveBeenCalledTimes(2)
+  })
 })

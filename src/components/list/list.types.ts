@@ -77,6 +77,23 @@ export namespace ListT {
      * ```
      */
     virtualizer?: Virtualizer<TItem>
+    /**
+     * Distance in pixels from an edge within which it counts as reached. Negative values count
+     * as `0`.
+     * @default 0
+     */
+    scrollThreshold?: number
+    /**
+     * Called once each time scrolling returns to the top edge (within `scrollThreshold`) of an
+     * overflowing list; not called for the initial position.
+     */
+    onTopReached?: () => void
+    /**
+     * Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an
+     * overflowing list, such as to load more items. It fires again only after the user scrolls
+     * away and back.
+     */
+    onBottomReached?: () => void
   }
 
   export type Props<TItem, T extends ValidComponent = 'ul'> = BaseProps<

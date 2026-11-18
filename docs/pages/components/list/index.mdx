@@ -78,6 +78,22 @@ const virtualizer = createListVirtualizer<Item>({
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
 keyboard navigation.
 
+### Load more at the edges
+
+`onTopReached` and `onBottomReached` fire once each time scrolling reaches the top or bottom edge
+of an overflowing list; neither fires for the initial position. Combine `onBottomReached` with
+`scrollThreshold` to request the next page shortly before the end.
+
+```tsx
+<List
+  class="h-80 overflow-y-auto"
+  items={rows()}
+  scrollThreshold={48}
+  onBottomReached={loadMore}
+  itemRender={(context) => <li>{context.item.label}</li>}
+/>
+```
+
 ### Drag to reorder
 
 `createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/dom`. List has

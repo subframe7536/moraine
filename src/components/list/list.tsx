@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createSignal, splitProps } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, on, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
+import { createScrollMetrics } from '../../shared/scroll-metrics'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
@@ -43,6 +44,9 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     'itemRender',
     'virtualizer',
     'emptyRender',
+    'scrollThreshold',
+    'onTopReached',
+    'onBottomReached',
     'ref',
     'classes',
     'styles',
@@ -53,6 +57,39 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
     slots: { root: rootSlot },
   } = useRecipe(listRecipe, local)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
+  const metrics = createScrollMetrics(scrollElement, () => {})
+
+  const edges = createMemo(
+    () => {
+      const { extent, position } = metrics().y
+      const threshold = Math.max(0, local.scrollThreshold ?? 0)
+      // Scroll positions may be fractional while client and scroll sizes are integers.
+      return {
+        top: extent > 0 && position <= threshold,
+        bottom: extent > 0 && extent - position <= threshold + 1,
+      }
+    },
+    undefined,
+    { equals: (a, b) => a.top === b.top && a.bottom === b.bottom },
+  )
+
+  createEffect(
+    on(
+      edges,
+      (current, previous) => {
+        if (!previous) {
+          return
+        }
+        if (current.top && !previous.top) {
+          local.onTopReached?.()
+        }
+        if (current.bottom && !previous.bottom) {
+          local.onBottomReached?.()
+        }
+      },
+      { defer: true },
+    ),
+  )
 
   return (
     <Dynamic
