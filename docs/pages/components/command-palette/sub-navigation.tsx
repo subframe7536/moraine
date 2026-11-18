@@ -5,7 +5,7 @@ import { createMemo, createSignal } from 'solid-js'
 export function SubNavigation() {
   const ROOT_GROUPS: CommandPaletteT.Group[] = [
     {
-      id: 'main',
+      type: 'group',
       label: 'Commands',
       items: [
         {
@@ -30,7 +30,7 @@ export function SubNavigation() {
   ]
   const CREATE_GROUPS: CommandPaletteT.Group[] = [
     {
-      id: 'create',
+      type: 'group',
       label: 'Create',
       items: [
         {
@@ -53,7 +53,7 @@ export function SubNavigation() {
   ]
   const SHARE_GROUPS: CommandPaletteT.Group[] = [
     {
-      id: 'share',
+      type: 'group',
       label: 'Share',
       items: [
         {
@@ -96,7 +96,7 @@ export function SubNavigation() {
     <div class="flex flex-col gap-3 max-w-full w-lg">
       <div class="flex gap-3 items-center justify-between">
         <p class="text-sm text-muted-foreground">
-          Drive multi-step navigation outside the component by swapping the `groups` prop.
+          Drive multi-step navigation outside the component by swapping the `items` prop.
         </p>
         <Button
           size="sm"
@@ -108,7 +108,7 @@ export function SubNavigation() {
         </Button>
       </div>
       <CommandPalette
-        groups={groups()}
+        items={groups()}
         autofocus={false}
         closeOnSelect={false}
         onSelect={onSelect}

@@ -45,7 +45,7 @@ const options: SelectT.Item<string>[] = []
   })}
 />
 ;<CommandPalette
-  groups={[]}
+  items={[]}
   virtualizer={createListVirtualizer<CommandPaletteT.VirtualEntry>({ estimateSize: () => 32 })}
 />
 

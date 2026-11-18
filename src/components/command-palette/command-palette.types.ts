@@ -78,8 +78,8 @@ export namespace CommandPaletteT {
   }
 
   export interface Group<TItem extends Item = Item> {
-    /** Identifier of the group, unique within `groups`. Not displayed. */
-    id: string
+    /** Marks the entry as a group of items. */
+    type: 'group'
     /**
      * Header shown above the group's items. Without it the items render with no header.
      */
@@ -87,6 +87,9 @@ export namespace CommandPaletteT {
     /** Items in this group. While searching, a group with no matching items is hidden. */
     items?: TItem[]
   }
+
+  /** An entry of `items`: a command, or a group of commands. */
+  export type Entry<TItem extends Item = Item> = TItem | Group<TItem>
 
   export interface VirtualLabelEntry<TItem extends Item = Item> {
     /** Structural entry rendered before a command group. */
@@ -143,7 +146,7 @@ export namespace CommandPaletteT {
      *
      * <CommandPalette
      *   closable
-     *   groups={[]}
+     *   items={[]}
      *   translations={{ placeholder: 'Type a command...', empty: 'Nothing found.', close: 'Dismiss' }}
      * />
      * ```
@@ -154,7 +157,8 @@ export namespace CommandPaletteT {
     /** Ref forwarded to the inner search `<input>` element. */
     inputRef?: Ref<HTMLInputElement>
     /**
-     * Commands to display, in order, optionally split into labelled groups. The search text
+     * Commands to display, in order: command objects and `{ type: 'group', label, items }` groups.
+     * Consecutive commands outside a group render together without a header. The search text
      * filters them according to `filterMethod`; the list is reactive to changes of this prop.
      * @default []
      * @example
@@ -162,9 +166,10 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[
+     *   items={[
+     *     { value: 'home', label: 'Home' },
      *     {
-     *       id: 'file',
+     *       type: 'group',
      *       label: 'File',
      *       items: [
      *         { value: 'new', label: 'New file', keywords: ['create'], onSelect: () => {} },
@@ -175,7 +180,7 @@ export namespace CommandPaletteT {
      * />
      * ```
      */
-    groups?: Group<TItem>[]
+    items?: Entry<TItem>[]
     /**
      * Placeholder text for the search input. It is also the input's accessible name unless
      * `inputProps` sets `aria-label` or `aria-labelledby`.
@@ -236,7 +241,7 @@ export namespace CommandPaletteT {
     /**
      * Called when the close button is clicked, and after an enabled item is selected when
      * `closeOnSelect` is `true`. The palette does not hide itself: use it to close the
-     * surrounding `Dialog`, `Modal`, or your own container. Escape is not handled here.
+     * surrounding `Dialog`, `BaseDialog`, or your own container. Escape is not handled here.
      */
     onClose?: () => void
     /**
@@ -246,7 +251,7 @@ export namespace CommandPaletteT {
      */
     closeOnSelect?: boolean
     /**
-     * Whether the palette is loading, for example while `groups` are fetched. Swaps the leading
+     * Whether the palette is loading, for example while `items` are fetched. Swaps the leading
      * icon for `loadingIcon`; items stay visible and selectable.
      * @default false
      */
@@ -260,7 +265,7 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[{ id: 'a', items: [{ value: 'open', label: 'Open', keywords: ['launch'] }] }]}
+     *   items={[{ value: 'open', label: 'Open', keywords: ['launch'] }]}
      *   getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}
      * />
      * ```
@@ -271,14 +276,14 @@ export namespace CommandPaletteT {
      * item's search text (see `getItemLabel`) ignoring case and accents, using the active
      * locale. A predicate receives the trimmed query and the item, and returns whether to
      * keep it; it is not called for an empty query. `false` disables filtering, for example
-     * when you filter `groups` yourself. Items with `alwaysShow` stay visible.
+     * when you filter `items` yourself. Items with `alwaysShow` stay visible.
      * @default 'contains'
      * @example
      * ```tsx
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[{ id: 'a', items: [{ value: 'open-file', label: 'Open file' }] }]}
+     *   items={[{ value: 'open-file', label: 'Open file' }]}
      *   filterMethod={(query, item) =>
      *     item.value.split('-').some((part) => part.startsWith(query.toLowerCase()))
      *   }
@@ -300,7 +305,7 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[]}
+     *   items={[]}
      *   emptyRender={(state) => <p>No command matches "{state.searchValue}".</p>}
      * />
      * ```
@@ -314,7 +319,7 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[]}
+     *   items={[]}
      *   footerRender={(state) => <span>{state.visibleGroups.length} groups shown</span>}
      * />
      * ```
@@ -330,7 +335,7 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[{ id: 'a', items: [{ value: 'open', label: 'Open' }] }]}
+     *   items={[{ value: 'open', label: 'Open' }]}
      *   itemRender={(row) => (
      *     <strong>{row.highlighted ? '> ' : ''}{row.item.label ?? row.item.value}</strong>
      *   )}
@@ -358,7 +363,7 @@ export namespace CommandPaletteT {
      * import { CommandPalette } from 'moraine'
      *
      * <CommandPalette
-     *   groups={[{ id: 'a', items: [{ value: 'open', description: 'Open a file' }] }]}
+     *   items={[{ value: 'open', description: 'Open a file' }]}
      *   itemProps={(row) => ({ title: row.item.description })}
      * />
      * ```

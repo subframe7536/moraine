@@ -7,9 +7,9 @@ export function renderCommandPaletteFixture(): string {
     <CommandPalette
       autofocus={false}
       descriptionPosition="trailing"
-      groups={[
+      items={[
         {
-          id: 'actions',
+          type: 'group',
           items: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
         },
       ]}
@@ -18,5 +18,5 @@ export function renderCommandPaletteFixture(): string {
 }
 
 export function renderEmptyCommandPaletteFixture(): string {
-  return renderToString(() => <CommandPalette autofocus={false} groups={[]} />)
+  return renderToString(() => <CommandPalette autofocus={false} items={[]} />)
 }

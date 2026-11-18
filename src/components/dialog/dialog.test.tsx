@@ -571,7 +571,7 @@ describe('Dialog', () => {
         <Dialog.Content>
           <Dialog.Body>
             <CommandPalette
-              groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
+              items={[{ type: 'group', items: [{ value: 'settings', label: 'Settings' }] }]}
               searchValue={searchValue()}
               onSearchValueChange={setSearchValue}
             />

@@ -10,7 +10,7 @@ describe('CommandPalette SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/command-palette/command-palette.ssr.fixture.tsx',
       'renderEmptyCommandPaletteFixture',
-      () => <CommandPalette autofocus={false} groups={[]} />,
+      () => <CommandPalette autofocus={false} items={[]} />,
     )
     const input = container.querySelector('[role="combobox"]')
     const listbox = container.querySelector('[role="listbox"]')
@@ -27,9 +27,9 @@ describe('CommandPalette SSR Hydration', () => {
         <CommandPalette
           autofocus={false}
           descriptionPosition={position()}
-          groups={[
+          items={[
             {
-              id: 'actions',
+              type: 'group',
               items: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
             },
           ]}

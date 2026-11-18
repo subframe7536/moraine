@@ -18,7 +18,7 @@ afterEach(() => {
 
 const GROUPS: CommandPaletteT.Group[] = [
   {
-    id: 'actions',
+    type: 'group',
     label: 'Actions',
     items: [
       {
@@ -36,7 +36,7 @@ const GROUPS: CommandPaletteT.Group[] = [
     ],
   },
   {
-    id: 'navigation',
+    type: 'group',
     label: 'Navigation',
     items: [
       { value: 'go-dashboard', label: 'Go to Dashboard' },
@@ -47,7 +47,7 @@ const GROUPS: CommandPaletteT.Group[] = [
 
 describe('CommandPalette', () => {
   test('keeps an identified listbox around the empty state', () => {
-    const screen = render(() => <CommandPalette groups={[]} autofocus={false} />)
+    const screen = render(() => <CommandPalette items={[]} autofocus={false} />)
     const input = screen.getByRole('combobox')
     const listbox = screen.getByRole('listbox')
     expect(input.getAttribute('aria-controls')).toBe(listbox.id)
@@ -60,7 +60,7 @@ describe('CommandPalette', () => {
   test('keeps explicit input naming ahead of the placeholder fallback', () => {
     const labelled = render(() => (
       <CommandPalette
-        groups={[]}
+        items={[]}
         autofocus={false}
         inputProps={{ 'aria-labelledby': 'search-title' }}
       />
@@ -72,7 +72,7 @@ describe('CommandPalette', () => {
 
     const named = render(() => (
       <CommandPalette
-        groups={[]}
+        items={[]}
         autofocus={false}
         inputProps={{ 'aria-label': 'Find a command' }}
       />
@@ -84,7 +84,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autofocus={false}
-        groups={[{ id: 'actions', items: [{ value: 'run', label: 'Run' }] }]}
+        items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
         virtualizer={{
           scrollToIndex: () => {},
           virtualRender: (context) => (
@@ -119,7 +119,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autofocus={false}
-        groups={[{ id: 'actions', items: [item()] }]}
+        items={[{ type: 'group', items: [item()] }]}
         onSelect={onSelect}
         itemRender={(context) => (
           <span>
@@ -157,7 +157,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autofocus={false}
-        groups={[{ id: 'actions', items: [{ value: 'run', label: 'Run' }] }]}
+        items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
         onSelect={select}
         listboxProps={{ id: 'wrong', role: 'menu', 'data-slot': 'wrong-list' }}
         itemProps={() => ({
@@ -190,7 +190,7 @@ describe('CommandPalette', () => {
       <CommandPalette
         ref={(el) => (rootRef = el)}
         inputRef={(el) => (inputRef = el)}
-        groups={GROUPS}
+        items={GROUPS}
       />
     ))
     await waitFor(() => {
@@ -199,7 +199,7 @@ describe('CommandPalette', () => {
     })
   })
   test('focuses the standalone input without a native autofocus attribute', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    render(() => <CommandPalette items={GROUPS} />)
 
     await waitFor(() => {
       const input = document.body.querySelector(
@@ -213,7 +213,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders the search input, group labels, items, and per-item leading and trailing content', () => {
-    render(() => <CommandPalette groups={GROUPS} autofocus={false} />)
+    render(() => <CommandPalette items={GROUPS} autofocus={false} />)
 
     expect(body().getByPlaceholderText('Search...')).toBeTruthy()
     expect(body().getByRole('group', { name: 'Actions' })).toBeTruthy()
@@ -231,7 +231,7 @@ describe('CommandPalette', () => {
   test('filters as the user types, reports the term, and shows the empty state without matches', () => {
     const onSearchValueChange = vi.fn()
     render(() => (
-      <CommandPalette groups={GROUPS} autofocus={false} onSearchValueChange={onSearchValueChange} />
+      <CommandPalette items={GROUPS} autofocus={false} onSearchValueChange={onSearchValueChange} />
     ))
     const input = body().getByRole('combobox')
 
@@ -251,7 +251,7 @@ describe('CommandPalette', () => {
 
   test('keeps a controlled searchValue until the parent updates it', () => {
     const [term, setTerm] = createSignal('settings')
-    render(() => <CommandPalette groups={GROUPS} autofocus={false} searchValue={term()} />)
+    render(() => <CommandPalette items={GROUPS} autofocus={false} searchValue={term()} />)
     const input = body().getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('settings')
@@ -266,7 +266,7 @@ describe('CommandPalette', () => {
 
   test('moves the highlight through enabled commands with wrapping and ignores disabled ones', () => {
     const onSelect = vi.fn()
-    render(() => <CommandPalette groups={GROUPS} autofocus={false} onSelect={onSelect} />)
+    render(() => <CommandPalette items={GROUPS} autofocus={false} onSelect={onSelect} />)
     const input = body().getByRole('combobox')
     const active = () => document.getElementById(input.getAttribute('aria-activedescendant')!)
 
@@ -293,7 +293,7 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [selectedItem] }]}
+        items={[{ type: 'group', items: [selectedItem] }]}
         onSelect={onSelect}
         onClose={onClose}
       />
@@ -313,7 +313,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
         onSelect={onSelect}
       />
@@ -351,7 +351,7 @@ describe('CommandPalette', () => {
   test('preserves caller pointerdown cancellation', () => {
     render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         itemProps={() => ({ onPointerDown: (event) => event.preventDefault() })}
       />
     ))
@@ -375,7 +375,7 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
         onSelect={onSelect}
         onClose={onClose}
@@ -397,9 +397,9 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'first', label: 'First' },
               { value: 'second', label: 'Second' },
@@ -425,7 +425,7 @@ describe('CommandPalette', () => {
     const onCompositionEnd = vi.fn()
     const screen = render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         filterMethod={false}
         onSelect={onSelect}
         onClose={onClose}
@@ -477,7 +477,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     const screen = render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         onSelect={onSelect}
       />
     ))
@@ -503,7 +503,7 @@ describe('CommandPalette', () => {
   test('does not filter on partial IME composition', () => {
     const onSearchValueChange = vi.fn()
     const screen = render(() => (
-      <CommandPalette groups={GROUPS} onSearchValueChange={onSearchValueChange} />
+      <CommandPalette items={GROUPS} onSearchValueChange={onSearchValueChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.compositionStart(input)
@@ -516,7 +516,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps Home and End on the search caret', () => {
-    const screen = render(() => <CommandPalette groups={GROUPS} />)
+    const screen = render(() => <CommandPalette items={GROUPS} />)
     const input = screen.getByRole('combobox')
     fireEvent.keyDown(input, { key: 'ArrowDown' })
     const highlighted = () =>
@@ -540,7 +540,7 @@ describe('CommandPalette', () => {
         loadingIcon="icon-reload"
         closeIcon="icon-minus"
         loading={loading()}
-        groups={GROUPS}
+        items={GROUPS}
       />
     ))
     const leading = () =>
@@ -561,13 +561,13 @@ describe('CommandPalette', () => {
   test('shows a close button only when closable and reports clicks through onClose', () => {
     const onClose = vi.fn()
     const closable = render(() => (
-      <CommandPalette groups={GROUPS} autofocus={false} closable onClose={onClose} />
+      <CommandPalette items={GROUPS} autofocus={false} closable onClose={onClose} />
     ))
     fireEvent.click(closable.getByRole('button', { name: 'Close' }))
     expect(onClose).toHaveBeenCalledTimes(1)
     closable.unmount()
 
-    const plain = render(() => <CommandPalette groups={GROUPS} autofocus={false} />)
+    const plain = render(() => <CommandPalette items={GROUPS} autofocus={false} />)
     expect(plain.queryByRole('button', { name: 'Close' })).toBeNull()
   })
 
@@ -581,7 +581,7 @@ describe('CommandPalette', () => {
         </Dialog.Trigger>
         <Dialog.Content>
           <Dialog.Body>
-            <CommandPalette groups={GROUPS} closable onClose={() => setOpen(false)} />
+            <CommandPalette items={GROUPS} closable onClose={() => setOpen(false)} />
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -608,7 +608,7 @@ describe('CommandPalette', () => {
   })
 
   test('disabled item has data-disabled attribute', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    render(() => <CommandPalette items={GROUPS} />)
 
     await waitFor(() => {
       const items = document.body.querySelectorAll('[data-slot="command-palette-item"]')
@@ -618,7 +618,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders custom placeholder', async () => {
-    render(() => <CommandPalette groups={GROUPS} placeholder="Type a command..." />)
+    render(() => <CommandPalette items={GROUPS} placeholder="Type a command..." />)
 
     await waitFor(() => {
       expect(body().getByPlaceholderText('Type a command...')).toBeTruthy()
@@ -630,7 +630,7 @@ describe('CommandPalette', () => {
       <CommandPalette
         autofocus={false}
         closable
-        groups={GROUPS}
+        items={GROUPS}
         classes={{
           root: 'user-root',
           inputWrapper: 'user-input-wrapper',
@@ -671,7 +671,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autofocus={false}
-        groups={[]}
+        items={[]}
         classes={{ empty: 'user-empty' }}
         styles={{ empty: { width: '200px' } }}
       />
@@ -687,9 +687,9 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'dup', label: 'First' },
               { value: 'dup', label: 'Second' },
@@ -712,7 +712,7 @@ describe('CommandPalette', () => {
   test('renders footerRender and emptyRender with current state', async () => {
     render(() => (
       <CommandPalette
-        groups={[]}
+        items={[]}
         searchValue="missing"
         emptyRender={(ctx) => <span>Empty {ctx.searchValue}</span>}
         footerRender={(ctx) => <span>Groups {ctx.groups.length}</span>}
@@ -726,7 +726,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps the list unchanged on Backspace with an empty input', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    render(() => <CommandPalette items={GROUPS} />)
 
     const input = body().getByPlaceholderText('Search...')
     fireEvent.keyDown(input, { key: 'Backspace' })
@@ -740,7 +740,7 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to footerRender', async () => {
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         searchValue="Settings"
         footerRender={(ctx) => (
           <span>Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}</span>
@@ -756,7 +756,7 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to emptyRender', async () => {
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         searchValue="missing"
         emptyRender={(ctx) => (
           <span>
@@ -774,7 +774,9 @@ describe('CommandPalette', () => {
   test('supports custom itemRender with runtime item context', async () => {
     render(() => (
       <CommandPalette
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', description: 'Run it' }] }]}
+        items={[
+          { type: 'group', items: [{ value: 'action', label: 'Action', description: 'Run it' }] },
+        ]}
         itemRender={(ctx) => (
           <span data-testid="custom-item">
             {ctx.item.label}:{ctx.item.description}:{ctx.highlighted ? 'highlighted' : 'idle'}
@@ -791,7 +793,7 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to itemRender', async () => {
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         searchValue="Settings"
         itemRender={(ctx) => (
           <span data-testid="visible-groups">
@@ -813,15 +815,16 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette<CustomItem>
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
+            label: 'g',
             items: [{ value: 'action', label: 'Action', route: '/docs/action' }],
           },
         ]}
         itemRender={(ctx) => (
           <span data-testid="typed-item">
-            {ctx.group.id}:{ctx.item.route}
+            {ctx.group.label}:{ctx.item.route}
           </span>
         )}
       />
@@ -844,9 +847,9 @@ describe('CommandPalette', () => {
       >
         <CommandPalette
           descriptionPosition={descriptionPosition()}
-          groups={[
+          items={[
             {
-              id: 'g',
+              type: 'group',
               items: [{ value: 'item', label: 'Item', description: 'Description' }],
             },
           ]}
@@ -876,9 +879,9 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         searchValue="run"
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               {
                 value: 'run',
@@ -908,7 +911,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies combobox and active descendant accessibility attributes', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    render(() => <CommandPalette items={GROUPS} />)
 
     await waitFor(() => {
       const input = body().getByPlaceholderText('Search...')
@@ -931,7 +934,7 @@ describe('CommandPalette', () => {
     const scrollToIndex = vi.fn()
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         virtualizer={{
           scrollToIndex: (index) => {
             scrollToIndex(index)
@@ -970,7 +973,7 @@ describe('CommandPalette', () => {
   test('renders virtual group labels with virtual row props', async () => {
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         virtualizer={{
           scrollToIndex: () => {},
           virtualRender: (context) => {
@@ -1000,9 +1003,9 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         searchValue="alias"
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'run', label: 'Run', description: 'Visible by description' },
               { value: 'docs', label: 'Docs', keywords: ['alias'] },
@@ -1022,9 +1025,9 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         searchValue="description"
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'run', label: 'Run', description: 'Visible by description' },
               { value: 'docs', label: 'Docs' },
@@ -1045,9 +1048,9 @@ describe('CommandPalette', () => {
       <CommandPalette
         searchValue="custom-hit"
         getItemLabel={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'first', label: 'First' },
               { value: 'second', label: 'Second' },
@@ -1067,7 +1070,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         searchValue="nav"
-        groups={GROUPS}
+        items={GROUPS}
         filterMethod={(query, item) => item.value === 'go-dashboard' && query === 'nav'}
         footerRender={(ctx) => <span>Visible {ctx.visibleGroups.length}</span>}
       />
@@ -1088,9 +1091,9 @@ describe('CommandPalette', () => {
         searchValue={method === 'startsWith' ? 'alp' : 'ta'}
         filterMethod={method}
         getItemLabel={(item) => item.label ?? item.value}
-        groups={[
+        items={[
           {
-            id: 'g',
+            type: 'group',
             items: [
               { value: 'a', label: 'Alpha' },
               { value: 'b', label: 'Beta' },
@@ -1107,7 +1110,7 @@ describe('CommandPalette', () => {
   })
 
   test('skips filtering when filterMethod is false', async () => {
-    render(() => <CommandPalette groups={GROUPS} searchValue="missing" filterMethod={false} />)
+    render(() => <CommandPalette items={GROUPS} searchValue="missing" filterMethod={false} />)
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
@@ -1119,7 +1122,7 @@ describe('CommandPalette', () => {
     const itemRef = vi.fn()
     render(() => (
       <CommandPalette
-        groups={GROUPS}
+        items={GROUPS}
         inputProps={{
           name: 'command-search',
           'aria-label': 'Command Search',

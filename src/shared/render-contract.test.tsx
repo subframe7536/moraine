@@ -121,7 +121,7 @@ describe('render and polymorphic contracts', () => {
       'CommandPalette',
       (props: { renderer: () => JSX.Element }) => (
         <CommandPalette
-          groups={[{ id: 'g', items: [{ value: 'x' }, { value: 'y' }] }]}
+          items={[{ type: 'group', items: [{ value: 'x' }, { value: 'y' }] }]}
           itemRender={props.renderer}
         />
       ),

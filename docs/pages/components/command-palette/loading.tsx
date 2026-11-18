@@ -4,7 +4,7 @@ import type { CommandPaletteT } from '@src'
 export function Loading() {
   const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
-      id: 'workspace',
+      type: 'group',
       label: 'Workspace',
       items: [
         {
@@ -31,7 +31,7 @@ export function Loading() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette groups={BASIC_GROUPS} autofocus={false} loading />
+      <CommandPalette items={BASIC_GROUPS} autofocus={false} loading />
     </div>
   )
 }

@@ -73,14 +73,14 @@ export function buildDocsCommandItems(
 
   const groups: CommandPaletteT.Group<DocsCommandItem>[] = [
     {
-      id: 'pages',
+      type: 'group',
       label: 'Pages',
       items: pageItems,
     },
   ]
   if (sectionItems.length > 0) {
     groups.push({
-      id: 'sections',
+      type: 'group',
       label: 'Sections',
       items: sectionItems,
     })
@@ -219,7 +219,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         <Dialog.Body class="mb-0 p-0">
           <CommandPalette<DocsCommandItem>
             class="border-0 rounded-none bg-transparent shadow-none"
-            groups={items()}
+            items={items()}
             placeholder="Search components, hooks, and pages..."
             searchValue={searchValue()}
             onSearchValueChange={setSearchValue}

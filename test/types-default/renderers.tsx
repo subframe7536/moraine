@@ -68,9 +68,9 @@ import {
 ;<CommandPalette
   emptyRender={<span />}
   footerRender={<span />}
-  groups={[
+  items={[
     {
-      id: 'commands',
+      type: 'group',
       items: [{ value: 'save', leadingRender: <span />, trailingRender: <span /> }],
     },
   ]}

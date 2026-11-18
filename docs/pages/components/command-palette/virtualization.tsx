@@ -3,7 +3,7 @@ import type { CommandPaletteT } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
 
 const GROUPS: CommandPaletteT.Group[] = ['Files', 'Symbols'].map((label) => ({
-  id: label.toLowerCase(),
+  type: 'group',
   label,
   items: Array.from({ length: 5_000 }, (_, index) => ({
     value: `${label.toLowerCase()}-${index}`,
@@ -23,7 +23,7 @@ export function Virtualization() {
       <CommandPalette
         autofocus={false}
         placeholder="Search 10,000 commands..."
-        groups={GROUPS}
+        items={GROUPS}
         virtualizer={virtualizer}
         classes={{ listbox: 'h-72' }}
       />

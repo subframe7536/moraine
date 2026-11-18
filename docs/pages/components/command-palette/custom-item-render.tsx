@@ -8,7 +8,7 @@ interface TeamCommand extends CommandPaletteT.Item {
 
 const GROUPS: CommandPaletteT.Group<TeamCommand>[] = [
   {
-    id: 'projects',
+    type: 'group',
     label: 'Projects',
     items: [
       {
@@ -33,7 +33,7 @@ export function CustomItemRender() {
   return (
     <div class="max-w-full w-lg">
       <CommandPalette<TeamCommand>
-        groups={GROUPS}
+        items={GROUPS}
         autofocus={false}
         itemRender={(ctx) => (
           <div class="flex flex-1 gap-3 min-w-0 items-center">

@@ -5,7 +5,7 @@ import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
 const GROUPS = [
   {
-    id: 'workspace',
+    type: 'group',
     label: 'Workspace Actions',
     items: [
       {
@@ -29,7 +29,7 @@ const GROUPS = [
     ],
   },
   {
-    id: 'navigation',
+    type: 'group',
     label: 'Navigation',
     items: [
       {
@@ -59,7 +59,7 @@ export default function CommandPalettePlayground() {
       {(props) => (
         <div class="border border-border/60 rounded-xl bg-card/40 max-w-full w-lg shadow-xs overflow-hidden">
           <CommandPalette
-            groups={GROUPS}
+            items={GROUPS}
             placeholder="Search commands or pages..."
             loading={props.loading}
             autofocus={false}

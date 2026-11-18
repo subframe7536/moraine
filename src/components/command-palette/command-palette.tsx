@@ -43,6 +43,8 @@ interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.It
 }
 
 interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
+  /** Positional identifier; the public `Group` has none. */
+  id: string
   source: CommandPaletteT.Group<TItem>
   label: string
   items: NormalizedItem<TItem>[]
@@ -65,6 +67,36 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
     .join(' ')
 }
 
+function isGroup<TItem extends CommandPaletteT.Item>(
+  entry: CommandPaletteT.Entry<TItem>,
+): entry is CommandPaletteT.Group<TItem> {
+  return (entry as CommandPaletteT.Group<TItem>).type === 'group'
+}
+
+/** Collects each run of loose items into one unlabelled group, so every item has a group. */
+function toGroups<TItem extends CommandPaletteT.Item>(
+  entries: CommandPaletteT.Entry<TItem>[],
+): CommandPaletteT.Group<TItem>[] {
+  const groups: CommandPaletteT.Group<TItem>[] = []
+  let loose: TItem[] | undefined
+
+  for (const entry of entries) {
+    if (isGroup(entry)) {
+      loose = undefined
+      groups.push(entry)
+      continue
+    }
+
+    if (!loose) {
+      loose = []
+      groups.push({ type: 'group', items: loose })
+    }
+    loose.push(entry)
+  }
+
+  return groups
+}
+
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
   getItemLabel: ((item: TItem) => string) | undefined,
@@ -73,18 +105,19 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   const seenValues = new Set<string>()
   const seenKeys = new Set<string>()
 
-  const createItemKey = (value: string, groupId: string, itemIndex: number): string => {
+  const createItemKey = (value: string, groupIndex: number, itemIndex: number): string => {
     if (!seenKeys.has(value)) {
       seenKeys.add(value)
       return value
     }
 
-    const key = `${value}::${groupId}:${itemIndex}`
+    const key = `${value}::${groupIndex}:${itemIndex}`
     seenKeys.add(key)
     return key
   }
 
-  return groups.map((group) => ({
+  return groups.map((group, groupIndex) => ({
+    id: `group-${groupIndex}`,
     source: group,
     label: group.label ?? '',
     items: (group.items ?? []).map((item, index) => {
@@ -96,7 +129,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       const label = buildItemLabel(item)
 
       return {
-        key: createItemKey(item.value, group.id, index),
+        key: createItemKey(item.value, groupIndex, index),
         label,
         searchText: buildItemSearchText(item, getItemLabel),
         disabled: Boolean(item.disabled),
@@ -111,9 +144,9 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 /**
  * Searchable list of commands or navigation targets, optionally grouped, shown on an inline
  * surface with keyboard navigation. The application decides when to open it and registers any
- * global shortcut; wrap it in `Dialog` or `Modal` for a focused overlay, which also owns Escape
+ * global shortcut; wrap it in `Dialog` or `BaseDialog` for a focused overlay, which also owns Escape
  * dismissal. Use `NavigationMenu` for persistent site destinations. It filters the supplied
- * `groups` and calls `onSelect` or the item's own `onSelect`.
+ * `items` and calls `onSelect` or the item's own `onSelect`.
  *
  * @example
  * ```tsx
@@ -121,9 +154,9 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
  *
  * <CommandPalette
  *   placeholder="Find a page..."
- *   groups={[
+ *   items={[
  *     {
- *       id: 'pages',
+ *       type: 'group',
  *       label: 'Pages',
  *       items: [
  *         { value: 'settings', label: 'Settings' },
@@ -142,7 +175,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
-    'groups',
+    'items',
     'placeholder',
     'searchValue',
     'defaultSearchValue',
@@ -287,7 +320,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }),
   )
 
-  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
+  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => toGroups(merged.items ?? []))
 
   const normalizedGroups = createMemo(() =>
     createNormalizedGroups<TItem>(groups(), merged.getItemLabel, warnDuplicateValue),
@@ -325,7 +358,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       if (group.label) {
         entries.push({
           type: 'label',
-          key: `group-${group.source.id}`,
+          key: group.id,
           label: group.label,
           group: group.source,
         })
@@ -708,7 +741,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function GroupRow(props: ListT.ItemRenderProps<NormalizedGroup<TItem>>): JSX.Element {
-    const groupLabelId = () => `${listboxId()}-group-${props.item.source.id}-label`
+    const groupLabelId = () => `${listboxId()}-${props.item.id}-label`
     return (
       <div
         role="group"

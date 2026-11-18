@@ -118,8 +118,8 @@ describe('localized component text', () => {
           commandPalette: { placeholder: 'Chercher', close: 'Fermer', empty: 'Rien' },
         }}
       >
-        <CommandPalette groups={[]} autofocus={false} closable placeholder="Find" />
-        <CommandPalette groups={[]} autofocus={false} />
+        <CommandPalette items={[]} autofocus={false} closable placeholder="Find" />
+        <CommandPalette items={[]} autofocus={false} />
       </MoraineProvider>
     ))
 
@@ -401,7 +401,7 @@ describe('component translations prop', () => {
       <>
         <Breadcrumb items={[{ label: 'Home' }]} translations={{ label: 'Path' }} />
         <CommandPalette
-          groups={[]}
+          items={[]}
           autofocus={false}
           translations={{ placeholder: 'Type command...' }}
         />

@@ -56,7 +56,7 @@ Group labels and items flatten into sibling rows when virtualized. With `descrip
 
 Use CommandPalette for searchable commands or navigation targets on an inline surface. The
 application decides when to open it and registers any global shortcut. Wrap it in a
-[Dialog](/components/dialog) or [Modal](/components/modal) when the palette should occupy a focused
+[Dialog](/components/dialog) or [BaseDialog](/components/base-dialog) when the palette should occupy a focused
 overlay; the wrapper also owns Escape dismissal. Use [NavigationMenu](/components/navigation-menu)
 for persistent site destinations.
 
@@ -66,7 +66,7 @@ import { CommandPalette } from 'moraine'
 export function Example() {
   return (
     <CommandPalette
-      groups={[{ id: 'pages', label: 'Pages', items: [{ value: 'settings', label: 'Settings' }] }]}
+      items={[{ type: 'group', label: 'Pages', items: [{ value: 'settings', label: 'Settings' }] }]}
     />
   )
 }
@@ -74,7 +74,7 @@ export function Example() {
 
 ### Groups, filtering, and selection
 
-Pass groups and items from application state. The palette filters the supplied collection and calls
+Pass items and groups from application state. The palette filters the supplied collection and calls
 the item's `onSelect`, then the palette's `onSelect`. Fetching commands, routing, and global
 shortcuts stay with the application. The default `filterMethod` is `'contains'`; it matches the
 item's label, value, description, and `keywords` ignoring case and accents. Pass `'startsWith'`,
@@ -84,13 +84,13 @@ filter the collection. Set `alwaysShow` on an item to keep it visible for any qu
 ```tsx
 <CommandPalette
   placeholder="Find a workspace section..."
-  groups={COMMAND_GROUPS}
+  items={COMMAND_GROUPS}
   onSelect={(item) => setSection(item.value)}
 />
 ```
 
 By default, selecting an enabled item also calls `onClose`. The palette never hides itself: use
-`onClose` to close the surrounding Dialog or Modal. Set `closable` to show a close button that calls
+`onClose` to close the surrounding Dialog or BaseDialog. Set `closable` to show a close button that calls
 `onClose`. The search input takes focus on mount unless the palette sits inside an element with
 `role="dialog"`; set `autofocus={false}` to disable it. Control the query with `searchValue` and
 `onSearchValueChange`, or start from `defaultSearchValue`.
@@ -105,14 +105,14 @@ and items stay selectable.
 
 ```tsx
 <CommandPalette
-  groups={groups}
+  items={groups}
   itemRender={(ctx) => <span>{ctx.item.label}</span>}
   emptyRender={() => <p>No commands found.</p>}
   loading={isLoading()}
 />
 ```
 
-Sub-navigation is a short, deliberate branch of commands. Swap the `groups` prop from application
+Sub-navigation is a short, deliberate branch of commands. Swap the `items` prop from application
 state rather than treating the palette as an application shell. Set `closeOnSelect={false}` while
 the branch stays open.
 
@@ -125,7 +125,7 @@ the branch stays open.
 | <kbd>Enter</kbd>     | Selects the highlighted command.         |
 
 Focus stays in the search input while the highlight moves. Navigation wraps from the last command to
-the first. Escape and other dismissal keys belong to the enclosing Dialog or Modal, not the
+the first. Escape and other dismissal keys belong to the enclosing Dialog or BaseDialog, not the
 palette.
 
 ## Examples
@@ -170,7 +170,7 @@ The listbox keeps its default bounded height, so the virtual range stays stable 
 
 ### Drill into Create or Share
 
-Swap `groups` to open a short command branch. Keep selection from closing the palette until the
+Swap `items` to open a short command branch. Keep selection from closing the palette until the
 user finishes or goes back.
 
 <Preview path="./sub-navigation" />

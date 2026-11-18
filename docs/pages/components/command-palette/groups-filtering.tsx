@@ -4,7 +4,7 @@ import { createSignal } from 'solid-js'
 
 const COMMAND_GROUPS: CommandPaletteT.Group[] = [
   {
-    id: 'workspace',
+    type: 'group',
     label: 'Workspace sections',
     items: [
       {
@@ -37,7 +37,7 @@ export function GroupsFiltering() {
       <CommandPalette
         autofocus={false}
         placeholder="Find a workspace section..."
-        groups={COMMAND_GROUPS}
+        items={COMMAND_GROUPS}
         onSelect={(item) => setSection(item.value)}
       />
       <p class="text-sm">Current section: {section()}</p>

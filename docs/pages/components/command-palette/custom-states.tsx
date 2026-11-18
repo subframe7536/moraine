@@ -6,7 +6,7 @@ export function CustomStates() {
       <CommandPalette
         autofocus={false}
         placeholder="Search empty query..."
-        groups={[]}
+        items={[]}
         emptyRender={() => (
           <p class="text-xs text-muted-foreground p-6 text-center">
             No commands found matching your query.

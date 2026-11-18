@@ -98,20 +98,20 @@
           "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
           "description": "Content or render function shown instead of the listbox rows when no item is visible\n(no groups, or none matches the search). The default is the localized `empty` message.\nA function receives the search text and loading state.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[]}\n  emptyRender={(state) => <p>No command matches \"{state.searchValue}\".</p>}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[]}\n  emptyRender={(state) => <p>No command matches \"{state.searchValue}\".</p>}\n/>"
           ]
         },
         {
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "Filtering strategy applied to the trimmed search text. The built-in strategies match the\nitem's search text (see `getItemLabel`) ignoring case and accents, using the active\nlocale. A predicate receives the trimmed query and the item, and returns whether to\nkeep it; it is not called for an empty query. `false` disables filtering, for example\nwhen you filter `groups` yourself. Items with `alwaysShow` stay visible.",
+          "description": "Filtering strategy applied to the trimmed search text. The built-in strategies match the\nitem's search text (see `getItemLabel`) ignoring case and accents, using the active\nlocale. A predicate receives the trimmed query and the item, and returns whether to\nkeep it; it is not called for an empty query. `false` disables filtering, for example\nwhen you filter `items` yourself. Items with `alwaysShow` stay visible.",
           "default": {
             "kind": "literal",
             "value": "contains"
           },
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[{ id: 'a', items: [{ value: 'open-file', label: 'Open file' }] }]}\n  filterMethod={(query, item) =>\n    item.value.split('-').some((part) => part.startsWith(query.toLowerCase()))\n  }\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open-file', label: 'Open file' }]}\n  filterMethod={(query, item) =>\n    item.value.split('-').some((part) => part.startsWith(query.toLowerCase()))\n  }\n/>"
           ]
         },
         {
@@ -120,7 +120,7 @@
           "type": "JSX.Element | Component<FooterRenderProps<TItem>>",
           "description": "Content or render function for a footer below the list, such as keyboard hints. Nothing is\nrendered when unset. A function receives the search text, loading state, and the groups.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[]}\n  footerRender={(state) => <span>{state.visibleGroups.length} groups shown</span>}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[]}\n  footerRender={(state) => <span>{state.visibleGroups.length} groups shown</span>}\n/>"
           ]
         },
         {
@@ -129,21 +129,7 @@
           "type": "(item: TItem) => string",
           "description": "Plain-text label of an item, used only by the built-in filter (`filterMethod` strings);\nit does not change rendered labels. Replaces the default, which is the label, value,\ndescription, and keywords joined by spaces.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[{ id: 'a', items: [{ value: 'open', label: 'Open', keywords: ['launch'] }] }]}\n  getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}\n/>"
-          ]
-        },
-        {
-          "name": "groups",
-          "optional": true,
-          "type": "Group<TItem>[]",
-          "typeDetails": "({\n  /** Identifier of the group, unique within `groups`. Not displayed. */\n  id: string;\n  /** Header shown above the group's items. Without it the items render with no header. */\n  label?: string;\n  /** Items in this group. While searching, a group with no matching items is hidden. */\n  items?: ({\n    /** Identifier of the item, unique across all groups. It is also the displayed label when\n  `label` is empty and part of the default search text. Duplicates still render but log a\n  warning in development. */\n    value: string;\n    /** Primary label shown for the item. Falls back to `value`. */\n    label?: string;\n    /** Secondary text shown for the item, below or after the label depending on the\n  `descriptionPosition` variant. Part of the default search text. */\n    description?: string;\n    /** Extra search terms that are not displayed, such as synonyms. They are matched by the\n  built-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function. */\n    keywords?: string[];\n    /** Content or render function shown before the label, such as an icon. Receives the row state.\n  Ignored when the palette sets `itemRender`. */\n    leadingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\n  the row state. Ignored when the palette sets `itemRender`. */\n    trailingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\n  still displayed and marked `aria-disabled`. */\n    disabled?: boolean;\n    /** Keeps the item visible while the search text filters the list, even when it does not\n  match, for entries like \"Search the docs for...\". */\n    alwaysShow?: boolean;\n    /** Called, without arguments, when the item is selected by click or Enter. It runs before the\n  palette's `onSelect` and `onClose`. Not called for disabled items. */\n    onSelect?: () => void;\n  })[];\n})[]",
-          "description": "Commands to display, in order, optionally split into labelled groups. The search text\nfilters them according to `filterMethod`; the list is reactive to changes of this prop.",
-          "default": {
-            "kind": "expression",
-            "text": "[]"
-          },
-          "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[\n    {\n      id: 'file',\n      label: 'File',\n      items: [\n        { value: 'new', label: 'New file', keywords: ['create'], onSelect: () => {} },\n        { value: 'save', label: 'Save', description: 'Write to disk', disabled: true },\n      ],\n    },\n  ]}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open', label: 'Open', keywords: ['launch'] }]}\n  getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}\n/>"
           ]
         },
         {
@@ -164,7 +150,7 @@
           "type": "(context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined",
           "description": "Function returning additional attributes for a command row (the `option` element). It is\ncalled per row with the row state. Event handlers run before the built-in ones, and\ncalling `event.preventDefault()` in them skips the built-in behavior. `id`, `role`, and\n`aria-selected` are managed by the palette.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[{ id: 'a', items: [{ value: 'open', description: 'Open a file' }] }]}\n  itemProps={(row) => ({ title: row.item.description })}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open', description: 'Open a file' }]}\n  itemProps={(row) => ({ title: row.item.description })}\n/>"
           ]
         },
         {
@@ -173,7 +159,21 @@
           "type": "Component<ItemRenderProps<TItem>>",
           "description": "Renders the content of every command row instead of the default leading, label,\ndescription, and trailing layout (the items' `leadingRender` and `trailingRender` are then\nignored). The row element itself, with its `option` role, highlight, and click handling,\nstays. Receives the item, its group, and `highlighted`/`disabled` state.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  groups={[{ id: 'a', items: [{ value: 'open', label: 'Open' }] }]}\n  itemRender={(row) => (\n    <strong>{row.highlighted ? '> ' : ''}{row.item.label ?? row.item.value}</strong>\n  )}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open', label: 'Open' }]}\n  itemRender={(row) => (\n    <strong>{row.highlighted ? '> ' : ''}{row.item.label ?? row.item.value}</strong>\n  )}\n/>"
+          ]
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "Entry<TItem>[]",
+          "typeDetails": "({\n  /** Identifier of the item, unique across all groups. It is also the displayed label when\n`label` is empty and part of the default search text. Duplicates still render but log a\nwarning in development. */\n  value: string;\n  /** Primary label shown for the item. Falls back to `value`. */\n  label?: string;\n  /** Secondary text shown for the item, below or after the label depending on the\n`descriptionPosition` variant. Part of the default search text. */\n  description?: string;\n  /** Extra search terms that are not displayed, such as synonyms. They are matched by the\nbuilt-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function. */\n  keywords?: string[];\n  /** Content or render function shown before the label, such as an icon. Receives the row state.\nIgnored when the palette sets `itemRender`. */\n  leadingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\nthe row state. Ignored when the palette sets `itemRender`. */\n  trailingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\nstill displayed and marked `aria-disabled`. */\n  disabled?: boolean;\n  /** Keeps the item visible while the search text filters the list, even when it does not\nmatch, for entries like \"Search the docs for...\". */\n  alwaysShow?: boolean;\n  /** Called, without arguments, when the item is selected by click or Enter. It runs before the\npalette's `onSelect` and `onClose`. Not called for disabled items. */\n  onSelect?: () => void;\n} | {\n  /** Marks the entry as a group of items. */\n  type: 'group';\n  /** Header shown above the group's items. Without it the items render with no header. */\n  label?: string;\n  /** Items in this group. While searching, a group with no matching items is hidden. */\n  items?: ({\n    /** Identifier of the item, unique across all groups. It is also the displayed label when\n  `label` is empty and part of the default search text. Duplicates still render but log a\n  warning in development. */\n    value: string;\n    /** Primary label shown for the item. Falls back to `value`. */\n    label?: string;\n    /** Secondary text shown for the item, below or after the label depending on the\n  `descriptionPosition` variant. Part of the default search text. */\n    description?: string;\n    /** Extra search terms that are not displayed, such as synonyms. They are matched by the\n  built-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function. */\n    keywords?: string[];\n    /** Content or render function shown before the label, such as an icon. Receives the row state.\n  Ignored when the palette sets `itemRender`. */\n    leadingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\n  the row state. Ignored when the palette sets `itemRender`. */\n    trailingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\n  still displayed and marked `aria-disabled`. */\n    disabled?: boolean;\n    /** Keeps the item visible while the search text filters the list, even when it does not\n  match, for entries like \"Search the docs for...\". */\n    alwaysShow?: boolean;\n    /** Called, without arguments, when the item is selected by click or Enter. It runs before the\n  palette's `onSelect` and `onClose`. Not called for disabled items. */\n    onSelect?: () => void;\n  })[];\n})[]",
+          "description": "Commands to display, in order: command objects and `{ type: 'group', label, items }` groups.\nConsecutive commands outside a group render together without a header. The search text\nfilters them according to `filterMethod`; the list is reactive to changes of this prop.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          },
+          "examples": [
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[\n    { value: 'home', label: 'Home' },\n    {\n      type: 'group',\n      label: 'File',\n      items: [\n        { value: 'new', label: 'New file', keywords: ['create'], onSelect: () => {} },\n        { value: 'save', label: 'Save', description: 'Write to disk', disabled: true },\n      ],\n    },\n  ]}\n/>"
           ]
         },
         {
@@ -196,7 +196,7 @@
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the palette is loading, for example while `groups` are fetched. Swaps the leading\nicon for `loadingIcon`; items stay visible and selectable.",
+          "description": "Whether the palette is loading, for example while `items` are fetched. Swaps the leading\nicon for `loadingIcon`; items stay visible and selectable.",
           "default": {
             "kind": "literal",
             "value": false
@@ -216,7 +216,7 @@
           "name": "onClose",
           "optional": true,
           "type": "() => void",
-          "description": "Called when the close button is clicked, and after an enabled item is selected when\n`closeOnSelect` is `true`. The palette does not hide itself: use it to close the\nsurrounding `Dialog`, `Modal`, or your own container. Escape is not handled here."
+          "description": "Called when the close button is clicked, and after an enabled item is selected when\n`closeOnSelect` is `true`. The palette does not hide itself: use it to close the\nsurrounding `Dialog`, `BaseDialog`, or your own container. Escape is not handled here."
         },
         {
           "name": "onSearchValueChange",
@@ -272,7 +272,7 @@
           "type": "Translations",
           "description": "Overrides for this instance's built-in texts (`placeholder`, `close`, `empty`), merged over\nthe messages from `MoraineProvider`. The `placeholder` prop takes precedence over the\n`placeholder` translation.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  closable\n  groups={[]}\n  translations={{ placeholder: 'Type a command...', empty: 'Nothing found.', close: 'Dismiss' }}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  closable\n  items={[]}\n  translations={{ placeholder: 'Type a command...', empty: 'Nothing found.', close: 'Dismiss' }}\n/>"
           ]
         },
         {
