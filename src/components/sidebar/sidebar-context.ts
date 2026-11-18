@@ -25,6 +25,8 @@ export interface SidebarContext extends SidebarT.Context {
   /** Desktop panel element published by `Sidebar.Panel`; used by `Rail` for measuring. */
   panelElement: Accessor<HTMLElement | undefined>
   setPanelElement: (element: HTMLElement | undefined) => void
+  /** Registers the `id` of `Sidebar.Panel`; `undefined` falls back to the generated id. */
+  setPanelId: (id: string | undefined) => void
 }
 
 export const [SidebarProvider, useSidebarContext] =

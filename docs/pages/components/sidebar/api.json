@@ -45,7 +45,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean | 'desktop-only'",
-          "description": "Initial open state. `true` opens both layouts, `'desktop-only'` opens only the desktop\npanel, and `false` closes both. When omitted, the desktop panel starts expanded and the\nmobile drawer starts closed. Ignored while `open` is controlled."
+          "description": "Initial open state. Unlike `open`, which is a plain boolean for the active layout, this\naccepts `'desktop-only'` because the sidebar remembers uncontrolled state per layout:\n`true` opens both layouts, `'desktop-only'` opens only the desktop panel, and `false`\ncloses both. When omitted, the desktop panel starts expanded and the mobile drawer starts\nclosed. Ignored while `open` is controlled."
         },
         {
           "name": "defaultWidth",
@@ -102,12 +102,6 @@
           "optional": true,
           "type": "boolean",
           "description": "Controlled open state of the active layout: the desktop panel, or the mobile drawer when\nthe sidebar is mobile. Switching layouts does not write this value."
-        },
-        {
-          "name": "panelId",
-          "optional": true,
-          "type": "string",
-          "description": "Id applied to the panel and referenced by `aria-controls` on `Sidebar.Trigger` and\n`Sidebar.Rail`. A unique id is generated when omitted."
         },
         {
           "name": "side",
@@ -202,6 +196,12 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "DOM `id` of the panel, referenced by `aria-controls` on `Sidebar.Trigger` and\n`Sidebar.Rail`. A unique id is generated when omitted."
         },
         {
           "name": "ref",

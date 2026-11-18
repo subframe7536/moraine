@@ -1,5 +1,13 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createSignal, splitProps } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createRenderEffect,
+  createSignal,
+  on,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
@@ -34,7 +42,18 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'aria-label',
+    'children',
+    'class',
+    'id',
+    'style',
+    'ref',
+  ])
+  // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
+  createRenderEffect(on(() => local.id, context.setPanelId))
+  onCleanup(() => context.setPanelId(undefined))
   const content = resolveChildren(() => local.children)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())

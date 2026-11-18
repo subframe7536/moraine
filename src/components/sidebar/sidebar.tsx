@@ -72,7 +72,6 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'mobile',
     'onOpenChange',
     'open',
-    'panelId',
     'side',
     'styles',
     'style',
@@ -106,7 +105,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     },
   })
 
-  const panelId = createId(() => local.panelId, 'sidebar-panel')
+  const [panelIdProp, setPanelId] = createSignal<string>()
+  const panelId = createId(panelIdProp, 'sidebar-panel')
   const mediaMatches = createMediaQuery(
     () => `(max-width: ${local.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
     false,
@@ -173,6 +173,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     isMobile,
     state,
     panelId,
+    setPanelId,
     isOpen,
     setOpen,
     toggle: () => setOpen(!isOpen()),

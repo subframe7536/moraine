@@ -8,7 +8,7 @@ function FixtureContent() {
 
   return (
     <>
-      <Sidebar.Panel>
+      <Sidebar.Panel id="sidebar-fixture">
         <Sidebar.Header>
           <span>Header</span>
         </Sidebar.Header>
@@ -54,7 +54,7 @@ function FixtureContent() {
 
 export function renderSidebarFixture(): string {
   return renderToString(() => (
-    <Sidebar panelId="sidebar-fixture">
+    <Sidebar>
       <FixtureContent />
     </Sidebar>
   ))

@@ -11,7 +11,7 @@ function FixtureContent() {
 
   return (
     <>
-      <Sidebar.Panel>
+      <Sidebar.Panel id="sidebar-fixture">
         <Sidebar.Header>
           <span>Header</span>
         </Sidebar.Header>
@@ -68,7 +68,7 @@ test('turns the server desktop markup into one drawer trigger on a mobile client
     '/src/components/sidebar/sidebar.ssr.fixture.tsx',
     'renderSidebarFixture',
     () => (
-      <Sidebar panelId="sidebar-fixture">
+      <Sidebar>
         <FixtureContent />
       </Sidebar>
     ),

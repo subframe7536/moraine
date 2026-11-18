@@ -92,8 +92,8 @@ describe('Sidebar', () => {
       return <span data-testid="sidebar-child">Navigation</span>
     }
     const screen = render(() => (
-      <Sidebar mobile={mobile()} panelId="unique-sidebar">
-        <Sidebar.Panel ref={ref}>
+      <Sidebar mobile={mobile()}>
+        <Sidebar.Panel id="unique-sidebar" ref={ref}>
           <Child />
         </Sidebar.Panel>
         <Sidebar.Inset>
@@ -1298,8 +1298,8 @@ describe('Sidebar landmarks', () => {
 
   test('Trigger aria-controls matches the panel id', () => {
     const screen = render(() => (
-      <Sidebar mobile={false} panelId="app-sidebar">
-        <Sidebar.Panel>Navigation</Sidebar.Panel>
+      <Sidebar mobile={false}>
+        <Sidebar.Panel id="app-sidebar">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1311,18 +1311,18 @@ describe('Sidebar landmarks', () => {
     expect(screen.container.querySelector('#app-sidebar')).not.toBeNull()
   })
 
-  test('Trigger aria-controls still resolves when a consumer passes a panel id', () => {
+  test('Trigger aria-controls resolves to a generated id when the panel sets none', () => {
     const screen = render(() => (
-      <Sidebar mobile={false} panelId="app-sidebar">
-        <Sidebar.Panel id="consumer-id">Navigation</Sidebar.Panel>
+      <Sidebar mobile={false}>
+        <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
       </Sidebar>
     ))
     const controlled = screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-controls')
-    expect(controlled).toBe('app-sidebar')
-    expect(screen.container.querySelector(`#${controlled}`)).toBe(panelOf(screen.container))
+    expect(controlled).toBeTruthy()
+    expect(screen.container.querySelector(`[id="${controlled}"]`)).toBe(panelOf(screen.container))
   })
 })
 

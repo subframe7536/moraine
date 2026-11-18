@@ -60,9 +60,11 @@ export namespace SidebarT {
      */
     open?: boolean
     /**
-     * Initial open state. `true` opens both layouts, `'desktop-only'` opens only the desktop
-     * panel, and `false` closes both. When omitted, the desktop panel starts expanded and the
-     * mobile drawer starts closed. Ignored while `open` is controlled.
+     * Initial open state. Unlike `open`, which is a plain boolean for the active layout, this
+     * accepts `'desktop-only'` because the sidebar remembers uncontrolled state per layout:
+     * `true` opens both layouts, `'desktop-only'` opens only the desktop panel, and `false`
+     * closes both. When omitted, the desktop panel starts expanded and the mobile drawer starts
+     * closed. Ignored while `open` is controlled.
      */
     defaultOpen?: boolean | 'desktop-only'
     /**
@@ -108,11 +110,6 @@ export namespace SidebarT {
      * @default 768
      */
     breakpoint?: number
-    /**
-     * Id applied to the panel and referenced by `aria-controls` on `Sidebar.Trigger` and
-     * `Sidebar.Rail`. A unique id is generated when omitted.
-     */
-    panelId?: string
     children?: JSX.Element
   }
 
@@ -132,6 +129,11 @@ export namespace SidebarT {
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element
     as?: T
+    /**
+     * DOM `id` of the panel, referenced by `aria-controls` on `Sidebar.Trigger` and
+     * `Sidebar.Rail`. A unique id is generated when omitted.
+     */
+    id?: string
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     /**
      * Accessible name of the panel: set on the desktop panel element and on the mobile drawer
