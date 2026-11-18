@@ -62,16 +62,30 @@ export function BaseSelectTrigger<
     slot: 'trigger',
     data: {
       trigger: baseSelectDataAttributes.trigger({
-        invalid: state.field.invalid,
+        invalid: state.invalid,
         expanded: state.open,
         closed: () => !state.open(),
-        disabled: () => Boolean(state.field.disabled() || local.disabled),
+        disabled: () => Boolean(state.disabled() || local.disabled),
       }),
     },
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
+  const presentation: BaseSelectT.TriggerRenderProps<TItem> = {
+    get open() {
+      return state.open()
+    },
+    get value() {
+      return state.value()
+    },
+    get disabled() {
+      return state.disabled()
+    },
+    get readOnly() {
+      return state.readOnly()
+    },
+  }
   const child = resolveChildren(() => local.children)
-  const resolvedChildren = createMemo(() => renderWithProps(child(), state.presentation))
+  const resolvedChildren = createMemo(() => renderWithProps(child(), presentation))
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
@@ -86,7 +100,7 @@ export function BaseSelectTrigger<
       callHandler(event, local.onPointerDown)
       if (
         !event.defaultPrevented &&
-        !state.field.disabled() &&
+        !state.disabled() &&
         event.pointerType !== 'touch' &&
         event.pointerType !== 'pen'
       ) {
@@ -101,13 +115,13 @@ export function BaseSelectTrigger<
     onFocus(event: FocusEvent) {
       callHandler(event, local.onFocus)
       if (!event.defaultPrevented) {
-        state.field.emit('focus', event)
+        state.focus(event)
       }
     },
     onBlur(event: FocusEvent) {
       callHandler(event, local.onBlur)
       if (!event.defaultPrevented) {
-        state.field.emit('blur', event)
+        state.blur(event)
       }
     },
   })
@@ -115,7 +129,7 @@ export function BaseSelectTrigger<
     {
       tag,
       disabledForComponent: true,
-      disabled: () => state.field.disabled() || Boolean(local.disabled),
+      disabled: () => state.disabled() || Boolean(local.disabled),
       element: root.element,
       onPress: () => {
         state.focusOwner()?.focus()
@@ -132,8 +146,8 @@ export function BaseSelectTrigger<
       aria-haspopup="listbox"
       {...triggerSlot}
       {...rootBinding}
-      {...state.field.ariaAttrs()}
-      id={state.field.id()}
+      {...state.ariaAttrs()}
+      id={state.id()}
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
       aria-activedescendant={

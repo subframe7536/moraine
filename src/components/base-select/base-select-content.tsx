@@ -53,13 +53,13 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
         side,
       })),
     },
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   const presence = createTransitionPresence({
     open: state.open,
     onExitComplete: () => {
       state.setHighlightedValue(undefined)
-      state.onExitComplete?.()
+      state.props.onExitComplete?.()
     },
   })
   const [content, setContent] = createSignal<HTMLDivElement>()

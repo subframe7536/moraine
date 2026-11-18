@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 
 import { BaseSelectContent } from './base-select-content'
 import { SelectProvider, createSelectState, useSelectContext } from './base-select-context'
-import type { SelectState } from './base-select-context'
 import { BaseSelectControl } from './base-select-control'
 import { BaseSelectEmpty } from './base-select-empty'
 import { BaseSelectGroup } from './base-select-group'
@@ -54,7 +53,7 @@ export function BaseSelectRoot<T extends BaseSelectT.Item = BaseSelectT.Item>(
 ): JSX.Element {
   const state = createSelectState(props, () => props.slotOwner)
   return (
-    <SelectProvider value={state as unknown as SelectState<BaseSelectT.Item>}>
+    <SelectProvider value={state}>
       {props.children}
       {state.formControls()}
     </SelectProvider>
@@ -70,8 +69,6 @@ BaseSelect.Group = BaseSelectGroup
 BaseSelect.GroupLabel = BaseSelectGroupLabel
 BaseSelect.Separator = BaseSelectSeparator
 BaseSelect.Empty = BaseSelectEmpty
-BaseSelect.useContext = function useContext<
+BaseSelect.useContext = useSelectContext as <
   T extends BaseSelectT.Item = BaseSelectT.Item,
->(): BaseSelectT.Context<T> {
-  return useSelectContext<T>().context
-}
+>() => BaseSelectT.Context<T>

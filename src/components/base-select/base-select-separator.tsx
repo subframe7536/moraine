@@ -39,7 +39,7 @@ export function BaseSelectSeparator(props: BaseSelectT.SeparatorProps): JSX.Elem
     slots: { separator: separatorSlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'separator',
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   return (
     <div

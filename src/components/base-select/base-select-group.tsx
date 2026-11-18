@@ -38,7 +38,7 @@ export function BaseSelectGroup(props: BaseSelectT.GroupProps): JSX.Element {
     slots: { group: groupSlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'group',
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   return (
     <GroupProvider value={{ labelId, setLabelId }}>

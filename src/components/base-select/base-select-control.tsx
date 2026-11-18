@@ -40,15 +40,15 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
     slot: 'control',
     data: {
       control: baseSelectDataAttributes.control({
-        disabled: state.field.disabled,
-        readonly: state.field.readOnly,
-        required: state.field.required,
-        invalid: state.field.invalid,
+        disabled: state.disabled,
+        readonly: state.readOnly,
+        required: state.required,
+        invalid: state.invalid,
         expanded: state.open,
         closed: () => !state.open(),
       }),
     },
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   const [element, setElement] = createSignal<HTMLDivElement>()
   bindElement(element, publishElement(state.anchor, state.setAnchor))

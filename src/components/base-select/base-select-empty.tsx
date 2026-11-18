@@ -32,7 +32,7 @@ export function BaseSelectEmpty(props: BaseSelectT.EmptyProps): JSX.Element {
     slots: { empty: emptySlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'empty',
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   return (
     <Show when={state.items().length === 0}>

@@ -36,7 +36,7 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
     slots: { listbox: listboxSlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'listbox',
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
@@ -60,7 +60,7 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
     <div
       role="listbox"
       data-slot={state.slotName('listbox')}
-      aria-readonly={state.field.readOnly() || undefined}
+      aria-readonly={state.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       {...listboxSlot}
       {...rest}

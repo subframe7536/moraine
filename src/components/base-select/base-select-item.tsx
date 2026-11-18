@@ -57,7 +57,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
         disabled,
       })),
     },
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   const item = () => local.item
   const selected = () => state.isSelected(item().value)
@@ -107,7 +107,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
         ) {
           return
         }
-        state.setHighlightedValue(item().value as any)
+        state.setHighlightedValue(item().value)
       }}
       onPointerDown={(event) => {
         callHandler(event, local.onPointerDown)
@@ -128,7 +128,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       onClick={(event) => {
         callHandler(event, local.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
-          state.setHighlightedValue(item().value as any)
+          state.setHighlightedValue(item().value)
           state.select(item())
         }
       }}

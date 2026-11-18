@@ -120,7 +120,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           : ''
     }
     const input = createBaseSelectSearchInput({
-      state: state.context,
+      state,
       searchValue: search.value,
       setSearchValue: search.setValue,
       get maxLength() {
@@ -196,7 +196,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           </Show>
           <input
             {...input.inputProps}
-            {...state.field.ariaAttrs()}
+            {...state.ariaAttrs()}
             data-slot="combobox-input"
             {...inputSlot}
             placeholder={(local.placeholder ?? messages().placeholder) || undefined}
@@ -226,7 +226,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             loadingIcon={local.loadingIcon}
             slot={triggerSlot}
             trailing={local.trailing}
-            disabled={state.field.disabled()}
+            disabled={state.disabled()}
             onFocusOwner={focusInput}
             onClick={() => state.setOpen(!state.open())}
           />

@@ -226,7 +226,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       },
     })
     const inputBinding = createBaseSelectSearchInput({
-      state: state.context,
+      state,
       searchValue: search.value,
       setSearchValue: search.setValue,
       enabled: editable,
@@ -444,7 +444,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             >
               <input
                 {...inputBinding.inputProps}
-                {...state.field.ariaAttrs()}
+                {...state.ariaAttrs()}
                 data-slot="multi-select-input"
                 {...inputSlot}
                 placeholder={tags.tags().length ? '' : local.placeholder}
@@ -507,7 +507,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               loadingIcon={local.loadingIcon}
               slot={triggerSlot}
               trailing={local.trailing}
-              disabled={state.field.disabled()}
+              disabled={state.disabled()}
               onFocusOwner={focusControl}
               onClick={() => state.setOpen(!state.open())}
             />

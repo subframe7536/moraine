@@ -39,7 +39,7 @@ export function BaseSelectGroupLabel(props: BaseSelectT.GroupLabelProps): JSX.El
     slots: { groupLabel: groupLabelSlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'groupLabel',
-    context: () => ({ variants: { size: state.styleSize }, ...state.slotOverrides }),
+    context: state.recipeContext,
   })
   createEffect(
     on(id, (value) => {

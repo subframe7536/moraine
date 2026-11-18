@@ -1,4 +1,4 @@
-import type { Accessor } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   DEV,
   Index,
@@ -35,11 +35,37 @@ import { useFormReset } from '../shared/form/use-form-reset'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-select.types'
 
-function selectionToFormValue<T extends BaseSelectValue>(
+/** Projects the selection onto the native form value: an array, or a scalar (`null` when empty). */
+function toFormValue<T extends BaseSelectValue>(
   values: readonly T[],
   multiple: boolean,
 ): T[] | T | null {
   return multiple ? [...values] : (values[0] ?? null)
+}
+
+/** Inverse of `toFormValue`. An empty string is a selection only when `emptyIsValue` is set. */
+function fromFormValue<T extends BaseSelectValue>(
+  formValue: unknown,
+  multiple: boolean,
+  emptyIsValue: boolean,
+): T[] {
+  if (multiple) {
+    return Array.isArray(formValue) ? formValue : []
+  }
+  if (typeof formValue === 'string' || typeof formValue === 'number') {
+    return formValue === '' && !emptyIsValue ? [] : [formValue as T]
+  }
+  return []
+}
+
+function formValueMatches(
+  values: readonly BaseSelectValue[],
+  formValue: unknown,
+  multiple: boolean,
+) {
+  return multiple
+    ? Array.isArray(formValue) && selectionEqual(values, formValue)
+    : Object.is(values[0] ?? null, formValue)
 }
 
 export function createSelectState<T extends BaseSelectT.Item>(
@@ -58,7 +84,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     },
     get initialValue() {
       // An empty initial single selection stays undefined so the mount write is a no-op.
-      return props.multiple === true ? selectionToFormValue(initial, true) : initial[0]
+      return props.multiple === true ? toFormValue(initial, true) : initial[0]
     },
   })
   const [mounted, setMounted] = createSignal(false)
@@ -94,29 +120,22 @@ export function createSelectState<T extends BaseSelectT.Item>(
       if (!field.bound()) {
         return undefined
       }
-      const value = field.value()
-      if (value === undefined) {
+      const formValue = field.value()
+      if (formValue === undefined) {
         // Before mount (and on SSR) the binding has no input yet: stay
         // uncontrolled so defaultValue shows and hydration stays identical.
         return mounted() ? [] : undefined
       }
-      if (value === null) {
-        return []
-      }
-      if (props.multiple) {
-        return Array.isArray(value) ? value : []
-      }
-      if (typeof value === 'string' || typeof value === 'number') {
-        if (value === '' && !getCanonicalItem(value)) {
-          return []
-        }
-        return [value]
-      }
-      return []
+      return fromFormValue<T['value']>(
+        formValue,
+        props.multiple === true,
+        formValue === '' && getCanonicalItem('') !== undefined,
+      )
     },
     defaultValue: () => initial,
   })
   const value = createMemo(() => normalize(selection()))
+  const selectedValues = createMemo(() => new Set(value()))
   const itemDisabled = (item: T) => {
     const canonical = getCanonicalItem(item.value) ?? item
     return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
@@ -141,14 +160,12 @@ export function createSelectState<T extends BaseSelectT.Item>(
     slot: 'control',
     context: () => ({ variants: { size: field.size() ?? undefined } }),
   })
-  const slotOverrides = {
-    get classes() {
-      return props.classes
-    },
-    get styles() {
-      return props.styles
-    },
-  }
+  /** Presentation context every part passes to its `useRecipe` call. */
+  const recipeContext = () => ({
+    variants: { size: variants.size },
+    classes: props.classes,
+    styles: props.styles,
+  })
   const locked = () => field.disabled() || field.readOnly()
   let formInput: HTMLInputElement | undefined
 
@@ -168,7 +185,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
     setSelection(after)
     if (props.value === undefined) {
-      field.setFormValue(selectionToFormValue(after, props.multiple === true))
+      field.setFormValue(toFormValue(after, props.multiple === true))
     }
     props.onValueChange?.(after)
     field.emit('change')
@@ -189,7 +206,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
       }
       change(
         props.multiple
-          ? value().includes(item.value)
+          ? selectedValues().has(item.value)
             ? value().filter((value) => !sameValue(value, item.value))
             : [...value(), item.value]
           : [item.value],
@@ -205,9 +222,21 @@ export function createSelectState<T extends BaseSelectT.Item>(
       })
     }
   }
-  const enabled = createMemo(() => items().filter((item) => !itemDisabled(item)))
-  const enabledValues = createMemo(() => new Set(enabled().map((item) => item.value)))
-  const selectedValues = createMemo(() => new Set(value()))
+  /** Enabled items in navigation order, indexed by value (first occurrence wins). */
+  const navigation = createMemo(() => {
+    const enabledItems = items().filter((item) => !itemDisabled(item))
+    const indexByValue = new Map<T['value'], number>()
+    enabledItems.forEach((item, index) => {
+      if (!indexByValue.has(item.value)) {
+        indexByValue.set(item.value, index)
+      }
+    })
+    return { items: enabledItems, indexByValue }
+  })
+  const highlightedIndex = () => {
+    const current = highlightedValue()
+    return current === undefined ? -1 : (navigation().indexByValue.get(current) ?? -1)
+  }
   const isHighlighted = createSelector<T['value'] | undefined, T['value']>(
     highlightedValue,
     sameValue,
@@ -217,19 +246,19 @@ export function createSelectState<T extends BaseSelectT.Item>(
     (item, selected) => selected.has(item),
   )
   createEffect(
-    on([open, enabled, highlightedValue, value], ([isOpen, items, current, selected]) => {
-      if (!isOpen || (current !== undefined && enabledValues().has(current))) {
+    on([open, navigation, highlightedValue, selectedValues], ([isOpen, nav, current, selected]) => {
+      if (!isOpen || (current !== undefined && nav.indexByValue.has(current))) {
         return
       }
-      const next = items.find((item) => selected.includes(item.value)) ?? items[0]
-      setHighlightedValue(next ? next.value : undefined)
+      const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
+      setHighlightedValue(next?.value)
     }),
   )
   const typeahead = createTypeahead({
     getItems: items,
     getStartIndex: () =>
       items().findIndex((item) =>
-        open() ? sameValue(item.value, highlightedValue()) : value().includes(item.value),
+        open() ? sameValue(item.value, highlightedValue()) : selectedValues().has(item.value),
       ),
     getText: (item) => labelString(item, props.getItemLabel),
     isDisabled: (item) => itemDisabled(item),
@@ -237,12 +266,12 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
   function moveHighlight(offset: number): void {
     setOpen(true)
-    const items = enabled()
+    const { items } = navigation()
     if (items.length === 0) {
       setHighlightedValue(undefined)
       return
     }
-    const current = items.findIndex((item) => sameValue(item.value, highlightedValue()))
+    const current = highlightedIndex()
     const shouldLoop = props.loop ?? true
     if (current < 0) {
       setHighlightedValue(items[offset < 0 && shouldLoop ? items.length - 1 : 0]?.value)
@@ -257,7 +286,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
 
   function highlightBoundary(last = false): void {
     setOpen(true)
-    const items = enabled()
+    const { items } = navigation()
     setHighlightedValue(items[last ? items.length - 1 : 0]?.value)
   }
 
@@ -280,9 +309,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
       setOpen(true)
       return
     }
-    const item = items().find(
-      (candidate) => sameValue(candidate.value, highlightedValue()) && !itemDisabled(candidate),
-    )
+    const item = navigation().items[highlightedIndex()]
     if (item) {
       event.preventDefault()
       select(item)
@@ -354,13 +381,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
         if (!controlled) {
           return
         }
-        const projected = selectionToFormValue(current, props.multiple === true)
-        if (props.multiple) {
-          if (!Array.isArray(formValue) || !selectionEqual(current, formValue as T['value'][])) {
-            field.setFormValue(projected)
-          }
-        } else if (projected !== formValue) {
-          field.setFormValue(projected)
+        const multiple = props.multiple === true
+        if (!formValueMatches(current, formValue, multiple)) {
+          field.setFormValue(toFormValue(current, multiple))
         }
       },
     ),
@@ -389,20 +412,23 @@ export function createSelectState<T extends BaseSelectT.Item>(
       }
     }),
   )
-  const serialized = createMemo(() => {
-    const selected = value()
-    if (!selected.length) {
-      return []
+  /** Form string of a value; `undefined` omits it from the submission. */
+  function serialize(selected: T['value']): string | undefined {
+    if (props.serializeValue) {
+      return props.serializeValue(selected)
     }
-    return selected.flatMap((value) => {
-      const serialized = props.serializeValue
-        ? props.serializeValue(value)
-        : getCanonicalItem(value)?.disabled
-          ? undefined
-          : String(value)
-      return serialized === undefined ? [] : [serialized]
-    })
-  })
+    return getCanonicalItem(selected)?.disabled ? undefined : String(selected)
+  }
+  const serialized = createMemo(() => value().flatMap((selected) => serialize(selected) ?? []))
+  /** Native autofill writes the text of an enabled item's form string or label into the input. */
+  function findAutofillItem(text: string): T | undefined {
+    const target = text.toLowerCase()
+    return navigation().items.find(
+      (item) =>
+        serialize(item.value)?.toLowerCase() === target ||
+        labelString(item, props.getItemLabel).toLowerCase() === target,
+    )
+  }
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
   const secondarySerializedValues = createMemo(() => serialized().slice(1))
@@ -413,28 +439,16 @@ export function createSelectState<T extends BaseSelectT.Item>(
       discardComposition()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
-      field.setFormValue(selectionToFormValue(next, props.multiple === true))
+      field.setFormValue(toFormValue(next, props.multiple === true))
       if (formInput) {
         formInput.value = primarySerializedValue()
       }
       props.onReset?.()
     },
   )
-  const presentation: BaseSelectT.TriggerRenderProps<T> = {
-    get open() {
-      return open()
-    },
-    get value() {
-      return value()
-    },
-    get disabled() {
-      return field.disabled()
-    },
-    get readOnly() {
-      return field.readOnly()
-    },
-  }
-  const context: BaseSelectT.Context<T> = {
+  // A superset of the public `BaseSelectT.Context`: the same object serves built-in parts and
+  // `BaseSelect.useContext`, whose cast in `base-select.tsx` checks the public part.
+  return {
     items,
     value,
     open,
@@ -456,41 +470,17 @@ export function createSelectState<T extends BaseSelectT.Item>(
     select,
     keyDown,
     registerCompositionDiscarder,
-    focus: (event) => field.emit('focus', event),
-    blur: (event) => field.emit('blur', event),
-  }
-  return {
-    context,
+    focus: (event: FocusEvent) => field.emit('focus', event),
+    blur: (event: FocusEvent) => field.emit('blur', event),
     props,
-    items,
-    value,
-    open,
-    setOpen,
-    highlightedValue,
-    setHighlightedValue,
+    slotName,
+    recipeContext,
+    ariaAttrs: field.ariaAttrs,
     isHighlighted,
     isSelected,
     anchor,
     setAnchor,
-    focusOwner,
-    setFocusOwner,
-    listboxId,
-    itemId,
-    field,
-    slotOverrides,
-    slotName,
     dismiss,
-    onExitComplete: () => props.onExitComplete?.(),
-    get styleSize() {
-      return variants.size
-    },
-    locked,
-    change,
-    select,
-    keyDown,
-    presentation,
-    itemDisabled,
-    registerCompositionDiscarder,
     formControls: () => (
       <>
         <HiddenInput
@@ -509,22 +499,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
               event.currentTarget.value = primarySerializedValue()
               return
             }
-            const nextValue = event.currentTarget.value
-            const nextValueLower = nextValue.toLowerCase()
-            const match = items().find((item) => {
-              if (itemDisabled(item)) {
-                return false
-              }
-              const serializedValue = props.serializeValue
-                ? props.serializeValue(item.value)
-                : String(item.value)
-              const label = labelString(item, props.getItemLabel)
-              return (
-                (serializedValue !== undefined &&
-                  serializedValue.toLowerCase() === nextValueLower) ||
-                label.toLowerCase() === nextValueLower
-              )
-            })
+            const match = findAutofillItem(event.currentTarget.value)
             if (match) {
               change([match.value])
               return
@@ -553,9 +528,16 @@ export function createSelectState<T extends BaseSelectT.Item>(
 }
 
 export type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
-export const [SelectProvider, readSelectContext] =
-  /* @__PURE__ */ createContextProvider<SelectState<BaseSelectT.Item>>('BaseSelect')
-/** Private state shared by built-in select parts. */
-export function useSelectContext<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
-  return readSelectContext() as unknown as SelectState<T>
-}
+/**
+ * Private state shared by built-in select parts. The context is created for the erased item type;
+ * the provider and hook are retyped here once so callers pick their item type per read.
+ */
+export const [SelectProvider, useSelectContext] = /* @__PURE__ */ createContextProvider(
+  'BaseSelect',
+) as unknown as readonly [
+  <T extends BaseSelectT.Item = BaseSelectT.Item>(props: {
+    value: SelectState<T>
+    children?: JSX.Element
+  }) => JSX.Element,
+  <T extends BaseSelectT.Item = BaseSelectT.Item>() => SelectState<T>,
+]
