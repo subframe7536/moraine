@@ -122,7 +122,7 @@
           "name": "openDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;\n`0` opens immediately. The delay is skipped while another tooltip is open or within\n`skipDelayDuration` of one closing.",
+          "description": "Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;\n`0` opens immediately. The delay is skipped while another tooltip is open or within\n`skipDelay` of one closing.",
           "default": {
             "kind": "literal",
             "value": 600
@@ -159,7 +159,7 @@
           }
         },
         {
-          "name": "skipDelayDuration",
+          "name": "skipDelay",
           "optional": true,
           "type": "number",
           "description": "Duration in milliseconds after a tooltip closes during which any tooltip in the same document\nopens without `openDelay`, so moving across a toolbar does not wait on every button. `0`\ndisables the grace period.",

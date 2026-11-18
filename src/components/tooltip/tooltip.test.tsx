@@ -89,7 +89,7 @@ describe('Tooltip', () => {
     const [open, setOpen] = createSignal(true)
     const first = render(
       () => (
-        <Tooltip open={open()} skipDelayDuration={1000}>
+        <Tooltip open={open()} skipDelay={1000}>
           <Tooltip.Trigger>First</Tooltip.Trigger>
           <Tooltip.Content>First tooltip</Tooltip.Content>
         </Tooltip>

@@ -124,7 +124,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     {
       openDelay: 600,
       closeDelay: 200,
-      skipDelayDuration: 300,
+      skipDelay: 300,
       gutter: 4,
       overflowPadding: 4,
     },
@@ -322,7 +322,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       const id = tooltipId()
       if (activeDocument && (activeDocument !== currentDocument || !isResolvedOpen)) {
         clearActiveTooltip(activeDocument, id)
-        startSkipDelay(activeDocument, id, merged.skipDelayDuration)
+        startSkipDelay(activeDocument, id, merged.skipDelay)
         skipDelayDocuments.add(activeDocument)
         activeDocument = undefined
       }
