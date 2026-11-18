@@ -141,14 +141,14 @@ describe('KbdGroup', () => {
     expect(view.container.querySelector('[data-slot="separator"]')).toBeNull()
   })
 
-  test('renders item objects with translated alias labels', () => {
-    render(() => <KbdGroup items={[{ value: 'meta', translations: { meta: 'Command' } }, 'K']} />)
+  test('renders item objects with relabeled aliases', () => {
+    render(() => <KbdGroup items={[{ value: 'meta', ariaLabel: 'Command' }, 'K']} />)
 
     expect(screen.getByLabelText('Command').textContent).toBe('⌘')
   })
 
-  test('names non-alias item keys through their aria-label', () => {
-    render(() => <KbdGroup items={[{ value: 'fn', 'aria-label': 'Function key' }, 'K']} />)
+  test('names non-alias item keys through their ariaLabel', () => {
+    render(() => <KbdGroup items={[{ value: 'fn', ariaLabel: 'Function key' }, 'K']} />)
 
     expect(screen.getByLabelText('Function key').textContent).toBe('fn')
   })

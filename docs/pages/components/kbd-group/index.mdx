@@ -41,14 +41,13 @@ export function Example() {
 
 ### Key labels
 
-Each item is a key string, resolved like the `value` of [Kbd](/components/kbd), or a Kbd props
-object with `value`. Known aliases resolve to symbol notation and spoken names. Use an object to set
-`aria-label`, `symbol`, or `translations` for one key. The group's `size` and `variant` apply to
-every key.
+Each item is a key string, resolved like the `value` of [Kbd](/components/kbd), or an object with
+`value`. Known aliases resolve to symbol notation and spoken names. Use an object to set `ariaLabel`
+or `symbol` for one key. The group's `size` and `variant` apply to every key.
 
 ```tsx
 <KbdGroup items={['meta', 's']} />
-<KbdGroup items={[{ value: 'meta', translations: { meta: 'Command' } }, 'K']} />
+<KbdGroup items={[{ value: 'meta', ariaLabel: 'Command' }, 'K']} />
 ```
 
 ### Separator

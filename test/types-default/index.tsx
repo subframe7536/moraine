@@ -702,7 +702,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<KbdGroup items={['meta', 'k']} />
 ;<KbdGroup
-  items={[{ value: 'meta', translations: { meta: 'Command' } }, 'k']}
+  items={[{ value: 'meta', ariaLabel: 'Command' }, 'k']}
   separator="/"
   size="sm"
   variant="outline"

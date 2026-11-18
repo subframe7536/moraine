@@ -128,10 +128,13 @@ describe('generateApiDoc', () => {
       ?.parts[0]?.props.find((prop) => prop.name === 'items')
     expect(keyboardItems?.type).toBe('Item[]')
     expect(keyboardItems?.typeDetails).toContain('string & {}')
-    expect(keyboardItems?.typeDetails).toContain('value: Key;')
+    expect(keyboardItems?.typeDetails).toContain('value: KbdT.Key;')
+    expect(keyboardItems?.typeDetails).toContain('ariaLabel?: string;')
     expect(keyboardItems?.typeDetails).toContain('symbol?: boolean;')
-    expect(keyboardItems?.typeDetails).toContain('translations?: Translations;')
-    expect(keyboardItems?.typeDetails).toContain('Whether to resolve known key aliases to symbols.')
+    expect(keyboardItems?.typeDetails).not.toContain('translations?')
+    expect(keyboardItems?.typeDetails).toContain(
+      'Whether to resolve a known key alias to its symbol.',
+    )
     expect(keyboardItems?.typeDetails).toMatch(/\)\[\]$/)
 
     const select = result.componentDocs.get('select')

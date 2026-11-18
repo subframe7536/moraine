@@ -16,7 +16,20 @@ export namespace KbdGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Item = KbdT.Key | KbdT.Base
+  /** One key of the shortcut: a key string, or an object that customizes that key. */
+  export type Item =
+    | KbdT.Key
+    | {
+        /** The key to display, resolved like `Kbd` `value`. */
+        value: KbdT.Key
+        /** Accessible label for this keycap. Overrides the spoken name of a key alias. */
+        ariaLabel?: string
+        /**
+         * Whether to resolve a known key alias to its symbol.
+         * @default true
+         */
+        symbol?: boolean
+      }
 
   export interface SeparatorRenderProps {
     /** Separator index between key[index] and key[index + 1]. */
@@ -26,12 +39,14 @@ export namespace KbdGroupT {
   export interface Base {
     /**
      * Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved
-     * like `Kbd` `value`, or a `Kbd` props object to customize one key. The group renders nothing when empty.
+     * like `Kbd` `value`, or an object with `value` and optional `ariaLabel` and `symbol` to
+     * customize one key. The group `size` and `variant` apply to every key. The group renders
+     * nothing when empty.
      * @example
      * ```tsx
      * import { KbdGroup } from 'moraine'
      *
-     * <KbdGroup items={['meta', { value: 'K', 'aria-label': 'letter K' }]} />
+     * <KbdGroup items={['meta', { value: 'K', ariaLabel: 'letter K' }]} />
      * ```
      */
     items: Item[]

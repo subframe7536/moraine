@@ -14,13 +14,15 @@ interface NormalizedKbdItem {
 }
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
-  return typeof item === 'string' ? { value: item } : item
+  return typeof item === 'string'
+    ? { value: item }
+    : { value: item.value, symbol: item.symbol, 'aria-label': item.ariaLabel }
 }
 
 /**
  * Data-driven display of keys pressed together as one shortcut, rendering a `Kbd` per item with
- * a separator between them. Items are key strings or `Kbd` prop objects such as
- * `{ value: 'meta', translations: { meta: 'Command' } }`. It renders notation only, so the
+ * a separator between them. Items are key strings or objects such as
+ * `{ value: 'meta', ariaLabel: 'Command' }`. It renders notation only, so the
  * application owns the shortcut listener; use `Kbd` for a single keycap.
  *
  * @example

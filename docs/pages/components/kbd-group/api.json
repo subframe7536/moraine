@@ -31,10 +31,10 @@
           "name": "items",
           "optional": false,
           "type": "Item[]",
-          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set. */\n  translations?: Translations;\n  /** The key to display. A name matching a built-in alias, compared case-insensitively\n(`meta`, `ctrl`, `shift`, `escape`, `arrowup`, ...), shows its symbol or short label, such as `⌘` for\n`meta` or `Esc` for `escape`, unless `symbol` is `false`. Any other string renders as written, such as `K` or `F5`.\nNothing renders for an empty string. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for the keycap. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set. */\n  aria-label?: string;\n})[]",
-          "description": "Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved\nlike `Kbd` `value`, or a `Kbd` props object to customize one key. The group renders nothing when empty.",
+          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** The key to display, resolved like `Kbd` `value`. */\n  value: KbdT.Key;\n  /** Accessible label for this keycap. Overrides the spoken name of a key alias. */\n  ariaLabel?: string;\n  /** Whether to resolve a known key alias to its symbol. */\n  symbol?: boolean;\n})[]",
+          "description": "Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved\nlike `Kbd` `value`, or an object with `value` and optional `ariaLabel` and `symbol` to\ncustomize one key. The group `size` and `variant` apply to every key. The group renders\nnothing when empty.",
           "examples": [
-            "import { KbdGroup } from 'moraine'\n\n<KbdGroup items={['meta', { value: 'K', 'aria-label': 'letter K' }]} />"
+            "import { KbdGroup } from 'moraine'\n\n<KbdGroup items={['meta', { value: 'K', ariaLabel: 'letter K' }]} />"
           ]
         },
         {
@@ -86,6 +86,7 @@
     }
   ],
   "item": {
+    "description": "One key of the shortcut: a key string, or an object that customizes that key.",
     "props": []
   },
   "slots": [
