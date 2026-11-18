@@ -5,8 +5,8 @@ interface FileSelection {
   rejected: FileUploadT.Rejection[]
 }
 
-function createRejection(file: File, error: FileUploadT.Error): FileUploadT.Rejection {
-  return { file, errors: [error] }
+function createRejection(file: File, reason: FileUploadT.Reason): FileUploadT.Rejection {
+  return { file, reasons: [reason] }
 }
 
 function isAcceptedFileType(file: File, accept?: string): boolean {
@@ -66,26 +66,26 @@ export function filterAcceptedFiles(
   const seenFiles = new Set(options.existingFiles.map(getFileIdentity))
 
   for (const file of files) {
-    const errors: FileUploadT.Error[] = []
+    const reasons: FileUploadT.Reason[] = []
 
     if (!isAcceptedFileType(file, options.accept)) {
-      errors.push('FILE_INVALID_TYPE')
+      reasons.push('typeMismatch')
     }
 
     if (options.minSize !== undefined && file.size < options.minSize) {
-      errors.push('FILE_TOO_SMALL')
+      reasons.push('rangeUnderflow')
     } else if (options.maxSize !== undefined && file.size > options.maxSize) {
-      errors.push('FILE_TOO_LARGE')
+      reasons.push('rangeOverflow')
     }
 
-    if (errors.length > 0) {
-      rejected.push({ file, errors })
+    if (reasons.length > 0) {
+      rejected.push({ file, reasons })
       continue
     }
 
     const fileIdentity = getFileIdentity(file)
     if (seenFiles.has(fileIdentity)) {
-      rejected.push(createRejection(file, 'FILE_DUPLICATE'))
+      rejected.push(createRejection(file, 'duplicate'))
       continue
     }
 
@@ -111,7 +111,7 @@ export function constrainFileCount(
 
   return {
     accepted: accepted.slice(0, remainingSlots),
-    rejected: accepted.slice(remainingSlots).map((file) => createRejection(file, 'TOO_MANY_FILES')),
+    rejected: accepted.slice(remainingSlots).map((file) => createRejection(file, 'tooLong')),
   }
 }
 

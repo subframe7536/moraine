@@ -45,7 +45,7 @@ describe('filterAcceptedFiles accept matching', () => {
 
     expect(filter([file], { accept: '.png' }).accepted).toEqual([file])
     expect(filter([file], { accept: '.jpg' }).rejected).toEqual([
-      { file, errors: ['FILE_INVALID_TYPE'] },
+      { file, reasons: ['typeMismatch'] },
     ])
   })
 
@@ -56,7 +56,7 @@ describe('filterAcceptedFiles accept matching', () => {
     const result = filter([image, text], { accept: 'image/*' })
 
     expect(result.accepted).toEqual([image])
-    expect(result.rejected).toEqual([{ file: text, errors: ['FILE_INVALID_TYPE'] }])
+    expect(result.rejected).toEqual([{ file: text, reasons: ['typeMismatch'] }])
   })
 
   test('matches exact mime types', () => {
@@ -74,7 +74,7 @@ describe('filterAcceptedFiles accept matching', () => {
     const result = filter([png, pdf, zip], { accept: ' .PNG , application/pdf ' })
 
     expect(result.accepted).toEqual([png, pdf])
-    expect(result.rejected).toEqual([{ file: zip, errors: ['FILE_INVALID_TYPE'] }])
+    expect(result.rejected).toEqual([{ file: zip, reasons: ['typeMismatch'] }])
   })
 })
 
@@ -82,28 +82,30 @@ describe('filterAcceptedFiles size and error rules', () => {
   test('rejects files smaller than minSize', () => {
     const file = createFile('tiny.txt', { size: 4 })
 
-    expect(filter([file], { minSize: 10 }).rejected).toEqual([{ file, errors: ['FILE_TOO_SMALL'] }])
+    expect(filter([file], { minSize: 10 }).rejected).toEqual([
+      { file, reasons: ['rangeUnderflow'] },
+    ])
   })
 
   test('rejects files larger than maxSize', () => {
     const file = createFile('big.txt', { size: 20 })
 
-    expect(filter([file], { maxSize: 10 }).rejected).toEqual([{ file, errors: ['FILE_TOO_LARGE'] }])
+    expect(filter([file], { maxSize: 10 }).rejected).toEqual([{ file, reasons: ['rangeOverflow'] }])
   })
 
   test('reports only the min size error when a file violates both bounds', () => {
     const file = createFile('odd.txt', { size: 50 })
 
     expect(filter([file], { minSize: 100, maxSize: 10 }).rejected).toEqual([
-      { file, errors: ['FILE_TOO_SMALL'] },
+      { file, reasons: ['rangeUnderflow'] },
     ])
   })
 
-  test('reports both type and size errors on one file', () => {
+  test('reports both type and size reasons on one file', () => {
     const file = createFile('huge.exe', { size: 50, type: 'application/x-msdownload' })
 
     expect(filter([file], { accept: 'image/*', maxSize: 10 }).rejected).toEqual([
-      { file, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
+      { file, reasons: ['typeMismatch', 'rangeOverflow'] },
     ])
   })
 })
@@ -114,7 +116,7 @@ describe('filterAcceptedFiles duplicates', () => {
     const incoming = createFile('a.txt', { size: 3, type: 'text/plain', lastModified: 5 })
 
     expect(filter([incoming], { existingFiles: [existing] }).rejected).toEqual([
-      { file: incoming, errors: ['FILE_DUPLICATE'] },
+      { file: incoming, reasons: ['duplicate'] },
     ])
   })
 
@@ -125,7 +127,7 @@ describe('filterAcceptedFiles duplicates', () => {
     const result = filter([first, repeat])
 
     expect(result.accepted).toEqual([first])
-    expect(result.rejected).toEqual([{ file: repeat, errors: ['FILE_DUPLICATE'] }])
+    expect(result.rejected).toEqual([{ file: repeat, reasons: ['duplicate'] }])
   })
 
   test('treats files differing in lastModified as distinct', () => {
@@ -152,8 +154,8 @@ describe('constrainFileCount', () => {
     expect(constrainFileCount([a, b, c, d], 1, 3)).toEqual({
       accepted: [a, b],
       rejected: [
-        { file: c, errors: ['TOO_MANY_FILES'] },
-        { file: d, errors: ['TOO_MANY_FILES'] },
+        { file: c, reasons: ['tooLong'] },
+        { file: d, reasons: ['tooLong'] },
       ],
     })
   })
@@ -163,7 +165,7 @@ describe('constrainFileCount', () => {
 
     expect(constrainFileCount([file], 2, 2)).toEqual({
       accepted: [],
-      rejected: [{ file, errors: ['TOO_MANY_FILES'] }],
+      rejected: [{ file, reasons: ['tooLong'] }],
     })
   })
 
@@ -172,7 +174,7 @@ describe('constrainFileCount', () => {
 
     expect(constrainFileCount([file], 0, 0)).toEqual({
       accepted: [],
-      rejected: [{ file, errors: ['TOO_MANY_FILES'] }],
+      rejected: [{ file, reasons: ['tooLong'] }],
     })
   })
 })

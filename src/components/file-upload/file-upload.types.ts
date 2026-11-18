@@ -9,16 +9,18 @@ import type { IconT } from '../icon'
 import type { defaultFileUploadMessages } from './file-upload.messages'
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
 
-type FileError =
-  | 'TOO_MANY_FILES'
-  | 'FILE_INVALID_TYPE'
-  | 'FILE_TOO_LARGE'
-  | 'FILE_TOO_SMALL'
-  | 'FILE_DUPLICATE'
+type FileRejectionReason =
+  | 'tooLong'
+  | 'typeMismatch'
+  | 'rangeOverflow'
+  | 'rangeUnderflow'
+  | 'duplicate'
 
 interface FileRejection {
+  /** The rejected file. */
   file: File
-  errors: FileError[]
+  /** Why the file was rejected; a file can fail `typeMismatch` and a size rule together. */
+  reasons: FileRejectionReason[]
 }
 
 export namespace FileUploadT {
@@ -38,11 +40,17 @@ export namespace FileUploadT {
       ? File | null
       : File | File[] | null
 
-  export type Error = FileError
+  /**
+   * Why a file was rejected, named after the matching `ValidityState` key: `tooLong` (over
+   * `maxFiles`), `typeMismatch` (not in `accept`), `rangeOverflow` (over `maxSize`),
+   * `rangeUnderflow` (under `minSize`), or `duplicate` (same name, size, type, and modification
+   * time as a selected file).
+   */
+  export type Reason = FileRejectionReason
   export type Rejection = FileRejection
 
   export interface ValueInvalidDetails {
-    /** Files that failed validation, in pick order, each with its error codes. */
+    /** Files that failed validation, in pick order, each with its `reasons`. */
     rejections: Rejection[]
   }
 
@@ -87,7 +95,7 @@ export namespace FileUploadT {
      * Comma-separated list of accepted file types. Each entry is a case-insensitive extension
      * (`.png`), a MIME wildcard (`image/*`), or an exact MIME type (`application/pdf`); `*`
      * accepts everything. It is also passed to the native file input and enforced on dropped
-     * and picked files, which fail with `FILE_INVALID_TYPE` in `onValueInvalid`.
+     * and picked files, which fail with `typeMismatch` in `onValueInvalid`.
      * @default '*'
      */
     accept?: string
@@ -141,21 +149,22 @@ export namespace FileUploadT {
 
     /**
      * Maximum total number of selected files, counting files already selected. Files beyond the
-     * limit are dropped and reported as `TOO_MANY_FILES` in `onValueInvalid`. Only accepted when
+     * limit are dropped and reported as `tooLong` in `onValueInvalid`. Only accepted when
      * `multiple` is `true`; single mode always keeps one file. Unlimited by default.
      */
     maxFiles?: TMultiple extends true ? number : never
 
-    /** Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `FILE_TOO_SMALL`. */
+    /** Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `rangeUnderflow`. */
     minSize?: number
 
-    /** Maximum accepted file size in bytes, inclusive. Larger files are rejected with `FILE_TOO_LARGE`. */
+    /** Maximum accepted file size in bytes, inclusive. Larger files are rejected with `rangeOverflow`. */
     maxSize?: number
 
     /**
-     * Called after a pick or drop with the files that failed validation, each with its `errors`
-     * codes: `FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`, `FILE_DUPLICATE` (same
-     * name, size, type, and modification time as a selected file), or `TOO_MANY_FILES`. Accepted
+     * Called after a pick or drop with the files that failed validation, each with its `reasons`:
+     * `typeMismatch` (not in `accept`), `rangeUnderflow` (under `minSize`), `rangeOverflow` (over
+     * `maxSize`), `duplicate` (same name, size, type, and modification time as a selected file),
+     * or `tooLong` (over `maxFiles`). Accepted
      * files from the same batch are still added and reported through `onValueChange`. It cannot
      * cancel the pick and is unrelated to the native `invalid` event.
      * @example
@@ -165,8 +174,8 @@ export namespace FileUploadT {
      * <FileUpload
      *   maxSize={2 * 1024 * 1024}
      *   onValueInvalid={({ rejections }) => {
-     *     for (const { file, errors } of rejections) {
-     *       console.warn(file.name, errors.includes('FILE_TOO_LARGE') ? 'is over 2 MB' : errors)
+     *     for (const { file, reasons } of rejections) {
+     *       console.warn(file.name, reasons.includes('rangeOverflow') ? 'is over 2 MB' : reasons)
      *     }
      *   }}
      * />

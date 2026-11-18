@@ -1,13 +1,14 @@
 import { FileUpload } from '@src'
+import type { FileUploadT } from '@src'
 import { For, createSignal } from 'solid-js'
 
-const REJECTION_LABELS = {
-  FILE_DUPLICATE: 'already selected',
-  FILE_INVALID_TYPE: 'type is not accepted',
-  FILE_TOO_LARGE: 'is larger than 1 MB',
-  FILE_TOO_SMALL: 'is smaller than the minimum size',
-  TOO_MANY_FILES: 'exceeds the file limit',
-} as const
+const REJECTION_LABELS: Record<FileUploadT.Reason, string> = {
+  duplicate: 'already selected',
+  typeMismatch: 'type is not accepted',
+  rangeOverflow: 'is larger than 1 MB',
+  rangeUnderflow: 'is smaller than the minimum size',
+  tooLong: 'exceeds the file limit',
+}
 
 export function Rejections() {
   const [rejections, setRejections] = createSignal<{ name: string; reason: string }[]>([])
@@ -23,9 +24,9 @@ export function Rejections() {
         description="PNG or JPEG, up to 1 MB each (maximum two files)"
         onValueInvalid={({ rejections }) =>
           setRejections(
-            rejections.map(({ file, errors }) => ({
+            rejections.map(({ file, reasons }) => ({
               name: file.name,
-              reason: errors.map((error) => REJECTION_LABELS[error]).join(', '),
+              reason: reasons.map((reason) => REJECTION_LABELS[reason]).join(', '),
             })),
           )
         }

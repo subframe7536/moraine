@@ -103,8 +103,10 @@ yourself from `onValueChange`. Use `itemRender` to replace each entry. It receiv
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate each picked or dropped file before it is
 added. `maxFiles` counts files already selected and applies only with `multiple`. Rejected files are
-reported to `onValueInvalid` as `rejections` with reason codes (`FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`,
-`FILE_DUPLICATE`, `TOO_MANY_FILES`); accepted files from the same batch are still added.
+reported to `onValueInvalid` as `rejections`, each with the file and its `reasons`, named after the
+matching `ValidityState` key: `typeMismatch` (not in `accept`), `rangeUnderflow` (under `minSize`),
+`rangeOverflow` (over `maxSize`), `tooLong` (over `maxFiles`), and `duplicate` (already selected).
+Accepted files from the same batch are still added.
 
 `readOnly` keeps the selected list visible but blocks adding and removing files. `disabled` removes
 all interaction. Both inherit the enclosing Field's state when omitted, and an explicit `false`

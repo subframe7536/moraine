@@ -574,7 +574,7 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
     expect(onValueInvalid).toHaveBeenCalledWith({
-      rejections: [{ file: small, errors: ['FILE_TOO_SMALL'] }],
+      rejections: [{ file: small, reasons: ['rangeUnderflow'] }],
     })
   })
 
@@ -598,7 +598,7 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
     expect(onValueInvalid).toHaveBeenCalledWith({
-      rejections: [{ file: large, errors: ['FILE_TOO_LARGE'] }],
+      rejections: [{ file: large, reasons: ['rangeOverflow'] }],
     })
   })
 
@@ -619,10 +619,10 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([first])
     expect(onValueInvalid).toHaveBeenNthCalledWith(1, {
-      rejections: [{ file: duplicateInBatch, errors: ['FILE_DUPLICATE'] }],
+      rejections: [{ file: duplicateInBatch, reasons: ['duplicate'] }],
     })
     expect(onValueInvalid).toHaveBeenNthCalledWith(2, {
-      rejections: [{ file: duplicateExisting, errors: ['FILE_DUPLICATE'] }],
+      rejections: [{ file: duplicateExisting, reasons: ['duplicate'] }],
     })
   })
 
@@ -650,13 +650,13 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenLastCalledWith([image])
     expect(onValueInvalid).toHaveBeenCalledWith({
       rejections: [
-        { file: text, errors: ['FILE_INVALID_TYPE'] },
-        { file: extra, errors: ['TOO_MANY_FILES'] },
+        { file: text, reasons: ['typeMismatch'] },
+        { file: extra, reasons: ['tooLong'] },
       ],
     })
   })
 
-  test('reports type and size errors together and keeps one file in single mode', async () => {
+  test('reports type and size reasons together and keeps one file in single mode', async () => {
     const onValueChange = vi.fn()
     const onValueInvalid = vi.fn()
     const screen = render(() => (
@@ -676,8 +676,8 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenCalledWith(first)
     expect(onValueInvalid).toHaveBeenCalledWith({
       rejections: [
-        { file: invalid, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
-        { file: second, errors: ['TOO_MANY_FILES'] },
+        { file: invalid, reasons: ['typeMismatch', 'rangeOverflow'] },
+        { file: second, reasons: ['tooLong'] },
       ],
     })
   })

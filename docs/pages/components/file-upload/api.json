@@ -26,7 +26,7 @@
           "name": "accept",
           "optional": true,
           "type": "string",
-          "description": "Comma-separated list of accepted file types. Each entry is a case-insensitive extension\n(`.png`), a MIME wildcard (`image/*`), or an exact MIME type (`application/pdf`); `*`\naccepts everything. It is also passed to the native file input and enforced on dropped\nand picked files, which fail with `FILE_INVALID_TYPE` in `onValueInvalid`.",
+          "description": "Comma-separated list of accepted file types. Each entry is a case-insensitive extension\n(`.png`), a MIME wildcard (`image/*`), or an exact MIME type (`application/pdf`); `*`\naccepts everything. It is also passed to the native file input and enforced on dropped\nand picked files, which fail with `typeMismatch` in `onValueInvalid`.",
           "default": {
             "kind": "literal",
             "value": "*"
@@ -137,19 +137,19 @@
           "name": "maxFiles",
           "optional": true,
           "type": "TMultiple extends true ? number: never",
-          "description": "Maximum total number of selected files, counting files already selected. Files beyond the\nlimit are dropped and reported as `TOO_MANY_FILES` in `onValueInvalid`. Only accepted when\n`multiple` is `true`; single mode always keeps one file. Unlimited by default."
+          "description": "Maximum total number of selected files, counting files already selected. Files beyond the\nlimit are dropped and reported as `tooLong` in `onValueInvalid`. Only accepted when\n`multiple` is `true`; single mode always keeps one file. Unlimited by default."
         },
         {
           "name": "maxSize",
           "optional": true,
           "type": "number",
-          "description": "Maximum accepted file size in bytes, inclusive. Larger files are rejected with `FILE_TOO_LARGE`."
+          "description": "Maximum accepted file size in bytes, inclusive. Larger files are rejected with `rangeOverflow`."
         },
         {
           "name": "minSize",
           "optional": true,
           "type": "number",
-          "description": "Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `FILE_TOO_SMALL`."
+          "description": "Minimum accepted file size in bytes, inclusive. Smaller files are rejected with `rangeUnderflow`."
         },
         {
           "name": "multiple",
@@ -177,9 +177,9 @@
           "name": "onValueInvalid",
           "optional": true,
           "type": "(details: ValueInvalidDetails) => void",
-          "description": "Called after a pick or drop with the files that failed validation, each with its `errors`\ncodes: `FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`, `FILE_DUPLICATE` (same\nname, size, type, and modification time as a selected file), or `TOO_MANY_FILES`. Accepted\nfiles from the same batch are still added and reported through `onValueChange`. It cannot\ncancel the pick and is unrelated to the native `invalid` event.",
+          "description": "Called after a pick or drop with the files that failed validation, each with its `reasons`:\n`typeMismatch` (not in `accept`), `rangeUnderflow` (under `minSize`), `rangeOverflow` (over\n`maxSize`), `duplicate` (same name, size, type, and modification time as a selected file),\nor `tooLong` (over `maxFiles`). Accepted\nfiles from the same batch are still added and reported through `onValueChange`. It cannot\ncancel the pick and is unrelated to the native `invalid` event.",
           "examples": [
-            "import { FileUpload } from 'moraine'\n\n<FileUpload\n  maxSize={2 * 1024 * 1024}\n  onValueInvalid={({ rejections }) => {\n    for (const { file, errors } of rejections) {\n      console.warn(file.name, errors.includes('FILE_TOO_LARGE') ? 'is over 2 MB' : errors)\n    }\n  }}\n/>"
+            "import { FileUpload } from 'moraine'\n\n<FileUpload\n  maxSize={2 * 1024 * 1024}\n  onValueInvalid={({ rejections }) => {\n    for (const { file, reasons } of rejections) {\n      console.warn(file.name, reasons.includes('rangeOverflow') ? 'is over 2 MB' : reasons)\n    }\n  }}\n/>"
           ]
         },
         {
