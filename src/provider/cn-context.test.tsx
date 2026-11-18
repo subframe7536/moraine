@@ -167,7 +167,7 @@ describe('scoped cn', () => {
         },
       }),
     )
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
     const surface = document.querySelector<HTMLElement>('[role=dialog]')!
     input.focus()
     input.value = 'draft'

@@ -64,7 +64,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
         />
       </Field>
     ))
-    const control = screen.getByRole('textbox') as HTMLInputElement
+    const control = screen.getByRole<HTMLInputElement>('textbox')
     expect(control.id).toBe('message')
     expect(control.required).toBe(false)
     expect(control.disabled).toBe(false)
@@ -82,7 +82,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
         <Control />
       </Field>
     ))
-    const inheritedControl = inherited.getByRole('textbox') as HTMLInputElement
+    const inheritedControl = inherited.getByRole<HTMLInputElement>('textbox')
     expect(inheritedControl.name).toBe('message')
     expect(inheritedControl.required).toBe(true)
     expect(inheritedControl.disabled).toBe(true)
@@ -118,7 +118,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
         />
       </FieldProvider>
     ))
-    const control = screen.getByRole('textbox') as HTMLInputElement
+    const control = screen.getByRole<HTMLInputElement>('textbox')
     fireEvent.input(control, { target: { value: ' 42 ' } })
     expect(calls).toEqual([])
     fireEvent.change(control)

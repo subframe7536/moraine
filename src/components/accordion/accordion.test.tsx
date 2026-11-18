@@ -983,28 +983,14 @@ describe('Accordion', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="accordion"]') as HTMLElement | null
-    const item = screen.container.querySelector(
-      '[data-slot="accordion-item"]',
-    ) as HTMLElement | null
-    const header = screen.container.querySelector(
-      '[data-slot="accordion-header"]',
-    ) as HTMLElement | null
-    const trigger = screen.container.querySelector(
-      '[data-slot="accordion-trigger"]',
-    ) as HTMLElement | null
-    const leading = screen.container.querySelector(
-      '[data-slot="accordion-leading"]',
-    ) as HTMLElement | null
-    const label = screen.container.querySelector(
-      '[data-slot="accordion-label"]',
-    ) as HTMLElement | null
-    const trailing = screen.container.querySelector(
-      '[data-slot="accordion-trailing"]',
-    ) as HTMLElement | null
-    const content = screen.container.querySelector(
-      '[data-slot="accordion-content"]',
-    ) as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="accordion"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="accordion-item"]')
+    const header = screen.container.querySelector<HTMLElement>('[data-slot="accordion-header"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="accordion-trigger"]')
+    const leading = screen.container.querySelector<HTMLElement>('[data-slot="accordion-leading"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="accordion-label"]')
+    const trailing = screen.container.querySelector<HTMLElement>('[data-slot="accordion-trailing"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="accordion-content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')

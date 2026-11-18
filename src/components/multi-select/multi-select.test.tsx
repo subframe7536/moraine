@@ -72,7 +72,7 @@ describe('MultiSelect', () => {
     { search: false, createItem: (value: string) => ({ value, label: value }) },
   ])('is editable when search or createItem enables it', (props) => {
     const screen = render(() => <MultiSelect items={ITEMS} {...props} />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.readOnly).toBe(false)
   })
 
@@ -170,7 +170,7 @@ describe('MultiSelect', () => {
         onValueChange={onChange}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true }))
     expect(onChange).toHaveBeenLastCalledWith(['banana'])
@@ -479,7 +479,7 @@ describe('MultiSelect', () => {
         onSearchValueChange={setQuery}
       />
     ))
-    const controlledInput = controlled.getByRole('combobox') as HTMLInputElement
+    const controlledInput = controlled.getByRole<HTMLInputElement>('combobox')
     expect(controlledInput.value).toBe('controlled')
     fireEvent.input(controlledInput, { target: { value: 'next' } })
     expect(untrack(query)).toBe('next')

@@ -252,7 +252,7 @@ describe('CommandPalette', () => {
   test('keeps a controlled searchValue until the parent updates it', () => {
     const [term, setTerm] = createSignal('settings')
     render(() => <CommandPalette groups={GROUPS} autofocus={false} searchValue={term()} />)
-    const input = body().getByRole('combobox') as HTMLInputElement
+    const input = body().getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('settings')
     setTerm('dashboard')

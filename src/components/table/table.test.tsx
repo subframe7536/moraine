@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { Table } from './table'
 
 const slot = (container: HTMLElement, name: string) =>
-  container.querySelector(`[data-slot="table${name ? `-${name}` : ''}"]`) as HTMLElement | null
+  container.querySelector<HTMLElement>(`[data-slot="table${name ? `-${name}` : ''}"]`)
 
 describe('Table', () => {
   test('renders every public part with its default element and data-slot', () => {

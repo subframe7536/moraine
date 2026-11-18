@@ -188,7 +188,7 @@ export function TanStackTable() {
       accessorKey: 'status',
       header: 'Status',
       cell: (props) => {
-        const status = () => props.row.getValue('status') as Payment['status']
+        const status = () => props.row.getValue<Payment['status']>('status')
         return (
           <Badge tone={getStatusBadgeTone(status())} variant="subtle" class="capitalize">
             {status()}

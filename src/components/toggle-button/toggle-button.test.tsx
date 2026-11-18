@@ -42,7 +42,7 @@ describe('ToggleButton', () => {
         </ToggleButton>
       </form>
     ))
-    const button = screen.getByRole('button', { name: 'Bold' }) as HTMLButtonElement
+    const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Bold' })
     expect(button.type).toBe('button')
     expect(ref).toHaveBeenCalledWith(button)
     expect(button.getAttribute('aria-pressed')).toBe('false')

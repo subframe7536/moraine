@@ -374,7 +374,7 @@ describe('Pagination', () => {
     const screen = render(() => (
       <Pagination page={page()} total={100} pageSize={10} siblingCount={1} controls={false} />
     ))
-    const first = screen.getByLabelText('Go to page 1 of 10') as HTMLElement
+    const first = screen.getByLabelText('Go to page 1 of 10')
 
     first.focus()
     expect(document.activeElement).toBe(first)

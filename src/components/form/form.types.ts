@@ -68,9 +68,8 @@ export namespace FormT {
 
   export type FieldName<TSchema extends Schema> =
     InferInput<TSchema> extends infer Input
-      ?
-          | (Input extends Record<PropertyKey, unknown> ? Extract<keyof Input, string> : never)
-          | SchemaPath<Input>
+      ? | (Input extends Record<PropertyKey, unknown> ? Extract<keyof Input, string> : never)
+        | SchemaPath<Input>
       : never
 
   export type Store<TSchema extends Schema> = TSchema extends FormSchema

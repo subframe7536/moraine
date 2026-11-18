@@ -691,7 +691,7 @@ describe('Form', () => {
           </form.Form>
         ),
       )
-      const input = screen.getByLabelText('Email') as HTMLInputElement
+      const input = screen.getByLabelText<HTMLInputElement>('Email')
 
       fireEvent.input(input, { target: { value: 'invalid' } })
       fireEvent.blur(input)
@@ -742,7 +742,7 @@ describe('Form', () => {
         </div>
       ),
     )
-    const input = screen.getByLabelText('Value') as HTMLInputElement
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
 
     fireEvent.input(input, { target: { value: 'Changed' } })
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }))

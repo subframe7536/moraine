@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { Card } from './card'
 
 const slot = (container: HTMLElement, name: string) =>
-  container.querySelector(`[data-slot="card${name ? `-${name}` : ''}"]`) as HTMLElement | null
+  container.querySelector<HTMLElement>(`[data-slot="card${name ? `-${name}` : ''}"]`)
 
 describe('Card', () => {
   test('renders every public part with its default element and no inferred semantics', () => {

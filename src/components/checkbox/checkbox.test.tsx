@@ -673,13 +673,9 @@ describe('Checkbox', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement | null
-    const base = screen.container.querySelector(
-      '[data-slot="checkbox-control"]',
-    ) as HTMLElement | null
-    const label = screen.container.querySelector(
-      '[data-slot="checkbox-label"]',
-    ) as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="checkbox"]')
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
 
     expect(root?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')

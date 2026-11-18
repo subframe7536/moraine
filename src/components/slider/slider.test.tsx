@@ -13,7 +13,7 @@ import { createSlider } from './hook'
 import { Slider } from './slider'
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll('[data-slot="slider-thumb"]')) as HTMLElement[]
+  return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
 
 test('formats aria-valuetext with formatOptions', () => {
@@ -25,7 +25,7 @@ test('formats aria-valuetext with formatOptions', () => {
 })
 
 function getInputs(container: HTMLElement): HTMLInputElement[] {
-  return Array.from(container.querySelectorAll('input[type="range"]')) as HTMLInputElement[]
+  return Array.from(container.querySelectorAll<HTMLInputElement>('input[type="range"]'))
 }
 
 function mockPointerCapture(target: HTMLElement): void {
@@ -144,7 +144,7 @@ describe('Slider', () => {
 
     const root = screen.container.querySelector('[data-slot="slider"][id$="-root"]')
     const track = screen.container.querySelector('[data-slot="slider-track"]')
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement | null
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="slider-thumb"]')
     const inputs = getInputs(screen.container)
 
     expect(inputs.length).toBe(1)
@@ -938,10 +938,8 @@ describe('Slider', () => {
       <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } }} />
     ))
 
-    const root = screen.container.querySelector(
-      '[data-slot="slider"][id$="-root"]',
-    ) as HTMLElement | null
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"][id$="-root"]')
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="slider-thumb"]')
 
     expect(root?.style.width).toBe('200px')
     expect(thumb?.style.width).toBe('200px')

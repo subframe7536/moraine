@@ -28,7 +28,7 @@ describe('Textarea', () => {
     const screen = render(() => (
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />
     ))
-    const textarea = screen.getByPlaceholderText('Write bio') as HTMLTextAreaElement
+    const textarea = screen.getByPlaceholderText<HTMLTextAreaElement>('Write bio')
     const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(textarea.getAttribute('id')).toBe('bio')
@@ -46,7 +46,7 @@ describe('Textarea', () => {
 
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Textarea readOnly />)
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
     const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(textarea.readOnly).toBe(true)
@@ -112,7 +112,7 @@ describe('Textarea', () => {
 
   test('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Textarea modifiers={{ trim: true, lazy: true }} />)
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
 
     fireEvent.change(textarea, {
       target: { value: 'value  ' },
@@ -203,7 +203,7 @@ describe('Textarea', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <Textarea styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="textarea"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="textarea"]')
 
     expect(root?.style.width).toBe('200px')
   })
@@ -225,7 +225,7 @@ describe('Textarea', () => {
         </form.Form>
       ),
     )
-    const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText<HTMLTextAreaElement>('Value')
 
     fireEvent.input(textarea, { target: { value: 'Rejected' } })
 
@@ -356,7 +356,7 @@ describe('Textarea', () => {
         </form.Form>
       ),
     )
-    const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText<HTMLTextAreaElement>('Value')
     let scrollHeight = 72
     Object.defineProperty(textarea, 'scrollHeight', {
       configurable: true,

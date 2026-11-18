@@ -205,9 +205,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const trigger = document.body.querySelector(
-      '[data-slot="tooltip-trigger"]',
-    ) as HTMLElement | null
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="tooltip-trigger"]')
 
     expect(trigger?.className).toContain('trigger-class')
     expect(trigger?.style.width).toBe('200px')

@@ -263,13 +263,11 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="breadcrumb"]') as HTMLElement | null
-    const link = screen.container.querySelector(
-      '[data-slot="breadcrumb-link"]',
-    ) as HTMLElement | null
-    const separator = screen.container.querySelector(
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="breadcrumb"]')
+    const link = screen.container.querySelector<HTMLElement>('[data-slot="breadcrumb-link"]')
+    const separator = screen.container.querySelector<HTMLElement>(
       '[data-slot="breadcrumb-separator"]',
-    ) as HTMLElement | null
+    )
 
     expect(root?.style.width).toBe('200px')
     expect(link?.style.width).toBe('200px')

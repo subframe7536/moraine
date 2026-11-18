@@ -786,7 +786,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement | null
+    const content = document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')
     expect(content?.style.width).toBe('200px')
   })
 

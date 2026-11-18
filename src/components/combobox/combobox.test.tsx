@@ -80,7 +80,7 @@ describe('Combobox', () => {
 
   test('typing opens independently of openOnControlClick', () => {
     const screen = render(() => <Combobox items={ITEMS} openOnControlClick={false} />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
     expect(input.getAttribute('aria-expanded')).toBe('true')
     expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
@@ -173,7 +173,7 @@ describe('Combobox', () => {
         onValueChange={onChange}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
     expect(input.value).toBe('ba')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true }))
@@ -433,7 +433,7 @@ describe('Combobox', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: '' })
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.value).toBe('None')
 
     // Filter to hide 'None' (which has value '')

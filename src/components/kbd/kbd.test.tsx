@@ -85,7 +85,7 @@ describe('Kbd', () => {
     const view = render(() => (
       <Kbd value="K" slotName="shortcut" class="shortcut-class" style={{ width: '200px' }} />
     ))
-    const root = view.container.querySelector('[data-slot="shortcut"]') as HTMLElement | null
+    const root = view.container.querySelector<HTMLElement>('[data-slot="shortcut"]')
 
     expect(root?.className).toContain('shortcut-class')
     expect(root?.style.width).toBe('200px')
@@ -243,8 +243,8 @@ describe('KbdGroup', () => {
         styles={{ item: { height: '20px' } }}
       />
     ))
-    const root = view.container.querySelector('[data-slot="kbd-group"]') as HTMLElement | null
-    const item = view.container.querySelector('[data-slot="kbd-group-item"]') as HTMLElement | null
+    const root = view.container.querySelector<HTMLElement>('[data-slot="kbd-group"]')
+    const item = view.container.querySelector<HTMLElement>('[data-slot="kbd-group-item"]')
 
     expect(root?.className).toContain('root-class')
     expect(root?.style.width).toBe('200px')

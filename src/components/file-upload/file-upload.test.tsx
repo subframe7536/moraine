@@ -798,9 +798,9 @@ describe('FileUpload', () => {
       const control = screen.getByRole('button', { name: 'File upload' })
       const inputClick = vi.spyOn(input, 'click').mockImplementation(() => undefined)
       const root = screen.container.querySelector('[data-slot="file-upload"]')!
-      const removal = screen.getByRole('button', {
+      const removal = screen.getByRole<HTMLButtonElement>('button', {
         name: 'Remove initial.txt',
-      }) as HTMLButtonElement
+      })
 
       expect(control.getAttribute('aria-readonly')).toBe(locked ? 'true' : null)
       expect(root.hasAttribute('data-readonly')).toBe(locked)

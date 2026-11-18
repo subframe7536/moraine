@@ -118,7 +118,7 @@ describe('polymorphic root', () => {
         Action
       </Root>
     ))
-    const element = screen.getByRole('button') as HTMLButtonElement
+    const element = screen.getByRole<HTMLButtonElement>('button')
     expect(element.disabled).toBe(true)
     expect(element.hasAttribute('role')).toBe(false)
     setDisabled(false)
@@ -141,7 +141,7 @@ describe('polymorphic root', () => {
         Action
       </Root>
     ))
-    const element = screen.getByRole('menuitem') as HTMLButtonElement
+    const element = screen.getByRole<HTMLButtonElement>('menuitem')
     expect(element.type).toBe('submit')
     expect(element.tabIndex).toBe(3)
     expect(element.disabled).toBe(false)

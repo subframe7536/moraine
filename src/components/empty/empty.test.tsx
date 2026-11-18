@@ -9,7 +9,7 @@ import { Empty } from './empty'
 import type { EmptyT } from './empty.types'
 
 const slot = (container: HTMLElement, name: string) =>
-  container.querySelector(`[data-slot="empty${name ? `-${name}` : ''}"]`) as HTMLElement | null
+  container.querySelector<HTMLElement>(`[data-slot="empty${name ? `-${name}` : ''}"]`)
 
 describe('Empty', () => {
   test('renders its parts with default elements and no inferred semantics', () => {

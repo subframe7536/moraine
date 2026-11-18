@@ -225,7 +225,7 @@ describe('BoldSlider', () => {
         <BoldSlider name="opacity" defaultValue={70} />
       </form>
     ))
-    const data = new FormData(screen.getByTestId('form') as HTMLFormElement)
+    const data = new FormData(screen.getByTestId<HTMLFormElement>('form'))
 
     expect(data.get('opacity')).toBe('70')
   })

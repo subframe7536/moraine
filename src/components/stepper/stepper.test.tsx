@@ -318,8 +318,8 @@ describe('Stepper', () => {
       />
     ))
 
-    const second = screen.getByRole('tab', { name: 'Second' }) as HTMLButtonElement
-    const third = screen.getByRole('tab', { name: 'Third' }) as HTMLButtonElement
+    const second = screen.getByRole<HTMLButtonElement>('tab', { name: 'Second' })
+    const third = screen.getByRole<HTMLButtonElement>('tab', { name: 'Third' })
     expect(second.disabled).toBe(false)
     expect(third.disabled).toBe(true)
 

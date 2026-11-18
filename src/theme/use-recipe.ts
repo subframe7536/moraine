@@ -388,7 +388,7 @@ export function useRecipe<R extends RecipeDefinition>(
   const overrides: UseRecipeResult<R>['overrides'] = (mapping) => {
     const classes = {}
     const styles = {}
-    for (const [target, source] of Object.entries(mapping) as [string, Slots][]) {
+    for (const [target, source] of Object.entries<Slots>(mapping)) {
       Object.defineProperty(classes, target, { enumerable: true, get: () => slots[source].class })
       Object.defineProperty(styles, target, { enumerable: true, get: () => slots[source].style })
     }

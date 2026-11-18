@@ -33,7 +33,7 @@ describe('Badge', () => {
         Select
       </Badge>
     ))
-    const button = screen.getByRole('button', { name: 'Select' }) as HTMLButtonElement
+    const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Select' })
 
     expect(button.getAttribute('data-slot')).toBe('badge')
     expect(button.type).toBe('button')

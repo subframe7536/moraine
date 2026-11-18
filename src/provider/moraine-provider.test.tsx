@@ -111,7 +111,7 @@ describe('MoraineProvider', () => {
         <Input defaultValue="hello" />
       </MoraineProvider>
     ))
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
     input.focus()
     input.value = 'draft'
     input.setSelectionRange(1, 3)
