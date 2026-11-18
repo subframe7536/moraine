@@ -402,6 +402,26 @@ describe('BaseSelect selection and form', () => {
     expect(form.checkValidity()).toBe(false)
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
+  test('marks the trigger invalid after native validation fails and clears it on reset', async () => {
+    const screen = render(() => (
+      <form>
+        <BaseSelect items={items} required name="choice">
+          <Parts />
+        </BaseSelect>
+      </form>
+    ))
+    const form = screen.container.querySelector('form')!
+    const trigger = screen.getByRole('combobox')
+    expect(trigger.hasAttribute('aria-invalid')).toBe(false)
+
+    form.checkValidity()
+    await waitFor(() => expect(trigger.getAttribute('aria-invalid')).toBe('true'))
+    expect(trigger.hasAttribute('data-invalid')).toBe(true)
+
+    form.reset()
+    await waitFor(() => expect(trigger.hasAttribute('aria-invalid')).toBe(false))
+    expect(trigger.hasAttribute('data-invalid')).toBe(false)
+  })
   test('resets uncontrolled values and omits disabled controls from submission', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (

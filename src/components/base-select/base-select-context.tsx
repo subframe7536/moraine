@@ -31,6 +31,7 @@ import {
   selectionEqual,
 } from '../shared/form/select/collection'
 import { useFormReset } from '../shared/form/use-form-reset'
+import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
 
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-select.types'
@@ -167,6 +168,12 @@ export function createSelectState<T extends BaseSelectT.Item>(
     styles: props.styles,
   })
   const locked = () => field.disabled() || field.readOnly()
+  const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
+    focusTarget: focusOwner,
+  })
+  const invalid = () => field.invalid() || nativeInvalid()
+  const ariaAttrs = (): JSX.AriaAttributes =>
+    nativeInvalid() ? { ...field.ariaAttrs(), 'aria-invalid': 'true' } : field.ariaAttrs()
   let formInput: HTMLInputElement | undefined
 
   function setOpen(next: boolean) {
@@ -183,6 +190,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     if (selectionEqual(before, after)) {
       return
     }
+    resetNativeInvalid()
     setSelection(after)
     if (props.value === undefined) {
       field.setFormValue(toFormValue(after, props.multiple === true))
@@ -437,6 +445,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     () => formInput?.form,
     () => {
       discardComposition()
+      resetNativeInvalid()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(toFormValue(next, props.multiple === true))
@@ -459,7 +468,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     disabled: field.disabled,
     readOnly: field.readOnly,
     required: field.required,
-    invalid: field.invalid,
+    invalid,
     locked,
     focusOwner,
     setFocusOwner,
@@ -475,7 +484,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     props,
     slotName,
     recipeContext,
-    ariaAttrs: field.ariaAttrs,
+    ariaAttrs,
     isHighlighted,
     isSelected,
     anchor,
@@ -506,10 +515,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
             }
             event.currentTarget.value = primarySerializedValue()
           }}
-          onInvalid={(event) => {
-            event.preventDefault()
-            focusOwner()?.focus()
-          }}
+          onInvalid={onInvalid}
         />
         <Index each={secondarySerializedValues()}>
           {(value) => (
