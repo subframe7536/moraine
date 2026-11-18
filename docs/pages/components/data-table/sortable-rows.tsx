@@ -47,7 +47,7 @@ export default function SortableRowsExample() {
       { accessorKey: 'status', header: 'Status' },
     ] satisfies DataTableT.Column<Release>[],
     getRowId: (row) => row.id,
-    sortable: false,
+    columnSortable: false,
   })
 
   // Rows render in data order here: no sorting, filtering, or pagination reorders them.

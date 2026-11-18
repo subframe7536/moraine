@@ -164,7 +164,7 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | Concern     | `createDataTable` options                                                         | Default                                         |
 | ----------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
 | Data        | `data`, `columns`, `getRowId`                                                     | Row ids are indexes (`'0'`, nested `'0.1'`).    |
-| Sorting     | `sortable`                                                                        | `true`                                          |
+| Sorting     | `columnSortable`                                                                  | `true`                                          |
 | Selection   | `selectionMode` (`'multiple'` or `'single'`), `canSelectRow`                      | No selection column.                            |
 | Expansion   | `expandable` (`true` or a row predicate)                                          | Only rows with sub-rows expand.                 |
 | Pagination  | `paginated` (`true` or `{ pageSize, pageSizes }`)                                 | Off. When on: 10 rows, sizes `[5, 10, 20, 50]`. |
@@ -231,7 +231,7 @@ warning suggests an explicit `id`, which keeps both columns.
 Sorting is on by default, and each sortable header has a sort button. Shift-click a second
 header to sort by more than one column. While more than one column is sorted, each sorted header
 shows its priority (`sortIndex` slot), and screen readers hear it through the localized
-`sortPriority` message. Set `sortable: false` to turn sorting off for every column, or
+`sortPriority` message. Set `columnSortable: false` to turn sorting off for every column, or
 `enableSorting` in a column definition to override it for one column. Turn multi-column sorting off
 with `tableOptions.enableMultiSort: false`.
 

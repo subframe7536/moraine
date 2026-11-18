@@ -60,7 +60,7 @@ function EmployeesTable(props: PlaygroundProps) {
     },
     columns: COLUMNS,
     getRowId: (row) => row.id,
-    get sortable() {
+    get columnSortable() {
       return props.sortable !== false
     },
     get selectionMode() {

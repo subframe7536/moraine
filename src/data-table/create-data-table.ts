@@ -184,7 +184,7 @@ export function createDataTable<TData extends RowData = RowData>(
           }
         : undefined,
       get enableSorting() {
-        return options.sortable ?? true
+        return options.columnSortable ?? true
       },
       get enableMultiRowSelection() {
         return options.selectionMode !== 'single'

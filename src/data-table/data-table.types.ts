@@ -160,7 +160,7 @@ export namespace DataTableT {
      * it. Sortable headers render a sort button.
      * @default true
      */
-    sortable?: boolean
+    columnSortable?: boolean
     /**
      * Prepends a selection column (`'multiple'` checkboxes or `'single'` radio buttons) with id
      * `'select'`. A user column whose resolved id is `'select'` replaces the generated column.
