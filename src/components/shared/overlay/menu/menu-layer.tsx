@@ -25,6 +25,7 @@ import { useFloatingPosition, usePositionerZIndex } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 
 import { createMenuItemRenderers } from './menu-item'
+import type { OverlayMenuEntry } from './menu-item'
 import { createMenuRadioGroupState } from './menu-radio'
 import { createSubmenuItemRenderer } from './menu-submenu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
@@ -295,25 +296,29 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         </Show>
 
         <For each={groupProps.group.items}>
-          {(item) => (
-            <Switch fallback={<LeafItem item={item} />}>
-              <Match when={item.type === 'separator'}>
-                <div
-                  data-slot={slotName('separator')}
-                  role="separator"
-                  {...resolveSlot('separator')}
-                />
-              </Match>
+          {(item) => {
+            // Every branch except the first renders a row, never a separator.
+            const entry = item as OverlayMenuEntry<TItem>
+            return (
+              <Switch fallback={<LeafItem item={entry} />}>
+                <Match when={item.type === 'separator'}>
+                  <div
+                    data-slot={slotName('separator')}
+                    role="separator"
+                    {...resolveSlot('separator')}
+                  />
+                </Match>
 
-              <Match when={item.type === 'checkbox'}>
-                <CheckboxMenuItem item={item} />
-              </Match>
+                <Match when={item.type === 'checkbox'}>
+                  <CheckboxMenuItem item={entry} />
+                </Match>
 
-              <Match when={hasOverlayMenuChildren(item)}>
-                <SubmenuItem item={item} />
-              </Match>
-            </Switch>
-          )}
+                <Match when={hasOverlayMenuChildren(entry)}>
+                  <SubmenuItem item={entry} />
+                </Match>
+              </Switch>
+            )
+          }}
         </For>
 
         <For each={groupProps.group.radioGroup?.items}>

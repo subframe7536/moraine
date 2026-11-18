@@ -92,7 +92,8 @@ export function Example() {
 a `button`; pass `as` to render another component such as `Button`, and `disabled` to prevent
 opening. Describe each action in `items`. An entry that is an array of items forms its own group, and
 the menu draws a separator between groups. An item accepts `icon`, `description`, `kbds`, `disabled`,
-and `variant: 'danger'`, and runs `onSelect` before the menu closes.
+and `danger`, and runs `onSelect` before the menu closes. A `{ type: 'separator' }` entry
+draws a divider and takes no other options.
 
 ```tsx
 <DropdownMenu>

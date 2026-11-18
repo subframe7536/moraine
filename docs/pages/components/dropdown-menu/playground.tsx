@@ -58,7 +58,7 @@ export default function DropdownMenuPlayground() {
                     icon: 'i-lucide:bell',
                     defaultChecked: true,
                   },
-                  { label: 'Sign out', icon: 'i-lucide:log-out', variant: 'danger' },
+                  { label: 'Sign out', icon: 'i-lucide:log-out', danger: true },
                 ],
               },
             ]}

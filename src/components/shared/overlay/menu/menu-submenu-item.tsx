@@ -11,7 +11,7 @@ import { resolveDirection } from '../direction'
 import { focusWithoutScrolling } from '../focus'
 
 import { bindSelectableItemHandlers, createSelectableItemHandlers } from './menu-item'
-import type { MenuItemSlotOptions } from './menu-item'
+import type { MenuItemSlotOptions, OverlayMenuEntry } from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import { createPointerGraceIntent, getOverlayMenuTextValue } from './menu.utils'
 import type { OverlayMenuFocusStrategy, OverlayMenuLayerState } from './menu.utils'
@@ -27,13 +27,13 @@ export interface CreateSubmenuItemOptions<TItem extends OverlayMenuItem = Overla
   renderItemContent: Component<{
     checked?: Accessor<boolean>
     hasChildren: boolean
-    item: TItem
+    item: OverlayMenuEntry<TItem>
   }>
 }
 
 export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = OverlayMenuItem>(
   options: CreateSubmenuItemOptions<TItem>,
-): (itemProps: { item: TItem }) => JSX.Element {
+): (itemProps: { item: OverlayMenuEntry<TItem> }) => JSX.Element {
   const {
     layer,
     layerProps,
@@ -44,7 +44,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
     renderItemContent: RenderItemContent,
   } = options
 
-  return function SubmenuItem(itemProps: { item: TItem }): JSX.Element {
+  return function SubmenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
     const direction = useLocale().dir
     const submenuId = createId(undefined, `${layerProps.id}-sub`)
     const submenuContentId = () => `${submenuId()}-content`
@@ -195,7 +195,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
         return itemProps.item.class
       },
       data: overlayMenuDataAttributes.item({
-        danger: () => itemProps.item.variant === 'danger',
+        danger: () => itemProps.item.danger,
         disabled: () => itemProps.item.disabled,
         expanded: isOpen,
         highlighted: () => layer.isHighlighted(submenuId()),

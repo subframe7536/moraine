@@ -78,6 +78,9 @@ import {
 />
 ;<DropdownMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<ContextMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
+;<DropdownMenu.Content headerRender={(props) => <span>{props.sub}</span>} />
+;<DropdownMenu.Content headerRender={<span />} />
+;<ContextMenu.Content footerRender={<span />} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator="/" />
 ;<KbdGroup items={['Ctrl', 'K']} separator={1} />

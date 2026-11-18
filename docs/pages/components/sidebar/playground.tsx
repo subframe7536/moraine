@@ -69,14 +69,14 @@ const userMenuItems = [
   { label: 'Billing', icon: 'i-lucide:credit-card' },
   { label: 'Notifications', icon: 'i-lucide:bell' },
   { type: 'separator' as const },
-  { label: 'Log out', icon: 'i-lucide:log-out', variant: 'danger' as const },
+  { label: 'Log out', icon: 'i-lucide:log-out', danger: true },
 ] satisfies DropdownMenuT.Item[]
 
 const projectMenuItems = [
   { label: 'View Project', icon: 'i-lucide:folder' },
   { label: 'Share Project', icon: 'i-lucide:forward' },
   { type: 'separator' as const },
-  { label: 'Delete Project', icon: 'i-lucide:trash-2', variant: 'danger' as const },
+  { label: 'Delete Project', icon: 'i-lucide:trash-2', danger: true },
 ] satisfies DropdownMenuT.Item[]
 
 export default function SidebarPlayground() {
@@ -147,11 +147,11 @@ export default function SidebarPlayground() {
                       />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content
-                      headerRender={
+                      headerRender={() => (
                         <div class="text-xs text-muted-foreground font-medium px-2 py-1.5">
                           Teams
                         </div>
-                      }
+                      )}
                       items={teamMenuItems()}
                     />
                   </DropdownMenu>
@@ -248,7 +248,7 @@ export default function SidebarPlayground() {
                       />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content
-                      headerRender={
+                      headerRender={() => (
                         <div class="p-2 border-b border-border/50 flex gap-2 items-center">
                           <Avatar
                             alt={data.user.name}
@@ -266,7 +266,7 @@ export default function SidebarPlayground() {
                             </span>
                           </div>
                         </div>
-                      }
+                      )}
                       items={userMenuItems}
                     />
                   </DropdownMenu>

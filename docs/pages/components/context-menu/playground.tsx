@@ -62,7 +62,7 @@ export default function ContextMenuPlayground() {
                     icon: 'i-lucide:star',
                     defaultChecked: true,
                   },
-                  { label: 'Delete', icon: 'i-lucide:trash-2', variant: 'danger' },
+                  { label: 'Delete', icon: 'i-lucide:trash-2', danger: true },
                 ],
               },
             ]}

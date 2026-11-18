@@ -26,8 +26,15 @@ import type {
   OverlayMenuItem,
   OverlayMenuItemRenderProps,
   OverlayMenuRadioItem,
+  OverlayMenuSeparatorItem,
   OverlayMenuSharedSlots,
 } from './types'
+
+/** A menu item that renders as a row: anything but a separator. */
+export type OverlayMenuEntry<TItem extends OverlayMenuItem = OverlayMenuItem> = Exclude<
+  TItem,
+  OverlayMenuSeparatorItem
+>
 
 export function createSelectableItemHandlers(
   layer: OverlayMenuLayerState,
@@ -154,8 +161,8 @@ export function bindSelectableItemHandlers(
 }
 
 interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
-  LeafItem: (props: { item: TItem }) => JSX.Element
-  CheckboxMenuItem: (props: { item: TItem }) => JSX.Element
+  LeafItem: (props: { item: OverlayMenuEntry<TItem> }) => JSX.Element
+  CheckboxMenuItem: (props: { item: OverlayMenuEntry<TItem> }) => JSX.Element
   RadioMenuItem: (props: {
     item: OverlayMenuRadioItem
     radioGroup: MenuRadioGroupState
@@ -163,11 +170,11 @@ interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
   RenderItemContent: (props: {
     checked?: Accessor<boolean>
     hasChildren: boolean
-    item: TItem | OverlayMenuRadioItem
+    item: OverlayMenuEntry<TItem> | OverlayMenuRadioItem
   }) => JSX.Element
   getItemSlot: (item: MenuItemSlotOptions) => SlotBinding
   getItemRenderProps: (
-    item: TItem | OverlayMenuRadioItem,
+    item: OverlayMenuEntry<TItem> | OverlayMenuRadioItem,
     hasChildren: boolean,
   ) => OverlayMenuItemRenderProps<TItem>
 }
@@ -198,7 +205,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     mergeSlotBindingData(resolveSlot('item'), item.data, item, cn)
 
   function getItemRenderProps(
-    item: TItem | OverlayMenuRadioItem,
+    item: OverlayMenuEntry<TItem> | OverlayMenuRadioItem,
     hasChildren: boolean,
   ): OverlayMenuItemRenderProps<TItem> {
     return {
@@ -211,7 +218,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   function RenderItemContent(contentProps: {
     checked?: Accessor<boolean>
     hasChildren: boolean
-    item: TItem | OverlayMenuRadioItem
+    item: OverlayMenuEntry<TItem> | OverlayMenuRadioItem
   }): JSX.Element {
     const itemRender = createLazyMemo(() => props.itemRender)
     const label = createLazyMemo(() => contentProps.item.label)
@@ -314,7 +321,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     })
   }
 
-  function LeafItem(itemProps: { item: TItem }): JSX.Element {
+  function LeafItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
     const itemId = createId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
 
@@ -347,7 +354,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return itemProps.item.style
       },
       data: overlayMenuDataAttributes.item({
-        danger: () => itemProps.item.variant === 'danger',
+        danger: () => itemProps.item.danger,
         disabled: () => itemProps.item.disabled,
         expanded: undefined,
         highlighted: () => layer.isHighlighted(itemId()),
@@ -370,7 +377,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     )
   }
 
-  function CheckboxMenuItem(itemProps: { item: TItem }): JSX.Element {
+  function CheckboxMenuItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
     const itemId = createId(undefined, `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [checked, setCheckedState] = createControllableValue<boolean>({
@@ -417,7 +424,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return itemProps.item.style
       },
       data: overlayMenuDataAttributes.item({
-        danger: () => itemProps.item.variant === 'danger',
+        danger: () => itemProps.item.danger,
         selected: checked,
         disabled: () => itemProps.item.disabled,
         expanded: undefined,
@@ -476,7 +483,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         return itemProps.item.style
       },
       data: overlayMenuDataAttributes.item({
-        danger: () => itemProps.item.variant === 'danger',
+        danger: () => itemProps.item.danger,
         selected: checked,
         disabled: () => itemProps.item.disabled,
         expanded: undefined,

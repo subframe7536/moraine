@@ -153,7 +153,8 @@ export namespace ContextMenuT {
      * plain entries form one group, and every array starts a new group, with a separator drawn
      * between groups. An item's `type` is `'item'` (the default), `'checkbox'`, `'radio-group'`
      * (with radio `items`), `'group'` (with a `label` and child `items`) or `'separator'`. An `'item'`
-     * with `children` opens a submenu, and `onSelect` runs when an item is activated.
+     * with `children` opens a submenu, `danger` marks a destructive item, and `onSelect` runs
+     * when an item is activated.
      * @example
      * ```tsx
      * import { createSignal } from 'solid-js'
@@ -165,7 +166,7 @@ export namespace ContextMenuT {
      *   <ContextMenu.Trigger>Open</ContextMenu.Trigger>
      *   <ContextMenu.Content
      *     items={[
-     *       [{ label: 'Rename', onSelect: () => console.log('rename') }, { label: 'Delete', variant: 'danger' }],
+     *       [{ label: 'Rename', onSelect: () => console.log('rename') }, { label: 'Delete', danger: true }],
      *       [{ type: 'checkbox', label: 'Show hidden', checked: showHidden(), onCheckedChange: setShowHidden }],
      *       { label: 'Share', children: [{ label: 'Copy link' }] },
      *     ]}

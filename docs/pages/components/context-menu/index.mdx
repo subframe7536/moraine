@@ -113,8 +113,8 @@ native browser menu shows instead.
 
 The `items` array describes the whole menu. An item has `type` `'item'` (the default), `'checkbox'`,
 `'radio-group'`, `'group'`, or `'separator'`; an item with `children` opens a submenu. Items accept
-`icon`, `description`, `kbds`, `disabled`, and `variant: 'danger'`. `kbds` only displays keycaps and
-does not register a shortcut. An entry that is an array of items forms its own group, and the menu
+`icon`, `description`, `kbds`, `disabled`, and `danger`; a separator takes no other options.
+`kbds` only displays keycaps and does not register a shortcut. An entry that is an array of items forms its own group, and the menu
 draws a separator between groups.
 
 Checkbox and radio state is controlled with `checked` / `onCheckedChange` and with `value` /
@@ -182,7 +182,7 @@ Right-click or long-press the dashed region. Forward stays disabled in this exam
 
 ### Copy, rename, or delete a file
 
-Describe grouped actions in the item model, including a danger-variant delete.
+Describe grouped actions in the item model, including a danger delete.
 
 <Preview path="./items-usage" />
 

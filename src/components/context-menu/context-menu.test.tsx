@@ -212,7 +212,7 @@ describe('ContextMenu', () => {
         <ContextMenu.Content
           items={[
             { label: 'Rename', onSelect },
-            { label: 'Delete', variant: 'danger' },
+            { label: 'Delete', danger: true },
           ]}
         />
       </ContextMenu>
@@ -1536,7 +1536,7 @@ describe('ContextMenu', () => {
             },
             {
               label: 'Move to trash',
-              variant: 'danger',
+              danger: true,
             },
           ]}
         />

@@ -1333,7 +1333,7 @@ describe('DropdownMenu', () => {
             },
             {
               label: 'Delete',
-              variant: 'danger',
+              danger: true,
             },
           ]}
         />
@@ -1524,16 +1524,16 @@ describe('DropdownMenu', () => {
         <DropdownMenu.Content
           items={[
             { label: 'Default' },
-            { label: 'Leaf', variant: 'danger' },
-            { label: 'Checkbox', type: 'checkbox', variant: 'danger' },
+            { label: 'Leaf', danger: true },
+            { label: 'Checkbox', type: 'checkbox', danger: true },
             {
               type: 'radio-group',
               defaultValue: 'radio',
-              items: [{ label: 'Radio', type: 'radio', value: 'radio', variant: 'danger' }],
+              items: [{ label: 'Radio', type: 'radio', value: 'radio', danger: true }],
             },
             {
               label: 'Submenu',
-              variant: 'danger',
+              danger: true,
               children: [{ label: 'Nested action' }],
             },
           ]}

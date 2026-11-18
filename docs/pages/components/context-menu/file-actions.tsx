@@ -11,7 +11,7 @@ export function FileActions() {
     {
       type: 'group',
       label: 'Project brief.pdf',
-      children: [
+      items: [
         {
           label: 'Open preview',
           icon: 'i-lucide:eye',
@@ -52,7 +52,7 @@ export function FileActions() {
     {
       label: 'Move to trash',
       icon: 'i-lucide:trash-2',
-      variant: 'danger',
+      danger: true,
       onSelect: () => {
         setDeleted(true)
         setStatus('Project brief.pdf moved to trash.')

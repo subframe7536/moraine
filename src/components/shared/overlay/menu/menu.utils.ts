@@ -25,20 +25,20 @@ export function getOverlayMenuTextValue(item: {
   return undefined
 }
 
-export function hasOverlayMenuChildren(item: { type?: string; children?: unknown[] }): boolean {
-  if (item.type === 'group' || !item.children?.length) {
+/** Whether an item opens a submenu: an untyped (or `'item'`) entry with at least one non-empty child. */
+export function hasOverlayMenuChildren(item: {
+  type?: string
+  children?: unknown[]
+  items?: unknown[]
+}): boolean {
+  if ((item.type !== undefined && item.type !== 'item') || !item.children?.length) {
     return false
   }
 
   return item.children.some(
     (child) =>
       (child as { type?: string }).type !== 'group' ||
-      Boolean(
-        (
-          (child as { items?: unknown[]; children?: unknown[] }).items ??
-          (child as { children?: unknown[] }).children
-        )?.length,
-      ),
+      Boolean((child as { items?: unknown[] }).items?.length),
   )
 }
 

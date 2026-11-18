@@ -192,16 +192,29 @@ setInput(tupleForm, { input: ['next', 'wrong'] })
 
 const dangerMenuItem: DropdownMenuT.Item = {
   label: 'Delete',
-  variant: 'danger',
+  danger: true,
 }
 void dangerMenuItem
 
-const invalidMenuItemVariant: DropdownMenuT.Item = {
+const invalidMenuItemTone: DropdownMenuT.Item = {
   label: 'Delete',
-  // @ts-expect-error Menu item variants are limited to default and danger.
-  variant: 'destructive',
+  // @ts-expect-error Menu items use a boolean `danger` flag.
+  tone: 'danger',
 }
-void invalidMenuItemVariant
+void invalidMenuItemTone
+
+const submenuMenuItem: DropdownMenuT.Item = {
+  label: 'Share',
+  children: [{ label: 'Email' }, { type: 'separator' }, { label: 'Slack' }],
+}
+void submenuMenuItem
+
+const separatorWithLabel: DropdownMenuT.Item = {
+  type: 'separator',
+  // @ts-expect-error Separator items take no content.
+  label: 'Divider',
+}
+void separatorWithLabel
 
 const radioGroupMenuItem: DropdownMenuT.Item = {
   type: 'radio-group',

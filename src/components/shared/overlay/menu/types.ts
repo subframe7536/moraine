@@ -5,6 +5,7 @@ import type { Accessor, Component, JSX } from 'solid-js'
 import type { OverlayAlign, OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding as ComponentSlotBinding } from '../../../../theme/use-recipe'
 import type { IconT } from '../../../icon'
+import type { KbdT } from '../../../kbd/kbd.types'
 
 import type {
   OverlayMenuAnchorRect,
@@ -46,10 +47,11 @@ export interface OverlayMenuBaseItem {
   icon?: IconT.Name
 
   /**
-   * Keys shown as keycaps at the end of the item, for example `['Ctrl', 'S']`. Display only: it
-   * does not register a keyboard shortcut. Not shown on items that open a submenu.
+   * Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved
+   * like `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does
+   * not register a keyboard shortcut. Not shown on items that open a submenu.
    */
-  kbds?: string[]
+  kbds?: KbdT.Key[]
 
   /**
    * Custom CSS class applied to the item element.
@@ -62,11 +64,10 @@ export interface OverlayMenuBaseItem {
   style?: JSX.CSSProperties
 
   /**
-   * Visual treatment of the menu item. `'danger'` uses the danger text color for destructive
-   * actions and sets `data-danger` on the item.
-   * @default 'default'
+   * Whether the item is a destructive action. `danger` items use the danger text color and set
+   * `data-danger` on the item.
    */
-  variant?: 'default' | 'danger'
+  danger?: boolean
 
   /**
    * Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and
@@ -100,7 +101,8 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
   /**
    * Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).
    * A non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the
-   * menu's `expandIcon` in place of `kbds`.
+   * menu's `expandIcon` in place of `kbds`. Only items without a `type` (or with `type: 'item'`)
+   * open submenus; on `group` and `radio-group` items `items` holds the group's entries.
    * @example
    * ```tsx
    * import { Button, DropdownMenu } from 'moraine'
@@ -202,7 +204,8 @@ export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
   items?: OverlayMenuItem[]
 }
 
-export interface OverlayMenuSeparatorItem extends OverlayMenuBaseItem {
+/** Divider line between items. It takes no content or presentation options. */
+export interface OverlayMenuSeparatorItem {
   type: 'separator'
 }
 
@@ -221,7 +224,7 @@ export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => Com
  */
 export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
   /** The item being rendered; a radio item (`type: 'radio'`) for entries of a radio group. */
-  item: TItem | OverlayMenuRadioItem
+  item: Exclude<TItem, OverlayMenuSeparatorItem> | OverlayMenuRadioItem
   /** Nesting level of the menu that holds the item: `0` for the root menu, plus one per submenu level. */
   depth: number
   /** Whether the item opens a submenu. */

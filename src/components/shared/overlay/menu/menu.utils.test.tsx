@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from 'vitest'
 import {
   createLayerKeyDownHandler,
   createPointerGraceIntent,
+  hasOverlayMenuChildren,
   isPointInPointerGraceIntent,
   resolveMenuGroups,
   useOverlayMenuLayerState,
@@ -51,6 +52,17 @@ function installWindowStub(): () => void {
     })
   }
 }
+
+describe('hasOverlayMenuChildren', () => {
+  test('opens a submenu only for untyped or item entries with nested children', () => {
+    expect(hasOverlayMenuChildren({ children: [{ label: 'Email' }] })).toBe(true)
+    expect(hasOverlayMenuChildren({ type: 'item', children: [{ label: 'Email' }] })).toBe(true)
+    expect(hasOverlayMenuChildren({ children: [] })).toBe(false)
+    expect(hasOverlayMenuChildren({ children: [{ type: 'group', items: [] }] })).toBe(false)
+    expect(hasOverlayMenuChildren({ type: 'group', items: [{ label: 'Email' }] })).toBe(false)
+    expect(hasOverlayMenuChildren({ type: 'radio-group', items: [{ value: 'a' }] })).toBe(false)
+  })
+})
 
 describe('createLayerKeyDownHandler', () => {
   test('does not close the menu for Escape emitted during IME composition', () => {
