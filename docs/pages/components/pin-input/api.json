@@ -103,7 +103,7 @@
           "description": "The virtual keyboard hint applied to the inputs and hidden input.\nOverrides the `inputMode` derived from `validationType`."
         },
         {
-          "name": "inputRefs",
+          "name": "inputsRef",
           "optional": true,
           "type": "Ref<HTMLInputElement[]>",
           "description": "Receives the array of the slot `<input>` elements, in order, after mount and whenever\n`length` changes. It is called with an empty array on cleanup."

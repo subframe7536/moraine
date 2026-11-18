@@ -86,7 +86,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'size',
     'variant',
     'ref',
-    'inputRefs',
+    'inputsRef',
     'classes',
     'styles',
     'class',
@@ -194,7 +194,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   })
 
   function updateInputsRef(): void {
-    if (!local.inputRefs) {
+    if (!local.inputsRef) {
       return
     }
     const len = length()
@@ -206,7 +206,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       }
     }
     if (filtered.length > 0) {
-      callRef(local.inputRefs, filtered)
+      callRef(local.inputsRef, filtered)
     }
   }
 
@@ -226,8 +226,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
   )
 
   onCleanup(() => {
-    if (local.inputRefs) {
-      callRef(local.inputRefs, [])
+    if (local.inputsRef) {
+      callRef(local.inputsRef, [])
     }
     inputEls.length = 0
   })

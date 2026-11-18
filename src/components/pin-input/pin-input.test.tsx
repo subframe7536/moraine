@@ -18,7 +18,7 @@ describe('PinInput', () => {
     render(() => (
       <PinInput
         ref={(el) => (rootEl = el)}
-        inputRefs={(els) => (inputs = els)}
+        inputsRef={(els) => (inputs = els)}
         length={4}
         placeholder="○"
       />
@@ -31,6 +31,16 @@ describe('PinInput', () => {
     expect(inputs[0]?.placeholder).toBe('○')
     expect(inputs[0]?.getAttribute('aria-label')).toBe('Pin input 1 of 4')
     expect(inputs[3]?.getAttribute('aria-label')).toBe('Pin input 4 of 4')
+  })
+
+  test('calls inputsRef with an empty array on unmount', () => {
+    const inputsRef = vi.fn()
+    const screen = render(() => <PinInput length={2} inputsRef={inputsRef} />)
+    expect(inputsRef).toHaveBeenCalledOnce()
+
+    screen.unmount()
+
+    expect(inputsRef).toHaveBeenLastCalledWith([])
   })
 
   test('clears placeholder when an input is focused and restores it on blur', () => {
