@@ -72,7 +72,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
               name={
                 item.isLoading
                   ? (context.props.loadingIcon ?? 'icon-loading')
-                  : (local.icon ?? context.props.triggerIcon ?? 'icon-chevron-right')
+                  : (local.icon ?? context.props.expandIcon ?? 'icon-chevron-right')
               }
               data-slot="tree-trigger-icon"
               class={TREE_TRIGGER_ICON_CLASS}

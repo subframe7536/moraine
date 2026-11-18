@@ -127,7 +127,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 | Concern      | `tree.Tree` props                                                                 |
 | ------------ | --------------------------------------------------------------------------------- |
 | Rendering    | `itemRender`, `actionRender`, `virtualizer`                                       |
-| Icons        | `triggerIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)          |
+| Icons        | `expandIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)           |
 | Presentation | `size`, `variant`, `indentGuide`, `transition`, `forceMount`, `classes`, `styles` |
 
 `createTree` reads options reactively. Pass changing or controlled values as getters, for example
@@ -367,7 +367,7 @@ const tree = createTree({
 })
 ```
 
-On `tree.Tree`, `triggerIcon` replaces the chevron of every item and `loadingIcon` replaces the
+On `tree.Tree`, `expandIcon` replaces the chevron of every item and `loadingIcon` replaces the
 glyph shown while a branch loads.
 
 ### Row actions

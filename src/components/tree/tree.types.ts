@@ -450,7 +450,7 @@ export namespace TreeT {
      * own. The recipe rotates it as the branch expands.
      * @default 'icon-chevron-right'
      */
-    triggerIcon?: IconT.Name
+    expandIcon?: IconT.Name
 
     /**
      * Icon shown in the trigger instead of the expand icon while a lazy branch loads its children.
@@ -489,7 +489,7 @@ export namespace TreeT {
      */
     as?: T
     /**
-     * Overrides the expand icon of this trigger (otherwise the tree's `triggerIcon`). The loading
+     * Overrides the expand icon of this trigger (otherwise the tree's `expandIcon`). The loading
      * icon still replaces it while the branch loads.
      */
     icon?: IconT.Name

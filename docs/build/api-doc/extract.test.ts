@@ -265,7 +265,7 @@ describe('generateApiDoc', () => {
     expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
     const treeRootProps = tree?.parts[0]?.props.map((prop) => prop.name) ?? []
     expect(treeRootProps).toEqual(
-      expect.arrayContaining(['loadingIcon', 'transition', 'triggerIcon', 'virtualizer']),
+      expect.arrayContaining(['loadingIcon', 'transition', 'expandIcon', 'virtualizer']),
     )
     expect(treeRootProps).not.toContain('scrollToItem')
     expect(treeRootProps).not.toContain('animate')

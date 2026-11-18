@@ -1414,7 +1414,7 @@ describe('createTree', () => {
           treeProps={{
             size: 'lg',
             variant: 'solid',
-            triggerIcon: 'icon-search',
+            expandIcon: 'icon-search',
             classes: { row: 'custom-row' },
             class: 'custom-root',
             itemRender: (context) => (

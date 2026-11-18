@@ -42,6 +42,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "expandIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its\nown. The recipe rotates it as the branch expands.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
+        },
+        {
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
@@ -110,16 +120,6 @@
           "default": {
             "kind": "literal",
             "value": true
-          }
-        },
-        {
-          "name": "triggerIcon",
-          "optional": true,
-          "type": "IconT.Name",
-          "description": "Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its\nown. The recipe rotates it as the branch expands.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-right"
           }
         },
         {
@@ -228,7 +228,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Overrides the expand icon of this trigger (otherwise the tree's `triggerIcon`). The loading\nicon still replaces it while the branch loads."
+          "description": "Overrides the expand icon of this trigger (otherwise the tree's `expandIcon`). The loading\nicon still replaces it while the branch loads."
         },
         {
           "name": "style",
