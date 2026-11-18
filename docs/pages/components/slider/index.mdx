@@ -76,8 +76,9 @@ tick every that many units without changing how the value snaps.
 
 ### Value text format
 
-`formatOptions` accepts `Intl.NumberFormat` options and formats each thumb's `aria-valuetext` with
-the provider locale. It does not change the value that callbacks receive. A `percent` style
+`formatOptions` accepts `Intl.NumberFormat` options and formats each thumb's raw value (not its
+share of the range) for `aria-valuetext` with the provider locale, as BoldSlider and Progress do. It
+does not change the value that callbacks receive. A `percent` style
 multiplies by 100, so pair it with a `0`–`1` range. BoldSlider also uses `formatOptions` for its
 visible value unless `valueLabel` is a formatter.
 

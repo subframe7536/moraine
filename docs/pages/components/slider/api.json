@@ -78,7 +78,7 @@
           "name": "formatOptions",
           "optional": true,
           "type": "Intl.NumberFormatOptions",
-          "description": "`Intl.NumberFormat` options used to format values for `aria-valuetext`, such as\n`{ style: 'percent' }`. Formatting uses the provider locale and does not change the\nvalue passed to callbacks; `BoldSlider` also uses it for its displayed value. Remember that a\n`percent` style multiplies by 100, so pair it with a `0`-`1` range.",
+          "description": "`Intl.NumberFormat` options used to format each thumb's raw value (not its share of the\n`min`-`max` range) for `aria-valuetext`, using the provider locale. Formatting does not change\nthe value passed to callbacks. A `percent` style multiplies by 100, so pair it with a `0`-`1`\nrange.",
           "examples": [
             "import { Slider } from 'moraine'\n\n<Slider\n  defaultValue={0.25}\n  min={0}\n  max={1}\n  step={0.05}\n  formatOptions={{ style: 'percent' }}\n/>"
           ]

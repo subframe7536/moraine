@@ -21,8 +21,29 @@ export namespace BoldSliderT {
    */
   export type Base = Omit<
     SliderT.Base<number>,
-    'minStepsBetweenThumbs' | 'allowThumbCrossing' | 'children'
+    'minStepsBetweenThumbs' | 'allowThumbCrossing' | 'children' | 'formatOptions'
   > & {
+    /**
+     * `Intl.NumberFormat` options used to format the raw value (not its share of the `min`-`max`
+     * range) for the displayed value text and `aria-valuetext`, using the provider locale. A
+     * `percent` style multiplies by 100, so pair it with a `0`-`1` range. A `valueLabel` function
+     * takes precedence for the displayed text.
+     * @example
+     * ```tsx
+     * import { BoldSlider } from 'moraine'
+     *
+     * <BoldSlider
+     *   label="Opacity"
+     *   defaultValue={0.5}
+     *   min={0}
+     *   max={1}
+     *   step={0.05}
+     *   formatOptions={{ style: 'percent' }}
+     * />
+     * ```
+     */
+    formatOptions?: Intl.NumberFormatOptions
+
     /**
      * Content shown at the start of the track. Also used as the default `aria-label` when it is a
      * string. It renders in both the track and fill text layers, so pass JSX inline rather than a

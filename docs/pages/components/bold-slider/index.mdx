@@ -58,7 +58,8 @@ accepts `sm`, `md` (default), or `lg`.
 `label` is drawn at the start of the track; a string label is also the default `aria-label`. The
 value is drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to
 the decimal places of `step` (two places without `step`) and has no digit grouping. Set
-`formatOptions` to format it with `Intl.NumberFormat` instead. Pass a function to `valueLabel` to add
+`formatOptions` to format the raw value with `Intl.NumberFormat` instead; a `percent` style
+multiplies by 100, so pair it with a `0`–`1` range. Pass a function to `valueLabel` to add
 units or other formatting. It receives `{ percent, value, max }`, the same shape as Progress
 `valueLabel`. `percent` is the filled share of the track from 0 to 100, and `max` is 100 when unset.
 

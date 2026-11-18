@@ -53,9 +53,9 @@
           "name": "formatOptions",
           "optional": true,
           "type": "Intl.NumberFormatOptions",
-          "description": "`Intl.NumberFormat` options used to format values for `aria-valuetext`, such as\n`{ style: 'percent' }`. Formatting uses the provider locale and does not change the\nvalue passed to callbacks; `BoldSlider` also uses it for its displayed value. Remember that a\n`percent` style multiplies by 100, so pair it with a `0`-`1` range.",
+          "description": "`Intl.NumberFormat` options used to format the raw value (not its share of the `min`-`max`\nrange) for the displayed value text and `aria-valuetext`, using the provider locale. A\n`percent` style multiplies by 100, so pair it with a `0`-`1` range. A `valueLabel` function\ntakes precedence for the displayed text.",
           "examples": [
-            "import { Slider } from 'moraine'\n\n<Slider\n  defaultValue={0.25}\n  min={0}\n  max={1}\n  step={0.05}\n  formatOptions={{ style: 'percent' }}\n/>"
+            "import { BoldSlider } from 'moraine'\n\n<BoldSlider\n  label=\"Opacity\"\n  defaultValue={0.5}\n  min={0}\n  max={1}\n  step={0.05}\n  formatOptions={{ style: 'percent' }}\n/>"
           ]
         },
         {

@@ -113,6 +113,17 @@ describe('BoldSlider', () => {
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
   })
 
+  test('formats the raw value with formatOptions', () => {
+    const screen = render(() => (
+      <BoldSlider defaultValue={25} max={50} formatOptions={{ style: 'unit', unit: 'percent' }} />
+    ))
+
+    expect(query(screen.container, '[data-slot="bold-slider-value"]').textContent).toBe('25%')
+    expect(
+      query(screen.container, '[data-slot="slider-thumb"]').getAttribute('aria-valuetext'),
+    ).toBe('25%')
+  })
+
   test('hides the label and value when they are not requested', () => {
     const screen = render(() => <BoldSlider valueLabel={false} />)
 

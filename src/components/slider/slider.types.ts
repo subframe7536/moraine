@@ -74,10 +74,10 @@ export namespace SliderT {
      */
     translations?: Translations
     /**
-     * `Intl.NumberFormat` options used to format values for `aria-valuetext`, such as
-     * `{ style: 'percent' }`. Formatting uses the provider locale and does not change the
-     * value passed to callbacks; `BoldSlider` also uses it for its displayed value. Remember that a
-     * `percent` style multiplies by 100, so pair it with a `0`-`1` range.
+     * `Intl.NumberFormat` options used to format each thumb's raw value (not its share of the
+     * `min`-`max` range) for `aria-valuetext`, using the provider locale. Formatting does not change
+     * the value passed to callbacks. A `percent` style multiplies by 100, so pair it with a `0`-`1`
+     * range.
      * @example
      * ```tsx
      * import { Slider } from 'moraine'
