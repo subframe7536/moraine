@@ -18,7 +18,7 @@ export const DOCS_CODE_CONTENT_CLASS =
   'text-sm leading-relaxed font-mono p-4 outline-none overflow-x-auto [&_pre]:m-0 [&_pre]:p-0 [&_pre]:outline-none [&_pre]:border-0! [&_pre]:rounded-none! [&_pre]:bg-transparent!'
 
 export const DOCS_CODE_FALLBACK_PRE_CLASS =
-  'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 outline-none overflow-x-auto'
+  'text-sm leading-relaxed font-mono m-0 p-4 outline-none overflow-x-auto scrollbar-thumb-border scrollbar-track-transparent scrollbar-thin'
 
 export const DOCS_CODE_EXPAND_BUTTON_CLASS = `border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm ${FOCUS_VISIBLE_RING_CLASS} -translate-x-1/2`
 

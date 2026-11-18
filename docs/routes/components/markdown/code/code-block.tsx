@@ -180,7 +180,7 @@ export function CodeBlock(props: CodeBlockProps) {
           }}
           tabIndex={-1}
           class={cn(
-            'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent outline-none overscroll-x-contain h-full overflow-x-auto',
+            'outline-none overscroll-x-contain h-full overflow-x-auto scrollbar-thumb-border scrollbar-track-transparent scrollbar-thin',
             isExpandable() && !isExpanded() && 'pointer-events-none',
           )}
           inert={isExpandable() && !isExpanded() ? true : undefined}
