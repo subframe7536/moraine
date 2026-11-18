@@ -53,16 +53,6 @@
           "description": "DOM `id` of the group's root element."
         },
         {
-          "name": "keyboardDelta",
-          "optional": true,
-          "type": "number",
-          "description": "Percent of the group a handle moves per `Arrow` key press. `Shift` + `Arrow` moves the handle\nas far as the panels' `min` and `max` allow, as do `Home` and `End`.",
-          "default": {
-            "kind": "literal",
-            "value": 10
-          }
-        },
-        {
           "name": "onValueChange",
           "optional": true,
           "type": "(layout: Layout) => void",
@@ -85,6 +75,16 @@
           "default": {
             "kind": "literal",
             "value": "horizontal"
+          }
+        },
+        {
+          "name": "step",
+          "optional": true,
+          "type": "number",
+          "description": "Percent of the group a handle moves per `Arrow` key press. `Shift` + `Arrow` moves the handle\nas far as the panels' `min` and `max` allow, as do `Home` and `End`.",
+          "default": {
+            "kind": "literal",
+            "value": 10
           }
         },
         {

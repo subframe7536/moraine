@@ -111,7 +111,7 @@ export namespace ResizableT {
      * as far as the panels' `min` and `max` allow, as do `Home` and `End`.
      * @default 10
      */
-    keyboardDelta?: number
+    step?: number
     /**
      * Whether pointer and keyboard resizing are disabled for every handle in the group. Panel
      * sizes can still change through `value` or `Resizable.usePanel()`.

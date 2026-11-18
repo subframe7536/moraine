@@ -73,7 +73,7 @@ interface TwoPanelProps {
   defaultValue?: ResizableT.Layout
   onValueChange?: (layout: ResizableT.Layout) => void
   onValueCommit?: (layout: ResizableT.Layout) => void
-  keyboardDelta?: number
+  step?: number
   disabled?: boolean
   orientation?: 'horizontal' | 'vertical'
   a?: Partial<ResizableT.PanelBase>
@@ -88,7 +88,7 @@ function TwoPanels(props: TwoPanelProps): JSX.Element {
       defaultValue={props.defaultValue}
       onValueChange={props.onValueChange}
       onValueCommit={props.onValueCommit}
-      keyboardDelta={props.keyboardDelta}
+      step={props.step}
       disabled={props.disabled}
       orientation={props.orientation}
     >

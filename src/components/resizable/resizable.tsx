@@ -33,7 +33,7 @@ import { ResizablePanel, useResizablePanel } from './resizable-panel'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
-const DEFAULT_KEYBOARD_DELTA = 10
+const DEFAULT_STEP = 10
 
 interface DragState {
   panelIndex: number
@@ -101,7 +101,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'onValueChange',
     'onValueCommit',
     'disabled',
-    'keyboardDelta',
+    'step',
     'orientation',
     'classes',
     'styles',
@@ -119,7 +119,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const orientation = (): ResizableOrientation => variants.orientation ?? 'horizontal'
   const disabled = () => local.disabled === true
-  const keyboardDelta = () => local.keyboardDelta ?? DEFAULT_KEYBOARD_DELTA
+  const step = () => local.step ?? DEFAULT_STEP
 
   const [settled, setSettled] = createSignal(false)
   const [resizing, setResizing] = createSignal(false)
@@ -487,7 +487,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
         horizontal &&
         event.currentTarget instanceof Element &&
         resolveDirection(event.currentTarget) === 'rtl'
-      const delta = keyboardDelta() / 100
+      const delta = step() / 100
       const resize = (deltaPercentage: number) =>
         resizeHandleByPercentage(precedingIndex, deltaPercentage, event.altKey, event)
       const collapse: KeyBinding<HTMLElement, [number]> = {
