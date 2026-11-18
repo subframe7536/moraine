@@ -38,10 +38,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "controlAs",
+          "name": "controlRender",
           "optional": true,
-          "type": "ValidComponent",
-          "description": "Component or tag that renders the previous and next controls, like `itemAs` for page items.\nIt receives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an edge\nand all controls while `disabled` stay disabled buttons."
+          "type": "Component<ControlRenderProps>",
+          "description": "Component that renders the previous and next controls, like `itemRender` for page items. It\nreceives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an\nedge and all controls while `disabled` stay disabled buttons."
         },
         {
           "name": "controls",
@@ -97,16 +97,19 @@
           "name": "getPageHref",
           "optional": true,
           "type": "(page: number) => string | undefined",
-          "description": "Builds the destination URL for a page number. It is called with the target page of each\nnumbered item other than the current page, and of the previous and next controls. An item\nthat gets a URL renders as `<a href>` (or as `itemAs` / `controlAs` when set) and still calls\n`onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while\n`disabled`, and previous on the first page and next on the last page stay disabled buttons.",
+          "description": "Builds the destination URL for a page number. It is called with the target page of each\nnumbered item other than the current page, and of the previous and next controls. An item\nthat gets a URL renders as `<a href>` (or through `itemRender` / `controlRender` when set) and still calls\n`onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while\n`disabled`, and previous on the first page and next on the last page stay disabled buttons.",
           "examples": [
             "import { Pagination } from 'moraine'\n\n<Pagination total={100} pageSize={10} getPageHref={(page) => `/posts?page=${page}`} />"
           ]
         },
         {
-          "name": "itemAs",
+          "name": "itemRender",
           "optional": true,
-          "type": "ValidComponent",
-          "description": "Component or tag that renders the numbered page items, passed to the item button's `as`, for\nexample a router link. It receives `href` when `getPageHref` returns a URL. By default an item\nrenders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`."
+          "type": "Component<ItemRenderProps>",
+          "description": "Component that renders every numbered page item in place of the default element, for example\na router link. It is mounted as a component and receives the item's native anchor props,\nincluding `href` when `getPageHref` returns a URL, plus `class`, `children`, and handlers;\nspread them onto the rendered element. By default an item renders as `<a>` when it has a URL\nand as a `button` otherwise. Ignored while `disabled`.",
+          "examples": [
+            "import { Pagination } from 'moraine'\nimport type { PaginationT } from 'moraine'\n\nconst RouterLink = (props: PaginationT.ItemRenderProps) => <a {...props} />\n\n<Pagination\n  total={100}\n  pageSize={10}\n  getPageHref={(page) => `/posts?page=${page}`}\n  itemRender={RouterLink}\n/>"
+          ]
         },
         {
           "name": "nextIcon",

@@ -118,8 +118,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'nextText',
     'ellipsisIcon',
     'getPageHref',
-    'itemAs',
-    'controlAs',
+    'itemRender',
+    'controlRender',
     'classes',
     'styles',
     'class',
@@ -211,8 +211,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
     const isCurrent = target === currentPage()
     const href = isCurrent ? undefined : merged.getPageHref?.(target)
-    if (merged.itemAs) {
-      return href ? { as: merged.itemAs, href } : { as: merged.itemAs }
+    if (merged.itemRender) {
+      return href ? { as: merged.itemRender, href } : { as: merged.itemRender }
     }
     return href ? { as: 'a', href } : { as: 'button', type: 'button' }
   }
@@ -223,8 +223,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     }
 
     const href = merged.getPageHref?.(target)
-    if (merged.controlAs) {
-      return href ? { as: merged.controlAs, href, rel } : { as: merged.controlAs }
+    if (merged.controlRender) {
+      return href ? { as: merged.controlRender, href, rel } : { as: merged.controlRender }
     }
     return href ? { as: 'a', href, rel } : { as: 'button', type: 'button' }
   }

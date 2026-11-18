@@ -1,7 +1,7 @@
-import type { Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
-import type { BaseProps, ValidComponent } from '../../shared/types'
+import type { BaseProps, ElementProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
@@ -19,6 +19,15 @@ export namespace PaginationT {
   export type Styles = Slot<SlotStyleValue>
   export type Messages = ComponentMessages<typeof defaultPaginationMessages>
   export type Translations = Partial<Messages>
+
+  /** Native anchor props passed to a custom page item component, including its ref and handlers. */
+  export type ItemRenderProps = ElementProps<
+    HTMLAnchorElement,
+    JSX.AnchorHTMLAttributes<HTMLAnchorElement>
+  >
+
+  /** Native anchor props passed to a custom previous or next control component. */
+  export type ControlRenderProps = ItemRenderProps
 
   /**
    * Base props for the Pagination component.
@@ -141,7 +150,7 @@ export namespace PaginationT {
     /**
      * Builds the destination URL for a page number. It is called with the target page of each
      * numbered item other than the current page, and of the previous and next controls. An item
-     * that gets a URL renders as `<a href>` (or as `itemAs` / `controlAs` when set) and still calls
+     * that gets a URL renders as `<a href>` (or through `itemRender` / `controlRender` when set) and still calls
      * `onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while
      * `disabled`, and previous on the first page and next on the last page stay disabled buttons.
      * @example
@@ -154,18 +163,34 @@ export namespace PaginationT {
     getPageHref?: (page: number) => string | undefined
 
     /**
-     * Component or tag that renders the numbered page items, passed to the item button's `as`, for
-     * example a router link. It receives `href` when `getPageHref` returns a URL. By default an item
-     * renders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`.
+     * Component that renders every numbered page item in place of the default element, for example
+     * a router link. It is mounted as a component and receives the item's native anchor props,
+     * including `href` when `getPageHref` returns a URL, plus `class`, `children`, and handlers;
+     * spread them onto the rendered element. By default an item renders as `<a>` when it has a URL
+     * and as a `button` otherwise. Ignored while `disabled`.
+     * @example
+     * ```tsx
+     * import { Pagination } from 'moraine'
+     * import type { PaginationT } from 'moraine'
+     *
+     * const RouterLink = (props: PaginationT.ItemRenderProps) => <a {...props} />
+     *
+     * <Pagination
+     *   total={100}
+     *   pageSize={10}
+     *   getPageHref={(page) => `/posts?page=${page}`}
+     *   itemRender={RouterLink}
+     * />
+     * ```
      */
-    itemAs?: ValidComponent
+    itemRender?: Component<ItemRenderProps>
 
     /**
-     * Component or tag that renders the previous and next controls, like `itemAs` for page items.
-     * It receives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an edge
-     * and all controls while `disabled` stay disabled buttons.
+     * Component that renders the previous and next controls, like `itemRender` for page items. It
+     * receives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an
+     * edge and all controls while `disabled` stay disabled buttons.
      */
-    controlAs?: ValidComponent
+    controlRender?: Component<ControlRenderProps>
   }
 
   /**

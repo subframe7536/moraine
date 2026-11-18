@@ -234,14 +234,14 @@ describe('Pagination', () => {
     expect(next?.getAttribute('href')).toBe('/page/3')
   })
 
-  test('keeps itemAs and controlAs independent while forwarding destinations', () => {
+  test('keeps itemRender and controlRender independent while forwarding destinations', () => {
     const screen = render(() => (
       <Pagination
         page={2}
         total={30}
         pageSize={10}
-        itemAs={ItemLink}
-        controlAs={ControlLink}
+        itemRender={ItemLink}
+        controlRender={ControlLink}
         getPageHref={(page) => `/page/${page}`}
       />
     ))
@@ -262,9 +262,9 @@ describe('Pagination', () => {
     expect(next?.getAttribute('rel')).toBe('next')
   })
 
-  test('honors explicit itemAs without a destination', () => {
+  test('honors explicit itemRender without a destination', () => {
     const screen = render(() => (
-      <Pagination total={30} pageSize={10} itemAs={ItemLink} controls={false} />
+      <Pagination total={30} pageSize={10} itemRender={ItemLink} controls={false} />
     ))
 
     const items = screen.container.querySelectorAll('[data-slot="pagination-item"]')
@@ -282,7 +282,7 @@ describe('Pagination', () => {
         page={1}
         total={30}
         pageSize={10}
-        controlAs={ControlLink}
+        controlRender={ControlLink}
         getPageHref={(page) => `/page/${page}`}
       />
     ))
@@ -298,7 +298,7 @@ describe('Pagination', () => {
         page={3}
         total={30}
         pageSize={10}
-        controlAs={ControlLink}
+        controlRender={ControlLink}
         getPageHref={(page) => `/page/${page}`}
       />
     ))
@@ -312,7 +312,7 @@ describe('Pagination', () => {
         page={2}
         total={30}
         pageSize={10}
-        controlAs={ControlLink}
+        controlRender={ControlLink}
         getPageHref={(page) => `/page/${page}`}
         disabled
       />

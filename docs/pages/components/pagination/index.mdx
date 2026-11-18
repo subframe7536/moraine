@@ -84,15 +84,19 @@ come from `translations`.
 ### Rendering links
 
 Use `getPageHref(page)` by itself to render page controls as anchors. The current page stays a button.
-For router integration, use `itemAs` for numbered items and `controlAs` for Previous/Next; these
+For router integration, use `itemRender` for numbered items and `controlRender` for Previous/Next; these
 props are independent and `getPageHref` still only generates the destination. Clicking a link also calls
 `onPageChange`. Previous on the first page and Next on the last page remain disabled buttons even
-when `controlAs` is set, and `disabled` turns every control into a disabled button.
+when `controlRender` is set, and `disabled` turns every control into a disabled button.
+
+`itemRender` and `controlRender` take a component that receives native anchor props
+(`PaginationT.ItemRenderProps`); spread them onto your router link. The current page has no
+`href`, so handle that case in the component.
 
 ```tsx
 <Pagination
-  itemAs={A}
-  controlAs={A}
+  itemRender={RouterLink}
+  controlRender={RouterLink}
   total={50}
   pageSize={10}
   page={page()}
