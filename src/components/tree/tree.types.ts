@@ -128,7 +128,7 @@ export namespace TreeT {
      * Called after `loadChildren` resolved for an item, with the item and its loaded children
      * (possibly empty).
      */
-    onLoadChildrenComplete?: (details: { item: T; children: readonly T[] }) => void
+    onLoadChildrenSuccess?: (details: { item: T; children: readonly T[] }) => void
 
     /** Called when `loadChildren` rejected or threw for an item, with the item and the error. */
     onLoadChildrenError?: (details: { item: T; error: unknown }) => void

@@ -1207,9 +1207,9 @@ describe('createTree', () => {
             resolve = done
           }),
       )
-      const onLoadChildrenComplete = vi.fn()
+      const onLoadChildrenSuccess = vi.fn()
       const { container } = render(() => (
-        <LazyHarness loadChildren={loadChildren} options={{ onLoadChildrenComplete }} />
+        <LazyHarness loadChildren={loadChildren} options={{ onLoadChildrenSuccess }} />
       ))
       const remote = item(container, 'remote')
       expect(remote.getAttribute('aria-expanded')).toBe('false')
@@ -1229,7 +1229,7 @@ describe('createTree', () => {
       )
       expect(item(container, 'remote').hasAttribute('aria-busy')).toBe(false)
       expect(item(container, 'child.txt').getAttribute('aria-level')).toBe('2')
-      expect(onLoadChildrenComplete).toHaveBeenCalledTimes(1)
+      expect(onLoadChildrenSuccess).toHaveBeenCalledTimes(1)
     })
 
     test('reports load failures and stays collapsed', async () => {

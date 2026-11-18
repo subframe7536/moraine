@@ -121,7 +121,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 | Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedKeysChange`, `expandOnClick` (`true`), `trigger` (`true`)                       |
 | Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectedKeysChange` |
 | Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedKeysChange`                        |
-| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                                   |
+| Lazy loads | `loadChildren`, `onLoadChildrenSuccess`, `onLoadChildrenError`                                                                    |
 | Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                                |
 
 | Concern      | `tree.Tree` props                                                                 |
@@ -247,7 +247,7 @@ array from `getChildren`, or mark the item with `isLeaf`, when it can never have
 
 Expanding a lazy branch waits for the promise. While it loads, the trigger shows `loadingIcon`,
 the item sets `aria-busy`, and its key appears in `loadingKeys`. On success the branch expands and
-`onLoadChildrenComplete` runs. On failure `onLoadChildrenError` runs and the branch stays
+`onLoadChildrenSuccess` runs. On failure `onLoadChildrenError` runs and the branch stays
 collapsed, so expanding it again retries. Lazy keys in `defaultExpandedKeys` or `expandedKeys` load
 the same way.
 

@@ -186,7 +186,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
       setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
     })
-    options.onLoadChildrenComplete?.({ item, children })
+    options.onLoadChildrenSuccess?.({ item, children })
     return true
   }
 
