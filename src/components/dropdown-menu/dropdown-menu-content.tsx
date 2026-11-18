@@ -38,13 +38,13 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
     'headerRender',
     'footerRender',
     'checkedIcon',
-    'submenuIcon',
+    'expandIcon',
     'class',
     'style',
   ])
   const context = useDropdownMenuContext()
 
-  const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
+  const merged = mergeProps({ checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' }, local)
   const { slots } = useRecipe(dropdownMenuRecipe, local, {
     slot: 'content',
     context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),
@@ -57,7 +57,7 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
       slotBinding={(slot) => slots[slot]}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
-      submenuIcon={merged.submenuIcon}
+      expandIcon={merged.expandIcon}
       itemRender={merged.itemRender}
       headerRender={merged.headerRender}
       footerRender={merged.footerRender}

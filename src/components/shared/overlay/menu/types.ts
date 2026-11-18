@@ -100,7 +100,7 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
   /**
    * Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).
    * A non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the
-   * menu's `submenuIcon` in place of `kbds`.
+   * menu's `expandIcon` in place of `kbds`.
    * @example
    * ```tsx
    * import { Button, DropdownMenu } from 'moraine'
@@ -355,7 +355,7 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
    * Icon used for submenu trigger items.
    * @default 'icon-chevron-right'
    */
-  submenuIcon?: IconT.Name
+  expandIcon?: IconT.Name
 
   /**
    * Unified slot class and style resolver.

@@ -1487,7 +1487,7 @@ describe('DropdownMenu', () => {
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          submenuIcon={Glyph}
+          expandIcon={Glyph}
           items={[
             { label: 'Search', icon: 'icon-search' },
             { label: 'Share', icon: Glyph, children: [{ label: 'Email' }] },

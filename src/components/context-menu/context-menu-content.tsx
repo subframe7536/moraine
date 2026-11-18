@@ -38,13 +38,13 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
     'headerRender',
     'footerRender',
     'checkedIcon',
-    'submenuIcon',
+    'expandIcon',
     'class',
     'style',
   ])
   const context = useContextMenuContext()
 
-  const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
+  const merged = mergeProps({ checkedIcon: 'icon-check', expandIcon: 'icon-chevron-right' }, local)
   const { slots } = useRecipe(contextMenuRecipe, local, {
     slot: 'content',
     context: () => ({ variants: { size: context.size?.() }, ...context.slotOverrides }),
@@ -57,7 +57,7 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
       slotBinding={(slot) => slots[slot]}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
-      submenuIcon={merged.submenuIcon}
+      expandIcon={merged.expandIcon}
       itemRender={merged.itemRender}
       headerRender={merged.headerRender}
       footerRender={merged.footerRender}

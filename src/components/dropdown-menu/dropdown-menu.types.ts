@@ -222,7 +222,7 @@ export namespace DropdownMenuT {
      * Icon shown at the end of items that open a submenu.
      * @default 'icon-chevron-right'
      */
-    submenuIcon?: IconT.Name
+    expandIcon?: IconT.Name
   }
 
   /**

@@ -183,7 +183,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     id?: string
     depth: number
     checkedIcon?: IconT.Name
-    submenuIcon?: IconT.Name
+    expandIcon?: IconT.Name
     itemRender?: Component<OverlayMenuItemRenderProps<TItem>>
   }
   layer: OverlayMenuLayerState
@@ -260,7 +260,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         <span data-slot={slotName('itemTrailing')} {...resolveSlot('itemTrailing')}>
           <Show when={contentProps.hasChildren}>
             <Icon
-              name={props.submenuIcon}
+              name={props.expandIcon}
               data-slot={slotName('itemSubIndicator')}
               {...resolveSlot('itemSubIndicator')}
             />
