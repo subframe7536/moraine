@@ -2,7 +2,7 @@ import { Button, NavigationMenu } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Controlled() {
-  const [value, setValue] = createSignal<string | undefined>(undefined)
+  const [value, setValue] = createSignal<string | null>(null)
   const [disabled, setDisabled] = createSignal(false)
   return (
     <div class="min-h-56 space-y-4">
@@ -10,7 +10,7 @@ export function Controlled() {
         <Button size="sm" variant="outline" onClick={() => setValue('account')}>
           Open account
         </Button>
-        <Button size="sm" variant="outline" onClick={() => setValue(undefined)}>
+        <Button size="sm" variant="outline" onClick={() => setValue(null)}>
           Close
         </Button>
         <Button size="sm" variant="outline" onClick={() => setDisabled((value) => !value)}>

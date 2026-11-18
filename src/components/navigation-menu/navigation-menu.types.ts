@@ -33,23 +33,22 @@ export namespace NavigationMenuT {
     /** Gap between the trigger and panel, in pixels. @default 8 */
     gutter?: number
     /**
-     * Controlled `value` of the open `NavigationMenu.Item`. While `undefined` the menu is
-     * uncontrolled and follows `defaultValue`; a value that matches no enabled item with content
-     * leaves the menu closed. Update it from `onValueChange`.
+     * Controlled `value` of the open `NavigationMenu.Item`. `undefined` keeps the menu
+     * uncontrolled; `null` keeps it controlled and closed. A value that matches no enabled item
+     * with content leaves the menu closed. Update it from `onValueChange`.
      */
-    value?: string
+    value?: string | null
     /**
      * `value` of the item that is open initially when uncontrolled; omit to start closed. Ignored
      * when `value` is set.
-     * @default undefined
      */
     defaultValue?: string
     /**
-     * Called with the `value` of the item that should open, or `undefined` when the menu should
-     * close, after hover, click, keyboard or dismissal. It only fires when the value changes and
-     * fires in controlled mode too, so a controlled menu must write it back to `value`.
+     * Called with the `value` of the item that should open, or `null` when the menu should close,
+     * after hover, click, keyboard or dismissal. It only fires when the value changes and fires in
+     * controlled mode too, so a controlled menu must write it back to `value`.
      */
-    onValueChange?: (value: string | undefined) => void
+    onValueChange?: (value: string | null) => void
     /**
      * Disables every trigger and link in the menu: panels cannot open (an open panel closes) and
      * links lose their `href` and are marked `aria-disabled`.

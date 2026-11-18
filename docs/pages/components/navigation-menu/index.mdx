@@ -105,8 +105,8 @@ navigation landmarks. This version supports one level of panels.
 ### Controlled state
 
 Give each item a stable `value`, then control the open item with `value` and `onValueChange`.
-`onValueChange` receives the value of the item to open, or `undefined` to close, and you write it
-back to `value`. A value that matches no enabled item with content leaves the menu closed, so
+`onValueChange` receives the value of the item to open, or `null` to close, and you write it back
+to `value`. Pass `null` to keep a controlled menu closed; `undefined` leaves it uncontrolled. A value that matches no enabled item with content leaves the menu closed, so
 disabled or removed items cannot keep a panel open. For uncontrolled state, `defaultValue` opens an
 item after hydration. `disabled` on the root disables every trigger and link and closes the
 open panel; on an `Item` it disables only that item's trigger or direct links.

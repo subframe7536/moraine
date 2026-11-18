@@ -5,9 +5,9 @@ import { defineTheme } from 'moraine/theme'
 const RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />
 
 ;<NavigationMenu
-  value={undefined}
+  value={null}
   onValueChange={(value) => {
-    const selected: string | undefined = value
+    const selected: string | null = value
     void selected
   }}
   orientation="vertical"

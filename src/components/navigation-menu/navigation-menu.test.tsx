@@ -248,7 +248,7 @@ describe('NavigationMenu', () => {
   })
 
   test('requests controlled changes without changing the supplied value', async () => {
-    const [value, setValue] = createSignal<string | undefined>(undefined)
+    const [value, setValue] = createSignal<string | null>(null)
     const changes = vi.fn()
     render(() => <TestMenu value={value()} onValueChange={changes} />)
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
@@ -268,7 +268,36 @@ describe('NavigationMenu', () => {
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
     expect(changes.mock.calls).toEqual([['products'], ['guides']])
-    setValue(undefined)
+    setValue(null)
+  })
+
+  test('stays controlled after a controlled close writes back null', async () => {
+    const [value, setValue] = createSignal<string | null>('products')
+    const changes = vi.fn()
+    render(() => (
+      <TestMenu
+        value={value()}
+        onValueChange={(next) => {
+          changes(next)
+          // Accept only closes, so an uncontrolled fallback would be visible as an open panel.
+          if (next === null) {
+            setValue(null)
+          }
+        }}
+      />
+    ))
+    const products = page.getByRole('button', { name: 'Products' })
+    await page.findByRole('link', { name: 'Overview' })
+    fireEvent.click(products)
+    expect(changes).toHaveBeenLastCalledWith(null)
+    await waitFor(() =>
+      expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
+    )
+    fireEvent.click(page.getByRole('button', { name: 'Guides' }))
+    expect(changes).toHaveBeenLastCalledWith('guides')
+    await Promise.resolve()
+    expect(page.getByRole('button', { name: 'Guides' }).getAttribute('aria-expanded')).toBe('false')
+    expect(page.queryByRole('link', { name: 'Guide' })).toBeNull()
   })
 
   test.each([
@@ -593,7 +622,7 @@ describe('NavigationMenu', () => {
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
-    expect(changes).toHaveBeenLastCalledWith(undefined)
+    expect(changes).toHaveBeenLastCalledWith(null)
     setDisabled(false)
     expect((trigger as HTMLButtonElement).disabled).toBe(false)
     fireEvent.click(trigger)
@@ -611,11 +640,11 @@ describe('NavigationMenu', () => {
     )
     expect(changes.mock.calls).toEqual([
       ['dynamic'],
-      [undefined],
+      [null],
       ['dynamic'],
-      [undefined],
+      [null],
       ['dynamic'],
-      [undefined],
+      [null],
     ])
   })
 

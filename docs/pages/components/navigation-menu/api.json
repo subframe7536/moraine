@@ -55,11 +55,7 @@
           "name": "defaultValue",
           "optional": true,
           "type": "string",
-          "description": "`value` of the item that is open initially when uncontrolled; omit to start closed. Ignored\nwhen `value` is set.",
-          "default": {
-            "kind": "expression",
-            "text": "undefined"
-          }
+          "description": "`value` of the item that is open initially when uncontrolled; omit to start closed. Ignored\nwhen `value` is set."
         },
         {
           "name": "disabled",
@@ -97,8 +93,8 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string | undefined) => void",
-          "description": "Called with the `value` of the item that should open, or `undefined` when the menu should\nclose, after hover, click, keyboard or dismissal. It only fires when the value changes and\nfires in controlled mode too, so a controlled menu must write it back to `value`."
+          "type": "(value: string | null) => void",
+          "description": "Called with the `value` of the item that should open, or `null` when the menu should close,\nafter hover, click, keyboard or dismissal. It only fires when the value changes and fires in\ncontrolled mode too, so a controlled menu must write it back to `value`."
         },
         {
           "name": "openDelay",
@@ -175,8 +171,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string",
-          "description": "Controlled `value` of the open `NavigationMenu.Item`. While `undefined` the menu is\nuncontrolled and follows `defaultValue`; a value that matches no enabled item with content\nleaves the menu closed. Update it from `onValueChange`."
+          "type": "string | null",
+          "description": "Controlled `value` of the open `NavigationMenu.Item`. `undefined` keeps the menu\nuncontrolled; `null` keeps it controlled and closed. A value that matches no enabled item\nwith content leaves the menu closed. Update it from `onValueChange`."
         }
       ]
     },
