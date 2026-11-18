@@ -196,7 +196,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
 - **Props:**
   - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`). This rule applies to component props only; keys inside `items` collection objects are exempt (`content` on Tabs, Stepper, and Accordion items). `separator` is also exempt: it takes text or icon shorthand and also accepts a component (KbdGroup, Breadcrumb).
-  - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `topRender` and `bottomRender`, not `contentTopRender` and `contentBottomRender`).
+  - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `headerRender` and `footerRender`, not `contentHeaderRender` and `contentFooterRender`).
   - Controlled state uses the `x` / `defaultX` / `onXChange` triple. Every `on<X>Change` callback must have a matching `x` prop on the same part; the only exceptions are `onStatusChange` and `onOverflowChange`, which fire without a controlled value.
   - Positional icons use `leading` / `trailing`; a single primary icon uses `icon`; functional icons end with `Icon` (`closeIcon`, `clearIcon`, `removeIcon`, `loadingIcon`, `checkedIcon`, `prevIcon`). Any prop typed `IconT.Name` must be named `icon`, `leading`, `trailing`, `separator`, `badge`, or end with `Icon`.
   - Color uses `tone`; feedback status uses `type`.
@@ -226,15 +226,15 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 - Component namespaces should contain `Slot`, `Variants`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
 - **Render prop typing rules:**
   - **Reusable / Multi-instance renderers:** Multi-instance renderers evaluated across collections, loops, or multiple dynamic instances (`itemRender`, `tagRender`, `linkRender`, `separatorRender`, host `<AlertDialog dialogRender={...} />`) must be typed strictly as `Component<*RenderProps>`. Never accept `JSX.Element` here: in SolidJS, static JSX expressions create a single DOM node instance on evaluation that cannot be cloned or distributed across multiple iterations or instances.
-  - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`topRender`, `bottomRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`.
+  - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`headerRender`, `footerRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`.
   - **No type aliases on `*Render`:** Do not create type aliases for the prop itself (`type Render = ...` or `type ItemRender = ...`). Type the prop directly as `Component<*RenderProps>` or `JSX.Element | Component<*RenderProps>`.
-  - **Render prop parameter types:** Export parameter types in the component namespace: `<Component>T.<Slot>RenderProps` (e.g. `SelectT.ItemRenderProps`, `SelectT.EmptyRenderProps`, `DropdownMenuT.TopRenderProps`).
+  - **Render prop parameter types:** Export parameter types in the component namespace: `<Component>T.<Slot>RenderProps` (e.g. `SelectT.ItemRenderProps`, `SelectT.EmptyRenderProps`, `DropdownMenuT.HeaderRenderProps`).
 - **Composite component contracts:**
   - `<namespace>T.Base` must be the only type containing configuration and behavioral options. Do not include `classes`, `styles`, or `variant` directly on `Base`; they are supplied via `BaseProps`.
   - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`.
     - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variants, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
     - Element-rendering roots use `BaseProps<Tag, Base, Variants, Classes, Styles>`.
-  - All attached child part props must be compose-only: `BaseProps<Tag, PartBase, never, never, never>`. Part bases (`ContentBase`, `TriggerBase`, `ItemBase`, etc.) must never take `classes`, `styles`, `variant`, or root configuration options (such as `restoreFocusOnClose`, `gutter`, `overflowPadding`, `onExitComplete`). Configuration belongs strictly on root `Base`/`Props`.
+  - All attached child part props must be compose-only: `BaseProps<Tag, PartBase, never, never, never>`. Part bases (`ContentBase`, `TriggerBase`, `ItemBase`, etc.) must never take `classes`, `styles`, `variant`, or root configuration options (such as `finalFocus`, `gutter`, `overflowPadding`, `onExitComplete`). Configuration belongs strictly on root `Base`/`Props`.
   - If a part or base interface has no unique configuration and would only have `children?: JSX.Element`, do not define a redundant single-member interface — use `FlowComponent` from `solid-js` for the component instead.
 - Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.
 - Top-level type export is only allowed for the component props type: `XxxProps` (must match the component name).
