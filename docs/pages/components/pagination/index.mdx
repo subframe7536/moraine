@@ -83,9 +83,9 @@ come from `translations`.
 
 ### Rendering links
 
-Use `href(page)` by itself to render page controls as anchors. The current page stays a button.
+Use `getPageHref(page)` by itself to render page controls as anchors. The current page stays a button.
 For router integration, use `itemAs` for numbered items and `controlAs` for Previous/Next; these
-props are independent and `href` still only generates the destination. Clicking a link also calls
+props are independent and `getPageHref` still only generates the destination. Clicking a link also calls
 `onPageChange`. Previous on the first page and Next on the last page remain disabled buttons even
 when `controlAs` is set, and `disabled` turns every control into a disabled button.
 
@@ -96,7 +96,7 @@ when `controlAs` is set, and `disabled` turns every control into a disabled butt
   total={50}
   pageSize={10}
   page={page()}
-  href={(page) => `/results?page=${page}`}
+  getPageHref={(page) => `/results?page=${page}`}
 />
 ```
 

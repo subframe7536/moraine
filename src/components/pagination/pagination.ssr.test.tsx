@@ -31,7 +31,7 @@ describe('Pagination SSR Hydration', () => {
           total={100}
           pageSize={10}
           siblingCount={1}
-          href={(target) => `#page-${target}`}
+          getPageHref={(target) => `#page-${target}`}
         />
       ),
     )

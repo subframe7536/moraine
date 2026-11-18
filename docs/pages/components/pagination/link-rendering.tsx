@@ -17,7 +17,7 @@ export function LinkRendering() {
         pageSize={10}
         page={page()}
         siblingCount={1}
-        href={(page) => `/pagination?page=${page}`}
+        getPageHref={(page) => `/pagination?page=${page}`}
       />
     </div>
   )

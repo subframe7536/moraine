@@ -9,7 +9,7 @@ export function renderPaginationFixture(): string {
       total={100}
       pageSize={10}
       siblingCount={1}
-      href={(page) => `#page-${page}`}
+      getPageHref={(page) => `#page-${page}`}
     />
   ))
 }

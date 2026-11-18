@@ -148,21 +148,21 @@ export namespace PaginationT {
      * ```tsx
      * import { Pagination } from 'moraine'
      *
-     * <Pagination total={100} pageSize={10} href={(page) => `/posts?page=${page}`} />
+     * <Pagination total={100} pageSize={10} getPageHref={(page) => `/posts?page=${page}`} />
      * ```
      */
-    href?: (page: number) => string | undefined
+    getPageHref?: (page: number) => string | undefined
 
     /**
      * Component or tag that renders the numbered page items, passed to the item button's `as`, for
-     * example a router link. It receives `href` when `href` returns a URL. By default an item
+     * example a router link. It receives `href` when `getPageHref` returns a URL. By default an item
      * renders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`.
      */
     itemAs?: ValidComponent
 
     /**
      * Component or tag that renders the previous and next controls, like `itemAs` for page items.
-     * It receives `href` and `rel` (`prev` or `next`) when `href` returns a URL. Controls at an edge
+     * It receives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an edge
      * and all controls while `disabled` stay disabled buttons.
      */
     controlAs?: ValidComponent

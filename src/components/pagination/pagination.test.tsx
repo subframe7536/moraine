@@ -215,9 +215,9 @@ describe('Pagination', () => {
     }
   })
 
-  test('renders page items and controls as links when `href` is provided', () => {
+  test('renders page items and controls as links when `getPageHref` is provided', () => {
     const screen = render(() => (
-      <Pagination page={2} total={30} pageSize={10} href={(page) => `/page/${page}`} />
+      <Pagination page={2} total={30} pageSize={10} getPageHref={(page) => `/page/${page}`} />
     ))
 
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
@@ -242,7 +242,7 @@ describe('Pagination', () => {
         pageSize={10}
         itemAs={ItemLink}
         controlAs={ControlLink}
-        href={(page) => `/page/${page}`}
+        getPageHref={(page) => `/page/${page}`}
       />
     ))
 
@@ -283,7 +283,7 @@ describe('Pagination', () => {
         total={30}
         pageSize={10}
         controlAs={ControlLink}
-        href={(page) => `/page/${page}`}
+        getPageHref={(page) => `/page/${page}`}
       />
     ))
     const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
@@ -299,7 +299,7 @@ describe('Pagination', () => {
         total={30}
         pageSize={10}
         controlAs={ControlLink}
-        href={(page) => `/page/${page}`}
+        getPageHref={(page) => `/page/${page}`}
       />
     ))
     const nextAtEnd = lastPage.container.querySelector('[data-slot="pagination-next"]')
@@ -313,7 +313,7 @@ describe('Pagination', () => {
         total={30}
         pageSize={10}
         controlAs={ControlLink}
-        href={(page) => `/page/${page}`}
+        getPageHref={(page) => `/page/${page}`}
         disabled
       />
     ))
@@ -333,7 +333,7 @@ describe('Pagination', () => {
         page={2}
         total={30}
         pageSize={10}
-        href={href}
+        getPageHref={href}
         onPageChange={onPageChange}
         {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
       />
@@ -348,9 +348,15 @@ describe('Pagination', () => {
     expect(screen.getByLabelText('Go to page 3 of 3').getAttribute('href')).toBe('/page/3')
   })
 
-  test('uses disabled buttons when boundary is reached or `href` is absent', () => {
+  test('uses disabled buttons when boundary is reached or `getPageHref` is absent', () => {
     const firstPage = render(() => (
-      <Pagination page={1} total={30} pageSize={10} href={(page) => `/page/${page}`} controls />
+      <Pagination
+        page={1}
+        total={30}
+        pageSize={10}
+        getPageHref={(page) => `/page/${page}`}
+        controls
+      />
     ))
 
     const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
@@ -386,7 +392,12 @@ describe('Pagination', () => {
   test('releases focus when a reactive boundary link becomes a disabled button', () => {
     const [page, setPage] = createSignal(2)
     const screen = render(() => (
-      <Pagination page={page()} total={30} pageSize={10} href={(target) => `/page/${target}`} />
+      <Pagination
+        page={page()}
+        total={30}
+        pageSize={10}
+        getPageHref={(target) => `/page/${target}`}
+      />
     ))
     const nextLink = screen.container.querySelector('[data-slot="pagination-next"]') as HTMLElement
 

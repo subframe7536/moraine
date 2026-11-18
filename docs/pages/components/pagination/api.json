@@ -41,7 +41,7 @@
           "name": "controlAs",
           "optional": true,
           "type": "ValidComponent",
-          "description": "Component or tag that renders the previous and next controls, like `itemAs` for page items.\nIt receives `href` and `rel` (`prev` or `next`) when `href` returns a URL. Controls at an edge\nand all controls while `disabled` stay disabled buttons."
+          "description": "Component or tag that renders the previous and next controls, like `itemAs` for page items.\nIt receives `href` and `rel` (`prev` or `next`) when `getPageHref` returns a URL. Controls at an edge\nand all controls while `disabled` stay disabled buttons."
         },
         {
           "name": "controls",
@@ -94,19 +94,19 @@
           }
         },
         {
-          "name": "href",
+          "name": "getPageHref",
           "optional": true,
           "type": "(page: number) => string | undefined",
           "description": "Builds the destination URL for a page number. It is called with the target page of each\nnumbered item other than the current page, and of the previous and next controls. An item\nthat gets a URL renders as `<a href>` (or as `itemAs` / `controlAs` when set) and still calls\n`onPageChange` on click; returning `undefined` keeps a plain button. It is ignored while\n`disabled`, and previous on the first page and next on the last page stay disabled buttons.",
           "examples": [
-            "import { Pagination } from 'moraine'\n\n<Pagination total={100} pageSize={10} href={(page) => `/posts?page=${page}`} />"
+            "import { Pagination } from 'moraine'\n\n<Pagination total={100} pageSize={10} getPageHref={(page) => `/posts?page=${page}`} />"
           ]
         },
         {
           "name": "itemAs",
           "optional": true,
           "type": "ValidComponent",
-          "description": "Component or tag that renders the numbered page items, passed to the item button's `as`, for\nexample a router link. It receives `href` when `href` returns a URL. By default an item\nrenders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`."
+          "description": "Component or tag that renders the numbered page items, passed to the item button's `as`, for\nexample a router link. It receives `href` when `getPageHref` returns a URL. By default an item\nrenders as `<a>` when it has a URL and as a `button` otherwise. Ignored while `disabled`."
         },
         {
           "name": "nextIcon",

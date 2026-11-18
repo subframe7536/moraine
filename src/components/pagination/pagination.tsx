@@ -117,7 +117,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'nextIcon',
     'nextText',
     'ellipsisIcon',
-    'href',
+    'getPageHref',
     'itemAs',
     'controlAs',
     'classes',
@@ -210,7 +210,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     }
 
     const isCurrent = target === currentPage()
-    const href = isCurrent ? undefined : merged.href?.(target)
+    const href = isCurrent ? undefined : merged.getPageHref?.(target)
     if (merged.itemAs) {
       return href ? { as: merged.itemAs, href } : { as: merged.itemAs }
     }
@@ -222,7 +222,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return { as: 'button', type: 'button', disabled: true }
     }
 
-    const href = merged.href?.(target)
+    const href = merged.getPageHref?.(target)
     if (merged.controlAs) {
       return href ? { as: merged.controlAs, href, rel } : { as: merged.controlAs }
     }
