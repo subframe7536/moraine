@@ -1373,7 +1373,7 @@ describe('ContextMenu', () => {
     const itemRender = vi.fn((props: any) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
-        {String(props.isCheckbox)}
+        {String(props.item.type === 'checkbox')}
       </span>
     ))
 

@@ -163,16 +163,12 @@ interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
   RenderItemContent: (props: {
     checked?: Accessor<boolean>
     hasChildren: boolean
-    isCheckbox: boolean
-    isRadio: boolean
     item: TItem | OverlayMenuRadioItem
   }) => JSX.Element
   getItemSlot: (item: MenuItemSlotOptions) => SlotBinding
   getItemRenderProps: (
     item: TItem | OverlayMenuRadioItem,
     hasChildren: boolean,
-    isCheckbox: boolean,
-    isRadio: boolean,
   ) => OverlayMenuItemRenderProps<TItem>
 }
 
@@ -204,23 +200,17 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   function getItemRenderProps(
     item: TItem | OverlayMenuRadioItem,
     hasChildren: boolean,
-    isCheckbox: boolean,
-    isRadio: boolean,
   ): OverlayMenuItemRenderProps<TItem> {
     return {
       item,
       depth: props.depth,
       hasChildren,
-      isCheckbox,
-      isRadio,
     }
   }
 
   function RenderItemContent(contentProps: {
     checked?: Accessor<boolean>
     hasChildren: boolean
-    isCheckbox: boolean
-    isRadio: boolean
     item: TItem | OverlayMenuRadioItem
   }): JSX.Element {
     const itemRender = createLazyMemo(() => props.itemRender)
@@ -237,12 +227,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
             {(render) =>
               renderWithProps(
                 render,
-                getItemRenderProps(
-                  contentProps.item,
-                  contentProps.hasChildren,
-                  contentProps.isCheckbox,
-                  contentProps.isRadio,
-                ),
+                getItemRenderProps(contentProps.item, contentProps.hasChildren),
               )
             }
           </Show>
@@ -299,7 +284,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
             </Show>
           </Show>
 
-          <Show when={contentProps.isCheckbox || contentProps.isRadio}>
+          <Show when={contentProps.item.type === 'checkbox' || contentProps.item.type === 'radio'}>
             <span data-slot={slotName('itemIndicator')} {...resolveSlot('itemIndicator')}>
               <Show when={contentProps.checked?.()}>
                 <Icon name={props.checkedIcon} />
@@ -380,12 +365,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         {...itemSlot}
         ref={setElement}
       >
-        <RenderItemContent
-          item={itemProps.item}
-          hasChildren={false}
-          isCheckbox={false}
-          isRadio={false}
-        />
+        <RenderItemContent item={itemProps.item} hasChildren={false} />
       </div>
     )
   }
@@ -456,13 +436,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         {...itemSlot}
         ref={setElement}
       >
-        <RenderItemContent
-          item={itemProps.item}
-          checked={checked}
-          hasChildren={false}
-          isCheckbox={true}
-          isRadio={false}
-        />
+        <RenderItemContent item={itemProps.item} checked={checked} hasChildren={false} />
       </div>
     )
   }
@@ -521,13 +495,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         {...itemSlot}
         ref={setElement}
       >
-        <RenderItemContent
-          item={itemProps.item}
-          checked={checked}
-          hasChildren={false}
-          isCheckbox={false}
-          isRadio={true}
-        />
+        <RenderItemContent item={itemProps.item} checked={checked} hasChildren={false} />
       </div>
     )
   }

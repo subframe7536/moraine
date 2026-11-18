@@ -295,7 +295,7 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps>",
-          "description": "Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu\nindicator and checkmark); the row keeps its role, keyboard handling and selection. It is\nmounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in\nsubmenus), `isCheckbox`, `isRadio` and `hasChildren`.",
+          "description": "Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu\nindicator and checkmark); the row keeps its role, keyboard handling and selection. It is\nmounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in\nsubmenus) and `hasChildren`. Read `item.type` to tell checkbox and radio items apart.",
           "examples": [
             "import { DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[{ label: 'Rename' }, { label: 'Share', children: [{ label: 'Copy link' }] }]}\n    itemRender={(props) => (\n      <span>\n        {props.item.label}\n        {props.hasChildren ? ' ›' : ''}\n      </span>\n    )}\n  />\n</DropdownMenu>"
           ]

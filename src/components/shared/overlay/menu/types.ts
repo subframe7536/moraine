@@ -224,10 +224,6 @@ export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
   item: TItem | OverlayMenuRadioItem
   /** Nesting level of the menu that holds the item: `0` for the root menu, plus one per submenu level. */
   depth: number
-  /** Whether the item is a checkbox item. */
-  isCheckbox: boolean
-  /** Whether the item is a radio item. */
-  isRadio: boolean
   /** Whether the item opens a submenu. */
   hasChildren: boolean
 }

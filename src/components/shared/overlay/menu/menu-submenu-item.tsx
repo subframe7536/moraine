@@ -27,8 +27,6 @@ export interface CreateSubmenuItemOptions<TItem extends OverlayMenuItem = Overla
   renderItemContent: Component<{
     checked?: Accessor<boolean>
     hasChildren: boolean
-    isCheckbox: boolean
-    isRadio: boolean
     item: TItem
   }>
 }
@@ -222,12 +220,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
           {...itemSlot}
           ref={setTriggerElement}
         >
-          <RenderItemContent
-            item={itemProps.item}
-            hasChildren={true}
-            isCheckbox={false}
-            isRadio={false}
-          />
+          <RenderItemContent item={itemProps.item} hasChildren={true} />
         </div>
 
         <Show when={contentPresence.present()}>

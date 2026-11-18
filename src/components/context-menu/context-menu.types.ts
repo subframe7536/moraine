@@ -178,7 +178,7 @@ export namespace ContextMenuT {
      * Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu
      * indicator and checkmark); the row keeps its role, keyboard handling and selection. It is
      * mounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in
-     * submenus), `isCheckbox`, `isRadio` and `hasChildren`.
+     * submenus) and `hasChildren`. Read `item.type` to tell checkbox and radio items apart.
      * @example
      * ```tsx
      * import { ContextMenu } from 'moraine'
