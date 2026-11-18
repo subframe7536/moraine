@@ -189,7 +189,7 @@
           "description": "Called when the input loses focus, before the typed text is committed. Calling\n`preventDefault` skips that commit and the `Field` blur notification."
         },
         {
-          "name": "onDecrementClick",
+          "name": "onDecrement",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
           "description": "Called when the decrement button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."
@@ -201,7 +201,7 @@
           "description": "Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification."
         },
         {
-          "name": "onIncrementClick",
+          "name": "onIncrement",
           "optional": true,
           "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
           "description": "Called when the increment button is clicked, or on each step while it is held. On a click,\ncalling `preventDefault` cancels the step; repeated steps receive a synthetic event and\ncannot be cancelled."

@@ -215,14 +215,14 @@ export namespace NumberInputT {
      * calling `preventDefault` cancels the step; repeated steps receive a synthetic event and
      * cannot be cancelled.
      */
-    onIncrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+    onIncrement?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
 
     /**
      * Called when the decrement button is clicked, or on each step while it is held. On a click,
      * calling `preventDefault` cancels the step; repeated steps receive a synthetic event and
      * cannot be cancelled.
      */
-    onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+    onDecrement?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
 
     /**
      * Press-and-hold repeat on the step buttons: `true` for the defaults, `false` to step only on

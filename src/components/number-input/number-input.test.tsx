@@ -50,14 +50,14 @@ describe('NumberInput', () => {
     ).toBe('decimal')
   })
   test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
-    const onIncrementClick = vi.fn()
+    const onIncrement = vi.fn()
     const screen = render(() => (
       <NumberInput
         defaultValue={1}
         min={0}
         max={10}
         placeholder="Qty"
-        onIncrementClick={[onIncrementClick, 'increment-payload']}
+        onIncrement={[onIncrement, 'increment-payload']}
       />
     ))
 
@@ -73,7 +73,7 @@ describe('NumberInput', () => {
     expect(decrement).not.toBeNull()
 
     fireEvent.click(increment)
-    expect(onIncrementClick).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
+    expect(onIncrement).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
   })
 
   test('starts empty without a defaultValue and steps from zero', () => {
@@ -1196,14 +1196,12 @@ describe('NumberInput', () => {
     }
   })
 
-  test('calls onIncrementClick for repeated press steps without extra release click', async () => {
+  test('calls onIncrement for repeated press steps without extra release click', async () => {
     vi.useFakeTimers()
 
     try {
-      const onIncrementClick = vi.fn()
-      const screen = render(() => (
-        <NumberInput defaultValue={0} onIncrementClick={onIncrementClick} />
-      ))
+      const onIncrement = vi.fn()
+      const screen = render(() => <NumberInput defaultValue={0} onIncrement={onIncrement} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
@@ -1221,7 +1219,7 @@ describe('NumberInput', () => {
 
       const value = Number(spinbutton.value)
       expect(value).toBeGreaterThan(1)
-      expect(onIncrementClick).toHaveBeenCalledTimes(value)
+      expect(onIncrement).toHaveBeenCalledTimes(value)
     } finally {
       vi.useRealTimers()
     }

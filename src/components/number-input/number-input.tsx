@@ -99,8 +99,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'autofocusDelay',
     'onBlur',
     'onFocus',
-    'onIncrementClick',
-    'onDecrementClick',
+    'onIncrement',
+    'onDecrement',
     'repeat',
     'disabled',
     'required',
@@ -299,8 +299,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         state.decrementValue()
       }
     },
-    getUserOnClick: (kind) =>
-      kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick,
+    getUserOnClick: (kind) => (kind === 'increment' ? merged.onIncrement : merged.onDecrement),
     focusInput: () => inputEl?.focus(),
     getDocument: () => inputEl?.ownerDocument,
     repeat: repeatConfig,
