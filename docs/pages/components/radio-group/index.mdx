@@ -94,11 +94,12 @@ labels and messages without binding a form store.
 
 ### Indicator
 
-`indicator` places the radio mark at `start` or `end`, or hides it with `hidden`.
+`indicatorPosition` places the radio mark at the `leading` or `trailing` edge, or hides it with
+`hidden`.
 
 ```tsx
-<RadioGroup indicator="end" items={items} />
-<RadioGroup indicator="hidden" items={items} />
+<RadioGroup indicatorPosition="trailing" items={items} />
+<RadioGroup indicatorPosition="hidden" items={items} />
 ```
 
 ## Examples
@@ -125,7 +126,7 @@ Place the group in `form.Field` so schema validation owns the required environme
 
 ### Compare plans with the mark at the end
 
-`indicator="end"` puts the radio on the trailing edge of a card option. Use `hidden` when the card
+`indicatorPosition="trailing"` puts the radio on the trailing edge of a card option. Use `hidden` when the card
 itself is the selected affordance.
 
 <Preview path="./indicator-positions" />

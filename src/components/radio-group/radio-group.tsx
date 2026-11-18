@@ -81,7 +81,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'loop',
     'onValueChange',
     'variant',
-    'indicator',
+    'indicatorPosition',
     'size',
     'classes',
     'styles',

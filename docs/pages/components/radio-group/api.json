@@ -56,13 +56,13 @@
           "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
         },
         {
-          "name": "indicator",
+          "name": "indicatorPosition",
           "optional": true,
-          "type": "'start' | 'end' | 'hidden'",
-          "description": "Placement of the selection indicator.",
+          "type": "'leading' | 'trailing' | 'hidden'",
+          "description": "Placement of the selection indicator relative to the label.",
           "default": {
             "kind": "literal",
-            "value": "start"
+            "value": "leading"
           }
         },
         {

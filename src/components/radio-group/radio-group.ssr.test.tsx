@@ -26,7 +26,7 @@ describe('RadioGroup SSR Hydration', () => {
         ],
         orientation: 'vertical',
         variant: 'list',
-        indicator: 'start',
+        indicatorPosition: 'leading',
         onValueChange: setValue,
       }),
     )

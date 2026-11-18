@@ -10,7 +10,7 @@ export function IndicatorPositions() {
           { value: 'enterprise', label: 'Enterprise', description: 'For regulated workloads' },
         ]}
         variant="card"
-        indicator="end"
+        indicatorPosition="trailing"
         defaultValue="pro"
       />
     </div>

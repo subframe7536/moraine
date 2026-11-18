@@ -43,10 +43,10 @@ export interface RadioGroupStyleVariants {
    * @default 'list'
    */
   variant?: 'card' | 'table' | 'list'
-  /** Placement of the selection indicator.
-   * @default 'start'
+  /** Placement of the selection indicator relative to the label.
+   * @default 'leading'
    */
-  indicator?: 'start' | 'end' | 'hidden'
+  indicatorPosition?: 'leading' | 'trailing' | 'hidden'
 }
 
 export type RadioGroupStyleConfig = ComponentStyleConfig<

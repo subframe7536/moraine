@@ -44,7 +44,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
     variant: 'list',
     orientation: 'vertical',
     size: 'md',
-    indicator: 'start',
+    indicatorPosition: 'leading',
   },
   variants: {
     orientation: {
@@ -86,9 +86,9 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
         root: 'gap-2',
       },
     },
-    indicator: {
-      start: { item: 'flex-row', wrapper: 'ms-2' },
-      end: { item: 'flex-row-reverse', wrapper: 'me-2' },
+    indicatorPosition: {
+      leading: { item: 'flex-row', wrapper: 'ms-2' },
+      trailing: { item: 'flex-row-reverse', wrapper: 'me-2' },
       hidden: { control: VISUALLY_HIDDEN_CLASS },
     },
   },
