@@ -40,7 +40,7 @@ export function Example() {
 ### Row ownership
 
 `itemRender` receives the `item`, its `index` in the full collection, and, with a `virtualizer`,
-row `props`. Spread `props` onto the outer row element; the virtualizer needs them for positioning
+`rowProps`. Spread `rowProps` onto the outer row element; the virtualizer needs them for positioning
 and measurement. The root is a `<ul>` by default and always has `role="list"`, so render list-item
 semantics in each row, or choose another root with `as`. TypeScript infers the item and root
 element types from `items` and `as`. `emptyRender` renders when `items` is empty or `undefined`.

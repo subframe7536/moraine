@@ -55,7 +55,7 @@
           "name": "itemRender",
           "optional": false,
           "type": "Component<ItemRenderProps<TItem>>",
-          "description": "Renders one row for an item. Receives the `item`, its `index` in the complete `items`\ncollection, and, when a `virtualizer` is set, `props` to spread onto the row's outer element.",
+          "description": "Renders one row for an item. Receives the `item`, its `index` in the complete `items`\ncollection, and, when a `virtualizer` is set, `rowProps` to spread onto the row's outer element.",
           "examples": [
             "import { List } from 'moraine'\n\n<List\n  items={['Inbox', 'Sent']}\n  itemRender={(row) => <li data-index={row.index}>{row.item}</li>}\n/>"
           ]
@@ -104,9 +104,9 @@
           "name": "virtualizer",
           "optional": true,
           "type": "Virtualizer<TItem>",
-          "description": "Virtualizer from `moraine/virtualizer` that mounts only the visible rows; create it with\n`createListVirtualizer()`. The list root becomes the scroll container, so give it a bounded\nheight, and each row must spread `props` from `itemRender` onto its outer element.",
+          "description": "Virtualizer from `moraine/virtualizer` that mounts only the visible rows; create it with\n`createListVirtualizer()`. The list root becomes the scroll container, so give it a bounded\nheight, and each row must spread `rowProps` from `itemRender` onto its outer element.",
           "examples": [
-            "import { List } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst items = Array.from({ length: 10_000 }, (_, i) => `Row ${i}`)\nconst virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })\n\n<List\n  class=\"h-80 overflow-auto\"\n  items={items}\n  virtualizer={virtualizer}\n  itemRender={(row) => <li {...row.props}>{row.item}</li>}\n/>"
+            "import { List } from 'moraine'\nimport { createListVirtualizer } from 'moraine/virtualizer'\n\nconst items = Array.from({ length: 10_000 }, (_, i) => `Row ${i}`)\nconst virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })\n\n<List\n  class=\"h-80 overflow-auto\"\n  items={items}\n  virtualizer={virtualizer}\n  itemRender={(row) => <li {...row.rowProps}>{row.item}</li>}\n/>"
           ]
         }
       ]

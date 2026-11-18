@@ -48,7 +48,7 @@ Install the optional TanStack Virtual dependency alongside Moraine:
 
 ## List
 
-Give the list a bounded height and scrolling overflow. Apply `context.props` to the actual row DOM element: those props carry positioning styles, the measurement ref, and `data-index`.
+Give the list a bounded height and scrolling overflow. Apply `context.rowProps` to the actual row DOM element: those props carry positioning styles, the measurement ref, and `data-index`.
 
 ```tsx
 import { List } from 'moraine'
@@ -76,7 +76,7 @@ export function VirtualizedList() {
       class="h-72 overflow-y-auto"
       virtualizer={virtualizer}
       itemRender={(context) => (
-        <div {...context.props} role="listitem">
+        <div {...context.rowProps} role="listitem">
           <div class="flex h-9 items-center px-3">{context.item.label}</div>
         </div>
       )}

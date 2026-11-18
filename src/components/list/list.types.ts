@@ -44,7 +44,7 @@ export namespace ListT {
     items?: readonly TItem[]
     /**
      * Renders one row for an item. Receives the `item`, its `index` in the complete `items`
-     * collection, and, when a `virtualizer` is set, `props` to spread onto the row's outer element.
+     * collection, and, when a `virtualizer` is set, `rowProps` to spread onto the row's outer element.
      * @example
      * ```tsx
      * import { List } from 'moraine'
@@ -59,7 +59,7 @@ export namespace ListT {
     /**
      * Virtualizer from `moraine/virtualizer` that mounts only the visible rows; create it with
      * `createListVirtualizer()`. The list root becomes the scroll container, so give it a bounded
-     * height, and each row must spread `props` from `itemRender` onto its outer element.
+     * height, and each row must spread `rowProps` from `itemRender` onto its outer element.
      * @example
      * ```tsx
      * import { List } from 'moraine'
@@ -72,7 +72,7 @@ export namespace ListT {
      *   class="h-80 overflow-auto"
      *   items={items}
      *   virtualizer={virtualizer}
-     *   itemRender={(row) => <li {...row.props}>{row.item}</li>}
+     *   itemRender={(row) => <li {...row.rowProps}>{row.item}</li>}
      * />
      * ```
      */
