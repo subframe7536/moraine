@@ -20,11 +20,4 @@ export const toggleButtonRecipe = /* @__PURE__ */ defineRecipe<
     activeTone: 'neutral',
     size: 'md',
   },
-  variants: {
-    variant: {},
-    activeVariant: {},
-    tone: {},
-    activeTone: {},
-    size: {},
-  },
 })
