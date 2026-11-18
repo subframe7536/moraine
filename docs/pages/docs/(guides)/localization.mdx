@@ -72,7 +72,7 @@ Component-level `translations` override `MoraineProvider messages`, while explic
 
 Each component defines its English copy next to its own source, so there is no monolithic message pack to bundle. Pass partial overrides through the `messages` prop of `MoraineProvider` (typed as `MoraineProviderProps['messages']`). The available groups are `alert`, `dialog`, `sheet`, `drawer`, `toast`, `breadcrumb`, `commandPalette`, `copyButton`, `dataTable`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `pinInput`, `numberInput`, `fileUpload`, `tagsField`, `sidebar`, `form`, `kbd`, and `progress`.
 
-`dialog` messages are `close`, `ok`, and `cancel`. Dialog and Alert Dialog use `close` for the corner button. Alert Dialog uses `ok` and `cancel` when an action omits `label`. `toast` messages are `close`, `cancel`, and `viewport`. Toast uses `close` for the corner button, `cancel` for the cancel button when `cancel` is `true`, and `viewport` for the live region label.
+`dialog` messages are `close`, `ok`, and `cancel`. Dialog and Alert Dialog use `close` for the corner button. Alert Dialog uses `ok` and `cancel` when an action omits `label`. `toast` messages are `close`, `cancel`, and `label`. Toast uses `close` for the corner button, `cancel` for the cancel button when `cancel` is `true`, and `label` for the live region label.
 
 Dynamic messages that include a number or a name are functions so translations control word order:
 

@@ -61,7 +61,7 @@
           "name": "expanded",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the stacked toast list is always expanded. When `false`, stacks collapse behind\nthe front toast and expand while the pointer is over them.",
+          "description": "Whether stacks always show every visible toast at full height. When `false`, stacks collapse\nbehind the front toast and expand while the pointer is over them. The live state reaches\n`itemRender` as `expanded`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -158,7 +158,7 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized labels for this host's viewport (`viewport`) and, unless a toast sets its own,\nthe `close` and `cancel` buttons of its toasts."
+          "description": "Localized labels for this host's region (`label`) and the `close` and `cancel` buttons of\nits toasts. A toast's own `translations` override these per key."
         },
         {
           "name": "type",

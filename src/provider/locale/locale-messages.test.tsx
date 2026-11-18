@@ -51,14 +51,14 @@ describe('localized component text', () => {
     ).toBe('Fermer la feuille')
   })
 
-  test('uses toast close and viewport messages', async () => {
+  test('uses toast close and label messages', async () => {
     Toast.close()
     render(() => (
       <MoraineProvider
         messages={{
           toast: {
             close: 'Fermer la notification',
-            viewport: 'Notifications',
+            label: 'Notifications',
           },
         }}
       >
@@ -431,7 +431,7 @@ describe('component translations prop', () => {
         <Sheet open translations={{ close: 'Close drawer' }}>
           <Sheet.Content>Drawer</Sheet.Content>
         </Sheet>
-        <Toast closable translations={{ viewport: 'Alerts', close: 'Dismiss toast' }} />
+        <Toast closable translations={{ label: 'Alerts', close: 'Dismiss toast' }} />
         <AlertDialog />
       </>
     ))

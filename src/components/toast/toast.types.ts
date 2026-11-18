@@ -36,9 +36,8 @@ export namespace ToastT {
   /** Options passed to toast creation methods. */
   export interface Options extends Variants {
     /**
-     * Localized labels for this toast (`close` and `cancel` buttons). Replaces the host
-     * `translations` object rather than merging with it; missing keys fall back to the provider or
-     * English defaults.
+     * Localized labels for this toast's `close` and `cancel` buttons. Merged per key over the host
+     * `translations`; keys missing from both fall back to the provider or English defaults.
      */
     translations?: Translations
     /**
@@ -119,10 +118,13 @@ export namespace ToastT {
      */
     progress?: boolean
     /**
-     * When true, a toast with the same `title`, `description`, `type`, and `action`/`cancel`
-     * label, `variant`, and `leading` as the front toast of the same `placement` and `align` is
-     * not added. The existing toast is bumped (its timer restarts) and its handle is returned.
-     * Not applied when `id` is set. Overrides the host `preventDuplicate`.
+     * When true, the toast is not added if it matches the front toast of the same host,
+     * `placement`, and `align`. A match needs the same `title` and `description` (strings and
+     * numbers compare as text, other content by identity), the same `type`, and matching `action`
+     * and `cancel` buttons: both unset, both `true`, or both objects with the same `label`,
+     * `variant`, and `leading` (`onClick` is not compared). The existing toast is bumped (its
+     * timer restarts) and its handle is returned. Not applied when `id` is set. Overrides the
+     * host `preventDuplicate`.
      */
     preventDuplicate?: boolean
   }
@@ -195,8 +197,8 @@ export namespace ToastT {
   /** Base props for the Toast host component. */
   export interface Base {
     /**
-     * Localized labels for this host's viewport (`viewport`) and, unless a toast sets its own,
-     * the `close` and `cancel` buttons of its toasts.
+     * Localized labels for this host's region (`label`) and the `close` and `cancel` buttons of
+     * its toasts. A toast's own `translations` override these per key.
      */
     translations?: Translations
     /**
@@ -250,8 +252,9 @@ export namespace ToastT {
     progress?: boolean
 
     /**
-     * Whether the stacked toast list is always expanded. When `false`, stacks collapse behind
-     * the front toast and expand while the pointer is over them.
+     * Whether stacks always show every visible toast at full height. When `false`, stacks collapse
+     * behind the front toast and expand while the pointer is over them. The live state reaches
+     * `itemRender` as `expanded`.
      * @default false
      */
     expanded?: boolean

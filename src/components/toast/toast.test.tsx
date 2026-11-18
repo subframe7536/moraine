@@ -767,6 +767,21 @@ describe('Toast', () => {
     expect(fallback).not.toBeNull()
   })
 
+  it('merges per-call translations over host translations per key', async () => {
+    render(() => <Toast translations={{ close: 'Dismiss', cancel: 'Never mind' }} />)
+
+    Toast.show({
+      title: 'Merged labels',
+      closable: true,
+      cancel: true,
+      translations: { cancel: 'Skip' },
+    })
+    await screen.findByText('Merged labels')
+
+    expect(screen.getByRole('button', { name: 'Dismiss' })).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Skip' })).not.toBeNull()
+  })
+
   it('marks the stack list with data-slot="toast-list"', async () => {
     render(() => <Toast />)
     Toast.show({ title: 'Slot check' })

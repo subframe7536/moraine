@@ -155,7 +155,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={local['aria-label'] ?? messages().viewport}
+        aria-label={local['aria-label'] ?? messages().label}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (

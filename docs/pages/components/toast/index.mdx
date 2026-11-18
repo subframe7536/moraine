@@ -195,8 +195,8 @@ corner; each placement and alignment pair gets its own stack. `type`, `size`, `v
 `closable`, `progress`, and `preventDuplicate` set per-toast defaults. `maxVisible` (default 3)
 limits each stack, and later toasts stay queued until earlier ones close. A collapsed stack expands
 while the pointer is over it; set `expanded` to keep it expanded. `gap` (default 14 px) sets the
-spacing between toasts. `translations` overrides the viewport label and the close and cancel
-labels.
+spacing between toasts. `translations` overrides the region `label` and the `close` and `cancel`
+labels; a call's own `translations` override them per key.
 
 ```tsx
 <Toast placement="top" align="center" maxVisible={5} closable progress />
