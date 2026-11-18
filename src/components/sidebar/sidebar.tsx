@@ -219,6 +219,4 @@ Sidebar.MenuAction = SidebarMenuAction
 Sidebar.MenuSub = SidebarMenuSub
 Sidebar.MenuSubTrigger = SidebarMenuSubTrigger
 Sidebar.MenuSubContent = SidebarMenuSubContent
-Sidebar.useContext = function useContext(): SidebarT.Context {
-  return useSidebarContext()
-}
+Sidebar.useContext = useSidebarContext
