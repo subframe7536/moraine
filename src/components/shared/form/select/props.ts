@@ -110,7 +110,7 @@ export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   'tagOverflowRender',
   'createItem',
   'maxCount',
-  'maxTagCount',
+  'maxVisible',
   'removeIcon',
   'tokenSeparators',
 ] as const

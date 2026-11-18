@@ -10,7 +10,7 @@ const TECH_STACK: MultiSelectT.Item[] = [
   { label: 'Docker', value: 'docker', icon: 'i-lucide:container' },
 ]
 
-export function MaxCountMaxTagCount() {
+export function MaxCountMaxVisible() {
   return (
     <div class="gap-6 grid max-w-2xl w-full sm:grid-cols-2">
       <div class="space-y-1.5">
@@ -32,12 +32,12 @@ export function MaxCountMaxTagCount() {
 
       <div class="space-y-1.5">
         <label class="text-xs text-muted-foreground font-medium block">
-          Display Limit (maxTagCount = 1)
+          Display Limit (maxVisible = 1)
         </label>
         <MultiSelect
           items={TECH_STACK}
           defaultValue={['solid', 'ts', 'tailwind']}
-          maxTagCount={1}
+          maxVisible={1}
           tagOverflowRender={(props) => (
             <Tooltip openDelay={200}>
               <Tooltip.Trigger

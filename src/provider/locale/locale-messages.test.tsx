@@ -283,7 +283,7 @@ describe('localized component text', () => {
           },
         }}
       >
-        <MultiSelect items={FRUIT} defaultValue={['apple']} maxTagCount={0} />
+        <MultiSelect items={FRUIT} defaultValue={['apple']} maxVisible={0} />
         <MultiSelect
           items={[]}
           createItem={(input) => ({ value: input, label: input })}

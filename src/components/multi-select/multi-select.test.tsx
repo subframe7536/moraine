@@ -267,7 +267,7 @@ describe('MultiSelect', () => {
       { label: 'Cherry', value: 'cherry' },
     ]
     const [values, setValues] = createSignal(['apple', 'banana', 'cherry'])
-    const [maxTagCount, setMaxTagCount] = createSignal(1)
+    const [maxVisible, setMaxVisible] = createSignal(1)
     const screen = render(() => (
       <form>
         <Field id="fruits" description="Choose every fruit you want">
@@ -277,7 +277,7 @@ describe('MultiSelect', () => {
             items={items}
             value={values()}
             onValueChange={setValues}
-            maxTagCount={maxTagCount()}
+            maxVisible={maxVisible()}
           />
         </Field>
       </form>
@@ -301,10 +301,10 @@ describe('MultiSelect', () => {
     fireEvent.keyDown(input, { key: 'Backspace' })
     expect(untrack(values)).toEqual(['apple', 'banana'])
     expect(overflow()?.textContent).toBe('+1')
-    setMaxTagCount(2)
+    setMaxVisible(2)
     expect(overflow()).toBeNull()
     expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
-    setMaxTagCount(1)
+    setMaxVisible(1)
     expect(overflow()?.textContent).toBe('+1')
   })
 
@@ -314,12 +314,12 @@ describe('MultiSelect', () => {
       { label: 'Banana', value: 'banana' },
       { label: 'Cherry', value: 'cherry' },
     ])
-    const [maxTagCount, setMaxTagCount] = createSignal(1)
+    const [maxVisible, setMaxVisible] = createSignal(1)
     const screen = render(() => (
       <MultiSelect
         items={items()}
         defaultValue={['apple', 'banana', 'cherry']}
-        maxTagCount={maxTagCount()}
+        maxVisible={maxVisible()}
         tagOverflowRender={(props) => (
           <span data-testid="custom-overflow">
             {props.count}:
@@ -345,9 +345,9 @@ describe('MultiSelect', () => {
     ])
     expect(overflow().textContent).toBe('2:Plantain/Plantain/banana;Cherry/Cherry/cherry;')
 
-    setMaxTagCount(2)
+    setMaxVisible(2)
     expect(overflow().textContent).toBe('1:Cherry/Cherry/cherry;')
-    setMaxTagCount(3)
+    setMaxVisible(3)
     expect(screen.queryByTestId('custom-overflow')).toBeNull()
   })
 

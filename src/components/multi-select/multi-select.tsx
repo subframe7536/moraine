@@ -198,7 +198,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       values: state.value,
       change: state.change,
       getFocusOwner: state.focusOwner,
-      maxVisible: () => local.maxTagCount,
+      maxVisible: () => local.maxVisible,
       query: search.value,
       setQuery: search.setValue,
       commitInput,

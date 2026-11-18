@@ -66,7 +66,7 @@ export namespace MultiSelectT {
   >
 
   export interface TagOverflowRenderProps<TItem extends Item = Item> {
-    /** Number of selected tags hidden by `maxTagCount`. */
+    /** Number of selected tags hidden by `maxVisible`. */
     count: number
     /** Hidden tags in selection order. */
     tags: readonly TagOverflowEntry<TItem>[]
@@ -198,7 +198,7 @@ export namespace MultiSelectT {
      * a `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides
      * every tag; unlimited when omitted.
      */
-    maxTagCount?: number
+    maxVisible?: number
     /**
      * Strings that commit completed input tokens through `createItem` or an exact source match,
      * while typing or pasting into the editable input. Duplicate separators are ignored and
@@ -228,7 +228,7 @@ export namespace MultiSelectT {
      */
     tagRender?: Component<TagRenderProps<TItem>>
     /**
-     * Content shown in place of the default `+N` summary when `maxTagCount` hides tags. A
+     * Content shown in place of the default `+N` summary when `maxVisible` hides tags. A
      * function receives `{ count, tags }`, where `tags` are the hidden entries in selection order.
      * @example
      * ```tsx
@@ -240,7 +240,7 @@ export namespace MultiSelectT {
      *     { label: 'Code', value: 'code' },
      *   ]}
      *   defaultValue={['design', 'code']}
-     *   maxTagCount={1}
+     *   maxVisible={1}
      *   tagOverflowRender={(overflow) => <span>and {overflow.count} more</span>}
      * />
      * ```

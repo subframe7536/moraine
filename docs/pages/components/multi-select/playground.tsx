@@ -73,7 +73,7 @@ export default function MultiSelectPlayground() {
           defaultValue={['design', 'dev']}
           leading="i-lucide:tags"
           clearable
-          maxTagCount={1}
+          maxVisible={1}
           placeholder="Select topics..."
           variant={props.variant}
           size={props.size}

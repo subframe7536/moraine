@@ -272,7 +272,7 @@
           "description": "Maximum number of selected values. Once reached, unselected options are disabled and typed\ntext is not committed; selected ones can still be removed. It does not truncate a larger\n`value`."
         },
         {
-          "name": "maxTagCount",
+          "name": "maxVisible",
           "optional": true,
           "type": "number",
           "description": "Maximum number of tags rendered in the control. The remaining selected values collapse into\na `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides\nevery tag; unlimited when omitted."
@@ -287,7 +287,7 @@
           "name": "onBottomReached",
           "optional": true,
           "type": "() => void",
-          "description": "Called once each time scrolling brings the listbox within `scrollBottomThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
+          "description": "Called once each time scrolling brings the listbox within `scrollThreshold` of its end,\nfor example to load the next page. It fires again only after the user scrolls away from the\nbottom and back."
         },
         {
           "name": "onClear",
@@ -398,7 +398,7 @@
           }
         },
         {
-          "name": "scrollBottomThreshold",
+          "name": "scrollThreshold",
           "optional": true,
           "type": "number",
           "description": "Distance from the end of the listbox, in pixels, within which `onBottomReached` fires.",
@@ -475,9 +475,9 @@
           "name": "tagOverflowRender",
           "optional": true,
           "type": "JSX.Element | Component<TagOverflowRenderProps<TItem>>",
-          "description": "Content shown in place of the default `+N` summary when `maxTagCount` hides tags. A\nfunction receives `{ count, tags }`, where `tags` are the hidden entries in selection order.",
+          "description": "Content shown in place of the default `+N` summary when `maxVisible` hides tags. A\nfunction receives `{ count, tags }`, where `tags` are the hidden entries in selection order.",
           "examples": [
-            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Design', value: 'design' },\n    { label: 'Code', value: 'code' },\n  ]}\n  defaultValue={['design', 'code']}\n  maxTagCount={1}\n  tagOverflowRender={(overflow) => <span>and {overflow.count} more</span>}\n/>"
+            "import { MultiSelect } from 'moraine'\n\n<MultiSelect\n  items={[\n    { label: 'Design', value: 'design' },\n    { label: 'Code', value: 'code' },\n  ]}\n  defaultValue={['design', 'code']}\n  maxVisible={1}\n  tagOverflowRender={(overflow) => <span>and {overflow.count} more</span>}\n/>"
           ]
         },
         {
