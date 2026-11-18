@@ -109,7 +109,7 @@ export default function ServerDataExample() {
     get rowCount() {
       return total()
     },
-    pagination: true,
+    paginated: true,
     state: {
       get sorting() {
         return sorting()

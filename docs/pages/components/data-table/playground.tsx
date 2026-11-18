@@ -43,9 +43,9 @@ interface PlaygroundProps {
   size?: 'sm' | 'md' | 'lg'
   highlightOnHover?: boolean
   border?: 'row' | 'col' | 'both'
-  sorting?: boolean
+  sortable?: boolean
   selectable?: boolean
-  pagination?: boolean
+  paginated?: boolean
   sticky?: boolean
   resizable?: boolean
   expandable?: boolean
@@ -60,17 +60,17 @@ function EmployeesTable(props: PlaygroundProps) {
     },
     columns: COLUMNS,
     getRowId: (row) => row.id,
-    get sorting() {
-      return props.sorting !== false
+    get sortable() {
+      return props.sortable !== false
     },
-    get selection() {
+    get selectionMode() {
       return props.selectable !== false ? 'multiple' : undefined
     },
     get expandable() {
       return Boolean(props.expandable)
     },
-    get pagination() {
-      return props.pagination !== false ? { pageSize: 5, pageSizes: [5, 10, 20] } : false
+    get paginated() {
+      return props.paginated !== false ? { pageSize: 5, pageSizes: [5, 10, 20] } : false
     },
     get resizable() {
       return props.resizable === true
@@ -128,9 +128,9 @@ export default function DataTablePlayground() {
             { label: 'Both', value: 'both' },
           ],
         },
-        { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
+        { kind: 'switch', prop: 'sortable', label: 'Sorting', defaultValue: true },
         { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
-        { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
+        { kind: 'switch', prop: 'paginated', label: 'Pagination', defaultValue: true },
         { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
         { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
         { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },

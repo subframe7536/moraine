@@ -129,7 +129,7 @@ describe('DataTable', () => {
   it('selects rows with checkboxes, and selected rows carry data-selected', () => {
     render(() => {
       const table = createPersonTable({
-        selection: 'multiple',
+        selectionMode: 'multiple',
       })
       return <DataTable table={table} />
     })
@@ -196,7 +196,7 @@ describe('DataTable', () => {
     unmount()
 
     render(() => {
-      const table = createPersonTable({ pagination: { pageSizes: [5, 10, 20] } })
+      const table = createPersonTable({ paginated: { pageSizes: [5, 10, 20] } })
       return <DataTable table={table} />
     })
 
@@ -234,7 +234,7 @@ describe('DataTable', () => {
 
   it('hides page size dropdown when pagination.pageSizes is false', () => {
     render(() => {
-      const table = createPersonTable({ pagination: { pageSize: 5, pageSizes: false } })
+      const table = createPersonTable({ paginated: { pageSize: 5, pageSizes: false } })
       return <DataTable table={table} />
     })
 
@@ -245,7 +245,7 @@ describe('DataTable', () => {
   it('uses rowCount as the total for remote pagination', () => {
     const { container } = render(() => {
       const table = createPersonTable({
-        pagination: true,
+        paginated: true,
         manual: true,
         rowCount: 100,
       })
@@ -268,7 +268,7 @@ describe('DataTable', () => {
         get data() {
           return data()
         },
-        pagination: { pageSizes: [5, 10, 20] },
+        paginated: { pageSizes: [5, 10, 20] },
         manual: true,
         rowCount: 100,
         state: {
@@ -300,7 +300,7 @@ describe('DataTable', () => {
     const [paginated, setPaginated] = createSignal(false)
     const { container } = render(() => {
       const table = createPersonTable({
-        get pagination() {
+        get paginated() {
           return paginated() ? ({ pageSizes: false } as const) : false
         },
         initialState: { pagination: { pageIndex: 0, pageSize: 2 } },
@@ -330,7 +330,7 @@ describe('DataTable', () => {
     const [mode, setMode] = createSignal<'multiple' | undefined>(undefined)
     render(() => {
       const table = createPersonTable({
-        get selection() {
+        get selectionMode() {
           return mode()
         },
       })
@@ -510,7 +510,7 @@ describe('DataTable', () => {
     })
 
     const { container } = render(() => {
-      const table = createPersonTable({ pagination: true })
+      const table = createPersonTable({ paginated: true })
       return <DataTable table={table} virtualizer={virtualizer} />
     })
 
@@ -531,8 +531,8 @@ describe('DataTable', () => {
     const { container } = render(() => {
       const table = createPersonTable({
         data: manyPeople(25),
-        pagination: true,
-        selection: 'multiple',
+        paginated: true,
+        selectionMode: 'multiple',
       })
       return <DataTable table={table} virtualizer={virtualizer} />
     })
@@ -611,7 +611,7 @@ describe('DataTable', () => {
   it('selects one row at a time with radio buttons when selection="single"', () => {
     render(() => {
       const table = createPersonTable({
-        selection: 'single',
+        selectionMode: 'single',
       })
       return <DataTable table={table} />
     })
@@ -636,7 +636,7 @@ describe('DataTable', () => {
 
   it('selects every row from a mixed select-all state', () => {
     const { container } = render(() => {
-      const table = createPersonTable({ selection: 'multiple' })
+      const table = createPersonTable({ selectionMode: 'multiple' })
       return <DataTable table={table} size="lg" classes={{ checkbox: 'custom-checkbox' }} />
     })
 
@@ -666,8 +666,8 @@ describe('DataTable', () => {
   it('gives separate tables separate single-selection radio groups', () => {
     render(() => {
       // JSX props compile to getters, so create each instance once outside the JSX.
-      const first = createPersonTable({ selection: 'single' })
-      const second = createPersonTable({ selection: 'single' })
+      const first = createPersonTable({ selectionMode: 'single' })
+      const second = createPersonTable({ selectionMode: 'single' })
       return (
         <>
           <DataTable table={first} />
@@ -684,7 +684,7 @@ describe('DataTable', () => {
     const onRowSelectionChange = vi.fn()
     render(() => {
       const table = createPersonTable({
-        selection: 'single',
+        selectionMode: 'single',
         state: { rowSelection: {} },
         onRowSelectionChange,
       })
@@ -700,7 +700,7 @@ describe('DataTable', () => {
   it('disables single-selection radios for rows that cannot be selected', () => {
     render(() => {
       const table = createPersonTable({
-        selection: 'single',
+        selectionMode: 'single',
         canSelectRow: (row) => row.original.role !== 'Intern',
       })
       return <DataTable table={table} />
@@ -713,7 +713,7 @@ describe('DataTable', () => {
   it('does not select a row that canSelectRow rejects', () => {
     render(() => {
       const table = createPersonTable({
-        selection: 'multiple',
+        selectionMode: 'multiple',
         canSelectRow: (row) => row.original.role !== 'Intern',
       })
       return <DataTable table={table} />
@@ -783,7 +783,7 @@ describe('DataTable', () => {
 
   it('keeps the pagination toolbar outside the scroll viewport', () => {
     const { container } = render(() => {
-      const table = createPersonTable({ pagination: true })
+      const table = createPersonTable({ paginated: true })
       return <DataTable table={table} sticky maxHeight={200} />
     })
 
@@ -982,7 +982,7 @@ describe('DataTable', () => {
   it('keeps a leading select column when column order lists it first', () => {
     const { container } = render(() => {
       const table = createPersonTable({
-        selection: 'multiple',
+        selectionMode: 'multiple',
         state: { columnOrder: ['select', 'role', 'name'] },
       })
       return <DataTable table={table} />
@@ -1015,7 +1015,7 @@ describe('DataTable', () => {
     const onRowClick = vi.fn()
 
     render(() => {
-      const table = createPersonTable({ selection: 'multiple' })
+      const table = createPersonTable({ selectionMode: 'multiple' })
       return <DataTable table={table} onRowClick={onRowClick} />
     })
 
@@ -1112,7 +1112,7 @@ describe('DataTable', () => {
   it('pins a leading select column with explicit columnPinning state', () => {
     const { container } = render(() => {
       const table = createPersonTable({
-        selection: 'multiple',
+        selectionMode: 'multiple',
         columns: [
           { accessorKey: 'name', header: 'Name', size: 120 },
           { accessorKey: 'age', header: 'Age', size: 80 },
@@ -1136,8 +1136,8 @@ describe('DataTable', () => {
     render(() => {
       const table = createPersonTable({
         data: [],
-        selection: 'multiple',
-        pagination: true,
+        selectionMode: 'multiple',
+        paginated: true,
       })
       return (
         <DataTable
@@ -1166,7 +1166,7 @@ describe('DataTable', () => {
     const escapeHatchSortingChange = vi.fn()
     render(() => {
       const table = createPersonTable({
-        pagination: { pageSize: 25 },
+        paginated: { pageSize: 25 },
         initialState: { sorting: [{ id: 'name', desc: false }] },
         onSortingChange,
         // Untyped callers can still pass owned options; they must not take effect.
@@ -1228,7 +1228,7 @@ describe('DataTable', () => {
           { accessorKey: 'select', header: 'Select value' },
           { header: 'Group', columns: [{ accessorKey: 'expand', header: 'Expand value' }] },
         ],
-        selection: 'multiple',
+        selectionMode: 'multiple',
         expandable: true,
       })
 
@@ -1246,7 +1246,7 @@ describe('DataTable', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     createRoot((dispose) => {
       const table = createPersonTable({
-        selection: 'multiple',
+        selectionMode: 'multiple',
         columns: [{ id: 'select', header: 'Pick', cell: () => null }, ...TEST_COLUMNS],
       })
       expect(table.getAllLeafColumns().map((column) => column.id)).toEqual([
@@ -1626,7 +1626,7 @@ describe('DataTable', () => {
           ],
           columns: [{ accessorKey: 'name', header: 'Name' }],
           getRowId: (row) => row.id,
-          selection: 'multiple',
+          selectionMode: 'multiple',
           initialState: { expanded: true },
           tableOptions: { getSubRows: (row) => row.children },
         })
@@ -1652,8 +1652,8 @@ describe('DataTable', () => {
       const [paginated, setPaginated] = createSignal(true)
       render(() => {
         const table = createPersonTable({
-          selection: 'multiple',
-          get pagination() {
+          selectionMode: 'multiple',
+          get paginated() {
             return paginated()
           },
         })
@@ -1884,7 +1884,7 @@ describe('DataTable', () => {
             { accessorKey: 'name', header: 'Name', size: 100 },
             ...WIDE_COLUMNS.slice(1, 4),
           ],
-          selection: 'multiple',
+          selectionMode: 'multiple',
           initialState: { expanded: true },
           tableOptions: {
             getSubRows: (row) => (row.name === 'parent' ? [{ name: 'child' }] : undefined),
@@ -1927,7 +1927,7 @@ describe('DataTable', () => {
 
     it('shows the row count when nothing is selected', () => {
       const { container } = render(() => {
-        const table = createPersonTable({ pagination: true })
+        const table = createPersonTable({ paginated: true })
         return <DataTable table={table} />
       })
 
@@ -1936,7 +1936,7 @@ describe('DataTable', () => {
 
     it('uses the singular for one row', () => {
       const { container } = render(() => {
-        const table = createPersonTable({ data: TEST_DATA.slice(0, 1), pagination: true })
+        const table = createPersonTable({ data: TEST_DATA.slice(0, 1), paginated: true })
         return <DataTable table={table} />
       })
 
@@ -1946,7 +1946,7 @@ describe('DataTable', () => {
     it('switches the pagination summary between row count and selection count as rows are selected', () => {
       let table!: DataTableT.Instance<Person>
       const { container } = render(() => {
-        table = createPersonTable({ pagination: true, selection: 'multiple' })
+        table = createPersonTable({ paginated: true, selectionMode: 'multiple' })
         return <DataTable table={table} />
       })
 
@@ -1962,7 +1962,7 @@ describe('DataTable', () => {
     it('shows the selection count without a selection column', () => {
       const { container } = render(() => {
         const table = createPersonTable({
-          pagination: true,
+          paginated: true,
           initialState: { rowSelection: { '0': true, '2': true } },
         })
         return <DataTable table={table} />
@@ -1973,7 +1973,7 @@ describe('DataTable', () => {
 
     it('counts the server total in manual mode', () => {
       const { container } = render(() => {
-        const table = createPersonTable({ pagination: true, manual: true, rowCount: 120 })
+        const table = createPersonTable({ paginated: true, manual: true, rowCount: 120 })
         return <DataTable table={table} />
       })
 
@@ -2169,7 +2169,7 @@ describe('DataTable', () => {
     it('indents the first data column after the generated selection and expand columns', () => {
       const { container } = render(() => {
         const table = createTreeTable({
-          selection: 'multiple',
+          selectionMode: 'multiple',
           expandable: (row) => row.subRows.length > 0,
         })
         return <DataTable table={table} />

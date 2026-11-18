@@ -132,7 +132,7 @@ export default function TreeDataExample() {
     // Sub-row ids get their parent's id as a prefix, so `src` > `components` becomes
     // `src.components`. Stable ids keep the selection across sorting and collapsing.
     getRowId: (node) => node.name,
-    selection: 'multiple',
+    selectionMode: 'multiple',
     // Show the chevron only on folders.
     expandable: (row) => row.subRows.length > 0,
     initialState: { expanded: { src: true, 'src.components': true } },

@@ -90,7 +90,7 @@ import Playground from './playground'
 />
 
 The `table` sits inside a `container` element that also holds the `loading` overlay, a scroll
-viewport, and the `pagination` toolbar. The scroll viewport wraps only the table, so the toolbar
+viewport, and the pagination toolbar. The scroll viewport wraps only the table, so the toolbar
 stays in place while rows scroll. The `container` draws the outer border and rounded corners and
 clips pinned and sticky cells to them; replace them through `classes.container`. A body row renders
 either data `cell`s or, when there are no rows, one full-width `empty` cell.
@@ -149,7 +149,7 @@ export function Users() {
     data: users,
     columns,
     getRowId: (user) => user.id,
-    selection: 'multiple',
+    selectionMode: 'multiple',
   })
 
   return <DataTable table={table} aria-label="Users" />
@@ -164,10 +164,10 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | Concern     | `createDataTable` options                                                         | Default                                         |
 | ----------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
 | Data        | `data`, `columns`, `getRowId`                                                     | Row ids are indexes (`'0'`, nested `'0.1'`).    |
-| Sorting     | `sorting`                                                                         | `true`                                          |
-| Selection   | `selection` (`'multiple'` or `'single'`), `canSelectRow`                          | No selection column.                            |
+| Sorting     | `sortable`                                                                        | `true`                                          |
+| Selection   | `selectionMode` (`'multiple'` or `'single'`), `canSelectRow`                      | No selection column.                            |
 | Expansion   | `expandable` (`true` or a row predicate)                                          | Only rows with sub-rows expand.                 |
-| Pagination  | `pagination` (`true` or `{ pageSize, pageSizes }`)                                | Off. When on: 10 rows, sizes `[5, 10, 20, 50]`. |
+| Pagination  | `paginated` (`true` or `{ pageSize, pageSizes }`)                                 | Off. When on: 10 rows, sizes `[5, 10, 20, 50]`. |
 | Resizing    | `resizable`                                                                       | `false`                                         |
 | Server mode | `manual`, `rowCount`                                                              | `false`                                         |
 | State       | `initialState`, `state`, `on[Slice]Change` callbacks                              | Uncontrolled.                                   |
@@ -221,7 +221,7 @@ const columns: DataTableT.Column<Invoice>[] = [
 ]
 ```
 
-`selection` and `expandable` prepend generated columns with the reserved ids `'select'` and
+`selectionMode` and `expandable` prepend generated columns with the reserved ids `'select'` and
 `'expand'`. Pin or order them by those ids. A column of your own whose id resolves to a reserved id
 replaces the generated column. When that id comes from `accessorKey` or `header`, a development
 warning suggests an explicit `id`, which keeps both columns.
@@ -231,7 +231,7 @@ warning suggests an explicit `id`, which keeps both columns.
 Sorting is on by default, and each sortable header has a sort button. Shift-click a second
 header to sort by more than one column. While more than one column is sorted, each sorted header
 shows its priority (`sortIndex` slot), and screen readers hear it through the localized
-`sortPriority` message. Set `sorting: false` to turn sorting off for every column, or
+`sortPriority` message. Set `sortable: false` to turn sorting off for every column, or
 `enableSorting` in a column definition to override it for one column. Turn multi-column sorting off
 with `tableOptions.enableMultiSort: false`.
 
@@ -296,10 +296,10 @@ filter functions are registered.
 
 ### Selection
 
-`selection: 'multiple'` adds a checkbox to each row and a select-all checkbox to the header.
+`selectionMode: 'multiple'` adds a checkbox to each row and a select-all checkbox to the header.
 Select-all toggles the rows on the current page, and is then named with the `selectPage` message.
 With tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed
-when some are. `selection: 'single'` adds radio buttons; selecting a row clears the others.
+when some are. `selectionMode: 'single'` adds radio buttons; selecting a row clears the others.
 `canSelectRow` disables the control of every row it rejects.
 
 ```tsx
@@ -307,7 +307,7 @@ const table = createDataTable({
   data: nodes,
   columns,
   getRowId: (node) => node.id,
-  selection: 'single',
+  selectionMode: 'single',
   canSelectRow: (row) => row.original.status !== 'terminated',
 })
 ```
@@ -352,8 +352,8 @@ Control which rows are open with `state.expanded` and `onExpandedChange`.
 
 ### Pagination and server data
 
-Pagination is off by default, and every row renders. Pass `pagination: true` for ten rows per
-page, or `pagination: { pageSize, pageSizes }`. The toolbar below the table shows page navigation,
+Pagination is off by default, and every row renders. Pass `paginated: true` for ten rows per
+page, or `paginated: { pageSize, pageSizes }`. The toolbar below the table shows page navigation,
 a page-size menu (`pageSizes: false` hides it), and a row summary: the total row count, or
 "n of total selected" once a row is selected. The menu always lists the current page size.
 
@@ -374,7 +374,7 @@ const table = createDataTable({
   },
   columns,
   manual: true,
-  pagination: { pageSizes: [10, 20, 50] },
+  paginated: { pageSizes: [10, 20, 50] },
   state: {
     get sorting() {
       return sorting()
@@ -422,7 +422,7 @@ draws a divider.
 const table = createDataTable({
   data,
   columns,
-  selection: 'multiple',
+  selectionMode: 'multiple',
   initialState: {
     columnPinning: { start: ['select', 'id'], end: ['actions'] },
   },
@@ -575,7 +575,7 @@ return <DataTable table={table} virtualizer={virtualizer} sticky maxHeight={320}
 
 A virtualized table shows every row in one scroll, which changes three behaviors:
 
-- `pagination` is ignored, with a development warning, and the toolbar is hidden.
+- `paginated` is ignored, with a development warning, and the toolbar is hidden.
 - Select-all toggles every row, not one page.
 - `expandedRowRender` is ignored, with a development warning, because the virtualizer cannot
   measure a second row per entry. Tree sub-rows still expand, because each is its own entry.
@@ -635,7 +635,7 @@ priority.
 
 ### Switch between single and multiple selection
 
-Read `selection` from a signal and control `state.rowSelection`, so the toolbar can count and clear
+Read `selectionMode` from a signal and control `state.rowSelection`, so the toolbar can count and clear
 the selection. `canSelectRow` locks terminated nodes, and `rowProps` mutes their text.
 
 <Preview path="./selection-modes" />

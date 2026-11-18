@@ -156,8 +156,8 @@ export default function BasicExample() {
     data: MEMBERS,
     columns: COLUMNS,
     getRowId: (member) => member.id,
-    selection: 'multiple',
-    pagination: { pageSize: 5 },
+    selectionMode: 'multiple',
+    paginated: { pageSize: 5 },
     initialState: { sorting: [{ id: 'role', desc: false }] },
   })
 

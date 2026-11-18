@@ -86,7 +86,7 @@ type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
  *   data: users,
  *   columns,
  *   getRowId: (user) => user.id,
- *   selection: 'multiple',
+ *   selectionMode: 'multiple',
  * })
  *
  * <DataTable table={table} aria-label="Users" />

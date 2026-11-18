@@ -52,8 +52,8 @@ export function DataTableFeaturesFixture(props: { sorting?: SortingState }) {
     data: FILES,
     columns: FILE_COLUMNS,
     getRowId: (row) => row.id,
-    selection: 'multiple',
-    pagination: true,
+    selectionMode: 'multiple',
+    paginated: true,
     initialState: { expanded: true },
     state: {
       get sorting() {

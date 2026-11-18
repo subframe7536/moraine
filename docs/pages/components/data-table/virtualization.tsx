@@ -48,7 +48,7 @@ export default function VirtualizationExample() {
     data: ROWS,
     columns: COLUMNS,
     getRowId: (row) => String(row.id),
-    sorting: false,
+    sortable: false,
     initialState: { columnPinning: { start: ['server'], end: [] } },
   })
 

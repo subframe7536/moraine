@@ -184,7 +184,7 @@ of positioning rows absolutely, so cells keep native column alignment.
 
 - `estimateSize` should be close to the rendered row height for the `size` variant: about `41` for
   `md`. Rows are measured once mounted.
-- Each entry renders one `<tr>`, so `expandedRowRender` and `pagination` are ignored while
+- Each entry renders one `<tr>`, so `expandedRowRender` and `paginated` are ignored while
   virtualized, with a development warning. Select-all toggles every row. Tree sub-rows still
   expand, because each is its own entry.
 - Only a window of rows exists in the DOM, so the table gets `aria-rowcount` and every rendered

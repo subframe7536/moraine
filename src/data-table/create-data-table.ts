@@ -60,8 +60,8 @@ export function createDataTable<TData extends RowData = RowData>(
   options: DataTableT.Options<TData>,
 ): DataTableT.Instance<TData> {
   const initialPageSize =
-    typeof options.pagination === 'object' && options.pagination !== null
-      ? options.pagination.pageSize
+    typeof options.paginated === 'object' && options.paginated !== null
+      ? options.paginated.pageSize
       : undefined
 
   const initialState: Partial<DataTableT.State> = {
@@ -100,8 +100,8 @@ export function createDataTable<TData extends RowData = RowData>(
   const memoizedColumns = createMemo(() => {
     const userColumns = options.columns
     const prefix: DataTableT.Column<TData>[] = []
-    if (options.selection && !hasUserColumn(userColumns, SELECT_COLUMN_ID)) {
-      prefix.push(buildSelectColumn<TData>(options.selection))
+    if (options.selectionMode && !hasUserColumn(userColumns, SELECT_COLUMN_ID)) {
+      prefix.push(buildSelectColumn<TData>(options.selectionMode))
     }
     if (options.expandable && !hasUserColumn(userColumns, EXPAND_COLUMN_ID)) {
       prefix.push(expandCol)
@@ -110,7 +110,7 @@ export function createDataTable<TData extends RowData = RowData>(
   })
 
   const paginationConfig = createMemo(() => {
-    const opt = options.pagination
+    const opt = options.paginated
     return {
       enabled: Boolean(opt),
       pageSizes:
@@ -184,13 +184,13 @@ export function createDataTable<TData extends RowData = RowData>(
           }
         : undefined,
       get enableSorting() {
-        return options.sorting ?? true
+        return options.sortable ?? true
       },
       get enableMultiRowSelection() {
-        return options.selection !== 'single'
+        return options.selectionMode !== 'single'
       },
       get enableRowSelection() {
-        return options.canSelectRow ?? (options.selection !== undefined ? true : null)
+        return options.canSelectRow ?? (options.selectionMode !== undefined ? true : null)
       },
       get enableColumnResizing() {
         return options.resizable ?? false

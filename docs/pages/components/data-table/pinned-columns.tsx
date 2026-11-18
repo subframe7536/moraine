@@ -212,7 +212,7 @@ export default function PinnedColumnsExample() {
   const table = createDataTable({
     data: CUSTOMERS,
     columns: COLUMNS,
-    selection: 'multiple',
+    selectionMode: 'multiple',
     initialState: {
       columnPinning: { start: ['select', 'id'], end: ['actions'] },
     },

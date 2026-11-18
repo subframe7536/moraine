@@ -35,7 +35,7 @@ export default function FilteringExample() {
     data: DATA,
     columns: COLUMNS,
     getRowId: (row) => row.id,
-    pagination: { pageSize: 5 },
+    paginated: { pageSize: 5 },
     state: {
       get globalFilter() {
         return globalFilter()

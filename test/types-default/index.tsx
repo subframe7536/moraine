@@ -572,9 +572,9 @@ const dataTableInstance = createDataTable({
     return dataTableRows
   },
   columns: dataTableCols,
-  selection: 'multiple',
+  selectionMode: 'multiple',
   expandable: true,
-  pagination: { pageSize: 10, pageSizes: [10, 20] },
+  paginated: { pageSize: 10, pageSizes: [10, 20] },
   state: {
     get sorting() {
       return dataTableSorting()

@@ -168,7 +168,7 @@
           "type": "Translations",
           "description": "Localized messages for this data table, merged per key over the provider messages. Some\nentries are functions that receive a context object.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  pagination: true,\n})\n\n<DataTable\n  table={table}\n  translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}\n/>"
+            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  paginated: true,\n})\n\n<DataTable\n  table={table}\n  translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}\n/>"
           ]
         },
         {

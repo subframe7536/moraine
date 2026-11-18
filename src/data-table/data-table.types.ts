@@ -145,7 +145,7 @@ export namespace DataTableT {
     data: readonly TData[]
     /**
      * Column definitions (TanStack `ColumnDef`s, such as `{ accessorKey, header }`). Declare a
-     * getter for reactive columns. Generated `selection` and `expand` columns are prepended to
+     * getter for reactive columns. Generated `select` and `expand` columns are prepended to
      * these.
      */
     columns: readonly Column<TData>[]
@@ -160,14 +160,14 @@ export namespace DataTableT {
      * it. Sortable headers render a sort button.
      * @default true
      */
-    sorting?: boolean
+    sortable?: boolean
     /**
      * Prepends a selection column (`'multiple'` checkboxes or `'single'` radio buttons) with id
      * `'select'`. A user column whose resolved id is `'select'` replaces the generated column.
      * With `'multiple'`, the header checkbox selects every row on the current page, or every row
      * when `DataTable` has a `virtualizer`. Selected rows are tracked in the `rowSelection` state.
      */
-    selection?: 'single' | 'multiple'
+    selectionMode?: 'single' | 'multiple'
     /**
      * Predicate controlling whether a given row can be selected. Rows it rejects render a
      * disabled checkbox or radio button.
@@ -194,13 +194,13 @@ export namespace DataTableT {
      * const table = createDataTable({
      *   data: [{ name: 'Ada' }, { name: 'Alan' }],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
-     *   pagination: { pageSize: 25, pageSizes: [25, 50, 100] },
+     *   paginated: { pageSize: 25, pageSizes: [25, 50, 100] },
      * })
      *
      * <DataTable table={table} />
      * ```
      */
-    pagination?: boolean | PaginationConfig
+    paginated?: boolean | PaginationConfig
     /**
      * Enables interactive column width resizing with drag and keyboard handles, and switches the
      * table to a fixed layout. Columns without a `maxSize`, in their definition
@@ -390,7 +390,7 @@ export namespace DataTableT {
      * const table = createDataTable({
      *   data: [{ name: 'Ada' }],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
-     *   pagination: true,
+     *   paginated: true,
      * })
      *
      * <DataTable
