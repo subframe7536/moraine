@@ -43,9 +43,23 @@ export namespace ProgressT {
     label?: JSX.Element
 
     /**
-     * `Intl.NumberFormat` options for the displayed value, using the provider locale. A
-     * `percent` style formats the completed fraction; other styles format `value`.
-     * Defaults to the percentage rounded to 2 decimal places.
+     * `Intl.NumberFormat` options for the displayed value and `aria-valuetext`, using the provider
+     * locale. They format the raw clamped `value`, not the completed fraction, as `Slider` and
+     * `BoldSlider` do; a `percent` style multiplies by 100, so pair it with a `max` of `1`. Without
+     * `formatOptions` the text is the completed percentage rounded to 2 decimal places (`'40%'`).
+     * A `valueLabel` function takes precedence.
+     * @example
+     * ```tsx
+     * import { Progress } from 'moraine'
+     *
+     * <Progress
+     *   value={1.5}
+     *   max={4}
+     *   label="Storage"
+     *   valueLabel
+     *   formatOptions={{ style: 'unit', unit: 'gigabyte' }}
+     * />
+     * ```
      */
     formatOptions?: Intl.NumberFormatOptions
 

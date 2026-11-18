@@ -17,7 +17,7 @@
           "name": "animation",
           "optional": true,
           "type": "'carousel' | 'reverse' | 'swing' | 'elastic'",
-          "description": "Visual animation of the component.",
+          "description": "Indicator motion while the value is indeterminate: `carousel` slides the bar along the track,\n`reverse` slides it in the opposite direction, `swing` moves it back and forth, and `elastic`\nslides it while it grows to full length mid-track. Determinate progress does not animate.",
           "default": {
             "kind": "literal",
             "value": "carousel"
@@ -39,7 +39,10 @@
           "name": "formatOptions",
           "optional": true,
           "type": "Intl.NumberFormatOptions",
-          "description": "`Intl.NumberFormat` options for the displayed value, using the provider locale. A\n`percent` style formats the completed fraction; other styles format `value`.\nDefaults to the percentage rounded to 2 decimal places."
+          "description": "`Intl.NumberFormat` options for the displayed value and `aria-valuetext`, using the provider\nlocale. They format the raw clamped `value`, not the completed fraction, as `Slider` and\n`BoldSlider` do; a `percent` style multiplies by 100, so pair it with a `max` of `1`. Without\n`formatOptions` the text is the completed percentage rounded to 2 decimal places (`'40%'`).\nA `valueLabel` function takes precedence.",
+          "examples": [
+            "import { Progress } from 'moraine'\n\n<Progress\n  value={1.5}\n  max={4}\n  label=\"Storage\"\n  valueLabel\n  formatOptions={{ style: 'unit', unit: 'gigabyte' }}\n/>"
+          ]
         },
         {
           "name": "label",

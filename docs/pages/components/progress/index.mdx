@@ -81,12 +81,13 @@ minimum of 9rem.
 ### Number format
 
 `formatOptions` accepts `Intl.NumberFormat` options and formats the displayed value and
-`aria-valuetext` with the provider locale. A `percent` style formats the completed fraction; other
-styles format `value`. Without `formatOptions`, the text is the percentage rounded to two decimals.
-A `valueLabel` formatter takes precedence.
+`aria-valuetext` with the provider locale. Like [Slider](/components/slider), it formats the raw
+`value`, not the completed fraction, so a `percent` style needs a `max` of `1`. Without
+`formatOptions`, the text is the completed percentage rounded to two decimals. A `valueLabel`
+formatter takes precedence.
 
 ```tsx
-<Progress value={3} max={4} valueLabel formatOptions={{ style: 'percent' }} aria-label="Setup" />
+<Progress value={0.75} max={1} valueLabel formatOptions={{ style: 'percent' }} aria-label="Setup" />
 <Progress value={42} valueLabel formatOptions={{ style: 'unit', unit: 'megabyte' }} aria-label="Upload" />
 ```
 

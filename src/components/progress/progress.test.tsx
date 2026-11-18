@@ -18,11 +18,19 @@ describe('Progress', () => {
     expect(root.style.getPropertyValue('--p-size')).toBe('10px')
   })
 
-  test('formats the value with formatOptions', () => {
-    const percent = render(() => (
+  test('formats the raw value with formatOptions', () => {
+    const fraction = render(() => (
+      <Progress value={0.25} max={1} formatOptions={{ style: 'percent' }} valueLabel />
+    ))
+    expect(fraction.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('25%')
+
+    const raw = render(() => (
       <Progress value={1} max={4} formatOptions={{ style: 'percent' }} valueLabel />
     ))
-    expect(percent.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('25%')
+    expect(raw.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('100%')
+
+    const unformatted = render(() => <Progress value={1} max={4} valueLabel />)
+    expect(unformatted.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('25%')
 
     const currency = render(() => (
       <Progress value={5} formatOptions={{ style: 'currency', currency: 'USD' }} valueLabel />

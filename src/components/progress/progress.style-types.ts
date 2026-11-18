@@ -27,7 +27,10 @@ export interface ProgressStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual animation of the component.
+  /**
+   * Indicator motion while the value is indeterminate: `carousel` slides the bar along the track,
+   * `reverse` slides it in the opposite direction, `swing` moves it back and forth, and `elastic`
+   * slides it while it grows to full length mid-track. Determinate progress does not animate.
    * @default 'carousel'
    */
   animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'

@@ -115,11 +115,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     if (!options) {
       return `${next}%`
     }
-    return formatLocaleNumber(
-      options.style === 'percent' ? next / 100 : resolvedValue(),
-      locale(),
-      options,
-    )
+    return formatLocaleNumber(resolvedValue(), locale(), options)
   })
   const valueText = createMemo(() => (isIndeterminate() ? messages().indeterminate : displayText()))
 
