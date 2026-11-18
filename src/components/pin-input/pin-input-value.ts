@@ -79,24 +79,38 @@ export function applyNormalizeValue(
 }
 
 /**
+ * The characters of `before` that did not make it into `after`, joined; each output character
+ * cancels one equal input character. Empty while no character was lost, so a `normalizeValue`
+ * that only transforms characters (such as upper-casing) reports nothing.
+ */
+function droppedChars(before: string[], after: string[]): string {
+  if (after.length >= before.length) {
+    return ''
+  }
+  const remaining = [...before]
+  for (const char of after) {
+    const at = remaining.indexOf(char)
+    if (at >= 0) {
+      remaining.splice(at, 1)
+    }
+  }
+  return remaining.join('')
+}
+
+/**
  * Filters pasted or autofilled text into valid slot characters.
- * Whitespace and dashes are silently stripped; dropped characters set `didReject`.
+ * Whitespace and dashes are silently stripped; the second tuple entry holds the characters
+ * dropped by `validationType` or `normalizeValue`, or `''` when none were.
  */
 export function filterInputText(
   text: string,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): [chars: string[], didReject: boolean] {
-  const stripped = text.replace(/[\s-]+/g, '')
-  const valid: string[] = []
-  for (const char of stripped) {
-    if (isValidChar(char, type)) {
-      valid.push(char)
-    }
-  }
+): [chars: string[], rejected: string] {
+  const stripped = Array.from(text.replace(/[\s-]+/g, ''))
+  const valid = stripped.filter((char) => isValidChar(char, type))
   const normalized = applyNormalizeValue(valid, type, normalizeValue)
-  const strippedCount = Array.from(stripped).length
-  return [normalized, strippedCount > normalized.length]
+  return [normalized, droppedChars(stripped, normalized)]
 }
 
 /**
@@ -107,19 +121,11 @@ export function filterTypedChars(
   typed: string,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
-): [chars: string[], didReject: boolean] {
-  let nonWhitespaceCount = 0
-  const valid: string[] = []
-  for (const char of typed) {
-    if (!/\s/.test(char)) {
-      nonWhitespaceCount++
-      if (isValidChar(char, type)) {
-        valid.push(char)
-      }
-    }
-  }
+): [chars: string[], rejected: string] {
+  const nonWhitespace = Array.from(typed).filter((char) => !/\s/.test(char))
+  const valid = nonWhitespace.filter((char) => isValidChar(char, type))
   const normalized = applyNormalizeValue(valid, type, normalizeValue)
-  return [normalized, nonWhitespaceCount > normalized.length]
+  return [normalized, droppedChars(nonWhitespace, normalized)]
 }
 
 export function extractValidChars(

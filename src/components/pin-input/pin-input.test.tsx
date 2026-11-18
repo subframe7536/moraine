@@ -814,7 +814,7 @@ describe('PinInput', () => {
 
   test('distributes autofilled text entered through the hidden input', () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const onComplete = vi.fn()
     const screen = render(() => (
       <PinInput
@@ -822,7 +822,7 @@ describe('PinInput', () => {
         length={6}
         validationType="number"
         onValueChange={onValueChange}
-        onReject={onReject}
+        onValueInvalid={onValueInvalid}
         onComplete={onComplete}
       />
     ))
@@ -837,7 +837,7 @@ describe('PinInput', () => {
     expect(hidden.value).toBe('123456')
     expect(document.activeElement).toBe(inputs[5])
     expect(onValueChange).toHaveBeenCalledWith(['1', '2', '3', '4', '5', '6'])
-    expect(onReject).toHaveBeenCalledWith('12a34b56')
+    expect(onValueInvalid).toHaveBeenCalledWith({ value: 'ab', reason: 'patternMismatch' })
     expect(onComplete).toHaveBeenCalledWith('123456')
   })
 
@@ -1039,21 +1039,39 @@ describe('PinInput', () => {
     expect(onComplete).toHaveBeenCalledWith('1234')
   })
 
-  test('reports rejected characters via onReject', () => {
-    const onReject = vi.fn()
-    const screen = render(() => <PinInput length={4} validationType="number" onReject={onReject} />)
+  test('reports refused characters via onValueInvalid', () => {
+    const onValueInvalid = vi.fn()
+    const screen = render(() => (
+      <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
+    ))
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
 
     inputs[0]!.focus()
     fireEvent.input(inputs[0]!, { target: { value: 'a' } })
-    expect(onReject).toHaveBeenCalledWith('a')
+    expect(onValueInvalid).toHaveBeenLastCalledWith({ value: 'a', reason: 'patternMismatch' })
     expect(inputs[0]?.value).toBe('')
 
     fireEvent.paste(inputs[0]!, { clipboardData: { getData: () => '1a23' } })
-    expect(onReject).toHaveBeenCalledWith('1a23')
+    expect(onValueInvalid).toHaveBeenLastCalledWith({ value: 'a', reason: 'patternMismatch' })
     expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', ''])
+    expect(onValueInvalid).toHaveBeenCalledTimes(2)
+  })
+
+  test('reports pasted text longer than the pin as tooLong', () => {
+    const onValueInvalid = vi.fn()
+    const screen = render(() => (
+      <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
+    ))
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    fireEvent.paste(inputs[0]!, { clipboardData: { getData: () => '12a345' } })
+    expect(onValueInvalid).toHaveBeenNthCalledWith(1, { value: 'a', reason: 'patternMismatch' })
+    expect(onValueInvalid).toHaveBeenNthCalledWith(2, { value: '5', reason: 'tooLong' })
+    expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', '4'])
   })
 
   test('normalizeValue transforms entered and external values before filtering', () => {

@@ -205,6 +205,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   - List item text uses `label` and `description`.
   - Persistent closed content uses `forceMount?: boolean`.
   - Dismissal behavior uses `closeOnEscape`, `closeOnOverlayClick`, and `closeOnOutsideClick`.
+  - A callback for a proposed value the component refused (characters dropped by a filter, files failing validation) is `onValueInvalid(details)`. It pairs with `onValueChange`, receives a `details` object, never a bare value, and does not cancel anything. Name a `reason` with the matching `ValidityState` key (`patternMismatch`, `tooLong`, `rangeOverflow`). `onInvalid` is reserved for passing through the native constraint-validation event, and `onReject` is not used.
   - Internal calculated variants belong on `*RecipeVariant extends *StyleVariants`; they must never appear in the public `*StyleVariants` or component props.
   - Render functions end with `*Render`; refs end with `*Ref`.
   - Item/option objects use `ariaLabel`; component props use `'aria-label'`.

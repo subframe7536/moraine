@@ -103,7 +103,7 @@ yourself from `onValueChange`. Use `itemRender` to replace each entry. It receiv
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate each picked or dropped file before it is
 added. `maxFiles` counts files already selected and applies only with `multiple`. Rejected files are
-reported to `onReject` with reason codes (`FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`,
+reported to `onValueInvalid` as `rejections` with reason codes (`FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`,
 `FILE_DUPLICATE`, `TOO_MANY_FILES`); accepted files from the same batch are still added.
 
 `readOnly` keeps the selected list visible but blocks adding and removing files. `disabled` removes
@@ -116,7 +116,7 @@ overrides it.
   accept="image/png,image/jpeg"
   maxFiles={2}
   maxSize={1024 * 1024}
-  onReject={(files) => setRejections(files)}
+  onValueInvalid={({ rejections }) => setRejections(rejections)}
 />
 <FileUpload disabled label="Disabled upload" />
 <FileUpload readOnly label="Read-only upload" />
@@ -133,14 +133,14 @@ overrides it.
 
 ### Attach expense receipts
 
-Set `multiple` and `maxFiles` when the field holds a short list. Handle `onReject` when a fourth
+Set `multiple` and `maxFiles` when the field holds a short list. Handle `onValueInvalid` when a fourth
 file or a disallowed type is dropped.
 
 <Preview path="./multiple-max-files" />
 
 ### Show rejected images
 
-Map `onReject` reason codes to messages. Validation runs before the file is added to the
+Map `onValueInvalid` reason codes to messages. Validation runs before the file is added to the
 value.
 
 <Preview path="./rejections" />

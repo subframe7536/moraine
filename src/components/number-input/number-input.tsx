@@ -169,11 +169,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   let inputEl: HTMLInputElement | undefined
 
-  const {
-    nativeInvalid,
-    resetNativeInvalid,
-    onInvalid: handleHiddenInputInvalid,
-  } = useHiddenInputValidation({
+  const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
     focusTarget: () => inputEl,
   })
 
@@ -475,7 +471,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
           required={field.required()}
           disabled={field.disabled()}
           readOnly={readOnly()}
-          onInvalid={handleHiddenInputInvalid}
+          onInvalid={onInvalid}
         />
       </Show>
 

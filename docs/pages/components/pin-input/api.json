@@ -171,16 +171,19 @@
           "description": "Native focusout event for every slot blur, including moves between slots.\nCalling `preventDefault` skips `onBlur`."
         },
         {
-          "name": "onReject",
-          "optional": true,
-          "type": "(value: string) => void",
-          "description": "Callback when entered text contains characters rejected by `validationType`\nor `normalizeValue`. Receives the raw entered text before filtering."
-        },
-        {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
           "description": "Called whenever the entered characters change, with an array of `length` entries holding\none character per slot and `''` for empty slots. Use `.join('')` for the string."
+        },
+        {
+          "name": "onValueInvalid",
+          "optional": true,
+          "type": "(details: ValueInvalidDetails) => void",
+          "description": "Called when entered text is refused: a typed, pasted, or autofilled batch containing\ncharacters dropped by `validationType` or `normalizeValue` (`reason: 'patternMismatch'`),\nor a paste with more valid characters than `length` (`reason: 'tooLong'`). Accepted\ncharacters from the same input are still applied and reported through `onValueChange`; a\npaste that breaks both rules calls it once per reason. Does not fire for whitespace and\ndashes, which are stripped silently. It cannot cancel the input and is unrelated to the\nnative `invalid` event.",
+          "examples": [
+            "import { PinInput } from 'moraine'\n\n<PinInput\n  validationType=\"number\"\n  onValueInvalid={({ value, reason }) => console.warn(reason, value)}\n/>"
+          ]
         },
         {
           "name": "otp",
@@ -268,7 +271,7 @@
           "name": "validationType",
           "optional": true,
           "type": "ValidationType",
-          "description": "Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,\n`'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped\nand reported to `onReject`. It also picks the default `inputMode` (`numeric` for\n`'number'`, `text` otherwise).",
+          "description": "Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,\n`'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped\nand reported to `onValueInvalid`. It also picks the default `inputMode` (`numeric` for\n`'number'`, `text` otherwise).",
           "default": {
             "kind": "literal",
             "value": "text"

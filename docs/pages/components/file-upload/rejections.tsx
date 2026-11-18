@@ -21,9 +21,9 @@ export function Rejections() {
         maxSize={1024 * 1024}
         label="Upload images"
         description="PNG or JPEG, up to 1 MB each (maximum two files)"
-        onReject={(files) =>
+        onValueInvalid={({ rejections }) =>
           setRejections(
-            files.map(({ file, errors }) => ({
+            rejections.map(({ file, errors }) => ({
               name: file.name,
               reason: errors.map((error) => REJECTION_LABELS[error]).join(', '),
             })),

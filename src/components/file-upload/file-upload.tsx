@@ -33,8 +33,8 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
  * Drag-and-drop file upload control that collects local files, validates them, and lists the
  * selection. Selection and validation (`accept`, `minSize`, `maxSize`, `maxFiles`) happen in the
  * component; sending files to a server belongs to the caller. Use `multiple` for several files,
- * `variant="button"` for a compact picker, and `onValueChange` / `onReject` to react to accepted
- * and rejected files. Wrap it in `Field` or `form.Field` for a label and validation message.
+ * `variant="button"` for a compact picker, and `onValueChange` / `onValueInvalid` to react to accepted
+ * and refused files. Wrap it in `Field` or `form.Field` for a label and validation message.
  *
  * @example
  * ```tsx
@@ -48,7 +48,7 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
  *   label="Drop images here"
  *   description="PNG or JPEG up to 1 MB each"
  *   onValueChange={(files) => console.log(files)}
- *   onReject={(rejected) => console.warn(rejected)}
+ *   onValueInvalid={({ rejections }) => console.warn(rejections)}
  * />
  * ```
  */
@@ -81,7 +81,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     'minSize',
     'maxSize',
     'onValueChange',
-    'onReject',
+    'onValueInvalid',
     'itemRender',
     'size',
     'variant',
@@ -196,11 +196,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     return () => field.setControlRef(undefined)
   })
 
-  const {
-    nativeInvalid,
-    resetNativeInvalid,
-    onInvalid: handleHiddenInputInvalid,
-  } = useHiddenInputValidation({
+  const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
     focusTarget: controlElement,
   })
 
@@ -218,7 +214,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       resetNativeInvalid()
       setFormValue(value as FileUploadT.Value<TMultiple>)
     },
-    onReject: (rejected) => merged.onReject?.(rejected),
+    onValueInvalid: (details) => merged.onValueInvalid?.(details),
   })
 
   const {
@@ -362,7 +358,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         onChange={(event) => {
           addFiles(Array.from(event.currentTarget.files ?? []))
         }}
-        onInvalid={handleHiddenInputInvalid}
+        onInvalid={onInvalid}
       />
 
       <Show when={fileList() && selectedFiles().length > 0}>

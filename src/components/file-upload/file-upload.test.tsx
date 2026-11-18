@@ -542,21 +542,28 @@ describe('FileUpload', () => {
     ))
   })
 
-  test('calls onReject when files are rejected', async () => {
-    const onReject = vi.fn()
-    const screen = render(() => <FileUpload multiple maxFiles={1} onReject={onReject} />)
+  test('calls onValueInvalid when files are rejected', async () => {
+    const onValueInvalid = vi.fn()
+    const screen = render(() => (
+      <FileUpload multiple maxFiles={1} onValueInvalid={onValueInvalid} />
+    ))
     const input = getFileInput(screen.container)
 
     await setInputFiles(input, [createFile('a.txt'), createFile('b.txt')])
 
-    expect(onReject).toHaveBeenCalledTimes(1)
+    expect(onValueInvalid).toHaveBeenCalledTimes(1)
   })
 
   test('rejects files smaller than minSize', async () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple minSize={4} onValueChange={onValueChange} onReject={onReject} />
+      <FileUpload
+        multiple
+        minSize={4}
+        onValueChange={onValueChange}
+        onValueInvalid={onValueInvalid}
+      />
     ))
     const input = getFileInput(screen.container)
     const small = createFile('small.txt', 'text/plain', 'abc')
@@ -566,14 +573,21 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
-    expect(onReject).toHaveBeenCalledWith([{ file: small, errors: ['FILE_TOO_SMALL'] }])
+    expect(onValueInvalid).toHaveBeenCalledWith({
+      rejections: [{ file: small, errors: ['FILE_TOO_SMALL'] }],
+    })
   })
 
   test('rejects files larger than maxSize', async () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple maxSize={4} onValueChange={onValueChange} onReject={onReject} />
+      <FileUpload
+        multiple
+        maxSize={4}
+        onValueChange={onValueChange}
+        onValueInvalid={onValueInvalid}
+      />
     ))
     const input = getFileInput(screen.container)
     const valid = createFile('valid.txt', 'text/plain', 'abcd')
@@ -583,14 +597,16 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([valid])
-    expect(onReject).toHaveBeenCalledWith([{ file: large, errors: ['FILE_TOO_LARGE'] }])
+    expect(onValueInvalid).toHaveBeenCalledWith({
+      rejections: [{ file: large, errors: ['FILE_TOO_LARGE'] }],
+    })
   })
 
   test('rejects duplicate files from the same batch and existing list', async () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const screen = render(() => (
-      <FileUpload multiple onValueChange={onValueChange} onReject={onReject} />
+      <FileUpload multiple onValueChange={onValueChange} onValueInvalid={onValueInvalid} />
     ))
     const input = getFileInput(screen.container)
     const first = createFile('same.txt', 'text/plain', 'content', 100)
@@ -602,17 +618,17 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([first])
-    expect(onReject).toHaveBeenNthCalledWith(1, [
-      { file: duplicateInBatch, errors: ['FILE_DUPLICATE'] },
-    ])
-    expect(onReject).toHaveBeenNthCalledWith(2, [
-      { file: duplicateExisting, errors: ['FILE_DUPLICATE'] },
-    ])
+    expect(onValueInvalid).toHaveBeenNthCalledWith(1, {
+      rejections: [{ file: duplicateInBatch, errors: ['FILE_DUPLICATE'] }],
+    })
+    expect(onValueInvalid).toHaveBeenNthCalledWith(2, {
+      rejections: [{ file: duplicateExisting, errors: ['FILE_DUPLICATE'] }],
+    })
   })
 
   test('keeps accepted type and maxFiles rejection behavior', async () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const screen = render(() => (
       <FileUpload
         multiple
@@ -620,7 +636,7 @@ describe('FileUpload', () => {
         accept="image/*"
         maxFiles={1}
         onValueChange={onValueChange}
-        onReject={onReject}
+        onValueInvalid={onValueInvalid}
       />
     ))
     const input = getFileInput(screen.container)
@@ -632,17 +648,24 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith([image])
-    expect(onReject).toHaveBeenCalledWith([
-      { file: text, errors: ['FILE_INVALID_TYPE'] },
-      { file: extra, errors: ['TOO_MANY_FILES'] },
-    ])
+    expect(onValueInvalid).toHaveBeenCalledWith({
+      rejections: [
+        { file: text, errors: ['FILE_INVALID_TYPE'] },
+        { file: extra, errors: ['TOO_MANY_FILES'] },
+      ],
+    })
   })
 
   test('reports type and size errors together and keeps one file in single mode', async () => {
     const onValueChange = vi.fn()
-    const onReject = vi.fn()
+    const onValueInvalid = vi.fn()
     const screen = render(() => (
-      <FileUpload accept="image/*" maxSize={2} onValueChange={onValueChange} onReject={onReject} />
+      <FileUpload
+        accept="image/*"
+        maxSize={2}
+        onValueChange={onValueChange}
+        onValueInvalid={onValueInvalid}
+      />
     ))
     const invalid = createFile('note.txt', 'text/plain', 'large')
     const first = createFile('first.png', 'image/png', 'ok')
@@ -651,10 +674,12 @@ describe('FileUpload', () => {
     await setInputFiles(getFileInput(screen.container), [invalid, first, second])
 
     expect(onValueChange).toHaveBeenCalledWith(first)
-    expect(onReject).toHaveBeenCalledWith([
-      { file: invalid, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
-      { file: second, errors: ['TOO_MANY_FILES'] },
-    ])
+    expect(onValueInvalid).toHaveBeenCalledWith({
+      rejections: [
+        { file: invalid, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
+        { file: second, errors: ['TOO_MANY_FILES'] },
+      ],
+    })
   })
 
   test('clears files, previews, and form value on native reset without emitting a callback', async () => {

@@ -19,6 +19,20 @@ export namespace PinInputT {
 
   export type ValidationType = 'text' | 'number' | 'alphanumeric' | 'alpha'
 
+  export interface ValueInvalidDetails {
+    /**
+     * The refused characters, joined: those dropped by `validationType` or `normalizeValue`, or
+     * the valid characters beyond `length` for `'tooLong'`. When `normalizeValue` both transforms
+     * and drops characters, the transformed originals may be included.
+     */
+    value: string
+    /**
+     * Why the text was refused, named after the matching `ValidityState` keys: `'patternMismatch'`
+     * for characters the value rules drop, `'tooLong'` for a paste exceeding `length`.
+     */
+    reason: 'patternMismatch' | 'tooLong'
+  }
+
   export interface SeparatorRenderProps {
     /** Zero-based index of the input the separator follows. */
     index: number
@@ -52,7 +66,7 @@ export namespace PinInputT {
     /**
      * Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,
      * `'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped
-     * and reported to `onReject`. It also picks the default `inputMode` (`numeric` for
+     * and reported to `onValueInvalid`. It also picks the default `inputMode` (`numeric` for
      * `'number'`, `text` otherwise).
      * @default 'text'
      */
@@ -124,10 +138,24 @@ export namespace PinInputT {
     onComplete?: (value: string) => void
 
     /**
-     * Callback when entered text contains characters rejected by `validationType`
-     * or `normalizeValue`. Receives the raw entered text before filtering.
+     * Called when entered text is refused: a typed, pasted, or autofilled batch containing
+     * characters dropped by `validationType` or `normalizeValue` (`reason: 'patternMismatch'`),
+     * or a paste with more valid characters than `length` (`reason: 'tooLong'`). Accepted
+     * characters from the same input are still applied and reported through `onValueChange`; a
+     * paste that breaks both rules calls it once per reason. Does not fire for whitespace and
+     * dashes, which are stripped silently. It cannot cancel the input and is unrelated to the
+     * native `invalid` event.
+     * @example
+     * ```tsx
+     * import { PinInput } from 'moraine'
+     *
+     * <PinInput
+     *   validationType="number"
+     *   onValueInvalid={({ value, reason }) => console.warn(reason, value)}
+     * />
+     * ```
      */
-    onReject?: (value: string) => void
+    onValueInvalid?: (details: ValueInvalidDetails) => void
 
     /**
      * Whether to call `requestSubmit()` on the owning form, which runs native validation and

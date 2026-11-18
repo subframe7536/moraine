@@ -69,7 +69,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'defaultValue',
     'onValueChange',
     'onComplete',
-    'onReject',
+    'onValueInvalid',
     'autoSubmit',
     'inputMode',
     'normalizeValue',
@@ -127,11 +127,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   }
 
-  const {
-    nativeInvalid,
-    resetNativeInvalid,
-    onInvalid: handleHiddenInputInvalid,
-  } = useHiddenInputValidation({
+  const { nativeInvalid, resetNativeInvalid, onInvalid } = useHiddenInputValidation({
     focusTarget: () => inputEls[state.getTargetIndex()] ?? inputEls[0],
   })
 
@@ -278,9 +274,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
       }
     }
 
-    const [validChars, didReject] = filterTypedChars(typed, validationType(), local.normalizeValue)
-    if (didReject) {
-      local.onReject?.(raw)
+    const [validChars, rejected] = filterTypedChars(typed, validationType(), local.normalizeValue)
+    if (rejected !== '') {
+      local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
     }
 
     if (validChars.length === 0) {
@@ -523,7 +519,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
           required={field.required()}
           tabIndex={-1}
           aria-hidden="true"
-          onInvalid={handleHiddenInputInvalid}
+          onInvalid={onInvalid}
           ref={(element) => {
             hiddenInputEl = element
           }}
@@ -539,13 +535,13 @@ export function PinInput(props: PinInputProps): JSX.Element {
             }
 
             const raw = event.currentTarget.value
-            const [validChars, didReject] = filterInputText(
+            const [validChars, rejected] = filterInputText(
               raw,
               validationType(),
               local.normalizeValue,
             )
-            if (didReject) {
-              local.onReject?.(raw)
+            if (rejected !== '') {
+              local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
             }
 
             const next = spliceChars(createEmptyChars(length()), 0, validChars, length())
@@ -669,13 +665,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   }
                   event.preventDefault()
 
-                  const [validChars, didReject] = filterInputText(
+                  const [validChars, rejected] = filterInputText(
                     pastedText,
                     validationType(),
                     local.normalizeValue,
                   )
-                  if (didReject || validChars.length > length()) {
-                    local.onReject?.(pastedText)
+                  if (rejected !== '') {
+                    local.onValueInvalid?.({ value: rejected, reason: 'patternMismatch' })
+                  }
+                  if (validChars.length > length()) {
+                    local.onValueInvalid?.({
+                      value: validChars.slice(length()).join(''),
+                      reason: 'tooLong',
+                    })
                   }
                   if (validChars.length === 0) {
                     return

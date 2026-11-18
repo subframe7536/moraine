@@ -16,7 +16,7 @@ export interface CreateFileSelectionOptions {
   readOnly: Accessor<boolean>
   input: Accessor<HTMLInputElement | undefined>
   commit: (value: File | File[] | null) => void
-  onReject: (rejected: FileUploadT.Rejection[]) => void
+  onValueInvalid: (details: FileUploadT.ValueInvalidDetails) => void
 }
 
 export function createFileSelection(options: CreateFileSelectionOptions): {
@@ -81,7 +81,7 @@ export function createFileSelection(options: CreateFileSelectionOptions): {
     }
 
     if (rejected.length > 0) {
-      options.onReject(rejected)
+      options.onValueInvalid({ rejections: rejected })
     }
   }
 

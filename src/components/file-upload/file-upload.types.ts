@@ -41,6 +41,11 @@ export namespace FileUploadT {
   export type Error = FileError
   export type Rejection = FileRejection
 
+  export interface ValueInvalidDetails {
+    /** Files that failed validation, in pick order, each with its error codes. */
+    rejections: Rejection[]
+  }
+
   export interface ItemRenderProps {
     file: File
     index: number
@@ -82,7 +87,7 @@ export namespace FileUploadT {
      * Comma-separated list of accepted file types. Each entry is a case-insensitive extension
      * (`.png`), a MIME wildcard (`image/*`), or an exact MIME type (`application/pdf`); `*`
      * accepts everything. It is also passed to the native file input and enforced on dropped
-     * and picked files, which fail with `FILE_INVALID_TYPE` in `onReject`.
+     * and picked files, which fail with `FILE_INVALID_TYPE` in `onValueInvalid`.
      * @default '*'
      */
     accept?: string
@@ -136,7 +141,7 @@ export namespace FileUploadT {
 
     /**
      * Maximum total number of selected files, counting files already selected. Files beyond the
-     * limit are dropped and reported as `TOO_MANY_FILES` in `onReject`. Only accepted when
+     * limit are dropped and reported as `TOO_MANY_FILES` in `onValueInvalid`. Only accepted when
      * `multiple` is `true`; single mode always keeps one file. Unlimited by default.
      */
     maxFiles?: TMultiple extends true ? number : never
@@ -151,14 +156,15 @@ export namespace FileUploadT {
      * Called after a pick or drop with the files that failed validation, each with its `errors`
      * codes: `FILE_INVALID_TYPE`, `FILE_TOO_SMALL`, `FILE_TOO_LARGE`, `FILE_DUPLICATE` (same
      * name, size, type, and modification time as a selected file), or `TOO_MANY_FILES`. Accepted
-     * files from the same batch are still added and reported through `onValueChange`.
+     * files from the same batch are still added and reported through `onValueChange`. It cannot
+     * cancel the pick and is unrelated to the native `invalid` event.
      * @example
      * ```tsx
      * import { FileUpload } from 'moraine'
      *
      * <FileUpload
      *   maxSize={2 * 1024 * 1024}
-     *   onReject={(rejections) => {
+     *   onValueInvalid={({ rejections }) => {
      *     for (const { file, errors } of rejections) {
      *       console.warn(file.name, errors.includes('FILE_TOO_LARGE') ? 'is over 2 MB' : errors)
      *     }
@@ -166,7 +172,7 @@ export namespace FileUploadT {
      * />
      * ```
      */
-    onReject?: (files: Rejection[]) => void
+    onValueInvalid?: (details: ValueInvalidDetails) => void
 
     /**
      * Replaces the default entry for each selected file in the file list. Receives the `file`,
