@@ -125,16 +125,6 @@
           }
         },
         {
-          "name": "slotName",
-          "optional": true,
-          "type": "string",
-          "description": "Root `data-slot` name",
-          "default": {
-            "kind": "literal",
-            "value": "copy-button"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

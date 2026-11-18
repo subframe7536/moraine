@@ -51,7 +51,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'value',
       'resetDelay',
       'disabled',
-      'slotName',
       'icon',
       'copiedIcon',
       'iconPosition',
@@ -187,7 +186,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       component={tag()}
-      data-slot={local.slotName || 'copy-button'}
+      data-slot="copy-button"
       {...rootSlot}
       {...binding}
       aria-invalid={clipboard.isError() ? true : undefined}

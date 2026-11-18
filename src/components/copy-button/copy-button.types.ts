@@ -98,12 +98,6 @@ export namespace CopyButtonT {
     disabled?: boolean
 
     /**
-     * Root `data-slot` name
-     * @default 'copy-button'
-     */
-    slotName?: string
-
-    /**
      * Icon displayed in the idle and failed states. Pass `false` (or `null`) to hide the icon;
      * without children the button then has no visible content.
      * @default 'icon-copy'
