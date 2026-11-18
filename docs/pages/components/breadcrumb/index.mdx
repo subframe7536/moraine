@@ -94,14 +94,14 @@ The `<nav>` is labeled `breadcrumb` by default. Set `aria-label`, or `translatio
 change it.
 
 Pass `itemRender` to replace each item's link or page element, for example with a router link. The
-component receives `{ item, index, current, disabled }` and is responsible for `aria-current` and
+component receives `{ item, index, active, disabled }` and is responsible for `aria-current` and
 disabled handling.
 
 ```tsx
 <Breadcrumb
   items={items}
   itemRender={(ctx) => (
-    <A href={ctx.item.href ?? '#'} aria-current={ctx.current ? 'page' : undefined}>
+    <A href={ctx.item.href ?? '#'} aria-current={ctx.active ? 'page' : undefined}>
       {ctx.item.label}
     </A>
   )}
@@ -131,6 +131,6 @@ Leave `wrap` on so the trail can break across lines. Set `wrap={false}` to keep 
 ### Custom item rendering
 
 Use `itemRender` to render each item yourself for router links or custom chip styling. It receives
-`item`, `index`, `current`, and `disabled`.
+`item`, `index`, `active`, and `disabled`.
 
 <Preview path="./custom-item-render" />

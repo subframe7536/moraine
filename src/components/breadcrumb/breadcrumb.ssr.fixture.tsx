@@ -8,7 +8,7 @@ export function renderBreadcrumbItem(context: BreadcrumbT.ItemRenderProps) {
     <a
       data-slot="custom-link"
       href={context.disabled ? undefined : context.item.href}
-      aria-current={context.current ? 'page' : undefined}
+      aria-current={context.active ? 'page' : undefined}
       onClick={context.item.onClick}
     >
       {context.item.label}

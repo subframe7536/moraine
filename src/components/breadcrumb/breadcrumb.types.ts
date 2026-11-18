@@ -74,7 +74,7 @@ export namespace BreadcrumbT {
     /** Index of the item in the list. */
     index: number
     /** Whether the item is the current page. */
-    current: boolean
+    active: boolean
     /** Whether the item is disabled. */
     disabled: boolean
   }
@@ -121,7 +121,7 @@ export namespace BreadcrumbT {
 
     /**
      * Component rendered for every item, replacing its default link or page element (the `<li>` and
-     * separator are kept). Use it to integrate a router link. Receives `{ item, index, current,
+     * separator are kept). Use it to integrate a router link. Receives `{ item, index, active,
      * disabled }`; you are responsible for `aria-current` and disabled handling.
      * @example
      * ```tsx
@@ -130,7 +130,7 @@ export namespace BreadcrumbT {
      * <Breadcrumb
      *   items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}
      *   itemRender={(ctx) => (
-     *     <a href={ctx.item.href} aria-current={ctx.current ? 'page' : undefined}>
+     *     <a href={ctx.item.href} aria-current={ctx.active ? 'page' : undefined}>
      *       {ctx.item.label}
      *     </a>
      *   )}

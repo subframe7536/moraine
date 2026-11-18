@@ -17,8 +17,8 @@ export function CustomItemRender() {
             href={props.item.href}
             class="text-xs px-2 py-1 rounded-md inline-flex gap-1.5 transition-colors items-center"
             classList={{
-              'bg-primary/10 text-primary font-medium': props.current,
-              'text-muted-foreground hover:text-foreground': !props.current,
+              'bg-primary/10 text-primary font-medium': props.active,
+              'text-muted-foreground hover:text-foreground': !props.active,
             }}
           >
             <span>{props.item.label}</span>

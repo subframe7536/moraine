@@ -31,9 +31,9 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps>",
-          "description": "Component rendered for every item, replacing its default link or page element (the `<li>` and\nseparator are kept). Use it to integrate a router link. Receives `{ item, index, current,\ndisabled }`; you are responsible for `aria-current` and disabled handling.",
+          "description": "Component rendered for every item, replacing its default link or page element (the `<li>` and\nseparator are kept). Use it to integrate a router link. Receives `{ item, index, active,\ndisabled }`; you are responsible for `aria-current` and disabled handling.",
           "examples": [
-            "import { Breadcrumb } from 'moraine'\n\n<Breadcrumb\n  items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}\n  itemRender={(ctx) => (\n    <a href={ctx.item.href} aria-current={ctx.current ? 'page' : undefined}>\n      {ctx.item.label}\n    </a>\n  )}\n/>"
+            "import { Breadcrumb } from 'moraine'\n\n<Breadcrumb\n  items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]}\n  itemRender={(ctx) => (\n    <a href={ctx.item.href} aria-current={ctx.active ? 'page' : undefined}>\n      {ctx.item.label}\n    </a>\n  )}\n/>"
           ]
         },
         {

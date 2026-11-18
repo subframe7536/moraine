@@ -132,7 +132,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       renderWithProps(render, {
                         item,
                         index: index(),
-                        current: isCurrent(),
+                        active: isCurrent(),
                         disabled: isDisabled(),
                       })
                     }

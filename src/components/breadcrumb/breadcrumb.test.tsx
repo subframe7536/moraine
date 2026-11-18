@@ -167,7 +167,7 @@ describe('Breadcrumb', () => {
   test('keeps current-page semantics when the source item is explicitly disabled', () => {
     const renderItem = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
       <span>
-        {String(context.current)}:{String(context.disabled)}
+        {String(context.active)}:{String(context.disabled)}
       </span>
     ))
     const custom = render(() => (
@@ -338,12 +338,12 @@ describe('Breadcrumb', () => {
       .filter((context): context is BreadcrumbT.ItemRenderProps => context !== undefined)
     expect(
       contexts.some(
-        (context) => context.index === 0 && context.current === false && context.disabled === false,
+        (context) => context.index === 0 && context.active === false && context.disabled === false,
       ),
     ).toBe(true)
     expect(
       contexts.some(
-        (context) => context.index === 1 && context.current === true && context.disabled === false,
+        (context) => context.index === 1 && context.active === true && context.disabled === false,
       ),
     ).toBe(true)
   })
