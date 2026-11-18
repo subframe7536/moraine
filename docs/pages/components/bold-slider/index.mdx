@@ -49,7 +49,7 @@ export function Example() {
 ```
 
 BoldSlider is built on Slider, so `value`, `defaultValue`, `onValueChange`, `onValueCommit`, `min`,
-`max`, `step`, `marker`, `reversed`, form props, keyboard interaction, and `translations` behave the
+`max`, `step`, `markers`, `reversed`, form props, keyboard interaction, and `translations` behave the
 same way. The value is always a single `number`; BoldSlider has no range or multi-thumb mode. `size`
 accepts `sm`, `md` (default), or `lg`.
 
@@ -80,7 +80,7 @@ The label, value, and indicator keep the same colors over the fill and the track
 ### Step and markers
 
 Set `step` to snap pointer and keyboard input to increments. Without `step`, pointer movement is
-continuous and arrow keys move by 1% of the range. Set `marker` to `true` to draw a tick at each
+continuous and arrow keys move by 1% of the range. Set `markers` to `true` to draw a tick at each
 step (this requires a `step` greater than 0), or to a number to draw a tick every that many units
 without changing how the value snaps. Ticks use `muted-foreground`, so they stay visible in light
 and dark themes.

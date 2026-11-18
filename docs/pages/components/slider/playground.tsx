@@ -19,7 +19,7 @@ export default function SliderPlayground() {
           ],
         },
         { kind: 'switch', prop: 'step', label: 'Step', defaultValue: true },
-        { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
+        { kind: 'switch', prop: 'markers', label: 'Markers', defaultValue: true },
         { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
         { kind: 'switch', prop: 'reversed', label: 'Inverted', defaultValue: false },
@@ -51,7 +51,7 @@ export default function SliderPlayground() {
               orientation={props.vertical ? 'vertical' : 'horizontal'}
               size={props.size}
               step={props.step ? 10 : undefined}
-              marker={props.marker ? 10 : false}
+              markers={props.markers ? 10 : false}
               disabled={props.disabled}
               reversed={props.reversed}
             />

@@ -65,13 +65,13 @@ as when saving a setting.
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to multiples of it from `min`. Set `marker`
+Set `step` to snap pointer drag and keyboard navigation to multiples of it from `min`. Set `markers`
 to `true` to draw a tick at each step (this requires a `step` above `0`), or to a number to draw a
 tick every that many units without changing how the value snaps.
 
 ```tsx
-<Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
-<Slider value={value()} min={0} max={100} marker={25} onValueChange={setValue} />
+<Slider value={value()} min={0} max={100} step={10} markers onValueChange={setValue} />
+<Slider value={value()} min={0} max={100} markers={25} onValueChange={setValue} />
 ```
 
 ### Value text format
@@ -146,7 +146,7 @@ Place the slider in `form.Field` so the schema owns the committed number.
 
 ### Snap volume to ticks
 
-Set `step` so drag and keyboard land on increments. Enable `marker` to draw those ticks on the
+Set `step` so drag and keyboard land on increments. Enable `markers` to draw those ticks on the
 track.
 
 <Preview path="./step-marker" />

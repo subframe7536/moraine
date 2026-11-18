@@ -37,7 +37,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
   reversed?: boolean
-  marker?: boolean | number
+  markers?: boolean | number
   max?: number
   min?: number
   minStepsBetweenThumbs?: number
@@ -228,9 +228,9 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       }
     })
   })
-  // A numeric `marker` sets a visual-only interval; otherwise markers follow `step`.
+  // A numeric `markers` sets a visual-only interval; otherwise markers follow `step`.
   const markerInterval = createMemo(() => {
-    const marker = merged.marker
+    const marker = merged.markers
     if (typeof marker === 'number') {
       return marker > 0 ? marker : undefined
     }

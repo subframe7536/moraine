@@ -77,7 +77,7 @@
           "description": "Content shown at the start of the track. Also used as the default `aria-label` when it is a\nstring. It renders in both the track and fill text layers, so pass JSX inline rather than a\nshared node."
         },
         {
-          "name": "marker",
+          "name": "markers",
           "optional": true,
           "type": "boolean | number",
           "description": "Visual markers on the track. `true` marks every `step` and needs a `step` greater than 0.\nA number marks every that many units without affecting snapping.",

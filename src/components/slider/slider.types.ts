@@ -131,7 +131,7 @@ export namespace SliderT {
      * A number marks every that many units without affecting snapping.
      * @default false
      */
-    marker?: boolean | number
+    markers?: boolean | number
 
     /**
      * Whether dragging can continue across another thumb when there is no minimum gap. When `false`,

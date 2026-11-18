@@ -169,7 +169,7 @@ export function ComponentRadar() {
               min={0}
               max={100}
               step={10}
-              marker
+              markers
               onValueChange={setBoldValue}
             />
           </div>

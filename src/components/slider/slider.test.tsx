@@ -946,7 +946,7 @@ describe('Slider', () => {
   })
 
   test('renders step markers when enabled', () => {
-    const screen = render(() => <Slider marker min={0} max={10} step={2} />)
+    const screen = render(() => <Slider markers min={0} max={10} step={2} />)
 
     const markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
 
@@ -959,7 +959,7 @@ describe('Slider', () => {
     const [marker, setMarker] = createSignal(true)
     const [max, setMax] = createSignal(10)
 
-    const screen = render(() => <Slider min={0} max={max()} step={step()} marker={marker()} />)
+    const screen = render(() => <Slider min={0} max={max()} step={step()} markers={marker()} />)
 
     let markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
     expect(markers).toHaveLength(4)
@@ -1680,8 +1680,8 @@ test('marks step markers inside the selected range as active', () => {
   const [value, setValue] = createSignal(0.6)
   const screen = render(() => (
     <>
-      <Slider data-testid="single" value={value()} min={0} max={1} step={0.1} marker />
-      <Slider data-testid="range" defaultValue={[20, 60]} step={20} marker />
+      <Slider data-testid="single" value={value()} min={0} max={1} step={0.1} markers />
+      <Slider data-testid="range" defaultValue={[20, 60]} step={20} markers />
     </>
   ))
   const activeOf = (testId: string) =>
@@ -1719,10 +1719,10 @@ test('moves focus to the thumb nearest a pointer press', () => {
 test('draws markers at a numeric interval without changing snapping', () => {
   const screen = render(() => (
     <>
-      <Slider data-testid="no-step" defaultValue={40} marker={25} />
-      <Slider data-testid="with-step" defaultValue={40} step={10} marker={25} />
-      <Slider data-testid="uneven" defaultValue={0} max={105} marker={10} />
-      <Slider data-testid="float" defaultValue={0} max={0.3} marker={0.1} />
+      <Slider data-testid="no-step" defaultValue={40} markers={25} />
+      <Slider data-testid="with-step" defaultValue={40} step={10} markers={25} />
+      <Slider data-testid="uneven" defaultValue={0} max={105} markers={10} />
+      <Slider data-testid="float" defaultValue={0} max={0.3} markers={0.1} />
     </>
   ))
   const positions = (testId: string) =>

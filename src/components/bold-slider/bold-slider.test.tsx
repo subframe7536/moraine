@@ -171,7 +171,7 @@ describe('BoldSlider', () => {
   })
 
   test('marks step markers inside the fill as active', () => {
-    const screen = render(() => <BoldSlider marker min={0} max={4} step={1} defaultValue={1} />)
+    const screen = render(() => <BoldSlider markers min={0} max={4} step={1} defaultValue={1} />)
     const markers = queryAll(screen.container, '[data-slot="slider-marker"]')
 
     expect(markers).toHaveLength(3)

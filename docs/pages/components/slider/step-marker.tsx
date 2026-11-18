@@ -17,7 +17,7 @@ export function StepMarker() {
           min={0}
           max={100}
           step={10}
-          marker
+          markers
           onValueChange={(val) => {
             if (typeof val === 'number') {
               setValue(val)
@@ -39,7 +39,7 @@ export function StepMarker() {
           min={0}
           max={100}
           step={20}
-          marker
+          markers
           onValueChange={(val) => {
             if (Array.isArray(val)) {
               setRange(val)

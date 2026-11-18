@@ -38,7 +38,7 @@ import type { SliderProps, SliderT } from './slider.types'
  * const [volume, setVolume] = createSignal(50)
  *
  * <Field label="Volume">
- *   <Slider value={volume()} onValueChange={setVolume} min={0} max={100} step={5} marker />
+ *   <Slider value={volume()} onValueChange={setVolume} min={0} max={100} step={5} markers />
  * </Field>
  * ```
  */
@@ -60,7 +60,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'max',
     'step',
     'minStepsBetweenThumbs',
-    'marker',
+    'markers',
     'allowThumbCrossing',
     'thumbAlignment',
     'onValueChange',
@@ -237,7 +237,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       >
         <div data-slot="slider-range" {...rangeSlot} />
 
-        <Show when={merged.marker}>
+        <Show when={merged.markers}>
           <For each={slider.markerIndexes()}>
             {(markerIndex) => {
               const markerSlot = slotWith('marker', {

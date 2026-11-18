@@ -41,7 +41,7 @@ function createSlider<TValue extends number | number[]>(
 | `minStepsBetweenThumbs`                     | `0`                     | Minimum gap between thumbs in `step` units. Above `0`, thumbs cannot cross.                             |
 | `allowThumbCrossing`                        | `true`                  | When `false`, a dragged thumb stops at its neighbor.                                                    |
 | `thumbAlignment`                            | `'overflow'`            | `'contain'` keeps thumb edges inside the track.                                                         |
-| `marker`, `styles.marker`                   | None                    | Marker interval (`true` uses `step`) and extra marker styles.                                           |
+| `markers`, `styles.marker`                  | None                    | Marker interval (`true` uses `step`) and extra marker styles.                                           |
 | `readOnly`, `formatOptions`, `translations` | None                    | Blocks changes; formats `aria-valuetext`; overrides messages.                                           |
 
 `options` holds the callbacks and the disabled state:

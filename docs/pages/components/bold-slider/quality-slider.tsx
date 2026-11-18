@@ -15,7 +15,7 @@ export function QualitySlider() {
         min={0}
         max={3}
         step={1}
-        marker
+        markers
         valueLabel={({ value }) => PRESETS[value] ?? String(value)}
       />
     </div>

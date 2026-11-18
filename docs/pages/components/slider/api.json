@@ -96,7 +96,7 @@
           "description": "Receives the hidden `<input type=\"range\">` of the first thumb."
         },
         {
-          "name": "marker",
+          "name": "markers",
           "optional": true,
           "type": "boolean | number",
           "description": "Visual markers on the track. `true` marks every `step` and needs a `step` greater than 0.\nA number marks every that many units without affecting snapping.",
