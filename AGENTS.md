@@ -208,7 +208,6 @@ Component directories normally contain implementation (`{component}.tsx` and any
   - Internal calculated variants belong on `*RecipeVariant extends *StyleVariants`; they must never appear in the public `*StyleVariants` or component props.
   - Render functions end with `*Render`; refs end with `*Ref`.
   - Item/option objects use `ariaLabel`; component props use `'aria-label'`.
-  - `docs/build/api-naming.test.ts` enforces these rules against the generated `api.json` files; update it when a rule gains a documented exception.
 
 ### JSDoc
 
