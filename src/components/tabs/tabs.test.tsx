@@ -76,6 +76,22 @@ describe('Tabs', () => {
     expect(screen.getByText('Overview content')).not.toBeNull()
   })
 
+  test('names icon-only tabs and their panels with item ariaLabel', () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          { value: 'grid', icon: 'icon-grid', ariaLabel: 'Grid view', content: 'Grid panel' },
+          { value: 'list', label: 'List', content: 'List panel' },
+        ]}
+      />
+    ))
+
+    const grid = screen.getByRole('tab', { name: 'Grid view' })
+    expect(grid.getAttribute('aria-label')).toBe('Grid view')
+    expect(screen.getByRole('tab', { name: 'List' }).hasAttribute('aria-label')).toBe(false)
+    expect(screen.getByRole('tabpanel', { name: 'Grid view' }).textContent).toBe('Grid panel')
+  })
+
   test('supports controlled value and emits onValueChange', async () => {
     const onValueChange = vi.fn()
 

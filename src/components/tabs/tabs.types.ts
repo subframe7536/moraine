@@ -26,10 +26,17 @@ export namespace TabsT {
    */
   export interface Item {
     /**
-     * Label to display on the tab trigger. It is also the tab's accessible name, so give icon-only
-     * tabs a text label or an accessible alternative.
+     * Label to display on the tab trigger. It is also the tab's accessible name unless `ariaLabel`
+     * is set, so give icon-only tabs an `ariaLabel`.
      */
     label?: JSX.Element
+
+    /**
+     * Accessible name of the tab trigger, set as its `aria-label`. It replaces the name computed
+     * from `label` and also names the tab panel, which is labelled by the trigger. Use it for
+     * icon-only tabs.
+     */
+    ariaLabel?: string
 
     /**
      * Icon to display before the label.

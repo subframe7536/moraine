@@ -32,7 +32,10 @@ export interface TabsStyleVariants {
    */
   orientation?: Orientation
 
-  /** Visual treatment of the component.
+  /**
+   * Visual treatment of the tab list. `pill` sets the tabs on a muted rounded track and marks the
+   * selected tab with a raised background. `link` uses a transparent list, colors the selected
+   * tab with the primary color, and marks it with a thin underline (an edge line when vertical).
    * @default 'pill'
    */
   variant?: 'pill' | 'link'

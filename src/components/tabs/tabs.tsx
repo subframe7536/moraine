@@ -139,6 +139,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         cached.rawItem === item &&
         cached.disabled === disabled &&
         cached.label === item.label &&
+        cached.ariaLabel === item.ariaLabel &&
         cached.icon === item.icon
       ) {
         nextCache.set(instanceKey, cached)
@@ -150,6 +151,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         value,
         instanceKey,
         label: item.label,
+        ariaLabel: item.ariaLabel,
         icon: item.icon,
         disabled,
         get content() {
@@ -397,6 +399,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 tabIndex={highlighted() ? 0 : -1}
                 aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
                 aria-selected={selected()}
+                aria-label={item.ariaLabel}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="tabs-trigger"
                 {...triggerSlot}
