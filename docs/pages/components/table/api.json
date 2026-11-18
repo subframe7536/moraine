@@ -44,6 +44,12 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "containerRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Receives the `container` slot `<div>` that wraps the `<table>` and scrolls it horizontally. Use `ref` for the `<table>` itself."
+        },
+        {
           "name": "highlightOnHover",
           "optional": true,
           "type": "boolean",
@@ -84,12 +90,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "wrapperRef",
-          "optional": true,
-          "type": "Ref<HTMLDivElement>",
-          "description": "Receives the `<div>` that wraps the `<table>` and scrolls it horizontally. Use `ref` for the `<table>` itself."
         }
       ]
     },

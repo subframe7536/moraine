@@ -98,7 +98,7 @@ export function DataTable<TData extends RowData = RowData>(
   const [local, rest] = splitProps(props, [
     'table',
     'translations',
-    'wrapperRef',
+    'containerRef',
     'ref',
     'rowProps',
     'headProps',
@@ -283,7 +283,7 @@ export function DataTable<TData extends RowData = RowData>(
       }}
     >
       <div
-        ref={(el) => callRef(local.wrapperRef, el)}
+        ref={(el) => callRef(local.containerRef, el)}
         data-slot="data-table-container"
         {...containerSlot}
       >

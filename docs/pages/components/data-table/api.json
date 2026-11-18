@@ -43,6 +43,12 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "containerRef",
+          "optional": true,
+          "type": "Ref<HTMLDivElement>",
+          "description": "Ref callback or variable for the outer `container` slot `<div>`, which wraps the scrolling table,\nthe loading overlay, and the pagination toolbar. The inherited `ref` targets the `<table>`."
+        },
+        {
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps>",
@@ -179,12 +185,6 @@
           "examples": [
             "import { DataTable, createDataTable } from 'moraine/data-table'\nimport type { DataTableT } from 'moraine/data-table'\nimport { createTableVirtualizer } from 'moraine/virtualizer'\n\ninterface Person {\n  name: string\n}\nconst people: Person[] = Array.from({ length: 5000 }, (_, i) => ({ name: `Person ${i}` }))\nconst table = createDataTable({ data: people, columns: [{ accessorKey: 'name', header: 'Name' }] })\nconst virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({ estimateSize: () => 40 })\n\n<DataTable table={table} virtualizer={virtualizer} maxHeight={400} />"
           ]
-        },
-        {
-          "name": "wrapperRef",
-          "optional": true,
-          "type": "Ref<HTMLDivElement>",
-          "description": "Ref callback or variable for the outer container `<div>`, which wraps the scrolling table,\nthe loading overlay, and the pagination toolbar. The inherited `ref` targets the `<table>`."
         }
       ]
     }

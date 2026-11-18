@@ -204,11 +204,11 @@ describe('DataTable', () => {
     expect(screen.getByRole('button', { name: /10 \/ page/i })).toBeDefined()
   })
 
-  it('forwards wrapperRef to the wrapper element around the table', () => {
+  it('forwards containerRef to the container element around the table', () => {
     let wrapper: HTMLDivElement | undefined
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} wrapperRef={(el) => (wrapper = el)} />
+      return <DataTable table={table} containerRef={(el) => (wrapper = el)} />
     })
 
     expect(wrapper?.getAttribute('data-slot')).toBe('data-table-container')

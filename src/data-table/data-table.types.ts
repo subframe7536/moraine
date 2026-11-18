@@ -401,10 +401,10 @@ export namespace DataTableT {
      */
     translations?: Translations
     /**
-     * Ref callback or variable for the outer container `<div>`, which wraps the scrolling table,
+     * Ref callback or variable for the outer `container` slot `<div>`, which wraps the scrolling table,
      * the loading overlay, and the pagination toolbar. The inherited `ref` targets the `<table>`.
      */
-    wrapperRef?: Ref<HTMLDivElement>
+    containerRef?: Ref<HTMLDivElement>
     /**
      * Extra attributes for each body row (`<tr>`), such as drag wiring from
      * `createListSortable().useRow`. Called once per row, under that row's owner, so it may call
