@@ -15,7 +15,7 @@
       "description": "Props for the Input component.",
       "generics": [
         {
-          "name": "M",
+          "name": "TModifiers",
           "constraint": "InputModifiers | unknown",
           "default": "InputModifiers | unknown"
         }
@@ -95,7 +95,7 @@
         {
           "name": "modifiers",
           "optional": true,
-          "type": "M",
+          "type": "TModifiers",
           "description": "Transforms the text before it reaches `onValueChange` and form state, and sets the callback's\nvalue type.\n\n- `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur or Enter).\n- `lazy`: updates the value on `change` instead of on every keystroke.\n- `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.\n- `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.",
           "examples": [
             "import { Input } from 'moraine'\n\n<Input\n  modifiers={{ number: true, empty: 'null' }}\n  onValueChange={(value) => console.log(value)} // number | null\n/>"
@@ -134,7 +134,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: ModifierValue<M>) => void",
+          "type": "(value: ModifierValue<TModifiers>) => void",
           "description": "Called with the new value, after `modifiers` are applied, as the user edits. It fires on\nevery keystroke, or on `change` (blur or Enter) with `modifiers.lazy`. Its argument type\nfollows `modifiers`: `string` by default, `number` with `number`, and may include `null`\nor `undefined` through `empty`."
         },
         {

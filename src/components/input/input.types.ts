@@ -20,7 +20,7 @@ export namespace InputT {
   /**
    * Base props for the Input component.
    */
-  export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
+  export interface Base<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>
     extends FieldT.ControlBase {
     /**
      * The current value (controlled). `undefined` leaves the input uncontrolled; the displayed
@@ -84,7 +84,7 @@ export namespace InputT {
      * />
      * ```
      */
-    modifiers?: M
+    modifiers?: TModifiers
 
     /**
      * Ref callback or variable that receives the native `<input>` element.
@@ -97,7 +97,7 @@ export namespace InputT {
      * follows `modifiers`: `string` by default, `number` with `number`, and may include `null`
      * or `undefined` through `empty`.
      */
-    onValueChange?: (value: ModifierValue<M>) => void
+    onValueChange?: (value: ModifierValue<TModifiers>) => void
 
     /**
      * Native change event, after value synchronization and Field notification.
@@ -123,17 +123,12 @@ export namespace InputT {
   /**
    * Props for the Input component.
    */
-  export type Props<M extends InputModifiers | undefined = InputModifiers | undefined> = BaseProps<
-    'input',
-    Base<M>,
-    Variants,
-    Classes,
-    Styles
-  >
+  export type Props<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
+    BaseProps<'input', Base<TModifiers>, Variants, Classes, Styles>
 }
 
 /**
  * Props for the Input component.
  */
-export type InputProps<M extends InputModifiers | undefined = InputModifiers | undefined> =
-  InputT.Props<M>
+export type InputProps<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
+  InputT.Props<TModifiers>

@@ -13,12 +13,12 @@ export interface InputModifiers {
  * - `empty: 'null'`      → adds `null` to the union
  * - `empty: 'undefined'` → adds `undefined` to the union
  */
-export type ModifierValue<M extends InputModifiers | undefined> =
-  | (M extends { number: true }
-      ? number | (M extends { empty: 'null' } ? null : undefined)
+export type ModifierValue<TModifiers extends InputModifiers | undefined> =
+  | (TModifiers extends { number: true }
+      ? number | (TModifiers extends { empty: 'null' } ? null : undefined)
       : string)
-  | (M extends { empty: 'null' } ? null : never)
-  | (M extends { empty: 'undefined' } ? undefined : never)
+  | (TModifiers extends { empty: 'null' } ? null : never)
+  | (TModifiers extends { empty: 'undefined' } ? undefined : never)
 
 export function applyInputModifiers<T>(value: string, modifiers?: InputModifiers): T {
   let nextValue: string | number | null | undefined = value

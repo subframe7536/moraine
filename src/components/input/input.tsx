@@ -30,8 +30,8 @@ import type { InputProps, InputT } from './input.types'
  * </Field>
  * ```
  */
-export function Input<M extends InputModifiers | undefined = InputModifiers | undefined>(
-  props: InputProps<M>,
+export function Input<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>(
+  props: InputProps<TModifiers>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
@@ -105,7 +105,7 @@ export function Input<M extends InputModifiers | undefined = InputModifiers | un
 
   let inputEl: HTMLInputElement | undefined
 
-  const textControl = useTextControlValue<InputT.Value, M>({
+  const textControl = useTextControlValue<InputT.Value, TModifiers>({
     defaultValue: () => merged.defaultValue,
     getElement: () => inputEl,
     getFormValue: field.value,

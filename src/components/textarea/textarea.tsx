@@ -54,9 +54,9 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
  * </Field>
  * ```
  */
-export function Textarea<M extends InputModifiers | undefined = InputModifiers | undefined>(
-  props: TextareaProps<M>,
-): JSX.Element {
+export function Textarea<
+  TModifiers extends InputModifiers | undefined = InputModifiers | undefined,
+>(props: TextareaProps<TModifiers>): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
     'id',
@@ -135,7 +135,7 @@ export function Textarea<M extends InputModifiers | undefined = InputModifiers |
 
   let textareaEl: HTMLTextAreaElement | undefined
 
-  const textControl = useTextControlValue<TextareaT.Value, M>({
+  const textControl = useTextControlValue<TextareaT.Value, TModifiers>({
     defaultValue: () => merged.defaultValue,
     getElement: () => textareaEl,
     getFormValue: field.value,

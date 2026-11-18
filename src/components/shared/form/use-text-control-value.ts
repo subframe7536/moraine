@@ -9,14 +9,14 @@ type TextControlValue = string | number | undefined
 
 export interface UseTextControlValueOptions<
   TValue extends TextControlValue,
-  M extends InputModifiers | undefined,
+  TModifiers extends InputModifiers | undefined,
 > {
   defaultValue: Accessor<TValue>
   getElement: Accessor<TextControlElement | undefined>
   getFormValue: Accessor<unknown>
   getFormPath?: Accessor<readonly (string | number)[] | undefined>
-  modifiers: Accessor<M | undefined>
-  onValueChange: Accessor<((value: ModifierValue<M>) => void) | undefined>
+  modifiers: Accessor<TModifiers | undefined>
+  onValueChange: Accessor<((value: ModifierValue<TModifiers>) => void) | undefined>
   setFormValue: (value: unknown) => void
   shouldRestoreValue?: Accessor<boolean>
   value: Accessor<TValue>
@@ -25,8 +25,8 @@ export interface UseTextControlValueOptions<
 /** Shares controlled and uncontrolled value synchronization for native text controls. */
 export function useTextControlValue<
   TValue extends TextControlValue,
-  M extends InputModifiers | undefined,
->(options: UseTextControlValueOptions<TValue, M>) {
+  TModifiers extends InputModifiers | undefined,
+>(options: UseTextControlValueOptions<TValue, TModifiers>) {
   const initialDefaultValue = untrack(options.defaultValue)
   const isLazy = createMemo(() => Boolean(options.modifiers()?.lazy))
   const [composing, setComposing] = createSignal(false)
@@ -68,8 +68,8 @@ export function useTextControlValue<
     return initialValue !== undefined ? { value: initialValue } : {}
   })
 
-  function applyValue(value: string): ModifierValue<M> {
-    return applyInputModifiers<ModifierValue<M>>(value, options.modifiers())
+  function applyValue(value: string): ModifierValue<TModifiers> {
+    return applyInputModifiers<ModifierValue<TModifiers>>(value, options.modifiers())
   }
 
   function updateValue(value: string): void {

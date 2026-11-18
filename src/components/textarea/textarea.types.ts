@@ -21,7 +21,7 @@ export namespace TextareaT {
   /**
    * Base props for the Textarea component.
    */
-  export interface Base<M extends InputModifiers | undefined = InputModifiers | undefined>
+  export interface Base<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>
     extends FieldT.ControlBase {
     /**
      * The current value (controlled). `undefined` leaves the textarea uncontrolled; the displayed
@@ -98,7 +98,7 @@ export namespace TextareaT {
      * />
      * ```
      */
-    modifiers?: M
+    modifiers?: TModifiers
 
     /**
      * Ref callback or variable that receives the native `<textarea>` element.
@@ -111,7 +111,7 @@ export namespace TextareaT {
      * `modifiers`: `string` by default, `number` with `number`, and may include `null` or
      * `undefined` through `empty`.
      */
-    onValueChange?: (value: ModifierValue<M>) => void
+    onValueChange?: (value: ModifierValue<TModifiers>) => void
 
     /**
      * Native change event, after value synchronization and Field notification.
@@ -137,17 +137,13 @@ export namespace TextareaT {
   /**
    * Props for the Textarea component.
    */
-  export type Props<M extends InputModifiers | undefined = InputModifiers | undefined> = BaseProps<
-    'textarea',
-    Base<M>,
-    Variants,
-    Classes,
-    Styles
-  >
+  export type Props<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
+    BaseProps<'textarea', Base<TModifiers>, Variants, Classes, Styles>
 }
 
 /**
  * Props for the Textarea component.
  */
-export type TextareaProps<M extends InputModifiers | undefined = InputModifiers | undefined> =
-  TextareaT.Props<M>
+export type TextareaProps<
+  TModifiers extends InputModifiers | undefined = InputModifiers | undefined,
+> = TextareaT.Props<TModifiers>
