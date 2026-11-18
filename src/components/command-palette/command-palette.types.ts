@@ -47,7 +47,7 @@ export namespace CommandPaletteT {
     description?: string
     /**
      * Extra search terms that are not displayed, such as synonyms. They are matched by the
-     * built-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function.
+     * built-in filter only; ignored when `getItemSearchText` is set or `filterMethod` is a function.
      */
     keywords?: string[]
     /**
@@ -72,7 +72,7 @@ export namespace CommandPaletteT {
     alwaysShow?: boolean
     /**
      * Called, without arguments, when the item is selected by click or Enter. It runs before the
-     * palette's `onSelect` and `onClose`. Not called for disabled items.
+     * palette's `onSelect` and `onCloseRequest`. Not called for disabled items.
      */
     onSelect?: () => void
   }
@@ -205,7 +205,7 @@ export namespace CommandPaletteT {
     onSearchValueChange?: (value: string) => void
     /**
      * Called with the selected item when the user clicks an enabled item or presses Enter on the
-     * highlighted one. It runs after the item's own `onSelect`, and before `onClose` when
+     * highlighted one. It runs after the item's own `onSelect`, and before `onCloseRequest` when
      * `closeOnSelect` is `true`.
      */
     onSelect?: (item: TItem) => void
@@ -234,18 +234,19 @@ export namespace CommandPaletteT {
      */
     closeIcon?: IconT.Name
     /**
-     * Whether to show a close button in the header. Clicking it calls `onClose`.
+     * Whether to show a close button in the header. Clicking it calls `onCloseRequest`.
      * @default false
      */
     closable?: boolean
     /**
-     * Called when the close button is clicked, and after an enabled item is selected when
-     * `closeOnSelect` is `true`. The palette does not hide itself: use it to close the
-     * surrounding `Dialog`, `BaseDialog`, or your own container. Escape is not handled here.
+     * Called when the palette asks to be closed: when the close button is clicked, and after an
+     * enabled item is selected when `closeOnSelect` is `true`. It is a request only; the palette
+     * never hides itself, so use it to close the surrounding `Dialog`, `BaseDialog`, or your own
+     * container. Escape is not handled here.
      */
-    onClose?: () => void
+    onCloseRequest?: () => void
     /**
-     * Whether selecting an enabled item calls `onClose` after `onSelect`. The palette does not
+     * Whether selecting an enabled item calls `onCloseRequest` after `onSelect`. The palette does not
      * close itself.
      * @default true
      */
@@ -257,8 +258,8 @@ export namespace CommandPaletteT {
      */
     loading?: boolean
     /**
-     * Plain-text label of an item, used only by the built-in filter (`filterMethod` strings);
-     * it does not change rendered labels. Replaces the default, which is the label, value,
+     * Text that the built-in filter (`filterMethod` strings) matches for an item; it does not
+     * change rendered labels. Replaces the default search text, which is the label, value,
      * description, and keywords joined by spaces.
      * @example
      * ```tsx
@@ -266,14 +267,14 @@ export namespace CommandPaletteT {
      *
      * <CommandPalette
      *   items={[{ value: 'open', label: 'Open', keywords: ['launch'] }]}
-     *   getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}
+     *   getItemSearchText={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}
      * />
      * ```
      */
-    getItemLabel?: (item: TItem) => string
+    getItemSearchText?: (item: TItem) => string
     /**
      * Filtering strategy applied to the trimmed search text. The built-in strategies match the
-     * item's search text (see `getItemLabel`) ignoring case and accents, using the active
+     * item's search text (see `getItemSearchText`) ignoring case and accents, using the active
      * locale. A predicate receives the trimmed query and the item, and returns whether to
      * keep it; it is not called for an empty query. `false` disables filtering, for example
      * when you filter `items` yourself. Items with `alwaysShow` stay visible.

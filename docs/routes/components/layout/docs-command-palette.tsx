@@ -235,7 +235,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
               )
             }
             closable
-            onClose={onClose}
+            onCloseRequest={onClose}
             emptyRender={(ctx) => (
               <div class="py-6 flex flex-col gap-2 items-center">
                 <Icon name="i-lucide:search-x" class="text-2xl text-muted-foreground/60" />

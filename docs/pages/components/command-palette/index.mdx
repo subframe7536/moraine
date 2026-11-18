@@ -89,11 +89,11 @@ filter the collection. Set `alwaysShow` on an item to keep it visible for any qu
 />
 ```
 
-By default, selecting an enabled item also calls `onClose`. The palette never hides itself: use
-`onClose` to close the surrounding Dialog or BaseDialog. Set `closable` to show a close button that calls
-`onClose`. The search input takes focus on mount unless the palette sits inside an element with
-`role="dialog"`; set `autofocus={false}` to disable it. Control the query with `searchValue` and
-`onSearchValueChange`, or start from `defaultSearchValue`.
+By default, selecting an enabled item also calls `onCloseRequest`. The palette never hides itself:
+use `onCloseRequest` to close the surrounding Dialog or BaseDialog. Set `closable` to show a close
+button that calls `onCloseRequest`. The search input takes focus on mount unless the palette sits
+inside an element with `role="dialog"`; set `autofocus={false}` to disable it. Control the query with
+`searchValue` and `onSearchValueChange`, or start from `defaultSearchValue`.
 
 ### Custom item layout and states
 

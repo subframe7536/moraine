@@ -56,10 +56,10 @@ function buildItemLabel(item: CommandPaletteT.Item): string {
 
 function buildItemSearchText<TItem extends CommandPaletteT.Item>(
   item: TItem,
-  getItemLabel: ((item: TItem) => string) | undefined,
+  getItemSearchText: ((item: TItem) => string) | undefined,
 ): string {
-  if (getItemLabel) {
-    return getItemLabel(item)
+  if (getItemSearchText) {
+    return getItemSearchText(item)
   }
 
   return [item.label, item.value, item.description, item.keywords?.join(' ')]
@@ -99,7 +99,7 @@ function toGroups<TItem extends CommandPaletteT.Item>(
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
-  getItemLabel: ((item: TItem) => string) | undefined,
+  getItemSearchText: ((item: TItem) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
@@ -131,7 +131,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       return {
         key: createItemKey(item.value, groupIndex, index),
         label,
-        searchText: buildItemSearchText(item, getItemLabel),
+        searchText: buildItemSearchText(item, getItemSearchText),
         disabled: Boolean(item.disabled),
         item,
         group,
@@ -187,10 +187,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'loadingIcon',
     'closeIcon',
     'closable',
-    'onClose',
+    'onCloseRequest',
     'closeOnSelect',
     'loading',
-    'getItemLabel',
+    'getItemSearchText',
     'filterMethod',
     'descriptionPosition',
     'emptyRender',
@@ -323,7 +323,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => toGroups(merged.items ?? []))
 
   const normalizedGroups = createMemo(() =>
-    createNormalizedGroups<TItem>(groups(), merged.getItemLabel, warnDuplicateValue),
+    createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
     const term = currentSearchValue().trim()
@@ -455,7 +455,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     item.onSelect?.()
     merged.onSelect?.(item)
     if (merged.closeOnSelect) {
-      merged.onClose?.()
+      merged.onCloseRequest?.()
     }
   }
 
@@ -820,7 +820,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             data-slot="command-palette-close"
             {...closeSlot}
             onClick={() => {
-              merged.onClose?.()
+              merged.onCloseRequest?.()
             }}
             aria-label={messages().close}
           >

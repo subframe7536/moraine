@@ -46,7 +46,7 @@
           "name": "closable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to show a close button in the header. Clicking it calls `onClose`.",
+          "description": "Whether to show a close button in the header. Clicking it calls `onCloseRequest`.",
           "default": {
             "kind": "literal",
             "value": false
@@ -66,7 +66,7 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether selecting an enabled item calls `onClose` after `onSelect`. The palette does not\nclose itself.",
+          "description": "Whether selecting an enabled item calls `onCloseRequest` after `onSelect`. The palette does not\nclose itself.",
           "default": {
             "kind": "literal",
             "value": true
@@ -105,7 +105,7 @@
           "name": "filterMethod",
           "optional": true,
           "type": "false | 'contains' | 'startsWith' | 'endsWith' | ((query: string, item: TItem) => boolean)",
-          "description": "Filtering strategy applied to the trimmed search text. The built-in strategies match the\nitem's search text (see `getItemLabel`) ignoring case and accents, using the active\nlocale. A predicate receives the trimmed query and the item, and returns whether to\nkeep it; it is not called for an empty query. `false` disables filtering, for example\nwhen you filter `items` yourself. Items with `alwaysShow` stay visible.",
+          "description": "Filtering strategy applied to the trimmed search text. The built-in strategies match the\nitem's search text (see `getItemSearchText`) ignoring case and accents, using the active\nlocale. A predicate receives the trimmed query and the item, and returns whether to\nkeep it; it is not called for an empty query. `false` disables filtering, for example\nwhen you filter `items` yourself. Items with `alwaysShow` stay visible.",
           "default": {
             "kind": "literal",
             "value": "contains"
@@ -124,12 +124,12 @@
           ]
         },
         {
-          "name": "getItemLabel",
+          "name": "getItemSearchText",
           "optional": true,
           "type": "(item: TItem) => string",
-          "description": "Plain-text label of an item, used only by the built-in filter (`filterMethod` strings);\nit does not change rendered labels. Replaces the default, which is the label, value,\ndescription, and keywords joined by spaces.",
+          "description": "Text that the built-in filter (`filterMethod` strings) matches for an item; it does not\nchange rendered labels. Replaces the default search text, which is the label, value,\ndescription, and keywords joined by spaces.",
           "examples": [
-            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open', label: 'Open', keywords: ['launch'] }]}\n  getItemLabel={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}\n/>"
+            "import { CommandPalette } from 'moraine'\n\n<CommandPalette\n  items={[{ value: 'open', label: 'Open', keywords: ['launch'] }]}\n  getItemSearchText={(item) => `${item.label ?? ''} ${item.keywords?.join(' ') ?? ''}`}\n/>"
           ]
         },
         {
@@ -166,7 +166,7 @@
           "name": "items",
           "optional": true,
           "type": "Entry<TItem>[]",
-          "typeDetails": "({\n  /** Identifier of the item, unique across all groups. It is also the displayed label when\n`label` is empty and part of the default search text. Duplicates still render but log a\nwarning in development. */\n  value: string;\n  /** Primary label shown for the item. Falls back to `value`. */\n  label?: string;\n  /** Secondary text shown for the item, below or after the label depending on the\n`descriptionPosition` variant. Part of the default search text. */\n  description?: string;\n  /** Extra search terms that are not displayed, such as synonyms. They are matched by the\nbuilt-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function. */\n  keywords?: string[];\n  /** Content or render function shown before the label, such as an icon. Receives the row state.\nIgnored when the palette sets `itemRender`. */\n  leadingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\nthe row state. Ignored when the palette sets `itemRender`. */\n  trailingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\nstill displayed and marked `aria-disabled`. */\n  disabled?: boolean;\n  /** Keeps the item visible while the search text filters the list, even when it does not\nmatch, for entries like \"Search the docs for...\". */\n  alwaysShow?: boolean;\n  /** Called, without arguments, when the item is selected by click or Enter. It runs before the\npalette's `onSelect` and `onClose`. Not called for disabled items. */\n  onSelect?: () => void;\n} | {\n  /** Marks the entry as a group of items. */\n  type: 'group';\n  /** Header shown above the group's items. Without it the items render with no header. */\n  label?: string;\n  /** Items in this group. While searching, a group with no matching items is hidden. */\n  items?: ({\n    /** Identifier of the item, unique across all groups. It is also the displayed label when\n  `label` is empty and part of the default search text. Duplicates still render but log a\n  warning in development. */\n    value: string;\n    /** Primary label shown for the item. Falls back to `value`. */\n    label?: string;\n    /** Secondary text shown for the item, below or after the label depending on the\n  `descriptionPosition` variant. Part of the default search text. */\n    description?: string;\n    /** Extra search terms that are not displayed, such as synonyms. They are matched by the\n  built-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function. */\n    keywords?: string[];\n    /** Content or render function shown before the label, such as an icon. Receives the row state.\n  Ignored when the palette sets `itemRender`. */\n    leadingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\n  the row state. Ignored when the palette sets `itemRender`. */\n    trailingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\n  still displayed and marked `aria-disabled`. */\n    disabled?: boolean;\n    /** Keeps the item visible while the search text filters the list, even when it does not\n  match, for entries like \"Search the docs for...\". */\n    alwaysShow?: boolean;\n    /** Called, without arguments, when the item is selected by click or Enter. It runs before the\n  palette's `onSelect` and `onClose`. Not called for disabled items. */\n    onSelect?: () => void;\n  })[];\n})[]",
+          "typeDetails": "({\n  /** Identifier of the item, unique across all groups. It is also the displayed label when\n`label` is empty and part of the default search text. Duplicates still render but log a\nwarning in development. */\n  value: string;\n  /** Primary label shown for the item. Falls back to `value`. */\n  label?: string;\n  /** Secondary text shown for the item, below or after the label depending on the\n`descriptionPosition` variant. Part of the default search text. */\n  description?: string;\n  /** Extra search terms that are not displayed, such as synonyms. They are matched by the\nbuilt-in filter only; ignored when `getItemSearchText` is set or `filterMethod` is a function. */\n  keywords?: string[];\n  /** Content or render function shown before the label, such as an icon. Receives the row state.\nIgnored when the palette sets `itemRender`. */\n  leadingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\nthe row state. Ignored when the palette sets `itemRender`. */\n  trailingRender?: JSX.Element | Component<ItemRenderProps>;\n  /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\nstill displayed and marked `aria-disabled`. */\n  disabled?: boolean;\n  /** Keeps the item visible while the search text filters the list, even when it does not\nmatch, for entries like \"Search the docs for...\". */\n  alwaysShow?: boolean;\n  /** Called, without arguments, when the item is selected by click or Enter. It runs before the\npalette's `onSelect` and `onCloseRequest`. Not called for disabled items. */\n  onSelect?: () => void;\n} | {\n  /** Marks the entry as a group of items. */\n  type: 'group';\n  /** Header shown above the group's items. Without it the items render with no header. */\n  label?: string;\n  /** Items in this group. While searching, a group with no matching items is hidden. */\n  items?: ({\n    /** Identifier of the item, unique across all groups. It is also the displayed label when\n  `label` is empty and part of the default search text. Duplicates still render but log a\n  warning in development. */\n    value: string;\n    /** Primary label shown for the item. Falls back to `value`. */\n    label?: string;\n    /** Secondary text shown for the item, below or after the label depending on the\n  `descriptionPosition` variant. Part of the default search text. */\n    description?: string;\n    /** Extra search terms that are not displayed, such as synonyms. They are matched by the\n  built-in filter only; ignored when `getItemSearchText` is set or `filterMethod` is a function. */\n    keywords?: string[];\n    /** Content or render function shown before the label, such as an icon. Receives the row state.\n  Ignored when the palette sets `itemRender`. */\n    leadingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Content or render function shown at the end of the row, such as a shortcut hint. Receives\n  the row state. Ignored when the palette sets `itemRender`. */\n    trailingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Whether the item is disabled: it cannot be selected and keyboard navigation skips it. It is\n  still displayed and marked `aria-disabled`. */\n    disabled?: boolean;\n    /** Keeps the item visible while the search text filters the list, even when it does not\n  match, for entries like \"Search the docs for...\". */\n    alwaysShow?: boolean;\n    /** Called, without arguments, when the item is selected by click or Enter. It runs before the\n  palette's `onSelect` and `onCloseRequest`. Not called for disabled items. */\n    onSelect?: () => void;\n  })[];\n})[]",
           "description": "Commands to display, in order: command objects and `{ type: 'group', label, items }` groups.\nConsecutive commands outside a group render together without a header. The search text\nfilters them according to `filterMethod`; the list is reactive to changes of this prop.",
           "default": {
             "kind": "expression",
@@ -213,10 +213,10 @@
           }
         },
         {
-          "name": "onClose",
+          "name": "onCloseRequest",
           "optional": true,
           "type": "() => void",
-          "description": "Called when the close button is clicked, and after an enabled item is selected when\n`closeOnSelect` is `true`. The palette does not hide itself: use it to close the\nsurrounding `Dialog`, `BaseDialog`, or your own container. Escape is not handled here."
+          "description": "Called when the palette asks to be closed: when the close button is clicked, and after an\nenabled item is selected when `closeOnSelect` is `true`. It is a request only; the palette\nnever hides itself, so use it to close the surrounding `Dialog`, `BaseDialog`, or your own\ncontainer. Escape is not handled here."
         },
         {
           "name": "onSearchValueChange",
@@ -228,7 +228,7 @@
           "name": "onSelect",
           "optional": true,
           "type": "(item: TItem) => void",
-          "description": "Called with the selected item when the user clicks an enabled item or presses Enter on the\nhighlighted one. It runs after the item's own `onSelect`, and before `onClose` when\n`closeOnSelect` is `true`."
+          "description": "Called with the selected item when the user clicks an enabled item or presses Enter on the\nhighlighted one. It runs after the item's own `onSelect`, and before `onCloseRequest` when\n`closeOnSelect` is `true`."
         },
         {
           "name": "placeholder",
@@ -308,7 +308,7 @@
         "name": "keywords",
         "optional": true,
         "type": "string[]",
-        "description": "Extra search terms that are not displayed, such as synonyms. They are matched by the\nbuilt-in filter only; ignored when `getItemLabel` is set or `filterMethod` is a function."
+        "description": "Extra search terms that are not displayed, such as synonyms. They are matched by the\nbuilt-in filter only; ignored when `getItemSearchText` is set or `filterMethod` is a function."
       },
       {
         "name": "label",
@@ -326,7 +326,7 @@
         "name": "onSelect",
         "optional": true,
         "type": "() => void",
-        "description": "Called, without arguments, when the item is selected by click or Enter. It runs before the\npalette's `onSelect` and `onClose`. Not called for disabled items."
+        "description": "Called, without arguments, when the item is selected by click or Enter. It runs before the\npalette's `onSelect` and `onCloseRequest`. Not called for disabled items."
       },
       {
         "name": "trailingRender",

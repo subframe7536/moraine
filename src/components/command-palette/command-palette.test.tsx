@@ -288,14 +288,14 @@ describe('CommandPalette', () => {
   test('fires item and palette selection callbacks and closes by default', async () => {
     const onItemSelect = vi.fn()
     const onSelect = vi.fn()
-    const onClose = vi.fn()
+    const onCloseRequest = vi.fn()
     const selectedItem = { value: 'action', label: 'Action', onSelect: onItemSelect }
 
     render(() => (
       <CommandPalette
         items={[{ type: 'group', items: [selectedItem] }]}
         onSelect={onSelect}
-        onClose={onClose}
+        onCloseRequest={onCloseRequest}
       />
     ))
 
@@ -306,7 +306,7 @@ describe('CommandPalette', () => {
 
     expect(onItemSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith(selectedItem)
-    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(onCloseRequest).toHaveBeenCalledTimes(1)
   })
 
   test('prevents mouse pointerdown but preserves touch and pen tap synthesis', async () => {
@@ -371,14 +371,14 @@ describe('CommandPalette', () => {
 
   test('keeps the palette open when closeOnSelect is false', async () => {
     const onSelect = vi.fn()
-    const onClose = vi.fn()
+    const onCloseRequest = vi.fn()
 
     render(() => (
       <CommandPalette
         items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
         onSelect={onSelect}
-        onClose={onClose}
+        onCloseRequest={onCloseRequest}
       />
     ))
 
@@ -388,7 +388,7 @@ describe('CommandPalette', () => {
     )
 
     expect(onSelect).toHaveBeenCalledTimes(1)
-    expect(onClose).not.toHaveBeenCalled()
+    expect(onCloseRequest).not.toHaveBeenCalled()
     expect(document.body.querySelector('[data-slot="command-palette-item"]')).not.toBeNull()
   })
 
@@ -420,7 +420,7 @@ describe('CommandPalette', () => {
   test('does not activate a command from composition Enter events', () => {
     vi.useFakeTimers()
     const onSelect = vi.fn()
-    const onClose = vi.fn()
+    const onCloseRequest = vi.fn()
     const onCompositionStart = vi.fn()
     const onCompositionEnd = vi.fn()
     const screen = render(() => (
@@ -428,7 +428,7 @@ describe('CommandPalette', () => {
         items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
         filterMethod={false}
         onSelect={onSelect}
-        onClose={onClose}
+        onCloseRequest={onCloseRequest}
         inputProps={{ onCompositionStart, onCompositionEnd }}
       />
     ))
@@ -457,7 +457,7 @@ describe('CommandPalette', () => {
     expect(composingEnter.defaultPrevented).toBe(false)
     expect(completionEnter.defaultPrevented).toBe(false)
     expect(onSelect).not.toHaveBeenCalled()
-    expect(onClose).not.toHaveBeenCalled()
+    expect(onCloseRequest).not.toHaveBeenCalled()
 
     vi.advanceTimersByTime(100)
     const intentionalEnter = new KeyboardEvent('keydown', {
@@ -469,7 +469,7 @@ describe('CommandPalette', () => {
 
     expect(intentionalEnter.defaultPrevented).toBe(true)
     expect(onSelect).toHaveBeenCalledOnce()
-    expect(onClose).toHaveBeenCalledOnce()
+    expect(onCloseRequest).toHaveBeenCalledOnce()
   })
 
   test('ignores Enter that follows a second composition session shortly after it ends', () => {
@@ -558,13 +558,13 @@ describe('CommandPalette', () => {
     expect(leading().getAttribute('aria-busy')).toBe('true')
   })
 
-  test('shows a close button only when closable and reports clicks through onClose', () => {
-    const onClose = vi.fn()
+  test('shows a close button only when closable and reports clicks through onCloseRequest', () => {
+    const onCloseRequest = vi.fn()
     const closable = render(() => (
-      <CommandPalette items={GROUPS} autofocus={false} closable onClose={onClose} />
+      <CommandPalette items={GROUPS} autofocus={false} closable onCloseRequest={onCloseRequest} />
     ))
     fireEvent.click(closable.getByRole('button', { name: 'Close' }))
-    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(onCloseRequest).toHaveBeenCalledTimes(1)
     closable.unmount()
 
     const plain = render(() => <CommandPalette items={GROUPS} autofocus={false} />)
@@ -581,7 +581,7 @@ describe('CommandPalette', () => {
         </Dialog.Trigger>
         <Dialog.Content>
           <Dialog.Body>
-            <CommandPalette items={GROUPS} closable onClose={() => setOpen(false)} />
+            <CommandPalette items={GROUPS} closable onCloseRequest={() => setOpen(false)} />
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -1043,11 +1043,11 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('supports getItemLabel override', async () => {
+  test('supports getItemSearchText override', async () => {
     render(() => (
       <CommandPalette
         searchValue="custom-hit"
-        getItemLabel={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
+        getItemSearchText={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
         items={[
           {
             type: 'group',
@@ -1090,7 +1090,7 @@ describe('CommandPalette', () => {
       <CommandPalette
         searchValue={method === 'startsWith' ? 'alp' : 'ta'}
         filterMethod={method}
-        getItemLabel={(item) => item.label ?? item.value}
+        getItemSearchText={(item) => item.label ?? item.value}
         items={[
           {
             type: 'group',
