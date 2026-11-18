@@ -51,7 +51,7 @@ export namespace ToastT {
      * Id of the `<Toast id="..." />` host that shows this toast. Omit to use the host without an
      * id. Throws when no host with that id is mounted.
      */
-    host?: string
+    hostId?: string
     /** Primary text of the toast. Not rendered when empty. */
     title?: JSX.Element
     /** Secondary text shown below `title`. Not rendered when empty. */
@@ -128,7 +128,7 @@ export namespace ToastT {
   }
 
   /** Options for updating an open toast in place. */
-  export type UpdateOptions = Partial<Omit<Options, 'host' | 'id'>>
+  export type UpdateOptions = Partial<Omit<Options, 'hostId' | 'id'>>
 
   export interface Handle extends FeedbackHandle<UpdateOptions> {}
 
@@ -264,8 +264,8 @@ export namespace ToastT {
     preventDuplicate?: boolean
 
     /**
-     * Identifier of this host. A toast opened with `host: id` is shown here; toasts without
-     * `host` go to the host that has no `id`. Use unique ids when mounting several hosts.
+     * Identifier of this host. A toast opened with `hostId: id` is shown here; toasts without
+     * `hostId` go to the host that has no `id`. Use unique ids when mounting several hosts.
      */
     id?: string
 

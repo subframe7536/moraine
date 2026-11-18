@@ -81,7 +81,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Identifier of this host. A toast opened with `host: id` is shown here; toasts without\n`host` go to the host that has no `id`. Use unique ids when mounting several hosts."
+          "description": "Identifier of this host. A toast opened with `hostId: id` is shown here; toasts without\n`hostId` go to the host that has no `id`. Use unique ids when mounting several hosts."
         },
         {
           "name": "itemRender",

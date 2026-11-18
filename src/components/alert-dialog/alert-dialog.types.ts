@@ -44,7 +44,7 @@ export namespace AlertDialogT {
     translations?: DialogT.Translations
     /**
      * Unique identifier for this host when multiple hosts are mounted.
-     * A call without `host` goes to the last mounted host without an id. Pass `host` in the
+     * A call without `hostId` goes to the last mounted host without an id. Pass `hostId` in the
      * call options to target one host. If duplicate ids are mounted, the last mounted host takes precedence.
      * Unmounting a host settles its open dialogs with reason `api`.
      */
@@ -125,7 +125,7 @@ export namespace AlertDialogT {
      * Id of the `<AlertDialog id="..." />` host that shows this dialog. Omit to use the last mounted
      * host without an id. Throws when no matching host is mounted.
      */
-    host?: string
+    hostId?: string
     /** Status tone, overriding the host. Methods such as `info` and `error` set this for you. */
     type?: Type
     /** Dialog heading. It also names the dialog; omit it only with `AlertDialog.custom` or `ariaLabel`. */
@@ -242,11 +242,11 @@ export namespace AlertDialogT {
     /** Closes only the dialog with this id. */
     id?: Id
     /** Closes only dialogs on `<AlertDialog id="..." />`. */
-    host?: string
+    hostId?: string
   }
 
   /** Options for updating an open alert dialog in place. */
-  export type UpdateOptions = Partial<Omit<Options, 'host' | 'id'>>
+  export type UpdateOptions = Partial<Omit<Options, 'hostId' | 'id'>>
 
   export interface Handle extends FeedbackHandle<UpdateOptions> {}
 

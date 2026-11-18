@@ -13,11 +13,11 @@ export function renderAlertDialogFixture(): string {
 
 export async function renderServerAlertCallFixture(): Promise<string> {
   const confirmed = await AlertDialog.confirm({ title: 'Server title' }).result()
-  const informed = await AlertDialog.info({ host: 'billing', title: 'Server info' }).result()
+  const informed = await AlertDialog.info({ hostId: 'billing', title: 'Server info' }).result()
   const first = AlertDialog.show({ title: 'First' })
   const second = AlertDialog.show({ title: 'Second' })
   AlertDialog.close()
   AlertDialog.close('billing')
-  AlertDialog.close({ host: 'billing' })
+  AlertDialog.close({ hostId: 'billing' })
   return `${confirmed}:${informed}:${first.id === second.id ? 'same' : 'unique'}`
 }

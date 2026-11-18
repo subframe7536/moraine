@@ -622,7 +622,7 @@ describe('AlertDialog', () => {
         <AlertDialog id="first" />
       </>
     ))
-    const targeted = AlertDialog.info({ host: 'first', title: 'First host' })
+    const targeted = AlertDialog.info({ hostId: 'first', title: 'First host' })
     const latest = AlertDialog.info({ title: 'Second host' })
     await waitFor(() => {
       expect(document.body.textContent).toContain('First host')
@@ -797,25 +797,25 @@ describe('AlertDialog', () => {
     expect(onClose).toHaveBeenCalledWith('api')
   })
 
-  test('closes every dialog on one host with close({ host })', async () => {
+  test('closes every dialog on one host with close({ hostId })', async () => {
     render(() => (
       <>
         <AlertDialog id="a" />
         <AlertDialog id="b" />
       </>
     ))
-    const a1 = AlertDialog.show({ host: 'a', title: 'A1' })
-    const a2 = AlertDialog.show({ host: 'a', title: 'A2' })
-    const b1 = AlertDialog.show({ host: 'b', title: 'B1' })
+    const a1 = AlertDialog.show({ hostId: 'a', title: 'A1' })
+    const a2 = AlertDialog.show({ hostId: 'a', title: 'A2' })
+    const b1 = AlertDialog.show({ hostId: 'b', title: 'B1' })
     await waitFor(() => {
       expect(dialogs()).toHaveLength(3)
     })
-    AlertDialog.close({ host: 'a' })
+    AlertDialog.close({ hostId: 'a' })
     await expect(a1.result()).resolves.toBe('api')
     await expect(a2.result()).resolves.toBe('api')
     await waitForDialogCount(1)
     expect(document.body.textContent).toContain('B1')
-    AlertDialog.close({ host: 'b', id: 'missing' })
+    AlertDialog.close({ hostId: 'b', id: 'missing' })
     await waitForDialogCount(1)
     b1.close()
     await waitForDialogCount(0)

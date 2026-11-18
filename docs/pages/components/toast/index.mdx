@@ -124,8 +124,8 @@ resolved `options`, `pending()`, `action()`, `cancel()`, `close()`, `update()`, 
 `expanded`. It replaces the inner content. The toast keeps its stack, swipe, timer, and live region.
 `close()` closes with `'dismiss'` unless you pass a reason.
 
-A call without `host` goes to the host without an id and throws if only hosts with an id are
-mounted. Pass `host` to target `<Toast id="alerts" />`.
+A call without `hostId` goes to the host without an id and throws if only hosts with an id are
+mounted. Pass `hostId` to target `<Toast id="alerts" />`.
 
 ### Methods
 
@@ -293,7 +293,7 @@ use `status`.
 
 ### Route notifications to a custom viewport corner
 
-`host` sends the toast to `<Toast id="bottom-dock" />`. `Toast.close()` dismisses every toast.
+`hostId` sends the toast to `<Toast id="bottom-dock" />`. `Toast.close()` dismisses every toast.
 
 <Preview path="./custom-placement" />
 

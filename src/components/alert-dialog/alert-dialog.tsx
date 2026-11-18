@@ -51,7 +51,7 @@ function openAlertDialog(
   if (isServer) {
     return inertFeedbackHandle(options.id)
   }
-  const host = registry.require(options.host)
+  const host = registry.require(options.hostId)
   return host.open(mode, options, render)
 }
 
@@ -188,7 +188,7 @@ AlertDialog.close = (target?: AlertDialogT.Id | AlertDialogT.CloseTarget): void 
   }
   const scope = typeof target === 'object' && target !== null ? target : { id: target }
   for (const host of registry.entries()) {
-    if (scope.host === undefined || host.id() === scope.host) {
+    if (scope.hostId === undefined || host.id() === scope.hostId) {
       host.close(scope.id)
     }
   }

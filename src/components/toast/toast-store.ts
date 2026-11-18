@@ -61,7 +61,7 @@ function mergeSlots<T extends object>(
 export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefaults): ToastT.Options {
   return {
     id: call.id,
-    host: call.host,
+    hostId: call.hostId,
     get title() {
       return call.title
     },
@@ -245,7 +245,7 @@ export function createToastStore(): ToastStore {
     options: ToastT.Options,
     render?: JSX.Element | Component<ToastT.ItemRenderProps>,
   ): ToastT.Handle => {
-    const host = registry.require(options.host)
+    const host = registry.require(options.hostId)
     const hostId = host.id()
     const defaults = host.defaults
     const id = options.id !== undefined ? options.id : nextId()

@@ -642,8 +642,8 @@ describe('Toast', () => {
       </>
     ))
 
-    Toast.show({ title: 'Top message', host: 'top-host' })
-    Toast.show({ title: 'Bottom message', host: 'bottom-host' })
+    Toast.show({ title: 'Top message', hostId: 'top-host' })
+    Toast.show({ title: 'Bottom message', hostId: 'bottom-host' })
 
     const topItem = await screen.findByText('Top message')
     const bottomItem = await screen.findByText('Bottom message')
@@ -664,8 +664,8 @@ describe('Toast', () => {
     const id2 = Toast.show({ title: 'Default message' })
     expect(id1).not.toBe(id2)
 
-    const s1 = Toast.show({ title: 'Scoped message', host: 'scoped-pd' })
-    const s2 = Toast.show({ title: 'Scoped message', host: 'scoped-pd' })
+    const s1 = Toast.show({ title: 'Scoped message', hostId: 'scoped-pd' })
+    const s2 = Toast.show({ title: 'Scoped message', hostId: 'scoped-pd' })
     expect(s1).toBe(s2)
   })
 
@@ -742,8 +742,8 @@ describe('Toast', () => {
       </>
     ))
 
-    Toast.show({ title: 'Default host toast', host: 'main' })
-    Toast.show({ title: 'Alerts host toast', host: 'alerts' })
+    Toast.show({ title: 'Default host toast', hostId: 'main' })
+    Toast.show({ title: 'Alerts host toast', hostId: 'alerts' })
 
     const defaultTitle = await screen.findByText('Default host toast')
     const alertsTitle = await screen.findByText('Alerts host toast')
@@ -1132,8 +1132,8 @@ describe('Toast', () => {
       </>
     ))
 
-    Toast.show({ title: 'Isolated only', host: 'isolated' })
-    Toast.show({ title: 'Default only', host: 'main' })
+    Toast.show({ title: 'Isolated only', hostId: 'isolated' })
+    Toast.show({ title: 'Default only', hostId: 'main' })
 
     await screen.findByText('Isolated only')
     await screen.findByText('Default only')
