@@ -87,7 +87,7 @@ export namespace ScrollAreaT {
     /**
      * Renders only the visible `items`. The viewport is the scroll container; create the
      * virtualizer with `horizontal` for `orientation="horizontal"`. Requires `itemRender`, and
-     * the row element must spread `props.props` so the virtualizer can position and measure it.
+     * the row element must spread `props.rowProps` so the virtualizer can position and measure it.
      * @example
      * ```tsx
      * import { ScrollArea } from 'moraine'
@@ -100,7 +100,7 @@ export namespace ScrollAreaT {
      *   class="h-64"
      *   items={rows}
      *   virtualizer={virtualizer}
-     *   itemRender={(props) => <div {...props.props}>{props.item}</div>}
+     *   itemRender={(props) => <div {...props.rowProps}>{props.item}</div>}
      * />
      * ```
      */
@@ -114,8 +114,8 @@ export namespace ScrollAreaT {
     /** Receives the native scrolling `<div>` that wraps the content, to read or set `scrollTop` and similar. */
     viewportRef?: Ref<HTMLDivElement>
     /**
-     * Receives the imperative controller once, during setup. Store it and call it later; the viewport
-     * only exists after mount, so `scrollToEdge` called during setup does nothing.
+     * Receives the imperative `Controller` once, during setup. Store it and call it later; the
+     * viewport only exists after mount, so `scrollToEdge` called during setup does nothing.
      * @example
      * ```tsx
      * import { ScrollArea } from 'moraine'
