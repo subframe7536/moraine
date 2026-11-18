@@ -64,7 +64,7 @@ export namespace TreeT {
      * Returns the text used for the item's accessible name (`aria-label`), the default label, and
      * typeahead matching. Defaults to the item itself when it is a string, otherwise to its key.
      */
-    getTextValue?: (item: T) => string | undefined
+    getLabel?: (item: T) => string | undefined
 
     /**
      * Returns the prefix icon of an item, shown before the label of the default item. Not used
@@ -135,7 +135,7 @@ export namespace TreeT {
 
     /**
      * Keys of the expanded branches (controlled). Leave `undefined` for uncontrolled usage and
-     * update it from `onExpandedChange`. Options are read reactively, so pass a getter.
+     * update it from `onExpandedKeysChange`. Options are read reactively, so pass a getter.
      * @example
      * ```tsx
      * import { createSignal } from 'solid-js'
@@ -148,7 +148,7 @@ export namespace TreeT {
      *   get expandedKeys() {
      *     return expanded()
      *   },
-     *   onExpandedChange: setExpanded,
+     *   onExpandedKeysChange: setExpanded,
      * })
      *
      * <tree.Tree />
@@ -166,7 +166,7 @@ export namespace TreeT {
      * Called with the full list of expanded keys whenever it changes, through user interaction,
      * tree methods, or a lazy branch that failed to load or turned out empty.
      */
-    onExpandedChange?: (keys: string[]) => void
+    onExpandedKeysChange?: (keys: string[]) => void
 
     /**
      * Whether clicking a branch row also toggles it. When `false`, only the trigger toggles.
@@ -192,7 +192,7 @@ export namespace TreeT {
 
     /**
      * Keys of the selected items (controlled). Leave `undefined` for uncontrolled usage and
-     * update it from `onSelectionChange`. Pass a getter so changes are read reactively.
+     * update it from `onSelectedKeysChange`. Pass a getter so changes are read reactively.
      */
     selectedKeys?: readonly string[]
 
@@ -203,7 +203,7 @@ export namespace TreeT {
     defaultSelectedKeys?: readonly string[]
 
     /** Called with the full list of selected keys whenever it changes. */
-    onSelectionChange?: (keys: string[]) => void
+    onSelectedKeysChange?: (keys: string[]) => void
 
     /**
      * Whether items expose a check state rendered with `tree.ItemCheckbox`, which renders
@@ -222,7 +222,7 @@ export namespace TreeT {
 
     /**
      * Keys of the checked items (controlled). Leave `undefined` for uncontrolled usage and
-     * update it from `onCheckedChange`. Pass a getter so changes are read reactively.
+     * update it from `onCheckedKeysChange`. Pass a getter so changes are read reactively.
      */
     checkedKeys?: readonly string[]
 
@@ -237,7 +237,7 @@ export namespace TreeT {
      * list contains every checked item including descendants, plus checked keys of items that
      * are not loaded yet.
      */
-    onCheckedChange?: (keys: string[]) => void
+    onCheckedKeysChange?: (keys: string[]) => void
 
     /**
      * Whether typing characters moves focus to the next visible, enabled item whose text value
@@ -262,7 +262,7 @@ export namespace TreeT {
     readonly selectedKeys: readonly string[]
     /**
      * Keys whose check state is `checked`, followed by checked keys of items that are not loaded
-     * yet. Matches the keys passed to `onCheckedChange`.
+     * yet. Matches the keys passed to `onCheckedKeysChange`.
      */
     readonly checkedKeys: readonly string[]
     /** Key of the item that currently holds focus; `undefined` while focus is outside the tree. */
@@ -346,8 +346,8 @@ export namespace TreeT {
     readonly parentKey: string | undefined
     /** Direct children, whether or not the item is expanded. */
     readonly children: readonly ItemInstance<T>[]
-    /** Text from `getTextValue`, used as the accessible name, label, and typeahead text. */
-    readonly textValue: string
+    /** Text from `getLabel`, used as the accessible name, label, and typeahead text. */
+    readonly label: string
     /** Whether the branch is expanded. */
     readonly isExpanded: boolean
     /** Whether the item is in the selected keys. */
@@ -418,7 +418,7 @@ export namespace TreeT {
      *
      * <tree.Tree
      *   actionRender={(item) => (
-     *     <Button size="icon-sm" variant="ghost" leading="i-lucide:plus" aria-label={`Add to ${item.textValue}`} />
+     *     <Button size="icon-sm" variant="ghost" leading="i-lucide:plus" aria-label={`Add to ${item.label}`} />
      *   )}
      * />
      * ```

@@ -271,7 +271,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
       <li
         data-slot="tree-item"
         role="treeitem"
-        aria-label={local.item.textValue}
+        aria-label={local.item.label}
         {...itemSlot}
         {...rest}
         {...rowAttributes()}

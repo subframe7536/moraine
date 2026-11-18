@@ -33,14 +33,14 @@ export function Selection() {
     items: () => FOLDERS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.name,
+    getLabel: (node) => node.name,
     defaultExpandedKeys: ['inbox', 'projects'],
     selectionMode: 'multiple',
     expandOnClick: false,
     get selectedKeys() {
       return selected()
     },
-    onSelectionChange: setSelected,
+    onSelectedKeysChange: setSelected,
   })
 
   return (

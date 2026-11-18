@@ -25,7 +25,7 @@ export function CustomItem() {
     items: () => WORKSPACES,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.name,
+    getLabel: (node) => node.name,
     defaultExpandedKeys: ['acme'],
   })
 

@@ -73,7 +73,7 @@ export default function TreePlayground() {
           items: () => FILES,
           getKey: (node) => node.id,
           getChildren: (node) => node.children,
-          getTextValue: (node) => node.name,
+          getLabel: (node) => node.name,
           isDisabled: (node) => Boolean(node.disabled),
           defaultExpandedKeys: ['src', 'components'],
           defaultSelectedKeys: ['tree'],
@@ -102,8 +102,8 @@ export default function TreePlayground() {
                 size="icon-xs"
                 leading="i-lucide:file-plus"
                 tabIndex={item.isFocused ? 0 : -1}
-                aria-label={`New file in ${item.textValue}`}
-                onClick={() => setStatus(`New file in ${item.textValue}`)}
+                aria-label={`New file in ${item.label}`}
+                onClick={() => setStatus(`New file in ${item.label}`)}
               />
             </Show>
             <DropdownMenu>
@@ -113,19 +113,19 @@ export default function TreePlayground() {
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
                 tabIndex={item.isFocused ? 0 : -1}
-                aria-label={`More actions for ${item.textValue}`}
+                aria-label={`More actions for ${item.label}`}
               />
               <DropdownMenu.Content
                 items={[
                   {
                     label: 'Rename',
                     icon: 'i-lucide:pencil',
-                    onSelect: () => setStatus(`Rename ${item.textValue}`),
+                    onSelect: () => setStatus(`Rename ${item.label}`),
                   },
                   {
                     label: 'Delete',
                     icon: 'i-lucide:trash-2',
-                    onSelect: () => setStatus(`Delete ${item.textValue}`),
+                    onSelect: () => setStatus(`Delete ${item.label}`),
                   },
                 ]}
               />

@@ -50,7 +50,7 @@ function Harness(props: HarnessProps) {
       items: () => props.items?.() ?? DATA,
       getKey: (node: Node) => node.id,
       getChildren: (node: Node) => node.children,
-      getTextValue: (node: Node) => node.name,
+      getLabel: (node: Node) => node.name,
       isDisabled: (node: Node) => Boolean(node.disabled),
     },
     props.options,
@@ -324,20 +324,20 @@ describe('createTree', () => {
 
     test('supports controlled expanded keys and retains focus when a subtree collapses', () => {
       const [keys, setKeys] = createSignal<string[]>([])
-      const onExpandedChange = vi.fn((next: string[]) => setKeys(next))
+      const onExpandedKeysChange = vi.fn((next: string[]) => setKeys(next))
       const { container } = render(() => (
         <Harness
           options={{
             get expandedKeys() {
               return keys()
             },
-            onExpandedChange,
+            onExpandedKeysChange,
           }}
         />
       ))
 
       clickTrigger(item(container, 'docs'))
-      expect(onExpandedChange).toHaveBeenCalledWith(['docs'])
+      expect(onExpandedKeysChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
       item(container, 'guide.md').focus()
@@ -811,14 +811,14 @@ describe('createTree', () => {
 
   describe('selection', () => {
     test('single selection replaces the selected item and reports changes', () => {
-      const onSelectionChange = vi.fn()
-      const { container } = render(() => <Harness options={{ onSelectionChange }} />)
+      const onSelectedKeysChange = vi.fn()
+      const { container } = render(() => <Harness options={{ onSelectedKeysChange }} />)
 
       fireEvent.click(item(container, 'README.md'))
       fireEvent.click(item(container, 'src'))
 
-      expect(onSelectionChange).toHaveBeenNthCalledWith(1, ['readme'])
-      expect(onSelectionChange).toHaveBeenNthCalledWith(2, ['src'])
+      expect(onSelectedKeysChange).toHaveBeenNthCalledWith(1, ['readme'])
+      expect(onSelectedKeysChange).toHaveBeenNthCalledWith(2, ['src'])
       expect(item(container, 'README.md').getAttribute('aria-selected')).toBe('false')
       expect(item(container, 'src').getAttribute('aria-selected')).toBe('true')
       expect(item(container, 'src').hasAttribute('data-selected')).toBe(true)
@@ -886,7 +886,7 @@ describe('createTree', () => {
             get selectedKeys() {
               return keys()
             },
-            onSelectionChange: (next) => setKeys(next),
+            onSelectedKeysChange: (next) => setKeys(next),
           }}
         />
       ))
@@ -1079,19 +1079,19 @@ describe('createTree', () => {
       expect(tree.getItem('src')?.checkedState).toBe('unchecked')
     })
 
-    test('checkedKeys matches onCheckedChange for keys of unloaded items', () => {
+    test('checkedKeys matches onCheckedKeysChange for keys of unloaded items', () => {
       let tree!: TreeT.Instance<Node>
-      const onCheckedChange = vi.fn()
+      const onCheckedKeysChange = vi.fn()
       render(() => (
         <Harness
           onTree={(value) => (tree = value)}
-          options={{ checkable: true, defaultCheckedKeys: ['not-loaded'], onCheckedChange }}
+          options={{ checkable: true, defaultCheckedKeys: ['not-loaded'], onCheckedKeysChange }}
         />
       ))
 
       expect(tree.checkedKeys).toContain('not-loaded')
       tree.check('readme')
-      expect(onCheckedChange).toHaveBeenLastCalledWith(tree.checkedKeys)
+      expect(onCheckedKeysChange).toHaveBeenLastCalledWith(tree.checkedKeys)
       expect(tree.checkedKeys).toEqual(expect.arrayContaining(['readme', 'not-loaded']))
     })
 
@@ -1129,7 +1129,7 @@ describe('createTree', () => {
     })
 
     test('reports checked keys changes and ignores disabled items in check and cascade', () => {
-      const onCheckedChange = vi.fn()
+      const onCheckedKeysChange = vi.fn()
       let tree!: TreeT.Instance<Node>
       const nodes: Node[] = [
         {
@@ -1147,13 +1147,13 @@ describe('createTree', () => {
         <Harness
           items={() => nodes}
           onTree={(value) => (tree = value)}
-          options={{ checkable: true, onCheckedChange }}
+          options={{ checkable: true, onCheckedKeysChange }}
         />
       ))
 
       tree.check('license')
       expect(tree.checkedKeys).toEqual([])
-      expect(onCheckedChange).not.toHaveBeenCalled()
+      expect(onCheckedKeysChange).not.toHaveBeenCalled()
 
       tree.check('folder')
       expect(tree.checkedKeys).toEqual(['folder', 'active'])
@@ -1161,7 +1161,7 @@ describe('createTree', () => {
       expect(tree.getItem('folder')?.checkedState).toBe('checked')
 
       tree.check('readme')
-      expect(onCheckedChange).toHaveBeenLastCalledWith(['folder', 'active', 'readme'])
+      expect(onCheckedKeysChange).toHaveBeenLastCalledWith(['folder', 'active', 'readme'])
     })
   })
 
@@ -1187,7 +1187,7 @@ describe('createTree', () => {
           ],
           getKey: (node: LazyNode) => node.id,
           getChildren: (node: LazyNode) => node.children,
-          getTextValue: (node: LazyNode) => node.name,
+          getLabel: (node: LazyNode) => node.name,
           isLeaf: (node: LazyNode) => !node.lazy && !node.children,
           loadChildren: props.loadChildren,
         },
@@ -1386,7 +1386,7 @@ describe('createTree', () => {
           treeProps={{
             itemRender: (context) => (
               <tree.Item item={context}>
-                <tree.ItemLabel>{context.textValue.toUpperCase()}</tree.ItemLabel>
+                <tree.ItemLabel>{context.label.toUpperCase()}</tree.ItemLabel>
               </tree.Item>
             ),
           }}
@@ -1711,7 +1711,7 @@ describe('createTree', () => {
         <>
           <Harness onTree={(value) => (tree = value)} />
           <ul data-testid="outside">
-            <For each={tree.flattenedItems}>{(entry) => <li>{entry.textValue}</li>}</For>
+            <For each={tree.flattenedItems}>{(entry) => <li>{entry.label}</li>}</For>
           </ul>
         </>
       ))

@@ -26,7 +26,7 @@
           "type": "Component<ItemRenderProps<T>>",
           "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nReceives the item instance. Ignored when `itemRender` is set; custom item content composes\n`tree.ItemAction` directly.",
           "examples": [
-            "import { Button, createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })\n\n<tree.Tree\n  actionRender={(item) => (\n    <Button size=\"icon-sm\" variant=\"ghost\" leading=\"i-lucide:plus\" aria-label={`Add to ${item.textValue}`} />\n  )}\n/>"
+            "import { Button, createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })\n\n<tree.Tree\n  actionRender={(item) => (\n    <Button size=\"icon-sm\" variant=\"ghost\" leading=\"i-lucide:plus\" aria-label={`Add to ${item.label}`} />\n  )}\n/>"
           ]
         },
         {

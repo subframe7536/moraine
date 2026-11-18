@@ -79,8 +79,8 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get children(): readonly TreeT.ItemInstance<T>[] {
     return this.node.childrenKeys.flatMap((key) => this.state.getItem(key) ?? [])
   }
-  get textValue(): string {
-    return this.node.textValue
+  get label(): string {
+    return this.node.label
   }
   get isDisabled(): boolean {
     return this.node.disabled
@@ -212,7 +212,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [expandedKeys, setExpandedKeys] = createControllableValue<readonly string[]>({
     value: () => options.expandedKeys,
     defaultValue: () => options.defaultExpandedKeys ?? [],
-    onChange: (keys) => options.onExpandedChange?.([...keys]),
+    onChange: (keys) => options.onExpandedKeysChange?.([...keys]),
   })
   const expandedSet = createMemo(() => new Set(expandedKeys()))
   const isExpanded = createSelector<ReadonlySet<string>, string>(expandedSet, (key, set) =>
@@ -293,7 +293,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [selectedKeys, setSelectedKeys] = createControllableValue<readonly string[]>({
     value: () => options.selectedKeys,
     defaultValue: () => options.defaultSelectedKeys ?? [],
-    onChange: (keys) => options.onSelectionChange?.([...keys]),
+    onChange: (keys) => options.onSelectedKeysChange?.([...keys]),
   })
   const selectedSet = createMemo(() => new Set(selectedKeys()))
   const isSelected = createSelector<ReadonlySet<string>, string>(selectedSet, (key, set) =>
@@ -406,13 +406,13 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [storedCheckedKeys, setStoredCheckedKeys] = createControllableValue<readonly string[]>({
     value: () => options.checkedKeys,
     defaultValue: () => options.defaultCheckedKeys ?? [],
-    onChange: (keys) => options.onCheckedChange?.([...keys]),
+    onChange: (keys) => options.onCheckedKeysChange?.([...keys]),
   })
   const checkedStates = createMemo(() =>
     resolveCheckedStates(registry(), new Set(storedCheckedKeys()), options.checkCascade !== false),
   )
   // Stored keys outside the current registry, such as unloaded lazy children, stay checked so
-  // they apply once their items load. `checkedKeys` reports them so it matches `onCheckedChange`.
+  // they apply once their items load. `checkedKeys` reports them so it matches `onCheckedKeysChange`.
   const unknownCheckedKeys = (): string[] => {
     const nodes = registry().nodes
     return storedCheckedKeys().filter((storedKey) => !nodes.has(storedKey))

@@ -201,7 +201,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   const typeahead = createTypeahead<string>({
     getItems: navigableKeys,
     getStartIndex: () => navigableKeys().indexOf(tabStopKey() ?? ''),
-    getText: (key) => deps.registry().nodes.get(key)?.textValue ?? key,
+    getText: (key) => deps.registry().nodes.get(key)?.label ?? key,
     onMatch: (key) => focus(key),
   })
 

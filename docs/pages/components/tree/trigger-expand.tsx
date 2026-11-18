@@ -31,7 +31,7 @@ export function TriggerExpand() {
     items: () => FILES,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.name,
+    getLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
     expandOnClick: false,
   })

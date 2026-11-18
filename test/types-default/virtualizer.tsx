@@ -19,7 +19,7 @@ const items: Item[] = []
 const tree = createTree<Item>({
   items: () => items,
   getKey: (item) => String(item.id),
-  getTextValue: (item) => item.label,
+  getLabel: (item) => item.label,
 })
 ;<tree.Tree
   virtualizer={createListVirtualizer<TreeT.ItemInstance<Item>>({ estimateSize: () => 32 })}

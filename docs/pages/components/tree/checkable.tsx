@@ -33,14 +33,14 @@ export function Checkable() {
     items: () => PERMISSIONS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.label,
+    getLabel: (node) => node.label,
     defaultExpandedKeys: ['billing', 'members'],
     checkable: true,
     selectionMode: 'none',
     get checkedKeys() {
       return checked()
     },
-    onCheckedChange: setChecked,
+    onCheckedKeysChange: setChecked,
   })
 
   return (

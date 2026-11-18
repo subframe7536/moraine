@@ -16,7 +16,7 @@ export interface TreeNode<T> {
   /** True when the node is a lazy branch whose children have not been loaded. */
   needsLoad: boolean
   disabled: boolean
-  textValue: string
+  label: string
 }
 
 /** Children fetched by `loadChildren`, kept only while the node keeps the same source item. */
@@ -63,7 +63,7 @@ export function buildRegistry<T>(
         hasChildren: children ? children.length > 0 : needsLoad,
         needsLoad,
         disabled: Boolean(options.isDisabled?.(raw)),
-        textValue: options.getTextValue?.(raw) ?? (typeof raw === 'string' ? raw : key),
+        label: options.getLabel?.(raw) ?? (typeof raw === 'string' ? raw : key),
       }
       nodes.set(key, node)
       keys.push(key)

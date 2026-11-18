@@ -101,7 +101,7 @@ export function Files(props: { files: FileNode[] }) {
     items: () => props.files,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.name,
+    getLabel: (node) => node.name,
   })
 
   return <tree.Tree aria-label="Project files" />
@@ -115,14 +115,14 @@ Always name the tree with `aria-label` or `aria-labelledby` on `tree.Tree`.
 Behavior is configured on `createTree`; presentation is configured on `tree.Tree`. The generated
 API reference below lists `tree.Tree` and part props. `createTree` options are listed here.
 
-| Concern    | `createTree` options                                                                                                           |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Data       | `items` (accessor), `getKey`, `getChildren`, `getTextValue`, `isDisabled`, `isLeaf`                                            |
-| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedChange`, `expandOnClick` (`true`), `trigger` (`true`)                        |
-| Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange` |
-| Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedChange`                         |
-| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                                |
-| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                             |
+| Concern    | `createTree` options                                                                                                              |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Data       | `items` (accessor), `getKey`, `getChildren`, `getLabel`, `isDisabled`, `isLeaf`                                                   |
+| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedKeysChange`, `expandOnClick` (`true`), `trigger` (`true`)                       |
+| Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectedKeysChange` |
+| Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedKeysChange`                        |
+| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                                   |
+| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                                |
 
 | Concern      | `tree.Tree` props                                                                 |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -134,7 +134,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 `get selectedKeys() { return selected() }`; a plain value is read once.
 
 Keys are strings returned by `getKey` and must be unique across the whole tree. If a key repeats,
-the first occurrence wins. `getTextValue` provides the accessible name and the typeahead text; it
+the first occurrence wins. `getLabel` provides the accessible name and the typeahead text; it
 defaults to the item itself for strings and to the key otherwise.
 
 ### Instance
@@ -159,7 +159,7 @@ effects like any signal.
 `actionRender`, `getIcon`, and `onAction` receive the same handle. Its fields are reactive, and it
 carries per-item actions:
 
-- Data: `key`, `raw`, `textValue`, `parentKey`, `children`.
+- Data: `key`, `raw`, `label`, `parentKey`, `children`.
 - Position: `level` (one-based), `posInSet`, `setSize`, `isLastChild`, `hasChildren`, `isLeaf`.
 - State: `isExpanded`, `isSelected`, `isFocused`, `isLoading`, `isDisabled`, `checkedState`
   (`'checked'`, `'unchecked'`, or `'indeterminate'`).
@@ -171,7 +171,7 @@ checked.
 
 ### Expansion
 
-Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `onExpandedChange` to
+Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `onExpandedKeysChange` to
 own it.
 
 ```tsx
@@ -184,7 +184,7 @@ const tree = createTree({
   get expandedKeys() {
     return expanded()
   },
-  onExpandedChange: setExpanded,
+  onExpandedKeysChange: setExpanded,
 })
 ```
 
@@ -206,7 +206,7 @@ with `virtualizer`, which has no nested groups.
   including items inside collapsed branches.
 - `'none'`: rows cannot be selected, and `aria-selected` is omitted.
 
-Control selection with `selectedKeys` and `onSelectionChange`.
+Control selection with `selectedKeys` and `onSelectedKeysChange`.
 
 ### Checkboxes
 
@@ -217,7 +217,7 @@ With `checkCascade` on (the default), checking a branch checks its enabled desce
 branch whose descendants are partly checked becomes `indeterminate`. Set `checkCascade: false` to
 check each item independently.
 
-`checkedKeys` and `onCheckedChange` use the same keys, including keys of items that have not
+`checkedKeys` and `onCheckedKeysChange` use the same keys, including keys of items that have not
 loaded yet. A checked key under a lazy branch applies once its item loads. With `checkCascade` on,
 children loaded under a checked branch start checked.
 
@@ -306,7 +306,7 @@ const sortable = createTreeSortable(tree, {
         <tree.Item item={item} {...node.props}>
           <tree.ItemTrigger />
           <tree.ItemLabel />
-          <button ref={node.handleRef} aria-label={`Move ${item.textValue}`}>⋮⋮</button>
+          <button ref={node.handleRef} aria-label={`Move ${item.label}`}>⋮⋮</button>
         </tree.Item>
       )
     }}
@@ -345,7 +345,7 @@ from `getIcon`, the label, and the `actionRender` actions.
 
 - `tree.ItemTrigger` toggles the branch and is hidden from assistive technology. Pass `icon` to
   change the chevron for one item, or `children` to replace it.
-- `tree.ItemLabel` shows `textValue`. Pass `children` to render other content.
+- `tree.ItemLabel` shows `label`. Pass `children` to render other content.
 - `tree.ItemIcon` renders the `icon` you pass. Use `getIcon` instead when you keep the default item.
 
 ### Icons
@@ -392,7 +392,7 @@ reaches only that row's actions.
       size="icon-xs"
       leading="i-lucide:trash-2"
       tabIndex={item.isFocused ? 0 : -1}
-      aria-label={`Delete ${item.textValue}`}
+      aria-label={`Delete ${item.label}`}
     />
   )}
 />
@@ -454,7 +454,7 @@ row or its chevron toggles it.
 
 ### Drive expansion from page state
 
-Control `expandedKeys` with `onExpandedChange`, and call `expandAll`, `collapseAll`, or `expandTo`
+Control `expandedKeys` with `onExpandedKeysChange`, and call `expandAll`, `collapseAll`, or `expandTo`
 from toolbar buttons.
 
 <Preview path="./expanded" />

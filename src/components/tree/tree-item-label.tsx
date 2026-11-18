@@ -30,7 +30,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
 
   return (
     <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...labelSlot} {...rest}>
-      <Show when={local.children} fallback={item.textValue}>
+      <Show when={local.children} fallback={item.label}>
         {local.children}
       </Show>
     </Dynamic>

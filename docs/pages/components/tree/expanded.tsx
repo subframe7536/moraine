@@ -39,11 +39,11 @@ export function Expanded() {
     items: () => SECTIONS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getTextValue: (node) => node.title,
+    getLabel: (node) => node.title,
     get expandedKeys() {
       return expanded()
     },
-    onExpandedChange: setExpanded,
+    onExpandedKeysChange: setExpanded,
   })
 
   return (
