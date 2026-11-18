@@ -56,7 +56,7 @@ export namespace TooltipT {
     /**
      * Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;
      * `0` opens immediately. The delay is skipped while another tooltip is open or within
-     * `instantOpenDelay` of one closing.
+     * `skipDelayDuration` of one closing.
      * @default 600
      */
     openDelay?: number
@@ -74,7 +74,7 @@ export namespace TooltipT {
      * disables the grace period.
      * @default 300
      */
-    instantOpenDelay?: number
+    skipDelayDuration?: number
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
