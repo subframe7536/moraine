@@ -2,7 +2,10 @@ import { defineRecipe } from '../../theme/recipe'
 import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import { MODAL_OVERLAY_CLASS, modalDataAttributes } from '../modal/modal.recipe'
+import {
+  BASE_DIALOG_OVERLAY_CLASS,
+  baseDialogDataAttributes,
+} from '../base-dialog/base-dialog.recipe'
 import {
   OVERLAY_TRIGGER_CLASS,
   overlayTriggerDataAttributes,
@@ -12,8 +15,8 @@ import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 
 export const sheetDataAttributes = {
   trigger: overlayTriggerDataAttributes,
-  overlay: modalDataAttributes.overlay,
-  content: modalDataAttributes.content,
+  overlay: baseDialogDataAttributes.overlay,
+  content: baseDialogDataAttributes.content,
   body: /* @__PURE__ */ createDataAttributes('header'),
 } satisfies DataAttributeContract<keyof SheetStyleSlot>
 
@@ -25,7 +28,7 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
       '--sheet-keyboard-inset': '0px',
       content:
         'text-sm text-popover-foreground pb-(--sheet-keyboard-inset) outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-overlay fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
-      overlay: MODAL_OVERLAY_CLASS,
+      overlay: BASE_DIALOG_OVERLAY_CLASS,
       header: 'p-4 gap-0.5 grid auto-rows-min min-w-0',
       title: 'text-foreground font-medium',
       description: 'text-sm text-muted-foreground',

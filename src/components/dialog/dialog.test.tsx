@@ -237,7 +237,7 @@ describe('Dialog', () => {
     expect(trigger.querySelector('button')).toBeNull()
   })
 
-  test('inherits Modal trigger dialog semantics through exit presence', async () => {
+  test('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Dialog open={open()}>

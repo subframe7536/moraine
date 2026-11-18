@@ -1,17 +1,17 @@
-import { Button, Modal } from '@src'
+import { Button, BaseDialog } from '@src'
 
-export function ModalComposition() {
+export function BaseDialogComposition() {
   return (
-    <Modal>
-      <Modal.Trigger as={Button}>Open Modal Surface</Modal.Trigger>
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content aria-label="Custom Surface">
+    <BaseDialog>
+      <BaseDialog.Trigger as={Button}>Open Modal Surface</BaseDialog.Trigger>
+      <BaseDialog.Portal>
+        <BaseDialog.Overlay />
+        <BaseDialog.Content aria-label="Custom Surface">
           {(context) => (
             <div class="p-4 b-1 b-border rounded-xl bg-background space-y-4">
               <h3 class="text-base font-semibold">Custom Surface</h3>
               <p class="text-xs text-muted-foreground">
-                Modal coordinates overlay, focus trap, and portal rendering.
+                BaseDialog coordinates overlay, focus trap, and portal rendering.
               </p>
               <div class="flex justify-end">
                 <Button size="xs" onClick={context.close}>
@@ -20,8 +20,8 @@ export function ModalComposition() {
               </div>
             </div>
           )}
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal>
+        </BaseDialog.Content>
+      </BaseDialog.Portal>
+    </BaseDialog>
   )
 }

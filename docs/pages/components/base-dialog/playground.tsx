@@ -1,9 +1,9 @@
-import { Button, Modal } from '@src'
+import { Button, BaseDialog } from '@src'
 import { Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
-export default function ModalPlayground() {
+export default function BaseDialogPlayground() {
   return (
     <DocsPlayground
       controls={[
@@ -18,34 +18,37 @@ export default function ModalPlayground() {
       ]}
     >
       {(props) => (
-        <Modal closeOnOverlayClick={props.closeOnOverlayClick} closeOnEscape={props.closeOnEscape}>
-          <Modal.Trigger as={Button} variant="outline">
+        <BaseDialog
+          closeOnOverlayClick={props.closeOnOverlayClick}
+          closeOnEscape={props.closeOnEscape}
+        >
+          <BaseDialog.Trigger as={Button} variant="outline">
             Open Modal
-          </Modal.Trigger>
-          <Modal.Portal>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
             <Show when={props.overlay}>
-              <Modal.Overlay />
+              <BaseDialog.Overlay />
             </Show>
-            <Modal.Content aria-label="Project details">
+            <BaseDialog.Content aria-label="Project details">
               {() => (
                 <div class="p-5 gap-4 grid">
                   <div>
                     <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
                     <p class="text-xs text-muted-foreground leading-relaxed mt-1">
-                      Modal provides focus management, scroll locking, dismissal, and overridable
-                      default surface styles.
+                      BaseDialog provides focus management, scroll locking, dismissal, and
+                      overridable default surface styles.
                     </p>
                   </div>
                   <div class="flex gap-2 justify-end">
-                    <Modal.Close as={Button} size="sm" variant="outline">
+                    <BaseDialog.Close as={Button} size="sm" variant="outline">
                       Got it
-                    </Modal.Close>
+                    </BaseDialog.Close>
                   </div>
                 </div>
               )}
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       )}
     </DocsPlayground>
   )

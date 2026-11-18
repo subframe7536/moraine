@@ -122,7 +122,7 @@
           "name": "mount",
           "optional": true,
           "type": "Node",
-          "description": "DOM node that `Modal.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,\nfor example a container element or a shadow root. A `mount` on `Modal.Portal` takes\nprecedence. Defaults to the `body` of the trigger's document.",
+          "description": "DOM node that `BaseDialog.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,\nfor example a container element or a shadow root. A `mount` on `BaseDialog.Portal` takes\nprecedence. Defaults to the `body` of the trigger's document.",
           "examples": [
             "import { Button, Dialog } from 'moraine'\n\nconst container = document.getElementById('overlay-root') ?? document.body\n\n<Dialog mount={container}>\n  <Dialog.Trigger as={Button}>Open</Dialog.Trigger>\n  <Dialog.Content title=\"Settings\">Preferences</Dialog.Content>\n</Dialog>"
           ]

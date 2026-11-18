@@ -149,7 +149,7 @@ describe('TypeExtractor', () => {
     expect(item.props.map((prop) => prop.name)).not.toContain('as')
   })
 
-  test('extracts Dialog composite parts and inherited Modal props', async () => {
+  test('extracts Dialog composite parts and inherited BaseDialog props', async () => {
     const module = await extractor.loadModule('src/components/dialog/dialog.types.ts')
     expect(module).toBeDefined()
 

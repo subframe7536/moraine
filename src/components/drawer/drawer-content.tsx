@@ -21,11 +21,11 @@ import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { isAndroidUserAgent } from '../../shared/utils'
+import { BaseDialog } from '../base-dialog/base-dialog'
+import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
+import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
+import { BaseDialogPortal } from '../base-dialog/base-dialog-portal'
 import { Icon } from '../icon'
-import { Modal } from '../modal/modal'
-import { createModalContentBinding } from '../modal/modal-content-binding'
-import { useModalContext } from '../modal/modal-context'
-import { ModalPortal } from '../modal/modal-portal'
 import { createKeyboardInset } from '../shared/overlay/keyboard-inset'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
@@ -76,7 +76,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   const drawer = useDrawerContext()
   const messages = useMessages('drawer', defaultDrawerMessages, () => drawer.translations)
   const direction = useLocale().dir
-  const family = useModalContext()
+  const family = useBaseDialogContext()
   const merged = mergeProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const, handle: true },
     drawer,
@@ -152,7 +152,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
 
   function RenderDrawerContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
-    const binding = createModalContentBinding(family, {
+    const binding = createBaseDialogContentBinding(family, {
       ref: () => local.ref,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
@@ -268,13 +268,13 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           </DrawerShorthandHeader>
         </Show>
         <Show when={merged.closable}>
-          <Modal.Close
+          <BaseDialog.Close
             data-slot="drawer-content-close"
             aria-label={messages().close}
             {...contentCloseSlot}
           >
             <Icon name={closeIcon()} />
-          </Modal.Close>
+          </BaseDialog.Close>
         </Show>
         {explicitChildren()}
       </Dynamic>
@@ -290,12 +290,12 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         },
       }}
     >
-      <ModalPortal>
+      <BaseDialogPortal>
         <Show when={isOverlay()}>
           <RenderDrawerOverlay />
         </Show>
         <RenderDrawerContent />
-      </ModalPortal>
+      </BaseDialogPortal>
     </DrawerContentProvider>
   )
 }

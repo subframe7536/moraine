@@ -17,40 +17,40 @@ import {
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { acquireBodyScrollLock } from '../shared/overlay/scroll-lock'
 
-import { ModalClose } from './modal-close'
-import { ModalContent } from './modal-content'
-import { ModalProvider } from './modal-context'
-import type { ModalContext } from './modal-context'
-import { ModalOverlay } from './modal-overlay'
-import { ModalPortal } from './modal-portal'
-import { ModalTrigger } from './modal-trigger'
-import type { ModalProps } from './modal.types'
+import { BaseDialogClose } from './base-dialog-close'
+import { BaseDialogContent } from './base-dialog-content'
+import { BaseDialogProvider } from './base-dialog-context'
+import type { BaseDialogContext } from './base-dialog-context'
+import { BaseDialogOverlay } from './base-dialog-overlay'
+import { BaseDialogPortal } from './base-dialog-portal'
+import { BaseDialogTrigger } from './base-dialog-trigger'
+import type { BaseDialogProps } from './base-dialog.types'
 
 /**
  * Low-level modal primitive that renders no element and shares open state, focus containment, and
- * dismissal between its parts. Use `Modal` when you compose the trigger, backdrop, and content
+ * dismissal between its parts. Use `BaseDialog` when you compose the trigger, backdrop, and content
  * yourself; use `Dialog` for a structured title, description, body, and footer, `Sheet` for a
  * drawer from a viewport edge, and `Popover` for anchored interactive content. Open state is
  * uncontrolled by default (`defaultOpen`) or controlled with `open` and `onOpenChange`.
  *
  * @example
  * ```tsx
- * import { Button, Modal } from 'moraine'
+ * import { Button, BaseDialog } from 'moraine'
  *
- * <Modal>
- *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
- *   <Modal.Portal>
- *     <Modal.Overlay />
- *     <Modal.Content aria-label="Details">
+ * <BaseDialog>
+ *   <BaseDialog.Trigger as={Button}>Open</BaseDialog.Trigger>
+ *   <BaseDialog.Portal>
+ *     <BaseDialog.Overlay />
+ *     <BaseDialog.Content aria-label="Details">
  *       Modal content
- *       <Modal.Close as={Button}>Close</Modal.Close>
- *     </Modal.Content>
- *   </Modal.Portal>
- * </Modal>
+ *       <BaseDialog.Close as={Button}>Close</BaseDialog.Close>
+ *     </BaseDialog.Content>
+ *   </BaseDialog.Portal>
+ * </BaseDialog>
  * ```
  */
-export function Modal(props: ModalProps): JSX.Element {
-  const rootId = createId(() => props.id, 'modal')
+export function BaseDialog(props: BaseDialogProps): JSX.Element {
+  const rootId = createId(() => props.id, 'base-dialog')
   const contentId = () => `${rootId()}-content`
   const [open, updateOpen] = createControllableValue<boolean>({
     value: () => props.open,
@@ -313,7 +313,7 @@ export function Modal(props: ModalProps): JSX.Element {
     },
   })
 
-  const context: ModalContext = {
+  const context: BaseDialogContext = {
     get slotOverrides() {
       return pickSlotOverrides(props)
     },
@@ -337,11 +337,11 @@ export function Modal(props: ModalProps): JSX.Element {
     mount: () => props.mount,
   }
 
-  return <ModalProvider value={context}>{props.children}</ModalProvider>
+  return <BaseDialogProvider value={context}>{props.children}</BaseDialogProvider>
 }
 
-Modal.Content = ModalContent
-Modal.Overlay = ModalOverlay
-Modal.Portal = ModalPortal
-Modal.Trigger = ModalTrigger
-Modal.Close = ModalClose
+BaseDialog.Content = BaseDialogContent
+BaseDialog.Overlay = BaseDialogOverlay
+BaseDialog.Portal = BaseDialogPortal
+BaseDialog.Trigger = BaseDialogTrigger
+BaseDialog.Close = BaseDialogClose

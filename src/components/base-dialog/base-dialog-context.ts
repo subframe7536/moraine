@@ -3,10 +3,10 @@ import type { Accessor } from 'solid-js'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { createTransitionPresence } from '../../shared/transition-presence'
 
-import type { ModalT } from './modal.types'
+import type { BaseDialogT } from './base-dialog.types'
 
-export interface ModalContext {
-  readonly slotOverrides: { classes?: ModalT.Classes; styles?: ModalT.Styles }
+export interface BaseDialogContext {
+  readonly slotOverrides: { classes?: BaseDialogT.Classes; styles?: BaseDialogT.Styles }
   open: Accessor<boolean>
   presence: ReturnType<typeof createTransitionPresence>
   contentId: Accessor<string>
@@ -21,10 +21,10 @@ export interface ModalContext {
   transition: Accessor<boolean>
 }
 
-export const [ModalProvider, useModalContext] =
-  /* @__PURE__ */ createContextProvider<ModalContext>('Modal')
+export const [BaseDialogProvider, useBaseDialogContext] =
+  /* @__PURE__ */ createContextProvider<BaseDialogContext>('BaseDialog')
 
-export const MODAL_ROOT_KEYS = [
+export const BASE_DIALOG_ROOT_KEYS = [
   'id',
   'open',
   'defaultOpen',

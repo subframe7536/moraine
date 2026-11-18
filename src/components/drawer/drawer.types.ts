@@ -3,8 +3,8 @@ import type { Component, JSX } from 'solid-js'
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { BaseDialogT } from '../base-dialog/base-dialog.types'
 import type { IconT } from '../icon/icon.types'
-import type { ModalT } from '../modal/modal.types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
 
 import type { defaultDrawerMessages } from './drawer.messages'
@@ -31,7 +31,7 @@ export namespace DrawerT {
   /**
    * Base props for the Drawer component.
    */
-  export interface Base extends ModalT.Base {
+  export interface Base extends BaseDialogT.Base {
     /**
      * Overrides for the built-in strings of this drawer, merged over the `MoraineProvider` locale.
      * Only `close` is used here: the accessible label of the corner close button.
@@ -138,7 +138,7 @@ export namespace DrawerT {
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
-  export type ContentRenderProps = ModalT.ContentRenderProps
+  export type ContentRenderProps = BaseDialogT.ContentRenderProps
 
   export interface ContentBase<T extends ValidComponent = 'div'> {
     as?: T
@@ -238,8 +238,8 @@ export namespace DrawerT {
     'div'
   >
 
-  export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
+  export type CloseBase<T extends ValidComponent = 'button'> = BaseDialogT.CloseBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = BaseDialogT.CloseProps<T>
 }
 
 /**

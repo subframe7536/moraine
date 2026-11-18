@@ -12,26 +12,28 @@ import { Dialog } from '../dialog/dialog'
 import { pushOverlayLayer } from '../shared/overlay/overlay-stack'
 import { Sheet } from '../sheet/sheet'
 
-import { Modal } from './modal'
+import { BaseDialog } from './base-dialog'
 
-describe('Modal primitives', () => {
+describe('BaseDialog primitives', () => {
   test('passes each mounted content element to the ref once and dismisses reopened content', async () => {
     const ref = vi.fn()
     const [open, setOpen] = createSignal(true)
     const onOpenChange = vi.fn(setOpen)
     render(() => (
-      <Modal open={open()} onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content ref={ref} aria-label="Bound content">
+      <BaseDialog open={open()} onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content ref={ref} aria-label="Bound content">
             <button type="button">Inside</button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const findContent = () =>
       vi.waitFor(() => {
-        const content = document.body.querySelector<HTMLElement>('[data-slot="modal-content"]')
+        const content = document.body.querySelector<HTMLElement>(
+          '[data-slot="base-dialog-content"]',
+        )
         expect(content).not.toBeNull()
         return content!
       })
@@ -40,7 +42,7 @@ describe('Modal primitives', () => {
 
     setOpen(false)
     await finishExitMotion()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
 
     setOpen(true)
     const second = await findContent()
@@ -50,7 +52,7 @@ describe('Modal primitives', () => {
     fireEvent.keyDown(second, { key: 'Escape' })
     await finishExitMotion()
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
   })
   test('honors a custom trigger that cancels click before forwarding it', async () => {
     const onOpenChange = vi.fn()
@@ -66,12 +68,12 @@ describe('Modal primitives', () => {
       />
     )
     const screen = render(() => (
-      <Modal onOpenChange={onOpenChange}>
-        <Modal.Trigger as={CancelingButton}>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog onOpenChange={onOpenChange}>
+        <BaseDialog.Trigger as={CancelingButton}>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     fireEvent.click(screen.getByText('Open'))
@@ -86,11 +88,11 @@ describe('Modal primitives', () => {
     const shadowRoot = host.attachShadow({ mode: 'open' })
     document.body.append(outside, host)
     const screen = render(() => (
-      <Modal defaultOpen mount={shadowRoot}>
-        <Modal.Portal>
-          <Modal.Content aria-label="Shadow modal">Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen mount={shadowRoot}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Shadow modal">Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() => expect(outside.getAttribute('aria-hidden')).toBe('true'))
@@ -109,17 +111,17 @@ describe('Modal primitives', () => {
     document.body.append(outside, host)
     const [innerOpen, setInnerOpen] = createSignal(true)
     const screen = render(() => (
-      <Modal defaultOpen mount={shadowRoot}>
-        <Modal.Portal>
-          <Modal.Content aria-label="Outer">
-            <Modal open={innerOpen()} mount={shadowRoot}>
-              <Modal.Portal>
-                <Modal.Content aria-label="Inner">Inner</Modal.Content>
-              </Modal.Portal>
-            </Modal>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen mount={shadowRoot}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Outer">
+            <BaseDialog open={innerOpen()} mount={shadowRoot}>
+              <BaseDialog.Portal>
+                <BaseDialog.Content aria-label="Inner">Inner</BaseDialog.Content>
+              </BaseDialog.Portal>
+            </BaseDialog>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     try {
       await waitFor(() =>
@@ -128,7 +130,7 @@ describe('Modal primitives', () => {
       expect(host.hasAttribute('aria-hidden')).toBe(false)
       expect(outside.getAttribute('aria-hidden')).toBe('true')
       const innerContent = shadowRoot.querySelectorAll<HTMLElement>(
-        '[data-slot="modal-content"]',
+        '[data-slot="base-dialog-content"]',
       )[1]!
       setInnerOpen(false)
       await finishExitMotion(innerContent)
@@ -153,24 +155,26 @@ describe('Modal primitives', () => {
     ownerDocument.body.append(host)
     const screen = render(
       () => (
-        <Modal>
-          <Modal.Trigger>Foreign modal trigger</Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content aria-label="Foreign modal">Content</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog>
+          <BaseDialog.Trigger>Foreign modal trigger</BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content aria-label="Foreign modal">Content</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       ),
       { container: host },
     )
     try {
-      const trigger = host.querySelector<HTMLButtonElement>('[data-slot="modal-trigger"]')!
+      const trigger = host.querySelector<HTMLButtonElement>('[data-slot="base-dialog-trigger"]')!
       expect(trigger.disabled).toBe(false)
       expect(trigger.tabIndex).toBe(0)
       fireEvent.click(trigger)
       await waitFor(() =>
-        expect(ownerDocument.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+        expect(
+          ownerDocument.body.querySelector('[data-slot="base-dialog-content"]'),
+        ).not.toBeNull(),
       )
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     } finally {
       screen.unmount()
       iframe.remove()
@@ -188,15 +192,15 @@ describe('Modal primitives', () => {
       const outside = document.createElement('main')
       document.body.append(outside)
       const screen = render(() => (
-        <Modal defaultOpen modal={modal} preventScroll={preventScroll}>
-          <Modal.Portal>
-            <Modal.Content aria-label="Matrix">Content</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog defaultOpen modal={modal} preventScroll={preventScroll}>
+          <BaseDialog.Portal>
+            <BaseDialog.Content aria-label="Matrix">Content</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       ))
       await Promise.resolve()
       await Promise.resolve()
-      const content = document.body.querySelector('[data-slot="modal-content"]')
+      const content = document.body.querySelector('[data-slot="base-dialog-content"]')
       expect(content?.getAttribute('aria-modal')).toBe(ariaModal)
       expect(outside.getAttribute('aria-hidden')).toBe(ariaHidden)
       expect(document.body.style.overflow).toBe(overflow)
@@ -210,11 +214,11 @@ describe('Modal primitives', () => {
       () => (
         <Dialog defaultOpen>
           <Dialog.Content>
-            <Modal defaultOpen modal={false}>
-              <Modal.Portal>
-                <Modal.Content>Nested modal</Modal.Content>
-              </Modal.Portal>
-            </Modal>
+            <BaseDialog defaultOpen modal={false}>
+              <BaseDialog.Portal>
+                <BaseDialog.Content>Nested modal</BaseDialog.Content>
+              </BaseDialog.Portal>
+            </BaseDialog>
           </Dialog.Content>
         </Dialog>
       ),
@@ -224,34 +228,34 @@ describe('Modal primitives', () => {
       () => (
         <Sheet defaultOpen>
           <Sheet.Content>
-            <Modal defaultOpen modal={false}>
-              <Modal.Portal>
-                <Modal.Content>Nested modal</Modal.Content>
-              </Modal.Portal>
-            </Modal>
+            <BaseDialog defaultOpen modal={false}>
+              <BaseDialog.Portal>
+                <BaseDialog.Content>Nested modal</BaseDialog.Content>
+              </BaseDialog.Portal>
+            </BaseDialog>
           </Sheet.Content>
         </Sheet>
       ),
     ],
-  ] as const)('keeps an independent Modal owner inside %s', (owner, component) => {
+  ] as const)('keeps an independent BaseDialog owner inside %s', (owner, component) => {
     render(component)
     expect(document.body.querySelectorAll(`[data-slot="${owner}-content"]`)).toHaveLength(1)
-    expect(document.body.querySelectorAll('[data-slot="modal-content"]')).toHaveLength(1)
+    expect(document.body.querySelectorAll('[data-slot="base-dialog-content"]')).toHaveLength(1)
   })
 
   test.each(['Trigger', 'Close'] as const)(
     'renders %s children across polymorphic root replacement',
     (part) => {
-      const Part = Modal[part]
+      const Part = BaseDialog[part]
       const [tag, setTag] = createSignal<'button' | 'div'>('button')
       const [value, setValue] = createSignal('Before')
       const Child = () => <span data-testid="part-child">{value()}</span>
       const screen = render(() => (
-        <Modal>
+        <BaseDialog>
           <Part as={tag()}>
             <Child />
           </Part>
-        </Modal>
+        </BaseDialog>
       ))
       expect(screen.getByTestId('part-child').parentElement?.tagName).toBe('BUTTON')
       expect(screen.getByTestId('part-child').textContent).toBe('Before')
@@ -266,18 +270,18 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
-      <Modal open={open()} preventScroll={preventScroll()}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog open={open()} preventScroll={preventScroll()}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button" data-testid="sample-first">
               First
             </button>
             <button type="button" data-testid="sample-second">
               Second
             </button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     try {
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
@@ -307,14 +311,14 @@ describe('Modal primitives', () => {
 
   test('does not render closed content until the modal opens', () => {
     const screen = render(() => (
-      <Modal>
-        <Modal.Trigger>Open lazy content</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog>
+        <BaseDialog.Trigger>Open lazy content</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Lazy content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     expect(document.body.textContent).not.toContain('Lazy content')
     fireEvent.click(screen.getByRole('button', { name: 'Open lazy content' }))
@@ -324,15 +328,15 @@ describe('Modal primitives', () => {
   test('updates conditional content after opening', () => {
     const [visible, setVisible] = createSignal(true)
     render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <Show when={visible()}>
               <span>Visible content</span>
             </Show>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     expect(document.body.textContent).toContain('Visible content')
@@ -343,17 +347,17 @@ describe('Modal primitives', () => {
   test('closes from a content render prop', () => {
     const onOpenChange = vi.fn()
     render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(state) => (
               <button type="button" onClick={() => state.close()}>
                 Dismiss
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const dismiss = document.body.querySelector('button')!
@@ -375,13 +379,13 @@ describe('Modal primitives', () => {
     }
 
     const screen = render(() => (
-      <Modal open={open()}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog open={open()}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <Content />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     expect(mounts).toBe(0)
@@ -394,7 +398,7 @@ describe('Modal primitives', () => {
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     })
 
     setOpen(true)
@@ -407,34 +411,34 @@ describe('Modal primitives', () => {
   test('replaces modal Design without replacing the focused surface', () => {
     const [design, setDesign] = createSignal(
       defineTheme({
-        modal: { base: { content: 'first-surface', overlay: 'first-overlay' } },
+        baseDialog: { base: { content: 'first-surface', overlay: 'first-overlay' } },
       }),
     )
     render(() => (
       <MoraineProvider theme={design()}>
-        <Modal defaultOpen>
-          <Modal.Portal>
-            <Modal.Overlay />
-            <Modal.Content>Content</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog defaultOpen>
+          <BaseDialog.Portal>
+            <BaseDialog.Overlay />
+            <BaseDialog.Content>Content</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </MoraineProvider>
     ))
-    const surface = document.querySelector<HTMLElement>('[data-slot="modal-content"]')!
+    const surface = document.querySelector<HTMLElement>('[data-slot="base-dialog-content"]')!
     surface.focus()
     setDesign(
       defineTheme({
-        modal: { base: { content: 'second-surface', overlay: 'second-overlay' } },
+        baseDialog: { base: { content: 'second-surface', overlay: 'second-overlay' } },
       }),
     )
-    expect(document.querySelector('[data-slot="modal-content"]')).toBe(surface)
+    expect(document.querySelector('[data-slot="base-dialog-content"]')).toBe(surface)
     expect(document.activeElement).toBe(surface)
     expect(surface.className).toContain('second-surface')
     expect(surface.className).not.toContain('first-surface')
-    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).toContain(
+    expect(document.querySelector('[data-slot="base-dialog-overlay"]')?.className).toContain(
       'second-overlay',
     )
-    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).not.toContain(
+    expect(document.querySelector('[data-slot="base-dialog-overlay"]')?.className).not.toContain(
       'first-overlay',
     )
   })
@@ -443,17 +447,17 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const [canceled, setCanceled] = createSignal(true)
     render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content>
-            <Modal.Close as="span" onClick={(event) => canceled() && event.preventDefault()}>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
+            <BaseDialog.Close as="span" onClick={(event) => canceled() && event.preventDefault()}>
               Close modal
-            </Modal.Close>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+            </BaseDialog.Close>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
-    const close = document.body.querySelector<HTMLElement>('[data-slot="modal-close"]')!
+    const close = document.body.querySelector<HTMLElement>('[data-slot="base-dialog-close"]')!
     expect(close.getAttribute('role')).toBe('button')
     fireEvent.click(close)
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -467,55 +471,55 @@ describe('Modal primitives', () => {
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
     let triggerElement: HTMLElement | undefined
     const screen = render(() => (
-      <Modal onOpenChange={onOpenChange}>
-        <Modal.Trigger
+      <BaseDialog onOpenChange={onOpenChange}>
+        <BaseDialog.Trigger
           class="flat-trigger"
           style={{ color: 'red' }}
           ref={(element) => (triggerElement = element)}
           onClick={onClick}
         >
           Open modal
-        </Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+        </BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByRole('button', { name: 'Open modal' })
 
     expect(trigger).toBe(triggerElement)
     expect(trigger.classList.contains('flat-trigger')).toBe(true)
     expect(trigger.style.color).toBe('red')
-    expect(trigger.getAttribute('data-slot')).toBe('modal-trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('base-dialog-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
 
     fireEvent.click(trigger)
 
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     screen.unmount()
   })
 
-  test('renders a native button trigger with Modal accessibility state', async () => {
+  test('renders a native button trigger with BaseDialog accessibility state', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal onOpenChange={onOpenChange}>
-        <Modal.Trigger data-testid="trigger">Open modal</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog onOpenChange={onOpenChange}>
+        <BaseDialog.Trigger data-testid="trigger">Open modal</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByTestId<HTMLButtonElement>('trigger')
 
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.type).toBe('button')
-    expect(trigger.getAttribute('data-slot')).toBe('modal-trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('base-dialog-trigger')
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.getAttribute('data-closed')).toBe('')
@@ -543,20 +547,20 @@ describe('Modal primitives', () => {
 
   test('applies direct trigger class and style', () => {
     const screen = render(() => (
-      <Modal>
-        <Modal.Trigger
+      <BaseDialog>
+        <BaseDialog.Trigger
           data-testid="direct-trigger"
           class="modal-instance-class"
           style={{ color: 'green', border: '1px solid green' }}
         >
           Open modal
-        </Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+        </BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const trigger = screen.getByTestId('direct-trigger')
@@ -566,11 +570,11 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('composed overlays use their own Design without inheriting Modal presentation', () => {
+  test('composed overlays use their own Design without inheriting BaseDialog presentation', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={defineTheme({
-          modal: { base: { content: 'modal-provider-class' } },
+          baseDialog: { base: { content: 'modal-provider-class' } },
           dialog: { base: { content: 'dialog-design-surface' } },
           sheet: { base: { content: 'sheet-design-surface' } },
         })}
@@ -618,26 +622,29 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
-        <Modal onOpenChange={onOpenChange}>
-          <Modal.Trigger disabled data-testid="disabled-trigger">
+        <BaseDialog onOpenChange={onOpenChange}>
+          <BaseDialog.Trigger disabled data-testid="disabled-trigger">
             Disabled
-          </Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <span>Disabled content</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
-        <Modal onOpenChange={onOpenChange}>
-          <Modal.Trigger onClick={(event) => event.preventDefault()} data-testid="canceled-trigger">
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
+        <BaseDialog onOpenChange={onOpenChange}>
+          <BaseDialog.Trigger
+            onClick={(event) => event.preventDefault()}
+            data-testid="canceled-trigger"
+          >
             Canceled
-          </Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <span>Canceled content</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </>
     ))
 
@@ -645,7 +652,7 @@ describe('Modal primitives', () => {
     fireEvent.click(screen.getByTestId('canceled-trigger'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     screen.unmount()
   })
 
@@ -653,30 +660,30 @@ describe('Modal primitives', () => {
     let triggerElement: HTMLElement | undefined
     const screen = render(() => (
       <>
-        <Modal>
-          <Modal.Trigger
+        <BaseDialog>
+          <BaseDialog.Trigger
             as="div"
             ref={(element) => (triggerElement = element)}
             data-testid="div-trigger"
           >
             Open with keyboard
-          </Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <span>Div content</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
-        <Modal>
-          <Modal.Trigger as={Button} variant="outline" data-testid="button-trigger">
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
+        <BaseDialog>
+          <BaseDialog.Trigger as={Button} variant="outline" data-testid="button-trigger">
             Open with Button
-          </Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <span>Button content</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </>
     ))
     const divTrigger = screen.getByTestId('div-trigger')
@@ -698,13 +705,13 @@ describe('Modal primitives', () => {
 
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content aria-label="Named modal">
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Named modal">
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
@@ -714,14 +721,14 @@ describe('Modal primitives', () => {
 
   test('focuses the first input when a modal opens', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <input aria-label="Search" data-testid="search" />
             <button type="button">Other</button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() =>
@@ -734,15 +741,15 @@ describe('Modal primitives', () => {
 
   test('focuses the dialog surface when opened by touch', async () => {
     const screen = render(() => (
-      <Modal>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog>
+        <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <input aria-label="Search" data-testid="search" />
             <button type="button">Other</button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const trigger = screen.getByRole('button', { name: 'Open' })
@@ -759,14 +766,14 @@ describe('Modal primitives', () => {
   test('focuses the initialFocus target when a modal opens', async () => {
     let input!: HTMLInputElement
     const screen = render(() => (
-      <Modal defaultOpen initialFocus={() => input}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen initialFocus={() => input}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button">First</button>
             <input aria-label="Search" data-testid="search" ref={(element) => (input = element)} />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() => expect(document.activeElement).toBe(input))
@@ -775,18 +782,18 @@ describe('Modal primitives', () => {
 
   test('skips the open-time focus move when initialFocus is false', async () => {
     const screen = render(() => (
-      <Modal defaultOpen initialFocus={false}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen initialFocus={false}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button">First</button>
             <input aria-label="Search" data-testid="search" />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() =>
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeTruthy(),
     )
     await Promise.resolve()
     await Promise.resolve()
@@ -797,14 +804,14 @@ describe('Modal primitives', () => {
 
   test('prefers a data-autofocus element over the first focusable', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button">First</button>
             <input aria-label="Search" data-autofocus data-testid="search" />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() =>
@@ -819,29 +826,29 @@ describe('Modal primitives', () => {
     const target = document.createElement('button')
     document.body.append(target)
     const screen = render(() => (
-      <Modal finalFocus={() => target}>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog finalFocus={() => target}>
+        <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="close" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const trigger = screen.getByRole('button', { name: 'Open' })
     fireEvent.click(trigger)
     await waitFor(() =>
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeTruthy(),
     )
 
     fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
 
@@ -852,29 +859,29 @@ describe('Modal primitives', () => {
 
   test('skips the close-time focus restore when finalFocus is false', async () => {
     const screen = render(() => (
-      <Modal finalFocus={false}>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog finalFocus={false}>
+        <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="close" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const trigger = screen.getByRole('button', { name: 'Open' })
     fireEvent.click(trigger)
     await waitFor(() =>
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeTruthy(),
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeTruthy(),
     )
 
     fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
     await Promise.resolve()
@@ -886,13 +893,13 @@ describe('Modal primitives', () => {
 
   test('lets content override role', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content role="alertdialog" aria-label="Confirm delete">
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content role="alertdialog" aria-label="Confirm delete">
             Confirm this action
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() =>
@@ -907,7 +914,7 @@ describe('Modal primitives', () => {
   test('does not acquire modal resources when an open root has no surfaces', async () => {
     document.body.style.overflow = 'auto'
     const onOpenChange = vi.fn()
-    const screen = render(() => <Modal defaultOpen onOpenChange={onOpenChange} />)
+    const screen = render(() => <BaseDialog defaultOpen onOpenChange={onOpenChange} />)
     await Promise.resolve()
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -922,18 +929,18 @@ describe('Modal primitives', () => {
   test('lets overlay activate the modal runtime', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
 
-    expect(document.body.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-overlay"]')).not.toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -943,16 +950,16 @@ describe('Modal primitives', () => {
 
   test('applies a custom content class alongside the modal content anatomy', () => {
     render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content class="custom-content">
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content class="custom-content">
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="modal-content"]')
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')
     expect(content?.classList.contains('custom-content')).toBe(true)
     expect(content?.getAttribute('role')).toBe('dialog')
   })
@@ -961,18 +968,18 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>
+      <BaseDialog open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="modal-overlay"]') as HTMLElement
-    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="base-dialog-overlay"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]') as HTMLElement
     expect(overlay.getAttribute('data-expanded')).toBe('')
     expect(content.getAttribute('data-expanded')).toBe('')
 
@@ -982,13 +989,13 @@ describe('Modal primitives', () => {
 
     await Promise.resolve()
     fireEvent.animationEnd(content)
-    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
     expect(onExitComplete).not.toHaveBeenCalled()
 
     fireEvent.animationEnd(overlay)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
-      expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-overlay"]')).toBeNull()
       expect(onExitComplete).toHaveBeenCalledOnce()
     })
     screen.unmount()
@@ -998,15 +1005,15 @@ describe('Modal primitives', () => {
     const [showContent, setShowContent] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open onExitComplete={onExitComplete}>
-        <Modal.Portal>
+      <BaseDialog open onExitComplete={onExitComplete}>
+        <BaseDialog.Portal>
           <Show when={showContent()}>
-            <Modal.Content>
+            <BaseDialog.Content>
               <span>Content</span>
-            </Modal.Content>
+            </BaseDialog.Content>
           </Show>
-        </Modal.Portal>
-      </Modal>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     setShowContent(false)
@@ -1019,28 +1026,32 @@ describe('Modal primitives', () => {
   test('unmounts content and overlay without waiting for an animation when transition is false', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
-      <Modal open={open()} transition={false}>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>
+      <BaseDialog open={open()} transition={false}>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     expect(
-      document.body.querySelector('[data-slot="modal-content"]')?.hasAttribute('data-transition'),
+      document.body
+        .querySelector('[data-slot="base-dialog-content"]')
+        ?.hasAttribute('data-transition'),
     ).toBe(false)
     expect(
-      document.body.querySelector('[data-slot="modal-overlay"]')?.hasAttribute('data-transition'),
+      document.body
+        .querySelector('[data-slot="base-dialog-overlay"]')
+        ?.hasAttribute('data-transition'),
     ).toBe(false)
 
     setOpen(false)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
-      expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-overlay"]')).toBeNull()
     })
     screen.unmount()
   })
@@ -1048,54 +1059,54 @@ describe('Modal primitives', () => {
   test('keeps content mounted through the exit animation when transition is enabled', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
-      <Modal open={open()}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog open={open()}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     expect(content.hasAttribute('data-transition')).toBe(true)
 
     setOpen(false)
     await Promise.resolve()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBe(content)
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBe(content)
 
     await finishExitMotion()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     })
     screen.unmount()
   })
 
-  test('renders Modal.Content without children', () => {
+  test('renders BaseDialog.Content without children', () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content aria-label="Empty modal" />
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Empty modal" />
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="modal-content"]')?.textContent).toBe('')
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')?.textContent).toBe('')
     screen.unmount()
   })
 
   test('does not render an overlay by default', () => {
     render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
   })
 
   test('renders overlay and content and forwards refs', () => {
@@ -1103,18 +1114,18 @@ describe('Modal primitives', () => {
     const contentRef = vi.fn()
 
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Overlay ref={overlayRef} class="custom-overlay" style={{ opacity: '0.4' }} />
-          <Modal.Content ref={contentRef}>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay ref={overlayRef} class="custom-overlay" style={{ opacity: '0.4' }} />
+          <BaseDialog.Content ref={contentRef}>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
-    const content = document.body.querySelector('[data-slot="modal-content"]')
+    const overlay = document.body.querySelector('[data-slot="base-dialog-overlay"]')
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')
 
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
@@ -1133,16 +1144,16 @@ describe('Modal primitives', () => {
     const mount = document.createElement('div')
     document.body.append(mount)
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal mount={mount}>
-          <Modal.Overlay />
-          <Modal.Content>Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal mount={mount}>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    expect(mount.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
-    expect(mount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(mount.querySelector('[data-slot="base-dialog-overlay"]')).not.toBeNull()
+    expect(mount.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
     screen.unmount()
     mount.remove()
   })
@@ -1152,15 +1163,15 @@ describe('Modal primitives', () => {
     const mount = document.createElement('div')
     document.body.append(rootMount, mount)
     const screen = render(() => (
-      <Modal defaultOpen mount={rootMount}>
-        <Modal.Portal mount={mount}>
-          <Modal.Content>Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen mount={rootMount}>
+        <BaseDialog.Portal mount={mount}>
+          <BaseDialog.Content>Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    expect(rootMount.querySelector('[data-slot="modal-content"]')).toBeNull()
-    expect(mount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(rootMount.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
+    expect(mount.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
     screen.unmount()
     rootMount.remove()
     mount.remove()
@@ -1172,18 +1183,18 @@ describe('Modal primitives', () => {
     otherDocument.body.append(host)
     const screen = render(
       () => (
-        <Modal defaultOpen>
-          <Modal.Trigger>Open</Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>Content</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog defaultOpen>
+          <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>Content</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       ),
       { container: host },
     )
 
-    expect(otherDocument.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(otherDocument.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     screen.unmount()
   })
 
@@ -1191,42 +1202,42 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open={open()} modal={false} onExitComplete={onExitComplete}>
+      <BaseDialog open={open()} modal={false} onExitComplete={onExitComplete}>
         <div data-testid="inline-host">
-          <Modal.Overlay />
-          <Modal.Content>Inline content</Modal.Content>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>Inline content</BaseDialog.Content>
         </div>
-      </Modal>
+      </BaseDialog>
     ))
     const host = screen.getByTestId('inline-host')
-    const overlay = host.querySelector('[data-slot="modal-overlay"]')
-    const content = host.querySelector('[data-slot="modal-content"]')
+    const overlay = host.querySelector('[data-slot="base-dialog-overlay"]')
+    const content = host.querySelector('[data-slot="base-dialog-content"]')
 
     expect(overlay).not.toBeNull()
     expect(content?.textContent).toBe('Inline content')
     setOpen(false)
     await finishExitMotion()
     await waitFor(() => expect(onExitComplete).toHaveBeenCalledOnce())
-    expect(host.querySelector('[data-slot="modal-overlay"]')).toBe(overlay)
-    expect(host.querySelector('[data-slot="modal-content"]')).toBe(content)
+    expect(host.querySelector('[data-slot="base-dialog-overlay"]')).toBe(overlay)
+    expect(host.querySelector('[data-slot="base-dialog-content"]')).toBe(content)
     screen.unmount()
   })
 
   test('can contain the content inside a scrolling overlay', () => {
     render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Overlay scrollable>
-            <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay scrollable>
+            <BaseDialog.Content>
               <span>Content</span>
-            </Modal.Content>
-          </Modal.Overlay>
-        </Modal.Portal>
-      </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Overlay>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
-    const content = document.body.querySelector('[data-slot="modal-content"]')
+    const overlay = document.body.querySelector('[data-slot="base-dialog-overlay"]')
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')
 
     expect(overlay?.contains(content ?? null)).toBe(true)
   })
@@ -1236,13 +1247,13 @@ describe('Modal primitives', () => {
     background.textContent = 'Application'
     document.body.append(background)
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await Promise.resolve()
@@ -1262,21 +1273,21 @@ describe('Modal primitives', () => {
     const [showInner, setShowInner] = createSignal(true)
     const screen = render(() => (
       <>
-        <Modal defaultOpen>
-          <Modal.Portal>
-            <Modal.Content>
+        <BaseDialog defaultOpen>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <span data-testid="outer-content">Outer</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
         <Show when={showInner()}>
-          <Modal defaultOpen>
-            <Modal.Portal>
-              <Modal.Content>
+          <BaseDialog defaultOpen>
+            <BaseDialog.Portal>
+              <BaseDialog.Content>
                 <span data-testid="inner-content">Inner</span>
-              </Modal.Content>
-            </Modal.Portal>
-          </Modal>
+              </BaseDialog.Content>
+            </BaseDialog.Portal>
+          </BaseDialog>
         </Show>
       </>
     ))
@@ -1284,7 +1295,7 @@ describe('Modal primitives', () => {
     await Promise.resolve()
     const outerContent = document.body
       .querySelector('[data-testid="outer-content"]')
-      ?.closest('[data-slot="modal-content"]') as HTMLElement
+      ?.closest('[data-slot="base-dialog-content"]') as HTMLElement
     const outerPortal = outerContent.parentElement!
 
     expect(background.getAttribute('aria-hidden')).toBe('true')
@@ -1310,13 +1321,13 @@ describe('Modal primitives', () => {
 
   test('keeps a registered descendant overlay portal exposed to assistive technology', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Outer</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
@@ -1359,21 +1370,21 @@ describe('Modal primitives', () => {
       const [showInner, setShowInner] = createSignal(true)
       const screen = render(() => (
         <>
-          <Modal defaultOpen>
-            <Modal.Portal>
-              <Modal.Content>
+          <BaseDialog defaultOpen>
+            <BaseDialog.Portal>
+              <BaseDialog.Content>
                 <span>Outer</span>
-              </Modal.Content>
-            </Modal.Portal>
-          </Modal>
+              </BaseDialog.Content>
+            </BaseDialog.Portal>
+          </BaseDialog>
           <Show when={showInner()}>
-            <Modal defaultOpen>
-              <Modal.Portal>
-                <Modal.Content>
+            <BaseDialog defaultOpen>
+              <BaseDialog.Portal>
+                <BaseDialog.Content>
                   <span>Inner</span>
-                </Modal.Content>
-              </Modal.Portal>
-            </Modal>
+                </BaseDialog.Content>
+              </BaseDialog.Portal>
+            </BaseDialog>
           </Show>
         </>
       ))
@@ -1403,11 +1414,11 @@ describe('Modal primitives', () => {
     const html = document.documentElement
     html.style.overflowY = 'auto'
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
 
@@ -1423,16 +1434,16 @@ describe('Modal primitives', () => {
   test('prevents the handled Escape event when dismissing the top modal', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]') as HTMLElement
     const event = new KeyboardEvent('keydown', {
       bubbles: true,
       cancelable: true,
@@ -1449,13 +1460,13 @@ describe('Modal primitives', () => {
   test('ignores Escape while an IME composition is active', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <input data-testid="editor" />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     const editor = document.body.querySelector('[data-testid="editor"]')!
@@ -1478,13 +1489,13 @@ describe('Modal primitives', () => {
     document.body.append(outside)
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
 
@@ -1523,13 +1534,13 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const onClosePrevented = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen onOpenChange={onOpenChange} onClosePrevented={onClosePrevented}>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen onOpenChange={onOpenChange} onClosePrevented={onClosePrevented}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <span>Content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
 
@@ -1537,7 +1548,7 @@ describe('Modal primitives', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(onClosePrevented).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull()
     screen.unmount()
     outside.remove()
   })
@@ -1553,9 +1564,9 @@ describe('Modal primitives', () => {
         >
           Outside
         </button>
-        <Modal open onOpenChange={onOpenChange}>
-          <Modal.Portal>
-            <Modal.Content>
+        <BaseDialog open onOpenChange={onOpenChange}>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <button
                 type="button"
                 data-testid="inside"
@@ -1563,9 +1574,9 @@ describe('Modal primitives', () => {
               >
                 Inside
               </button>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </>
     ))
     await Promise.resolve()
@@ -1583,9 +1594,9 @@ describe('Modal primitives', () => {
     const outside = document.createElement('button')
     document.body.append(outside)
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <>
               <button type="button" data-testid="first">
                 First
@@ -1594,9 +1605,9 @@ describe('Modal primitives', () => {
                 Second
               </button>
             </>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
@@ -1614,9 +1625,9 @@ describe('Modal primitives', () => {
   test('recovers focus when the focused child removes itself during pointerdown', async () => {
     const [showButton, setShowButton] = createSignal(true)
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {() => (
               <Show when={showButton()} fallback={<span>Remaining content</span>}>
                 <button
@@ -1628,15 +1639,15 @@ describe('Modal primitives', () => {
                 </button>
               </Show>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
     await Promise.resolve()
     const button = document.body.querySelector('[data-testid="remove"]') as HTMLButtonElement
-    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]') as HTMLElement
     button.focus()
 
     fireEvent.pointerDown(button, { pointerType: 'mouse' })
@@ -1648,9 +1659,9 @@ describe('Modal primitives', () => {
 
   test('initial focus skips controls hidden with CSS', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button" style={{ display: 'none' }}>
               Display hidden
             </button>
@@ -1660,9 +1671,9 @@ describe('Modal primitives', () => {
             <button type="button" data-testid="visible">
               Visible
             </button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     await waitFor(() =>
@@ -1678,24 +1689,24 @@ describe('Modal primitives', () => {
     document.body.append(previous)
     previous.focus()
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="close" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
 
     fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
 
@@ -1712,17 +1723,17 @@ describe('Modal primitives', () => {
     const buttonB = document.createElement('button')
     document.body.append(buttonA, buttonB)
     const screen = render(() => (
-      <Modal open={open()}>
-        <Modal.Portal>
-          <Modal.Content>Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog open={open()}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     buttonA.focus()
     setOpen(true)
     await waitFor(() =>
-      expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull(),
     )
     setOpen(false)
     await finishExitMotion()
@@ -1733,7 +1744,7 @@ describe('Modal primitives', () => {
     buttonB.focus()
     setOpen(true)
     await waitFor(() =>
-      expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+      expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull(),
     )
     setOpen(false)
     await finishExitMotion()
@@ -1747,19 +1758,19 @@ describe('Modal primitives', () => {
 
   test('restores nested modal focus in stack order', async () => {
     const screen = render(() => (
-      <Modal>
-        <Modal.Trigger data-testid="outer-trigger">Open outer</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog>
+        <BaseDialog.Trigger data-testid="outer-trigger">Open outer</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(outerContext) => (
               <>
                 <button type="button" data-testid="outer-close" onClick={outerContext.close}>
                   Close outer
                 </button>
-                <Modal>
-                  <Modal.Trigger data-testid="inner-trigger">Open inner</Modal.Trigger>
-                  <Modal.Portal>
-                    <Modal.Content>
+                <BaseDialog>
+                  <BaseDialog.Trigger data-testid="inner-trigger">Open inner</BaseDialog.Trigger>
+                  <BaseDialog.Portal>
+                    <BaseDialog.Content>
                       {(innerContext) => (
                         <button
                           type="button"
@@ -1769,14 +1780,14 @@ describe('Modal primitives', () => {
                           Close inner
                         </button>
                       )}
-                    </Modal.Content>
-                  </Modal.Portal>
-                </Modal>
+                    </BaseDialog.Content>
+                  </BaseDialog.Portal>
+                </BaseDialog>
               </>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
     const outerTrigger = screen.getByTestId('outer-trigger')
@@ -1790,7 +1801,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="inner-close"]')!)
     await Promise.resolve()
-    const innerContent = document.body.querySelectorAll('[data-slot="modal-content"]')[1]!
+    const innerContent = document.body.querySelectorAll('[data-slot="base-dialog-content"]')[1]!
     fireEvent.animationEnd(innerContent)
     fireEvent.transitionEnd(innerContent)
     await waitFor(() => {
@@ -1799,7 +1810,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="outer-close"]')!)
     await Promise.resolve()
-    const outerContent = document.body.querySelector('[data-slot="modal-content"]')!
+    const outerContent = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(outerContent)
     fireEvent.transitionEnd(outerContent)
     await waitFor(() => {
@@ -1810,9 +1821,9 @@ describe('Modal primitives', () => {
 
   test('focuses the first enabled control and loops Tab at both content boundaries', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <>
               <button type="button" disabled>
                 Disabled
@@ -1827,9 +1838,9 @@ describe('Modal primitives', () => {
                 Last enabled
               </button>
             </>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
@@ -1862,22 +1873,24 @@ describe('Modal primitives', () => {
 
   test('traps focus from container element to first and last focusables', async () => {
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Content data-testid="modal-content">
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
+          <BaseDialog.Content data-testid="base-dialog-content">
             <button type="button" data-testid="first-btn">
               First
             </button>
             <button type="button" data-testid="last-btn">
               Last
             </button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     await Promise.resolve()
     await Promise.resolve()
-    const content = document.body.querySelector('[data-testid="modal-content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-testid="base-dialog-content"]',
+    ) as HTMLElement
     const first = document.body.querySelector('[data-testid="first-btn"]') as HTMLButtonElement
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
 
@@ -1910,25 +1923,25 @@ describe('Modal primitives', () => {
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Modal defaultOpen modal={false}>
-          <Modal.Portal>
-            <Modal.Content>
+        <BaseDialog defaultOpen modal={false}>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <button type="button" data-testid="first-btn">
                 First
               </button>
               <button type="button" data-testid="last-btn">
                 Last
               </button>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </>
     ))
     const outside = screen.getByTestId<HTMLButtonElement>('outside')
     outside.focus()
     await Promise.resolve()
     await Promise.resolve()
-    const content = document.body.querySelector<HTMLElement>('[data-slot="modal-content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="base-dialog-content"]')!
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
@@ -1972,7 +1985,7 @@ describe('Modal primitives', () => {
           <button type="button" data-testid="outside">
             Outside
           </button>
-          <Modal
+          <BaseDialog
             open
             modal={false}
             closeOnOverlayClick={closeOnOverlayClick}
@@ -1980,10 +1993,10 @@ describe('Modal primitives', () => {
             onOpenChange={onOpenChange}
             onClosePrevented={onClosePrevented}
           >
-            <Modal.Portal>
-              <Modal.Content aria-label="Content">Content</Modal.Content>
-            </Modal.Portal>
-          </Modal>
+            <BaseDialog.Portal>
+              <BaseDialog.Content aria-label="Content">Content</BaseDialog.Content>
+            </BaseDialog.Portal>
+          </BaseDialog>
         </>
       ))
       await Promise.resolve()
@@ -2014,23 +2027,25 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const [modal, setModal] = createSignal(false)
     const screen = render(() => (
-      <Modal open={open()} modal={modal()}>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+      <BaseDialog open={open()} modal={modal()}>
+        <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             <button type="button">Inside</button>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByRole('button', { name: 'Open' })
     const inside = document.body.querySelector<HTMLButtonElement>(
-      '[data-slot="modal-content"] button',
+      '[data-slot="base-dialog-content"] button',
     )!
     setModal(true)
     await waitFor(() => expect(document.activeElement).toBe(inside))
     setOpen(false)
-    await finishExitMotion(document.body.querySelector<HTMLElement>('[data-slot="modal-content"]'))
+    await finishExitMotion(
+      document.body.querySelector<HTMLElement>('[data-slot="base-dialog-content"]'),
+    )
     await waitFor(() => expect(document.activeElement).toBe(trigger))
     screen.unmount()
   })
@@ -2040,15 +2055,15 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <main data-testid="background">Background</main>
-        <Modal defaultOpen modal={modal()}>
-          <Modal.Portal>
-            <Modal.Content>Content</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog defaultOpen modal={modal()}>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>Content</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       </>
     ))
     const background = screen.getByTestId('background')
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
 
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
@@ -2073,20 +2088,20 @@ describe('Modal primitives', () => {
   test('does not restore focus to a trigger that became disabled while open', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
-      <Modal>
-        <Modal.Trigger disabled={disabled()} data-testid="trigger">
+      <BaseDialog>
+        <BaseDialog.Trigger disabled={disabled()} data-testid="trigger">
           Open
-        </Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content>
+        </BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="close-disabled" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByTestId('trigger')
     fireEvent.click(trigger)
@@ -2095,7 +2110,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="close-disabled"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
     await Promise.resolve()
@@ -2107,20 +2122,20 @@ describe('Modal primitives', () => {
   test('does not restore focus to a trigger removed while open', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     const screen = render(() => (
-      <Modal>
+      <BaseDialog>
         <Show when={showTrigger()}>
-          <Modal.Trigger data-testid="removable-trigger">Open</Modal.Trigger>
+          <BaseDialog.Trigger data-testid="removable-trigger">Open</BaseDialog.Trigger>
         </Show>
-        <Modal.Portal>
-          <Modal.Content>
+        <BaseDialog.Portal>
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="close-removed" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByTestId('removable-trigger')
     fireEvent.click(trigger)
@@ -2129,7 +2144,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="close-removed"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
     await Promise.resolve()
@@ -2143,19 +2158,19 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(false)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Trigger data-testid="rapid-trigger">Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>
+      <BaseDialog open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
+        <BaseDialog.Trigger data-testid="rapid-trigger">Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content>
             {(context) => (
               <button type="button" data-testid="rapid-close" onClick={context.close}>
                 Close
               </button>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByTestId('rapid-trigger')
     fireEvent.click(trigger)
@@ -2166,7 +2181,7 @@ describe('Modal primitives', () => {
     await Promise.resolve()
 
     const reopenedContent = document.body.querySelector(
-      '[data-slot="modal-content"]',
+      '[data-slot="base-dialog-content"]',
     ) as HTMLElement
     expect(reopenedContent.hasAttribute('data-expanded')).toBe(true)
     expect(onExitComplete).not.toHaveBeenCalled()
@@ -2178,7 +2193,7 @@ describe('Modal primitives', () => {
     fireEvent.transitionEnd(reopenedContent)
     expect(onExitComplete).not.toHaveBeenCalled()
 
-    const overlay = document.body.querySelector('[data-slot="modal-overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="base-dialog-overlay"]') as HTMLElement
     fireEvent.animationEnd(overlay)
     fireEvent.transitionEnd(overlay)
     await waitFor(() => {
@@ -2191,27 +2206,27 @@ describe('Modal primitives', () => {
   test('modal retargets isolation when overlayScroll replaces content', async () => {
     const [scroll, setScroll] = createSignal(false)
     const screen = render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
+      <BaseDialog defaultOpen>
+        <BaseDialog.Portal>
           <Show
             when={scroll()}
             fallback={
               <>
-                <Modal.Overlay />
-                <Modal.Content>
+                <BaseDialog.Overlay />
+                <BaseDialog.Content>
                   <button data-testid="content-action">Action</button>
-                </Modal.Content>
+                </BaseDialog.Content>
               </>
             }
           >
-            <Modal.Overlay scrollable>
-              <Modal.Content>
+            <BaseDialog.Overlay scrollable>
+              <BaseDialog.Content>
                 <button data-testid="content-action">Action</button>
-              </Modal.Content>
-            </Modal.Overlay>
+              </BaseDialog.Content>
+            </BaseDialog.Overlay>
           </Show>
-        </Modal.Portal>
-      </Modal>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     try {
       await waitFor(() =>
@@ -2219,14 +2234,14 @@ describe('Modal primitives', () => {
           document.body.querySelector<HTMLButtonElement>('[data-testid="content-action"]')!,
         ),
       )
-      const before = document.body.querySelector('[data-slot="modal-content"]')
+      const before = document.body.querySelector('[data-slot="base-dialog-content"]')
       setScroll(true)
       await Promise.resolve()
       await Promise.resolve()
       const after = document.body.querySelector<HTMLButtonElement>(
         '[data-testid="content-action"]',
       )!
-      expect(after.closest('[data-slot="modal-content"]')).not.toBe(before)
+      expect(after.closest('[data-slot="base-dialog-content"]')).not.toBe(before)
       expect(after.closest('[aria-hidden="true"]')).toBeNull()
       expect(document.activeElement).toBe(after)
     } finally {
@@ -2237,12 +2252,12 @@ describe('Modal primitives', () => {
   test('toggles open state on trigger activation when modal is false', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Modal modal={false} onOpenChange={onOpenChange}>
-        <Modal.Trigger>Toggle non-modal</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content aria-label="Non-modal content">Content</Modal.Content>
-        </Modal.Portal>
-      </Modal>
+      <BaseDialog modal={false} onOpenChange={onOpenChange}>
+        <BaseDialog.Trigger>Toggle non-modal</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Non-modal content">Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const trigger = screen.getByRole('button', { name: 'Toggle non-modal' })
     fireEvent.click(trigger)
@@ -2252,20 +2267,20 @@ describe('Modal primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('preserves custom id on Modal.Content and updates trigger aria-controls', () => {
+  test('preserves custom id on BaseDialog.Content and updates trigger aria-controls', () => {
     render(() => (
-      <Modal open>
-        <Modal.Trigger>Open</Modal.Trigger>
-        <Modal.Portal>
-          <Modal.Content id="custom-modal-id">
+      <BaseDialog open>
+        <BaseDialog.Trigger>Open</BaseDialog.Trigger>
+        <BaseDialog.Portal>
+          <BaseDialog.Content id="custom-modal-id">
             <span>Modal content</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
-    const trigger = document.body.querySelector('[data-slot="modal-trigger"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
+    const trigger = document.body.querySelector('[data-slot="base-dialog-trigger"]')!
     expect(content.id).toBe('custom-modal-id')
     expect(trigger.getAttribute('aria-controls')).toBe('custom-modal-id')
   })
@@ -2275,16 +2290,16 @@ describe('Modal primitives', () => {
       event.preventDefault()
     })
     render(() => (
-      <Modal open modal>
-        <Modal.Portal>
-          <Modal.Content onKeyDown={onKeyDown}>
+      <BaseDialog open modal>
+        <BaseDialog.Portal>
+          <BaseDialog.Content onKeyDown={onKeyDown}>
             <input data-testid="input" />
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     const notCancelled = fireEvent.keyDown(content, { key: 'Tab' })
     expect(onKeyDown).toHaveBeenCalledTimes(1)
     expect(notCancelled).toBe(false)
@@ -2292,13 +2307,13 @@ describe('Modal primitives', () => {
 
   test('supports polymorphic rendering via as prop on Content', () => {
     render(() => (
-      <Modal open>
-        <Modal.Portal>
-          <Modal.Content as="section" data-testid="section-modal">
+      <BaseDialog open>
+        <BaseDialog.Portal>
+          <BaseDialog.Content as="section" data-testid="section-modal">
             <span>Modal section</span>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     ))
     const content = document.body.querySelector('[data-testid="section-modal"]')
     expect(content).not.toBeNull()

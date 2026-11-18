@@ -6,9 +6,9 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { callRef } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/focus'
 
-import type { ModalContext } from './modal-context'
+import type { BaseDialogContext } from './base-dialog-context'
 
-export interface ModalContentBindingOptions {
+export interface BaseDialogContentBindingOptions {
   ref?: () => ((element: HTMLDivElement) => void) | HTMLDivElement | undefined
   onKeyDown?: () => JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent> | undefined
 }
@@ -18,9 +18,9 @@ export interface ModalContentBindingOptions {
  *
  * Call it in the owner that renders the content element, so the binding releases on unmount.
  */
-export function createModalContentBinding(
-  context: ModalContext,
-  options: ModalContentBindingOptions = {},
+export function createBaseDialogContentBinding(
+  context: BaseDialogContext,
+  options: BaseDialogContentBindingOptions = {},
 ) {
   const [element, setElement] = createSignal<HTMLDivElement>()
   bindElement(element, (current) => {

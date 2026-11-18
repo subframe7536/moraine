@@ -14,7 +14,7 @@ import {
   DropdownMenu,
   KbdGroup,
   List,
-  Modal,
+  BaseDialog,
   MultiSelect,
   Popover,
   Select,
@@ -290,9 +290,9 @@ describe('render and polymorphic contracts', () => {
       const view = render(
         () => (
           <>
-            <Modal onOpenChange={onOpenChange}>
-              <Modal.Trigger as={Custom}>Modal</Modal.Trigger>
-            </Modal>
+            <BaseDialog onOpenChange={onOpenChange}>
+              <BaseDialog.Trigger as={Custom}>Modal</BaseDialog.Trigger>
+            </BaseDialog>
             <Popover onOpenChange={onOpenChange}>
               <Popover.Trigger as={Custom}>Popover</Popover.Trigger>
             </Popover>

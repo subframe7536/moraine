@@ -2,8 +2,8 @@ import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
-import { Modal } from '../modal/modal'
-import { MODAL_ROOT_KEYS } from '../modal/modal-context'
+import { BaseDialog } from '../base-dialog/base-dialog'
+import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
 import { SheetBody } from './sheet-body'
 import { SheetClose } from './sheet-close'
@@ -20,7 +20,7 @@ import type { SheetProps } from './sheet.types'
 /**
  * Focused panel that slides in from a viewport edge, such as mobile navigation or an inspector. Use
  * `Drawer` when the surface needs swipe-to-dismiss gestures or snap points, `Dialog` for a centered
- * labeled task, `Popover` for anchored content that should not take over the page, and `Modal` to
+ * labeled task, `Popover` for anchored content that should not take over the page, and `BaseDialog` to
  * compose backdrop and content yourself. It renders no element of its own; open state is controlled
  * with `open`/`onOpenChange` or uncontrolled with `defaultOpen`.
  *
@@ -40,7 +40,7 @@ import type { SheetProps } from './sheet.types'
  * ```
  */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [modalProps, sheetProps] = splitProps(props, MODAL_ROOT_KEYS)
+  const [modalProps, sheetProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
   const context: SheetContextValue = mergeProps(sheetProps, {
     get slotOverrides() {
       return pickSlotOverrides(props)
@@ -48,7 +48,7 @@ export function Sheet(props: SheetProps): JSX.Element {
   })
   return (
     <SheetProvider value={context}>
-      <Modal {...modalProps} />
+      <BaseDialog {...modalProps} />
     </SheetProvider>
   )
 }

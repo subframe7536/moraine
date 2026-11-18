@@ -76,6 +76,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── avatar/             # Avatar and fallback display.
 │   ├── avatar-group/       # Overlapping avatar groups.
 │   ├── badge/              # Badge styles and component.
+│   ├── base-dialog/        # Headless modal dialog primitive with trigger, portal, overlay, and content parts.
 │   ├── base-select/        # Headless listbox, selection, and popup primitives for select controls.
 │   ├── bold-slider/        # Single-value slider with inline label, value, and indicator.
 │   ├── breadcrumb/         # Resource hierarchy with the current page.
@@ -103,7 +104,6 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── kbd/                # Keyboard shortcut display.
 │   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
 │   ├── list/               # List and list-item primitives.
-│   ├── modal/              # Modal composition.
 │   ├── multi-select/       # Collection-backed multiple selection.
 │   ├── navigation-menu/    # Navigation menu with triggers and content panels.
 │   ├── pagination/         # Pagination controls.
@@ -231,7 +231,7 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 - **Composite component contracts:**
   - `<namespace>T.Base` must be the only type containing configuration and behavioral options. Do not include `classes`, `styles`, or `variant` directly on `Base`; they are supplied via `BaseProps`.
   - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`.
-    - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variants, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
+    - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `BaseDialog`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variants, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
     - Element-rendering roots use `BaseProps<Tag, Base, Variants, Classes, Styles>`.
   - All attached child part props must be compose-only: `BaseProps<Tag, PartBase, never, never, never>`. Part bases (`ContentBase`, `TriggerBase`, `ItemBase`, etc.) must never take `classes`, `styles`, `variant`, or root configuration options (such as `finalFocus`, `gutter`, `overflowPadding`, `onExitComplete`). Configuration belongs strictly on root `Base`/`Props`.
   - If a part or base interface has no unique configuration and would only have `children?: JSX.Element`, do not define a redundant single-member interface — use `FlowComponent` from `solid-js` for the component instead.

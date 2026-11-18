@@ -6,7 +6,7 @@ import {
   Drawer,
   DropdownMenu,
   HoverCard,
-  Modal,
+  BaseDialog,
   Popover,
   Sheet,
   Table,
@@ -67,10 +67,10 @@ import { defineTheme } from 'moraine/theme'
   mount={document.body}
   closeIcon="icon-close"
 />
-;<Modal modal={false} mount={document.body} />
-;<Modal.Portal mount={document.body} />
+;<BaseDialog modal={false} mount={document.body} />
+;<BaseDialog.Portal mount={document.body} />
 // @ts-expect-error Modal behavior belongs to the root.
-;<Modal.Content modal={false} />
+;<BaseDialog.Content modal={false} />
 // @ts-expect-error A headless root has no primary DOM element.
 ;<Sheet style={{ color: 'red' }} />
 ;<Sheet.Trigger class="trigger" />
@@ -150,15 +150,15 @@ import { defineTheme } from 'moraine/theme'
 // @ts-expect-error Drawer.Close is behavior-only.
 ;<Drawer.Close styles={{ contentClose: { color: 'red' } }} />
 
-;<Modal classes={{ overlay: 'overlay', content: 'content' }} />
+;<BaseDialog classes={{ overlay: 'overlay', content: 'content' }} />
 // @ts-expect-error A headless root has no primary DOM element.
-;<Modal class="root" />
-;<Modal.Overlay class="overlay" />
-// @ts-expect-error Modal.Overlay is a one-slot part.
-;<Modal.Overlay classes={{ overlay: 'overlay' }} />
-;<Modal.Content class="content">Content</Modal.Content>
-// @ts-expect-error Modal.Content is a one-slot part.
-;<Modal.Content classes={{ content: 'content' }}>Content</Modal.Content>
+;<BaseDialog class="root" />
+;<BaseDialog.Overlay class="overlay" />
+// @ts-expect-error BaseDialog.Overlay is a one-slot part.
+;<BaseDialog.Overlay classes={{ overlay: 'overlay' }} />
+;<BaseDialog.Content class="content">Content</BaseDialog.Content>
+// @ts-expect-error BaseDialog.Content is a one-slot part.
+;<BaseDialog.Content classes={{ content: 'content' }}>Content</BaseDialog.Content>
 
 ;<Popover classes={{ trigger: 'trigger', body: 'body' }} />
 // @ts-expect-error A headless root has no primary DOM element.

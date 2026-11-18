@@ -4,6 +4,7 @@ import type { AlertStyleConfig } from '../components/alert/alert.style-types'
 import type { AvatarGroupStyleConfig } from '../components/avatar-group/avatar-group.style-types'
 import type { AvatarStyleConfig } from '../components/avatar/avatar.style-types'
 import type { BadgeStyleConfig } from '../components/badge/badge.style-types'
+import type { BaseDialogStyleConfig } from '../components/base-dialog/base-dialog.style-types'
 import type { BaseSelectStyleConfig } from '../components/base-select/base-select.style-types'
 import type { BoldSliderStyleConfig } from '../components/bold-slider/bold-slider.style-types'
 import type { BreadcrumbStyleConfig } from '../components/breadcrumb/breadcrumb.style-types'
@@ -31,7 +32,6 @@ import type { InputStyleConfig } from '../components/input/input.style-types'
 import type { KbdGroupStyleConfig } from '../components/kbd-group/kbd-group.style-types'
 import type { KbdStyleConfig } from '../components/kbd/kbd.style-types'
 import type { ListStyleConfig } from '../components/list/list.style-types'
-import type { ModalStyleConfig } from '../components/modal/modal.style-types'
 import type { MultiSelectStyleConfig } from '../components/multi-select/multi-select.style-types'
 import type { NavigationMenuStyleConfig } from '../components/navigation-menu/navigation-menu.style-types'
 import type { NumberInputStyleConfig } from '../components/number-input/number-input.style-types'
@@ -120,7 +120,7 @@ export interface MoraineStyleSchema {
   contextMenu: ContextMenuStyleConfig
   dialog: DialogStyleConfig
   dropdownMenu: DropdownMenuStyleConfig
-  modal: ModalStyleConfig
+  baseDialog: BaseDialogStyleConfig
   popover: PopoverStyleConfig
   hoverCard: HoverCardStyleConfig
   sheet: SheetStyleConfig

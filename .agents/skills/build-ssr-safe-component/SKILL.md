@@ -114,7 +114,7 @@ Use each resolution for one job:
 its state inside a second memo, regardless of arity. The first memo keeps mounted components from
 being recreated; the tracked call in the second keeps client `Show` accessors reactive and matches
 the server, where `Show` returns the branch value.
-`Button`, `BaseSelect.Trigger`, `Dialog` content, `Modal` content, `Popper` content, and `Sheet` content use the two stages.
+`Button`, `BaseSelect.Trigger`, `Dialog` content, `BaseDialog` content, `Popper` content, and `Sheet` content use the two stages.
 `BaseSelect.Item` resolves children, substitutes its item label for `undefined`, then calls
 `renderWithProps`. `ToggleButton` resolves children and, when the value is still a function,
 returns a new render function that adds `pressed` before `Button` mounts it. `Resizable.Handle`

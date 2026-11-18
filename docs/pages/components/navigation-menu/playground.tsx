@@ -68,8 +68,8 @@ export default function NavigationMenuPlayground() {
                     <For
                       each={[
                         {
-                          title: 'Modal',
-                          href: '/components/modal',
+                          title: 'BaseDialog',
+                          href: '/components/base-dialog',
                           description:
                             'Present a focused dialog with a title, content, and actions.',
                         },

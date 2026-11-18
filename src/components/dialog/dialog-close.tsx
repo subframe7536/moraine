@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
-import { Modal } from '../modal/modal'
+import { BaseDialog } from '../base-dialog/base-dialog'
 
 import type { DialogT } from './dialog.types'
 
@@ -28,5 +28,5 @@ import type { DialogT } from './dialog.types'
 export function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
-  return <Modal.Close data-slot="dialog-close" {...props} />
+  return <BaseDialog.Close data-slot="dialog-close" {...props} />
 }

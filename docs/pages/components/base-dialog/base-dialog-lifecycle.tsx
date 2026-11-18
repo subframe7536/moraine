@@ -1,21 +1,21 @@
-import { Button, Modal } from '@src'
+import { Button, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
 
-export function ModalLifecycle() {
+export function BaseDialogLifecycle() {
   const [open, setOpen] = createSignal(false)
   const [log, setLog] = createSignal('Idle')
 
   return (
     <div class="space-y-3">
       <Button onClick={() => setOpen(true)}>Open Managed Modal</Button>
-      <Modal
+      <BaseDialog
         open={open()}
         onOpenChange={setOpen}
         onExitComplete={() => setLog('Exit transition fully completed')}
       >
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content aria-label="Lifecycle Monitored">
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content aria-label="Lifecycle Monitored">
             {(context) => (
               <div class="p-4 b-1 b-border rounded-xl bg-background space-y-4">
                 <h3 class="text-base font-semibold">Lifecycle Monitored</h3>
@@ -29,9 +29,9 @@ export function ModalLifecycle() {
                 </div>
               </div>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
       <p class="text-xs text-muted-foreground">
         Lifecycle log: <span class="text-foreground font-mono">{log()}</span>
       </p>

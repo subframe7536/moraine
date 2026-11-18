@@ -2,12 +2,12 @@ import { render, within } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import { BaseDialog } from '../components/base-dialog'
 import { BaseSelect } from '../components/base-select'
 import { Collapsible } from '../components/collapsible'
 import { ContextMenu } from '../components/context-menu'
 import { Dialog } from '../components/dialog'
 import { DropdownMenu } from '../components/dropdown-menu'
-import { Modal } from '../components/modal'
 import { Popover } from '../components/popover'
 import { Sheet } from '../components/sheet'
 import { Sidebar } from '../components/sidebar'
@@ -97,12 +97,15 @@ describe('composite family presentation', () => {
   test('propagates headless-root family defaults to detached parts', () => {
     render(() => (
       <>
-        <Modal open classes={{ overlay: 'modal-overlay', content: 'modal-content' }}>
-          <Modal.Portal>
-            <Modal.Overlay data-testid="modal-overlay" />
-            <Modal.Content data-testid="modal-content">Modal</Modal.Content>
-          </Modal.Portal>
-        </Modal>
+        <BaseDialog
+          open
+          classes={{ overlay: 'base-dialog-overlay', content: 'base-dialog-content' }}
+        >
+          <BaseDialog.Portal>
+            <BaseDialog.Overlay data-testid="base-dialog-overlay" />
+            <BaseDialog.Content data-testid="base-dialog-content">Modal</BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
         <Sheet open classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}>
           <Sheet.Trigger data-testid="sheet-trigger">Open sheet</Sheet.Trigger>
           <Sheet.Content data-testid="sheet-content">
@@ -135,8 +138,8 @@ describe('composite family presentation', () => {
     ))
 
     for (const id of [
-      'modal-overlay',
-      'modal-content',
+      'base-dialog-overlay',
+      'base-dialog-content',
       'sheet-trigger',
       'sheet-content',
       'popover-trigger',

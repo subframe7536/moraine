@@ -2,8 +2,8 @@ import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
-import { Modal } from '../modal/modal'
-import { MODAL_ROOT_KEYS } from '../modal/modal-context'
+import { BaseDialog } from '../base-dialog/base-dialog'
+import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
 import { DialogBody } from './dialog-body'
 import { DialogClose } from './dialog-close'
@@ -21,7 +21,7 @@ import type { DialogProps } from './dialog.types'
  * Labeled modal task with an optional title, description, body, and footer. Pass `title` and
  * `description` to `Dialog.Content` for the default header, or compose `Dialog.Header`, `Dialog.Title`,
  * and `Dialog.Description` yourself. Use `AlertDialog` for confirmations, `Sheet` or `Drawer` for edge
- * panels, and `Modal` for a bare modal without dialog presentation.
+ * panels, and `BaseDialog` for a bare modal without dialog presentation.
  *
  * @example
  * ```tsx
@@ -39,7 +39,7 @@ import type { DialogProps } from './dialog.types'
  * ```
  */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [modalProps, dialogProps] = splitProps(props, MODAL_ROOT_KEYS)
+  const [modalProps, dialogProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
   const context: DialogContextValue = mergeProps(dialogProps, {
     get slotOverrides() {
       return pickSlotOverrides(props)
@@ -47,7 +47,7 @@ export function Dialog(props: DialogProps): JSX.Element {
   })
   return (
     <DialogProvider value={context}>
-      <Modal {...modalProps} />
+      <BaseDialog {...modalProps} />
     </DialogProvider>
   )
 }

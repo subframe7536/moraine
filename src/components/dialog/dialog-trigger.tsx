@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { Modal } from '../modal/modal'
+import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDialogContext } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
@@ -34,5 +34,5 @@ export function DialogTrigger<T extends ValidComponent = 'button'>(
     slot: 'trigger',
     context: () => dialog.slotOverrides,
   })
-  return <Modal.Trigger data-slot="dialog-trigger" {...triggerSlot} {...rest} />
+  return <BaseDialog.Trigger data-slot="dialog-trigger" {...triggerSlot} {...rest} />
 }

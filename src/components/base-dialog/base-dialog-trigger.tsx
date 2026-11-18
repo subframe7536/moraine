@@ -8,30 +8,30 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { validateOverlayTrigger } from '../shared/overlay/trigger'
 import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 
-import { useModalContext } from './modal-context'
-import type { ModalT } from './modal.types'
+import { useBaseDialogContext } from './base-dialog-context'
+import type { BaseDialogT } from './base-dialog.types'
 
 /**
- * Element that opens the surrounding `Modal`; when `modal` is `false` it toggles the open state
+ * Element that opens the surrounding `BaseDialog`; when `modal` is `false` it toggles the open state
  * instead. Renders a `button`; pass `as` to render another component such as `Button`.
  *
  * @example
  * ```tsx
- * import { Button, Modal } from 'moraine'
+ * import { Button, BaseDialog } from 'moraine'
  *
- * <Modal>
- *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
- *   <Modal.Portal>
- *     <Modal.Content aria-label="Details">Modal content</Modal.Content>
- *   </Modal.Portal>
- * </Modal>
+ * <BaseDialog>
+ *   <BaseDialog.Trigger as={Button}>Open</BaseDialog.Trigger>
+ *   <BaseDialog.Portal>
+ *     <BaseDialog.Content aria-label="Details">Modal content</BaseDialog.Content>
+ *   </BaseDialog.Portal>
+ * </BaseDialog>
  * ```
  */
-export function ModalTrigger<T extends ValidComponent = 'button'>(
-  props: ModalT.TriggerProps<T>,
+export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
+  props: BaseDialogT.TriggerProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
-  const context = useModalContext()
+  const context = useBaseDialogContext()
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
@@ -59,13 +59,13 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   const binding = root.bind(interactionProps)
 
   onMount(() => {
-    validateOverlayTrigger(context.triggerElement(), 'Modal')
+    validateOverlayTrigger(context.triggerElement(), 'BaseDialog')
   })
 
   return (
     <Dynamic
       component={tag()}
-      data-slot="modal-trigger"
+      data-slot="base-dialog-trigger"
       aria-haspopup="dialog"
       aria-controls={
         context.contentElement() ? context.contentElement()?.id || context.contentId() : undefined

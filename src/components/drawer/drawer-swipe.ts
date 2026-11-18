@@ -6,7 +6,7 @@ import {
   createEventListener,
   createEventListenerMap,
 } from '../../shared/event-listener'
-import type { ModalContext } from '../modal/modal-context'
+import type { BaseDialogContext } from '../base-dialog/base-dialog-context'
 import { containsComposed, getActiveElement, isElement } from '../shared/overlay/dom'
 import { containsOverlayContentAbove } from '../shared/overlay/overlay-stack'
 
@@ -299,7 +299,7 @@ export interface DrawerSwipeController {
  */
 export function createDrawerSwipe(
   drawer: DrawerContextValue,
-  modal: ModalContext,
+  modal: BaseDialogContext,
   side: Accessor<NonNullable<DrawerT.Variants['side']>>,
 ): DrawerSwipeController {
   const [swiping, setSwiping] = createSignal(false)

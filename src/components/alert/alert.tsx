@@ -26,7 +26,7 @@ const ALERT_TYPE_ICONS: Record<string, IconT.Name> = {
 
 /**
  * Non-floating contextual feedback and status banner that stays in the page flow. Use `Toast` for
- * transient notifications and `Modal` for feedback that must block the page. It renders a `div`
+ * transient notifications and `BaseDialog` for feedback that must block the page. It renders a `div`
  * (change it with `as`) with `role="alert"` for the `warning` and `error` types and
  * `role="status"` for the rest.
  *

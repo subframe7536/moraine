@@ -1,4 +1,4 @@
-import { Button, Modal } from '@src'
+import { Button, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ExitLifecycle() {
@@ -9,14 +9,14 @@ export function ExitLifecycle() {
     <div class="flex gap-3 items-center">
       <Button onClick={() => setOpen(true)}>Open modal</Button>
       <p class="text-sm text-muted-foreground">Completed exits: {exitCount()}</p>
-      <Modal
+      <BaseDialog
         open={open()}
         onOpenChange={setOpen}
         onExitComplete={() => setExitCount((count) => count + 1)}
       >
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content aria-label="Exit lifecycle example">
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content aria-label="Exit lifecycle example">
             {({ close }) => (
               <div class="p-5 rounded-xl bg-card shadow-xl">
                 <p class="text-sm mb-4">
@@ -25,9 +25,9 @@ export function ExitLifecycle() {
                 <Button onClick={close}>Close</Button>
               </div>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     </div>
   )
 }

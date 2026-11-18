@@ -1,15 +1,15 @@
 {
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
-  "key": "modal",
-  "name": "Modal",
+  "key": "base-dialog",
+  "name": "BaseDialog",
   "kind": "composite",
   "parts": [
     {
-      "id": "modal",
-      "name": "Modal",
+      "id": "base-dialog",
+      "name": "BaseDialog",
       "access": {
         "kind": "export",
-        "name": "Modal"
+        "name": "BaseDialog"
       },
       "props": [
         {
@@ -92,7 +92,7 @@
           "name": "mount",
           "optional": true,
           "type": "Node",
-          "description": "DOM node that `Modal.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,\nfor example a container element or a shadow root. A `mount` on `Modal.Portal` takes\nprecedence. Defaults to the `body` of the trigger's document.",
+          "description": "DOM node that `BaseDialog.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,\nfor example a container element or a shadow root. A `mount` on `BaseDialog.Portal` takes\nprecedence. Defaults to the `body` of the trigger's document.",
           "examples": [
             "import { Button, Dialog } from 'moraine'\n\nconst container = document.getElementById('overlay-root') ?? document.body\n\n<Dialog mount={container}>\n  <Dialog.Trigger as={Button}>Open</Dialog.Trigger>\n  <Dialog.Content title=\"Settings\">Preferences</Dialog.Content>\n</Dialog>"
           ]
@@ -153,11 +153,11 @@
       ]
     },
     {
-      "id": "modal-trigger",
-      "name": "Modal.Trigger",
+      "id": "base-dialog-trigger",
+      "name": "BaseDialog.Trigger",
       "access": {
         "kind": "attached",
-        "root": "Modal",
+        "root": "BaseDialog",
         "member": "Trigger"
       },
       "generics": [
@@ -206,11 +206,11 @@
       ]
     },
     {
-      "id": "modal-portal",
-      "name": "Modal.Portal",
+      "id": "base-dialog-portal",
+      "name": "BaseDialog.Portal",
       "access": {
         "kind": "attached",
-        "root": "Modal",
+        "root": "BaseDialog",
         "member": "Portal"
       },
       "props": [
@@ -224,16 +224,16 @@
           "name": "mount",
           "optional": true,
           "type": "Node",
-          "description": "DOM node the overlay and content render into. Takes precedence over `mount` on `Modal`;\ndefaults to the `body` of the trigger's document."
+          "description": "DOM node the overlay and content render into. Takes precedence over `mount` on `BaseDialog`;\ndefaults to the `body` of the trigger's document."
         }
       ]
     },
     {
-      "id": "modal-overlay",
-      "name": "Modal.Overlay",
+      "id": "base-dialog-overlay",
+      "name": "BaseDialog.Overlay",
       "access": {
         "kind": "attached",
-        "root": "Modal",
+        "root": "BaseDialog",
         "member": "Overlay"
       },
       "defaultElement": "div",
@@ -251,16 +251,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "overlay",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to render the visual backdrop layer. When false, acts as an unstyled container for nested content.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "ref",
           "optional": true,
           "type": "(element: HTMLDivElement) => void",
@@ -270,7 +260,7 @@
           "name": "scrollable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the overlay element itself scrolls, so content taller than the viewport scrolls\ninside the backdrop (with padding) while `preventScroll` keeps the page itself from\nscrolling. Has no effect when `overlay` is `false`."
+          "description": "Whether the overlay element itself scrolls, so content taller than the viewport scrolls\ninside the backdrop (with padding) while `preventScroll` keeps the page itself from\nscrolling."
         },
         {
           "name": "style",
@@ -281,11 +271,11 @@
       ]
     },
     {
-      "id": "modal-content",
-      "name": "Modal.Content",
+      "id": "base-dialog-content",
+      "name": "BaseDialog.Content",
       "access": {
         "kind": "attached",
-        "root": "Modal",
+        "root": "BaseDialog",
         "member": "Content"
       },
       "generics": [
@@ -328,11 +318,11 @@
       ]
     },
     {
-      "id": "modal-close",
-      "name": "Modal.Close",
+      "id": "base-dialog-close",
+      "name": "BaseDialog.Close",
       "access": {
         "kind": "attached",
-        "root": "Modal",
+        "root": "BaseDialog",
         "member": "Close"
       },
       "generics": [

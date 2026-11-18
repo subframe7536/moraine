@@ -1,4 +1,4 @@
-import { Button, Modal } from '@src'
+import { Button, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Controlled() {
@@ -9,10 +9,10 @@ export function Controlled() {
       <Button variant="outline" onClick={() => setOpen(true)}>
         Open controlled modal
       </Button>
-      <Modal open={open()} onOpenChange={setOpen}>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content aria-label="Controlled modal">
+      <BaseDialog open={open()} onOpenChange={setOpen}>
+        <BaseDialog.Portal>
+          <BaseDialog.Overlay />
+          <BaseDialog.Content aria-label="Controlled modal">
             {(context) => (
               <div class="p-4 gap-4 grid">
                 <p class="text-sm text-foreground">
@@ -23,9 +23,9 @@ export function Controlled() {
                 </Button>
               </div>
             )}
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
+          </BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
     </div>
   )
 }

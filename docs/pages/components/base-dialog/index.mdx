@@ -1,12 +1,12 @@
 ---
-title: Modal
+title: BaseDialog
 description: Compose a modal trigger, backdrop, and content surface.
 group: Overlay
 api:
-  path: src/components/modal/modal
+  path: src/components/base-dialog/base-dialog
   parts: [Trigger, Portal, Overlay, Content, Close]
 search:
-  tags: [modal, primitive, overlay, focus trap, dialog primitive]
+  tags: [base dialog, modal, primitive, overlay, focus trap, dialog primitive]
 ---
 
 import Playground from './playground'
@@ -21,16 +21,16 @@ import Playground from './playground'
       noDom: true,
     },
     children: [
-      { part: 'Modal.Trigger' },
+      { part: 'BaseDialog.Trigger' },
       {
-        part: 'Modal.Portal',
+        part: 'BaseDialog.Portal',
         children: [
           {
-            part: 'Modal.Overlay',
+            part: 'BaseDialog.Overlay',
             slot: 'overlay',
           },
           {
-            part: 'Modal.Content',
+            part: 'BaseDialog.Content',
             slot: 'content',
           },
         ],
@@ -43,60 +43,59 @@ Portal owns the mounted Overlay and Content subtree and preserves it through exi
 
 ## Usage
 
-Use Modal when you compose trigger, backdrop, and content yourself. Use [Dialog](/components/dialog)
+Use BaseDialog when you compose trigger, backdrop, and content yourself. Use [Dialog](/components/dialog)
 for a structured title, description, body, and footer. Use [Sheet](/components/sheet) for a drawer
 from a viewport edge. Use [Popover](/components/popover) for anchored interactive content.
 [Dialog](/components/dialog) and [Sheet](/components/sheet) wrap this primitive; their Content
 parts include a Portal internally.
 
 ```tsx
-import { Button, Modal } from 'moraine'
+import { Button, BaseDialog } from 'moraine'
 
 export function Example() {
   return (
-    <Modal>
-      <Modal.Trigger as={Button}>Open</Modal.Trigger>
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content aria-label="Details">
+    <BaseDialog>
+      <BaseDialog.Trigger as={Button}>Open</BaseDialog.Trigger>
+      <BaseDialog.Portal>
+        <BaseDialog.Overlay />
+        <BaseDialog.Content aria-label="Details">
           Modal content
-          <Modal.Close as={Button}>Close</Modal.Close>
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal>
+          <BaseDialog.Close as={Button}>Close</BaseDialog.Close>
+        </BaseDialog.Content>
+      </BaseDialog.Portal>
+    </BaseDialog>
   )
 }
 ```
 
 ### Composition
 
-Place `Modal.Overlay` and `Modal.Content` inside the same `Modal.Portal`. The Portal mounts them
+Place `BaseDialog.Overlay` and `BaseDialog.Content` inside the same `BaseDialog.Portal`. The Portal mounts them
 when open and keeps them present through exit animations. Without it, both parts render in place
 and your application controls their mounting. One root owns one active Content; use a nested
-Modal root for a second surface.
+BaseDialog root for a second surface.
 
-To scroll content taller than the viewport inside the backdrop, set `scrollable` on `Modal.Overlay`
-and nest `Modal.Content` inside it. With `overlay={false}`, `Modal.Overlay` renders an unstyled
-wrapper around its children instead of the backdrop.
+To scroll content taller than the viewport inside the backdrop, set `scrollable` on `BaseDialog.Overlay`
+and nest `BaseDialog.Content` inside it. To render without a backdrop, omit `BaseDialog.Overlay`.
 
 ```tsx
-<Modal>
-  <Modal.Trigger as={Button}>Open</Modal.Trigger>
-  <Modal.Portal>
-    <Modal.Overlay />
-    <Modal.Content aria-label="Custom surface">
+<BaseDialog>
+  <BaseDialog.Trigger as={Button}>Open</BaseDialog.Trigger>
+  <BaseDialog.Portal>
+    <BaseDialog.Overlay />
+    <BaseDialog.Content aria-label="Custom surface">
       {(context) => (
         <div>
           Custom surface
           <Button onClick={context.close}>Close</Button>
         </div>
       )}
-    </Modal.Content>
-  </Modal.Portal>
-</Modal>
+    </BaseDialog.Content>
+  </BaseDialog.Portal>
+</BaseDialog>
 ```
 
-`Modal.Content` children may be JSX or a function that receives `close`. Give `Modal.Content` an
+`BaseDialog.Content` children may be JSX or a function that receives `close`. Give `BaseDialog.Content` an
 accessible name with `aria-label` or `aria-labelledby`.
 
 ### Focus and outside interaction
@@ -110,7 +109,7 @@ Setting `modal={false}` allows focus to leave, but Escape and outside interactio
 closure. `closeOnOverlayClick` controls outside pointer dismissal and `closeOnEscape` controls
 Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
 `onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to `true`. To allow
-background page interaction, set `preventScroll={false}` and omit `Modal.Overlay`.
+background page interaction, set `preventScroll={false}` and omit `BaseDialog.Overlay`.
 
 ### Styling and portal placement
 
@@ -118,7 +117,7 @@ The root renders no element. Apply `class` and object `style` to rendered parts;
 and `styles` set their slot defaults. See [Customization](/docs/customization#the-4-layer-override-hierarchy).
 
 Set root `mount` for a chosen container, including controlled surfaces without a Trigger.
-`Modal.Portal mount` overrides that default.
+`BaseDialog.Portal mount` overrides that default.
 
 ### State and exit lifecycle
 
@@ -127,14 +126,14 @@ and content exit animations to finish. Root `transition={false}` skips those ani
 surfaces unmount as soon as the modal closes and `onExitComplete` runs at once.
 
 ```tsx
-<Modal open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>
-  <Modal.Portal>
-    <Modal.Overlay />
-    <Modal.Content aria-label="Lifecycle">
+<BaseDialog open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>
+  <BaseDialog.Portal>
+    <BaseDialog.Overlay />
+    <BaseDialog.Content aria-label="Lifecycle">
       {(context) => <Button onClick={context.close}>Dismiss</Button>}
-    </Modal.Content>
-  </Modal.Portal>
-</Modal>
+    </BaseDialog.Content>
+  </BaseDialog.Portal>
+</BaseDialog>
 ```
 
 ### Keyboard interaction
@@ -152,7 +151,7 @@ surfaces unmount as soon as the modal closes and `onExitComplete` runs at once.
 Mount overlay and content in one Portal. Content children can receive `close` from the render
 callback.
 
-<Preview path="./modal-composition" />
+<Preview path="./base-dialog-composition" />
 
 ### Open from parent state
 
@@ -163,7 +162,7 @@ parent.
 
 ### Omit the backdrop
 
-Leave `Modal.Overlay` out when the host surface already provides context.
+Leave `BaseDialog.Overlay` out when the host surface already provides context.
 
 <Preview path="./no-overlay" />
 
@@ -178,7 +177,7 @@ Compose a custom header that moves the surface. Reset the offset when the modal 
 Own visibility and wait until overlay and content finish their exit animations before treating
 the modal as gone.
 
-<Preview path="./modal-lifecycle" />
+<Preview path="./base-dialog-lifecycle" />
 
 ### Count completed exits
 

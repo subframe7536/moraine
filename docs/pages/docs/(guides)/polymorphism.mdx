@@ -60,7 +60,7 @@ export function MenuExample() {
 }
 ```
 
-Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Spread the received props onto one root element and forward its `ref`, so Moraine can resolve native element semantics and manage focus. `Dialog`, `Sheet`, `Drawer`, `Modal`, `DropdownMenu`, and `ContextMenu` triggers throw on mount when no element resolves from the component.
+Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Spread the received props onto one root element and forward its `ref`, so Moraine can resolve native element semantics and manage focus. `Dialog`, `Sheet`, `Drawer`, `BaseDialog`, `DropdownMenu`, and `ContextMenu` triggers throw on mount when no element resolves from the component.
 
 ## Overlay Triggers and Composition
 
@@ -70,7 +70,7 @@ Overlay triggers (`Dialog.Trigger`, `Sheet.Trigger`, `Drawer.Trigger`, `Popover.
 2. **Event Merging**: If you provide your own `onClick` handler on `<Dialog.Trigger as={Button} onClick={...}>`, Moraine calls your handler first. If you call `event.preventDefault()`, the disclosure action is canceled.
 3. **Ref Forwarding**: The `ref` you pass receives the rendered DOM element, so you can manage focus.
 
-`Modal`, `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, and `DropdownMenu` triggers handle clicks on a custom component after its own click handler runs. These custom targets do not receive the composed `onClick` prop; the target's own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including `BaseSelect` and `ContextMenu` triggers, forward `onClick` normally. Delegated events, including keyboard events, also reach custom targets rendered in an iframe document.
+`BaseDialog`, `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, and `DropdownMenu` triggers handle clicks on a custom component after its own click handler runs. These custom targets do not receive the composed `onClick` prop; the target's own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including `BaseSelect` and `ContextMenu` triggers, forward `onClick` normally. Delegated events, including keyboard events, also reach custom targets rendered in an iframe document.
 
 ```tsx
 import { Button, Dialog } from 'moraine'

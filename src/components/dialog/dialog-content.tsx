@@ -19,11 +19,11 @@ import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { BaseDialog } from '../base-dialog/base-dialog'
+import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
+import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
+import { BaseDialogPortal } from '../base-dialog/base-dialog-portal'
 import { Icon } from '../icon'
-import { Modal } from '../modal/modal'
-import { createModalContentBinding } from '../modal/modal-content-binding'
-import { useModalContext } from '../modal/modal-context'
-import { ModalPortal } from '../modal/modal-portal'
 import { createShorthandContent } from '../shared/overlay/shorthand-content'
 
 import {
@@ -76,7 +76,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const dialog = useDialogContext()
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
-  const family = useModalContext()
+  const family = useBaseDialogContext()
   const merged = mergeProps(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     dialog,
@@ -133,7 +133,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
 
   function RenderDialogContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
-    const binding = createModalContentBinding(family, {
+    const binding = createBaseDialogContentBinding(family, {
       ref: () => local.ref,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
@@ -175,13 +175,13 @@ export function DialogContent<T extends ValidComponent = 'div'>(
           </DialogShorthandHeader>
         </Show>
         <Show when={merged.closable}>
-          <Modal.Close
+          <BaseDialog.Close
             data-slot="dialog-content-close"
             aria-label={messages().close}
             {...contentCloseSlot}
           >
             <Icon name={closeIcon()} />
-          </Modal.Close>
+          </BaseDialog.Close>
         </Show>
         {explicitChildren()}
       </Dynamic>
@@ -198,9 +198,9 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         overlayScroll,
       }}
     >
-      <ModalPortal>
+      <BaseDialogPortal>
         <RenderDialogOverlay />
-      </ModalPortal>
+      </BaseDialogPortal>
     </DialogContentProvider>
   )
 }

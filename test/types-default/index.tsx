@@ -27,7 +27,7 @@ import {
   Kbd,
   KbdGroup,
   List,
-  Modal,
+  BaseDialog,
   MoraineProvider,
   MultiSelect,
   Popover,
@@ -62,7 +62,7 @@ import type {
   FormT,
   InputGroupT,
   InputT,
-  ModalT,
+  BaseDialogT,
   MultiSelectT,
   SelectT,
   SidebarT,
@@ -308,7 +308,7 @@ const TypedCustomRoot: Component<{
   type?: 'special'
   children?: JSX.Element
 }> = (props) => <div data-type={props.type}>{props.children}</div>
-const modalContentRenderProps: ModalT.ContentRenderProps = { close: () => undefined }
+const modalContentRenderProps: BaseDialogT.ContentRenderProps = { close: () => undefined }
 modalContentRenderProps.close()
 
 const foo = () => undefined
@@ -702,16 +702,16 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<List id="items" items={[1, 2]} itemRender={(context) => context.item} />
 
-;<Modal defaultOpen>
-  <Modal.Portal>
-    <Modal.Overlay />
-    <Modal.Content aria-label="Type fixture">Modal content</Modal.Content>
-  </Modal.Portal>
-</Modal>
+;<BaseDialog defaultOpen>
+  <BaseDialog.Portal>
+    <BaseDialog.Overlay />
+    <BaseDialog.Content aria-label="Type fixture">Modal content</BaseDialog.Content>
+  </BaseDialog.Portal>
+</BaseDialog>
 // @ts-expect-error String root style is rejected
 ;<Button style="color: red" />
 // @ts-expect-error String slot style is rejected
-;<Modal defaultOpen styles={{ content: 'color: red' }} />
+;<BaseDialog defaultOpen styles={{ content: 'color: red' }} />
 
 ;<Dialog>
   <Dialog.Trigger as={CustomRoot} data-testid="dialog-trigger" required="dialog">
@@ -894,20 +894,20 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   Toggle
 </Sidebar.Trigger>
 
-;<Modal.Trigger
+;<BaseDialog.Trigger
   ref={(element) => {
     const button: HTMLButtonElement = element
     void button
   }}
 />
-;<Modal.Trigger
+;<BaseDialog.Trigger
   as="a"
   ref={(element) => {
     const anchor: HTMLAnchorElement = element
     void anchor
   }}
 />
-;<Modal.Trigger
+;<BaseDialog.Trigger
   as="svg"
   ref={(element) => {
     const svg: SVGSVGElement = element
@@ -1123,7 +1123,7 @@ const theme = defineTheme({
   field: { base: { root: 'space-y-2' }, defaultVariants: { size: 'sm' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
-  modal: { base: { content: 'p-4' } },
+  baseDialog: { base: { content: 'p-4' } },
   combobox: { base: { control: 'min-w-48' } },
   multiSelect: { defaultVariants: { size: 'sm' } },
   select: { defaultVariants: { size: 'sm' } },

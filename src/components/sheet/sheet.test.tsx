@@ -84,7 +84,7 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
-  test('inherits Modal trigger dialog semantics through exit presence', async () => {
+  test('inherits BaseDialog trigger dialog semantics through exit presence', async () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Sheet open={open()}>

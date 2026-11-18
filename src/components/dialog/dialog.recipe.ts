@@ -3,12 +3,12 @@ import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
-  MODAL_CONTENT_CLASS,
-  MODAL_CONTENT_DEFAULT_CLASS,
-  MODAL_CONTENT_FRAME_CLASS,
-  MODAL_OVERLAY_CLASS,
-  modalDataAttributes,
-} from '../modal/modal.recipe'
+  BASE_DIALOG_CONTENT_CLASS,
+  BASE_DIALOG_CONTENT_DEFAULT_CLASS,
+  BASE_DIALOG_CONTENT_FRAME_CLASS,
+  BASE_DIALOG_OVERLAY_CLASS,
+  baseDialogDataAttributes,
+} from '../base-dialog/base-dialog.recipe'
 import {
   OVERLAY_TRIGGER_CLASS,
   overlayTriggerDataAttributes,
@@ -18,14 +18,14 @@ import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
 
 export const dialogDataAttributes = {
   trigger: overlayTriggerDataAttributes,
-  overlay: modalDataAttributes.overlay,
-  content: modalDataAttributes.content,
+  overlay: baseDialogDataAttributes.overlay,
+  content: baseDialogDataAttributes.content,
   body: /* @__PURE__ */ createDataAttributes('footer', 'header', 'scroll'),
 } satisfies DataAttributeContract<keyof DialogStyleSlot>
 
-export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS}  ${MODAL_CONTENT_DEFAULT_CLASS}`
-export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS}  ${MODAL_CONTENT_FRAME_CLASS} mx-auto my-4 relative`
-export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${MODAL_CONTENT_CLASS} border-0 rounded-none flex flex-col size-full max-h-none max-w-none ring-0 inset-0 fixed overflow-hidden`
+export const DIALOG_CONTENT_CLASS = `${BASE_DIALOG_CONTENT_CLASS}  ${BASE_DIALOG_CONTENT_DEFAULT_CLASS}`
+export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${BASE_DIALOG_CONTENT_CLASS}  ${BASE_DIALOG_CONTENT_FRAME_CLASS} mx-auto my-4 relative`
+export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${BASE_DIALOG_CONTENT_CLASS} border-0 rounded-none flex flex-col size-full max-h-none max-w-none ring-0 inset-0 fixed overflow-hidden`
 export const DIALOG_HEADER_CLASS = 'p-6 shrink-0 gap-2 grid auto-rows-min'
 export const DIALOG_TITLE_CLASS = 'text-lg text-foreground leading-tight font-semibold'
 export const DIALOG_DESCRIPTION_CLASS = 'text-sm text-muted-foreground'
@@ -40,7 +40,7 @@ export const dialogRecipe = /* @__PURE__ */ defineRecipe<DialogStyleSlot, Dialog
     base: {
       trigger: OVERLAY_TRIGGER_CLASS,
       content: '',
-      overlay: `${MODAL_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,
+      overlay: `${BASE_DIALOG_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,
       header: `${DIALOG_HEADER_CLASS} min-w-0`,
       title: DIALOG_TITLE_CLASS,
       description: DIALOG_DESCRIPTION_CLASS,

@@ -3,9 +3,9 @@ import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { describe, expect, test } from 'vitest'
 
+import { BaseDialog } from '../components/base-dialog/base-dialog'
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
-import { Modal } from '../components/modal/modal'
 import { Sidebar } from '../components/sidebar/sidebar'
 import type { Cn, CnConfig } from '../theme/cn'
 import * as cnModule from '../theme/cn'
@@ -144,16 +144,16 @@ describe('scoped cn', () => {
       return (
         <>
           <Input defaultValue="hello" class="p-2 p-4" />
-          <Modal defaultOpen>
-            <Modal.Portal>
-              <Modal.Overlay />
-              <Modal.Content class="p-2 p-4" aria-label="Scoped modal">
+          <BaseDialog defaultOpen>
+            <BaseDialog.Portal>
+              <BaseDialog.Overlay />
+              <BaseDialog.Content class="p-2 p-4" aria-label="Scoped modal">
                 <Portal>
                   <Probe id="portal" />
                 </Portal>
-              </Modal.Content>
-            </Modal.Portal>
-          </Modal>
+              </BaseDialog.Content>
+            </BaseDialog.Portal>
+          </BaseDialog>
         </>
       )
     }

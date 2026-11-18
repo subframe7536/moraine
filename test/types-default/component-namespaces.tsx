@@ -31,7 +31,7 @@ import type {
   KbdGroupT,
   KbdT,
   ListT,
-  ModalT,
+  BaseDialogT,
   MultiSelectT,
   PaginationT,
   PinInputT,
@@ -209,7 +209,13 @@ export type ComponentNamespaceHeaders = {
   >
   Kbd: Header<KbdT.Kind, KbdT.Slot, KbdT.Variants, KbdT.Classes, KbdT.Styles>
   List: Header<ListT.Kind, ListT.Slot, ListT.Variants, ListT.Classes, ListT.Styles>
-  Modal: Header<ModalT.Kind, ModalT.Slot, ModalT.Variants, ModalT.Classes, ModalT.Styles>
+  BaseDialog: Header<
+    BaseDialogT.Kind,
+    BaseDialogT.Slot,
+    BaseDialogT.Variants,
+    BaseDialogT.Classes,
+    BaseDialogT.Styles
+  >
   MultiSelect: Header<
     MultiSelectT.Kind,
     MultiSelectT.Slot,
@@ -397,7 +403,7 @@ export type RetainedNamespaceMembers = [
   SidebarT.Context,
   FieldT.RenderProps,
   ResizableT.HandleRenderProps,
-  ModalT.ContentRenderProps,
+  BaseDialogT.ContentRenderProps,
   BaseSelectT.TriggerRenderProps,
   BaseSelectT.ItemRenderProps,
 ]
@@ -429,14 +435,14 @@ export type CompositePartContracts = [
   SidebarT.InsetProps,
   SidebarT.TriggerBase,
   SidebarT.TriggerProps,
-  ModalT.TriggerBase,
-  ModalT.TriggerProps,
-  ModalT.OverlayBase,
-  ModalT.OverlayProps,
-  ModalT.ContentBase,
-  ModalT.ContentProps,
-  ModalT.CloseBase,
-  ModalT.CloseProps,
+  BaseDialogT.TriggerBase,
+  BaseDialogT.TriggerProps,
+  BaseDialogT.OverlayBase,
+  BaseDialogT.OverlayProps,
+  BaseDialogT.ContentBase,
+  BaseDialogT.ContentProps,
+  BaseDialogT.CloseBase,
+  BaseDialogT.CloseProps,
   DialogT.TriggerBase,
   DialogT.TriggerProps,
   DialogT.ContentBase,

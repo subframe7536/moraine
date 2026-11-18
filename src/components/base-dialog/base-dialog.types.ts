@@ -4,12 +4,12 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
 
-import type { ModalStyleSlot, ModalStyleVariants } from './modal.style-types'
+import type { BaseDialogStyleSlot, BaseDialogStyleVariants } from './base-dialog.style-types'
 
-export namespace ModalT {
+export namespace BaseDialogT {
   export type Kind = 'composite'
-  export type Slot<T = unknown> = ModalStyleSlot<T>
-  export type Variants = ModalStyleVariants
+  export type Slot<T = unknown> = BaseDialogStyleSlot<T>
+  export type Variants = BaseDialogStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -108,8 +108,8 @@ export namespace ModalT {
     modal?: boolean
 
     /**
-     * DOM node that `Modal.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,
-     * for example a container element or a shadow root. A `mount` on `Modal.Portal` takes
+     * DOM node that `BaseDialog.Portal`, and the content of `Dialog`, `Sheet` and `Drawer`, render into,
+     * for example a container element or a shadow root. A `mount` on `BaseDialog.Portal` takes
      * precedence. Defaults to the `body` of the trigger's document.
      * @example
      * ```tsx
@@ -173,7 +173,7 @@ export namespace ModalT {
 
   export interface PortalBase {
     /**
-     * DOM node the overlay and content render into. Takes precedence over `mount` on `Modal`;
+     * DOM node the overlay and content render into. Takes precedence over `mount` on `BaseDialog`;
      * defaults to the `body` of the trigger's document.
      */
     mount?: Node
@@ -191,15 +191,9 @@ export namespace ModalT {
     ref?: (element: HTMLDivElement) => void
 
     /**
-     * Whether to render the visual backdrop layer. When false, acts as an unstyled container for nested content.
-     * @default true
-     */
-    overlay?: boolean
-
-    /**
      * Whether the overlay element itself scrolls, so content taller than the viewport scrolls
      * inside the backdrop (with padding) while `preventScroll` keeps the page itself from
-     * scrolling. Has no effect when `overlay` is `false`.
+     * scrolling.
      */
     scrollable?: boolean
 
@@ -239,5 +233,5 @@ export namespace ModalT {
   >
 }
 
-/** Props for the Modal component. */
-export type ModalProps = ModalT.Props
+/** Props for the BaseDialog component. */
+export type BaseDialogProps = BaseDialogT.Props

@@ -6,54 +6,54 @@ import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 
-import { createModalContentBinding } from './modal-content-binding'
-import { useModalContext } from './modal-context'
-import { modalDataAttributes, modalRecipe } from './modal.recipe'
-import type { ModalT } from './modal.types'
+import { createBaseDialogContentBinding } from './base-dialog-content-binding'
+import { useBaseDialogContext } from './base-dialog-context'
+import { baseDialogDataAttributes, baseDialogRecipe } from './base-dialog.recipe'
+import type { BaseDialogT } from './base-dialog.types'
 
 /**
- * Surface of a `Modal` that holds the modal's content and carries the `dialog` role. Place it
- * inside `Modal.Portal`, next to `Modal.Overlay`; one `Modal` root owns one active content. Give
+ * Surface of a `BaseDialog` that holds the modal's content and carries the `dialog` role. Place it
+ * inside `BaseDialog.Portal`, next to `BaseDialog.Overlay`; one `BaseDialog` root owns one active content. Give
  * it an accessible name with `aria-label` or `aria-labelledby`. Children can be JSX or a function
  * that receives `close`. Renders a `div`; pass `as` to change the element.
  *
  * @example
  * ```tsx
- * import { Button, Modal } from 'moraine'
+ * import { Button, BaseDialog } from 'moraine'
  *
- * <Modal>
- *   <Modal.Trigger as={Button}>Open</Modal.Trigger>
- *   <Modal.Portal>
- *     <Modal.Overlay />
- *     <Modal.Content aria-label="Custom surface">
+ * <BaseDialog>
+ *   <BaseDialog.Trigger as={Button}>Open</BaseDialog.Trigger>
+ *   <BaseDialog.Portal>
+ *     <BaseDialog.Overlay />
+ *     <BaseDialog.Content aria-label="Custom surface">
  *       {(context) => <Button onClick={context.close}>Close</Button>}
- *     </Modal.Content>
- *   </Modal.Portal>
- * </Modal>
+ *     </BaseDialog.Content>
+ *   </BaseDialog.Portal>
+ * </BaseDialog>
  * ```
  */
-export function ModalContent<T extends ValidComponent = 'div'>(
-  props: ModalT.ContentProps<T>,
+export function BaseDialogContent<T extends ValidComponent = 'div'>(
+  props: BaseDialogT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as ModalT.ContentProps<T> & { ref?: unknown }, [
+  const [local, rest] = splitProps(props as BaseDialogT.ContentProps<T> & { ref?: unknown }, [
     'as',
     'ref',
     'children',
     'class',
     'style',
   ])
-  const context = useModalContext()
-  const binding = createModalContentBinding(context, {
+  const context = useBaseDialogContext()
+  const binding = createBaseDialogContentBinding(context, {
     ref: () => local.ref,
     onKeyDown: () =>
       rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
   const {
     slots: { content: contentSlot },
-  } = useRecipe(modalRecipe, local, {
+  } = useRecipe(baseDialogRecipe, local, {
     slot: 'content',
     data: {
-      content: modalDataAttributes.content({
+      content: baseDialogDataAttributes.content({
         expanded: context.open,
         closed: () => !context.open(),
         transition: context.transition,
@@ -74,7 +74,7 @@ export function ModalContent<T extends ValidComponent = 'div'>(
   return (
     <Dynamic
       component={tag()}
-      data-slot="modal-content"
+      data-slot="base-dialog-content"
       role="dialog"
       id={context.contentId()}
       tabIndex={binding.tabIndex}

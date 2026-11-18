@@ -1,4 +1,4 @@
-import { Button, Icon, Modal } from '@src'
+import { Button, Icon, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Draggable() {
@@ -49,19 +49,19 @@ export function Draggable() {
   const resetPosition = () => setPosition({ x: 0, y: 0 })
 
   return (
-    <Modal
+    <BaseDialog
       onOpenChange={(open) => {
         if (!open) {
           resetPosition()
         }
       }}
     >
-      <Modal.Trigger as={Button} variant="outline" leading="i-lucide:move">
+      <BaseDialog.Trigger as={Button} variant="outline" leading="i-lucide:move">
         Open Draggable Modal
-      </Modal.Trigger>
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content
+      </BaseDialog.Trigger>
+      <BaseDialog.Portal>
+        <BaseDialog.Overlay />
+        <BaseDialog.Content
           aria-label="Draggable Modal"
           style={{
             translate: `calc(-50% + ${position().x}px) calc(-50% + ${position().y}px)`,
@@ -118,8 +118,8 @@ export function Draggable() {
               </div>
             </div>
           )}
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal>
+        </BaseDialog.Content>
+      </BaseDialog.Portal>
+    </BaseDialog>
   )
 }

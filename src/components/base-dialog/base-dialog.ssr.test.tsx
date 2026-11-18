@@ -4,9 +4,9 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Button } from '../button'
 
-import { Modal } from './modal'
+import { BaseDialog } from './base-dialog'
 
-describe('Modal SSR Hydration', () => {
+describe('BaseDialog SSR Hydration', () => {
   test('hydrates the polymorphic trigger and defers closed content', () => {
     let mounts = 0
     const Content = () => {
@@ -15,23 +15,23 @@ describe('Modal SSR Hydration', () => {
     }
 
     const { container } = hydrateFixture(
-      '/src/components/modal/modal.ssr.fixture.tsx',
+      '/src/components/base-dialog/base-dialog.ssr.fixture.tsx',
       'renderModalFixture',
       () => (
-        <Modal>
-          <Modal.Trigger as={Button} variant="outline">
+        <BaseDialog>
+          <BaseDialog.Trigger as={Button} variant="outline">
             Open modal
-          </Modal.Trigger>
-          <Modal.Portal>
-            <Modal.Content>
+          </BaseDialog.Trigger>
+          <BaseDialog.Portal>
+            <BaseDialog.Content>
               <Content />
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
+            </BaseDialog.Content>
+          </BaseDialog.Portal>
+        </BaseDialog>
       ),
     )
 
-    const trigger = container.querySelector('[data-slot="modal-trigger"]')!
+    const trigger = container.querySelector('[data-slot="base-dialog-trigger"]')!
 
     expect(trigger).not.toBeNull()
     expect(mounts).toBe(0)

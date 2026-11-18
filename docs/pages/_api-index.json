@@ -31,6 +31,11 @@
       "category": "display"
     },
     {
+      "key": "base-dialog",
+      "name": "BaseDialog",
+      "category": "overlay"
+    },
+    {
       "key": "base-select",
       "name": "BaseSelect",
       "category": "select"
@@ -169,11 +174,6 @@
       "key": "list",
       "name": "List",
       "category": "display"
-    },
-    {
-      "key": "modal",
-      "name": "Modal",
-      "category": "overlay"
     },
     {
       "key": "multi-select",

@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { Modal } from '../modal/modal'
+import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDrawerContext } from './drawer-context'
 import { drawerRecipe } from './drawer.recipe'
@@ -34,5 +34,5 @@ export function DrawerTrigger<T extends ValidComponent = 'button'>(
     slot: 'trigger',
     context: () => drawer.slotOverrides,
   })
-  return <Modal.Trigger data-slot="drawer-trigger" {...triggerSlot} {...rest} />
+  return <BaseDialog.Trigger data-slot="drawer-trigger" {...triggerSlot} {...rest} />
 }

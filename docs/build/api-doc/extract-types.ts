@@ -160,7 +160,7 @@ export class TypeExtractor {
       }
     }
 
-    // 2. Handle qualified names like ModalT.Base or BaseSelectT.Item
+    // 2. Handle qualified names like BaseDialogT.Base or BaseSelectT.Item
     if (name.includes('.')) {
       const dotIndex = name.indexOf('.')
       const nsName = name.slice(0, dotIndex)
