@@ -37,7 +37,7 @@ import Playground from './playground'
 ## Usage
 
 Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at
-`max`. Keep the full membership available elsewhere when users need every name. For a single person,
+`maxVisible`. Keep the full membership available elsewhere when users need every name. For a single person,
 use [Avatar](/components/avatar).
 
 ```tsx
@@ -54,26 +54,26 @@ Each entry in `items` accepts the [Avatar](/components/avatar) props except `slo
 `size` (default `md`) overrides an entry's `size`. AvatarGroup renders nothing for an empty `items`
 array, and items keep input order in the DOM.
 
-Omit `max` to show every avatar. A positive `max` is rounded down. Set `max` to `0` (or any negative
+Omit `maxVisible` to show every avatar. A positive `maxVisible` is rounded down. Set `maxVisible` to `0` (or any negative
 value) to show only the `+N` count. `N` is the number of hidden items.
 
 ```tsx
-<AvatarGroup max={3} items={reviewers} />
-<AvatarGroup max={0} items={reviewers} />
+<AvatarGroup maxVisible={3} items={reviewers} />
+<AvatarGroup maxVisible={0} items={reviewers} />
 ```
 
 ## Examples
 
 ### Show pull request reviewers
 
-Cap the stack with `max` so a long reviewer list stays in one row. The overflow count is the rest of
+Cap the stack with `maxVisible` so a long reviewer list stays in one row. The overflow count is the rest of
 the membership.
 
 <Preview path="./grouping-usage" />
 
 ### Collapse reviewers to a count
 
-A positive `max` shows that many faces plus `+N`. Set `max={0}` to render only the remainder count
+A positive `maxVisible` shows that many faces plus `+N`. Set `maxVisible={0}` to render only the remainder count
 when the row has no room for faces.
 
 <Preview path="./overflow-count" />

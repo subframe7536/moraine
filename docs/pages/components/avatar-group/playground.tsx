@@ -37,7 +37,7 @@ export default function AvatarGroupPlayground() {
       controls={[
         {
           kind: 'input',
-          prop: 'max',
+          prop: 'maxVisible',
           label: 'Visible avatars',
           defaultValue: 3,
           inputType: 'number',
@@ -55,7 +55,7 @@ export default function AvatarGroupPlayground() {
         },
       ]}
     >
-      {(props) => <AvatarGroup max={props.max} size={props.size} items={MEMBERS} />}
+      {(props) => <AvatarGroup maxVisible={props.maxVisible} size={props.size} items={MEMBERS} />}
     </DocsPlayground>
   )
 }

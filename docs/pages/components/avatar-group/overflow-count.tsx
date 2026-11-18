@@ -34,11 +34,11 @@ export function OverflowCount() {
     <div class="space-y-4">
       <div class="space-y-1.5">
         <p class="text-xs text-muted-foreground">Faces plus remainder</p>
-        <AvatarGroup max={3} items={REVIEWERS} />
+        <AvatarGroup maxVisible={3} items={REVIEWERS} />
       </div>
       <div class="space-y-1.5">
         <p class="text-xs text-muted-foreground">Count only</p>
-        <AvatarGroup max={0} items={REVIEWERS} />
+        <AvatarGroup maxVisible={0} items={REVIEWERS} />
       </div>
     </div>
   )

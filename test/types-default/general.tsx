@@ -42,9 +42,9 @@ void missingValue
   <Resizable.Panel id="b" />
 </Resizable>
 
-;<AvatarGroup max={0} />
+;<AvatarGroup maxVisible={0} />
 // @ts-expect-error max accepts numbers only.
-;<AvatarGroup max="2" />
+;<AvatarGroup maxVisible="2" />
 ;<ButtonGroup size="sm" orientation="vertical">
   <ButtonGroup.Separator />
 </ButtonGroup>

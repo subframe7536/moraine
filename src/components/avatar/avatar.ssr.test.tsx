@@ -10,7 +10,7 @@ test('hydrates a real image src and group overflow', () => {
   const { container } = hydrateFixture(
     '/src/components/avatar/avatar.ssr.fixture.tsx',
     'renderAvatarFixture',
-    () => <AvatarHydrationFixture max={max()} />,
+    () => <AvatarHydrationFixture maxVisible={max()} />,
   )
   const image = container.querySelector('img')!
   const badge = container.querySelector('[data-slot="avatar-badge"]')!

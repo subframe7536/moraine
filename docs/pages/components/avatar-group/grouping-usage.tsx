@@ -3,7 +3,7 @@ import { AvatarGroup } from '@src'
 export function GroupingUsage() {
   return (
     <AvatarGroup
-      max={3}
+      maxVisible={3}
       items={[
         {
           src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&fit=crop&q=80',

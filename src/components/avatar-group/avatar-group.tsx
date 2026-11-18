@@ -10,7 +10,7 @@ import type { AvatarGroupProps } from './avatar-group.types'
 /**
  * Group of overlapping avatars with optional overflow count, for showing a small set of people in
  * a bounded space. Each entry in `items` takes the `Avatar` props. Use `Avatar` for a single
- * person. It renders nothing for an empty `items` array, and `max` caps the visible avatars,
+ * person. It renders nothing for an empty `items` array, and `maxVisible` caps the visible avatars,
  * replacing the rest with a `+N` count.
  *
  * @example
@@ -18,7 +18,7 @@ import type { AvatarGroupProps } from './avatar-group.types'
  * import { AvatarGroup } from 'moraine'
  *
  * <AvatarGroup
- *   max={3}
+ *   maxVisible={3}
  *   items={[
  *     { src: '/alex.png', alt: 'Alex', text: 'A' },
  *     { alt: 'Blake', text: 'B' },
@@ -31,7 +31,7 @@ import type { AvatarGroupProps } from './avatar-group.types'
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
-    'max',
+    'maxVisible',
     'size',
     'classes',
     'styles',
@@ -52,8 +52,10 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
       return []
     }
 
-    const max = local.max
-    return max === undefined ? allItems : allItems.slice(0, Math.max(0, Math.floor(max)))
+    const maxVisible = local.maxVisible
+    return maxVisible === undefined
+      ? allItems
+      : allItems.slice(0, Math.max(0, Math.floor(maxVisible)))
   })
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)

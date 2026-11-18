@@ -4,7 +4,7 @@ import { AvatarGroup } from '../avatar-group/avatar-group'
 
 import { Avatar } from './avatar'
 
-export function AvatarHydrationFixture(props: { max?: number }) {
+export function AvatarHydrationFixture(props: { maxVisible?: number }) {
   return (
     <>
       <Avatar
@@ -14,7 +14,7 @@ export function AvatarHydrationFixture(props: { max?: number }) {
         badge={<span>Online</span>}
       />
       <AvatarGroup
-        max={props.max ?? 1}
+        maxVisible={props.maxVisible ?? 1}
         items={[{ alt: 'Grace Hopper', icon: 'i-lucide-user' }, { alt: 'Alan Turing' }]}
       />
     </>

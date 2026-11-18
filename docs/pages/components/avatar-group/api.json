@@ -42,7 +42,7 @@
           ]
         },
         {
-          "name": "max",
+          "name": "maxVisible",
           "optional": true,
           "type": "number",
           "description": "Maximum number of avatars shown. The remaining ones are replaced by a single `+N` count\nelement. Fractions are rounded down and negative values show none. All items are shown when\n`undefined`."

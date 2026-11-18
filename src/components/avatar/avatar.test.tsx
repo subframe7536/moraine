@@ -400,7 +400,10 @@ describe('Avatar', () => {
   test('renders avatar group with items + max', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
+        <AvatarGroup
+          maxVisible={2}
+          items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]}
+        />
       </MoraineProvider>
     ))
 
@@ -440,8 +443,8 @@ describe('Avatar', () => {
   test('shows only the overflow count for max zero and floors positive max', () => {
     const screen = render(() => (
       <>
-        <AvatarGroup max={0} items={[{ text: 'A' }, { text: 'B' }]} />
-        <AvatarGroup max={1.8} items={[{ text: 'C' }, { text: 'D' }]} />
+        <AvatarGroup maxVisible={0} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup maxVisible={1.8} items={[{ text: 'C' }, { text: 'D' }]} />
       </>
     ))
     const groups = screen.container.querySelectorAll('[data-slot="avatar-group"]')
@@ -494,7 +497,7 @@ describe('Avatar', () => {
   test('applies styles overrides to group slots', () => {
     const screen = render(() => (
       <AvatarGroup
-        max={1}
+        maxVisible={1}
         items={[{ text: 'A' }, { text: 'B' }]}
         styles={{
           root: { width: '200px' },

@@ -42,7 +42,7 @@ export namespace AvatarGroupT {
      * element. Fractions are rounded down and negative values show none. All items are shown when
      * `undefined`.
      */
-    max?: number
+    maxVisible?: number
   }
 
   /** Props for the AvatarGroup component. */
