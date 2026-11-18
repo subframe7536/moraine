@@ -17,7 +17,6 @@ export namespace AccordionT {
 
   export interface ContentRenderProps {
     expanded: boolean
-    closed: boolean
     disabled: boolean
     value: string
   }
@@ -55,7 +54,7 @@ export namespace AccordionT {
 
     /**
      * Panel content for the item. Accepts static JSX or a component that receives
-     * `{ expanded, closed, disabled, value }`. It is mounted when the item first opens (see
+     * `{ expanded, disabled, value }`. It is mounted when the item first opens (see
      * `forceMount` on the accordion).
      */
     content?: JSX.Element | Component<ContentRenderProps>

@@ -358,9 +358,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
                         get expanded() {
                           return expanded()
                         },
-                        get closed() {
-                          return disclosure.closed()
-                        },
                         get disabled() {
                           return disabled()
                         },

@@ -1025,10 +1025,10 @@ describe('Accordion', () => {
     expect(screen.getByRole('heading', { level: 2 })).not.toBeNull()
   })
 
-  test('renders item content as a component receiving { expanded, closed, disabled, value }', () => {
+  test('renders item content as a component receiving { expanded, disabled, value }', () => {
     const CustomContent = (props: AccordionT.ContentRenderProps) => (
       <div data-testid="custom-content">
-        Value: {props.value}, Expanded: {String(props.expanded)}, Closed: {String(props.closed)}
+        Value: {props.value}, Expanded: {String(props.expanded)}
       </div>
     )
 
@@ -1040,9 +1040,9 @@ describe('Accordion', () => {
     ))
 
     const content = screen.getByTestId('custom-content')
-    expect(content.textContent).toBe('Value: custom, Expanded: true, Closed: false')
+    expect(content.textContent).toBe('Value: custom, Expanded: true')
 
     fireEvent.click(screen.getByRole('button', { name: 'Custom' }))
-    expect(content.textContent).toBe('Value: custom, Expanded: false, Closed: true')
+    expect(content.textContent).toBe('Value: custom, Expanded: false')
   })
 })
