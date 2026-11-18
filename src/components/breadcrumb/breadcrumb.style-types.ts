@@ -33,7 +33,9 @@ export interface BreadcrumbStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual wrap of the component.
+  /**
+   * Whether the trail wraps onto more lines when it is wider than its container. When `false`,
+   * it stays on one line and the overflow is clipped.
    * @default true
    */
   wrap?: boolean

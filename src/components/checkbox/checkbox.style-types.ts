@@ -28,7 +28,10 @@ export interface CheckboxStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual treatment of the component.
+  /**
+   * Layout of the checkbox. `list` is a plain row of control, label, and description, where only
+   * the control and label toggle. `card` wraps them in a bordered, padded card that toggles when
+   * clicked anywhere outside nested interactive elements. When omitted, it renders like `list`.
    */
   variant?: 'card' | 'list'
   /** Placement of the selection indicator relative to the label.

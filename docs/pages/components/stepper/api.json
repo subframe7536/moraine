@@ -63,7 +63,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Unique value identifying the step in `value` and `onValueChange`. A step that repeats an\nearlier step's value is disabled. */\n  value: Value;\n  /** Label of the step. It names the step trigger for assistive technology. */\n  label?: JSX.Element;\n  /** Secondary description of the step, shown with the label and used as the trigger's accessible description. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator instead of the step number. */\n  icon?: IconT.Name;\n  /** Content to display in the panel below the steps while this step is active. Accepts static JSX\nor a component receiving `{ value, index }`. A step without `content` renders no panel. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for this step's item element, merged after the slot classes. */\n  class?: string;\n})[]",
+          "typeDetails": "({\n  /** Unique value identifying the step in `value` and `onValueChange`. A step that repeats an\nearlier step's value is disabled. */\n  value: Value;\n  /** Label of the step. It names the step trigger for assistive technology. */\n  label?: JSX.Element;\n  /** Secondary description of the step, shown with the label and used as the trigger's accessible description. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator. When omitted, the indicator shows the one-based step\nnumber. */\n  icon?: IconT.Name;\n  /** Content to display in the panel below the steps while this step is active. Accepts static JSX\nor a component receiving `{ value, index }`. A step without `content` renders no panel. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Extra class applied to this step's item element. It is merged after the `item` slot classes,\nincluding `classes.item`, so its utilities win on conflict. */\n  class?: SlotClassValue;\n})[]",
           "description": "Array of steps to display, in order.",
           "examples": [
             "import { Stepper } from 'moraine'\n\n<Stepper\n  navigation=\"free\"\n  items={[\n    { value: 'cart', label: 'Cart', description: '2 items' },\n    { value: 'shipping', label: 'Shipping', icon: 'icon-truck' },\n    { value: 'payment', label: 'Payment', disabled: true },\n  ]}\n/>"
@@ -142,8 +142,8 @@
       {
         "name": "class",
         "optional": true,
-        "type": "string",
-        "description": "Additional class name for this step's item element, merged after the slot classes."
+        "type": "SlotClassValue",
+        "description": "Extra class applied to this step's item element. It is merged after the `item` slot classes,\nincluding `classes.item`, so its utilities win on conflict."
       },
       {
         "name": "content",
@@ -174,11 +174,7 @@
         "name": "icon",
         "optional": true,
         "type": "IconT.Name",
-        "description": "Icon to display in the step indicator instead of the step number.",
-        "default": {
-          "kind": "expression",
-          "text": "index + 1"
-        }
+        "description": "Icon to display in the step indicator. When omitted, the indicator shows the one-based step\nnumber."
       },
       {
         "name": "label",

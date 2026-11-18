@@ -41,7 +41,11 @@ export interface CheckboxGroupStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual treatment of the component.
+  /**
+   * Layout of the options. `list` stacks plain checkbox rows with a gap. `card` renders each
+   * option as a separate bordered, padded card that toggles when clicked anywhere. `table` joins
+   * the options into one bordered block with shared edges, each row toggling when clicked
+   * anywhere.
    * @default 'list'
    */
   variant?: 'card' | 'table' | 'list'

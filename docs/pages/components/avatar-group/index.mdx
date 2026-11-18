@@ -50,8 +50,8 @@ export function Example() {
 
 ### Overflow count
 
-Each entry in `items` accepts the [Avatar](/components/avatar) props. The group
-`size` (default `md`) overrides an entry's `size`. AvatarGroup renders nothing for an empty `items`
+Each entry in `items` accepts the [Avatar](/components/avatar) props except `size`: every avatar
+uses the group `size` (default `md`). AvatarGroup renders nothing for an empty `items`
 array, and items keep input order in the DOM.
 
 Omit `maxVisible` to show every avatar. A positive `maxVisible` is rounded down. Set `maxVisible` to `0` (or any negative

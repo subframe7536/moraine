@@ -61,7 +61,7 @@ export namespace AccordionT {
 
     /**
      * Extra class applied to this item's root element, merged after the `item` slot class and
-     * overridable by `classes.item`.
+     * `classes.item`, so it wins on conflicts.
      */
     class?: SlotClassValue
   }

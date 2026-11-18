@@ -31,8 +31,8 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** URL of the avatar image. Surrounding whitespace is trimmed. When empty or missing the status is\n`error` and the fallback is shown; changing it restarts loading. */\n  src?: string;\n  /** Alt text of the image and accessible name of the fallback. When `text` is not set, the fallback\nshows up to two initials taken from the first letters of the first words of `alt`. */\n  alt?: string;\n  /** Name of an icon rendered in a small badge anchored to a corner of the avatar (see\n`badgePosition`). Nothing is rendered when omitted. */\n  badge?: IconT.Name;\n  /** Text shown in the fallback while the image is loading, failed, or missing, typically initials.\nIt is trimmed, and when blank the initials of `alt` are used instead. Ignored when `icon` is set. */\n  text?: string;\n  /** Name of an icon shown in the fallback in place of `text` or initials while the image is unavailable. */\n  icon?: IconT.Name;\n  /** Called whenever the image status changes, including once after mount with the initial status\n(`loading` when `src` is set, otherwise `error`). The status is `loaded` once the image has\nloaded and `error` when it fails or `src` is empty. It is not called on the server. */\n  onStatusChange?: (status: Status) => void;\n} & {\n  /** Visual size of the component. */\n  size?: 'sm' | 'md' | 'lg';\n  /** Position of the badge relative to the avatar. */\n  badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';\n})[]",
-          "description": "Avatars to render, in order. Each entry accepts the `Avatar` props (`src`, `alt`, `text`,\n`icon`, `badge`, `badgePosition`, `onStatusChange`). An entry's `size` is\noverridden by the group `size`. An empty array renders nothing.",
+          "typeDetails": "({\n  /** URL of the avatar image. Surrounding whitespace is trimmed. When empty or missing the status is\n`error` and the fallback is shown; changing it restarts loading. */\n  src?: string;\n  /** Alt text of the image and accessible name of the fallback. When `text` is not set, the fallback\nshows up to two initials taken from the first letters of the first words of `alt`. */\n  alt?: string;\n  /** Name of an icon rendered in a small badge anchored to a corner of the avatar (see\n`badgePosition`). Nothing is rendered when omitted. */\n  badge?: IconT.Name;\n  /** Text shown in the fallback while the image is loading, failed, or missing, typically initials.\nIt is trimmed, and when blank the initials of `alt` are used instead. Ignored when `icon` is set. */\n  text?: string;\n  /** Name of an icon shown in the fallback in place of `text` or initials while the image is unavailable. */\n  icon?: IconT.Name;\n  /** Called whenever the image status changes, including once after mount with the initial status\n(`loading` when `src` is set, otherwise `error`). The status is `loaded` once the image has\nloaded and `error` when it fails or `src` is empty. It is not called on the server. */\n  onStatusChange?: (status: Status) => void;\n} & Omit<AvatarT.Variants, 'size'>)[]",
+          "description": "Avatars to render, in order. Each entry accepts the `Avatar` props (`src`, `alt`, `text`,\n`icon`, `badge`, `badgePosition`, `onStatusChange`) except `size`; every avatar uses the\ngroup `size`. An empty array renders nothing.",
           "default": {
             "kind": "expression",
             "text": "[]"
@@ -73,6 +73,7 @@
     }
   ],
   "item": {
+    "description": "One avatar entry: the `Avatar` props except `size`, which the group sets.",
     "props": [
       {
         "name": "alt",
@@ -110,16 +111,6 @@
         "examples": [
           "import { Avatar } from 'moraine'\n\n<Avatar\n  src=\"/alex.png\"\n  alt=\"Alex Rivera\"\n  onStatusChange={(status) => console.log(status)}\n/>"
         ]
-      },
-      {
-        "name": "size",
-        "optional": true,
-        "type": "'sm' | 'md' | 'lg'",
-        "description": "Visual size of the component.",
-        "default": {
-          "kind": "literal",
-          "value": "md"
-        }
       },
       {
         "name": "src",

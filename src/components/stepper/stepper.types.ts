@@ -45,8 +45,8 @@ export namespace StepperT {
     description?: JSX.Element
 
     /**
-     * Icon to display in the step indicator instead of the step number.
-     * @default index + 1
+     * Icon to display in the step indicator. When omitted, the indicator shows the one-based step
+     * number.
      */
     icon?: IconT.Name
 
@@ -75,9 +75,10 @@ export namespace StepperT {
     disabled?: boolean
 
     /**
-     * Additional class name for this step's item element, merged after the slot classes.
+     * Extra class applied to this step's item element. It is merged after the `item` slot classes,
+     * including `classes.item`, so its utilities win on conflict.
      */
-    class?: string
+    class?: SlotClassValue
   }
 
   /**

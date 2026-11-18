@@ -197,7 +197,7 @@
           "name": "side",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Viewport edge used by the component Recipe.",
+          "description": "Viewport edge the drawer is attached to and slides in from. Swiping toward that edge dismisses\nit, and only `top` and `bottom` drawers render the grab handle.",
           "default": {
             "kind": "literal",
             "value": "bottom"

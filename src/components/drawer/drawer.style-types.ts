@@ -33,7 +33,9 @@ export interface DrawerStyleSlot<T = unknown> {
 }
 
 export interface DrawerStyleVariants {
-  /** Viewport edge used by the component Recipe.
+  /**
+   * Viewport edge the drawer is attached to and slides in from. Swiping toward that edge dismisses
+   * it, and only `top` and `bottom` drawers render the grab handle.
    * @default 'bottom'
    */
   side?: 'top' | 'right' | 'bottom' | 'left'

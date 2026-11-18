@@ -1,3 +1,4 @@
+import type { OverlayPlacement } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface SheetStyleSlot<T = unknown> {
@@ -30,8 +31,12 @@ export interface SheetStyleSlot<T = unknown> {
 }
 
 export interface SheetStyleVariants {
-  /** Viewport edge used by the component Recipe. */
-  side?: 'top' | 'right' | 'bottom' | 'left'
+  /**
+   * Viewport edge the sheet is attached to and slides in from. `left` and `right` panels span the
+   * full height; `top` and `bottom` panels span the full width.
+   * @default 'right'
+   */
+  side?: OverlayPlacement
 
   /** Whether the surface is inset from viewport edges.
    * @default false

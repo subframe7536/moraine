@@ -171,7 +171,7 @@
           "name": "variant",
           "optional": true,
           "type": "'card' | 'table' | 'list'",
-          "description": "Visual treatment of the component.",
+          "description": "Layout of the options. `list` stacks plain checkbox rows with a gap. `card` renders each\noption as a separate bordered, padded card that toggles when clicked anywhere. `table` joins\nthe options into one bordered block with shared edges, each row toggling when clicked\nanywhere.",
           "default": {
             "kind": "literal",
             "value": "list"

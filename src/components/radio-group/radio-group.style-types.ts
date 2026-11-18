@@ -39,7 +39,12 @@ export interface RadioGroupStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual treatment of the component.
+  /**
+   * Layout of the options. `list` stacks plain radio rows with a gap, where only the control and
+   * label select. `card` renders each option as a separate bordered, padded card that selects
+   * when clicked anywhere and gets a primary border when checked. `table` joins the options into
+   * one bordered block with shared edges; the checked row gets a primary border and a tinted
+   * background.
    * @default 'list'
    */
   variant?: 'card' | 'table' | 'list'

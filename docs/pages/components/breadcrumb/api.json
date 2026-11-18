@@ -94,7 +94,7 @@
           "name": "wrap",
           "optional": true,
           "type": "boolean",
-          "description": "Visual wrap of the component.",
+          "description": "Whether the trail wraps onto more lines when it is wider than its container. When `false`,\nit stays on one line and the overflow is clipped.",
           "default": {
             "kind": "literal",
             "value": true

@@ -159,7 +159,7 @@
           "name": "variant",
           "optional": true,
           "type": "'card' | 'table' | 'list'",
-          "description": "Visual treatment of the component.",
+          "description": "Layout of the options. `list` stacks plain radio rows with a gap, where only the control and\nlabel select. `card` renders each option as a separate bordered, padded card that selects\nwhen clicked anywhere and gets a primary border when checked. `table` joins the options into\none bordered block with shared edges; the checked row gets a primary border and a tinted\nbackground.",
           "default": {
             "kind": "literal",
             "value": "list"
