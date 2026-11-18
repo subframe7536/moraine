@@ -69,7 +69,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'defaultValue',
     'onValueChange',
     'onComplete',
-    'onValueInvalid',
+    'onReject',
     'autoSubmit',
     'inputMode',
     'normalizeValue',
@@ -280,7 +280,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
     const [validChars, didReject] = filterTypedChars(typed, validationType(), local.normalizeValue)
     if (didReject) {
-      local.onValueInvalid?.(raw)
+      local.onReject?.(raw)
     }
 
     if (validChars.length === 0) {
@@ -545,7 +545,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
               local.normalizeValue,
             )
             if (didReject) {
-              local.onValueInvalid?.(raw)
+              local.onReject?.(raw)
             }
 
             const next = spliceChars(createEmptyChars(length()), 0, validChars, length())
@@ -675,7 +675,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     local.normalizeValue,
                   )
                   if (didReject || validChars.length > length()) {
-                    local.onValueInvalid?.(pastedText)
+                    local.onReject?.(pastedText)
                   }
                   if (validChars.length === 0) {
                     return

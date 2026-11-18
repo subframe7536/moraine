@@ -171,16 +171,16 @@
           "description": "Native focusout event for every slot blur, including moves between slots.\nCalling `preventDefault` skips `onBlur`."
         },
         {
+          "name": "onReject",
+          "optional": true,
+          "type": "(value: string) => void",
+          "description": "Callback when entered text contains characters rejected by `validationType`\nor `normalizeValue`. Receives the raw entered text before filtering."
+        },
+        {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
           "description": "Called whenever the entered characters change, with an array of `length` entries holding\none character per slot and `''` for empty slots. Use `.join('')` for the string."
-        },
-        {
-          "name": "onValueInvalid",
-          "optional": true,
-          "type": "(value: string) => void",
-          "description": "Callback when entered text contains characters rejected by `validationType`\nor `normalizeValue`. Receives the raw entered text before filtering."
         },
         {
           "name": "otp",
@@ -268,7 +268,7 @@
           "name": "validationType",
           "optional": true,
           "type": "ValidationType",
-          "description": "Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,\n`'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped\nand reported to `onValueInvalid`. It also picks the default `inputMode` (`numeric` for\n`'number'`, `text` otherwise).",
+          "description": "Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,\n`'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped\nand reported to `onReject`. It also picks the default `inputMode` (`numeric` for\n`'number'`, `text` otherwise).",
           "default": {
             "kind": "literal",
             "value": "text"

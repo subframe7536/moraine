@@ -814,7 +814,7 @@ describe('PinInput', () => {
 
   test('distributes autofilled text entered through the hidden input', () => {
     const onValueChange = vi.fn()
-    const onValueInvalid = vi.fn()
+    const onReject = vi.fn()
     const onComplete = vi.fn()
     const screen = render(() => (
       <PinInput
@@ -822,7 +822,7 @@ describe('PinInput', () => {
         length={6}
         validationType="number"
         onValueChange={onValueChange}
-        onValueInvalid={onValueInvalid}
+        onReject={onReject}
         onComplete={onComplete}
       />
     ))
@@ -837,7 +837,7 @@ describe('PinInput', () => {
     expect(hidden.value).toBe('123456')
     expect(document.activeElement).toBe(inputs[5])
     expect(onValueChange).toHaveBeenCalledWith(['1', '2', '3', '4', '5', '6'])
-    expect(onValueInvalid).toHaveBeenCalledWith('12a34b56')
+    expect(onReject).toHaveBeenCalledWith('12a34b56')
     expect(onComplete).toHaveBeenCalledWith('123456')
   })
 
@@ -1039,22 +1039,20 @@ describe('PinInput', () => {
     expect(onComplete).toHaveBeenCalledWith('1234')
   })
 
-  test('reports rejected characters via onValueInvalid', () => {
-    const onValueInvalid = vi.fn()
-    const screen = render(() => (
-      <PinInput length={4} validationType="number" onValueInvalid={onValueInvalid} />
-    ))
+  test('reports rejected characters via onReject', () => {
+    const onReject = vi.fn()
+    const screen = render(() => <PinInput length={4} validationType="number" onReject={onReject} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
 
     inputs[0]!.focus()
     fireEvent.input(inputs[0]!, { target: { value: 'a' } })
-    expect(onValueInvalid).toHaveBeenCalledWith('a')
+    expect(onReject).toHaveBeenCalledWith('a')
     expect(inputs[0]?.value).toBe('')
 
     fireEvent.paste(inputs[0]!, { clipboardData: { getData: () => '1a23' } })
-    expect(onValueInvalid).toHaveBeenCalledWith('1a23')
+    expect(onReject).toHaveBeenCalledWith('1a23')
     expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', ''])
   })
 

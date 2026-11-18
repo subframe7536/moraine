@@ -52,7 +52,7 @@ export namespace PinInputT {
     /**
      * Which characters a slot accepts: `'number'` digits `0-9`, `'alpha'` letters `a-z` / `A-Z`,
      * `'alphanumeric'` both, `'text'` any non-whitespace character. Rejected characters are dropped
-     * and reported to `onValueInvalid`. It also picks the default `inputMode` (`numeric` for
+     * and reported to `onReject`. It also picks the default `inputMode` (`numeric` for
      * `'number'`, `text` otherwise).
      * @default 'text'
      */
@@ -127,7 +127,7 @@ export namespace PinInputT {
      * Callback when entered text contains characters rejected by `validationType`
      * or `normalizeValue`. Receives the raw entered text before filtering.
      */
-    onValueInvalid?: (value: string) => void
+    onReject?: (value: string) => void
 
     /**
      * Whether to call `requestSubmit()` on the owning form, which runs native validation and

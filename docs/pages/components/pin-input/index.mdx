@@ -72,7 +72,7 @@ distributes them across the slots.
 ### Normalization and invalid input
 
 Use `normalizeValue` to transform proposed values after `validationType` filtering, and
-`onValueInvalid` to observe text that contained rejected characters. `normalizeValue` runs on string
+`onReject` to observe text that contained rejected characters. `normalizeValue` runs on string
 `value` and `defaultValue` and on typed, pasted, or autofilled text; it must be idempotent.
 
 ```tsx
@@ -80,7 +80,7 @@ Use `normalizeValue` to transform proposed values after `validationType` filteri
   length={6}
   validationType="alphanumeric"
   normalizeValue={(value) => value.toUpperCase()}
-  onValueInvalid={(value) => console.warn('Rejected characters in', value)}
+  onReject={(value) => console.warn('Rejected characters in', value)}
 />
 ```
 
