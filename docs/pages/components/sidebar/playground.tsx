@@ -122,8 +122,8 @@ export default function SidebarPlayground() {
 
         return (
           <div class="border border-border rounded-xl bg-card h-[520px] max-w-4xl w-full shadow-xs overflow-hidden">
-            <Sidebar variant={props.variant} side={props.side} mobile={false}>
-              <Sidebar.Panel class="w-60">
+            <Sidebar variant={props.variant} side={props.side} mobile={false} defaultWidth={240}>
+              <Sidebar.Panel>
                 <Sidebar.Header>
                   <DropdownMenu placement="bottom" align="start">
                     <DropdownMenu.Trigger
@@ -272,6 +272,8 @@ export default function SidebarPlayground() {
                   </DropdownMenu>
                 </Sidebar.Footer>
               </Sidebar.Panel>
+
+              <Sidebar.Rail />
 
               <Sidebar.Inset class="flex flex-1 flex-col min-h-0 overflow-y-auto">
                 <div
