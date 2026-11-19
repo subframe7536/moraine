@@ -116,7 +116,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         </div>
       </div>
       <OnThisPage
-        class="overscroll-contain shrink-0 max-h-[calc(100dvh-100px)] w-60 hidden overflow-y-auto xl:(block top-6 sticky)"
+        class="overscroll-contain shrink-0 max-h-[calc(100dvh-100px)] w-60 hidden scrollbar-none overflow-y-auto xl:(block top-6 sticky)"
         entries={onThisPageEntries()}
       />
     </article>

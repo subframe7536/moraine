@@ -446,6 +446,15 @@ describe('tree drop target utility', () => {
   })
 })
 
+describe('scrollbar-none utility', () => {
+  test('hides the native scrollbar', async () => {
+    const css = await compileCSS(['scrollbar-none'])
+
+    expect(css).toMatch(/\.scrollbar-none\s*\{[\s\S]*scrollbar-width: none;/)
+    expect(css).toMatch(/&::-webkit-scrollbar\s*\{\s*display: none;/)
+  })
+})
+
 describe('font families', () => {
   test.each([
     ['font-sans', 'var(--font-sans)'],

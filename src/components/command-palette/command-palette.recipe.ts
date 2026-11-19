@@ -29,7 +29,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     inputWrapper: 'px-3 border-b border-border/70 flex gap-2.5 h-12 items-center',
     input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-base h-full w-full sm:text-sm`,
     listbox:
-      'p-1.5 outline-none max-h-72 [scrollbar-width:none] overflow-x-hidden overflow-y-auto scroll-py-1 sm:max-h-84 [&::-webkit-scrollbar]:hidden',
+      'p-1.5 outline-none max-h-72 scrollbar-none overflow-x-hidden overflow-y-auto scroll-py-1 sm:max-h-84',
     footer:
       'text-xs text-muted-foreground px-3.5 py-2.5 border-t border-border/70 bg-muted/20 flex items-center',
     group: 'text-foreground mt-1 overflow-hidden first:mt-0',

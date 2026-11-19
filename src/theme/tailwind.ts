@@ -2,7 +2,11 @@ import plugin from 'tailwindcss/plugin'
 
 import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations'
 import { DEFAULT_ICON_SHORTCUTS, ICON_MASK_CLASS } from './icons'
-import { TREE_DROP_TARGET_CLASS, TREE_DROP_TARGET_CLASSES } from './recipe-common.recipe'
+import {
+  SCROLLBAR_NONE_CLASS,
+  TREE_DROP_TARGET_CLASS,
+  TREE_DROP_TARGET_CLASSES,
+} from './recipe-common.recipe'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -63,6 +67,10 @@ export const moraineTailwind = plugin(
       // descendants read it through accent-fg-<color>, which falls back to the named color.
       '.accent-scope': { '--mo-accent-fg': MORAINE_COLORS.accent.foreground },
       [`.${TREE_DROP_TARGET_CLASS}`]: { [`@apply ${TREE_DROP_TARGET_CLASSES}`]: {} },
+      [`.${SCROLLBAR_NONE_CLASS}`]: {
+        'scrollbar-width': 'none',
+        '&::-webkit-scrollbar': { display: 'none' },
+      },
     })
 
     const flatColors = flattenMoraineColors()

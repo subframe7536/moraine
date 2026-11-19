@@ -2,7 +2,12 @@ import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
 import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
 import { DEFAULT_ICON_SHORTCUTS, ICON_MASK_SHORTCUT } from './icons.ts'
-import { TREE_DROP_TARGET_CLASS, TREE_DROP_TARGET_CLASSES } from './recipe-common.recipe.ts'
+import {
+  SCROLLBAR_NONE_CLASS,
+  SCROLLBAR_NONE_CLASSES,
+  TREE_DROP_TARGET_CLASS,
+  TREE_DROP_TARGET_CLASSES,
+} from './recipe-common.recipe.ts'
 import type { PresetMoraineOptions } from './theme-types.ts'
 import {
   createToneDeclarations,
@@ -308,6 +313,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       ...DEFAULT_ICON_SHORTCUTS,
       ICON_MASK_SHORTCUT,
       [TREE_DROP_TARGET_CLASS, TREE_DROP_TARGET_CLASSES],
+      [SCROLLBAR_NONE_CLASS, SCROLLBAR_NONE_CLASSES],
     ],
     preflights: [
       {

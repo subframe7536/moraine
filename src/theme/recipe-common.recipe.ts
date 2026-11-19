@@ -70,6 +70,17 @@ export const TONE_CLASS = {
 } as const
 
 /**
+ * Utility class that hides the native scrollbar of a scroll container while it keeps scrolling.
+ *
+ * UnoCSS expands it as a shortcut; Tailwind declares the same properties in a utility, because
+ * `@apply` drops the `::-webkit-scrollbar` variant.
+ */
+export const SCROLLBAR_NONE_CLASS = 'scrollbar-none'
+
+/** Classes behind `SCROLLBAR_NONE_CLASS`: `scrollbar-width` for Firefox and current Chromium, the pseudo-element for older WebKit. */
+export const SCROLLBAR_NONE_CLASSES = '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+
+/**
  * Utility class for the drop target presentation of `createTreeSortable` from `moraine/dnd`, which
  * sets `data-drop-position` on the item that is the parent of the row. The copy that follows the
  * pointer (`data-dnd-dragging`, while the item stays in place) gets a solid surface, the target row

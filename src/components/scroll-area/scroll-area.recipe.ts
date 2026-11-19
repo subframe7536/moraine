@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
+import { FOCUS_VISIBLE_RING_CLASS, SCROLLBAR_NONE_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -7,8 +7,6 @@ import type { ScrollAreaStyleSlot, ScrollAreaStyleVariants } from './scroll-area
 
 /** Minimum thumb length in px, so very long content keeps a draggable thumb. */
 export const SCROLL_AREA_THUMB_MIN_SIZE = 20
-
-const HIDE_NATIVE_SCROLLBAR_CLASS = '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 export const scrollAreaDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
@@ -57,11 +55,11 @@ export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
       both: { viewport: 'overflow-auto', content: 'min-w-full w-max' },
     },
     scrollbar: {
-      auto: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
-      always: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
-      hover: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
-      scroll: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
-      hidden: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
+      auto: { viewport: SCROLLBAR_NONE_CLASS },
+      always: { viewport: SCROLLBAR_NONE_CLASS },
+      hover: { viewport: SCROLLBAR_NONE_CLASS },
+      scroll: { viewport: SCROLLBAR_NONE_CLASS },
+      hidden: { viewport: SCROLLBAR_NONE_CLASS },
     },
     shadow: {
       true: {

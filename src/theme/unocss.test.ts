@@ -852,6 +852,15 @@ describe('tree drop target shortcut', () => {
   })
 })
 
+describe('scrollbar-none shortcut', () => {
+  test.each(WIND_VERSIONS)('hides the native scrollbar with %s', async (_name, wind) => {
+    const css = await generate(['scrollbar-none'], false, wind)
+
+    expect(css).toMatch(/\.scrollbar-none\{[^}]*scrollbar-width:none;/)
+    expect(css).toMatch(/\.scrollbar-none::-webkit-scrollbar\{[^}]*display:none;/)
+  })
+})
+
 describe('Wind3 semantic color and layout compatibility', () => {
   test('applies alpha to semantic variables through interaction variants', async () => {
     const css = await generate(
