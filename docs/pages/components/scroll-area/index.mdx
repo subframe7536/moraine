@@ -1,11 +1,11 @@
 ---
 title: ScrollArea
-description: Scroll native content with styled scrollbars, edge shadows, and optional virtualization.
+description: Scroll native content with styled or native scrollbars and edge shadows.
 group: Layout
 api:
   path: src/components/scroll-area/scroll-area
 search:
-  tags: [scroll, overflow, scrollbar, shadow, fade, horizontal, vertical, virtual, infinite, rtl]
+  tags: [scroll, overflow, scrollbar, shadow, fade, horizontal, vertical, infinite, rtl]
 ---
 
 import Playground from './playground'
@@ -28,8 +28,8 @@ import Playground from './playground'
 ## Usage
 
 Use ScrollArea to constrain overflowing content. Scrolling stays native: wheel, touch, keyboard,
-and scroll anchoring behave as in any scroll container. ScrollArea hides the native scrollbar and
-draws its own over the content. When the area is a landmark of its own, label it with
+and scroll anchoring behave as in any scroll container. By default ScrollArea hides the native
+scrollbar and draws its own over the content; set `scrollbarVariant="native"` to keep the browser's. When the area is a landmark of its own, label it with
 `role="region"` and `aria-label`.
 
 ```tsx
@@ -72,16 +72,18 @@ natural width.
 
 ### Scrollbars
 
-`scrollbar` selects how scrollbars appear:
+`scrollbarVariant` selects how scrollbars appear:
 
-| Value    | Behavior                                                            |
-| -------- | ------------------------------------------------------------------- |
-| `auto`   | Custom scrollbars while an axis overflows. This is the default.     |
-| `always` | Custom scrollbars at all times, even when content fits.             |
-| `hover`  | Custom scrollbars while the pointer is over the area or it scrolls. |
-| `scroll` | Custom scrollbars while the area scrolls.                           |
-| `native` | Browser scrollbars.                                                 |
-| `hidden` | No scrollbars; wheel, touch, and keyboard scrolling still work.     |
+| Value    | Behavior                                                                     |
+| -------- | ---------------------------------------------------------------------------- |
+| `hover`  | Custom scrollbars while the pointer is over the area or it scrolls. Default. |
+| `always` | Custom scrollbars at all times while an axis overflows.                      |
+| `scroll` | Custom scrollbars while the area scrolls.                                    |
+| `native` | Browser scrollbars, unhidden; no custom track or corner is drawn.            |
+| `hidden` | No scrollbars; wheel, touch, and keyboard scrolling still work.              |
+
+Custom scrollbars only appear on an axis whose content overflows. Set `scrollbarWidth="thin"` for
+thinner custom scrollbars; with `native` it applies `scrollbar-width: thin`.
 
 `hover` and `scroll` scrollbars stay visible for `scrollHideDelay` milliseconds (default `600`)
 after activity ends. Drag the thumb to scroll, or press the track to jump to that position.
@@ -113,45 +115,7 @@ reaches a physical edge (within `scrollThreshold`) of an overflowing axis; in RT
 do not fire for the initial position. Combine `onBottomReached` with `scrollThreshold` to load more
 content before the end.
 
-`setController` receives a controller once, during setup. It holds the reactive `overflow` state and
-`scrollToEdge(axis, edge, options)`. Store it and call `scrollToEdge` after mount: the viewport does
-not exist during setup, so an earlier call does nothing.
-
-```tsx
-let controller: ScrollAreaT.Controller | undefined
-
-;<ScrollArea
-  scrollThreshold={48}
-  onBottomReached={loadMore}
-  setController={(value) => (controller = value)}
->
-  {messages}
-</ScrollArea>
-
-controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })
-```
-
-### Virtualization
-
-Pass `items` and an `itemRender` component to render a collection; `itemRender` replaces `children`,
-and `items` has no effect without it. `itemRender` is mounted as a component, so read `props.item`
-and `props.index` lazily instead of destructuring them. Add a `virtualizer` from
-`createListVirtualizer()` to render only the visible items; the viewport is its scroll container.
-Spread `props.rowProps` on each row so the virtualizer can position and measure it. Create the
-virtualizer with `horizontal` for `orientation="horizontal"`.
-
-```tsx
-import { createListVirtualizer } from 'moraine/virtualizer'
-
-const virtualizer = createListVirtualizer<string>({ estimateSize: () => 32 })
-
-<ScrollArea
-  class="h-80"
-  items={lines}
-  virtualizer={virtualizer}
-  itemRender={(props) => <div {...props.rowProps}>{props.item}</div>}
-/>
-```
+To scroll programmatically, take the viewport from `viewportRef` and call `scrollTo` on it.
 
 ### Data attributes and CSS variables
 
@@ -168,7 +132,7 @@ edge effects.
 ### Theme and instance overrides
 
 Set `scrollArea.defaultVariants` to choose the scrollbar mode or enable shadows across a provider;
-`scrollbar: 'native'` restores browser scrollbars everywhere. The recipe exposes
+`scrollbarVariant: 'native'` restores browser scrollbars everywhere. The recipe exposes
 `--scroll-area-shadow-size` and the mask layers `--scroll-area-shadow-y` and
 `--scroll-area-shadow-x`.
 
@@ -183,12 +147,25 @@ Enable `shadow` on a vertical activity feed so clipped updates are visible at th
 
 <Preview path="./shadow" />
 
-### Scroll project milestones
+### Orientation
 
-Set `orientation="horizontal"` for a timeline. `dir="rtl"` scrolls from the right edge, and the
-shadows follow the logical edges.
+Set `orientation="horizontal"` for a timeline.
 
 <Preview path="./horizontal" />
+
+### RTL
+
+Set `dir="rtl"` and the scrollbar moves to the left edge. Horizontal content scrolls from the right
+edge, and the thumb and shadows follow the logical edges.
+
+<Preview path="./rtl" />
+
+### Scrollbar width
+
+`scrollbarWidth="thin"` draws thinner custom scrollbars, or applies `scrollbar-width: thin` with
+`scrollbarVariant="native"`.
+
+<Preview path="./scrollbar-width" />
 
 ### Scroll a wide table
 
@@ -199,7 +176,7 @@ Set `orientation="both"` for content that overflows in both directions.
 ### Jump to the latest notification
 
 Read `onOverflowChange` to show whether more notifications are hidden, and call
-`scrollToEdge` from the controller.
+`scrollTo` on the viewport from `viewportRef`.
 
 <Preview path="./overflow" />
 
@@ -208,9 +185,3 @@ Read `onOverflowChange` to show whether more notifications are hidden, and call
 `onBottomReached` with `scrollThreshold` requests the next page shortly before the end.
 
 <Preview path="./infinite" />
-
-### Virtualize a long log
-
-`items`, `itemRender`, and `virtualizer` render 10,000 lines while mounting only the visible ones.
-
-<Preview path="./virtualized" />

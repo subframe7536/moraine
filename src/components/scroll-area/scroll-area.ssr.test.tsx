@@ -13,7 +13,12 @@ describe('ScrollArea SSR hydration', () => {
       '/src/components/scroll-area/scroll-area.ssr.fixture.tsx',
       'renderScrollAreaFixture',
       () => (
-        <ScrollArea shadow={shadow()} orientation="both" aria-label="Activity">
+        <ScrollArea
+          shadow={shadow()}
+          orientation="both"
+          scrollbarVariant="always"
+          aria-label="Activity"
+        >
           <span>{text()}</span>
         </ScrollArea>
       ),

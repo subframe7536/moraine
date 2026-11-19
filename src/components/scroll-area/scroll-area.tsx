@@ -8,16 +8,16 @@ import {
   on,
   onCleanup,
   splitProps,
-  untrack,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
 import type { AxisMetrics } from '../../shared/scroll-metrics'
 import { callHandler, callRef } from '../../shared/utils'
-import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import {
+  SCROLL_AREA_SCROLLBAR_CLASS,
+  SCROLL_AREA_SHADOW_STYLE,
   SCROLL_AREA_THUMB_MIN_SIZE,
   scrollAreaDataAttributes,
   scrollAreaRecipe,
@@ -25,7 +25,8 @@ import {
 import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
 
 type Orientation = NonNullable<ScrollAreaT.Variants['orientation']>
-type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbar']>
+type ScrollbarWidth = NonNullable<ScrollAreaT.Variants['scrollbarWidth']>
+type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbarVariant']>
 
 const AXES = { vertical: ['y'], horizontal: ['x'], both: ['y', 'x'] } as const
 
@@ -44,8 +45,6 @@ const AXIS_CONFIG = {
     thumbStyle: (offset: string, size: string): JSX.CSSProperties => ({
       top: offset,
       height: size,
-      left: '0',
-      right: '0',
     }),
   },
   x: {
@@ -60,10 +59,9 @@ const AXIS_CONFIG = {
     trackOffset: (track: HTMLElement, event: PointerEvent) =>
       event.clientX - track.getBoundingClientRect().left - track.clientLeft,
     thumbStyle: (offset: string, size: string): JSX.CSSProperties => ({
-      left: offset,
+      // Logical offset: the thumb sits at the inline start of the track, which is the right in RTL.
+      'inset-inline-start': offset,
       width: size,
-      top: '0',
-      bottom: '0',
     }),
   },
 } as const
@@ -95,9 +93,8 @@ function createReleaseDelay(delay: () => number) {
 /**
  * Native scroll container that constrains overflowing content and draws custom scrollbars over
  * it. Scrolling stays native (wheel, touch, keyboard), so give the root a height or maximum height
- * for vertical scrolling and a width for horizontal scrolling. Pass `items` with `itemRender`
- * (and optionally a `virtualizer`) to render a collection instead of `children`. When the
- * area is a landmark of its own, label it with `role="region"` and `aria-label`.
+ * for vertical scrolling and a width for horizontal scrolling. When the area is a landmark of
+ * its own, label it with `role="region"` and `aria-label`.
  *
  * @example
  * ```tsx
@@ -111,17 +108,14 @@ function createReleaseDelay(delay: () => number) {
  * </ScrollArea>
  * ```
  */
-export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.Element {
+export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
     'viewportRef',
-    'setController',
     'children',
-    'items',
-    'itemRender',
-    'virtualizer',
     'orientation',
-    'scrollbar',
+    'scrollbarVariant',
+    'scrollbarWidth',
     'shadow',
     'shadowSize',
     'scrollThreshold',
@@ -170,6 +164,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
       corner: scrollAreaDataAttributes.corner(() => ({ visible: cornerVisible() })),
     },
     own: {
+      viewport: () => (shadow() ? { style: SCROLL_AREA_SHADOW_STYLE } : undefined),
       root: () =>
         local.shadowSize === undefined
           ? undefined
@@ -193,7 +188,9 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
   })
 
   const orientation = (): Orientation => variants.orientation ?? 'vertical'
-  const scrollbarMode = (): ScrollbarMode => variants.scrollbar ?? 'auto'
+  const shadow = (): boolean => variants.shadow ?? false
+  const scrollbarWidth = (): ScrollbarWidth => variants.scrollbarWidth ?? 'normal'
+  const scrollbarMode = (): ScrollbarMode => variants.scrollbarVariant ?? 'hover'
   const axes = (): readonly ScrollAreaT.Axis[] => AXES[orientation()]
   const axisMetrics = (axis: ScrollAreaT.Axis): AxisMetrics =>
     axes().includes(axis) ? metrics()[axis] : EMPTY_AXIS_METRICS
@@ -221,13 +218,10 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     })
 
   const scrollbarVisible = (axis: ScrollAreaT.Axis): boolean => {
-    const mode = scrollbarMode()
-    if (mode === 'always') {
-      return true
-    }
     if (axisMetrics(axis).extent <= 0) {
       return false
     }
+    const mode = scrollbarMode()
     const active = scrolling.active() || dragging() === axis
     if (mode === 'hover') {
       return active || hovering.active()
@@ -274,35 +268,12 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
     ),
   )
 
-  callRef(
-    untrack(() => local.setController),
-    {
-      get overflow() {
-        return overflow()
-      },
-      scrollToEdge(axis, edge, options) {
-        const element = viewport()
-        if (!element) {
-          return
-        }
-        if (axis === 'y') {
-          element.scrollTo({ top: edge === 'start' ? 0 : element.scrollHeight, ...options })
-          return
-        }
-        // Browsers clamp the offset; RTL offsets grow negative toward the logical end.
-        const end = metrics().rtl ? -element.scrollWidth : element.scrollWidth
-        element.scrollTo({ left: edge === 'start' ? 0 : end, ...options })
-      },
-    } satisfies ScrollAreaT.Controller,
-  )
-
   function thumbStyle(axis: ScrollAreaT.Axis): JSX.CSSProperties {
     const { client, extent, position } = axisMetrics(axis)
     const ratio = client + extent > 0 ? client / (client + extent) : 1
     const progress = extent > 0 ? position / extent : 0
-    const physical = axis === 'x' && metrics().rtl ? 1 - progress : progress
     const size = `max(${SCROLL_AREA_THUMB_MIN_SIZE}px, ${ratio * 100}%)`
-    const offset = `calc((100% - ${size}) * ${physical})`
+    const offset = `calc((100% - ${size}) * ${progress})`
     return AXIS_CONFIG[axis].thumbStyle(offset, size)
   }
 
@@ -354,27 +325,7 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
         onScroll={(event) => callHandler(event, local.onScroll)}
       >
         <div data-slot="scroll-area-content" {...contentSlot}>
-          <Show when={local.itemRender} fallback={local.children}>
-            {(itemRender) => (
-              <VirtualContent<TItem>
-                virtualizer={local.virtualizer}
-                entries={local.items ?? []}
-                scrollElement={viewport()}
-                render={(item, index, rowProps) => {
-                  const ItemRender = itemRender()
-                  return <ItemRender item={item} index={index} rowProps={rowProps} />
-                }}
-                fallback={
-                  <For each={local.items}>
-                    {(item, index) => {
-                      const ItemRender = itemRender()
-                      return <ItemRender item={item} index={index()} />
-                    }}
-                  </For>
-                }
-              />
-            )}
-          </Show>
+          {local.children}
         </div>
       </div>
       <Show when={customScrollbar()}>
@@ -384,8 +335,10 @@ export function ScrollArea<TItem = unknown>(props: ScrollAreaProps<TItem>): JSX.
               data: scrollAreaDataAttributes.scrollbar({
                 orientation: axis === 'y' ? 'vertical' : 'horizontal',
                 visible: () => scrollbarVisible(axis),
-                dragging: () => dragging() === axis,
                 corner: cornerVisible,
+              }),
+              own: () => ({
+                class: SCROLL_AREA_SCROLLBAR_CLASS[axis][scrollbarWidth()],
               }),
             })
             const thumbSlot = slotWith('thumb', { enforced: () => ({ style: thumbStyle(axis) }) })

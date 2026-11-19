@@ -20,16 +20,25 @@ export default function ScrollAreaPlayground() {
         },
         {
           kind: 'select',
-          prop: 'scrollbar',
+          prop: 'scrollbarVariant',
           label: 'Scrollbar',
-          defaultValue: 'auto',
+          defaultValue: 'hover',
           options: [
-            { label: 'Auto', value: 'auto' },
-            { label: 'Always', value: 'always' },
             { label: 'Hover', value: 'hover' },
+            { label: 'Always', value: 'always' },
             { label: 'Scroll', value: 'scroll' },
             { label: 'Native', value: 'native' },
             { label: 'Hidden', value: 'hidden' },
+          ],
+        },
+        {
+          kind: 'select',
+          prop: 'scrollbarWidth',
+          label: 'Scrollbar width',
+          defaultValue: 'normal',
+          options: [
+            { label: 'Normal', value: 'normal' },
+            { label: 'Thin', value: 'thin' },
           ],
         },
         { kind: 'switch', prop: 'shadow', label: 'Edge shadows', defaultValue: true },
@@ -52,7 +61,8 @@ export default function ScrollAreaPlayground() {
       {(props) => (
         <ScrollArea
           orientation={props.orientation}
-          scrollbar={props.scrollbar}
+          scrollbarVariant={props.scrollbarVariant}
+          scrollbarWidth={props.scrollbarWidth}
           shadow={props.shadow}
           shadowSize={props.shadowSize}
           scrollThreshold={props.scrollThreshold}

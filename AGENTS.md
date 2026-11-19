@@ -112,7 +112,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── progress/           # Progress indicators.
 │   ├── radio-group/        # Radio group control.
 │   ├── resizable/          # Resizable panels registered by id with percent layouts.
-│   ├── scroll-area/        # Scroll container with edge fade indicators.
+│   ├── scroll-area/        # Scroll container with custom or native scrollbars and edge fade indicators.
 │   ├── select/             # Non-editable single collection selection.
 │   ├── separator/          # Visual separators.
 │   ├── sheet/              # Side or bottom sheet.

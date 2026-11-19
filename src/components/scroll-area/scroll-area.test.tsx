@@ -1,11 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { Component } from 'solid-js'
-import { For, createEffect, createRoot, createSignal, on } from 'solid-js'
+import { createRoot, createSignal } from 'solid-js'
 import { afterEach, describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
-import type { ListVirtualizer, VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { ScrollArea } from './scroll-area'
 import type { ScrollAreaT } from './scroll-area.types'
@@ -222,7 +220,7 @@ describe('ScrollArea', () => {
   )
 
   test('scrolls both axes with two scrollbars and a corner', async () => {
-    const screen = render(() => <ScrollArea orientation="both" />)
+    const screen = render(() => <ScrollArea orientation="both" scrollbarVariant="always" />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const corner = root.querySelector<HTMLElement>('[data-slot="scroll-area-corner"]')!
     setDimensions(viewport, {
@@ -237,6 +235,8 @@ describe('ScrollArea', () => {
 
     const thumb = scrollbar('vertical')!.firstElementChild as HTMLElement
     expect(thumb.style.height).toBe('max(20px, 25%)')
+    expect(thumb.style.left).toBe('')
+    expect(thumb.style.right).toBe('')
     viewport.scrollTop = 150
     fireEvent.scroll(viewport)
     expect(thumb.style.top).toBe('calc(0.5 * (100% - max(20px, 25%)))')
@@ -247,10 +247,38 @@ describe('ScrollArea', () => {
     expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(false)
   })
 
+  test('positions the horizontal thumb from the logical start in RTL', async () => {
+    const screen = render(() => (
+      <ScrollArea
+        orientation="horizontal"
+        scrollbarVariant="always"
+        styles={{ viewport: { direction: 'rtl' } }}
+      />
+    ))
+    const { viewport, scrollbar } = parts(screen.container)
+    setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 })
+    await waitFor(() => expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(true))
+    const thumb = scrollbar('horizontal')!.firstElementChild as HTMLElement
+    expect(thumb.getAttribute('style')).toContain(
+      'inset-inline-start: calc(0 * (100% - max(20px, 33.33',
+    )
+    expect(thumb.style.left).toBe('')
+  })
+
+  test('applies the thin scrollbar width variant', () => {
+    const screen = render(() => <ScrollArea scrollbarWidth="thin" />)
+    const track = parts(screen.container).scrollbar('vertical')!
+    expect(track.classList.contains('w-2')).toBe(true)
+    expect(track.classList.contains('w-2.5')).toBe(false)
+    expect(
+      screen.container.querySelector('[data-slot="scroll-area"]')!.hasAttribute('scrollbarWidth'),
+    ).toBe(false)
+  })
+
   test('shows scrollbars according to the scrollbar mode', async () => {
     vi.useFakeTimers()
-    const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbar']>('hover')
-    const screen = render(() => <ScrollArea scrollbar={mode()} scrollHideDelay={300} />)
+    const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbarVariant']>('hover')
+    const screen = render(() => <ScrollArea scrollbarVariant={mode()} scrollHideDelay={300} />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const visible = () => scrollbar('vertical')?.hasAttribute('data-visible')
     setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
@@ -274,13 +302,12 @@ describe('ScrollArea', () => {
     vi.advanceTimersByTime(300)
     expect(visible()).toBe(false)
 
-    setMode('auto')
+    setMode('always')
     expect(visible()).toBe(true)
+    // Scrollbars never show while the content fits, whatever the mode.
     setDimensions(viewport, { scrollHeight: 100 })
     fireEvent.scroll(viewport)
     expect(visible()).toBe(false)
-    setMode('always')
-    expect(visible()).toBe(true)
 
     setMode('native')
     expect(scrollbar('vertical')).toBeNull()
@@ -289,7 +316,7 @@ describe('ScrollArea', () => {
   })
 
   test('drags the thumb and jumps to track presses', async () => {
-    const screen = render(() => <ScrollArea />)
+    const screen = render(() => <ScrollArea scrollbarVariant="always" />)
     const { viewport, scrollbar } = parts(screen.container)
     setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
     const track = scrollbar('vertical')!
@@ -369,72 +396,6 @@ describe('ScrollArea', () => {
     expect(viewport.scrollTop).toBe(110)
   })
 
-  test('scrolls to logical edges through the controller', async () => {
-    const scrollTo = vi.fn()
-    let controller: ScrollAreaT.Controller | undefined
-    const screen = render(() => (
-      <ScrollArea
-        orientation="both"
-        styles={{ viewport: { direction: 'rtl' } }}
-        setController={(value) => (controller = value)}
-      />
-    ))
-    const { viewport } = parts(screen.container)
-    define(viewport, { scrollTo })
-    setDimensions(viewport, {
-      clientHeight: 100,
-      scrollHeight: 300,
-      clientWidth: 100,
-      scrollWidth: 300,
-    })
-    await waitFor(() => expect(controller?.overflow.y.end).toBe(true))
-    expect(controller?.overflow.x).toEqual({ start: false, end: true })
-
-    controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })
-    expect(scrollTo).toHaveBeenLastCalledWith({ top: 300, behavior: 'smooth' })
-    controller?.scrollToEdge('x', 'end')
-    expect(scrollTo).toHaveBeenLastCalledWith({ left: -300 })
-    controller?.scrollToEdge('x', 'start')
-    expect(scrollTo).toHaveBeenLastCalledWith({ left: 0 })
-  })
-
-  test('renders items with itemRender and mounts a virtualizer on the viewport', () => {
-    const ItemRender: Component<ScrollAreaT.ItemRenderProps<string>> = (props) => (
-      <p data-virtual={props.rowProps ? '' : undefined}>
-        {props.index}:{props.item}
-      </p>
-    )
-    let scrollElement: HTMLElement | undefined
-    const virtualizer: ListVirtualizer<string> = {
-      virtualRender: (props: VirtualRenderProps<string>) => {
-        createEffect(
-          on(
-            () => props.scrollElement,
-            (element) => (scrollElement = element),
-          ),
-        )
-        return (
-          <For each={props.entries}>
-            {(entry, index) => <>{props.render(entry, index(), {})}</>}
-          </For>
-        )
-      },
-      scrollToIndex: vi.fn(),
-    }
-    const [virtual, setVirtual] = createSignal<ListVirtualizer<string>>()
-    const screen = render(() => (
-      <ScrollArea items={['a', 'b']} itemRender={ItemRender} virtualizer={virtual()}>
-        <span>Ignored</span>
-      </ScrollArea>
-    ))
-    expect(screen.getByText('0:a').hasAttribute('data-virtual')).toBe(false)
-    expect(screen.queryByText('Ignored')).toBeNull()
-
-    setVirtual(() => virtualizer)
-    expect(screen.getByText('1:b').hasAttribute('data-virtual')).toBe(true)
-    expect(scrollElement).toBe(parts(screen.container).viewport)
-  })
-
   test('releases observers and listeners on unmount', () => {
     const { observe, disconnect, resize } = stubResizeObserver()
     const onOverflowChange = vi.fn()
@@ -463,7 +424,7 @@ describe('ScrollArea', () => {
   test('uses theme defaults and resolves the shadow size from theme, prop, and overrides', () => {
     const theme = defineTheme({
       scrollArea: {
-        defaultVariants: { shadow: true, scrollbar: 'native' },
+        defaultVariants: { shadow: true, scrollbarVariant: 'native' },
         base: { root: 'theme-scroll-root', '--scroll-area-shadow-size': '18px' },
       },
     })
@@ -487,7 +448,7 @@ describe('ScrollArea', () => {
     expect(scrollbar('vertical')).toBeNull()
     expect(viewport.tabIndex).toBe(-1)
     expect(viewport.className).toContain('custom-viewport')
-    expect(viewport.className).toContain('mask-image')
+    expect(viewport.getAttribute('style')).toContain('mask-image')
     expect(root.className).toContain('theme-scroll-root')
     expect(root.className).toContain('custom-root')
     expect(root.style.height).toBe('100px')

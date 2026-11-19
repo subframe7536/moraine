@@ -19,12 +19,14 @@ export interface ScrollAreaStyleVariants {
   /** Scrollable axes. @default 'vertical' */
   orientation?: 'vertical' | 'horizontal' | 'both'
   /**
-   * Scrollbar presentation. `auto` shows custom scrollbars while an axis overflows, `always` keeps
-   * them visible, `hover` shows them while the pointer is over the area or it scrolls, `scroll`
-   * shows them while it scrolls, `native` keeps browser scrollbars, and `hidden` hides every
-   * scrollbar while retaining scrolling. @default 'auto'
+   * Scrollbar presentation. Custom scrollbars only appear on an axis whose content overflows:
+   * `always` keeps them visible, `hover` shows them while the pointer is over the area or it
+   * scrolls, `scroll` shows them while it scrolls, `native` keeps browser scrollbars, and
+   * `hidden` hides every scrollbar while retaining scrolling. @default 'hover'
    */
-  scrollbar?: 'auto' | 'always' | 'hover' | 'scroll' | 'native' | 'hidden'
+  scrollbarVariant?: 'always' | 'hover' | 'scroll' | 'native' | 'hidden'
+  /** Scrollbar thickness, for both custom and `native` scrollbars. @default 'normal' */
+  scrollbarWidth?: 'normal' | 'thin'
   /** Whether edges with more content beyond them fade out as a shadow. @default false */
   shadow?: boolean
 }

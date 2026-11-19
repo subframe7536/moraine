@@ -4,7 +4,8 @@ import { For, Show, createSignal } from 'solid-js'
 
 export function Overflow() {
   const [overflow, setOverflow] = createSignal<ScrollAreaT.Overflow>()
-  let controller: ScrollAreaT.Controller | undefined
+  let viewport: HTMLDivElement | undefined
+  const scrollTo = (top: number) => viewport?.scrollTo({ top, behavior: 'smooth' })
 
   return (
     <div class="max-w-sm w-full space-y-3">
@@ -13,7 +14,7 @@ export function Overflow() {
         shadowSize={24}
         scrollThreshold={8}
         onOverflowChange={setOverflow}
-        setController={(value) => (controller = value)}
+        viewportRef={(element) => (viewport = element)}
         class="h-48 w-full"
         classes={{ content: 'pe-3 space-y-1' }}
         role="region"
@@ -31,20 +32,12 @@ export function Overflow() {
         <Show
           when={overflow()?.y.end}
           fallback={
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => controller?.scrollToEdge('y', 'start', { behavior: 'smooth' })}
-            >
+            <Button size="sm" variant="outline" onClick={() => scrollTo(0)}>
               Back to top
             </Button>
           }
         >
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => controller?.scrollToEdge('y', 'end', { behavior: 'smooth' })}
-          >
+          <Button size="sm" variant="outline" onClick={() => scrollTo(viewport?.scrollHeight ?? 0)}>
             Jump to latest
           </Button>
         </Show>
