@@ -41,7 +41,6 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
     },
     variants: {
       type: {
-        default: {},
         success: {
           icon: 'text-success',
         },

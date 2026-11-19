@@ -73,7 +73,6 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
         },
       },
       variant: {
-        default: {},
         floating: {
           root: 'p-2 bg-background',
           panel:

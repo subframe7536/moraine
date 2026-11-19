@@ -21,7 +21,6 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     orientation: 'horizontal',
   },
   variants: {
-    size: {},
     variant: {
       outline: {
         separator: 'bg-tone-border',

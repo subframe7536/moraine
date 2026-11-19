@@ -47,7 +47,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     <ButtonGroupProvider
       value={{
         get size() {
-          return variants.size
+          return local.size ?? undefined
         },
         get variant() {
           return variants.variant

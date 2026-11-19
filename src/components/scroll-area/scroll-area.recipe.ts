@@ -61,7 +61,6 @@ export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
       always: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
       hover: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
       scroll: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
-      native: {},
       hidden: { viewport: HIDE_NATIVE_SCROLLBAR_CLASS },
     },
     shadow: {

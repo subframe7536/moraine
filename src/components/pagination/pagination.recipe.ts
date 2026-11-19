@@ -33,7 +33,6 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     tone: 'neutral',
   },
   variants: {
-    tone: {},
     size: {
       sm: {
         listItem: 'data-ellipsis:size-7',
