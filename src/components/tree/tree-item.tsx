@@ -62,11 +62,16 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     open: () => props.item.isExpanded,
     transition,
     forceMount: () => context.props.forceMount,
+    // Layout height of the child list: a row still translated by a drop animation overflows it and
+    // would inflate `scrollHeight` past the height the group settles at.
+    measure: (element) => element.offsetHeight,
   })
   const allowHeightMotion = () => transition() && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
-  const visualExpanded = () =>
-    disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
+  // A memo, so the toggle counter below sees only real state changes, not every height measurement.
+  const visualExpanded = createMemo(
+    () => disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight()),
+  )
   // A toggle is in progress until its animation ends; the recipe applies the animation only then.
   // A CSS animation that stays applied after it ends replays whenever the element is inserted
   // again, such as when a drag library lifts or restores the item, or a reorder moves it. It also
@@ -75,10 +80,12 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   // Derived rather than written on change: the state can change through methods, a controlled
   // `expandedKeys`, or a late height measurement, and the attributes that start the animation must
   // apply in the same update as each of them. Counting toggles keeps a reversal mid-animation in
-  // progress, so the opposite animation takes over. Toggles while height motion is off do not count.
+  // progress, so the opposite animation takes over. Toggles while transitions are off do not count.
+  // Every change after mount is a user toggle, so it reads `transition` rather than
+  // `allowHeightMotion`, whose `initialOpen` input updates only after this first open.
   const toggles = createMemo<number>(
     on(visualExpanded, (_expanded, _previous, count?: number): number =>
-      count === undefined ? 0 : untrack(allowHeightMotion) ? count + 1 : count,
+      count === undefined ? 0 : untrack(transition) ? count + 1 : count,
     ),
   )
   const [settledToggles, setSettledToggles] = createSignal(untrack(toggles))

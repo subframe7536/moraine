@@ -32,6 +32,11 @@ export interface CreateDisclosureStateOptions {
    * disclosure closed (disabled item, refused controlled change) the attribute is restored.
    */
   onBeforeMatch?: () => void
+  /**
+   * Reads the height of the registered measure element (defaults to `scrollHeight`). Content laid
+   * out in normal flow can use `offsetHeight`, which ignores overflow such as transformed children.
+   */
+  measure?: (element: HTMLElement) => number
 }
 
 export interface DisclosureState {
@@ -70,7 +75,7 @@ export interface DisclosureState {
    */
   registerContentElement: (element: HTMLElement) => () => void
   /**
-   * Registers the element whose `scrollHeight` feeds `contentHeight`. The latest registration wins;
+   * Registers the element whose measured height feeds `contentHeight`. The latest registration wins;
    * releasing it falls back to the previous one. Returns a release function.
    */
   registerMeasureElement: (element: HTMLElement) => () => void
@@ -161,7 +166,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       return
     }
 
-    setContentHeight(element.scrollHeight)
+    setContentHeight(options.measure ? options.measure(element) : element.scrollHeight)
   }
 
   function queueContentHeightMeasurement(element = contentEl): void {

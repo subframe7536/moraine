@@ -53,8 +53,16 @@ export function Sortable() {
             const node = sortable.useNode(item)
             return (
               <tree.Item item={item} {...node.props}>
-                <tree.ItemTrigger />
-                <tree.ItemIcon icon={item.raw.children ? 'i-lucide:folder' : 'i-lucide:file'} />
+                {/*<tree.ItemTrigger />*/}
+                <tree.ItemIcon
+                  icon={
+                    item.raw.children
+                      ? item.isExpanded
+                        ? 'icon-folder-open'
+                        : 'icon-folder'
+                      : 'i-lucide:file'
+                  }
+                />
                 <tree.ItemLabel />
                 <button
                   ref={node.handleRef}

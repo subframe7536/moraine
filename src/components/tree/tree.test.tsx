@@ -408,7 +408,7 @@ describe('createTree', () => {
     })
 
     test('omits height transition styles on default-expanded nested content', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
       const group = item(container, 'docs').querySelector<HTMLElement>(
@@ -421,7 +421,7 @@ describe('createTree', () => {
     })
 
     test('keeps sibling items mounted when a nested branch expands', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       await Promise.resolve()
       const index = item(container, 'index.ts')
@@ -489,7 +489,7 @@ describe('createTree', () => {
     })
 
     test('enables height motion after a collapsed branch is measured', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
@@ -502,7 +502,7 @@ describe('createTree', () => {
     })
 
     test('clips the expanded group only while its height animation runs', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
@@ -514,6 +514,36 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transitioning')).toBe(true)
       fireEvent.animationEnd(group)
       expect(group.hasAttribute('data-transitioning')).toBe(false)
+    })
+
+    test('keeps a settled group at rest when its content height changes', async () => {
+      const resizeCallbacks: Array<() => void> = []
+      vi.stubGlobal('ResizeObserver', function ResizeObserver(callback: () => void) {
+        resizeCallbacks.push(callback)
+        return { observe: () => {}, disconnect: () => {} }
+      })
+      let height = 64
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(() => height)
+      try {
+        const { container } = render(() => <Harness />)
+        clickTrigger(item(container, 'src'))
+        await Promise.resolve()
+        const group = item(container, 'src').querySelector<HTMLElement>(
+          '[data-slot="tree-content"]',
+        )!
+        fireEvent.animationEnd(group)
+        expect(group.hasAttribute('data-transitioning')).toBe(false)
+
+        // A nested toggle resizes the list, which only updates the measured height.
+        height = 96
+        for (const callback of resizeCallbacks) {
+          callback()
+        }
+        expect(group.style.getPropertyValue('--mo-collapsible-content-height')).toBe('96px')
+        expect(group.hasAttribute('data-transitioning')).toBe(false)
+      } finally {
+        vi.unstubAllGlobals()
+      }
     })
 
     test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {

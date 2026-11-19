@@ -94,10 +94,13 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     },
     // `data-transition` marks groups whose height may animate; default-expanded groups skip it.
     // `data-transitioning` marks a toggle in progress, so the animation never replays on reinsertion.
+    // Only the animation keyframes read the measured height: an expanded group at rest keeps
+    // `height: auto`, so nested toggles and moved rows resize ancestors in the same frame instead of
+    // waiting for a stale measurement.
     transition: {
       true: {
         content:
-          'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transitioning:data-closed:animate-accordion-up data-transitioning:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
+          'data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transitioning:data-closed:animate-accordion-up data-transitioning:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
       },
     },
     variant: {
