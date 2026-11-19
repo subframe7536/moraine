@@ -346,10 +346,11 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         active = false
         setState(undefined)
         const source = event.operation.source
-        // The lifted element is still where the user released it.
+        // The lifted element is where the user released it. Its tracked shape is used because
+        // measuring the element itself reads (0, 0) while dnd kit is dropping it.
         const released =
-          (source ? elements.get(source.id)?.getBoundingClientRect() : undefined) ??
-          event.operation.shape?.current.boundingRectangle
+          event.operation.shape?.current.boundingRectangle ??
+          (source ? elements.get(source.id)?.getBoundingClientRect() : undefined)
         const final = event.canceled ? undefined : readDragState(event.operation, orientation)
         const settledId = allowed(final) ? (options.onDrop?.(final) ?? final.sourceId) : source?.id
         if (released && settledId !== undefined) {
