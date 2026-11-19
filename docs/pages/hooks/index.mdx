@@ -34,3 +34,15 @@ The styling helpers `cn`, `createCn`, and `useCn` are exported from `moraine`, n
 ## Headless Hooks
 
 <HooksIndex />
+
+## Hooks from Other Entry Points
+
+Feature-specific and context hooks live alongside their entry points so optional peer dependencies
+stay out of the core bundle:
+
+| Entry point           | Hooks & helpers                                                          | Guide                                                                                                       |
+| :-------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| `moraine`             | `useCn`, `useLocale`, `useRecipe`, `pickSlotOverrides`                   | [MoraineProvider](/docs/provider), [Class Merging](/docs/class-merging), [Localization](/docs/localization) |
+| `moraine/dnd`         | `createSortable`, `createListSortable`, `createTreeSortable`, `moveItem` | [Drag and Drop](/docs/drag-and-drop)                                                                        |
+| `moraine/virtualizer` | `createListVirtualizer`, `createTableVirtualizer`                        | [Virtualization](/docs/virtualization)                                                                      |
+| `moraine/data-table`  | `createDataTable`, `createTable`                                         | [DataTable](/components/data-table)                                                                         |

@@ -45,7 +45,7 @@ export const scrollAreaDataAttributes = {
     'scrolling',
     'hovering',
   ),
-  scrollbar: /* @__PURE__ */ createDataAttributes('orientation', 'visible', 'corner'),
+  scrollbar: /* @__PURE__ */ createDataAttributes('orientation', 'visible', 'dragging', 'corner'),
   corner: /* @__PURE__ */ createDataAttributes('visible'),
 } satisfies DataAttributeContract<keyof ScrollAreaStyleSlot>
 

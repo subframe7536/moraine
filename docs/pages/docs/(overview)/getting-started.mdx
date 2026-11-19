@@ -34,7 +34,7 @@ Components such as `Button`, `Input`, and `Select` use a single JSX entry point.
 ## Adapt the styles
 
 Use the `class` and object `style` props for local changes. Use slot `classes` and `styles` where the
-component exposes them, or scope shared recipe overrides with `defineTheme()` and `MoraineProvider`.
+component exposes them, or scope shared recipe overrides with `defineTheme()` and [`MoraineProvider`](/docs/provider).
 Start with [Customization](/docs/customization), then read [Theming](/docs/theming) for shared
 overrides and [Design tokens](/docs/design) for colors, spacing, and dimensions.
 
@@ -44,3 +44,10 @@ Use [Form](/components/form) for schema validation and submission, or
 [Field](/components/field) for standalone labels and messages. The
 [Accessibility guide](/docs/accessibility) explains naming and focus responsibilities; the
 [SSR guide](/docs/ssr) covers initial state, IDs, and browser-only content.
+
+## AI and LLM documentation
+
+Every documentation, component, and hook page has a plain Markdown counterpart built from the same
+source. Start from [`/llms.txt`](/llms.txt), append `.md` to any route (for example,
+`/components/button.md` or `/hooks/create-copy.md`), or request `/components/<name>.json` for a
+component's structured API schema.

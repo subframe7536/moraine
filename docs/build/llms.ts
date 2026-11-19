@@ -605,7 +605,9 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
 function isLlmsPath(url: string): boolean {
   return (
     url === '/llms.txt' ||
-    /^\/(?:docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+|components(?:\/[a-z0-9-]+)?)\.(?:md|json)$/.test(url)
+    /^\/(?:docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+|(?:components|hooks)(?:\/[a-z0-9-]+)?)\.(?:md|json)$/.test(
+      url,
+    )
   )
 }
 

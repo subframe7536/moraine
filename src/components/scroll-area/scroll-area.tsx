@@ -335,6 +335,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
               data: scrollAreaDataAttributes.scrollbar({
                 orientation: axis === 'y' ? 'vertical' : 'horizontal',
                 visible: () => scrollbarVisible(axis),
+                dragging: () => dragging() === axis,
                 corner: cornerVisible,
               }),
               own: () => ({

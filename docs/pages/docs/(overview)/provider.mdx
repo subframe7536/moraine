@@ -1,0 +1,90 @@
+---
+title: MoraineProvider
+description: Configure application-wide or subtree theme overrides, class merging, locale, text direction, and translated messages.
+sidebar:
+  order: 5
+search:
+  tags:
+    [MoraineProvider, provider, theme, cnConfig, locale, detectLocale, dir, rtl, messages, context]
+---
+
+`MoraineProvider` supplies shared configuration to descendant Moraine components without rendering
+an extra DOM element. It is optional: without a provider, components use their built-in recipes,
+the default class merger, and the `en-US` locale.
+
+## Basic setup
+
+Wrap your application root—or any subtree that needs different settings—in `MoraineProvider`:
+
+```tsx
+import { Button, MoraineProvider } from 'moraine'
+import { defineTheme } from 'moraine/theme'
+
+const appTheme = defineTheme({
+  button: {
+    defaultVariants: {
+      variant: 'outline',
+    },
+  },
+})
+
+export function App() {
+  return (
+    <MoraineProvider theme={appTheme} locale="zh-CN">
+      <Button>Save</Button>
+    </MoraineProvider>
+  )
+}
+```
+
+## Props
+
+| Prop           | Type                     | Default     | Behavior when omitted (`undefined`) |
+| :------------- | :----------------------- | :---------- | :---------------------------------- |
+| `theme`        | `MoraineTheme \| null`   | `null`      | Inherits parent provider's theme.   |
+| `cnConfig`     | `CnConfig`               | Default cn  | Inherits parent provider's merger.  |
+| `locale`       | `string`                 | `'en-US'`\* | Inherits parent provider's locale.  |
+| `detectLocale` | `boolean`                | `true`\*    | Inherits parent provider's locale.  |
+| `dir`          | `'ltr' \| 'rtl' \| null` | Document    | Inherits parent direction.          |
+| `messages`     | `MoraineMessagesInput`   | English     | Inherits parent messages.           |
+| `children`     | `JSX.Element`            | —           | Descendants receiving this context. |
+
+\* On a root provider with no explicit `locale`, `detectLocale` defaults to `true`. SSR and the
+first client render always use `en-US`, and after hydration the root provider follows
+`navigator.language` and the `languagechange` event. Setting `locale` disables `detectLocale`.
+
+## Nesting and reset rules
+
+Each prop follows an explicit inheritance rule when you nest a `MoraineProvider` inside another:
+
+- **`theme`**: Passing a new theme replaces the parent theme (themes are not merged). Pass
+  `theme={null}` to clear inherited overrides and fall back to built-in recipes. Instance
+  `classes`, `styles`, `class`, and `style` props still override the theme.
+- **`cnConfig`**: Passing an object creates a merger from Moraine's defaults plus that config (it
+  does not merge with the parent's `cnConfig`). Pass `cnConfig={{}}` to restore the defaults.
+- **`locale` and `detectLocale`**: A nested provider inherits the parent locale unless it sets
+  `locale` or explicitly opts into `detectLocale`.
+- **`dir`**: Passing `'ltr'` or `'rtl'` overrides component behavior (keyboard navigation, popup
+  placement, slider/tab arrows) without adding a `dir` attribute to descendants; set `dir` on
+  `<html>` for document layout. Pass `dir={null}` to reset back to document detection.
+- **`messages`**: Partial message packs deep-merge over the parent provider's messages, so nested
+  providers only need to declare the keys they override.
+
+```tsx
+import { Button, MoraineProvider } from 'moraine'
+
+export function ScopedSection() {
+  return (
+    <MoraineProvider theme={null} dir="rtl">
+      <Button>Uses built-in recipe in RTL</Button>
+    </MoraineProvider>
+  )
+}
+```
+
+## Related guides
+
+- [Theming](/docs/theming) — authoring themes with `defineTheme()`, dynamic switching, and portals.
+- [Class Merging](/docs/class-merging) — configuring `cnConfig`, `createCn`, and `useCn()`.
+- [Localization](/docs/localization) — built-in locales, `messages` keys, and RTL layout.
+- [Server-Side Rendering](/docs/ssr) — hydration-safe locale detection and server locale passing.

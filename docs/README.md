@@ -11,6 +11,7 @@ docs/pages/docs/(overview)/getting-started.mdx       → /docs/getting-started
 docs/pages/docs/(overview)/installation.mdx          → /docs/installation
 docs/pages/docs/(overview)/unocss.mdx                → /docs/unocss
 docs/pages/docs/(overview)/tailwind.mdx              → /docs/tailwind
+docs/pages/docs/(overview)/provider.mdx              → /docs/provider
 docs/pages/docs/(guides)/composition.mdx             → /docs/composition
 docs/pages/docs/(guides)/polymorphism.mdx            → /docs/polymorphism
 docs/pages/docs/(guides)/typescript.mdx              → /docs/typescript
@@ -69,7 +70,7 @@ Preview paths are static, relative to a page, and point to a self-contained TSX 
 
 ## Build pipeline and Markdown
 
-`docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt`, a `.md` counterpart for each page, and a `.json` API document for each documented component. The development server serves these documents for `/llms.txt`, `/docs/**`, and `/components/**`.
+`docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt`, a `.md` counterpart for each page, and a `.json` API document for each documented component. The development server serves these documents for `/llms.txt`, `/docs/**`, `/components/**`, and `/hooks/**`.
 
 Every generated document, including `/llms.txt`, starts with YAML frontmatter containing `title`, `description`, `package`, `version`, and `repository`. Package metadata comes from the root `package.json`; the repository is a browser-friendly GitHub URL. Markdown removes build-only frontmatter fields, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components and Hooks directories with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
 
