@@ -838,6 +838,20 @@ describe('forced colors utilities', () => {
   })
 })
 
+describe('tree drop target shortcut', () => {
+  test.each(WIND_VERSIONS)('expands every drop state with %s', async (_name, wind) => {
+    const css = await generate(['tree-drop-target'], false, wind)
+
+    expect(css).toMatch(/\[data-dnd-dragging\]>\.tree-drop-target\{[^}]*var\(--popover\)/)
+    expect(css).toMatch(
+      /\[data-drop-position\]>\.tree-drop-target:not\(\[data-selected\]\)\{[^}]*var\(--muted\)/,
+    )
+    expect(css).toMatch(/\[data-drop-position=inside\]>\.tree-drop-target\{[^}]*var\(--primary\)/)
+    expect(css).toMatch(/\[data-drop-position=before\]>\.tree-drop-target::before\{[^}]*top:-1px;/)
+    expect(css).toMatch(/\[data-drop-position=after\]>\.tree-drop-target::after\{[^}]*bottom:-1px;/)
+  })
+})
+
 describe('Wind3 semantic color and layout compatibility', () => {
   test('applies alpha to semantic variables through interaction variants', async () => {
     const css = await generate(

@@ -68,3 +68,26 @@ export const TONE_CLASS = {
   success: { root: 'tone-success' },
   warning: { root: 'tone-warning' },
 } as const
+
+/**
+ * Utility class for the drop target presentation of `createTreeSortable` from `moraine/dnd`, which
+ * sets `data-drop-position` on the item that is the parent of the row. The copy that follows the
+ * pointer (`data-dnd-dragging`, while the item stays in place) gets a solid surface, the target row
+ * keeps a muted background while the pointer is captured by the drag, and a straight line from the
+ * label start marks `before` and `after`.
+ *
+ * UnoCSS expands it as a shortcut and Tailwind applies the same list in a utility.
+ */
+export const TREE_DROP_TARGET_CLASS = 'tree-drop-target'
+
+/**
+ * Classes behind `TREE_DROP_TARGET_CLASS`. Each `[...&]` variant matches the row by the state its
+ * parent item carries, so the row only needs the one class. Variant groups are expanded at build
+ * time because this is a class module; utilities inside a group use `[var(--x)]` instead of
+ * `(--x)`, which the expansion cannot nest.
+ */
+export const TREE_DROP_TARGET_CLASSES = `[[data-dnd-dragging]>&]:(bg-popover ring-1 ring-border)
+  [[data-drop-position]>&:not([data-selected])]:bg-muted
+  [[data-drop-position=inside]>&]:(ring-2 ring-primary/60)
+  [[data-drop-position=before]>&]:before:(content-[''] absolute h-0.5 rounded-full bg-primary pointer-events-none start-[var(--mo-tree-pad-start)] end-0 -top-px)
+  [[data-drop-position=after]>&]:after:(content-[''] absolute h-0.5 rounded-full bg-primary pointer-events-none start-[var(--mo-tree-pad-start)] end-0 -bottom-px)`

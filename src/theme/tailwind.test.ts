@@ -430,6 +430,22 @@ describe('icon utilities', () => {
   })
 })
 
+describe('tree drop target utility', () => {
+  test('compiles one block per drop state', async () => {
+    const css = await compileCSS(['tree-drop-target'])
+
+    expect(css).toMatch(
+      /\[data-dnd-dragging\]\s*>\s*\.tree-drop-target\s*\{\s*background-color: var\(--popover\);/,
+    )
+    expect(css).toMatch(
+      /\[data-drop-position\]\s*>\s*\.tree-drop-target:not\(\[data-selected\]\)\s*\{\s*background-color: var\(--muted\);/,
+    )
+    expect(css).toMatch(/\[data-drop-position=inside\]\s*>\s*\.tree-drop-target\s*\{/)
+    expect(css).toMatch(/\[data-drop-position=before\]\s*>\s*\.tree-drop-target::before\s*\{/)
+    expect(css).toMatch(/\[data-drop-position=after\]\s*>\s*\.tree-drop-target::after\s*\{/)
+  })
+})
+
 describe('font families', () => {
   test.each([
     ['font-sans', 'var(--font-sans)'],

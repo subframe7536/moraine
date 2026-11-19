@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { DATA_DISABLED_CLASS } from '../../theme/recipe-common.recipe'
+import { DATA_DISABLED_CLASS, TREE_DROP_TARGET_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { CHECKBOX_CONTROL_CLASS, CHECKBOX_CONTROL_SIZE_CLASS } from '../checkbox/checkbox.recipe'
@@ -47,19 +47,6 @@ export const TREE_ROW_PADDING_STYLE = {
 }
 
 /**
- * Drop target presentation for `createTreeSortable` from `moraine/dnd`, which sets
- * `data-drop-position` on the item. The copy that follows the pointer (`data-dnd-dragging`, while
- * the item stays in place) gets a solid surface, the target row keeps its hover background while
- * the pointer is captured by the drag, and a straight line from the label start marks `before`
- * and `after`.
- */
-// The `uno/order` autofix splits `start-(--var)` after an arbitrary variant into two tokens.
-/* oxlint-disable uno/order */
-export const TREE_DROP_TARGET_CLASS =
-  "[[data-dnd-dragging]>&]:bg-popover [[data-dnd-dragging]>&]:ring-1 [[data-dnd-dragging]>&]:ring-border [[data-drop-position]>&:not([data-selected])]:bg-muted [[data-drop-position=inside]>&]:ring-2 [[data-drop-position=inside]>&]:ring-primary/60 [[data-drop-position=before]>&]:before:content-[''] [[data-drop-position=before]>&]:before:absolute [[data-drop-position=before]>&]:before:h-0.5 [[data-drop-position=before]>&]:before:rounded-full [[data-drop-position=before]>&]:before:bg-primary [[data-drop-position=before]>&]:before:pointer-events-none [[data-drop-position=before]>&]:before:start-(--mo-tree-pad-start) [[data-drop-position=before]>&]:before:end-0 [[data-drop-position=before]>&]:before:-top-px [[data-drop-position=after]>&]:after:content-[''] [[data-drop-position=after]>&]:after:absolute [[data-drop-position=after]>&]:after:h-0.5 [[data-drop-position=after]>&]:after:rounded-full [[data-drop-position=after]>&]:after:bg-primary [[data-drop-position=after]>&]:after:pointer-events-none [[data-drop-position=after]>&]:after:start-(--mo-tree-pad-start) [[data-drop-position=after]>&]:after:end-0 [[data-drop-position=after]>&]:after:-bottom-px"
-/* oxlint-enable uno/order */
-
-/**
  * Geometry variables live on the root so `tree.Tree` `style` overrides reach every item. Items
  * only declare `--mo-tree-level`, which per-item classes combine with the inherited values.
  */
@@ -78,7 +65,6 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     checkbox: CHECKBOX_CONTROL_CLASS,
     label: 'flex-1 min-w-0 truncate',
     action: 'flex shrink-0 gap-1 items-center',
-    // A border, unlike a background image, stays visible under `forced-colors: active`.
     guide: 'border-s border-border shrink-0 h-full w-(--mo-tree-indent)',
     content: '',
   },
@@ -105,10 +91,6 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
         checkbox: CHECKBOX_CONTROL_SIZE_CLASS.lg,
         '--mo-tree-gap': '0.625rem',
       },
-    },
-    // Decides whether `tree.Item` renders guide elements; it adds no classes.
-    indentGuide: {
-      true: {},
     },
     // `data-transition` marks groups whose height may animate; default-expanded groups skip it.
     // `data-transitioning` marks a toggle in progress, so the animation never replays on reinsertion.
