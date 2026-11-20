@@ -1,293 +1,317 @@
-import { createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 
 import {
-  Accordion,
-  BoldSlider,
+  Badge,
+  BaseSelect,
   Button,
-  Combobox,
-  Dialog,
+  CopyButton,
   Icon,
-  NumberInput,
-  Popover,
-  Slider,
-  Switch,
+  Resizable,
+  Select,
   Tabs,
-  cn,
 } from '../../../../src'
+import { createMediaQuery } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
-const OPTIONS = [
+const FRAMEWORK_ITEMS = [
   { label: 'SolidJS', value: 'solid' },
-  { label: 'TypeScript', value: 'typescript' },
+  { label: 'TypeScript', value: 'ts' },
   { label: 'UnoCSS', value: 'unocss' },
   { label: 'Tailwind CSS', value: 'tailwind' },
 ]
 
-const docsLink = `group text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
+const COMPOSITE_SNIPPET = `<Select
+  items={frameworks}
+  value={value()}
+  onValueChange={setValue}
+  placeholder="Choose framework"
+  clearable
+/>`
 
-function SamplerItem(props: {
-  title: string
-  description: string
-  href: string
-  class?: string
-  children: JSX.Element
-}) {
-  return (
-    <article
-      class={cn('p-5 border-b border-e border-border flex flex-col min-w-0 sm:p-6', props.class)}
-    >
-      <div>
-        <h3 class="text-base font-semibold">{props.title}</h3>
-        <p class="text-sm text-muted-foreground mt-1">{props.description}</p>
-      </div>
-      <div class="mt-6 min-w-0">{props.children}</div>
-      <a href={props.href} class={cn(docsLink, 'mt-auto pt-6')}>
-        Explore {props.title}{' '}
-        <Icon
-          name="i-lucide:arrow-up-right"
-          class="size-3.5 transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
-        />
-      </a>
-    </article>
-  )
-}
+const GRANULAR_SNIPPET = `<BaseSelect items={frameworks} value={value()} onValueChange={setValue}>
+  <BaseSelect.Control>
+    <BaseSelect.Trigger>...</BaseSelect.Trigger>
+  </BaseSelect.Control>
+  <BaseSelect.Content>
+    <BaseSelect.Listbox>
+      <For each={frameworks}>
+        {(item) => <BaseSelect.Item item={item} />}
+      </For>
+    </BaseSelect.Listbox>
+  </BaseSelect.Content>
+</BaseSelect>`
+
+const UNOCSS_SNIPPET = `import { defineConfig } from 'unocss'
+import { presetMoraine } from 'moraine/theme/unocss'
+
+export default defineConfig({
+  presets: [presetMoraine()],
+})`
+
+const TAILWIND_SNIPPET = `@import "tailwindcss";
+@import "moraine/theme/tailwind.css";
+@source "../node_modules/moraine/dist";`
+
+const docsLinkClass = `group text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 
 export function ComponentRadar() {
-  const [value, setValue] = createSignal(42)
-  const [boldValue, setBoldValue] = createSignal(70)
-  const [emailAlerts, setEmailAlerts] = createSignal(true)
-  const [inAppAlerts, setInAppAlerts] = createSignal(false)
+  const isDesktop = createMediaQuery('(min-width: 768px)')
+  const [compositeVal, setCompositeVal] = createSignal<string | null>('solid')
+  const [granularVal, setGranularVal] = createSignal<string[]>(['unocss'])
+  const [engineTab, setEngineTab] = createSignal('unocss')
+
+  function CompositeCard() {
+    return (
+      <div class="p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-semibold">Composite · Drop-in</h3>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              Zero boilerplate for standard product flows.
+            </p>
+          </div>
+          <Badge size="sm" variant="soft">
+            Select
+          </Badge>
+        </div>
+
+        <Select
+          size="sm"
+          items={FRAMEWORK_ITEMS}
+          value={compositeVal()}
+          onValueChange={setCompositeVal}
+          placeholder="Choose framework"
+          clearable
+        />
+
+        <pre class="text-xs leading-5 p-3 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
+          <code>{COMPOSITE_SNIPPET}</code>
+        </pre>
+      </div>
+    )
+  }
+
+  function GranularCard() {
+    return (
+      <div class="p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-semibold">Granular · Composable</h3>
+            <p class="text-xs text-muted-foreground mt-0.5">
+              Own every slot and DOM wrapper when layout demands it.
+            </p>
+          </div>
+          <Badge size="sm" variant="outline">
+            BaseSelect
+          </Badge>
+        </div>
+
+        <BaseSelect
+          items={FRAMEWORK_ITEMS}
+          value={granularVal()}
+          onValueChange={setGranularVal}
+        >
+          <BaseSelect.Control>
+            <BaseSelect.Trigger class="text-sm px-3 border border-input rounded-md bg-control flex h-8 w-full items-center justify-between">
+              <span>
+                {FRAMEWORK_ITEMS.find((i) => i.value === granularVal()[0])?.label ??
+                  'Choose framework'}
+              </span>
+              <Icon name="i-lucide:chevrons-up-down" class="text-muted-foreground size-3.5" />
+            </BaseSelect.Trigger>
+          </BaseSelect.Control>
+          <BaseSelect.Content>
+            <BaseSelect.Listbox>
+              <For each={FRAMEWORK_ITEMS}>{(item) => <BaseSelect.Item item={item} />}</For>
+            </BaseSelect.Listbox>
+          </BaseSelect.Content>
+        </BaseSelect>
+
+        <pre class="text-xs leading-5 p-3 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
+          <code>{GRANULAR_SNIPPET}</code>
+        </pre>
+      </div>
+    )
+  }
 
   return (
-    <section aria-labelledby="radar-title" class="py-12 sm:py-16">
-      <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div class="max-w-2xl">
-          <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
-            Composite controls & modular primitives.
-          </h2>
-          <p class="text-sm text-muted-foreground mt-2 sm:text-base">
-            Move fast with drop-in composite controls or craft bespoke experiences by assembling
-            decomposed parts. Everything arrives fully styled, accessible, and reactive.
-          </p>
+    <section aria-labelledby="radar-title" class="py-10 space-y-12 sm:py-14">
+      <div>
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div class="max-w-2xl">
+            <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
+              Composite speed. Primitive control.
+            </h2>
+            <p class="text-sm text-muted-foreground mt-1.5 sm:text-base">
+              Start with ready-made controls and drop down to decomposed parts whenever a screen
+              needs custom structure.
+            </p>
+          </div>
+          <Button
+            as="a"
+            href="/docs/composition"
+            size="sm"
+            variant="link"
+            trailing="icon-arrow-right"
+            class="shrink-0 self-start sm:self-end"
+          >
+            Composition guide
+          </Button>
         </div>
-        <Button
-          as="a"
-          href="/components"
-          size="sm"
-          variant="link"
-          trailing="icon-arrow-right"
-          class="shrink-0 self-start sm:self-end"
-        >
-          Browse all components
-        </Button>
-      </div>
 
-      <div class="border-s border-t border-border rounded-xl grid overflow-hidden lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
-        <SamplerItem
-          title="Tabs"
-          description="Composable compound navigation with roving keyboard focus and animated panels."
-          href="/components/tabs"
-          class="md:col-span-2"
-        >
-          <div class="max-w-xl">
+        <Show
+          when={isDesktop()}
+          fallback={
             <Tabs
               size="sm"
-              defaultValue="preferences"
+              defaultValue="composite"
               items={[
                 {
-                  label: 'Preferences',
-                  value: 'preferences',
-                  content: (
+                  value: 'composite',
+                  label: 'Composite',
+                  content: () => (
                     <div class="pt-4">
-                      <p class="text-sm font-medium">Workspace preferences</p>
-                      <p class="text-sm text-muted-foreground mt-1">
-                        Choose how this workspace looks and feels.
-                      </p>
-                      <dl class="text-sm mt-4 pt-3 gap-4 grid grid-cols-2">
-                        <div>
-                          <dt class="text-muted-foreground">Appearance</dt>
-                          <dd class="font-medium mt-1">System theme</dd>
-                        </div>
-                        <div>
-                          <dt class="text-muted-foreground">Density</dt>
-                          <dd class="font-medium mt-1">Comfortable</dd>
-                        </div>
-                      </dl>
+                      <CompositeCard />
                     </div>
                   ),
                 },
                 {
-                  label: 'Access',
-                  value: 'access',
-                  content: (
+                  value: 'granular',
+                  label: 'Granular',
+                  content: () => (
                     <div class="pt-4">
-                      <p class="text-sm font-medium">Workspace access</p>
-                      <p class="text-sm text-muted-foreground mt-1">
-                        Manage who can view and join this workspace.
-                      </p>
-                      <dl class="text-sm mt-4 pt-3 gap-4 grid grid-cols-2">
-                        <div>
-                          <dt class="text-muted-foreground">Visibility</dt>
-                          <dd class="font-medium mt-1">Private</dd>
-                        </div>
-                        <div>
-                          <dt class="text-muted-foreground">Invitations</dt>
-                          <dd class="font-medium mt-1">Members only</dd>
-                        </div>
-                      </dl>
+                      <GranularCard />
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          }
+        >
+          <div class="gap-5 grid md:grid-cols-2">
+            <CompositeCard />
+            <GranularCard />
+          </div>
+        </Show>
+      </div>
+
+      <div class="gap-6 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div class="p-5 border border-border rounded-xl bg-card flex flex-col justify-between min-w-0">
+          <div>
+            <div class="flex flex-wrap gap-2 items-center justify-between">
+              <h3 class="text-base font-semibold">Built for dense interfaces</h3>
+              <div class="flex flex-wrap gap-1.5">
+                <Badge size="sm" variant="soft">
+                  moraine/data-table
+                </Badge>
+                <Badge size="sm" variant="soft">
+                  moraine/virtualizer
+                </Badge>
+                <Badge size="sm" variant="soft">
+                  moraine/dnd
+                </Badge>
+              </div>
+            </div>
+            <p class="text-sm text-muted-foreground mt-1.5">
+              Heavy features ship from optional peer entries so the main bundle stays lean. Drag the
+              handle below to resize panes with keyboard and pointer support.
+            </p>
+          </div>
+
+          <div class="mt-5 border border-border rounded-lg h-44 overflow-hidden">
+            <Resizable defaultValue={{ nav: 34, main: 66 }}>
+              <Resizable.Panel
+                id="nav"
+                min={24}
+                max={50}
+                class="p-3 bg-muted/30 flex flex-col justify-between"
+              >
+                <span class="text-xs font-medium">Sidebar</span>
+                <span class="text-xs text-muted-foreground font-mono">min 24%</span>
+              </Resizable.Panel>
+              <Resizable.Handle />
+              <Resizable.Panel
+                id="main"
+                min={40}
+                class="p-3 bg-background flex flex-col justify-between"
+              >
+                <span class="text-xs font-medium">Canvas</span>
+                <span class="text-xs text-muted-foreground">
+                  Drag divider or press arrow keys
+                </span>
+              </Resizable.Panel>
+            </Resizable>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
+            <a href="/components/data-table" class={docsLinkClass}>
+              DataTable <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+            </a>
+            <a href="/components/tree" class={docsLinkClass}>
+              Tree <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+            </a>
+            <a href="/components/resizable" class={docsLinkClass}>
+              Resizable <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+            </a>
+          </div>
+        </div>
+
+        <div class="p-5 border border-border rounded-xl bg-card flex flex-col justify-between min-w-0">
+          <div>
+            <h3 class="text-base font-semibold">UnoCSS &amp; Tailwind CSS v4</h3>
+            <p class="text-sm text-muted-foreground mt-1.5">
+              Drop into your existing atomic CSS pipeline with automatic class scanning and shared
+              semantic tokens.
+            </p>
+          </div>
+
+          <div class="mt-5">
+            <Tabs
+              size="sm"
+              value={engineTab()}
+              onValueChange={setEngineTab}
+              items={[
+                {
+                  value: 'unocss',
+                  label: 'UnoCSS',
+                  content: () => (
+                    <div class="pt-3 relative">
+                      <div class="right-2 top-5 absolute">
+                        <CopyButton value={UNOCSS_SNIPPET} size="icon-xs" variant="outline" />
+                      </div>
+                      <pre class="text-xs leading-5 p-3.5 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
+                        <code>{UNOCSS_SNIPPET}</code>
+                      </pre>
+                    </div>
+                  ),
+                },
+                {
+                  value: 'tailwind',
+                  label: 'Tailwind v4',
+                  content: () => (
+                    <div class="pt-3 relative">
+                      <div class="right-2 top-5 absolute">
+                        <CopyButton value={TAILWIND_SNIPPET} size="icon-xs" variant="outline" />
+                      </div>
+                      <pre class="text-xs leading-5 p-3.5 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
+                        <code>{TAILWIND_SNIPPET}</code>
+                      </pre>
                     </div>
                   ),
                 },
               ]}
             />
           </div>
-        </SamplerItem>
 
-        <SamplerItem
-          title="Slider"
-          description="Continuous numeric controls — raw slider track and composite BoldSlider."
-          href="/components/slider"
-        >
-          <div class="max-w-sm space-y-5">
-            <div>
-              <div class="text-sm mb-2 flex justify-between">
-                <span>Default</span>
-                <output class="text-muted-foreground font-mono">{value()}</output>
-              </div>
-              <Slider
-                aria-label="Default slider example"
-                value={value()}
-                min={0}
-                max={100}
-                onValueChange={(next) => setValue(Array.isArray(next) ? next[0]! : next)}
-              />
-            </div>
-            <BoldSlider
-              label="Bold"
-              value={boldValue()}
-              min={0}
-              max={100}
-              step={10}
-              markers
-              onValueChange={setBoldValue}
-            />
+          <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
+            <a href="/docs/unocss" class={docsLinkClass}>
+              UnoCSS setup <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+            </a>
+            <a href="/docs/tailwind" class={docsLinkClass}>
+              Tailwind setup <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+            </a>
           </div>
-        </SamplerItem>
-
-        <SamplerItem
-          title="Switch"
-          description="Ready composite toggles with integrated label and description layout."
-          href="/components/switch"
-        >
-          <div class="space-y-4">
-            <Switch
-              label="Email alerts"
-              description="Sent after a deployment."
-              checked={emailAlerts()}
-              onCheckedChange={setEmailAlerts}
-            />
-            <Switch
-              label="In-app alerts"
-              description="Shown in your workspace."
-              checked={inAppAlerts()}
-              onCheckedChange={setInAppAlerts}
-            />
-          </div>
-          <output aria-live="polite" class="text-xs text-muted-foreground mt-4 block">
-            {Number(emailAlerts()) + Number(inAppAlerts())} of 2 channels on
-          </output>
-        </SamplerItem>
-
-        <SamplerItem
-          title="Popover"
-          description="Granular floating primitives with collision-aware positioning and anchored trigger."
-          href="/components/popover"
-        >
-          <Popover placement="bottom" align="start">
-            <Popover.Trigger as={Button} variant="outline" size="sm">
-              Open popover
-            </Popover.Trigger>
-            <Popover.Content aria-label="Popover example" class="max-w-56 w-[calc(100vw-3rem)]">
-              <div class="p-4 space-y-1">
-                <p class="text-sm font-medium">Contextual content</p>
-                <p class="text-xs text-muted-foreground">
-                  This panel stays close to the action that opened it.
-                </p>
-              </div>
-            </Popover.Content>
-          </Popover>
-        </SamplerItem>
-
-        <SamplerItem
-          title="NumberInput"
-          description="Drop-in composite stepper with strict boundaries and increment controls."
-          href="/components/number-input"
-        >
-          <NumberInput aria-label="Item count" defaultValue={3} min={1} max={10} />
-        </SamplerItem>
-
-        <SamplerItem
-          title="Combobox"
-          description="Full-featured composite select with typeahead search and clearable input."
-          href="/components/combobox"
-        >
-          <Combobox items={OPTIONS} placeholder="Search technologies..." clearable />
-        </SamplerItem>
-
-        <SamplerItem
-          title="Dialog"
-          description="Decomposed modal parts (Trigger, Content, Body) for flexible composition."
-          href="/components/dialog"
-        >
-          <Dialog>
-            <Dialog.Trigger as={Button} variant="outline" size="sm">
-              Open dialog
-            </Dialog.Trigger>
-            <Dialog.Content title="Dialog example">
-              <Dialog.Body>
-                <p class="text-sm text-muted-foreground">
-                  A focused space for content that needs a response.
-                </p>
-              </Dialog.Body>
-            </Dialog.Content>
-          </Dialog>
-        </SamplerItem>
-
-        <SamplerItem
-          title="Accordion"
-          description="Collapsible disclosure system with smooth transitions and keyboard roving."
-          href="/components/accordion"
-          class="lg:col-span-2 lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
-        >
-          <Accordion
-            defaultValue={['keyboard']}
-            items={[
-              {
-                value: 'keyboard',
-                label: 'Keyboard support',
-                content:
-                  'Move between triggers with the arrow keys and activate one with Enter or Space.',
-              },
-              {
-                value: 'focus',
-                label: 'Focus management',
-                content:
-                  'Each trigger keeps a visible focus state while its panel opens or closes.',
-              },
-              {
-                value: 'content',
-                label: 'Flexible content',
-                content: 'Place text, links, or a richer layout inside any panel.',
-              },
-            ]}
-            classes={{
-              root: 'border border-border rounded-lg',
-              trigger: 'px-4',
-              content: 'px-4',
-            }}
-          />
-        </SamplerItem>
+        </div>
       </div>
     </section>
   )
