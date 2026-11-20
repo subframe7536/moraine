@@ -18,7 +18,7 @@ export function NonModal() {
           modal={false}
           overlay={false}
           preventScroll={false}
-          closeOnOverlayClick={false}
+          closeOnOutsideClick={false}
           closable
         >
           <Drawer.Trigger as={Button} size="sm">

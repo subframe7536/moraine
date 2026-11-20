@@ -1,6 +1,6 @@
 ---
 title: AlertDialog
-description: Confirm, inform, or report a result from an imperative call.
+description: Imperative alert dialogs — mount the `<AlertDialog>` host once, then call static methods such as `AlertDialog.confirm()`; there are no open props or child parts.
 group: Overlay
 api:
   path: src/components/alert-dialog/alert-dialog
@@ -195,7 +195,7 @@ AlertDialog.confirm({
 
 ### Dismissal
 
-A pointer press on the overlay dismisses the dialog when `closeOnOverlayClick` is `true` (default
+A pointer press on the overlay dismisses the dialog when `closeOnOutsideClick` is `true` (default
 `false`). Escape dismisses it unless `closeOnEscape` is `false` (default `true`). The corner close
 button appears when `closable` is `true`. Escape closes only the topmost dialog. All three settle
 with `'dismiss'`.

@@ -31,7 +31,7 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
     closable: props.closable,
     transition: props.transition,
     closeOnEscape: props.closeOnEscape,
-    closeOnOverlayClick: props.closeOnOverlayClick,
+    closeOnOutsideClick: props.closeOnOutsideClick,
     align: props.align,
     variant: props.variant,
     type: props.type ?? undefined,

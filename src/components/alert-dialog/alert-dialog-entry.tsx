@@ -211,7 +211,7 @@ export function AlertDialogEntry(props: {
       translations={options().translations}
       transition={options().transition}
       closable={(options().closable ?? false) && idle()}
-      closeOnOverlayClick={options().closeOnOverlayClick === true && idle()}
+      closeOnOutsideClick={options().closeOnOutsideClick === true && idle()}
       closeOnEscape={options().closeOnEscape !== false && idle()}
       onOpenChange={(next) => {
         if (!next && idle()) {

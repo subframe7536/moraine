@@ -51,7 +51,7 @@
           }
         },
         {
-          "name": "closeOnOverlayClick",
+          "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
           "description": "Whether a pointer press on the overlay outside the panel dismisses the dialog (reason\n`dismiss`). Ignored while an action or cancel promise is pending.",

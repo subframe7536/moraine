@@ -1973,11 +1973,11 @@ describe('BaseDialog primitives', () => {
   })
 
   test.each([
-    { closeOnOverlayClick: true, closeOnEscape: true, closes: 2, prevents: 0 },
-    { closeOnOverlayClick: false, closeOnEscape: false, closes: 0, prevents: 2 },
+    { closeOnOutsideClick: true, closeOnEscape: true, closes: 2, prevents: 0 },
+    { closeOnOutsideClick: false, closeOnEscape: false, closes: 0, prevents: 2 },
   ])(
-    'keeps outside and Escape handling when modal is false and dismissal is $closeOnOverlayClick/$closeOnEscape',
-    async ({ closeOnOverlayClick, closeOnEscape, closes, prevents }) => {
+    'keeps outside and Escape handling when modal is false and dismissal is $closeOnOutsideClick/$closeOnEscape',
+    async ({ closeOnOutsideClick, closeOnEscape, closes, prevents }) => {
       const onOpenChange = vi.fn()
       const onClosePrevented = vi.fn()
       const screen = render(() => (
@@ -1988,7 +1988,7 @@ describe('BaseDialog primitives', () => {
           <BaseDialog
             open
             modal={false}
-            closeOnOverlayClick={closeOnOverlayClick}
+            closeOnOutsideClick={closeOnOutsideClick}
             closeOnEscape={closeOnEscape}
             onOpenChange={onOpenChange}
             onClosePrevented={onClosePrevented}

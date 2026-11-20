@@ -31,7 +31,7 @@ export const BASE_DIALOG_ROOT_KEYS = [
   'onOpenChange',
   'onExitComplete',
   'transition',
-  'closeOnOverlayClick',
+  'closeOnOutsideClick',
   'closeOnEscape',
   'onClosePrevented',
   'preventScroll',

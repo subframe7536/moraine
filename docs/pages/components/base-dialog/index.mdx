@@ -106,7 +106,7 @@ trigger. Use `initialFocus` to choose the element that receives focus on open, o
 the move, and `finalFocus` to choose where focus returns. Both apply only while `modal` is `true`.
 
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
-closure. `closeOnOverlayClick` controls outside pointer dismissal and `closeOnEscape` controls
+closure. `closeOnOutsideClick` controls outside pointer dismissal and `closeOnEscape` controls
 Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
 `onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to `true`. To allow
 background page interaction, set `preventScroll={false}` and omit `BaseDialog.Overlay`.

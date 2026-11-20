@@ -910,7 +910,7 @@ describe('Dialog', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog defaultOpen closeOnOverlayClick={false} onClosePrevented={onClosePrevented}>
+        <Dialog defaultOpen closeOnOutsideClick={false} onClosePrevented={onClosePrevented}>
           <Dialog.Trigger as="button" type="button">
             Trigger
           </Dialog.Trigger>
@@ -977,7 +977,7 @@ describe('Dialog', () => {
         </button>
         <Dialog
           defaultOpen
-          closeOnOverlayClick={false}
+          closeOnOutsideClick={false}
           onClosePrevented={onClosePrevented}
           onOpenChange={onOpenChange}
         >

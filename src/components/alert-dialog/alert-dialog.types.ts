@@ -97,7 +97,7 @@ export namespace AlertDialogT {
      * `dismiss`). Ignored while an action or cancel promise is pending.
      * @default false
      */
-    closeOnOverlayClick?: boolean
+    closeOnOutsideClick?: boolean
 
     /**
      * Default status tone for dialogs on this host. It picks the leading icon and its color
@@ -224,7 +224,7 @@ export namespace AlertDialogT {
     /** Whether Escape dismisses this dialog, overriding the host. */
     closeOnEscape?: boolean
     /** Whether an overlay press dismisses this dialog, overriding the host. */
-    closeOnOverlayClick?: boolean
+    closeOnOutsideClick?: boolean
     /** Accessible name used when `title` is absent; `AlertDialog.custom` may omit `title`. */
     ariaLabel?: string
     /** Localized message overrides for this dialog, merged per key over the host translations. */

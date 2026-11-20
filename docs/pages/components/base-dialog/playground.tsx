@@ -9,7 +9,7 @@ export default function BaseDialogPlayground() {
       controls={[
         {
           kind: 'switch',
-          prop: 'closeOnOverlayClick',
+          prop: 'closeOnOutsideClick',
           label: 'Close on overlay click',
           defaultValue: true,
         },
@@ -19,7 +19,7 @@ export default function BaseDialogPlayground() {
     >
       {(props) => (
         <BaseDialog
-          closeOnOverlayClick={props.closeOnOverlayClick}
+          closeOnOutsideClick={props.closeOnOutsideClick}
           closeOnEscape={props.closeOnEscape}
         >
           <BaseDialog.Trigger as={Button} variant="outline">

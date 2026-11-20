@@ -70,7 +70,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       }
     },
   })
-  const closeOnOverlayClick = () => props.closeOnOverlayClick !== false
+  const closeOnOutsideClick = () => props.closeOnOutsideClick !== false
   const closeOnEscape = () => props.closeOnEscape !== false
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
@@ -258,7 +258,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
         })
       }
     },
-    onPointerOutside: (event) => requestDismiss(event, isModal(), closeOnOverlayClick()),
+    onPointerOutside: (event) => requestDismiss(event, isModal(), closeOnOutsideClick()),
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()

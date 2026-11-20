@@ -10,7 +10,7 @@ export function DismissControl() {
       <Sheet
         open={open()}
         onOpenChange={setOpen}
-        closeOnOverlayClick={false}
+        closeOnOutsideClick={false}
         closeOnEscape={false}
         onClosePrevented={() => setPreventedCloseCount((value) => value + 1)}
       >

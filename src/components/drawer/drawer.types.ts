@@ -49,7 +49,7 @@ export namespace DrawerT {
 
     /**
      * Whether to render the styled backdrop behind the content. When `false` the content is shown
-     * without a backdrop; outside presses still follow `closeOnOverlayClick`.
+     * without a backdrop; outside presses still follow `closeOnOutsideClick`.
      * @default true
      */
     overlay?: boolean

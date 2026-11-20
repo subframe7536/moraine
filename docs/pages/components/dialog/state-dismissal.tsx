@@ -25,7 +25,7 @@ export function StateDismissal() {
       <Dialog
         open={open()}
         onOpenChange={setOpen}
-        closeOnOverlayClick={allowDismiss()}
+        closeOnOutsideClick={allowDismiss()}
         closeOnEscape={allowDismiss()}
         onClosePrevented={() => setPreventedAttempts((c) => c + 1)}
       >

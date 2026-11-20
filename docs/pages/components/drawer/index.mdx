@@ -72,7 +72,7 @@ backdrop and content yourself.
 
 Drawer shares modal dismissal and focus behavior with Dialog. The default `side` is `bottom`. For a
 persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`,
-`preventScroll={false}`, and `closeOnOverlayClick={false}`. Escape and swipe dismissal still apply.
+`preventScroll={false}`, and `closeOnOutsideClick={false}`. Escape and swipe dismissal still apply.
 
 ```tsx
 import { Button, Drawer } from 'moraine'
@@ -220,7 +220,7 @@ Top and bottom support handles and snap points; left and right are swipe-only pa
 ### Non-modal
 
 `modal={false}`, `overlay={false}`, and `preventScroll={false}` leave the page's pointer, focus,
-and scroll access intact; `closeOnOverlayClick={false}` keeps outside presses from dismissing the
+and scroll access intact; `closeOnOutsideClick={false}` keeps outside presses from dismissing the
 panel — both buttons update the same count.
 
 <Preview path="./non-modal" />

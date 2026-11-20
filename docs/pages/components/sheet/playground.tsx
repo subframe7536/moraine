@@ -20,7 +20,7 @@ export default function SheetPlayground() {
         },
         {
           kind: 'switch',
-          prop: 'closeOnOverlayClick',
+          prop: 'closeOnOutsideClick',
           label: 'Close on overlay click',
           defaultValue: true,
         },
@@ -30,7 +30,7 @@ export default function SheetPlayground() {
     >
       {(props) => (
         <Sheet
-          closeOnOverlayClick={props.closeOnOverlayClick}
+          closeOnOutsideClick={props.closeOnOutsideClick}
           closeOnEscape={props.closeOnEscape}
           side={props.side}
           overlay={props.overlay}

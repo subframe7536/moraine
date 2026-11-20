@@ -141,7 +141,7 @@ Use `initialFocus` to choose the element that receives focus on open, or `false`
 and `finalFocus` to choose where focus returns. Both apply only while `modal` is `true`.
 
 Setting `modal={false}` allows focus to leave the surface, but does not disable Escape or outside
-dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close requests. Both default to
+dismissal. `closeOnOutsideClick` and `closeOnEscape` control those close requests. Both default to
 `true`. Scroll locking is independent: `preventScroll` defaults to `true`. For interaction with the
 background page, also set `preventScroll={false}` and `overlay={false}`.
 
@@ -178,7 +178,7 @@ topmost dialog or popover, then returns focus to its trigger inside the parent d
 ### State and dismissal
 
 Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility.
-`closeOnOverlayClick={false}` blocks an outside pointer press, and `closeOnEscape={false}` blocks
+`closeOnOutsideClick={false}` blocks an outside pointer press, and `closeOnEscape={false}` blocks
 Escape. Both report the attempt through `onClosePrevented`. Provide a clear explicit close path when
 either one is blocked.
 
@@ -186,7 +186,7 @@ either one is blocked.
 <Dialog
   open={open()}
   onOpenChange={setOpen}
-  closeOnOverlayClick={false}
+  closeOnOutsideClick={false}
   closeOnEscape={false}
   onClosePrevented={onBlocked}
 >
@@ -238,7 +238,7 @@ layer and restores focus to its trigger.
 
 ### Prevent dismissal
 
-Own visibility from the page. Toggle `closeOnOverlayClick` and `closeOnEscape` together to block
+Own visibility from the page. Toggle `closeOnOutsideClick` and `closeOnEscape` together to block
 outside clicks and Escape. `onClosePrevented` counts blocked attempts until Save or Discard.
 
 <Preview path="./state-dismissal" />

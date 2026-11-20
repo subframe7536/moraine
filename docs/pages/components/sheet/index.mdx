@@ -138,7 +138,7 @@ Use `initialFocus` to choose the element that receives focus on open, or `false`
 and `finalFocus` to choose where focus returns. Both apply only while `modal` is `true`.
 
 Setting `modal={false}` allows focus to leave the surface, but does not disable Escape or outside
-dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close requests. Both default to
+dismissal. `closeOnOutsideClick` and `closeOnEscape` control those close requests. Both default to
 `true`. Scroll locking is independent: `preventScroll` defaults to `true`. For interaction with the
 background page, also set `preventScroll={false}` and `overlay={false}`.
 
@@ -183,7 +183,7 @@ attempts.
     </Sheet.Footer>
   </Sheet.Content>
 </Sheet>
-<Sheet closeOnOverlayClick={false} closeOnEscape={false} onClosePrevented={onBlocked}>
+<Sheet closeOnOutsideClick={false} closeOnEscape={false} onClosePrevented={onBlocked}>
   <Sheet.Content title="Persistent sheet">
     <Sheet.Footer>
       <Button onClick={() => setOpen(false)}>Close</Button>
@@ -216,7 +216,7 @@ A page button owns `open`. Closing from the footer reports back through `onOpenC
 
 ### Prevent dismissal
 
-`closeOnOverlayClick={false}` and `closeOnEscape={false}` block overlay click and Escape, and
+`closeOnOutsideClick={false}` and `closeOnEscape={false}` block overlay click and Escape, and
 `onClosePrevented` reports each blocked attempt. The footer action is the only way to close.
 
 <Preview path="./dismiss-control" />

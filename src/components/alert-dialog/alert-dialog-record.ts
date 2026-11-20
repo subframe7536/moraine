@@ -12,7 +12,7 @@ export interface AlertDialogHostDefaults {
   closable?: boolean
   transition?: boolean
   closeOnEscape?: boolean
-  closeOnOverlayClick?: boolean
+  closeOnOutsideClick?: boolean
   align?: AlertDialogT.Variants['align'] | null
   variant?: AlertDialogT.Variants['variant'] | null
   type?: AlertDialogT.Type
@@ -104,7 +104,7 @@ export function createAlertDialogRecord(
       closable: pickDefined(call.closable, defaults.closable),
       transition: pickDefined(call.transition, defaults.transition),
       closeOnEscape: pickDefined(call.closeOnEscape, defaults.closeOnEscape),
-      closeOnOverlayClick: pickDefined(call.closeOnOverlayClick, defaults.closeOnOverlayClick),
+      closeOnOutsideClick: pickDefined(call.closeOnOutsideClick, defaults.closeOnOutsideClick),
       align: pickDefined(call.align, defaults.align),
       variant: pickDefined(call.variant, defaults.variant),
       maxWidth: pickDefined(call.maxWidth, defaults.maxWidth),

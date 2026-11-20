@@ -710,7 +710,7 @@ describe('Sheet', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Sheet defaultOpen closeOnOverlayClick={false} onClosePrevented={onClosePrevented}>
+        <Sheet defaultOpen closeOnOutsideClick={false} onClosePrevented={onClosePrevented}>
           <Sheet.Trigger as="button" type="button">
             Trigger
           </Sheet.Trigger>

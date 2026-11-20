@@ -154,13 +154,13 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
-  test('closes from the overlay when closeOnOverlayClick is set and can block Escape', async () => {
+  test('closes from the overlay when closeOnOutsideClick is set and can block Escape', async () => {
     setup()
     const onClose = vi.fn()
     const blocked = AlertDialog.info({
       title: 'Info',
       cancel: true,
-      closeOnOverlayClick: true,
+      closeOnOutsideClick: true,
       closeOnEscape: false,
       onClose,
     })

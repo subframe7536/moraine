@@ -76,7 +76,7 @@ export namespace BaseDialogT {
      * `false` blocks the press and reports it through `onClosePrevented`.
      * @default true
      */
-    closeOnOverlayClick?: boolean
+    closeOnOutsideClick?: boolean
 
     /**
      * Whether Escape dismisses the shell.
@@ -87,7 +87,7 @@ export namespace BaseDialogT {
 
     /**
      * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press
-     * (`closeOnOverlayClick` is `false`) tried to close the shell and was blocked.
+     * (`closeOnOutsideClick` is `false`) tried to close the shell and was blocked.
      */
     onClosePrevented?: () => void
 
@@ -100,7 +100,7 @@ export namespace BaseDialogT {
     /**
      * Whether the surface contains focus, restores focus on close, hides outside content from
      * assistive technology, and prevents the native default action of outside pointer events.
-     * Outside pointer dismissal is controlled by `closeOnOverlayClick`.
+     * Outside pointer dismissal is controlled by `closeOnOutsideClick`.
      * Escape dismissal is controlled by `closeOnEscape`. When `false`, focus is neither trapped,
      * moved on open nor restored on close, so `initialFocus` and `finalFocus` have no effect.
      * @default true
