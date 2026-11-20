@@ -25,7 +25,7 @@ export const sidebarDataAttributes = {
 } satisfies DataAttributeContract<SidebarDataSlot>
 
 /** Shared by `MenuButton` and `MenuSubTrigger`, which renders a `MenuButton`. */
-const MENU_BUTTON_CLASS = `text-sm text-muted-foreground px-2 text-left outline-none rounded-md flex gap-2 h-8 min-w-0 w-full cursor-pointer select-none items-center overflow-hidden data-active:(text-accent-foreground font-medium bg-accent) hover:bg-muted-hover data-mobile:h-11 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`
+const MENU_BUTTON_CLASS = `text-sm text-muted-foreground px-2 text-left outline-none rounded-md flex gap-2 h-8 min-w-0 w-full cursor-pointer select-none items-center overflow-hidden data-active:(text-accent-foreground font-medium bg-accent) hover:bg-muted-hover data-mobile:h-11 ${FOCUS_VISIBLE_RING_CLASS} focus-visible:ring-inset ${DATA_DISABLED_CLASS}`
 
 export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, SidebarStyleVariants>(
   'sidebar',
