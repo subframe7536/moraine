@@ -77,8 +77,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'onBlur',
     'onFocusIn',
     'onFocusOut',
-    'autofocus',
-    'autofocusDelay',
+    'autoFocus',
+    'autoFocusDelay',
     'disabled',
     'required',
     'readOnly',
@@ -322,9 +322,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     const size = local.groupSize
     const len = length()
     const positions = new Set<number>()
-    if (size === true) {
-      positions.add(Math.ceil(len / 2))
-    } else if (typeof size === 'number' && Number.isInteger(size) && size > 0) {
+    if (typeof size === 'number' && Number.isInteger(size) && size > 0) {
       for (let pos = size; pos < len; pos += size) {
         positions.add(pos)
       }
@@ -347,21 +345,21 @@ export function PinInput(props: PinInputProps): JSX.Element {
     return separatorPositions()?.has(index + 1) ?? false
   }
 
-  let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
+  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
 
   onMount(() => {
-    if (local.autofocus) {
-      autofocusTimeoutId = setTimeout(() => {
+    if (local.autoFocus) {
+      autoFocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
           focusInput(getTargetIndex())
         }
-      }, local.autofocusDelay ?? 0)
+      }, local.autoFocusDelay ?? 0)
     }
   })
 
   onCleanup(() => {
-    if (autofocusTimeoutId !== undefined) {
-      clearTimeout(autofocusTimeoutId)
+    if (autoFocusTimeoutId !== undefined) {
+      clearTimeout(autoFocusTimeoutId)
     }
   })
 

@@ -91,14 +91,12 @@ export namespace PinInputT {
     placeholder?: string
 
     /**
-     * Group inputs by inserting a separator between groups.
-     * Pass `true` to split inputs in half, a number for groups of that size,
+     * Group inputs by inserting a separator between groups: a number for groups of that size,
      * or an array of consecutive group sizes.
-     * @example true // splits in half -> [X][X][X] • [X][X][X]
      * @example 3 // groups of 3 -> [X][X][X] • [X][X][X]
      * @example [3, 1, 3] // explicit sizes -> [X][X][X] • [X] • [X][X][X]
      */
-    groupSize?: boolean | number | readonly number[]
+    groupSize?: number | readonly number[]
 
     /**
      * Component that renders the separator content between groups, replacing the default `•`.
@@ -205,16 +203,16 @@ export namespace PinInputT {
 
     /**
      * Whether to focus the first empty slot after mounting, or the last slot when all are filled.
-     * Focus is skipped when the control is disabled, and `autofocusDelay` postpones it.
+     * Focus is skipped when the control is disabled, and `autoFocusDelay` postpones it.
      * @default false
      */
-    autofocus?: boolean
+    autoFocus?: boolean
 
     /**
-     * Delay in milliseconds between mount and focusing. Only used with `autofocus`.
+     * Delay in milliseconds between mount and focusing. Only used with `autoFocus`.
      * @default 0
      */
-    autofocusDelay?: number
+    autoFocusDelay?: number
 
     /**
      * The `id` of the `<form>` the control belongs to, for a control rendered outside that form.
@@ -237,7 +235,7 @@ export namespace PinInputT {
   /**
    * Props for the PinInput component.
    */
-  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
+  export type Props = Omit<BaseProps<'div', Base, Variants, Classes, Styles>, 'autofocus'>
 }
 
 /**

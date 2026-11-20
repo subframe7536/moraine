@@ -107,12 +107,10 @@ Use `placeholder` to show a character hint in empty slots that are not focused:
 
 ### Separators
 
-Use `groupSize` to insert separators between groups of slots. Pass `true` to split the slots in
-half, a number for fixed-size groups, or an array of consecutive group sizes. Use `separatorRender`
-to replace the default `•` separator.
+Use `groupSize` to insert separators between groups of slots: a number for fixed-size groups, or
+an array of consecutive group sizes. Use `separatorRender` to replace the default `•` separator.
 
 ```tsx
-<PinInput length={6} groupSize />
 <PinInput length={6} groupSize={3} />
 <PinInput length={7} groupSize={[3, 1, 3]} />
 ```

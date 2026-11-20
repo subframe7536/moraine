@@ -118,7 +118,7 @@ describe('PinInput', () => {
   })
 
   test('focuses the last input on click when all inputs are filled by default', () => {
-    const screen = render(() => <PinInput defaultValue="1234" length={4} groupSize />)
+    const screen = render(() => <PinInput defaultValue="1234" length={4} groupSize={2} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
@@ -423,11 +423,8 @@ describe('PinInput', () => {
     expect(onComplete).toHaveBeenCalledWith('123456')
   })
 
-  test.each([
-    ['a numeric step', 3],
-    ['groupSize={true}, which splits the slots in half', true],
-  ] as const)('renders one default separator for a 6-slot pin with %s', (_label, separator) => {
-    const screen = render(() => <PinInput length={6} groupSize={separator} />)
+  test('renders one default separator for a 6-slot pin with a numeric step', () => {
+    const screen = render(() => <PinInput length={6} groupSize={3} />)
     const separators = screen.container.querySelectorAll('[data-slot="pin-input-separator"]')
     expect(separators).toHaveLength(1)
     expect(separators[0]?.textContent).toBe('•')

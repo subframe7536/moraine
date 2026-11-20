@@ -51,7 +51,7 @@ export default function PinInputPlayground() {
           validationType={props.validationType}
           variant={props.variant}
           size={props.size}
-          groupSize={props.groupSize}
+          groupSize={props.groupSize ? 3 : undefined}
           otp={props.otp}
           mask={props.mask}
           disabled={props.disabled}
