@@ -38,7 +38,7 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
       content: 'flex flex-1 flex-col min-h-0 min-w-0 overflow-y-auto',
       footer: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',
       inset: 'bg-background flex-1 h-full min-h-0 min-w-0 relative overflow-y-auto',
-      rail: `outline-none shrink-0 w-0 cursor-ew-resize select-none relative z-10 touch-none before:(bg-transparent w-px content-[''] inset-y-0 left-1/2 absolute -translate-x-1/2) after:(w-2 content-[''] inset-y-0 left-1/2 absolute -translate-x-1/2) data-active:before:bg-primary data-dragging:before:bg-primary hover:before:bg-primary/50 ${FOCUS_VISIBLE_RING_CLASS}`,
+      rail: `-mx-1 p-0 border-0 bg-transparent outline-none shrink-0 w-2 cursor-ew-resize select-none relative z-10 touch-none after:(bg-transparent w-px content-[''] inset-y-0 left-1/2 absolute -translate-x-1/2) data-active:after:bg-primary data-dragging:after:bg-primary disabled:cursor-default disabled:after:bg-transparent hover:after:bg-primary/50 ${FOCUS_VISIBLE_RING_CLASS}`,
       group: 'p-2 flex flex-col min-w-0 w-full relative',
       groupLabel:
         'text-xs text-muted-foreground font-medium px-2 flex shrink-0 h-8 select-none items-center',

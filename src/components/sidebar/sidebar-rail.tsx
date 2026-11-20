@@ -76,7 +76,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
 
   const disabled = () => local.disabled === true
 
-  const [element, setElement] = createSignal<HTMLDivElement>()
+  const [element, setElement] = createSignal<HTMLButtonElement>()
   let session: RailDragSession | null = null
   let sessionMoved = false
 
@@ -151,8 +151,8 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
     return true
   }
 
-  const dispatchKeyDown = createKeyDownHandler<HTMLDivElement>({
-    keys: (event: KeyEvent<HTMLDivElement>) => {
+  const dispatchKeyDown = createKeyDownHandler<HTMLButtonElement>({
+    keys: (event: KeyEvent<HTMLButtonElement>) => {
       const open = context.isOpen()
       const sign = measureSign()
       const step = event.shiftKey ? KEYBOARD_STEP_SHIFT : KEYBOARD_STEP
@@ -219,7 +219,8 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
 
   return (
     <Show when={!context.isMobile()}>
-      <div
+      <button
+        type="button"
         data-slot="sidebar-rail"
         {...railSlot}
         {...rest}
@@ -230,9 +231,10 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
         aria-valuemax={context.maxWidth()}
         aria-valuenow={context.isOpen() ? context.width() : 0}
         aria-label={local['aria-label'] ?? messages().resize}
+        disabled={disabled()}
         aria-disabled={disabled() ? 'true' : undefined}
         tabIndex={disabled() ? -1 : 0}
-        ref={(node: HTMLDivElement) => {
+        ref={(node: HTMLButtonElement) => {
           setElement(node)
           bindings.setElement(node)
           callRef(local.ref, node)

@@ -32,7 +32,7 @@ export interface CreateSplitterHandleOptions {
 }
 
 export interface SplitterHandleBindings {
-  setElement: (element: HTMLDivElement) => void
+  setElement: (element: HTMLElement) => void
   startIntersectionVisible: Accessor<boolean>
   endIntersectionVisible: Accessor<boolean>
   crossHovered: Accessor<boolean>
@@ -49,7 +49,7 @@ export interface SplitterHandleBindings {
 }
 
 export function createSplitterHandle(options: CreateSplitterHandleOptions): SplitterHandleBindings {
-  const [element, setElement] = createSignal<HTMLDivElement>()
+  const [element, setElement] = createSignal<HTMLElement>()
   const [hovered, setHovered] = createSignal(false)
   const [focused, setFocused] = createSignal(false)
   const [dragging, setDragging] = createSignal(false)
@@ -90,7 +90,7 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
         id: registrationId,
         getElement: () => element(),
         getRootElement: () =>
-          (element()?.closest(SPLITTER_ROOT_SELECTOR) as HTMLDivElement | null) ?? undefined,
+          (element()?.closest(SPLITTER_ROOT_SELECTOR) as HTMLElement | null) ?? undefined,
         getOrientation: options.orientation,
         getStartIntersectionEnabled: () => options.intersection() === true,
         getEndIntersectionEnabled: () => options.intersection() === true,
