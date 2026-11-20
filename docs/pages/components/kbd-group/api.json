@@ -87,7 +87,30 @@
   ],
   "item": {
     "description": "One key of the shortcut: a key string, or an object that customizes that key.",
-    "props": []
+    "props": [
+      {
+        "name": "ariaLabel",
+        "optional": true,
+        "type": "string",
+        "description": "Accessible label for this keycap. Overrides the spoken name of a key alias."
+      },
+      {
+        "name": "symbol",
+        "optional": true,
+        "type": "boolean",
+        "description": "Whether to resolve a known key alias to its symbol.",
+        "default": {
+          "kind": "literal",
+          "value": true
+        }
+      },
+      {
+        "name": "value",
+        "optional": true,
+        "type": "KbdT.Key",
+        "description": "The key to display, resolved like `Kbd` `value`."
+      }
+    ]
   },
   "slots": [
     "root",

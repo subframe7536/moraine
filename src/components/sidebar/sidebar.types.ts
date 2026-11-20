@@ -119,12 +119,12 @@ export namespace SidebarT {
     /** Disables pointer, keyboard, and click resizing. */
     disabled?: boolean
     /**
-     * Accessible name for the resize separator.
+     * Accessible name for the resize separator, rendered as `aria-label`.
      * Localized via MoraineProvider messages when omitted. English default is `Resize sidebar`.
      */
-    'aria-label'?: string
+    ariaLabel?: string
   }
-  export type RailProps = BaseProps<'button', RailBase, never, never, never>
+  export type RailProps = Omit<BaseProps<'button', RailBase, never, never, never>, 'aria-label'>
 
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element
@@ -136,20 +136,16 @@ export namespace SidebarT {
     id?: string
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
     /**
-     * Accessible name of the panel: set on the desktop panel element and on the mobile drawer
-     * content. In the mobile drawer, falls back to the `title` attribute, then to the localized
-     * `label` message (English default `Sidebar navigation`).
+     * Accessible name of the panel, rendered as `aria-label`: set on the desktop panel element
+     * and on the mobile drawer content. In the mobile drawer, falls back to the `title`
+     * attribute, then to the localized `label` message (English default `Sidebar navigation`).
      */
-    'aria-label'?: string
+    ariaLabel?: string
   }
 
-  export type PanelProps<T extends ValidComponent = 'aside'> = BaseProps<
-    T,
-    PanelBase<T>,
-    never,
-    never,
-    never,
-    'aside'
+  export type PanelProps<T extends ValidComponent = 'aside'> = Omit<
+    BaseProps<T, PanelBase<T>, never, never, never, 'aside'>,
+    'aria-label'
   >
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
@@ -362,7 +358,7 @@ export namespace SidebarT {
     leading?: IconT.Name
     /**
      * Disclosure icon that rotates while expanded.
-     * @default 'i-lucide:chevron-right'
+     * @default 'icon-chevron-right'
      */
     trailing?: IconT.Name
   }

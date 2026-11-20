@@ -41,13 +41,13 @@ export function Example() {
 Known aliases such as `meta`, `command`, `shift`, `escape`, and `arrowup` resolve to a symbol or
 short label (`⌘`, `⇧`, `Esc`, `↑`), matched case-insensitively. Any other value renders as written.
 Pass `symbol={false}` to render the value as written instead. An alias also gets a spoken name from
-the locale messages; `translations` overrides it per instance. Set `aria-label` when assistive
+the locale messages; `translations` overrides it per instance. Set `ariaLabel` when assistive
 technology needs a different name than the visible keycap. It takes precedence over the alias name.
 
 ```tsx
 <Kbd value="meta" />
 <Kbd value="escape" symbol={false} />
-<Kbd value="K" aria-label="Search" />
+<Kbd value="K" ariaLabel="Search" />
 ```
 
 ### Root styling

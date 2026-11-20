@@ -118,8 +118,8 @@ describe('localized component text', () => {
           commandPalette: { placeholder: 'Chercher', close: 'Fermer', empty: 'Rien' },
         }}
       >
-        <CommandPalette items={[]} autofocus={false} closable placeholder="Find" />
-        <CommandPalette items={[]} autofocus={false} />
+        <CommandPalette items={[]} autoFocus={false} closable placeholder="Find" />
+        <CommandPalette items={[]} autoFocus={false} />
       </MoraineProvider>
     ))
 
@@ -197,7 +197,7 @@ describe('localized component text', () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
       onMount(() => frame.setOpen(true))
-      return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
+      return <Sidebar.Panel ariaLabel={props.label}>Links</Sidebar.Panel>
     }
 
     render(() => (
@@ -402,7 +402,7 @@ describe('component translations prop', () => {
         <Breadcrumb items={[{ label: 'Home' }]} translations={{ label: 'Path' }} />
         <CommandPalette
           items={[]}
-          autofocus={false}
+          autoFocus={false}
           translations={{ placeholder: 'Type command...' }}
         />
         <Pagination

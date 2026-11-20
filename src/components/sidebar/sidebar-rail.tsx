@@ -60,7 +60,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, [
     'disabled',
-    'aria-label',
+    'ariaLabel',
     'class',
     'style',
     'ref',
@@ -229,7 +229,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
         aria-valuemin={0}
         aria-valuemax={context.maxWidth()}
         aria-valuenow={context.isOpen() ? context.width() : 0}
-        aria-label={local['aria-label'] ?? messages().resize}
+        aria-label={local.ariaLabel ?? messages().resize}
         disabled={disabled()}
         aria-disabled={disabled() ? 'true' : undefined}
         tabIndex={disabled() ? -1 : 0}

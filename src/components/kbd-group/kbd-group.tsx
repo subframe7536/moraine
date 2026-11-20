@@ -16,7 +16,7 @@ interface NormalizedKbdItem {
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string'
     ? { value: item }
-    : { value: item.value, symbol: item.symbol, 'aria-label': item.ariaLabel }
+    : { value: item.value, symbol: item.symbol, ariaLabel: item.ariaLabel }
 }
 
 /**

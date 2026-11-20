@@ -167,13 +167,12 @@
           "default": "'aside'"
         }
       ],
-      "defaultElement": "aside",
       "props": [
         {
-          "name": "aria-label",
+          "name": "ariaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible name of the panel: set on the desktop panel element and on the mobile drawer\ncontent. In the mobile drawer, falls back to the `title` attribute, then to the localized\n`label` message (English default `Sidebar navigation`)."
+          "description": "Accessible name of the panel, rendered as `aria-label`: set on the desktop panel element\nand on the mobile drawer content. In the mobile drawer, falls back to the `title`\nattribute, then to the localized `label` message (English default `Sidebar navigation`)."
         },
         {
           "name": "as",
@@ -225,13 +224,12 @@
         "root": "Sidebar",
         "member": "Rail"
       },
-      "defaultElement": "div",
       "props": [
         {
-          "name": "aria-label",
+          "name": "ariaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible name for the resize separator.\nLocalized via MoraineProvider messages when omitted. English default is `Resize sidebar`."
+          "description": "Accessible name for the resize separator, rendered as `aria-label`.\nLocalized via MoraineProvider messages when omitted. English default is `Resize sidebar`."
         },
         {
           "name": "class",
@@ -985,7 +983,7 @@
           "description": "Disclosure icon that rotates while expanded.",
           "default": {
             "kind": "literal",
-            "value": "i-lucide:chevron-right"
+            "value": "icon-chevron-right"
           }
         }
       ]
@@ -1083,7 +1081,6 @@
     {
       "target": "rail",
       "attributes": [
-        "data-active",
         "data-closed",
         "data-dragging"
       ]
