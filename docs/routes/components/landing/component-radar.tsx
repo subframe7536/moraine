@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 
 import {
@@ -465,7 +465,47 @@ export function ComponentRadar() {
           </Button>
         </div>
 
-        {isDesktop() ? (
+        <Show
+          when={isDesktop()}
+          fallback={
+            <Tabs
+              size="sm"
+              defaultValue="composite"
+              items={[
+                {
+                  value: 'composite',
+                  label: 'Composite',
+                  content: () => (
+                    <div class="pt-4">
+                      <CodeCompareCard
+                        title="Composite · Drop-in"
+                        description="Zero boilerplate for standard product flows."
+                        badge="Select"
+                        badgeVariant="soft"
+                        code={COMPOSITE_SNIPPET}
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  value: 'granular',
+                  label: 'Granular',
+                  content: () => (
+                    <div class="pt-4">
+                      <CodeCompareCard
+                        title="Granular · Composable"
+                        description="Own every slot and DOM wrapper when layout demands it."
+                        badge="BaseSelect"
+                        badgeVariant="outline"
+                        code={GRANULAR_SNIPPET}
+                      />
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          }
+        >
           <div class="gap-5 grid md:grid-cols-2">
             <CodeCompareCard
               title="Composite · Drop-in"
@@ -482,44 +522,7 @@ export function ComponentRadar() {
               code={GRANULAR_SNIPPET}
             />
           </div>
-        ) : (
-          <Tabs
-            size="sm"
-            defaultValue="composite"
-            items={[
-              {
-                value: 'composite',
-                label: 'Composite',
-                content: () => (
-                  <div class="pt-4">
-                    <CodeCompareCard
-                      title="Composite · Drop-in"
-                      description="Zero boilerplate for standard product flows."
-                      badge="Select"
-                      badgeVariant="soft"
-                      code={COMPOSITE_SNIPPET}
-                    />
-                  </div>
-                ),
-              },
-              {
-                value: 'granular',
-                label: 'Granular',
-                content: () => (
-                  <div class="pt-4">
-                    <CodeCompareCard
-                      title="Granular · Composable"
-                      description="Own every slot and DOM wrapper when layout demands it."
-                      badge="BaseSelect"
-                      badgeVariant="outline"
-                      code={GRANULAR_SNIPPET}
-                    />
-                  </div>
-                ),
-              },
-            ]}
-          />
-        )}
+        </Show>
       </div>
 
       {/* 3. Complex Modules & Dual CSS Engine */}
