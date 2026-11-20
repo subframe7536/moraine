@@ -64,6 +64,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The id of a `<form>` the hidden inputs belong to, instead of the closest\nancestor form."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -79,7 +85,11 @@
           "name": "indicatorPosition",
           "optional": true,
           "type": "'leading' | 'trailing' | 'hidden'",
-          "description": "Where the checkbox control sits relative to the label for every item (`'leading'`,\n`'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards)."
+          "description": "Where the checkbox control sits relative to the label for every item (`'leading'`,\n`'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).",
+          "default": {
+            "kind": "literal",
+            "value": "leading"
+          }
         },
         {
           "name": "items",

@@ -447,6 +447,38 @@ describe('CheckboxGroup', () => {
     expect(label?.style.width).toBe('200px')
   })
 
+  test('associates the hidden inputs with an external form through the form prop', async () => {
+    const screen = render(() => (
+      <>
+        <form id="external-form" />
+        <CheckboxGroup
+          form="external-form"
+          name="choices"
+          items={['A', 'B']}
+          defaultValue={['A']}
+        />
+      </>
+    ))
+
+    const externalForm = screen.container.querySelector<HTMLFormElement>('#external-form')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
+
+    expect(inputs.length).toBe(2)
+    for (const input of inputs) {
+      expect(input.getAttribute('form')).toBe('external-form')
+      expect(input.form).toBe(externalForm)
+    }
+    expect(new FormData(externalForm).getAll('choices')).toEqual(['A'])
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
+    expect(new FormData(externalForm).getAll('choices')).toEqual(['A', 'B'])
+
+    externalForm.reset()
+    await waitFor(() => {
+      expect(new FormData(externalForm).getAll('choices')).toEqual(['A'])
+    })
+  })
+
   test('submits selected item values and resets to default selection', async () => {
     const screen = render(() => (
       <form>

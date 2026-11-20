@@ -68,6 +68,12 @@ export namespace CheckboxGroupT {
     legend?: JSX.Element
 
     /**
+     * The id of a `<form>` the hidden inputs belong to, instead of the closest
+     * ancestor form.
+     */
+    form?: string
+
+    /**
      * Options to render. A string is shorthand for an item whose `value` and `label` are that
      * string.
      * @example
@@ -90,6 +96,7 @@ export namespace CheckboxGroupT {
     /**
      * Where the checkbox control sits relative to the label for every item (`'leading'`,
      * `'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).
+     * @default 'leading'
      */
     indicatorPosition?: CheckboxProps<TTrue, TFalse>['indicatorPosition']
 

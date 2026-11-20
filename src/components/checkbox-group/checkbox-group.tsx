@@ -100,6 +100,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   const [local, rest] = splitProps(props, [
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'required',
@@ -250,7 +251,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   }
 
   useFormReset(
-    () => fieldsetEl?.closest('form'),
+    () => fieldsetEl?.querySelector('input')?.form ?? fieldsetEl?.closest('form'),
     () => {
       resetSelectedValues()
     },
@@ -333,6 +334,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 data-slot="checkbox-group-item"
                 id={itemId()}
                 name={field.name()}
+                form={merged.form}
                 bound={false}
                 checked={
                   item().indeterminate ? 'indeterminate' : selectedValues().includes(item().value)
