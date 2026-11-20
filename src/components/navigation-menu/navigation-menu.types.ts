@@ -119,7 +119,7 @@ export namespace NavigationMenuT {
     /**
      * Closes the open panel when the link is clicked, unless a click handler calls
      * `preventDefault()`.
-     * @default false
+     * @default true
      */
     closeOnSelect?: boolean
     /**

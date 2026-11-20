@@ -23,33 +23,28 @@ import { useFormValue } from '../shared/form/use-form-value'
 import { checkboxGroupDataAttributes, checkboxGroupRecipe } from './checkbox-group.recipe'
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
 
-interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
+interface NormalizedCheckboxGroupItem {
   value: string
   label?: JSX.Element
   description?: JSX.Element
   disabled: boolean
   indeterminate?: boolean
-  checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
-  indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
+  checkedIcon?: CheckboxProps['checkedIcon']
+  indeterminateIcon?: CheckboxProps['indeterminateIcon']
 }
 
-function getCheckboxGroupItemValue<TTrue = boolean, TFalse = boolean>(
-  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
-  index: number,
-): string {
+function getCheckboxGroupItemValue(item: string | CheckboxGroupT.Item, index: number): string {
   return typeof item === 'string' ? item : (item.value ?? String(index))
 }
 
-function isCheckboxGroupItemDisabled<TTrue = boolean, TFalse = boolean>(
-  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
-): boolean {
+function isCheckboxGroupItemDisabled(item: string | CheckboxGroupT.Item): boolean {
   return typeof item !== 'string' && Boolean(item.disabled)
 }
 
-function normalizeCheckboxGroupItem<TTrue = boolean, TFalse = boolean>(
-  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
+function normalizeCheckboxGroupItem(
+  item: string | CheckboxGroupT.Item,
   index: number,
-): NormalizedCheckboxGroupItem<TTrue, TFalse> {
+): NormalizedCheckboxGroupItem {
   if (typeof item === 'string') {
     return {
       value: item,
@@ -94,9 +89,7 @@ function normalizeCheckboxGroupItem<TTrue = boolean, TFalse = boolean>(
  * />
  * ```
  */
-export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
-  props: CheckboxGroupProps<TTrue, TFalse>,
-): JSX.Element {
+export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
     'name',

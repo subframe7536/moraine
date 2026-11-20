@@ -20,13 +20,13 @@ export namespace CheckboxGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item<TTrue = boolean, TFalse = boolean> {
+  export interface Item {
     /**
      * Value of the item, added to the group's `value` array when selected and submitted as the
      * native checkbox value. Must be unique within the group (a duplicate logs a warning in
-     * development). Falls back to the item's index as a string.
+     * development).
      */
-    value?: string
+    value: string
     /** Label rendered beside the item's checkbox. */
     label?: JSX.Element
     /** Description rendered under the item's label. */
@@ -42,13 +42,13 @@ export namespace CheckboxGroupT {
      */
     indeterminate?: boolean
     /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
+    checkedIcon?: CheckboxProps['checkedIcon']
     /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
+    indeterminateIcon?: CheckboxProps['indeterminateIcon']
   }
 
   /** Base props for the CheckboxGroup component. */
-  export interface Base<TTrue = boolean, TFalse = boolean> extends FieldT.ControlBase {
+  export interface Base extends FieldT.ControlBase {
     /**
      * The `value` of every selected item (controlled). Leave it `undefined` for uncontrolled
      * state and update it from `onValueChange`.
@@ -91,20 +91,20 @@ export namespace CheckboxGroupT {
      * />
      * ```
      */
-    items?: (string | Item<TTrue, TFalse>)[]
+    items?: (string | Item)[]
 
     /**
      * Where the checkbox control sits relative to the label for every item (`'leading'`,
      * `'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).
      * @default 'leading'
      */
-    indicatorPosition?: CheckboxProps<TTrue, TFalse>['indicatorPosition']
+    indicatorPosition?: CheckboxProps['indicatorPosition']
 
     /** Checked icon for all items; an item's own `checkedIcon` takes precedence. */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
+    checkedIcon?: CheckboxProps['checkedIcon']
 
     /** Indeterminate icon for all items; an item's own `indeterminateIcon` takes precedence. */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
+    indeterminateIcon?: CheckboxProps['indeterminateIcon']
 
     /**
      * Called after the user toggles an item, with the full new array of selected item values
@@ -115,17 +115,8 @@ export namespace CheckboxGroupT {
   }
 
   /** Props for the CheckboxGroup component. */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variants,
-    Classes,
-    Styles
-  >
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /** Props for the CheckboxGroup component. */
-export type CheckboxGroupProps<TTrue = boolean, TFalse = boolean> = CheckboxGroupT.Props<
-  TTrue,
-  TFalse
->
+export type CheckboxGroupProps = CheckboxGroupT.Props
