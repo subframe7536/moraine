@@ -287,8 +287,14 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Select items={stringItems} value={1} />
 // @ts-expect-error Numeric shorthand is not supported.
 ;<Combobox items={[1, 2]} />
-// @ts-expect-error MultiSelect keeps its object-only collection contract.
-;<MultiSelect items={stringItems} />
+;<MultiSelect
+  items={stringItems}
+  filterMethod={(query, item) => item.value.includes(query)}
+  onValueChange={(values) => {
+    const texts: string[] = values
+    void texts
+  }}
+/>
 
 ;<Select
   items={['Apple', { value: 1, label: 'One', email: 'one@example.com' }]}

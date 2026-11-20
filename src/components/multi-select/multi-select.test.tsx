@@ -32,6 +32,23 @@ describe('MultiSelect', () => {
     expect(control.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain('Apple')
   })
 
+  test('accepts string shorthand items', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={['Apple', 'Pear']}
+        defaultValue={['Apple']}
+        onValueChange={onChange}
+        defaultOpen
+      />
+    ))
+    expect(screen.container.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain(
+      'Apple',
+    )
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Pear' }))
+    expect(onChange).toHaveBeenCalledWith(['Apple', 'Pear'])
+  })
+
   test('non-editable BaseSelect.Trigger owns focus and disclosure', () => {
     const screen = render(() => (
       <>
@@ -91,7 +108,7 @@ describe('MultiSelect', () => {
   })
 
   test('supports custom autocomplete attribute on editable input', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} searchable autocomplete="off email" />)
+    const screen = render(() => <MultiSelect items={ITEMS} searchable autoComplete="off email" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.getAttribute('autocomplete')).toBe('off email')
   })

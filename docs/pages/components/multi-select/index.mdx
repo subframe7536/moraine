@@ -82,8 +82,8 @@ MultiSelect renders its portaled popup internally; the popup names are style slo
 Use MultiSelect for several collection items shown as tags, or for creatable free-form tags. Each
 value resolves through a collection item. Use [Select](/components/select) for one non-editable
 choice, [Combobox](/components/combobox) for editable single selection, or
-[BaseSelect](/components/base-select) to compose the listbox yourself. Unlike Select and Combobox,
-`items` takes item objects only, with no string shorthand.
+[BaseSelect](/components/base-select) to compose the listbox yourself. `items` accepts plain
+strings (shorthand for `{ value, label }`), item objects, groups, and separators.
 
 ```tsx
 import { Field, MultiSelect } from 'moraine'
@@ -141,7 +141,7 @@ the four combinations behave as follows:
 
 `searchable` alone filters the collection as the user types. `createItem` makes the input editable and
 enables creation. It also filters the list, so `searchable` adds nothing once `createItem` is set.
-`filterMethod` and `autocomplete` have no effect on a non-editable control.
+`filterMethod` and `autoComplete` have no effect on a non-editable control.
 
 `openOnControlClick` defaults to the opposite of editability. A non-editable control opens its popup
 on click. An editable control focuses its input on click and opens from typing, the chevron button,

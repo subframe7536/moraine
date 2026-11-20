@@ -16,6 +16,7 @@ import { Icon } from '../icon/index'
 import {
   createSource,
   labelString,
+  normalizeSelectEntries,
   sameValue,
   serializeSourceValue,
 } from '../shared/form/select/collection'
@@ -71,10 +72,11 @@ import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
  * </Field>
  * ```
  */
-export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
+export function MultiSelect<T extends string | MultiSelectT.Item = string | MultiSelectT.Item>(
   props: MultiSelectProps<T>,
 ): JSX.Element {
-  type Value = T['value']
+  type Item = MultiSelectT.NormalizedItem<T>
+  type Value = Item['value']
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
     MULTI_SELECT_LOCAL_PROP_KEYS,
@@ -108,9 +110,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     context: () => ({ variants: { size: field?.size } }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(slots)
-  const [created, setCreated] = createSignal<T[]>([])
-  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
-    createSource(local.items ?? [], created(), prev),
+  const [created, setCreated] = createSignal<Item[]>([])
+  const source = createMemo((prev: ReturnType<typeof createSource<Item>> | undefined) =>
+    createSource(normalizeSelectEntries<T>(local.items ?? []), created(), prev),
   )
   const editable = () => local.searchable === true || local.createItem !== undefined
   const search = useComboboxSearch(
@@ -121,10 +123,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   )
 
   function Control(): JSX.Element {
-    const state = useSelectContext<T>()
+    const state = useSelectContext<Item>()
     const atMax = () => local.maxValues !== undefined && state.value().length >= local.maxValues
 
-    function resolveInputItem(input: string): T | undefined {
+    function resolveInputItem(input: string): Item | undefined {
       const normalized = input.trim()
       if (!normalized) {
         return undefined
@@ -235,8 +237,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       get maxLength() {
         return local.searchMaxLength
       },
-      get autocomplete() {
-        return local.autocomplete
+      get autoComplete() {
+        return local.autoComplete
       },
     })
     const overflowTags = () => tags.tags().slice(tags.visible().length)
@@ -471,7 +473,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           <Show
             when={editable()}
             fallback={
-              <BaseSelect.Trigger<'button', T>
+              <BaseSelect.Trigger<'button', Item>
                 aria-busy={local.loading ? 'true' : undefined}
                 {...triggerSlot}
                 disabled={Boolean(local.loading)}
@@ -550,7 +552,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   }
 
   return (
-    <BaseSelectRoot<T>
+    <BaseSelectRoot<Item>
       slotOwner="multi-select"
       {...baseSelectProps}
       onExitComplete={() => search.setValue('')}

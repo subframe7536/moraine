@@ -15,6 +15,7 @@ import type { defaultTagsFieldMessages } from '../shared/form/select/tags-field.
 import type {
   SearchProps,
   ContentProps,
+  NormalizedSelectItem,
   SelectRow,
   SelectGroup,
   SelectEntry,
@@ -42,43 +43,47 @@ export namespace MultiSelectT {
     /** Secondary text rendered under the label in the default item content. Ignored when `itemRender` is set. */
     description?: JSX.Element
   }
-  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
-  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
-  export type Row<TItem extends Item = Item> = SelectRow<TItem>
+  export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
+  export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
+  export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
+  export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
   /** Virtualizer over `Row` entries, such as `createListVirtualizer<MultiSelectT.Row>()`. */
-  export type Virtualizer<TItem extends Item = Item> = SelectVirtualizer<TItem>
-  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemRenderProps<TItem>
+  export type Virtualizer<TItem extends string | Item = string | Item> = SelectVirtualizer<
+    NormalizedItem<TItem>
+  >
+  export type ItemRenderProps<TItem extends string | Item = string | Item> =
+    BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
 
-  export interface TagRenderProps<TItem extends Item = Item> {
-    /** Selected item represented by the tag. */
-    item: TItem | undefined
+  export interface TagRenderProps<TItem extends string | Item = string | Item> {
+    /** Selected item represented by the tag; a string item arrives as `{ value, label }`. */
+    item: NormalizedItem<TItem> | undefined
     /** Original selected value, including unresolved values. */
-    value: TItem['value']
+    value: NormalizedItem<TItem>['value']
     /** Visual label, or String(value) when unresolved. */
     label: import('solid-js').JSX.Element
     /** Removes this item from the selection. */
     remove: () => void
   }
 
-  export type TagOverflowEntry<TItem extends Item = Item> = Pick<
+  export type TagOverflowEntry<TItem extends string | Item = string | Item> = Pick<
     TagRenderProps<TItem>,
     'item' | 'value' | 'label'
   >
 
-  export interface TagOverflowRenderProps<TItem extends Item = Item> {
+  export interface TagOverflowRenderProps<TItem extends string | Item = string | Item> {
     /** Number of selected tags hidden by `maxVisible`. */
     count: number
     /** Hidden tags in selection order. */
     tags: readonly TagOverflowEntry<TItem>[]
   }
 
-  export interface EmptyRenderProps<TItem extends Item = Item> {
+  export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Current search text. */
     searchValue: string
     /** Whether the current filter has any matches. */
     hasMatches: boolean
     /** Currently selected values. */
-    selectedValues: readonly TItem['value'][]
+    selectedValues: readonly NormalizedItem<TItem>['value'][]
     /** Whether the maximum selection count has been reached. */
     atMaxValues: boolean
     /** Create a new tag (requires `createItem`). Returns true if successfully created. */
@@ -87,25 +92,25 @@ export namespace MultiSelectT {
     close: () => void
   }
 
-  export interface Base<TItem extends Item = Item>
+  export interface Base<TItem extends string | Item = string | Item>
     extends
       FieldT.ControlBase,
       BaseSelectDisclosureProps,
-      BaseSelectItemBehaviorProps<TItem>,
+      BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectResetProps,
-      SearchProps<TItem>,
-      ContentProps<TItem> {
+      SearchProps<NormalizedItem<TItem>>,
+      ContentProps<NormalizedItem<TItem>> {
     /**
      * Controlled array of selected item values, in selection order. `undefined` keeps the
      * selection uncontrolled; `[]` keeps it controlled and empty. In controlled mode the
      * selection changes only when you update this prop in `onValueChange`.
      */
-    value?: TItem['value'][]
+    value?: NormalizedItem<TItem>['value'][]
     /**
      * Initial selected values when `value` is not set. Read once on creation; a native form reset
      * restores it.
      */
-    defaultValue?: TItem['value'][]
+    defaultValue?: NormalizedItem<TItem>['value'][]
     /**
      * Overrides the built-in messages for this instance, merged over the messages from the
      * provider and locale: `clear`, `loading`, `toggle`, `empty`, `placeholder`, `overflow`,
@@ -128,8 +133,8 @@ export namespace MultiSelectT {
      */
     translations?: Translations
     /**
-     * Options of the popup list: item objects (no string shorthand), optionally grouped with
-     * `{ type: 'group', label, items }` and divided with `{ type: 'separator' }`. Item values must
+     * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
+     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values must
      * be unique across the whole collection; a repeated value is ignored and logs an error in
      * development. Items created through `createItem` are added on top of this list.
      * @example
@@ -158,7 +163,7 @@ export namespace MultiSelectT {
      * (clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared
      * afterwards. Not called for prop updates or while disabled or read-only.
      */
-    onValueChange?: (value: NoInfer<TItem['value'][]>) => void
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'][]>) => void
     /**
      * Shows a clear button while there are selected values or search text. Clearing removes every
      * selected value except those of disabled items, empties the search text, calls `onClear`,
@@ -186,7 +191,7 @@ export namespace MultiSelectT {
      * />
      * ```
      */
-    createItem?: (input: string) => TItem
+    createItem?: (input: string) => NormalizedItem<TItem>
     /**
      * Maximum number of selected values. Once reached, unselected options are disabled and typed
      * text is not committed; selected ones can still be removed. It does not truncate a larger
@@ -312,7 +317,7 @@ export namespace MultiSelectT {
     /**
      * Adds an editable input to the control so typing filters the options, using `filterMethod`.
      * It is also enabled implicitly by `createItem`. When neither is set the control is a
-     * non-editable trigger: there is no input, and `filterMethod` and `autocomplete` have no
+     * non-editable trigger: there is no input, and `filterMethod` and `autoComplete` have no
      * effect.
      * @default false
      */
@@ -321,7 +326,7 @@ export namespace MultiSelectT {
     inputRef?: Ref<HTMLInputElement>
   }
 
-  export type Props<TItem extends Item = Item> = BaseProps<
+  export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',
     Base<TItem>,
     Variants,
@@ -330,5 +335,6 @@ export namespace MultiSelectT {
   >
 }
 
-export type MultiSelectProps<TItem extends MultiSelectT.Item = MultiSelectT.Item> =
-  MultiSelectT.Props<TItem>
+export type MultiSelectProps<
+  TItem extends string | MultiSelectT.Item = string | MultiSelectT.Item,
+> = MultiSelectT.Props<TItem>
