@@ -47,9 +47,11 @@ export namespace SwitchT {
     checked?: TTrue | TFalse
 
     /**
-     * Whether the switch is initially checked (uncontrolled). Form reset returns to this state.
+     * Whether the switch is initially checked (uncontrolled). Accepts `trueValue` or `true` for
+     * checked and `falseValue` or `false` for unchecked. Form reset returns to this state.
+     * @default false
      */
-    defaultChecked?: boolean
+    defaultChecked?: TTrue | TFalse
 
     /**
      * Value that `onCheckedChange` receives when the switch becomes checked, and that `checked`

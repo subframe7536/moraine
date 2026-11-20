@@ -383,12 +383,35 @@ describe('Checkbox', () => {
     })
   })
 
+  test('resolves defaultChecked against trueValue and falseValue', () => {
+    const screen = render(() => (
+      <>
+        <Checkbox trueValue="pro" falseValue="free" defaultChecked="pro" label="On" />
+        <Checkbox trueValue="pro" falseValue="free" defaultChecked="free" label="Off" />
+      </>
+    ))
+    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'On' }), true)
+    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'Off' }), false)
+  })
+
   test('submits the native value from value, then trueValue, then on, and nothing when unchecked', () => {
     const screen = render(() => (
       <form>
         <Checkbox name="boolean" defaultChecked label="Boolean" />
-        <Checkbox name="mapped" trueValue="pro" falseValue="free" defaultChecked label="Mapped" />
-        <Checkbox name="explicit" trueValue="pro" value="yes" defaultChecked label="Explicit" />
+        <Checkbox
+          name="mapped"
+          trueValue="pro"
+          falseValue="free"
+          defaultChecked="pro"
+          label="Mapped"
+        />
+        <Checkbox
+          name="explicit"
+          trueValue="pro"
+          value="yes"
+          defaultChecked="pro"
+          label="Explicit"
+        />
         <Checkbox name="unchecked" trueValue="pro" label="Unchecked" />
       </form>
     ))

@@ -52,8 +52,12 @@
         {
           "name": "defaultChecked",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether the switch is initially checked (uncontrolled). Form reset returns to this state."
+          "type": "TTrue | TFalse",
+          "description": "Whether the switch is initially checked (uncontrolled). Accepts `trueValue` or `true` for\nchecked and `falseValue` or `false` for unchecked. Form reset returns to this state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "description",

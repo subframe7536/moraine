@@ -56,8 +56,8 @@
         {
           "name": "defaultChecked",
           "optional": true,
-          "type": "boolean | 'indeterminate'",
-          "description": "Initial checked state when uncontrolled; also the state restored when the surrounding\nnative form is reset. Accepts `true`, `false`, or `'indeterminate'`.",
+          "type": "TTrue | TFalse | 'indeterminate'",
+          "description": "Initial checked state when uncontrolled; also the state restored when the surrounding\nnative form is reset. Accepts `trueValue` or `true` for checked, `falseValue` or `false`\nfor unchecked, and `'indeterminate'` for the mixed state.",
           "default": {
             "kind": "literal",
             "value": false
@@ -216,7 +216,11 @@
           "name": "variant",
           "optional": true,
           "type": "'card' | 'list'",
-          "description": "Layout of the checkbox. `list` is a plain row of control, label, and description, where only\nthe control and label toggle. `card` wraps them in a bordered, padded card that toggles when\nclicked anywhere outside nested interactive elements. When omitted, it renders like `list`."
+          "description": "Layout of the checkbox. `list` is a plain row of control, label, and description, where only\nthe control and label toggle. `card` wraps them in a bordered, padded card that toggles when\nclicked anywhere outside nested interactive elements. When omitted, it renders like `list`.",
+          "default": {
+            "kind": "literal",
+            "value": "list"
+          }
         }
       ]
     }

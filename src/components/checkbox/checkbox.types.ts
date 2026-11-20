@@ -53,10 +53,11 @@ export namespace CheckboxT {
 
     /**
      * Initial checked state when uncontrolled; also the state restored when the surrounding
-     * native form is reset. Accepts `true`, `false`, or `'indeterminate'`.
+     * native form is reset. Accepts `trueValue` or `true` for checked, `falseValue` or `false`
+     * for unchecked, and `'indeterminate'` for the mixed state.
      * @default false
      */
-    defaultChecked?: boolean | 'indeterminate'
+    defaultChecked?: TTrue | TFalse | 'indeterminate'
 
     /**
      * Value that represents the checked state: it is passed to `onCheckedChange`, stored as the

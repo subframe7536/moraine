@@ -161,7 +161,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const descriptionId = () => `${field.id()}-description`
 
   let inputEl: HTMLInputElement | undefined
-  const initialDefaultChecked = untrack(() => Boolean(merged.defaultChecked))
+  const initialDefaultChecked = untrack(() => toCheckedState(merged.defaultChecked))
 
   function toCheckedState(value: unknown): boolean {
     if (value === merged.trueValue) {
@@ -207,7 +207,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
       return undefined
     },
-    defaultValue: () => Boolean(merged.defaultChecked),
+    defaultValue: () => toCheckedState(merged.defaultChecked),
   })
 
   createEffect(

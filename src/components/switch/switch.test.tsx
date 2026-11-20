@@ -286,10 +286,16 @@ describe('Switch', () => {
   test('defaults the native value to a string or number trueValue, otherwise on', () => {
     const screen = render(() => (
       <form>
-        <Switch name="theme" trueValue="dark" falseValue="light" defaultChecked label="Theme" />
-        <Switch name="level" trueValue={2} falseValue={0} defaultChecked label="Level" />
+        <Switch
+          name="theme"
+          trueValue="dark"
+          falseValue="light"
+          defaultChecked="dark"
+          label="Theme"
+        />
+        <Switch name="level" trueValue={2} falseValue={0} defaultChecked={2} label="Level" />
         <Switch name="enabled" defaultChecked label="Enabled" />
-        <Switch name="custom" value="yes" trueValue="dark" defaultChecked label="Custom" />
+        <Switch name="custom" value="yes" trueValue="dark" defaultChecked="dark" label="Custom" />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -299,6 +305,17 @@ describe('Switch', () => {
     expect(data.get('level')).toBe('2')
     expect(data.get('enabled')).toBe('on')
     expect(data.get('custom')).toBe('yes')
+  })
+
+  test('resolves defaultChecked against trueValue and falseValue', () => {
+    const screen = render(() => (
+      <>
+        <Switch trueValue="dark" falseValue="light" defaultChecked="dark" label="On" />
+        <Switch trueValue="dark" falseValue="light" defaultChecked="light" label="Off" />
+      </>
+    ))
+    expectSwitchChecked(screen.getByRole('switch', { name: 'On' }), true)
+    expectSwitchChecked(screen.getByRole('switch', { name: 'Off' }), false)
   })
 
   test('resets uncontrolled state to the initial default without emitting changes', async () => {
