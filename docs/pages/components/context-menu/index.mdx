@@ -87,7 +87,7 @@ export function Example() {
 }
 ```
 
-### Triggering the menu
+### Trigger
 
 Wrap the target with `ContextMenu.Trigger`. The menu opens at the pointer on right-click, or at the
 center of the trigger when opened from the keyboard. A touch or pen long press (700 ms) also opens it.
@@ -109,7 +109,7 @@ native browser menu shows instead.
 </ContextMenu>
 ```
 
-### Item models
+### Items
 
 The `items` array describes the whole menu. An item has `type` `'item'` (the default), `'checkbox'`,
 `'radio-group'`, `'group'`, or `'separator'`; an item with `children` opens a submenu. Items accept
@@ -174,40 +174,38 @@ page scrollable. Set `modal` to hide outside content from assistive technology w
 
 ## Examples
 
-### Open page actions on a selected surface
+### Basic
 
-Right-click or long-press the dashed region. Forward stays disabled in this example.
+Right-click or long-press the trigger area to open the menu. Individual items can be marked `disabled`.
 
 <Preview path="./trigger-usage" />
 
-### Copy, rename, or delete a file
+### Grouped items
 
-Describe grouped actions in the item model, including a danger delete.
+Organize actions with separators and tone styling (such as `tone: 'danger'`).
 
 <Preview path="./items-usage" />
 
-### Manage a project file
+### Stateful actions
 
-Move a file between folders, add it to favorites, or move it to the trash and undo. These actions
-update local example state; permission-dependent actions remain disabled.
+Combine submenus, stateful toggles, disabled items, and dynamic actions in one item model.
 
 <Preview path="./file-actions" />
 
-### Pin an item and set priority
+### Checkbox and radio
 
-Checkbox and radio values live in application state. The status line reflects the current pin and
-priority.
+Bind checkbox and radio menu items to application state.
 
 <Preview path="./checkbox-radio" />
 
-### Sort from a nested menu
+### Submenus
 
-Nested children open a sort submenu. Refresh stays on the root menu.
+Pass nested `children` on an item to open a submenu.
 
 <Preview path="./submenus" />
 
-### Copy a note on long press
+### Long press
 
-Touch and hold for about 700 ms, or right-click, to copy or delete the note.
+Touch and hold for ~700 ms on touch devices, or right-click with a pointer, to open the menu.
 
 <Preview path="./long-press" />

@@ -72,7 +72,7 @@ export function Example() {
 }
 ```
 
-### Groups, filtering, and selection
+### Groups and filtering
 
 Pass items and groups from application state. The palette filters the supplied collection and calls
 the item's `onSelect`, then the palette's `onSelect`. Fetching commands, routing, and global
@@ -95,7 +95,7 @@ button that calls `onCloseRequest`. The search input takes focus on mount unless
 inside an element with `role="dialog"`; set `autofocus={false}` to disable it. Control the query with
 `searchValue` and `onSearchValueChange`, or start from `defaultSearchValue`.
 
-### Custom item layout and states
+### Custom items and states
 
 Use `itemRender` when a row needs extra fields such as owner or status; it replaces the default row
 content, so the items' `leadingRender` and `trailingRender` no longer apply. Provide `emptyRender`
@@ -130,37 +130,37 @@ palette.
 
 ## Examples
 
-### Jump to a workspace section
+### Basic
 
-Filter grouped destinations and store the selected section in page state.
+Filter grouped commands and handle selection in `onSelect`.
 
 <Preview path="./groups-filtering" />
 
-### Scan projects by owner and status
+### Custom item
 
 Render each command row with extra fields. Keep matching against the item model.
 
 <Preview path="./custom-item-render" />
 
-### Explain a failed search
+### Custom empty state
 
 Replace the default empty copy when the query matches nothing.
 
 <Preview path="./custom-empty-state" />
 
-### Empty palette copy
+### Empty collection
 
 Show an empty collection with an explicit no-results message.
 
 <Preview path="./custom-states" />
 
-### Wait for command results
+### Loading
 
 Keep the palette visible while `loading` is true.
 
 <Preview path="./loading" />
 
-### Search ten thousand commands
+### Virtualization
 
 Pass a `virtualizer` from `createListVirtualizer` to render only the rows near the viewport. Its
 entries are `CommandPaletteT.VirtualEntry` rows: group labels and commands flattened into one list.
@@ -168,9 +168,8 @@ The listbox keeps its default bounded height, so the virtual range stays stable 
 
 <Preview path="./virtualization" />
 
-### Drill into Create or Share
+### Sub-navigation
 
-Swap `items` to open a short command branch. Keep selection from closing the palette until the
-user finishes or goes back.
+Swap `items` to build nested command pages without closing the palette until a leaf command runs.
 
 <Preview path="./sub-navigation" />
