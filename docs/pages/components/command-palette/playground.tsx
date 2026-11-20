@@ -62,7 +62,7 @@ export default function CommandPalettePlayground() {
             items={GROUPS}
             placeholder="Search commands or pages..."
             loading={props.loading}
-            autofocus={false}
+            autoFocus={false}
             closable
             footerRender={() => (
               <div class="text-xs text-muted-foreground flex gap-4 items-center justify-between">

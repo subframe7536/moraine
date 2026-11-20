@@ -1320,13 +1320,13 @@ describe('NumberInput', () => {
     expect(document.activeElement).toBe(spinbutton)
   })
 
-  test('rechecks disabled state before delayed autofocus and clears the timer on unmount', async () => {
+  test('rechecks disabled state before delayed autoFocus and clears the timer on unmount', async () => {
     vi.useFakeTimers()
 
     try {
       const [disabled, setDisabled] = createSignal(false)
       const screen = render(() => (
-        <NumberInput autofocus autofocusDelay={100} disabled={disabled()} />
+        <NumberInput autoFocus autoFocusDelay={100} disabled={disabled()} />
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 

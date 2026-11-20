@@ -41,7 +41,7 @@ interface BaseSelectSearchInputOptions {
   displayValue?: Accessor<string>
   transformInput?: (value: string) => string
   maxLength?: number
-  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
+  autoComplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 }
 
 const { inputProps, isComposing, discardComposition } = createBaseSelectSearchInput(options)
@@ -53,7 +53,7 @@ Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or prov
 - `displayValue` defaults to `searchValue`. A Combobox can supply the selected label while the list is closed.
 - `transformInput` runs on each committed input before `setSearchValue`.
 - `maxLength` sets the native input attribute. Clamp the value in your setter too when programmatic updates must obey the same limit.
-- `autocomplete` defaults to `'off'`.
+- `autoComplete` defaults to `'off'`.
 
 A non-empty committed query opens the list. During IME composition, the input shows the draft and commits it when the composition ends.
 

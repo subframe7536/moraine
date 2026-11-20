@@ -4,7 +4,7 @@ export function CustomStates() {
   return (
     <div class="b-1 b-border rounded-xl max-w-md w-full shadow-lg overflow-hidden">
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         placeholder="Search empty query..."
         items={[]}
         emptyRender={() => (

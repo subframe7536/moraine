@@ -20,10 +20,9 @@
           "default": "InputModifiers | unknown"
         }
       ],
-      "defaultElement": "input",
       "props": [
         {
-          "name": "autocomplete",
+          "name": "autoComplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
           "description": "The native `autocomplete` attribute, such as `'email'` or `'current-password'`. Browser\nautofill is off unless set.",
@@ -33,20 +32,20 @@
           }
         },
         {
-          "name": "autofocus",
+          "name": "autoFocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the input is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the input is disabled, and `autofocusDelay` postpones it.",
+          "description": "Whether the input is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the input is disabled, and `autoFocusDelay` postpones it.",
           "default": {
             "kind": "literal",
             "value": false
           }
         },
         {
-          "name": "autofocusDelay",
+          "name": "autoFocusDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds between mount and focusing the input. Only used with `autofocus`.",
+          "description": "Delay in milliseconds between mount and focusing the input. Only used with `autoFocus`.",
           "default": {
             "kind": "literal",
             "value": 0

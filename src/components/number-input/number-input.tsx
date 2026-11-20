@@ -94,9 +94,9 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'decrement',
     'decrementIcon',
     'decrementDisabled',
-    'autofocus',
+    'autoFocus',
     'wheel',
-    'autofocusDelay',
+    'autoFocusDelay',
     'onBlur',
     'onFocus',
     'onStep',
@@ -406,12 +406,12 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     step('decrement', 'wheel', event, event.shiftKey ? largeStepValue() : stepValue())
   }
 
-  let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
+  let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
   const [isIOS, setIsIOS] = createSignal(false)
 
   onCleanup(() => {
-    if (autofocusTimeoutId !== undefined) {
-      clearTimeout(autofocusTimeoutId)
+    if (autoFocusTimeoutId !== undefined) {
+      clearTimeout(autoFocusTimeoutId)
     }
   })
 
@@ -438,15 +438,15 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       )
     }
 
-    if (!merged.autofocus) {
+    if (!merged.autoFocus) {
       return
     }
 
-    autofocusTimeoutId = setTimeout(() => {
+    autoFocusTimeoutId = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
-    }, merged.autofocusDelay ?? 0)
+    }, merged.autoFocusDelay ?? 0)
   })
 
   const onInputKeyDown = createKeyDownHandler<HTMLInputElement>({

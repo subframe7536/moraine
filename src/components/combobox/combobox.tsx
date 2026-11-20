@@ -126,8 +126,8 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       get maxLength() {
         return local.searchMaxLength
       },
-      get autocomplete() {
-        return local.autocomplete
+      get autoComplete() {
+        return local.autoComplete
       },
       displayValue: () => (state.open() ? search.value() : selectedLabel()),
     })

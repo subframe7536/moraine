@@ -26,7 +26,7 @@ describe('Input', () => {
         name="email"
         type="email"
         placeholder="Enter email"
-        autocomplete="email"
+        autoComplete="email"
         maxLength={20}
         required
         disabled
@@ -396,11 +396,11 @@ describe('Input', () => {
     expect(input.value).toBe('Accepted')
   })
 
-  test('cancels delayed autofocus on unmount and rechecks disabled state', () => {
+  test('cancels delayed autoFocus on unmount and rechecks disabled state', () => {
     vi.useFakeTimers()
 
     try {
-      const disposed = render(() => <Input autofocus autofocusDelay={20} />)
+      const disposed = render(() => <Input autoFocus autoFocusDelay={20} />)
       const disposedInput = disposed.getByRole<HTMLInputElement>('textbox')
       const disposedFocus = vi.spyOn(disposedInput, 'focus')
 
@@ -409,7 +409,7 @@ describe('Input', () => {
       expect(disposedFocus).not.toHaveBeenCalled()
 
       const [disabled, setDisabled] = createSignal(false)
-      const delayed = render(() => <Input autofocus autofocusDelay={20} disabled={disabled()} />)
+      const delayed = render(() => <Input autoFocus autoFocusDelay={20} disabled={disabled()} />)
       const delayedInput = delayed.getByRole<HTMLInputElement>('textbox')
       const delayedFocus = vi.spyOn(delayedInput, 'focus')
 
@@ -417,7 +417,7 @@ describe('Input', () => {
       vi.advanceTimersByTime(20)
       expect(delayedFocus).not.toHaveBeenCalled()
 
-      const readonly = render(() => <Input autofocus autofocusDelay={20} readOnly />)
+      const readonly = render(() => <Input autoFocus autoFocusDelay={20} readOnly />)
       const readonlyInput = readonly.getByRole<HTMLInputElement>('textbox')
       const readonlyFocus = vi.spyOn(readonlyInput, 'focus')
 

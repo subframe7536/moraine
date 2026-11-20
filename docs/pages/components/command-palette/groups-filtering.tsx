@@ -35,7 +35,7 @@ export function GroupsFiltering() {
   return (
     <div class="max-w-md w-full space-y-3">
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         placeholder="Find a workspace section..."
         items={COMMAND_GROUPS}
         onSelect={(item) => setSection(item.value)}

@@ -56,7 +56,7 @@ describe('Combobox', () => {
   })
 
   test('supports custom autocomplete attribute', () => {
-    const screen = render(() => <Combobox items={ITEMS} autocomplete="off email" />)
+    const screen = render(() => <Combobox items={ITEMS} autoComplete="off email" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     expect(input.getAttribute('autocomplete')).toBe('off email')
   })

@@ -1,6 +1,6 @@
 ---
 title: CommandPalette
-description: Search grouped commands and navigation targets from an inline surface.
+description: Search grouped commands on an inline surface — the palette owns no open state (`closable`, `closeOnSelect`, `onCloseRequest` report dismissal to the outer container).
 group: Navigation
 api:
   path: src/components/command-palette/command-palette
@@ -92,7 +92,7 @@ filter the collection. Set `alwaysShow` on an item to keep it visible for any qu
 By default, selecting an enabled item also calls `onCloseRequest`. The palette never hides itself:
 use `onCloseRequest` to close the surrounding Dialog or BaseDialog. Set `closable` to show a close
 button that calls `onCloseRequest`. The search input takes focus on mount unless the palette sits
-inside an element with `role="dialog"`; set `autofocus={false}` to disable it. Control the query with
+inside an element with `role="dialog"`; set `autoFocus={false}` to disable it. Control the query with
 `searchValue` and `onSearchValueChange`, or start from `defaultSearchValue`.
 
 ### Custom items and states

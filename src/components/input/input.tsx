@@ -44,9 +44,9 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     'disabled',
     'size',
     'type',
-    'autocomplete',
-    'autofocus',
-    'autofocusDelay',
+    'autoComplete',
+    'autoFocus',
+    'autoFocusDelay',
     'modifiers',
     'onValueChange',
     'onChange',
@@ -86,8 +86,8 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
   const merged = mergeProps(
     {
       type: 'text',
-      autocomplete: 'off',
-      autofocusDelay: 0,
+      autoComplete: 'off',
+      autoFocusDelay: 0,
     },
 
     local,
@@ -165,11 +165,11 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     callHandler(event, merged.onCompositionEnd)
   }
 
-  let autofocusTimer: ReturnType<typeof setTimeout> | undefined
+  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
 
   onCleanup(() => {
-    if (autofocusTimer !== undefined) {
-      clearTimeout(autofocusTimer)
+    if (autoFocusTimer !== undefined) {
+      clearTimeout(autoFocusTimer)
     }
   })
 
@@ -181,15 +181,15 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       restoreControlledValue()
     }
 
-    if (!merged.autofocus) {
+    if (!merged.autoFocus) {
       return
     }
 
-    autofocusTimer = setTimeout(() => {
+    autoFocusTimer = setTimeout(() => {
       if (!field.disabled()) {
         inputEl?.focus()
       }
-    }, merged.autofocusDelay ?? 0)
+    }, merged.autoFocusDelay ?? 0)
   })
 
   return (
@@ -203,7 +203,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       required={field.required()}
       disabled={field.disabled()}
       readonly={field.readOnly()}
-      autocomplete={merged.autocomplete}
+      autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
       ref={(element) => {

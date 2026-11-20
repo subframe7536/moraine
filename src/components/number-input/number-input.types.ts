@@ -193,10 +193,10 @@ export namespace NumberInputT {
 
     /**
      * Whether the input is focused after mounting, by script rather than the native `autofocus`
-     * attribute. Focus is skipped when the control is disabled, and `autofocusDelay` postpones it.
+     * attribute. Focus is skipped when the control is disabled, and `autoFocusDelay` postpones it.
      * @default false
      */
-    autofocus?: boolean
+    autoFocus?: boolean
 
     /**
      * Whether scrolling the mouse wheel over the focused input steps the value: up increments,
@@ -207,10 +207,10 @@ export namespace NumberInputT {
     wheel?: boolean
 
     /**
-     * Delay in milliseconds between mount and focusing the input. Only used with `autofocus`.
+     * Delay in milliseconds between mount and focusing the input. Only used with `autoFocus`.
      * @default 0
      */
-    autofocusDelay?: number
+    autoFocusDelay?: number
 
     /**
      * Ref callback or variable that receives the visible `<input role="spinbutton">` element.
@@ -256,7 +256,7 @@ export namespace NumberInputT {
   /**
    * Props for the NumberInput component.
    */
-  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
+  export type Props = Omit<BaseProps<'div', Base, Variants, Classes, Styles>, 'autofocus'>
 }
 
 /**

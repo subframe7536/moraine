@@ -68,8 +68,8 @@ export function Textarea<
     'disabled',
     'size',
     'variant',
-    'autofocus',
-    'autofocusDelay',
+    'autoFocus',
+    'autoFocusDelay',
     'autoResize',
     'autoResizeDelay',
     'rows',
@@ -114,7 +114,7 @@ export function Textarea<
     {
       rows: 3,
       maxRows: 0,
-      autofocusDelay: 0,
+      autoFocusDelay: 0,
       autoResizeDelay: 0,
 
       autoResize: false,
@@ -266,11 +266,11 @@ export function Textarea<
     ),
   )
 
-  let autofocusTimer: ReturnType<typeof setTimeout> | undefined
+  let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
 
   onCleanup(() => {
-    if (autofocusTimer !== undefined) {
-      clearTimeout(autofocusTimer)
+    if (autoFocusTimer !== undefined) {
+      clearTimeout(autoFocusTimer)
     }
     cancelAutoResizeTimer?.()
     cancelAutoResizeTimer = undefined
@@ -293,12 +293,12 @@ export function Textarea<
       restoreControlledValue()
     }
 
-    if (merged.autofocus) {
-      autofocusTimer = setTimeout(() => {
+    if (merged.autoFocus) {
+      autoFocusTimer = setTimeout(() => {
         if (!field.disabled()) {
           textareaEl?.focus()
         }
-      }, merged.autofocusDelay)
+      }, merged.autoFocusDelay)
     }
 
     scheduleAutoResize(merged.autoResizeDelay)

@@ -109,7 +109,7 @@ export function SubNavigation() {
       </div>
       <CommandPalette
         items={groups()}
-        autofocus={false}
+        autoFocus={false}
         closeOnSelect={false}
         onSelect={onSelect}
       />

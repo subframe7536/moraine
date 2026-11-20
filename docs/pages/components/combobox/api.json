@@ -31,7 +31,7 @@
           }
         },
         {
-          "name": "autocomplete",
+          "name": "autoComplete",
           "optional": true,
           "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
           "description": "Native `autocomplete` attribute of the search input. In `MultiSelect` the input exists only\nwhen `searchable` or `createItem` is set.",
@@ -56,7 +56,11 @@
           "name": "clearable",
           "optional": true,
           "type": "boolean",
-          "description": "Shows a clear button while there is a selected value or search text. Escape (with the popup\nclosed) and Backspace or Delete (with an empty input) clear too. Clearing resets the\nselection (`onValueChange(null)` if one existed) and the search text, calls `onClear`, and\nreturns focus to the input."
+          "description": "Shows a clear button while there is a selected value or search text. Escape (with the popup\nclosed) and Backspace or Delete (with an empty input) clear too. Clearing resets the\nselection (`onValueChange(null)` if one existed) and the search text, calls `onClear`, and\nreturns focus to the input.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "clearIcon",
@@ -155,8 +159,8 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. A\nstring is a space-delimited list of fallback placements tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`'top bottom-end'`); an invalid entry throws.",
+          "type": "boolean | Placement[]",
+          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. An\narray is an ordered list of fallback `Placement` values tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`['top', 'bottom-end']`).",
           "default": {
             "kind": "literal",
             "value": true

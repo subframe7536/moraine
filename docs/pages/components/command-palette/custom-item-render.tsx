@@ -34,7 +34,7 @@ export function CustomItemRender() {
     <div class="max-w-full w-lg">
       <CommandPalette<TeamCommand>
         items={GROUPS}
-        autofocus={false}
+        autoFocus={false}
         itemRender={(ctx) => (
           <div class="flex flex-1 gap-3 min-w-0 items-center">
             <Icon name="i-lucide-folder-kanban text-muted-foreground group-data-[highlighted]:text-accent-foreground shrink-0" />

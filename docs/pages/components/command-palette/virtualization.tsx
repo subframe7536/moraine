@@ -21,7 +21,7 @@ export function Virtualization() {
   return (
     <div class="max-w-md w-full">
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         placeholder="Search 10,000 commands..."
         items={GROUPS}
         virtualizer={virtualizer}

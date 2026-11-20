@@ -20,23 +20,22 @@
           "default": "InputModifiers | unknown"
         }
       ],
-      "defaultElement": "textarea",
       "props": [
         {
-          "name": "autofocus",
+          "name": "autoFocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the textarea is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the textarea is disabled, and `autofocusDelay` postpones it.",
+          "description": "Whether the textarea is focused after mounting, by script rather than the native `autofocus`\nattribute. Focus is skipped when the textarea is disabled, and `autoFocusDelay` postpones it.",
           "default": {
             "kind": "literal",
             "value": false
           }
         },
         {
-          "name": "autofocusDelay",
+          "name": "autoFocusDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds between mount and focusing the textarea. Only used with `autofocus`.",
+          "description": "Delay in milliseconds between mount and focusing the textarea. Only used with `autoFocus`.",
           "default": {
             "kind": "literal",
             "value": 0

@@ -145,6 +145,7 @@ export namespace ComboboxT {
      * closed) and Backspace or Delete (with an empty input) clear too. Clearing resets the
      * selection (`onValueChange(null)` if one existed) and the search text, calls `onClear`, and
      * returns focus to the input.
+     * @default false
      */
     clearable?: boolean
     /** Called once after a clear action (see `clearable`), following `onValueChange(null)`. */

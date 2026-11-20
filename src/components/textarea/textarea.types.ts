@@ -38,16 +38,16 @@ export namespace TextareaT {
 
     /**
      * Whether the textarea is focused after mounting, by script rather than the native `autofocus`
-     * attribute. Focus is skipped when the textarea is disabled, and `autofocusDelay` postpones it.
+     * attribute. Focus is skipped when the textarea is disabled, and `autoFocusDelay` postpones it.
      * @default false
      */
-    autofocus?: boolean
+    autoFocus?: boolean
 
     /**
-     * Delay in milliseconds between mount and focusing the textarea. Only used with `autofocus`.
+     * Delay in milliseconds between mount and focusing the textarea. Only used with `autoFocus`.
      * @default 0
      */
-    autofocusDelay?: number
+    autoFocusDelay?: number
 
     /**
      * Native `maxlength`: the maximum number of characters the user can type. Numeric strings are accepted.
@@ -138,7 +138,7 @@ export namespace TextareaT {
    * Props for the Textarea component.
    */
   export type Props<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
-    BaseProps<'textarea', Base<TModifiers>, Variants, Classes, Styles>
+    Omit<BaseProps<'textarea', Base<TModifiers>, Variants, Classes, Styles>, 'autofocus'>
 }
 
 /**

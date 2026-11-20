@@ -1,3 +1,4 @@
+import type { Placement } from '@floating-ui/dom'
 import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
@@ -66,13 +67,13 @@ export interface BaseSelectPopupProps {
    */
   shift?: number
   /**
-   * Whether to flip placement when the preferred side lacks space. `false` disables flipping. A
-   * string is a space-delimited list of fallback placements tried in order, each `top`,
+   * Whether to flip placement when the preferred side lacks space. `false` disables flipping. An
+   * array is an ordered list of fallback `Placement` values tried in order, each `top`,
    * `bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example
-   * `'top bottom-end'`); an invalid entry throws.
+   * `['top', 'bottom-end']`).
    * @default true
    */
-  flip?: boolean | string
+  flip?: boolean | Placement[]
   /**
    * Whether the popup may slide along its main axis to remain visible.
    * @default true

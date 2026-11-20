@@ -100,8 +100,8 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | string",
-          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. A\nstring is a space-delimited list of fallback placements tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`'top bottom-end'`); an invalid entry throws.",
+          "type": "boolean | Placement[]",
+          "description": "Whether to flip placement when the preferred side lacks space. `false` disables flipping. An\narray is an ordered list of fallback `Placement` values tried in order, each `top`,\n`bottom`, `left`, or `right` optionally followed by `-start` or `-end` (for example\n`['top', 'bottom-end']`).",
           "default": {
             "kind": "literal",
             "value": true

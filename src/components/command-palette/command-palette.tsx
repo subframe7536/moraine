@@ -182,7 +182,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'onSearchValueChange',
     'onSelect',
     'searchMaxLength',
-    'autofocus',
+    'autoFocus',
     'leading',
     'loadingIcon',
     'closeIcon',
@@ -240,7 +240,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       get placeholder() {
         return messages().placeholder
       },
-      autofocus: true,
+      autoFocus: true,
       closable: false,
       closeOnSelect: true,
       leading: 'icon-search',
@@ -307,8 +307,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   createEffect(
-    on([inputElement, () => merged.autofocus], ([input, autofocus]) => {
-      if (!autofocus || !input) {
+    on([inputElement, () => merged.autoFocus], ([input, autoFocus]) => {
+      if (!autoFocus || !input) {
         return
       }
 

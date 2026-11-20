@@ -46,20 +46,20 @@ export namespace InputT {
      * autofill is off unless set.
      * @default 'off'
      */
-    autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
+    autoComplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 
     /**
      * Whether the input is focused after mounting, by script rather than the native `autofocus`
-     * attribute. Focus is skipped when the input is disabled, and `autofocusDelay` postpones it.
+     * attribute. Focus is skipped when the input is disabled, and `autoFocusDelay` postpones it.
      * @default false
      */
-    autofocus?: boolean
+    autoFocus?: boolean
 
     /**
-     * Delay in milliseconds between mount and focusing the input. Only used with `autofocus`.
+     * Delay in milliseconds between mount and focusing the input. Only used with `autoFocus`.
      * @default 0
      */
-    autofocusDelay?: number
+    autoFocusDelay?: number
 
     /**
      * Native `maxlength`: the maximum number of characters the user can type. Numeric strings are accepted.
@@ -124,7 +124,10 @@ export namespace InputT {
    * Props for the Input component.
    */
   export type Props<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
-    BaseProps<'input', Base<TModifiers>, Variants, Classes, Styles>
+    Omit<
+      BaseProps<'input', Base<TModifiers>, Variants, Classes, Styles>,
+      'autofocus' | 'autocomplete'
+    >
 }
 
 /**

@@ -5,7 +5,7 @@ export function CustomEmptyState() {
     <div class="max-w-full w-lg">
       <CommandPalette
         items={[]}
-        autofocus={false}
+        autoFocus={false}
         emptyRender={() => (
           <span class="flex flex-col gap-2 items-center">
             <Icon name="i-lucide-search-x" class="text-xl text-muted-foreground" />

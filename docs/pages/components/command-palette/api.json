@@ -18,10 +18,9 @@
           "default": "Item"
         }
       ],
-      "defaultElement": "div",
       "props": [
         {
-          "name": "autofocus",
+          "name": "autoFocus",
           "optional": true,
           "type": "boolean",
           "description": "Whether to focus the search input when the palette mounts. Skipped when the palette is\ninside an element with `role=\"dialog\"`, which handles its own initial focus.",

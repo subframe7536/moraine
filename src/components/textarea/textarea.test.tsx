@@ -393,7 +393,7 @@ describe('Textarea', () => {
       lineHeight: '16',
     } as CSSStyleDeclaration)
     const screen = render(() => (
-      <Textarea autofocus autofocusDelay={100} autoResize autoResizeDelay={100} rows={2} />
+      <Textarea autoFocus autoFocusDelay={100} autoResize autoResizeDelay={100} rows={2} />
     ))
     const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
     const focus = vi.spyOn(textarea, 'focus')

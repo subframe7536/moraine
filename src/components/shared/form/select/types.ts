@@ -83,7 +83,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
    * when `searchable` or `createItem` is set.
    * @default 'off'
    */
-  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
+  autoComplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   /**
    * How items are matched against the search text; filtering runs only while the text is not
    * empty. The named strategies compare the item's plain-text label (see `getItemLabel`)

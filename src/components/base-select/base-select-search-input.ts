@@ -33,7 +33,7 @@ export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = B
   displayValue?: Accessor<string>
   transformInput?: (value: string) => string
   maxLength?: number
-  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
+  autoComplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 }
 
 /** Binds a caller-owned input to BaseSelect state. */
@@ -100,7 +100,7 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
       return options.maxLength
     },
     get autocomplete() {
-      return options.autocomplete ?? 'off'
+      return options.autoComplete ?? 'off'
     },
     get value() {
       return compositionDraft() ?? displayValue()

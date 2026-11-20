@@ -47,7 +47,7 @@ const GROUPS: CommandPaletteT.Group[] = [
 
 describe('CommandPalette', () => {
   test('keeps an identified listbox around the empty state', () => {
-    const screen = render(() => <CommandPalette items={[]} autofocus={false} />)
+    const screen = render(() => <CommandPalette items={[]} autoFocus={false} />)
     const input = screen.getByRole('combobox')
     const listbox = screen.getByRole('listbox')
     expect(input.getAttribute('aria-controls')).toBe(listbox.id)
@@ -61,7 +61,7 @@ describe('CommandPalette', () => {
     const labelled = render(() => (
       <CommandPalette
         items={[]}
-        autofocus={false}
+        autoFocus={false}
         inputProps={{ 'aria-labelledby': 'search-title' }}
       />
     ))
@@ -73,7 +73,7 @@ describe('CommandPalette', () => {
     const named = render(() => (
       <CommandPalette
         items={[]}
-        autofocus={false}
+        autoFocus={false}
         inputProps={{ 'aria-label': 'Find a command' }}
       />
     ))
@@ -83,7 +83,7 @@ describe('CommandPalette', () => {
   test('protects virtual row identity and positional semantics', () => {
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
         virtualizer={{
           scrollToIndex: () => {},
@@ -118,7 +118,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         items={[{ type: 'group', items: [item()] }]}
         onSelect={onSelect}
         itemRender={(context) => (
@@ -156,7 +156,7 @@ describe('CommandPalette', () => {
     const select = vi.fn()
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
         onSelect={select}
         listboxProps={{ id: 'wrong', role: 'menu', 'data-slot': 'wrong-list' }}
@@ -213,7 +213,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders the search input, group labels, items, and per-item leading and trailing content', () => {
-    render(() => <CommandPalette items={GROUPS} autofocus={false} />)
+    render(() => <CommandPalette items={GROUPS} autoFocus={false} />)
 
     expect(body().getByPlaceholderText('Search...')).toBeTruthy()
     expect(body().getByRole('group', { name: 'Actions' })).toBeTruthy()
@@ -231,7 +231,7 @@ describe('CommandPalette', () => {
   test('filters as the user types, reports the term, and shows the empty state without matches', () => {
     const onSearchValueChange = vi.fn()
     render(() => (
-      <CommandPalette items={GROUPS} autofocus={false} onSearchValueChange={onSearchValueChange} />
+      <CommandPalette items={GROUPS} autoFocus={false} onSearchValueChange={onSearchValueChange} />
     ))
     const input = body().getByRole('combobox')
 
@@ -251,7 +251,7 @@ describe('CommandPalette', () => {
 
   test('keeps a controlled searchValue until the parent updates it', () => {
     const [term, setTerm] = createSignal('settings')
-    render(() => <CommandPalette items={GROUPS} autofocus={false} searchValue={term()} />)
+    render(() => <CommandPalette items={GROUPS} autoFocus={false} searchValue={term()} />)
     const input = body().getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('settings')
@@ -266,7 +266,7 @@ describe('CommandPalette', () => {
 
   test('moves the highlight through enabled commands with wrapping and ignores disabled ones', () => {
     const onSelect = vi.fn()
-    render(() => <CommandPalette items={GROUPS} autofocus={false} onSelect={onSelect} />)
+    render(() => <CommandPalette items={GROUPS} autoFocus={false} onSelect={onSelect} />)
     const input = body().getByRole('combobox')
     const active = () => document.getElementById(input.getAttribute('aria-activedescendant')!)
 
@@ -534,7 +534,7 @@ describe('CommandPalette', () => {
     const [loading, setLoading] = createSignal(false)
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         closable
         leading="icon-hash"
         loadingIcon="icon-reload"
@@ -561,13 +561,13 @@ describe('CommandPalette', () => {
   test('shows a close button only when closable and reports clicks through onCloseRequest', () => {
     const onCloseRequest = vi.fn()
     const closable = render(() => (
-      <CommandPalette items={GROUPS} autofocus={false} closable onCloseRequest={onCloseRequest} />
+      <CommandPalette items={GROUPS} autoFocus={false} closable onCloseRequest={onCloseRequest} />
     ))
     fireEvent.click(closable.getByRole('button', { name: 'Close' }))
     expect(onCloseRequest).toHaveBeenCalledTimes(1)
     closable.unmount()
 
-    const plain = render(() => <CommandPalette items={GROUPS} autofocus={false} />)
+    const plain = render(() => <CommandPalette items={GROUPS} autoFocus={false} />)
     expect(plain.queryByRole('button', { name: 'Close' })).toBeNull()
   })
 
@@ -628,7 +628,7 @@ describe('CommandPalette', () => {
   test('routes classes and styles to each slot', () => {
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         closable
         items={GROUPS}
         classes={{
@@ -670,7 +670,7 @@ describe('CommandPalette', () => {
   test('routes classes and styles to the empty slot', () => {
     render(() => (
       <CommandPalette
-        autofocus={false}
+        autoFocus={false}
         items={[]}
         classes={{ empty: 'user-empty' }}
         styles={{ empty: { width: '200px' } }}

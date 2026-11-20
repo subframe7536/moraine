@@ -5,7 +5,7 @@ import { CommandPalette } from './command-palette'
 export function renderCommandPaletteFixture(): string {
   return renderToString(() => (
     <CommandPalette
-      autofocus={false}
+      autoFocus={false}
       descriptionPosition="trailing"
       items={[
         {
@@ -18,5 +18,5 @@ export function renderCommandPaletteFixture(): string {
 }
 
 export function renderEmptyCommandPaletteFixture(): string {
-  return renderToString(() => <CommandPalette autofocus={false} items={[]} />)
+  return renderToString(() => <CommandPalette autoFocus={false} items={[]} />)
 }

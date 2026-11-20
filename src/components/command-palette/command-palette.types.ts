@@ -216,7 +216,7 @@ export namespace CommandPaletteT {
      * inside an element with `role="dialog"`, which handles its own initial focus.
      * @default true
      */
-    autofocus?: boolean
+    autoFocus?: boolean
     /**
      * Icon name of input's leading icon. Replaced by `loadingIcon` while `loading` is `true`.
      * @default 'icon-search'
@@ -379,12 +379,9 @@ export namespace CommandPaletteT {
     inputProps?: InputElementProps
   }
 
-  export type Props<TItem extends Item = Item> = BaseProps<
-    'div',
-    Base<TItem>,
-    Variants,
-    Classes,
-    Styles
+  export type Props<TItem extends Item = Item> = Omit<
+    BaseProps<'div', Base<TItem>, Variants, Classes, Styles>,
+    'autofocus'
   >
 }
 

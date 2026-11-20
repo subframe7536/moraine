@@ -168,7 +168,7 @@ test('custom search input exposes reactive ARIA and input attributes', () => {
       get maxLength() {
         return maxLength()
       },
-      autocomplete: 'off email',
+      autoComplete: 'off email',
     })
     return <input {...input.inputProps} />
   }

@@ -31,7 +31,7 @@ export function Loading() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette items={BASIC_GROUPS} autofocus={false} loading />
+      <CommandPalette items={BASIC_GROUPS} autoFocus={false} loading />
     </div>
   )
 }
