@@ -129,7 +129,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── tooltip/            # Tooltip overlay.
 │   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
 │   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/, splitter/).
-├── data-table/             # `moraine/data-table` entry: DataTable and createDataTable over TanStack Table.
+├── data-table/             # `moraine/data-table` entry: createDataTable (returns the table instance with a bound `table.DataTable` presenter) and the standalone DataTable over TanStack Table.
 ├── dnd/                    # `moraine/dnd` entry: sortables over dnd kit, composed through render props.
 │   ├── sortable.types.ts   # Public sortable types.
 │   ├── create-sortable.tsx # createSortable: drag state, drop positions, and item registration.
@@ -199,16 +199,16 @@ Component directories normally contain implementation (`{component}.tsx` and any
   - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `headerRender` and `footerRender`, not `contentHeaderRender` and `contentFooterRender`).
   - Controlled state uses the `x` / `defaultX` / `onXChange` triple. Every `on<X>Change` callback must have a matching `x` prop on the same part; the only exceptions are `onStatusChange` and `onOverflowChange`, which fire without a controlled value.
   - Positional icons use `leading` / `trailing`; a single primary icon uses `icon`; functional icons end with `Icon` (`closeIcon`, `clearIcon`, `removeIcon`, `loadingIcon`, `checkedIcon`, `prevIcon`). Any prop typed `IconT.Name` must be named `icon`, `leading`, `trailing`, `separator`, `badge`, or end with `Icon`.
-  - Color uses `tone`; feedback status uses `type`.
+  - Color uses `tone`; Alert maps its semantic variant onto `tone` too. `type` is reserved for the command-API semantics of `AlertDialog` and `Toast`, and for native HTML `type` attributes.
   - Numeric ranges use `min` / `max` / `step`.
   - Component boolean props must not use an `is` prefix; item predicate callbacks such as `isItemDisabled` are allowed.
   - List item text uses `label` and `description`.
   - Persistent closed content uses `forceMount?: boolean`.
-  - Dismissal behavior uses `closeOnEscape`, `closeOnOverlayClick`, and `closeOnOutsideClick`.
+  - Dismissal behavior uses `closeOnEscape` and `closeOnOutsideClick`.
   - A callback for a proposed value the component refused (characters dropped by a filter, files failing validation) is `onValueInvalid(details)`. It pairs with `onValueChange`, receives a `details` object, never a bare value, and does not cancel anything. Name a `reason` with the matching `ValidityState` key (`patternMismatch`, `tooLong`, `rangeOverflow`). `onInvalid` is reserved for passing through the native constraint-validation event, and `onReject` is not used.
   - Internal calculated variants belong on `*RecipeVariant extends *StyleVariants`; they must never appear in the public `*StyleVariants` or component props.
   - Render functions end with `*Render`; refs end with `*Ref`.
-  - Item/option objects use `ariaLabel`; component props use `'aria-label'`.
+  - Accessibility-label aliases use `ariaLabel` on component props and item/option objects; rendered attributes stay `aria-label`. Declared component props use camelCase DOM names (`autoFocus`, `autoFocusDelay`, `autoComplete`), while the native attributes they emit stay lowercase.
 
 ### JSDoc
 

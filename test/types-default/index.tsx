@@ -595,12 +595,9 @@ const dataTableInstance = createDataTable({
   },
   onSortingChange: setDataTableSorting,
 })
-;<DataTable
-  table={dataTableInstance}
-  expandedRowRender={(props) => <div>{props.row.original.name}</div>}
-/>
+;<dataTableInstance.DataTable expandedRowRender={(props) => <div>{props.row.original.name}</div>} />
 // @ts-expect-error DataTable has no striped variant.
-;<DataTable table={dataTableInstance} striped />
+;<dataTableInstance.DataTable striped />
 // @ts-expect-error Accessor-style options are not accepted; use getters.
 createDataTable({ data: () => dataTableRows, columns: dataTableCols })
 // @ts-expect-error DataTable requires a table instance.
@@ -695,9 +692,9 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 // @ts-expect-error Icon uses a data-slot attribute instead of slotName
 ;<Icon name="i-lucide-search" slotName="custom-icon" />
 
-// @ts-expect-error Kbd has no label prop; use aria-label.
+// @ts-expect-error Kbd has no label prop; use ariaLabel.
 ;<Kbd value="K" label="Search" />
-;<Kbd value="K" aria-label="Search" class="px-2" style={{ color: 'red' }} />
+;<Kbd value="K" ariaLabel="Search" class="px-2" style={{ color: 'red' }} />
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />
 
 ;<KbdGroup items={['meta', 'k']} />
@@ -849,12 +846,12 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<Sidebar width={280} defaultWidth={240} minWidth={200} maxWidth={400}>
   <Sidebar.Panel />
-  <Sidebar.Rail aria-label="Resize sidebar" />
+  <Sidebar.Rail ariaLabel="Resize sidebar" />
   <Sidebar.Inset />
 </Sidebar>
 
 ;<Sidebar mobile={false}>
-  <Sidebar.Panel aria-label="Sidebar navigation">
+  <Sidebar.Panel ariaLabel="Sidebar navigation">
     <Sidebar.Header>Header</Sidebar.Header>
     <Sidebar.Content>
       <Sidebar.Group>
