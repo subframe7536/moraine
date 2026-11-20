@@ -137,26 +137,26 @@ Shift+Tab from the first control returns to the trigger.
 
 ## Examples
 
-### Filter deployments or preview a profile
+### Trigger modes
 
-Click keeps a filter panel open during selection. `openOnHover` opens an author preview after a delay.
+Use click triggers for interactive panels and `openOnHover` for lightweight previews.
 
 <Preview path="./trigger-modes" />
 
-### Label filter settings for dismissal
+### Accessible name
 
 Give content an accessible name when it has no visible title. Escape or an outside click closes the
 popover.
 
 <Preview path="./dismissal-usage" />
 
-### Preview an author card on hover
+### Hover trigger
 
-Hover or focus the trigger to follow an author. Open and close delays keep the card from flashing.
+Set `openOnHover` with `openDelay` and `closeDelay` to prevent flicker on hover or focus.
 
 <Preview path="./hover-mode" />
 
-### Keep a popover open until an explicit close
+### Prevent dismissal
 
 `closeOnEscape={false}` and `closeOnOutsideClick={false}` block Escape and outside clicks.
 `onClosePrevented` counts blocked attempts.

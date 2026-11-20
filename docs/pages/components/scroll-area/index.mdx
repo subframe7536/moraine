@@ -129,7 +129,7 @@ The root also exposes the remaining scroll distance of each edge in pixels as
 `--scroll-area-overflow-y-start`, and `--scroll-area-overflow-y-end`. Use them for custom
 edge effects.
 
-### Theme and instance overrides
+### Theme overrides
 
 Set `scrollArea.defaultVariants` to choose the scrollbar mode or enable shadows across a provider;
 `scrollbarVariant: 'native'` restores browser scrollbars everywhere. The recipe exposes
@@ -141,15 +141,15 @@ The shadow size resolves in this order, highest first: root `style`, `styles.roo
 
 ## Examples
 
-### Shadow overflowing activity
+### Edge shadows
 
-Enable `shadow` on a vertical activity feed so clipped updates are visible at the edge.
+Enable `shadow` to indicate clipped content along overflowing edges.
 
 <Preview path="./shadow" />
 
-### Orientation
+### Horizontal
 
-Set `orientation="horizontal"` for a timeline.
+Set `orientation="horizontal"` for horizontal scrolling.
 
 <Preview path="./horizontal" />
 
@@ -167,20 +167,19 @@ edge, and the thumb and shadows follow the logical edges.
 
 <Preview path="./scrollbar-width" />
 
-### Scroll a wide table
+### Both axes
 
 Set `orientation="both"` for content that overflows in both directions.
 
 <Preview path="./both-axes" />
 
-### Jump to the latest notification
+### Overflow state
 
-Read `onOverflowChange` to show whether more notifications are hidden, and call
-`scrollTo` on the viewport from `viewportRef`.
+Use `onOverflowChange` to detect hidden overflow and `viewportRef` to scroll programmatically.
 
 <Preview path="./overflow" />
 
-### Load more at the end
+### Infinite scroll
 
 `onBottomReached` with `scrollThreshold` requests the next page shortly before the end.
 

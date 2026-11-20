@@ -93,20 +93,20 @@ formatter takes precedence.
 
 ## Examples
 
-### Upload a file or wait on a scan
+### Determinate and indeterminate
 
-Use a determinate value for known bytes. Omit `value` while a scanner has no trustworthy percentage.
+Pass a numeric `value` for determinate progress, or omit `value` for an indeterminate bar.
 
 <Preview path="./models" />
 
-### Announce a bundle download
+### Label and value
 
 Set `label` and `valueLabel` when the operation name and percentage should appear with the bar.
 Keep `aria-label` as the accessible name.
 
 <Preview path="./semantics" />
 
-### Show horizontal and vertical meters
+### Orientation
 
 Use `orientation="vertical"` for level meters that fill from the bottom.
 
