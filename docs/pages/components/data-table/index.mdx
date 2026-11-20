@@ -412,7 +412,7 @@ empty message is hidden while `loading` is set. Both render props receive `colSp
 />
 ```
 
-### Pinned columns and sticky sections
+### Pinning and sticky sections
 
 Pin columns with `initialState.columnPinning` or `state.columnPinning`. Pinned columns stay at the
 start or end edge while the rest scroll horizontally. The innermost pinned column on each side
@@ -469,7 +469,7 @@ The arrows swap direction when `tableOptions.columnResizeDirection` is `'rtl'`.
 `state.columnOrder` lists column ids in display order. Columns it does not list follow in
 definition order. To let users drag headers, pass the header registration from
 `createListSortable` (`moraine/dnd`) to `headProps`, as in
-[Reorder columns by dragging their headers](#reorder-columns-by-dragging-their-headers).
+[Reorder columns by dragging their headers](#column-reordering).
 
 ```tsx
 const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'])
@@ -624,32 +624,28 @@ text, so the sort button of a Name column is named "Name Sort", then "Name Sorte
 
 ## Examples
 
-### Sort, select, and page through team members
+### Basic
 
-A typical list: custom cells for the member and the role, multiple selection, and five rows per
-page. The table starts sorted by role, and the role column sorts by rank with a `sortingFn` instead
-of alphabetically. Shift-click another header to add a second sort; the headers then show their
-priority.
+Combines custom cells, multi-column sorting (with a custom `sortingFn`), row selection, and
+pagination. Shift-click headers to add secondary sorts.
 
 <Preview path="./basic" />
 
-### Switch between single and multiple selection
+### Selection modes
 
-Read `selectionMode` from a signal and control `state.rowSelection`, so the toolbar can count and clear
-the selection. `canSelectRow` locks terminated nodes, and `rowProps` mutes their text.
+Switch `selectionMode` dynamically and control `state.rowSelection`. Use `canSelectRow` to disable
+selection on specific rows and `rowProps` to style them.
 
 <Preview path="./selection-modes" />
 
-### Search and filter rows
+### Filtering
 
-Bind an `Input` to `state.globalFilter` for a search across all columns, and a `Select` to the role
-column's filter with `column.setFilterValue`. The role column uses `filterFn: 'equals'` for an
-exact match. TanStack returns to the first page whenever a filter changes, and the toolbar below
-the table counts the matching rows.
+Bind `state.globalFilter` for full-table search and `column.setFilterValue` for column-specific
+filtering (`filterFn: 'equals'`). Pagination resets to page 1 when filters change.
 
 <Preview path="./filtering" />
 
-### Load pages from a server
+### Server data
 
 Set `manual: true` and control `sorting` and `pagination`. Combine them with the debounced search
 into one query, so each change sends one request. Pass the current page as `data`, the total as
@@ -658,7 +654,7 @@ and the previous page stays on screen while the next one loads.
 
 <Preview path="./server-data" />
 
-### Reorder columns by dragging their headers
+### Column reordering
 
 Drag a header to move its column; the sort button still sorts. `headProps` registers each header
 cell with a horizontal `createListSortable` over `table.getVisibleLeafColumns()`, and `onReorder`
@@ -667,45 +663,41 @@ follows the pointer, and the target header shows a line on the side the column l
 
 <Preview path="./column-settings" />
 
-### Let users resize columns
+### Column resizing
 
 Set `resizable: true` and give columns a `size`, plus `minSize` and `maxSize` to bound them. Drag a
 header edge, or focus the handle and use the arrow keys.
 
 <Preview path="./resizable-columns" />
 
-### Keep the ID and actions visible while scrolling sideways
+### Pinned columns
 
-Pin the selection and ID columns to the start and the actions column to the end with
-`initialState.columnPinning`. Give every column a `size`, because pinning uses a fixed layout.
+Pin columns to the start or end with `initialState.columnPinning`. Provide explicit `size` values on
+every column for fixed-layout pinning.
 
 <Preview path="./pinned-columns" />
 
-### Keep the header and totals in view
+### Sticky header and footer
 
-Set `sticky` and `maxHeight` so the header and footer stay in view while 30 audit events scroll.
-The footers read the current rows from the table, so they update with the data.
+Set `sticky` and `maxHeight` to keep the header and footer fixed while rows scroll. Footer renderers
+read live table rows.
 
 <Preview path="./sticky-sections" />
 
-### Show order details in expandable rows
+### Expandable rows
 
-Set `expandable: true` and render the line items, shipping address, and tracking code with
-`expandedRowRender`.
+Set `expandable: true` and render detail content beneath each row with `expandedRowRender`.
 
 <Preview path="./expandable-rows" />
 
-### Browse files as tree data
+### Tree data
 
-Pass `tableOptions.getSubRows` to render nested rows, and `expandable` with a predicate so only
-folders get a chevron. Sub-rows indent the name column. Selecting a folder selects its files, and a
-partly selected folder shows a mixed checkbox. `getRowId` returns the file name; sub-row ids get
-their parent's id as a prefix (`src.components`), which is also how `initialState.expanded` opens
-the nested folders.
+Pass `tableOptions.getSubRows` for hierarchical rows and an `expandable` predicate so only branch
+rows show an expand chevron. Parent selection cascades to sub-rows with indeterminate state.
 
 <Preview path="./tree-data" />
 
-### Edit cells in place
+### Editable cells
 
 Render an editable value in the column's `cell`. Double-click it, or focus it and press Enter or
 F2, to swap in an `Input`. Enter or leaving the field saves a valid value into the `data` signal,
@@ -713,7 +705,7 @@ and Escape cancels. The table reads `data` through a getter, so the saved value 
 
 <Preview path="./editable-cells" />
 
-### Reorder a release queue
+### Sortable rows
 
 Drag the grip in the first column, or focus it and press Space, then the arrow keys. The column
 renders the handle with `sortable.handleRefFor(row.id)`. The table styles the drag itself: the row
@@ -722,11 +714,9 @@ the side the row lands on.
 
 <Preview path="./sortable-rows" />
 
-### Scroll 10,000 rows and 100 columns
+### Virtualization
 
-Pass a `virtualizer` from `createTableVirtualizer`, with `getItemKey` set to the row id, and bound
-the table with `maxHeight`. The virtualizer's `columns` option also virtualizes the hour columns, so
-only the cells near the viewport mount. The pinned server column stays in view while the hours
-scroll sideways. Leave out `columns` to virtualize rows only.
+Pass a `createTableVirtualizer` instance with `getItemKey` and `maxHeight`. Add the `columns` option
+to virtualize horizontal cells alongside pinned columns, or omit it for row-only virtualization.
 
 <Preview path="./virtualization" />
