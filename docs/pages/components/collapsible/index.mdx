@@ -54,7 +54,7 @@ export function Example() {
 }
 ```
 
-### State ownership
+### Controlled state
 
 Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the component owns its
 initial state. `onOpenChange` receives the next state when the user toggles a trigger, and does not
@@ -117,33 +117,32 @@ different element or component, which then follows its own keyboard semantics.
 
 ## Examples
 
-### Answer a password FAQ
+### Uncontrolled
 
 Leave the disclosure uncontrolled when the page does not need to read open state.
 
 <Preview path="./uncontrolled" />
 
-### Inspect a locked invoice
+### Controlled
 
-Own `open` when an external control or a lock switch must drive the same panel.
+Control `open` with `onOpenChange` when external state or a disabled condition governs the panel.
 
 <Preview path="./controlled" />
 
-### Reveal extra starred repositories
+### Partial content
 
-Place the trigger beside a heading when only some rows should expand. Rows that stay visible can sit
-outside `Collapsible.Content`.
+Keep always-visible content outside `Collapsible.Content` so only the expandable region toggles.
 
 <Preview path="./composable" />
 
-### Toggle advanced settings from outside the panel
+### External trigger
 
 Pass `open` and `onOpenChange` so a second control can show or hide the same region.
 
 <Preview path="./state-ownership" />
 
-### Keep filter text while the panel is closed
+### Keep mounted
 
-Set `forceMount` so fields inside Content keep their values.
+Set `forceMount` to keep `Collapsible.Content` mounted and preserve inner state while closed.
 
 <Preview path="./content-lifetime" />

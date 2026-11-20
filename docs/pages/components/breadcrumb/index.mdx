@@ -110,25 +110,25 @@ disabled handling.
 
 ## Examples
 
-### Trail to the current page
+### Basic
 
 Link ancestors and leave the last item as the current page.
 
 <Preview path="./items-page" />
 
-### Locked ancestor with a custom separator
+### Disabled item and custom separator
 
-Keep a disabled private workspace in the trail. Replace the chevron with a slash.
+Mark non-navigable items with `disabled` and pass `separator` to replace the default divider.
 
 <Preview path="./custom-separator-disabled" />
 
-### Long trail in a narrow column
+### Wrapping
 
 Leave `wrap` on so the trail can break across lines. Set `wrap={false}` to keep every item on one line.
 
 <Preview path="./wrapping" />
 
-### Custom item rendering
+### Custom item
 
 Use `itemRender` to render each item yourself for router links or custom chip styling. It receives
 `item`, `index`, `active`, and `disabled`.
