@@ -37,7 +37,7 @@ export function Example() {
 }
 ```
 
-### Row ownership
+### Rows
 
 `itemRender` receives the `item`, its `index` in the full collection, and, with a `virtualizer`,
 `rowProps`. Spread `rowProps` onto the outer row element; the virtualizer needs them for positioning
@@ -78,7 +78,7 @@ const virtualizer = createListVirtualizer<Item>({
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
 keyboard navigation.
 
-### Load more at the edges
+### Edge loading
 
 `onTopReached` and `onBottomReached` fire once each time scrolling reaches the top or bottom edge
 of an overflowing list; neither fires for the initial position. Combine `onBottomReached` with
@@ -130,34 +130,34 @@ handles, keyboard dragging, and options.
 
 ## Examples
 
-### Clear an inbox to an empty state
+### Empty state
 
 `emptyRender` renders when `items` is empty. List does not invent empty copy; pass the row markup you
 want shown.
 
 <Preview path="./empty-inbox" />
 
-### Scroll a large search result set
+### Virtualization
 
 Use `createListVirtualizer` when tens of thousands of rows would otherwise mount at once. Spread
 `context.rowProps` onto the measured row element.
 
 <Preview path="./virtualization" />
 
-### Reorder a checklist from a grip handle
+### Sortable
 
 The grip button is the drag handle, so it also starts a keyboard drag with Space or Enter. Arrow
 keys move to the next row, and Space, Enter, or Escape ends the drag.
 
 <Preview path="./sortable" />
 
-### Reorder a long virtual playlist
+### Sortable with virtualization
 
 Drag a row toward the list edge to scroll. The row is its own handle here.
 
 <Preview path="./sortable-virtualization" />
 
-### Render result rows with extra detail lines
+### Dynamic height
 
 Estimate a larger size when row height varies, and let the virtualizer measure after mount.
 
