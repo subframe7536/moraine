@@ -200,7 +200,6 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   const { slotWith } = useSidebarStyles('rail', local)
   const railSlot = slotWith('rail', {
     data: sidebarDataAttributes.rail({
-      active: bindings.active,
       closed: () => !context.isOpen(),
       dragging: bindings.dragging,
     }),
