@@ -78,7 +78,7 @@ the current one, and the value is `File | null`.
 <FileUpload variant="button" label="Attach files" />
 ```
 
-### Selected file list
+### File list
 
 The selected files appear in a list below the control, with an image thumbnail for image files and
 `fileIcon` for other types. Set `fileList={false}` to omit the list and render the selection
@@ -99,7 +99,7 @@ yourself from `onValueChange`. Use `itemRender` to replace each entry. It receiv
 />
 ```
 
-### Rejections and form behavior
+### Rejections and forms
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate each picked or dropped file before it is
 added. `maxFiles` counts files already selected and applies only with `multiple`. Rejected files are
@@ -133,34 +133,33 @@ overrides it.
 
 ## Examples
 
-### Attach expense receipts
+### Multiple and max files
 
-Set `multiple` and `maxFiles` when the field holds a short list. Handle `onValueInvalid` when a fourth
-file or a disallowed type is dropped.
+Set `multiple` and `maxFiles` to cap selections, and handle `onValueInvalid` for rejected files.
 
 <Preview path="./multiple-max-files" />
 
-### Show rejected images
+### Rejections
 
 Map `onValueInvalid` reason codes to messages. Validation runs before the file is added to the
 value.
 
 <Preview path="./rejections" />
 
-### Attach from a compact button
+### Button variant
 
 Set `variant="button"` for a compact picker button instead of the drop area. The selected file still
 comes from `onValueChange`.
 
 <Preview path="./button-variant" />
 
-### Bind attachments to a form
+### Form
 
 Place FileUpload in `form.Field` so the schema owns required files and submit output.
 
 <Preview path="./form-integration" />
 
-### Freeze uploads during maintenance
+### Disabled and read-only
 
 `disabled` blocks new files. `readOnly` keeps the current list visible without allowing add or
 remove.

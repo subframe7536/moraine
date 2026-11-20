@@ -81,7 +81,7 @@ suppresses any error, including the bound one. Empty content such as `''` displa
 `required`, `disabled`, or `readOnly` on Field to pass the state to nested controls; a control's own
 prop takes precedence. `required` also adds a required indicator to the label.
 
-### Visually hidden labels
+### Hidden labels
 
 Use `hiddenLabel` when a compact control needs an accessible name without a visible label. It
 keeps the label association without reserving label spacing or an empty horizontal label column.
@@ -109,28 +109,28 @@ the default stacked layout.
 
 ## Examples
 
-### Hide the label on a command filter
+### Hidden label
 
 Pass `hiddenLabel` so the input stays named without a visible label column. Help and error still
 render in their usual place.
 
 <Preview path="./hidden-label" />
 
-### Inherit size and required onto a switch
+### Inherited state
 
 `size` and `required` on `Field` pass down to the nested control. Keep a visible `label` on the
 switch when the field label is the setting name.
 
 <Preview path="./inherited-state" />
 
-### Surface a local validation message
+### Manual validation
 
 Pass the current message to `error`. Standalone `Field` does not run a schema; your code owns the
 message.
 
 <Preview path="./manual-validation" />
 
-### Align a settings row
+### Horizontal
 
 Set `orientation="horizontal"` to put the label beside the control, as in a settings panel.
 
