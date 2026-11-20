@@ -237,33 +237,32 @@ AlertDialog.custom(
 
 ## Examples
 
-### Revoke an API key
+### Confirmation
 
 `confirm` returns a handle. Wait on `result()` and continue when the reason is `'action'`.
 
 <Preview path="./alert-confirm" />
 
-### Show info, warning, error, and success
+### Types
 
 Each method sets the `type`, which picks the icon and its color. Cancel stays hidden until you set `cancel`.
 
 <Preview path="./alert-types" />
 
-### Update a publish confirm when checks finish
+### Dynamic update
 
-`update` changes the open dialog when background verification passes. Include `onClick` again,
-because the next `action` replaces the previous one.
+Call `handle.update()` to modify an open dialog in place. Re-pass `onClick` when updating `action`, since the new object replaces the previous one.
 
 <Preview path="./alert-publish" />
 
-### Authorize a hardware security key
+### Centered layout
 
 `align="center"` stacks the icon and copy. `variant="subtle"` gives the action row a muted
 background and a top border.
 
 <Preview path="./alert-center" />
 
-### Type the name to confirm
+### Custom content
 
 `.custom()` replaces the inner content and still uses `props.action()` for the pending state and
 the close reason.

@@ -98,7 +98,7 @@ and nest `BaseDialog.Content` inside it. To render without a backdrop, omit `Bas
 `BaseDialog.Content` children may be JSX or a function that receives `close`. Give `BaseDialog.Content` an
 accessible name with `aria-label` or `aria-labelledby`.
 
-### Focus and outside interaction
+### Focus and dismissal
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
 technology, and native outside pointer actions are prevented. Closing restores focus to the
@@ -111,7 +111,7 @@ Escape. Both default to `true`. A `false` value blocks that gesture and reports 
 `onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to `true`. To allow
 background page interaction, set `preventScroll={false}` and omit `BaseDialog.Overlay`.
 
-### Styling and portal placement
+### Styling and portal
 
 The root renders no element. Apply `class` and object `style` to rendered parts; root `classes`
 and `styles` set their slot defaults. See [Customization](/docs/customization#the-4-layer-override-hierarchy).
@@ -119,7 +119,7 @@ and `styles` set their slot defaults. See [Customization](/docs/customization#th
 Set root `mount` for a chosen container, including controlled surfaces without a Trigger.
 `BaseDialog.Portal mount` overrides that default.
 
-### State and exit lifecycle
+### Exit lifecycle
 
 Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay
 and content exit animations to finish. Root `transition={false}` skips those animations, so the
@@ -146,41 +146,41 @@ surfaces unmount as soon as the modal closes and `onExitComplete` runs at once.
 
 ## Examples
 
-### Compose a custom surface
+### Composition
 
 Mount overlay and content in one Portal. Content children can receive `close` from the render
 callback.
 
 <Preview path="./base-dialog-composition" />
 
-### Open from parent state
+### Controlled
 
 A page button owns `open` through `onOpenChange`. Closing from inside still reports back to the
 parent.
 
 <Preview path="./controlled" />
 
-### Omit the backdrop
+### Without overlay
 
 Leave `BaseDialog.Overlay` out when the host surface already provides context.
 
 <Preview path="./no-overlay" />
 
-### Drag a window by its title bar
+### Draggable
 
-Compose a custom header that moves the surface. Reset the offset when the modal closes.
+Compose a draggable header that repositions the dialog surface and resets its offset on close.
 
 <Preview path="./draggable" />
 
-### Track exit motion from a managed modal
+### Exit lifecycle
 
-Own visibility and wait until overlay and content finish their exit animations before treating
-the modal as gone.
+Control visibility and wait for overlay and content exit animations to finish before unmounting or
+cleaning up.
 
 <Preview path="./base-dialog-lifecycle" />
 
-### Count completed exits
+### Exit callback
 
-Open from a page button and increment a counter after exit motion completes.
+Use `onExitComplete` to run side effects after exit animations finish.
 
 <Preview path="./exit-lifecycle" />

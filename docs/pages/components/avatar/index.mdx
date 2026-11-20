@@ -79,26 +79,26 @@ page.
 
 ## Examples
 
-### Recover a teammate when the photo is missing
+### Fallback
 
-Keep `alt` and initials so the row still identifies the person if `src` fails.
+Provide `alt` and initials so the avatar falls back cleanly when `src` is missing or fails to load.
 
 <Preview path="./fallback-usage" />
 
-### Track profile image load status
+### Loading status
 
-Drive nearby copy from `onStatusChange` when the page needs to know whether the photo loaded.
+Use `onStatusChange` to track image loading states (`loading`, `loaded`, or `error`).
 
 <Preview path="./loading-usage" />
 
-### Fall back after a broken photo URL
+### Icon fallback
 
-Set `icon` as a placeholder and read the `error` status when the stored URL 404s.
+Pass `icon` as a fallback placeholder and handle `error` via `onStatusChange` when the image URL fails.
 
 <Preview path="./status-change" />
 
-### Mark verified and on-call teammates
+### Badge
 
-Use `badge` for a status glyph. Place it where it will not cover the face.
+Use `badge` and `badgePosition` to display a status indicator on the avatar.
 
 <Preview path="./badge-positions" />

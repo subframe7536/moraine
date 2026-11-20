@@ -75,37 +75,37 @@ const [open, setOpen] = createSignal(true)
 
 ## Examples
 
-### Show status across every type
+### Types
 
 Render one alert per `type` to compare their colors and status icons.
 
 <Preview path="./basic" />
 
-### Add a supporting description
+### Description
 
 Pass `description` to explain the title with a second line.
 
 <Preview path="./description" />
 
-### Offer actions
+### Actions
 
 Put buttons in `actions` so the reader can respond from the alert.
 
 <Preview path="./actions" />
 
-### Let the reader dismiss an alert
+### Closable
 
 Set `closable` for a dismiss button. Drive visibility with `open` and `onOpenChange`.
 
 <Preview path="./close" />
 
-### Span a banner across the page
+### Full width
 
 Set `fullWidth` to remove the side borders and corner radius for an edge-to-edge banner.
 
 <Preview path="./full-width" />
 
-### Replace or hide the icon
+### Custom icon
 
 Pass `icon` with an icon name or element to override the status icon. Pass `icon={false}` to hide it.
 
