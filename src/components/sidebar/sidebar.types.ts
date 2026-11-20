@@ -124,7 +124,7 @@ export namespace SidebarT {
      */
     'aria-label'?: string
   }
-  export type RailProps = BaseProps<'div', RailBase, never, never, never>
+  export type RailProps = BaseProps<'button', RailBase, never, never, never>
 
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element

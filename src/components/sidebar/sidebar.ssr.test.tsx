@@ -129,6 +129,8 @@ test('renders the rail and pixel width custom property on the server', async () 
   )
   await waitFor(() => expect(container.querySelector('[data-slot="sidebar-rail"]')).not.toBeNull())
   const rail = container.querySelector<HTMLElement>('[data-slot="sidebar-rail"]')!
+  expect(rail.tagName).toBe('BUTTON')
+  expect(rail.getAttribute('type')).toBe('button')
   expect(rail.getAttribute('aria-valuenow')).toBe('256')
   expect(rail.getAttribute('aria-controls')).toBe(
     container.querySelector('[data-slot="sidebar-panel"]')?.id,
