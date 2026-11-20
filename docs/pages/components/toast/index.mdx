@@ -266,38 +266,38 @@ Toast.custom((props) => (
 
 ## Examples
 
-### Archive an item with undo
+### Action
 
-The action button restores the conversation with another toast.
+Attach an `action` button to run a callback directly from the toast.
 
 <Preview path="./archive-item" />
 
-### Track an asynchronous deployment
+### Promise
 
 `promise` swaps the loading toast for the success or error options.
 
 <Preview path="./track-deployment" />
 
-### Report distinct task outcomes
+### Types
 
 The `type` methods set the icon and the live-region role. An error toast uses `alert`. The others
 use `status`.
 
 <Preview path="./status-outcomes" />
 
-### Deduplicate rapid user actions
+### Prevent duplicate
 
 `preventDuplicate` keeps a repeated click on the front toast.
 
 <Preview path="./prevent-duplicate" />
 
-### Route notifications to a custom viewport corner
+### Custom host
 
 `hostId` sends the toast to `<Toast id="bottom-dock" />`. `Toast.close()` dismisses every toast.
 
 <Preview path="./custom-placement" />
 
-### Show upload progress
+### Custom content
 
 `.custom()` draws the progress row. The toast shell still owns stacking, swipe, and the timer.
 `duration: Infinity` keeps this one open until it is dismissed.

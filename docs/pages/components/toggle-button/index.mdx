@@ -40,7 +40,7 @@ export function Example() {
 }
 ```
 
-### Off and on variants
+### Variants
 
 `variant` sets the unpressed appearance and `activeVariant` sets the pressed appearance. Both
 accept all Button variants, and the defaults are `ghost` and `soft`. `tone` and `activeTone` pick
@@ -54,7 +54,7 @@ toggles, not a link.
 </ToggleButton>
 ```
 
-### Controlled and uncontrolled state
+### Controlled state
 
 Use `defaultPressed` to initialize an uncontrolled button. Pass `pressed` and `onPressedChange` when
 application state owns the value. Controlled activation reports the requested next value and waits
@@ -70,7 +70,7 @@ change and `onPressedChange`.
 </ToggleButton>
 ```
 
-### Icons and accessible names
+### Icons and accessibility
 
 Keep the accessible name stable while toggling. Use `aria-label` for icon-only buttons;
 `aria-pressed` then reports the on or off state. Disabled and loading buttons suppress activation.
@@ -123,20 +123,20 @@ label, and trailing elements retain the corresponding `button-*` data-slot names
 
 ## Examples
 
-### Pin a conversation
+### Controlled
 
 Own `pressed` when another control on the page must reset the same flag.
 
 <Preview path="./controlled" />
 
-### Toggle formatting and a bookmark
+### Icons
 
 Keep `aria-label` stable on icon-only toggles. Use a child render function when the glyph itself
 should change with `pressed`.
 
 <Preview path="./icons" />
 
-### Turn on notifications in a toolbar
+### Theme and groups
 
 Theme defaults can set size and variants for a page region. ButtonGroup only joins the formatting
 toggles visually.
