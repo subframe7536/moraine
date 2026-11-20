@@ -125,27 +125,26 @@ and <kbd>ArrowDown</kbd>.
 
 ## Examples
 
-### Control output volume
+### Controlled
 
-Keep a single number in local state and update it from `onValueChange`. Mute can write `0` back
-into the same signal.
+Control a single numeric value with `value` and `onValueChange`.
 
 <Preview path="./controlled-single" />
 
-### Set a numeric range
+### Range
 
 Pass an ordered pair for two thumbs. `minStepsBetweenThumbs` and `allowThumbCrossing` constrain
 whether the thumbs may overlap.
 
 <Preview path="./range-slider" />
 
-### Bind brightness to a form
+### Form
 
 Place the slider in `form.Field` so the schema owns the committed number.
 
 <Preview path="./form-integration" />
 
-### Snap volume to ticks
+### Steps and markers
 
 Set `step` so drag and keyboard land on increments. Enable `markers` to draw those ticks on the
 track.
