@@ -176,18 +176,21 @@ a count. Do not add fake application chrome or duplicate Playground controls in 
 ## Landing composition
 
 The dedicated TSX landing route explains that Moraine provides styled SolidJS components which can
-adapt to an application's design system. Lead with that promise in a centered title and description,
-followed by the primary actions and install command. Follow with a theme, recipe, and slot
-customization preview; then a mixed-size interactive component sampler and a footer with an install
-action, relevant documentation paths, and project metadata.
+adapt to an application's design system. Lead with a compact centered title and description,
+followed by primary actions and a package-manager-aware install command so the interactive theme
+workbench begins near the first viewport on both desktop and mobile. Follow with a full-width
+multi-component live preview controlled by a preset toolbar (Popover and Dialog on desktop; sticky
+preset bar and bottom Drawer on mobile `< 768px`, with single-screen scene Tabs on mobile to prevent
+excessive vertical stacking), then a focused architecture section comparing composite controls with
+granular primitives, optional peer modules, and UnoCSS/Tailwind setup, and a compact footer with
+relevant documentation paths and project metadata.
 Documentation search and the sidebar own full component discovery.
 
 The landing may use a wider measure than article pages, while keeping the same semantic colors,
 typography, spacing, focus treatment, and motion rules. Real Moraine components are its primary
 visual content. Each visible interactive control should have a meaningful local response. Use open
 sections, spacing, and quiet rules to organize the landing. Reserve card framing for actual component
-previews rather than enclosing every section in another card. The component sampler uses a square,
-ruled grid with cells of different sizes.
+previews rather than enclosing every section in another card.
 
 Do not use equal-card hero templates, generic feature-card grids, fabricated social proof, fake
 browser chrome, or decorative assets that do not explain the component library.
