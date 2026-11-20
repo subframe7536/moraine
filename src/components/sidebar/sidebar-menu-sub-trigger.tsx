@@ -9,7 +9,7 @@ import { useSidebarStyles } from './sidebar-context'
 import { SidebarMenuButton } from './sidebar-menu-button'
 import type { SidebarT } from './sidebar.types'
 
-const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'i-lucide:chevron-right'
+const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'icon-chevron-right'
 
 /**
  * Menu button that expands or collapses the enclosing `Sidebar.MenuSub`; place it before the
