@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -147,6 +147,7 @@ export namespace SelectT {
      * Shows a clear button while a value is selected (hidden during `loading`). Backspace or
      * Delete on the focused trigger clears too. Clearing calls `onValueChange(null)`, then
      * `onClear`, and returns focus to the trigger.
+     * @default false
      */
     clearable?: boolean
     /**
@@ -171,6 +172,12 @@ export namespace SelectT {
      * @default 'icon-close'
      */
     clearIcon?: IconT.Name
+    /**
+     * Receives the trigger `<button>` element — the focusable part that owns keyboard
+     * interaction — for example to focus it programmatically. The component `ref` receives the
+     * outer control `div` instead.
+     */
+    triggerRef?: Ref<HTMLButtonElement>
   }
 
   export type Props<TItem extends string | Item = string | Item> = BaseProps<

@@ -19,7 +19,7 @@ import { DefaultSelectContent } from '../shared/form/select/default-content'
 import {
   createBaseSelectStyleProps,
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
-  SELECT_LOCAL_PROP_KEYS,
+  SINGLE_SELECT_LOCAL_PROP_KEYS,
 } from '../shared/form/select/props'
 
 import { defaultSelectMessages } from './select.messages'
@@ -28,9 +28,10 @@ import type { SelectProps, SelectT } from './select.types'
 
 /**
  * Single, non-editable collection selection from a popup list. Items may be strings or
- * `{ value, label }` objects, optionally grouped. Use `Combobox` when users need to type a query,
- * `MultiSelect` for several values, and `BaseSelect` to compose the listbox yourself.
- * Wrap it in `Field` for a label, description, and validation message.
+ * `{ value, label }` objects, optionally grouped. Use `Combobox` when users need to type a query
+ * or virtualize a large collection, `MultiSelect` for several values, and `BaseSelect` to
+ * compose the listbox yourself. Wrap it in `Field` for a label, description, and validation
+ * message.
  *
  * @example
  * ```tsx
@@ -58,7 +59,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
 ): JSX.Element {
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
-    SELECT_LOCAL_PROP_KEYS,
+    SINGLE_SELECT_LOCAL_PROP_KEYS,
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
@@ -111,6 +112,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             {...triggerSlot}
+            ref={(element) => callRef(local.triggerRef, element)}
             onKeyDown={createSelectClearKeyDownHandler({
               clearable: () => local.clearable,
               canClear: hasValue,

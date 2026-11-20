@@ -88,6 +88,9 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'translations',
 ] as const
 
+/** Local props intercepted by Select only. */
+export const SINGLE_SELECT_LOCAL_PROP_KEYS = [...SELECT_LOCAL_PROP_KEYS, 'triggerRef'] as const
+
 /** Local props intercepted by Combobox. */
 export const COMBOBOX_LOCAL_PROP_KEYS = [
   ...SELECT_LOCAL_PROP_KEYS,
@@ -96,7 +99,7 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
   'defaultSearchValue',
   'onSearchValueChange',
   'searchMaxLength',
-  'autocomplete',
+  'autoComplete',
   'filterMethod',
   'openOnControlClick',
   'inputRef',

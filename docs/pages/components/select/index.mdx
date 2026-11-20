@@ -1,6 +1,6 @@
 ---
 title: Select
-description: Choose one item from a non-editable collection.
+description: Choose one item from a non-editable collection — no search input or virtual scrolling; use Combobox for those.
 group: Select
 api:
   path: src/components/select/select
@@ -147,6 +147,17 @@ for it with `onClosePrevented`. Combobox and MultiSelect accept the same props. 
 
 ```tsx
 <Select items={items} placement="top" align="end" flip={false} />
+```
+
+### Element refs
+
+`ref` receives the outer control `div`. `triggerRef` receives the trigger `<button>` — the
+focusable part that owns keyboard interaction — for example to focus it programmatically:
+
+```tsx
+let trigger!: HTMLButtonElement
+
+;<Select items={items} triggerRef={(element) => (trigger = element)} />
 ```
 
 ### Keyboard interaction
