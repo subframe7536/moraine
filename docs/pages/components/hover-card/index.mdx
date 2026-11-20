@@ -100,14 +100,14 @@ is ignored. The card itself is not keyboard reachable; keep interactive content 
 
 ## Examples
 
-### Preview a profile inside prose
+### Basic
 
-Hover or focus the link to preview the author. The trigger wraps across lines like any
-inline anchor, and the card anchors to the line the pointer entered.
+Hover or focus an inline trigger to open the card. Multi-line inline triggers anchor the card to the
+line the pointer entered.
 
 <Preview path="./profile-preview" />
 
-### Share one card across multiple triggers
+### Multiple triggers
 
 Mount one hover card instead of one per link. Put a `value` on each `Trigger` under one root and
 read it from the function children of `HoverCard.Content`: hovering another trigger moves the same
@@ -115,10 +115,9 @@ card to it.
 
 <Preview path="./multiple-triggers" />
 
-### Preview a link destination
+### Inline link
 
-Give a documentation link a small preview with the page title, a description, and the
-resolved URL. The link wraps across several lines, and the card anchors to the line the
-pointer entered.
+Attach a preview card to a wrapped inline link; the card anchors to the line segment the pointer
+entered.
 
 <Preview path="./link-preview" />

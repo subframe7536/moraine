@@ -64,16 +64,15 @@ value) to show only the `+N` count. `N` is the number of hidden items.
 
 ## Examples
 
-### Show pull request reviewers
+### Max visible
 
-Cap the stack with `maxVisible` so a long reviewer list stays in one row. The overflow count is the rest of
-the membership.
+Cap the rendered avatars with `maxVisible`. Remaining items collapse into an overflow count.
 
 <Preview path="./grouping-usage" />
 
-### Collapse reviewers to a count
+### Overflow only
 
-A positive `maxVisible` shows that many faces plus `+N`. Set `maxVisible={0}` to render only the remainder count
-when the row has no room for faces.
+A positive `maxVisible` shows that many avatars plus `+N`. Set `maxVisible={0}` to render only the
+overflow count.
 
 <Preview path="./overflow-count" />

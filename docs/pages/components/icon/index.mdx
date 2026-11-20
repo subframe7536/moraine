@@ -85,14 +85,14 @@ shortcut and the Tailwind plugin defines it as a utility. Element and component 
 
 ## Examples
 
-### Mark deploy status with class names
+### Icon classes
 
 Use Moraine aliases such as `icon-success`, or any class your UnoCSS or Tailwind setup generates
 (`i-lucide:git-branch`). Adjacent text is the accessible name when the icon is decoration.
 
 <Preview path="./sources" />
 
-### Render a custom SVG glyph
+### Custom SVG
 
 Pass a JSX element or a Solid component when the mark is not an icon-class name. It renders inside
 the Icon root. Components are rendered without props: `class`, `style`, `data-slot`, and ARIA
@@ -102,7 +102,7 @@ only indicator.
 
 <Preview path="./icon-as-jsx" />
 
-### Name a warning and hide a decorative check
+### Accessibility
 
 Keep adjacent text as the name when the icon is decoration. Set `aria-label` when the icon is the
 only indicator.

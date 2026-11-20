@@ -173,7 +173,7 @@ control in the row, such as a checkbox, so assistive technology knows the row is
 </Table.Row>
 ```
 
-### Building a data grid
+### Data grid
 
 You have two options for a sortable, filterable grid:
 
@@ -186,21 +186,20 @@ You have two options for a sortable, filterable grid:
 
 ## Examples
 
-### Review transaction invoices
+### Basic
 
-Compose a caption, header, body, and footer total. Status badges sit in a cell, and amounts are
-end-aligned in both the header and the cells.
+Compose `Table.Caption`, `Table.Header`, `Table.Body`, and `Table.Footer` with aligned columns.
 
 <Preview path="./basic" />
 
-### Truncate long header and cell values
+### Truncation and alignment
 
 Add `truncate` and a `max-w-*` class to keep long text on one line, and center or end-align
 the other columns with `align`.
 
 <Preview path="./custom-columns" />
 
-### Build a payments grid with TanStack Table
+### TanStack Table
 
 Create a TanStack table with sorting, filtering, selection, column visibility, and pagination
 features, then render it with Table parts, `Checkbox`, `Input`, `DropdownMenu`, and `Pagination`.

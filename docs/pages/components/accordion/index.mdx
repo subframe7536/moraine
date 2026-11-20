@@ -111,34 +111,32 @@ either end. Disabled items are skipped.
 
 ## Examples
 
-### Answer a workspace FAQ
+### Single
 
-Keep one section open at a time. Read `value` when surrounding copy needs to name the active topic.
+Keep one section open at a time by default.
 
 <Preview path="./single" />
 
-### Configure several workspace sections
+### Multiple
 
-Set `multiple` when operators need billing, security, and general settings open together.
+Set `multiple` to allow several sections to stay open at once.
 
 <Preview path="./multiple" />
 
-### Complete a setup checklist with a locked step
+### Disabled and custom content
 
-Use item `disabled` for sections the current plan cannot open. Put lists or callouts in `content`
-when the answer is more than a paragraph.
+Set `disabled` on individual items to prevent toggling. Pass JSX in `content` for rich layouts such as lists or callouts.
 
 <Preview path="./disabled-custom-content" />
 
-### Keep draft notes while a section closes
+### Keep mounted
 
-Set `forceMount` so inputs inside a panel keep their values across toggles.
+Set `forceMount` to keep panel content mounted and preserve local state while closed.
 
 <Preview path="./content-lifetime" />
 
-### Drive the open FAQ from page state
+### Controlled
 
-Pair `value` with `onValueChange`. The array always holds item values, even in single mode. Surrounding
-copy can read the same signal to name the active topic.
+Pair `value` with `onValueChange` to control the open items externally. The value is always an array of item values, even in single mode.
 
 <Preview path="./open-items" />

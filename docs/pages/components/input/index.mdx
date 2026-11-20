@@ -42,7 +42,7 @@ export function Example() {
 }
 ```
 
-### Native input behavior
+### Native attributes
 
 `Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and
 `defaultValue` for an initial uncontrolled value; a native form reset restores `defaultValue`.
@@ -104,27 +104,27 @@ icons into these parts and provide their labels and handlers.
 
 ## Examples
 
-### Filter a project list
+### Controlled
 
-Keep the query in local state with `value` and `onValueChange`. Filter the list from that string.
+Control the input value with `value` and `onValueChange`.
 
 <Preview path="./controlled-input" />
 
-### Reveal a deploy token
+### Visibility toggle
 
 Compose the visibility toggle yourself. InputGroup does not own the show/hide state or the
 button's label.
 
 <Preview path="./composed-controls" />
 
-### Password, search, URL, and price fields
+### InputGroup addons
 
 Compose `InputGroup` addons around Input. Your application owns visibility toggles, clear buttons,
 and unit suffixes.
 
 <Preview path="./input-with-icons" />
 
-### Validate a work email
+### Form
 
 Bind Input to `form.Field` so schema validation owns the error. Omit `name` on the input; the
 bound field supplies it.

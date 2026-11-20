@@ -129,27 +129,25 @@ visually with `hidden`.
 
 ## Examples
 
-### Choose notification channels
+### Controlled
 
-Keep the group value as an array of channel ids. Pair `value` with `onValueChange` when the page
-owns the selection.
+Pair `value` with `onValueChange` to control the selected array from page state.
 
 <Preview path="./selection-model" />
 
-### Assign locked team roles
+### Disabled items
 
-Disable an item that must stay selected. The controlled `value` still includes that item, and the
-user cannot remove it.
+Disable individual items to lock their selection state while keeping them in the controlled `value`.
 
 <Preview path="./controlled-disabled-items" />
 
-### Require at least one permission
+### Form
 
 Bind the array to `form.Field` and reject an empty selection with a `minLength` schema rule.
 
 <Preview path="./form-integration" />
 
-### Put the check at the end of alert cards
+### Trailing indicator
 
 `indicatorPosition="trailing"` places the check after the label on `variant="card"`. Use it when the card reads as
 a row with the control on the trailing edge.

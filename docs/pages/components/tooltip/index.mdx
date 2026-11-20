@@ -96,7 +96,7 @@ omitted, keycaps use `invert` if the tooltip's `variant` is `invert`, and `defau
 </Tooltip>
 ```
 
-### Delays and grouped tooltips
+### Delays and groups
 
 `openDelay` (default 600 ms) waits before opening from hover or focus, and `closeDelay` (default
 200 ms) lets the pointer move from the trigger onto the content without closing it. Set either to
@@ -115,19 +115,19 @@ the trigger dismisses the tooltip so a click does not leave it open.
 
 ## Examples
 
-### Explain a labeled command
+### Basic
 
-Hover or focus Deploy History for a longer description. The button already has a visible name.
+Hover or focus a trigger to reveal supplementary text.
 
 <Preview path="./hints-usage" />
 
-### Show a save shortcut
+### Keyboard shortcut
 
-`kbds` is display-only. Pair it with a labeled Save control.
+Pass `kbds` to display shortcut hints alongside tooltip text.
 
 <Preview path="./shortcuts-usage" />
 
-### Label editor toolbar shortcuts
+### Toolbar group
 
 Keep icon-only controls named with `aria-label`. Each tooltip repeats the command and shows its
 shortcut.

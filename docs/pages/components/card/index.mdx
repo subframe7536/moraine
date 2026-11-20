@@ -113,33 +113,33 @@ Place other actions in `Card.Footer`.
 
 ## Examples
 
-### Deploy a project from a summary card
+### Basic
 
-Pair a heading, description, and footer actions when the card is the decision surface.
+Compose `Card.Header`, `Card.Content`, and `Card.Footer` for a standard card layout.
 
 <Preview path="./card-structure" />
 
-### Publish a release announcement
+### Semantics
 
 Card does not choose a heading level. Set `as` on `Card.Title` to the level that fits the page, such
 as `h2`, and set `as="article"` on `Card` when the card is a standalone story.
 
 <Preview path="./card-semantics" />
 
-### Open a gallery item
+### With media
 
 Place media directly inside `Card` to span its width. Clip overflow on the root with `overflow-hidden`
 only if the image must follow the card radius.
 
 <Preview path="./with-image" />
 
-### Save meeting notes
+### Header action
 
-Put a header action next to the title when the command belongs to the whole record, not the footer.
+Use `Card.Action` to place a control alongside the title in the header.
 
 <Preview path="./header-action" />
 
-### Warn about storage usage
+### Custom header
 
 Replace Title and Description with custom header markup when the headline is a metric rather than a
 label.

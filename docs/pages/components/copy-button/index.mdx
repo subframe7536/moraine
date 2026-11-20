@@ -46,7 +46,7 @@ the copy fails and `onCopyError` receives the error. The `execCommand` fallback 
 <CopyButton value={async () => (await fetch('/api/share-link')).text()}>Copy share link</CopyButton>
 ```
 
-### With text and icons
+### Label and icons
 
 Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
 button at the matching icon size. `iconPosition` places the icon before (`leading`, default) or after
@@ -70,7 +70,7 @@ copy the button sets `aria-invalid` until `resetDelay` elapses.
 Inside a [ButtonGroup](/components/button-group), it inherits the group's `size`, `tone`, and
 `variant` (except `link`).
 
-### Feedback duration and icons
+### Feedback
 
 `resetDelay` sets how long the `copied` or `error` state holds, in milliseconds; it defaults to 2000. Set `icon` for the idle glyph and `copiedIcon` for the copied glyph. Pass `icon={false}` to hide
 the icon. Use `onCopySuccess`, `onCopyError`, and `onStatusChange` (which receives the new status) to react
@@ -85,7 +85,7 @@ to the result.
 />
 ```
 
-### Headless hook: `createCopy`
+### `createCopy` hook
 
 [createCopy](/hooks/create-copy) from `moraine/utils` runs the same copy logic without a button. It
 returns `copy` and `reset`, plus the `isCopied`, `isError`, `status`, `error`, and `isSupported`
@@ -105,20 +105,20 @@ copy.copy('Hello world')
 
 ## Examples
 
-### Copy a command from a read-only field
+### Basic
 
-Pair a read-only `Input` with an icon-only CopyButton so the user can read and copy the command.
+Pair an icon-only `CopyButton` with a read-only `Input` to copy text on click.
 
 <Preview path="./copy-button-usage" />
 
-### Swap icons and hold the copied state longer
+### Custom icons and delay
 
 Set `icon` and `copiedIcon` for the two states, and raise `resetDelay` to keep the confirmation
 visible.
 
 <Preview path="./custom-icons" />
 
-### Change the label while copied
+### Dynamic label
 
 Pass a function child to read `state.copied` and show different label text after a copy. Set
 `iconPosition="trailing"` to move the icon after the label.

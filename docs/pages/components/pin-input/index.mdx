@@ -47,7 +47,7 @@ the control with a `<form>` outside its ancestors. A native form reset restores 
 <PinInput length={4} value={code()} onValueChange={(chars) => setCode(chars.join(''))} />
 ```
 
-### Validation type and mask
+### Validation and mask
 
 `validationType` controls which characters a slot accepts: `'number'` (digits), `'alpha'` (letters),
 `'alphanumeric'`, or `'text'` (any non-whitespace character, the default). It also picks the default
@@ -69,7 +69,7 @@ Use `otp` to set `autocomplete="one-time-code"`, so mobile devices can fill code
 The hidden input, rendered when `name` is set, also accepts pasted or autofilled full codes and
 distributes them across the slots.
 
-### Normalization and invalid input
+### Invalid input
 
 Use `normalizeValue` to transform proposed values after `validationType` filtering, and
 `onValueInvalid` to observe refused characters, with a `reason` of
@@ -135,25 +135,25 @@ from the focused one.
 
 ## Examples
 
-### One-Time Password verification
+### OTP
 
 Use `otp` and `groupSize` for a standard 6-digit SMS verification code.
 
 <Preview path="./otp-example" />
 
-### Form integration and validation
+### Form
 
 Place `PinInput` inside `form.Field` with a validation schema so submission requires every slot to be filled.
 
 <Preview path="./form-integration" />
 
-### Masked PIN for security
+### Masked
 
 Use `mask` to hide the entered characters for sensitive passcodes and PINs.
 
 <Preview path="./masked" />
 
-### Alphanumeric recovery key
+### Alphanumeric
 
 Use `validationType="alphanumeric"` to accept letters and digits in backup keys and recovery codes.
 

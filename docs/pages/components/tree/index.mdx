@@ -445,70 +445,70 @@ disabled ones. In right-to-left layouts, <kbd>ArrowLeft</kbd> and <kbd>ArrowRigh
 
 ## Examples
 
-### Browse project files
+### Basic
 
 Describe nested data with `getKey` and `getChildren`, then render `tree.Tree`. Clicking a branch
 row or its chevron toggles it.
 
 <Preview path="./basic" />
 
-### Drive expansion from page state
+### Controlled expansion
 
 Control `expandedKeys` with `onExpandedKeysChange`, and call `expandAll`, `collapseAll`, or `expandTo`
 from toolbar buttons.
 
 <Preview path="./expanded" />
 
-### Expand only from the chevron
+### Chevron-only expand
 
 Set `expandOnClick: false` so clicking a row selects it and only the chevron expands or collapses
 it.
 
 <Preview path="./trigger-expand" />
 
-### Select several folders
+### Multiple selection
 
 Set `selectionMode: 'multiple'` and `expandOnClick: false` so row clicks only change the
 selection. Use <kbd>Ctrl</kbd>, <kbd>Cmd</kbd>, or <kbd>Shift</kbd> clicks to select more.
 
 <Preview path="./selection" />
 
-### Grant permissions with cascading checkboxes
+### Checkboxes
 
 Set `checkable: true` and `selectionMode: 'none'`. Checking a group checks everything inside it,
 and partly checked groups show an indeterminate state.
 
 <Preview path="./checkable" />
 
-### Load folders on demand
+### Lazy loading
 
 Provide `loadChildren` and mark files with `isLeaf`. Each folder loads the first time it expands
 and shows a loading icon until its children arrive.
 
 <Preview path="./async-load" />
 
-### Render ten thousand rows
+### Virtualization
 
 Pass a `virtualizer` from `createListVirtualizer`, and give the tree a bounded
 height. Expanded branches join the same virtual list.
 
 <Preview path="./virtual" />
 
-### Move files and folders by dragging
+### Drag and drop
 
-Drag a grip, or Tab to it and press Space, then the arrow keys. Only folders accept drops inside,
-and hovering over the collapsed `docs` folder opens it.
+Drag a handle—or focus it and use Space and arrow keys—to reorder or nest items. Hovering over a
+collapsed branch opens it automatically.
 
 <Preview path="./sortable" />
 
-### Add counts and custom icons
+### Custom items
 
 Return a `tree.Item` from `itemRender` and compose the bound parts with your own content, such as a
 `Badge` with a count and a `tree.ItemIcon` per item.
 
 <Preview path="./custom-item" />
 
-### Add row actions
+### Row actions
 
 Pass `actionRender` to add a button and a dropdown menu to each row. The `action` slot hides them
 until the row is hovered, focused, or its menu is open. Each control sets

@@ -30,7 +30,7 @@ continue to support search, SEO, and agent Markdown.
 
 Component pages lead with PageHeader, then Playground for simple visual changes. Optional annotated
 Anatomy follows Playground. Usage is text and fenced code only: it teaches when to use the component
-and how to compose it. Examples follow Usage with real application tasks and copyable Preview source.
+and how to compose it. Examples follow Usage with feature-oriented headings, realistic scenarios, and copyable Preview source.
 Generated API tables are grouped under API Reference as Attributes, then Props. Keep a single source
 for web and agent output.
 Render Anatomy as a copyable text code block using the same tree as agent Markdown.
@@ -167,8 +167,9 @@ labels occupy a full row. On desktop, stack both groups in one column. Keep swit
 line and preserve the visual order in keyboard navigation. Slot badges wrap within the control pane.
 
 Keep `Usage` free of Preview widgets. Use fenced TSX there to teach API choices. Put live Previews
-only in `Examples`, each as a useful application task, complex composition, state transition, or
-layout constraint. A Preview is the copyable TSX source; keep its data and helpers in the same file.
+only in `Examples`, using concise feature-oriented headings (e.g. `Controlled`, `With icon`,
+`Virtualization`) rather than describing the demo's fictional scenario, while keeping each
+Preview a realistic task, composition, state transition, or layout constraint. A Preview is the copyable TSX source; keep its data and helpers in the same file.
 Prefer replacing a redundant prop demonstration with a realistic task over adding examples to reach
 a count. Do not add fake application chrome or duplicate Playground controls in standalone examples.
 

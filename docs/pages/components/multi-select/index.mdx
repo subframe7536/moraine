@@ -103,7 +103,7 @@ export function Example() {
 }
 ```
 
-### Values and tag lifecycle
+### Values and tags
 
 `value` is the array of selected item values, in selection order. An empty array means no
 selection, and an empty string can be an item value. Pair `value` with `onValueChange` for controlled
@@ -147,7 +147,7 @@ enables creation. It also filters the list, so `searchable` adds nothing once `c
 on click. An editable control focuses its input on click and opens from typing, the chevron button,
 or ArrowDown. Set `openOnControlClick` explicitly to change either default.
 
-### Item creation and delimiters
+### Delimiters
 
 `createItem` receives the trimmed query text when the user commits text that matches no existing item
 by label or value, and returns the `TItem` to select. The item is added to the top of the option list
@@ -189,20 +189,20 @@ for setup, row measurement, stable keys, and keyboard navigation.
 
 ## Examples
 
-### Color issue labels
+### Custom tags
 
 Use `tagRender` to style tags from item data such as a color class. Selected values still come
 from the collection.
 
 <Preview path="./custom-tags" />
 
-### Assign project members
+### Item descriptions
 
-Search teammates and keep each selection as a tag. Put the email or role in `description`.
+Show secondary item metadata with `description` while rendering each selected option as a tag.
 
 <Preview path="./user-chips" />
 
-### Cap selection and visible tags
+### Max values and overflow
 
 `maxValues` blocks additional selections by disabling unselected options. `maxVisible` is visual:
 surplus selections stay committed and collapse into a `+N` summary. Use `tagOverflowRender` to
@@ -210,41 +210,41 @@ render the hidden tags yourself, for example in a tooltip.
 
 <Preview path="./max-values-max-visible" />
 
-### Create a missing topic
+### Create items
 
 Pass `createItem` and an `emptyRender` action so unmatched text can become a collection item.
 The `create` function in the `emptyRender` state runs `createItem` for the current search text.
 
 <Preview path="./create-new-tags" />
 
-### Enter free-form tags
+### Free-form tags
 
 With no predefined items, combine `createItem` and `tokenSeparators` for a tag input. Comma, space,
 and paste all create tokens.
 
 <Preview path="./free-form-tags" />
 
-### Grant grouped permissions
+### Groups
 
-Organize a large permission set with `type: 'group'`. Group labels are not selectable.
+Organize options with `type: 'group'`. Group labels are non-selectable.
 
 <Preview path="./grouped-items" />
 
-### Lock required modules
+### Disabled and read-only
 
 Disable an option to keep it in the list without allowing toggle. `disabled` and `readOnly` on the
 root freeze the whole control.
 
 <Preview path="./clear-and-disabled" />
 
-### Search a large collection
+### Virtualization
 
 Pass a `createListVirtualizer` instance as `virtualizer` when opening or scrolling the full list is
 slow.
 
 <Preview path="./virtualization" />
 
-### Require a minimum number of tags
+### Form
 
 Validate the selected array with `createForm`. Use a `minLength` schema rule to fail short
 selections; `required` only checks that something is selected. A selection made only of disabled

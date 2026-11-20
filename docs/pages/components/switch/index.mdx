@@ -71,7 +71,7 @@ otherwise `'on'`.
 <Switch trueValue="enabled" falseValue="disabled" label="Deployment gate" />
 ```
 
-### Loading ownership
+### Loading
 
 While `loading` is set, the switch is non-interactive and shows `loadingIcon` on the thumb in place
 of `checkedIcon` or `uncheckedIcon`. Drive `loading` from the application; the switch does not start
@@ -88,34 +88,34 @@ or track the async operation itself.
 
 ## Examples
 
-### Toggle deploy protection
+### Controlled
 
 Keep the setting in local state with `checked` and `onCheckedChange`. Use `defaultChecked` only
 when the switch owns its initial value.
 
 <Preview path="./controlled" />
 
-### Store a deployment gate as domain values
+### Custom values
 
 Map on and off to application strings with `trueValue` and `falseValue`. Callbacks then receive
 those strings instead of booleans.
 
 <Preview path="./custom-true-false-values" />
 
-### Show a pending auto-deploy
+### Loading
 
 Drive `loading` from the in-flight request. The switch does not start an async operation by itself.
 
 <Preview path="./loading-state" />
 
-### Mark on and off with icons
+### Custom icons
 
 Pass `checkedIcon` and `uncheckedIcon` to show a mark on the thumb for each state. Loading still
 comes from application state.
 
 <Preview path="./loading-icons" />
 
-### Save auto-renewal
+### Form
 
 Bind the switch to `form.Field` so submit reads a boolean from the schema.
 

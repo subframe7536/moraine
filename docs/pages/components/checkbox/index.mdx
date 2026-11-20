@@ -55,7 +55,7 @@ export function Example() {
 }
 ```
 
-### State and form values
+### State and forms
 
 Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
 Pass `checked="indeterminate"` from aggregate selection state; it shows the mixed presentation
@@ -76,7 +76,7 @@ while `disabled` or `readOnly`, and toggling from `'indeterminate'` checks the b
 <Checkbox trueValue="opted-in" falseValue="opted-out" label="Anonymous telemetry" />
 ```
 
-### Label, description, and layout
+### Layout
 
 `label` and `description` render beside the control and link to it for assistive technology. Set
 `variant="card"` to draw a bordered card whose whole surface toggles the checkbox, except for
@@ -104,42 +104,40 @@ preserves the value and focusability while preventing changes.
 
 ## Examples
 
-### Complete a deployment checklist
+### Indeterminate and custom icons
 
-Drive a parent checkbox from child task state. Pass `checked="indeterminate"` when some but not all
-tasks are done. `checkedIcon` and `indeterminateIcon` replace the default marks.
+Pass `checked="indeterminate"` for partial selection states, and override the default marks with
+`checkedIcon` and `indeterminateIcon`.
 
 <Preview path="./indeterminate-custom-icons" />
 
-### Store telemetry as domain values
+### Custom values
 
 Map checked and unchecked to application strings with `trueValue` and `falseValue`. Callbacks and
 schema fields then receive those strings instead of booleans.
 
 <Preview path="./custom-true-false-values" />
 
-### Save cookie consent for Consent Mode
+### Custom values in form
 
-Consent Mode reads each consent type as `'granted'` or `'denied'`. Set `trueValue="granted"` and
-`falseValue="denied"` inside `form.Field`. The schema validates and submits those strings directly,
-so the output goes straight to `gtag('consent', 'update', ...)` without a boolean mapping step.
+Combine `trueValue` and `falseValue` with `form.Field` so schema validation and form submission use
+custom string values directly without boolean mapping.
 
 <Preview path="./consent-preferences" />
 
-### Require terms on submit
+### Form
 
-Bind the checkbox to `form.Field` and reject `false` in the schema so submit cannot proceed until
-the terms are accepted.
+Bind Checkbox to `form.Field` to validate required acceptance through the form schema.
 
 <Preview path="./form-integration" />
 
-### Subscribe to product updates
+### Controlled
 
-Own `checked` in the page when nearby copy must reflect the same boolean.
+Control `checked` with `onCheckedChange` to sync state with surrounding UI.
 
 <Preview path="./state-and-values" />
 
-### Lock a policy versus show a read-only copy
+### Disabled and read-only
 
 `disabled` removes the control from interaction and native submit. `readOnly` stays focusable and
 submits, but rejects changes.

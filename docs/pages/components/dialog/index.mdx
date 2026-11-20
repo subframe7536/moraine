@@ -133,7 +133,7 @@ Content's automatic corner close button. Set root `closable={false}` to hide the
 with root `translations`. See [Localization](/docs/localization). Root `transition={false}` turns
 off the enter and exit animations, so content and overlay unmount as soon as the dialog closes.
 
-### Focus and outside interaction
+### Focus and dismissal
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
 technology, and native outside pointer actions are prevented. Closing restores focus to the trigger.
@@ -145,7 +145,7 @@ dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close request
 `true`. Scroll locking is independent: `preventScroll` defaults to `true`. For interaction with the
 background page, also set `preventScroll={false}` and `overlay={false}`.
 
-### Styling and portal placement
+### Styling and portal
 
 Apply `class` and object `style` directly to each rendered part. Root `classes` and `styles` set
 slot defaults for every part: `trigger`, `overlay`, `content`, `header`, `title`, `description`,
@@ -199,7 +199,7 @@ either one is blocked.
 </Dialog>
 ```
 
-### Structure and lifecycle
+### Lifecycle
 
 Use root `scrollable` for long content or `fullscreen` for a full-viewport task. `onExitComplete`
 runs after the overlay and content finish their exit animations.
@@ -223,42 +223,41 @@ runs after the overlay and content finish their exit animations.
 
 ## Examples
 
-### Delete a saved filter
+### Basic
 
-Keep the filter visible until the user confirms. Cancel and backdrop dismissal leave it intact.
+Use `Dialog.Trigger`, `Dialog.Content`, and footer actions for a confirmation flow.
 
 <Preview path="./delete-confirmation" />
 
-### Confirm workspace changes from settings
+### Nested overlays
 
 Nest a confirmation dialog and a help popover inside a parent dialog. Escape closes the topmost
 layer and restores focus to its trigger.
 
 <Preview path="./nested-overlays" />
 
-### Save unsaved configuration
+### Prevent dismissal
 
 Own visibility from the page. Toggle `closeOnOverlayClick` and `closeOnEscape` together to block
 outside clicks and Escape. `onClosePrevented` counts blocked attempts until Save or Discard.
 
 <Preview path="./state-dismissal" />
 
-### Read long release notes
+### Scrollable and fullscreen
 
 Use `scrollable` so long content scrolls with the overlay, or `fullscreen` for a full-viewport
 task.
 
 <Preview path="./scrollable-fullscreen" />
 
-### Provision a cluster and wait for exit
+### Exit lifecycle
 
-Open a provisioning dialog from its trigger. `onExitComplete` updates status after overlay and
-content finish their exit animations.
+Use `onExitComplete` to react after overlay and content exit animations complete.
 
 <Preview path="./structure-lifecycle" />
 
-### Open a dialog from page state
+### Controlled
 
-A page button owns `open`. The completed-exit count updates after exit motion finishes.
+Control `open` from external state and track finished exits with `onExitComplete`.
 
 <Preview path="./controlled-lifecycle" />

@@ -178,44 +178,43 @@ content opens.
 
 ## Examples
 
-### Open account actions
+### Basic
 
-Compose a visible trigger with profile, billing, and shortcut items.
+Compose a trigger with grouped items, labels, and keyboard shortcut hints.
 
 <Preview path="./trigger-items" />
 
-### Toggle bookmarks and choose a theme
+### Stateful items and submenus
 
 Keep checkbox and radio values in application state. Nested children open a theme submenu.
 
 <Preview path="./stateful-items" />
 
-### Customize a workspace project view
+### Stateful menu
 
-Toggle visible fields, include archived projects, and choose a sort order. The list updates from
-application-owned state; saving a shared view stays disabled for viewers.
+Combine checkbox items, radio groups, and disabled items driven by application state.
 
 <Preview path="./workspace-view" />
 
-### Switch layout and show archived
+### Checkbox and radio
 
 Checkbox and radio items update a live status line next to the trigger.
 
 <Preview path="./checkbox-radio" />
 
-### Move a file into a folder
+### Submenus
 
-Nested children open a folder submenu. Download stays on the root menu.
+Pass nested `children` on an item to open a submenu.
 
 <Preview path="./submenus" />
 
-### Share with a disabled export
+### Shortcuts and disabled items
 
-`kbds` displays shortcut notation. A disabled Export item stays visible but cannot be activated.
+Display shortcut hints with `kbds` and prevent activation on individual items with `disabled`.
 
 <Preview path="./shortcuts-disabled" />
 
-### Header and footer slots
+### Header and footer
 
 Use `headerRender` and `footerRender` on `DropdownMenu.Content` to pin a user identity
 banner, search input, or status bar above and below the scrollable menu items.

@@ -75,7 +75,7 @@ export function Example() {
 }
 ```
 
-### Panels and direct links
+### Panels and links
 
 Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and
 `NavigationMenu.Link` for its destinations; a link can also sit directly in a `NavigationMenu.Item`.
@@ -133,7 +133,7 @@ the triggers.
 </NavigationMenu>
 ```
 
-### Hover timing and positioning
+### Hover and positioning
 
 Panels open on hover after `openDelay` (default `50` ms) while no panel is open; hovering another
 trigger while a panel is open switches immediately, and click or keyboard activation never waits.
@@ -174,33 +174,32 @@ Tab and Shift+Tab preserve the order between the trigger, its portaled content a
 
 ## Examples
 
-### Product and docs header
+### Basic
 
-Mix a two-column product panel, a shorter guides panel, and a direct Documentation link. Mark the
-current page with `active`.
+Combine dropdown panels, direct links, and `active` state on the current page.
 
 <Preview path="./basic" />
 
-### Open the account panel from page state
+### Controlled
 
-Drive the open item with `value` and `onValueChange`. Close with `null`. A disabled Billing item
-cannot stay open.
+Control the active item with `value` and `onValueChange` (pass `null` to close). Disabled items
+cannot open.
 
 <Preview path="./controlled" />
 
-### Vertical docs navigation
+### Vertical
 
 Stack triggers in a vertical list and place panels to the right.
 
 <Preview path="./orientation" />
 
-### Route documentation links
+### Custom links
 
 Forward NavigationMenu link props through Solid Router's `A`. Keep `href` on `NavigationMenu.Link`.
 
 <Preview path="./router-link" />
 
-### Inherit RTL for a product header
+### RTL
 
 Wrap the menu in `dir="rtl"`. Triggers, panels, and links follow the writing direction without extra
 props.

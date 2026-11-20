@@ -110,7 +110,7 @@ submission, so derive button loading or disabled state from `form.isSubmitting`.
 in your Theme. The root sets `data-submitting` while `form.isSubmitting` is `true`. Style the parts
 of a field through the slot maps on `form.Field`.
 
-### Bound field outside the form root
+### External fields
 
 `form.Field` captures the Formisch store from `createForm()`, so it works without rendering
 `form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
@@ -123,7 +123,7 @@ const form = createForm({ schema })
 </form.Field>
 ```
 
-### Field labels and messages
+### Labels and messages
 
 `<form.Field>` accepts every [Field](/components/field) prop except `name`, which takes a schema
 path: `label`, `hint`, `description`, `help`, `required`, `orientation`, and so on. Its error is the
@@ -141,7 +141,7 @@ through ARIA attributes.
 </form.Field>
 ```
 
-### Nested and array paths
+### Nested paths
 
 Target nested object and array fields with a path array such as `['profile', 'email']` or
 `['tags', 0]`. Path types are validated and autocompleted from the schema. A dotted string like
@@ -172,66 +172,66 @@ The restore runs in a microtask after the `reset` event and is skipped if a hand
 
 ## Examples
 
-### Save a username
+### Basic
 
 Define a schema and `initialInput`, then render the bound `form.Form` and `form.Field`. Submit
 receives the validated output.
 
 <Preview path="./basic-form" />
 
-### Configure field copy
+### Labels and messages
 
 Set `label`, `hint`, `description`, `help`, and `required` on `form.Field`. Pass `error` only when
 the page or server supplies a message outside the schema.
 
 <Preview path="./labels-messages" />
 
-### Lay out a settings panel
+### Horizontal
 
 Set `orientation="horizontal"` so the label sits beside the control.
 
 <Preview path="./horizontal-layout" />
 
-### Edit nested profile fields
+### Nested paths
 
 Pass a path tuple such as `['profile', 'email']` when the schema nests objects.
 
 <Preview path="./nested-path" />
 
-### Save a draft with loading
+### Async submit
 
 Read `form.isSubmitting` for the submit button. The form does not disable nested controls on its
 own.
 
 <Preview path="./async-submit" />
 
-### Restore the initial snapshot
+### Reset
 
 A `type="reset"` button restores `initialInput` and clears validation metadata.
 
 <Preview path="./reset" />
 
-### Validate name and email
+### Validation
 
 Schema messages surface on the bound field after submit or configured input validation.
 
 <Preview path="./validation" />
 
-### Show a server error on a token
+### Manual error
 
 Pass an application or server string to `form.Field error={...}` to force an error outside the
 schema.
 
 <Preview path="./manual-error" />
 
-### Change the control from field error
+### Render function
 
 Give `form.Field` a child render function to read `{ error }` while the control still inherits the
 bound field state.
 
 <Preview path="./render-context" />
 
-### Create a project with mixed controls
+### Mixed controls
 
 Compose `Input`, `Textarea`, `Select`, and `Checkbox` in one schema-validated form.
 

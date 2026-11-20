@@ -78,7 +78,7 @@ eagerly can emit markup the hydrated tree does not expect.
 />
 ```
 
-### Activation and keyboard navigation
+### Activation and keyboard
 
 `activationMode="automatic"` (the default) selects a tab as arrow navigation moves focus. In manual
 mode, arrows move focus and Enter or Space selects. `loop` (default `true`) wraps navigation at the
@@ -98,22 +98,20 @@ first and last enabled tabs. The arrow keys that move focus follow the list `ori
 
 ## Examples
 
-### Account settings owned by page state
+### Controlled
 
-Keep Account, Security, and Billing on one page. Store the selected tab in local state.
+Control the active tab with `value` and `onValueChange`.
 
 <Preview path="./selection-usage" />
 
-### Browse dashboard tabs as focus moves
+### Automatic activation
 
-`activationMode="automatic"` selects Overview, Analytics, or Logs while arrow keys move focus. Use
-this for lightweight inspection panels.
+`activationMode="automatic"` activates each tab immediately as arrow keys move focus.
 
 <Preview path="./activation-usage" />
 
-### Confirm a settings tab with Enter
+### Manual activation
 
-`activationMode="manual"` keeps the current panel until Enter or Space. Use it when switching tabs
-should be an explicit commit, as in a settings wizard.
+`activationMode="manual"` moves focus with arrow keys and switches panels only on Enter or Space.
 
 <Preview path="./activation-mode" />

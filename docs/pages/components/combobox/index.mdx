@@ -175,28 +175,27 @@ for setup, row measurement, stable keys, and keyboard navigation.
 
 ## Examples
 
-### Search a framework
+### Basic
 
 Filter a local collection as the user types. `clearable` removes the committed value and the
 query text.
 
 <Preview path="./basic" />
 
-### Pick an issue status
+### Rich items
 
 Put `icon` and `description` on each item when the option needs a status mark and secondary line.
 
 <Preview path="./custom-items" />
 
-### Assign a teammate
+### Item descriptions
 
-Search people by name; each item's `description` shows the email and role. The default filter
-matches the label only. Set `openOnControlClick` to open the list as soon as the user clicks the
-control.
+Display secondary text with `description` on each item. The default filter matches `label`; set
+`openOnControlClick` to open the popup when clicking anywhere on the control.
 
 <Preview path="./user-picker" />
 
-### Match by contains or prefix
+### Filter methods
 
 `filterMethod` defaults to `'contains'`, which matches the query anywhere in the label. Set
 `'startsWith'` or `'endsWith'` to match only at that end of the label, or pass a predicate for
@@ -204,27 +203,27 @@ custom matching.
 
 <Preview path="./filter-strategies" />
 
-### Search remote repositories
+### Async search
 
 Drive `searchValue`, `onSearchValueChange`, and `loading` from a debounced request. Set
 `filterMethod={false}` when the server already returns the matched items.
 
 <Preview path="./async-search" />
 
-### Browse grouped technologies
+### Groups
 
 Organize options into `type: 'group'` entries. Use `emptyRender` to customize the empty state when
 the query has no matches.
 
 <Preview path="./groups" />
 
-### Search a large collection
+### Virtualization
 
 Pass a `createListVirtualizer` instance as `virtualizer` when rendering every row on open is slow.
 
 <Preview path="./virtualization" />
 
-### Bind a searchable field to a form
+### Form
 
 Use `form.Field` from `createForm` when the selected value needs schema validation and error
 display. `required` is satisfied by any selected item, including a disabled one. In that case the
@@ -233,21 +232,21 @@ disabled selected option.
 
 <Preview path="./form-integration" />
 
-### Keep the query separate from the committed value
+### Controlled query
 
 `value` is the selected item. `searchValue` is the text in the field. Reset both when the page
 clears the picker.
 
 <Preview path="./usage-query" />
 
-### Open the list from the whole field
+### Open on click
 
 By default, typing and the chevron button open the popup. Set `openOnControlClick` when a click
 anywhere on the control should open it, as in an assignee picker.
 
 <Preview path="./explicit-trigger" />
 
-### Accept string labels or mixed items
+### String items
 
 Pass a string array when the label is the value. Mix strings, item objects, and `type: 'group'`
 entries in one `items` list.

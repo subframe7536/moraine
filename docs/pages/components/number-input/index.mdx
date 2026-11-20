@@ -106,27 +106,27 @@ Keys have no effect while the control is disabled or read-only.
 
 ## Examples
 
-### Set a cart quantity
+### Controlled
 
 Keep the count in local state with `onValueChange`. Bound it with `min` and `max`.
 
 <Preview path="./controlled" />
 
-### Edit a retry delay
+### Keyboard stepping
 
 Use `step` for the arrow keys and `largeStep` for PageUp and PageDown. Home and End jump to the
 `min` and `max` bounds.
 
 <Preview path="./keyboard-stepping" />
 
-### Hold to change a count
+### Hold to repeat
 
 Hold-to-repeat is on by default. Tune it with `repeat={{ delay, interval, throttle, pointerTypes }}`
 or pass `repeat={false}` to step once per click.
 
 <Preview path="./long-press" />
 
-### Bind a numeric field
+### Form
 
 Place NumberInput in `form.Field` so the schema owns the committed number.
 

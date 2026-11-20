@@ -104,27 +104,25 @@ labels and messages without binding a form store.
 
 ## Examples
 
-### Choose a billing plan
+### Controlled
 
-Keep one string value for the selected plan. Pair `value` with `onValueChange` when the page owns
-the choice.
+Pair `value` with `onValueChange` to control the selected option from page state.
 
 <Preview path="./selection" />
 
-### Pick a plan with a locked starter tier
+### Disabled item
 
-Disable a legacy option so it stays visible but cannot be selected. Horizontal `table` layout works
-for a short plan comparison.
+Set `disabled` on individual items to keep them visible without allowing selection.
 
 <Preview path="./controlled-disabled" />
 
-### Bind a deployment environment
+### Form
 
-Place the group in `form.Field` so schema validation owns the required environment value.
+Place `RadioGroup` in `form.Field` so schema validation owns the selected value.
 
 <Preview path="./form-integration" />
 
-### Compare plans with the mark at the end
+### Indicator position
 
 `indicatorPosition="trailing"` puts the radio on the trailing edge of a card option. Use `hidden` when the card
 itself is the selected affordance.

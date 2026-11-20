@@ -137,7 +137,7 @@ fires while the select is disabled or read-only.
 `loading` swaps the `trailing` icon for `loadingIcon` and hides the clear button. It does not
 disable the select.
 
-### Popup positioning and dismissal
+### Positioning and dismissal
 
 The popup opens below the control and aligns to its start edge. `placement`, `align`, `gutter`,
 `shift`, `flip`, `slide`, and `overflowPadding` adjust that position. `closeOnEscape` and
@@ -164,34 +164,34 @@ for it with `onClosePrevented`. Combobox and MultiSelect accept the same props. 
 
 ## Examples
 
-### Choose a subscription plan
+### Rich items
 
 Put an `icon` and `description` on each item when the choice needs more than a label. No custom
 item template is required.
 
 <Preview path="./rich-items" />
 
-### Assign a member role
+### Basic
 
-Pick one permission role from a short collection. Keep the selected value as the role id.
+Select a single value from a list of item objects.
 
 <Preview path="./user-assignee" />
 
-### Choose a workspace timezone
+### Groups and separators
 
 Organize options with `type: 'group'`. Insert `{ type: 'separator' }` between groups or items.
 Group labels and separators are excluded from selection and keyboard navigation.
 
 <Preview path="./grouped-items" />
 
-### Load more options on scroll
+### Infinite scroll
 
 Use `onBottomReached` and `scrollThreshold` to append pages as the listbox approaches the
 bottom. Drive `loading` from the in-flight request.
 
 <Preview path="./infinite-scroll" />
 
-### Bind an empty select to a form
+### Form
 
 For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the
 schema. `required` is satisfied by any selected value, including one whose item is disabled. In that
@@ -200,20 +200,20 @@ a disabled selected option.
 
 <Preview path="./form-integration" />
 
-### Own the selected country code
+### Controlled
 
 Pair `value` with `onValueChange`. Clearing writes `null`. Nearby copy can read the same signal.
 
 <Preview path="./usage-value" />
 
-### Accept string labels or mixed items
+### String items
 
 Pass a string array when the label is the value. Mix strings, item objects, and `type: 'group'`
 entries in one `items` list.
 
 <Preview path="./string-items" />
 
-### Custom option and empty state renderers
+### Custom renderers
 
 Use `itemRender` to customize row content with badges or status details. Use `emptyRender` to
 render a message or recovery action when `items` is empty.

@@ -41,7 +41,7 @@ export function Example() {
 }
 ```
 
-### Native text behavior
+### Native attributes
 
 `Textarea` forwards native textarea attributes and works with controlled or uncontrolled values.
 Pair `value` with `onValueChange` for controlled text, or use `defaultValue`; a native form reset
@@ -77,27 +77,27 @@ Your application owns counters, submit buttons, and keyboard shortcuts.
 
 ## Examples
 
-### Draft a release announcement
+### Auto-resize
 
-Turn on `autoResize` and cap growth with `maxRows`. Keep the draft in local state.
+Enable `autoResize` and cap vertical growth with `maxRows`.
 
 <Preview path="./autoresize" />
 
-### Chat, message, and code panes
+### Header and footer
 
 Use a vertical InputGroup for a header, a footer, or both around the textarea. The textarea still
 owns the value.
 
 <Preview path="./header-footer" />
 
-### Count remaining characters
+### Character count
 
 Keep the count in application state. `InputGroup.Trailing` is a place to render it; Moraine has no
 built-in counter.
 
 <Preview path="./character-count" />
 
-### Bind a description field
+### Form
 
 Place Textarea in `form.Field` so schema validation owns the error.
 

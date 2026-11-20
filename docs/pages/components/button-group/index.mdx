@@ -84,13 +84,13 @@ It renders a `div` with `role="separator"`.
 
 ## Examples
 
-### Group document actions
+### Basic
 
-Join copy, duplicate, and archive so they read as one set of file commands.
+Group related buttons into a single connected control bar.
 
 <Preview path="./group-composition" />
 
-### Format selected text
+### Toggle buttons
 
 Compose ToggleButton children for independently pressed actions. They inherit the group's `size`,
 `tone`, and `variant` (the unpressed appearance); `activeVariant` controls each button's pressed
@@ -98,26 +98,26 @@ appearance.
 
 <Preview path="./toggle-buttons" />
 
-### Split clipboard actions
+### Separator
 
-Use a separator to distinguish copy from paste without changing either button's semantics.
+Insert `ButtonGroup.Separator` to visually divide buttons within a group.
 
 <Preview path="./separator" />
 
-### Export a report with format options
+### With dropdown
 
-Keep the primary export command on a Button and attach extra formats through a dropdown trigger.
+Pair a primary `Button` with a `DropdownMenu.Trigger` for split-button actions.
 
 <Preview path="./button-dropdown" />
 
-### Save a document with extra options
+### With popover
 
-Attach a popover trigger when the extra action opens a short panel rather than a menu of commands.
+Attach a `Popover.Trigger` to open a compact panel alongside a primary button.
 
 <Preview path="./button-popover" />
 
-### Zoom a canvas from a vertical toolbar
+### Vertical
 
-Set `orientation="vertical"` for stacked icon controls such as zoom.
+Set `orientation="vertical"` to stack buttons in a vertical group.
 
 <Preview path="./vertical" />

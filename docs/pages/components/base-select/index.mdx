@@ -108,7 +108,7 @@ export function Example() {
 }
 ```
 
-### Values and form submission
+### Values and forms
 
 `value`, `defaultValue`, and `onValueChange` always use arrays, even for single selection; without
 `multiple`, only the first entry is used. `value={undefined}` keeps the selection uncontrolled and
@@ -116,7 +116,7 @@ export function Example() {
 `multiple` or `closeOnSelect={false}`. Set `name` to submit the selection with the enclosing native
 form; use `serializeValue` to change or omit a submitted value.
 
-### Control and focus ownership
+### Control and focus
 
 Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
 own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
@@ -156,7 +156,7 @@ through render state, and arbitrary item fields never leak into DOM attributes:
 `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`.
 Without children, Item renders `item.label`.
 
-### Filtered collections
+### Filtering
 
 `items` is the flat list of every item you render as `BaseSelect.Item`; an item whose value is not
 in `items` cannot be selected. By default, `items` is both the canonical data source and the active
@@ -185,28 +185,28 @@ accepts `class` and `style` for its own element. See [Customization](/docs/custo
 
 ## Examples
 
-### Pick a grouped framework
+### Grouped
 
 Compose groups, group labels, and item render state when Select's built-in collection is not enough.
 Resolve the trigger label from the full collection.
 
 <Preview path="./composition" />
 
-### Search a custom listbox
+### Searchable
 
 Own the query and the filtered `items`, and bind the input with `createBaseSelectSearchInput`. Pass
 `getItemByValue` so a selected option still resolves after it leaves the filtered view.
 
 <Preview path="./searchable" />
 
-### Select multiple frameworks
+### Multiple
 
 Set `multiple` and read `state.value` as an array. Summarize the whole selection in the trigger
 instead of showing a single label. The popup stays open after each choice.
 
 <Preview path="./multiple" />
 
-### Submit a native form value
+### Native form
 
 Give the root a `name`. BaseSelect writes the selected value into the enclosing native form without
 `createForm`.

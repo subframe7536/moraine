@@ -191,19 +191,19 @@ follows `closeOnEscape` and reports blocked requests through `onClosePrevented`.
 
 ## Examples
 
-### Bottom sheet with a handle
+### Basic
 
 The default `bottom` side shows the grab handle and dismisses on a downward swipe.
 
 <Preview path="./bottom-usage" />
 
-### Rest at snap points
+### Snap points
 
 A controlled snap point switches between a compact peek and the full-height surface.
 
 <Preview path="./snap-points" />
 
-### Nest drawers
+### Nested
 
 A child drawer opens above its parent: ancestors shrink and slide up behind it. Setting
 `overlay={false}` on the nested drawers keeps a single overlay for the whole stack.
@@ -211,13 +211,13 @@ Escape, swipe, outside press, and the Android back gesture close only the topmos
 
 <Preview path="./nested" />
 
-### Open from different edges
+### Sides
 
 Top and bottom support handles and snap points; left and right are swipe-only panels.
 
 <Preview path="./sides" />
 
-### Keep the page interactive
+### Non-modal
 
 `modal={false}`, `overlay={false}`, and `preventScroll={false}` leave the page's pointer, focus,
 and scroll access intact; `closeOnOverlayClick={false}` keeps outside presses from dismissing the
@@ -225,7 +225,7 @@ panel — both buttons update the same count.
 
 <Preview path="./non-modal" />
 
-### Swap Dialog and Drawer responsively
+### Responsive
 
 `createMediaQuery` renders the same task in a [Dialog](/components/dialog) on wide screens and a
 Drawer on narrow ones. Resize the window to see the trigger swap.

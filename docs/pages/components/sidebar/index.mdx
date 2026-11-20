@@ -152,7 +152,7 @@ export function Example() {
 }
 ```
 
-### Responsive navigation ownership
+### Responsive navigation
 
 Keep one navigation tree inside `Sidebar.Panel`. Put the application header outside the
 frame, then place `Sidebar.Trigger` where users need to reveal or collapse navigation. A child that
@@ -269,47 +269,45 @@ switchers and row actions. Those menus are actions, not the sidebar's navigation
 
 ## Examples
 
-### Cloud console shell
+### Basic
 
 Keep one navigation tree for desktop and mobile. Place the trigger in the main header so compact
 viewports can open the drawer.
 
 <Preview path="./responsive-usage" />
 
-### Docs tree with collapsible sections
+### Collapsible groups
 
-Put a `MenuSub` inside a `MenuItem` for multi-level docs. The trigger only toggles its section,
-so link the section's pages from the nested items.
+Nest `Sidebar.MenuSub` inside `Sidebar.MenuItem` for collapsible multi-level navigation.
 
 <Preview path="./collapsible-groups" />
 
-### Inspector beside a document
+### Side and variant
 
-Use `side="right"` and `variant="inset"` for a properties panel next to a canvas or RFC.
+Combine `side="right"` and `variant="inset"` to place a panel on the trailing edge.
 
 <Preview path="./side-and-variant" />
 
-### Team switcher and account menu
+### Header and footer
 
-Put a workspace `DropdownMenu` in the header slot and an account menu in the footer.
+Compose menus or controls inside `Sidebar.Header` and `Sidebar.Footer`.
 
 <Preview path="./header-footer-slots" />
 
-### Global topbar above the frame
+### Custom frame
 
-Keep brand, project picker, and alerts outside `Sidebar`. Let the frame fill the remaining
-height.
+Mount a global top bar outside `Sidebar` so the sidebar frame fills the remaining viewport height.
 
 <Preview path="./custom-frame" />
 
-### Resize the explorer on desktop
+### Resizable rail
 
 `Sidebar.Rail` between `Panel` and `Inset` resizes the sidebar in pixels. On mobile, the same content
 moves into the Drawer and the rail disappears.
 
 <Preview path="./resizable-rail" />
 
-### Force the mobile drawer
+### Forced mobile
 
 Set `mobile` to render the slide-over navigation drawer at any viewport width, for example in a
 touch-first layout.

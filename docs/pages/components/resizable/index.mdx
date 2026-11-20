@@ -68,7 +68,7 @@ export function Example() {
 }
 ```
 
-### Panel constraints
+### Constraints
 
 Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. All values are
 percentages of the group. Dragging a handle grows one panel and shrinks its neighbor, stopping at
@@ -88,7 +88,7 @@ record share the remaining space.
 </Resizable>
 ```
 
-### Collapsible panels
+### Collapsible
 
 Set `collapsible` on a panel to let it collapse to `collapsedSize` (default `0`, clamped between `0`
 and `min`). Dragging a handle past the midpoint between `min` and `collapsedSize` collapses the
@@ -126,7 +126,7 @@ function CollapseButton() {
 </Resizable>
 ```
 
-### Controlled state and persistence
+### Controlled state
 
 Use `value` with `onValueChange` when the application coordinates layout presets, resets, or persists
 splits to storage. Both carry the full layout record keyed by panel id. With `value` set, resizing
@@ -166,42 +166,40 @@ tab order. Horizontal groups in right-to-left content swap the arrow keys.
 
 ## Examples
 
-### Constrain an inspector beside a token file
+### Constraints
 
-Set `min` and `max` so the inspector cannot consume the editor.
+Set `min` and `max` on panels to bound their resize range.
 
 <Preview path="./constraints" />
 
-### Collapse a project sidebar to an icon rail
+### Collapsible
 
-Use `collapsedSize` for the remaining rail width. <kbd>Enter</kbd> on the handle or a
-`Resizable.usePanel()` button toggles it.
+Set `collapsible` and `collapsedSize` to snap a panel to a compact rail via <kbd>Enter</kbd> on the
+handle or `Resizable.usePanel()`.
 
 <Preview path="./collapsible" />
 
-### Switch between saved split presets
+### Controlled
 
 Own `value` when the page stores layout records or offers presets.
 
 <Preview path="./controlled" />
 
-### Nested IDE workspace
+### Nested panels
 
-Combine a horizontal root and a vertical root for an explorer, editor, and console. Set `intersection`
-on the handles that meet so their junction drags on both axes at once.
+Nest horizontal and vertical roots, and set `intersection` on meeting handles to drag both axes
+simultaneously.
 
 <Preview path="./nested-panels" />
 
-### Multi-column email client
+### Multi-panel
 
-Compose a folder list, thread list, and reading pane. Min-width constraints keep each column
-readable.
+Compose three or more panels with independent minimum-size constraints.
 
 <Preview path="./composition" />
 
-### Vertical query workbench
+### Vertical and disabled
 
-Use `orientation="vertical"` for a query editor over a result table. `disabled` locks dividers
-during execution.
+Set `orientation="vertical"` to stack panels vertically, and `disabled` to lock dividers.
 
 <Preview path="./vertical-disable" />

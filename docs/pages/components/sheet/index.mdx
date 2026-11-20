@@ -130,7 +130,7 @@ Content's automatic corner close button. Set root `closable={false}` to hide the
 with root `translations`. See [Localization](/docs/localization). Root `transition={false}` turns
 off the enter and exit animations, so content and overlay unmount as soon as the sheet closes.
 
-### Focus and outside interaction
+### Focus and dismissal
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
 technology, and native outside pointer actions are prevented. Closing restores focus to the trigger.
@@ -142,7 +142,7 @@ dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close request
 `true`. Scroll locking is independent: `preventScroll` defaults to `true`. For interaction with the
 background page, also set `preventScroll={false}` and `overlay={false}`.
 
-### Styling and portal placement
+### Styling and portal
 
 Apply `class` and object `style` directly to each rendered part. Root `classes` and `styles` set
 slot defaults for every part: `trigger`, `overlay`, `content`, `header`, `title`, `description`,
@@ -202,27 +202,27 @@ attempts.
 
 ## Examples
 
-### Edit settings
+### Basic
 
 Place fields in the body and Cancel/Done in the footer. The default side is `right`.
 
 <Preview path="./settings-usage" />
 
-### Open a sheet from layout state
+### Controlled
 
 A page button owns `open`. Closing from the footer reports back through `onOpenChange`.
 
 <Preview path="./state-usage" />
 
-### Keep a sheet open until an explicit close
+### Prevent dismissal
 
 `closeOnOverlayClick={false}` and `closeOnEscape={false}` block overlay click and Escape, and
 `onClosePrevented` reports each blocked attempt. The footer action is the only way to close.
 
 <Preview path="./dismiss-control" />
 
-### Open navigation, a cart, or share from different edges
+### Sides
 
-Left holds navigation, right a cart with checkout, and bottom share actions.
+Set `side` (`left`, `right`, `top`, or `bottom`) to anchor the sheet to any viewport edge.
 
 <Preview path="./sides" />
