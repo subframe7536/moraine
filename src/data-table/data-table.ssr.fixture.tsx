@@ -1,7 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
 import { createDataTable } from './create-data-table'
-import { DataTable } from './data-table'
 import type { DataTableT } from './data-table.types'
 
 interface RowItem {
@@ -41,10 +40,7 @@ export function DataTableHydrationFixture(props: { extraRow?: boolean }) {
   })
 
   return (
-    <DataTable
-      table={table}
-      expandedRowRender={(props) => <div>{props.row.original.title} details</div>}
-    />
+    <table.DataTable expandedRowRender={(props) => <div>{props.row.original.title} details</div>} />
   )
 }
 

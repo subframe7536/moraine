@@ -54,7 +54,7 @@
           "type": "JSX.Element | Component<EmptyRenderProps>",
           "description": "Replaces the default `No results.` message inside the single empty-state cell, rendered when\nthe table has no rows and is not `loading`. A component receives the visible column count\nas `colSpan`.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} emptyRender={() => <p>No users yet. Invite someone to get started.</p>} />"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<table.DataTable emptyRender={() => <p>No users yet. Invite someone to get started.</p>} />"
           ]
         },
         {
@@ -63,7 +63,7 @@
           "type": "Component<ExpandedRowRenderProps<TData>>",
           "description": "Component rendered in a detail row below each expanded row, spanning every column. Rows\nexpand through the `expandable` option, tree `getSubRows` data, or the row's\n`toggleExpanded()`. Receives the `row`. Ignored, with a development warning, when\n`virtualizer` is set.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada', bio: 'Mathematician' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  expandable: true,\n})\n\n<DataTable table={table} expandedRowRender={(props) => <p>{props.row.original.bio}</p>} />"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada', bio: 'Mathematician' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  expandable: true,\n})\n\n<table.DataTable expandedRowRender={(props) => <p>{props.row.original.bio}</p>} />"
           ]
         },
         {
@@ -72,7 +72,7 @@
           "type": "(context: HeadPropsContext<TData>) => HeadAttributes",
           "description": "Extra attributes for each header cell (`<th>`), such as drag wiring from\n`createListSortable().useRow` to reorder columns. Called once per header cell, under its\nowner; read `context` fields lazily to follow index changes. Its `ref` is composed with the\ntable's own.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} headProps={({ header }) => ({ title: `Column ${header.column.id}` })} />"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<table.DataTable headProps={({ header }) => ({ title: `Column ${header.column.id}` })} />"
           ]
         },
         {
@@ -97,7 +97,7 @@
           "type": "JSX.Element | Component<LoadingRenderProps>",
           "description": "Replaces the default spinner inside the loading overlay shown while `loading` is `true`.\nA component receives the visible column count as `colSpan`.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} loading loadingRender={<span>Fetching rows…</span>} />"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<table.DataTable loading loadingRender={<span>Fetching rows…</span>} />"
           ]
         },
         {
@@ -112,7 +112,7 @@
           "type": "(row: Row<TData>, event: MouseEvent) => void",
           "description": "Called when a body row is clicked, with the row and the click event, and gives rows a\nclickable style. Clicks on the selection control and the expand button do not reach it.\nA click handler returned by `rowProps` runs first.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable table={table} onRowClick={(row, event) => console.log(row.original.id, event.metaKey)} />"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<table.DataTable onRowClick={(row, event) => console.log(row.original.id, event.metaKey)} />"
           ]
         },
         {
@@ -127,7 +127,7 @@
           "type": "(context: RowPropsContext<TData>) => RowAttributes",
           "description": "Extra attributes for each body row (`<tr>`), such as drag wiring from\n`createListSortable().useRow`. Called once per row, under that row's owner, so it may call\nrow-level hooks; read `context` fields lazily to follow index changes. Its `class` merges\ninto the `row` slot, and its `ref`, `onClick`, and `onDblClick` run alongside the table's\nown (before `onRowClick` and `onRowDoubleClick`).",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada', active: false }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<DataTable\n  table={table}\n  rowProps={({ row }) => ({ class: row.original.active ? undefined : 'opacity-60', title: row.id })}\n/>"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ id: 'a', name: 'Ada', active: false }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n})\n\n<table.DataTable\n  rowProps={({ row }) => ({ class: row.original.active ? undefined : 'opacity-60', title: row.id })}\n/>"
           ]
         },
         {
@@ -165,8 +165,8 @@
         {
           "name": "table",
           "optional": false,
-          "type": "Instance<TData>",
-          "description": "Table instance created with `createDataTable`. Sorting, selection, pagination, expansion,\nand the other behavior live on it; `DataTable` only renders it. Without the instance's\npagination settings (a plain TanStack table), no pagination toolbar is rendered."
+          "type": "Instance<TData> | Table<Features, TData>",
+          "description": "Table instance created with `createDataTable`. Sorting, selection, pagination, expansion,\nand the other behavior live on it; `DataTable` only renders it. A bare TanStack table from\n`createTable` also works, but without the instance's pagination settings no pagination\ntoolbar is rendered. Prefer the instance's bound `<table.DataTable />` over this prop."
         },
         {
           "name": "translations",
@@ -174,7 +174,7 @@
           "type": "Translations",
           "description": "Localized messages for this data table, merged per key over the provider messages. Some\nentries are functions that receive a context object.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  paginated: true,\n})\n\n<DataTable\n  table={table}\n  translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}\n/>"
+            "import { createDataTable } from 'moraine/data-table'\n\nconst table = createDataTable({\n  data: [{ name: 'Ada' }],\n  columns: [{ accessorKey: 'name', header: 'Name' }],\n  paginated: true,\n})\n\n<table.DataTable\n  translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}\n/>"
           ]
         },
         {
@@ -183,7 +183,7 @@
           "type": "Virtualizer<TData>",
           "description": "Renders only the visible rows, and the visible center columns when the virtualizer has the\n`columns` option. Create it with `createTableVirtualizer()` from `moraine/virtualizer`.\nDisables pagination (the toolbar is hidden and every row is shown in one scroll) and\n`expandedRowRender`. Bound the scroll area with `maxHeight`.",
           "examples": [
-            "import { DataTable, createDataTable } from 'moraine/data-table'\nimport type { DataTableT } from 'moraine/data-table'\nimport { createTableVirtualizer } from 'moraine/virtualizer'\n\ninterface Person {\n  name: string\n}\nconst people: Person[] = Array.from({ length: 5000 }, (_, i) => ({ name: `Person ${i}` }))\nconst table = createDataTable({ data: people, columns: [{ accessorKey: 'name', header: 'Name' }] })\nconst virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({ estimateSize: () => 40 })\n\n<DataTable table={table} virtualizer={virtualizer} maxHeight={400} />"
+            "import { createDataTable } from 'moraine/data-table'\nimport type { DataTableT } from 'moraine/data-table'\nimport { createTableVirtualizer } from 'moraine/virtualizer'\n\ninterface Person {\n  name: string\n}\nconst people: Person[] = Array.from({ length: 5000 }, (_, i) => ({ name: `Person ${i}` }))\nconst table = createDataTable({ data: people, columns: [{ accessorKey: 'name', header: 'Name' }] })\nconst virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({ estimateSize: () => 40 })\n\n<table.DataTable virtualizer={virtualizer} maxHeight={400} />"
           ]
         }
       ]

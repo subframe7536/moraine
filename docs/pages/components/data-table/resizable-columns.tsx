@@ -1,5 +1,5 @@
 import { Badge } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 interface ServiceMetric {
@@ -167,7 +167,7 @@ export default function ResizableColumnsExample() {
       <div class="text-sm text-muted-foreground">
         Drag the boundary between two column headers to resize a column.
       </div>
-      <DataTable table={table} border="both" highlightOnHover />
+      <table.DataTable border="both" highlightOnHover />
     </div>
   )
 }

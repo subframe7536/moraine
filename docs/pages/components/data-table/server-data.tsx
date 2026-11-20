@@ -1,5 +1,5 @@
 import { Input } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import type { PaginationState, SortingState } from '@tanstack/table-core'
 import { createMemo, createResource, createSignal, onCleanup } from 'solid-js'
@@ -134,7 +134,7 @@ export default function ServerDataExample() {
         onValueChange={onSearchInput}
         class="max-w-xs"
       />
-      <DataTable table={table} aria-label="Orders" loading={page.loading} />
+      <table.DataTable aria-label="Orders" loading={page.loading} />
     </div>
   )
 }

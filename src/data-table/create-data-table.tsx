@@ -1,7 +1,9 @@
 import { functionalUpdate, stateSlicesEqual } from '@tanstack/table-core'
 import type { Row, RowData, TableOptions, Updater } from '@tanstack/table-core'
 import { DEV, createMemo, mergeProps, untrack } from 'solid-js'
+import type { JSX } from 'solid-js'
 
+import { DataTable } from './data-table'
 import {
   EXPAND_COLUMN_ID,
   SELECT_COLUMN_ID,
@@ -10,10 +12,9 @@ import {
 } from './data-table-columns'
 import { getDataTableFeatures } from './data-table-features'
 import type { DataTableFeatures } from './data-table-features'
+import { DEFAULT_DATA_TABLE_PAGE_SIZES } from './data-table-pagination'
 import type { DataTableT } from './data-table.types'
 import { createTable } from './solid-table'
-
-export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
 
 /** `maxSize` in px given to columns of a resizable table that set none. */
 export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
@@ -49,7 +50,8 @@ function findColumnById(
 }
 
 /**
- * Creates a reactive TanStack Solid Table instance configured for `DataTable`.
+ * Creates a reactive TanStack Solid Table instance with a `DataTable` presenter bound to it:
+ * render `<table.DataTable />` without passing a `table` prop.
  *
  * Options read through the table options object, so declare getters for
  * values that change over time (`get data() { return rows() }`). Controlled
@@ -239,7 +241,7 @@ export function createDataTable<TData extends RowData = RowData>(
     },
   ) as TableOptions<DataTableFeatures, TData>
 
-  table = createTable(resolvedTableOptions)
+  table = createTable(resolvedTableOptions) as DataTableT.Instance<TData>
 
   const paginationSettings: DataTableT.PaginationSettings = {
     get paginated() {
@@ -250,5 +252,9 @@ export function createDataTable<TData extends RowData = RowData>(
     },
   }
 
-  return Object.assign(table, { paginationSettings })
+  const BoundDataTable = (props: Omit<DataTableT.Props<TData>, 'table'>): JSX.Element => (
+    <DataTable {...props} table={table} />
+  )
+
+  return Object.assign(table, { paginationSettings, DataTable: BoundDataTable })
 }

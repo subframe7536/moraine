@@ -5,7 +5,6 @@ import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 import { createTableVirtualizer } from '../virtualizer'
 
 import { createDataTable } from './create-data-table'
-import { DataTable } from './data-table'
 import type { DataTableT } from './data-table.types'
 
 interface FileNode {
@@ -63,7 +62,7 @@ export function DataTableFeaturesFixture(props: { sorting?: SortingState }) {
     tableOptions: { getSubRows: (row) => row.children },
   })
 
-  return <DataTable table={table} aria-label="Files" />
+  return <table.DataTable aria-label="Files" />
 }
 
 type WideRow = Record<string, string>
@@ -105,7 +104,7 @@ export function VirtualColumnsDataTableFixture() {
     initialState: { columnPinning: { start: ['id'], end: [] } },
   })
 
-  return <DataTable table={table} virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
+  return <table.DataTable virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
 }
 
 export function renderDataTableFeaturesFixture(): string {
@@ -127,7 +126,7 @@ export function VirtualRowsDataTableFixture() {
   })
   const table = createDataTable({ data: WIDE_ROWS, columns: WIDE_COLUMNS })
 
-  return <DataTable table={table} virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
+  return <table.DataTable virtualizer={virtualizer} maxHeight={120} aria-label="Wide" />
 }
 
 export function renderVirtualRowsDataTableFixture(): string {

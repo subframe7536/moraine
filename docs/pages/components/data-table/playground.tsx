@@ -1,4 +1,4 @@
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
@@ -78,8 +78,7 @@ function EmployeesTable(props: PlaygroundProps) {
   })
 
   return (
-    <DataTable
-      table={table}
+    <table.DataTable
       aria-label="Employees"
       size={props.size}
       highlightOnHover={props.highlightOnHover}

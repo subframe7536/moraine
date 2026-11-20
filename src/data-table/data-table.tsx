@@ -26,14 +26,13 @@ import type {
   TableVirtualRowProps,
 } from '../virtualizer/virtualizer.types'
 
-import { DEFAULT_DATA_TABLE_PAGE_SIZES } from './create-data-table'
 import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'
 import { DataTableProvider } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
 import { DataTableFooter } from './data-table-footer'
 import { DataTableHeader } from './data-table-header'
 import { createDataTableLayout } from './data-table-layout'
-import { DataTablePagination } from './data-table-pagination'
+import { DEFAULT_DATA_TABLE_PAGE_SIZES, DataTablePagination } from './data-table-pagination'
 import { DataTableRow } from './data-table-row'
 import { defaultDataTableMessages } from './data-table.messages'
 import {
@@ -54,16 +53,17 @@ const VIRTUAL_CONFLICT_WARNINGS = {
 type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
 
 /**
- * Data-driven table that renders a `createDataTable` instance passed as `table`; behavior (sorting,
+ * Data-driven table that renders a `createDataTable` instance; behavior (sorting,
  * row selection, pagination, expansion, column pinning and resizing, server-driven data) lives on
- * the instance and `DataTable` props configure presentation. Use `Table` for a static table you
- * compose by hand, or compose `Table` parts with `FlexRender` for a fully custom grid. Create the
- * instance inside a component and pass a getter for `data` that changes; native `table`
+ * the instance and `DataTable` props configure presentation. Prefer the instance's bound
+ * `<table.DataTable />` presenter over passing `table` yourself. Use `Table` for a static table
+ * you compose by hand, or compose `Table` parts with `FlexRender` for a fully custom grid. Create
+ * the instance inside a component and pass a getter for `data` that changes; native `table`
  * attributes such as `aria-label` are forwarded to the `table` element.
  *
  * @example
  * ```tsx
- * import { DataTable, createDataTable } from 'moraine/data-table'
+ * import { createDataTable } from 'moraine/data-table'
  * import type { DataTableT } from 'moraine/data-table'
  *
  * interface User {
@@ -89,7 +89,7 @@ type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
  *   selectionMode: 'multiple',
  * })
  *
- * <DataTable table={table} aria-label="Users" />
+ * <table.DataTable aria-label="Users" />
  * ```
  */
 export function DataTable<TData extends RowData = RowData>(
@@ -129,9 +129,10 @@ export function DataTable<TData extends RowData = RowData>(
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
   const selectionName = `data-table-selection-${createUniqueId()}`
 
-  const table = () => local.table
+  const table = () => local.table as DataTableT.Instance<TData>
   const virtual = () => Boolean(local.virtualizer)
-  const pagination = () => table().paginationSettings
+  const pagination = () =>
+    'paginationSettings' in table() ? table().paginationSettings : undefined
   const paginated = () => !virtual() && pagination()?.paginated === true
   // The virtualizer has a column window only when created with the `columns` option. It is read
   // after mount: the server renders every column, so hydration must start from the same markup.

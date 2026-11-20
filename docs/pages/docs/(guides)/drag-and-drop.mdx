@@ -90,7 +90,7 @@ const sortable = createListSortable({
 // In a column: cell: (props) => <button ref={sortable.handleRefFor(props.row.id)}>⋮⋮</button>
 
 <sortable.Provider>
-  <DataTable table={table} rowProps={(context) => sortable.useRow(context).props} />
+  <table.DataTable rowProps={(context) => sortable.useRow(context).props} />
 </sortable.Provider>
 ```
 

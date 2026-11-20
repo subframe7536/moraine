@@ -1,5 +1,5 @@
 import { Button, Input, Select } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createSignal } from 'solid-js'
 
@@ -78,8 +78,7 @@ export default function FilteringExample() {
           Reset
         </Button>
       </div>
-      <DataTable
-        table={table}
+      <table.DataTable
         aria-label="Employees"
         emptyRender={<span>No employees match the filters.</span>}
       />

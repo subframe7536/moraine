@@ -138,7 +138,7 @@ Pass a virtualizer from `createTableVirtualizer`, keyed by row id, and bound the
 the body, so a sticky header does not hide the row that `scrollToIndex` reveals.
 
 ```tsx
-import { DataTable, createDataTable } from 'moraine/data-table'
+import { createDataTable } from 'moraine/data-table'
 import type { DataTableT } from 'moraine/data-table'
 import { createTableVirtualizer } from 'moraine/virtualizer'
 
@@ -166,8 +166,7 @@ export function VirtualizedInvoices() {
   })
 
   return (
-    <DataTable
-      table={table}
+    <table.DataTable
       virtualizer={virtualizer}
       sticky="header"
       maxHeight={384}

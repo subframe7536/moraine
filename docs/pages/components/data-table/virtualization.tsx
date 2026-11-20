@@ -1,4 +1,4 @@
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createTableVirtualizer } from '@src/virtualizer'
 
@@ -53,8 +53,7 @@ export default function VirtualizationExample() {
   })
 
   return (
-    <DataTable
-      table={table}
+    <table.DataTable
       virtualizer={virtualizer}
       sticky="header"
       maxHeight={360}

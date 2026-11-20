@@ -83,11 +83,13 @@ export namespace DataTableT {
   }
 
   /**
-   * Table created with `createDataTable`. A table from `createTable` has no `paginationSettings`,
-   * so `DataTable` renders it without the pagination toolbar.
+   * Table created with `createDataTable`: the TanStack table instance plus the `DataTable`
+   * presenter bound to it — render `<table.DataTable />` without passing a `table` prop.
    */
   export type Instance<TData extends RowData = RowData> = Table<Features, TData> & {
-    readonly paginationSettings?: PaginationSettings
+    readonly paginationSettings: PaginationSettings
+    /** `DataTable` presenter bound to this instance; accepts every `DataTable` prop but `table`. */
+    readonly DataTable: Component<Omit<Props<TData>, 'table'>>
   }
 
   /** Presentation hints read from a column definition's `meta`. */
@@ -189,7 +191,7 @@ export namespace DataTableT {
      * @default false
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ name: 'Ada' }, { name: 'Alan' }],
@@ -197,7 +199,7 @@ export namespace DataTableT {
      *   paginated: { pageSize: 25, pageSizes: [25, 50, 100] },
      * })
      *
-     * <DataTable table={table} />
+     * <table.DataTable />
      * ```
      */
     paginated?: boolean | PaginationConfig
@@ -229,7 +231,7 @@ export namespace DataTableT {
      * `state` takes precedence.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ name: 'Ada', age: 36 }],
@@ -240,7 +242,7 @@ export namespace DataTableT {
      *   initialState: { sorting: [{ id: 'age', desc: true }], pagination: { pageIndex: 0, pageSize: 20 } },
      * })
      *
-     * <DataTable table={table} />
+     * <table.DataTable />
      * ```
      */
     initialState?: Partial<State>
@@ -253,7 +255,7 @@ export namespace DataTableT {
      * @example
      * ```tsx
      * import { createSignal } from 'solid-js'
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      * import type { DataTableT } from 'moraine/data-table'
      *
      * const [sorting, setSorting] = createSignal<DataTableT.State['sorting']>([])
@@ -268,7 +270,7 @@ export namespace DataTableT {
      *   onSortingChange: setSorting,
      * })
      *
-     * <DataTable table={table} />
+     * <table.DataTable />
      * ```
      */
     state?: Partial<State>
@@ -299,7 +301,7 @@ export namespace DataTableT {
      * top-level option and cannot be set here.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * interface Node {
      *   name: string
@@ -311,7 +313,7 @@ export namespace DataTableT {
      *   tableOptions: { getSubRows: (node) => node.children },
      * })
      *
-     * <DataTable table={table} />
+     * <table.DataTable />
      * ```
      */
     tableOptions?: Partial<Omit<TableOptions<Features, TData>, OwnedTableOption>>
@@ -376,16 +378,17 @@ export namespace DataTableT {
   export interface Base<TData extends RowData = RowData> {
     /**
      * Table instance created with `createDataTable`. Sorting, selection, pagination, expansion,
-     * and the other behavior live on it; `DataTable` only renders it. Without the instance's
-     * pagination settings (a plain TanStack table), no pagination toolbar is rendered.
+     * and the other behavior live on it; `DataTable` only renders it. A bare TanStack table from
+     * `createTable` also works, but without the instance's pagination settings no pagination
+     * toolbar is rendered. Prefer the instance's bound `<table.DataTable />` over this prop.
      */
-    table: Instance<TData>
+    table: Instance<TData> | Table<Features, TData>
     /**
      * Localized messages for this data table, merged per key over the provider messages. Some
      * entries are functions that receive a context object.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ name: 'Ada' }],
@@ -393,8 +396,7 @@ export namespace DataTableT {
      *   paginated: true,
      * })
      *
-     * <DataTable
-     *   table={table}
+     * <table.DataTable
      *   translations={{ empty: 'Aucun résultat', rowCount: ({ total }) => `${total} ligne(s)` }}
      * />
      * ```
@@ -413,15 +415,14 @@ export namespace DataTableT {
      * own (before `onRowClick` and `onRowDoubleClick`).
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ id: 'a', name: 'Ada', active: false }],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
      * })
      *
-     * <DataTable
-     *   table={table}
+     * <table.DataTable
      *   rowProps={({ row }) => ({ class: row.original.active ? undefined : 'opacity-60', title: row.id })}
      * />
      * ```
@@ -434,14 +435,14 @@ export namespace DataTableT {
      * table's own.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ name: 'Ada' }],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
      * })
      *
-     * <DataTable table={table} headProps={({ header }) => ({ title: `Column ${header.column.id}` })} />
+     * <table.DataTable headProps={({ header }) => ({ title: `Column ${header.column.id}` })} />
      * ```
      */
     headProps?: (context: HeadPropsContext<TData>) => HeadAttributes
@@ -456,14 +457,14 @@ export namespace DataTableT {
      * A component receives the visible column count as `colSpan`.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
      * })
      *
-     * <DataTable table={table} loading loadingRender={<span>Fetching rows…</span>} />
+     * <table.DataTable loading loadingRender={<span>Fetching rows…</span>} />
      * ```
      */
     loadingRender?: JSX.Element | Component<LoadingRenderProps>
@@ -473,14 +474,14 @@ export namespace DataTableT {
      * as `colSpan`.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
      * })
      *
-     * <DataTable table={table} emptyRender={() => <p>No users yet. Invite someone to get started.</p>} />
+     * <table.DataTable emptyRender={() => <p>No users yet. Invite someone to get started.</p>} />
      * ```
      */
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
@@ -497,7 +498,7 @@ export namespace DataTableT {
      * `virtualizer` is set.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ name: 'Ada', bio: 'Mathematician' }],
@@ -505,7 +506,7 @@ export namespace DataTableT {
      *   expandable: true,
      * })
      *
-     * <DataTable table={table} expandedRowRender={(props) => <p>{props.row.original.bio}</p>} />
+     * <table.DataTable expandedRowRender={(props) => <p>{props.row.original.bio}</p>} />
      * ```
      */
     expandedRowRender?: Component<ExpandedRowRenderProps<TData>>
@@ -515,14 +516,14 @@ export namespace DataTableT {
      * A click handler returned by `rowProps` runs first.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      *
      * const table = createDataTable({
      *   data: [{ id: 'a', name: 'Ada' }],
      *   columns: [{ accessorKey: 'name', header: 'Name' }],
      * })
      *
-     * <DataTable table={table} onRowClick={(row, event) => console.log(row.original.id, event.metaKey)} />
+     * <table.DataTable onRowClick={(row, event) => console.log(row.original.id, event.metaKey)} />
      * ```
      */
     onRowClick?: (row: Row<TData>, event: MouseEvent) => void
@@ -538,7 +539,7 @@ export namespace DataTableT {
      * `expandedRowRender`. Bound the scroll area with `maxHeight`.
      * @example
      * ```tsx
-     * import { DataTable, createDataTable } from 'moraine/data-table'
+     * import { createDataTable } from 'moraine/data-table'
      * import type { DataTableT } from 'moraine/data-table'
      * import { createTableVirtualizer } from 'moraine/virtualizer'
      *
@@ -549,7 +550,7 @@ export namespace DataTableT {
      * const table = createDataTable({ data: people, columns: [{ accessorKey: 'name', header: 'Name' }] })
      * const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({ estimateSize: () => 40 })
      *
-     * <DataTable table={table} virtualizer={virtualizer} maxHeight={400} />
+     * <table.DataTable virtualizer={virtualizer} maxHeight={400} />
      * ```
      */
     virtualizer?: Virtualizer<TData>

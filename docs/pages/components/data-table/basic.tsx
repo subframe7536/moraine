@@ -1,5 +1,5 @@
 import { Badge } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 interface Member {
@@ -161,5 +161,5 @@ export default function BasicExample() {
     initialState: { sorting: [{ id: 'role', desc: false }] },
   })
 
-  return <DataTable table={table} aria-label="Team members" highlightOnHover />
+  return <table.DataTable aria-label="Team members" highlightOnHover />
 }

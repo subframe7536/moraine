@@ -1,5 +1,5 @@
 import { Input } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import type { CellContext } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
@@ -107,7 +107,7 @@ export default function EditableCellsExample() {
             aria-label={props.label}
             aria-invalid={error() ? true : undefined}
             size="sm"
-            autofocus
+            autoFocus
             inputMode={props.columnId === 'stock' ? 'numeric' : undefined}
             value={draft()}
             onValueChange={setDraft}
@@ -170,7 +170,7 @@ export default function EditableCellsExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable table={table} aria-label="Inventory" />
+      <table.DataTable aria-label="Inventory" />
       <p class="text-sm text-muted-foreground" aria-live="polite">
         {lastChange()}
       </p>

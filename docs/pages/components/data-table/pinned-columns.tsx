@@ -1,5 +1,5 @@
 import { Badge, Button, DropdownMenu } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 interface Customer {
@@ -224,7 +224,7 @@ export default function PinnedColumnsExample() {
         Scroll horizontally: the selection and Customer ID columns stay pinned on the left, and the
         actions column stays pinned on the right.
       </div>
-      <DataTable table={table} highlightOnHover />
+      <table.DataTable highlightOnHover />
     </div>
   )
 }

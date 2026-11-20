@@ -121,11 +121,11 @@ npm install @tanstack/table-core
 yarn add @tanstack/table-core
 ```
 
-Create the instance with `createDataTable` inside a component, then pass it to `DataTable`.
-Behavior lives on the instance; presentation lives on `DataTable`.
+Create the instance with `createDataTable` inside a component, then render its bound `table.DataTable` presenter.
+Behavior lives on the instance; presentation lives on `DataTable` props.
 
 ```tsx
-import { DataTable, createDataTable } from 'moraine/data-table'
+import { createDataTable } from 'moraine/data-table'
 import type { DataTableT } from 'moraine/data-table'
 
 interface User {
@@ -152,7 +152,7 @@ export function Users() {
     selectionMode: 'multiple',
   })
 
-  return <DataTable table={table} aria-label="Users" />
+  return <table.DataTable aria-label="Users" />
 }
 ```
 
@@ -341,10 +341,7 @@ const table = createDataTable({
 })
 
 return (
-  <DataTable
-    table={table}
-    expandedRowRender={(props) => <OrderItems items={props.row.original.items} />}
-  />
+  <table.DataTable expandedRowRender={(props) => <OrderItems items={props.row.original.items} />} />
 )
 ```
 
@@ -387,7 +384,7 @@ const table = createDataTable({
   onPaginationChange: setPagination,
 })
 
-return <DataTable table={table} loading={page.loading} />
+return <table.DataTable loading={page.loading} />
 ```
 
 ### Loading and empty states
@@ -400,8 +397,7 @@ With no rows, the body shows one full-width cell with the `empty` message, or `e
 empty message is hidden while `loading` is set. Both render props receive `colSpan`.
 
 ```tsx
-<DataTable
-  table={table}
+<table.DataTable
   loading={isFetching()}
   emptyRender={
     <Empty>
@@ -437,7 +433,7 @@ a bounded height, so pair it with `maxHeight`. The whole `thead` or `tfoot` stic
 header and footer rows stay stacked.
 
 ```tsx
-<DataTable table={table} sticky maxHeight={360} />
+<table.DataTable sticky maxHeight={360} />
 ```
 
 Pinning and resizing switch the table to a fixed layout with explicit column widths. Give columns a
@@ -493,8 +489,7 @@ cursor. Clicks on the built-in checkboxes, radios, and expand buttons do not rea
 `class` from `rowProps` to add classes per row.
 
 ```tsx
-<DataTable
-  table={table}
+<table.DataTable
   onRowClick={(row) => navigate(`/users/${row.original.id}`)}
   rowProps={({ row }) => ({ class: row.original.archived && 'opacity-60' })}
 />
@@ -510,10 +505,7 @@ slot. `headProps` does the same for each header `<th>`, except that `class`, `st
 and `aria-sort` stay owned by the table.
 
 ```tsx
-<DataTable
-  table={table}
-  rowProps={(context) => ({ 'aria-describedby': `hint-${context.row.id}` })}
-/>
+<table.DataTable rowProps={(context) => ({ 'aria-describedby': `hint-${context.row.id}` })} />
 ```
 
 ### Drag to reorder rows
@@ -533,7 +525,7 @@ const sortable = createListSortable({
 })
 
 <sortable.Provider>
-  <DataTable table={table} rowProps={(context) => sortable.useRow(context).props} />
+  <table.DataTable rowProps={(context) => sortable.useRow(context).props} />
 </sortable.Provider>
 ```
 
@@ -570,7 +562,7 @@ const virtualizer = createTableVirtualizer<DataTableT.Row<Task>>({
   getItemKey: (row) => row.id,
 })
 
-return <DataTable table={table} virtualizer={virtualizer} sticky maxHeight={320} />
+return <table.DataTable virtualizer={virtualizer} sticky maxHeight={320} />
 ```
 
 A virtualized table shows every row in one scroll, which changes three behaviors:

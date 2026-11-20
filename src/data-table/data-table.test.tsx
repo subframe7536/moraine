@@ -67,7 +67,7 @@ describe('DataTable', () => {
   it('renders data with a createDataTable instance', () => {
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getByText('Name')).toBeDefined()
@@ -101,7 +101,7 @@ describe('DataTable', () => {
   it('sorts rows when a column header is clicked, toggling direction', () => {
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const nameHeader = screen.getByText('Name')
@@ -131,7 +131,7 @@ describe('DataTable', () => {
       const table = createPersonTable({
         selectionMode: 'multiple',
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const checkboxes = screen.getAllByRole('checkbox')
@@ -154,7 +154,7 @@ describe('DataTable', () => {
   it('shows the default empty message when there are no rows', () => {
     render(() => {
       const table = createPersonTable({ data: [] })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getByText('No results.')).toBeDefined()
@@ -164,8 +164,7 @@ describe('DataTable', () => {
     render(() => {
       const table = createPersonTable({ data: [] })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           emptyRender={(props) => (
             <div data-testid="custom-empty">Custom empty message (cols: {props.colSpan})</div>
           )}
@@ -181,7 +180,7 @@ describe('DataTable', () => {
   it('shows the loading overlay while loading', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} loading />
+      return <table.DataTable loading />
     })
 
     expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
@@ -190,14 +189,14 @@ describe('DataTable', () => {
   it('shows the pagination toolbar only when pagination is enabled', () => {
     const { container, unmount } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
     unmount()
 
     render(() => {
       const table = createPersonTable({ paginated: { pageSizes: [5, 10, 20] } })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getByRole('navigation')).toBeDefined()
@@ -208,7 +207,7 @@ describe('DataTable', () => {
     let wrapper: HTMLDivElement | undefined
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} containerRef={(el) => (wrapper = el)} />
+      return <table.DataTable containerRef={(el) => (wrapper = el)} />
     })
 
     expect(wrapper?.getAttribute('data-slot')).toBe('data-table-container')
@@ -235,7 +234,7 @@ describe('DataTable', () => {
   it('hides page size dropdown when pagination.pageSizes is false', () => {
     render(() => {
       const table = createPersonTable({ paginated: { pageSize: 5, pageSizes: false } })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getByRole('navigation')).toBeDefined()
@@ -249,7 +248,7 @@ describe('DataTable', () => {
         manual: true,
         rowCount: 100,
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getByRole('navigation')).toBeDefined()
@@ -281,7 +280,7 @@ describe('DataTable', () => {
           onPaginationChange(next)
         },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     fireEvent.click(screen.getByRole('button', { name: /5 \/ page/i }))
@@ -305,7 +304,7 @@ describe('DataTable', () => {
         },
         initialState: { pagination: { pageIndex: 0, pageSize: 2 } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
@@ -334,7 +333,7 @@ describe('DataTable', () => {
           return mode()
         },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
@@ -350,7 +349,7 @@ describe('DataTable', () => {
     const onSortingChange = vi.fn()
     render(() => {
       const table = createPersonTable({ onSortingChange })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const sortButton = screen
@@ -370,8 +369,7 @@ describe('DataTable', () => {
     render(() => {
       const table = createPersonTable()
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           rowProps={({ row }) => ({
             class: row.original.role === 'Intern' ? 'user-intern-row' : undefined,
           })}
@@ -391,8 +389,7 @@ describe('DataTable', () => {
         state: { expanded: { '0': true } },
       })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           expandedRowRender={(props) => <div>{props.row.original.name} details</div>}
         />
       )
@@ -409,7 +406,7 @@ describe('DataTable', () => {
   it('marks the empty-state row with data-empty', () => {
     const { container } = render(() => {
       const table = createPersonTable({ data: [] })
-      return <DataTable table={table} highlightOnHover />
+      return <table.DataTable highlightOnHover />
     })
 
     const emptyRow = container.querySelector('tbody > tr')!
@@ -423,7 +420,7 @@ describe('DataTable', () => {
     ]
     render(() => {
       const table = createPersonTable({ columns })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const ageTh = screen.getByText('Age').closest('th')!
@@ -445,7 +442,7 @@ describe('DataTable', () => {
           return data()
         },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getAllByRole('row').length).toBe(4)
@@ -466,7 +463,7 @@ describe('DataTable', () => {
 
     render(() => {
       const table = createPersonTable({ data: twentyRows })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.getAllByRole('row').length).toBe(21)
@@ -489,7 +486,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       const table = createPersonTable({ data: manyRows })
-      return <DataTable table={table} virtualizer={virtualizer} />
+      return <table.DataTable virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -511,7 +508,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       const table = createPersonTable({ paginated: true })
-      return <DataTable table={table} virtualizer={virtualizer} />
+      return <table.DataTable virtualizer={virtualizer} />
     })
 
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
@@ -534,7 +531,7 @@ describe('DataTable', () => {
         paginated: true,
         selectionMode: 'multiple',
       })
-      return <DataTable table={table} virtualizer={virtualizer} />
+      return <table.DataTable virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -560,7 +557,7 @@ describe('DataTable', () => {
 
     const { container } = render(() => {
       table = createPersonTable({ data: manyPeople(50) })
-      return <DataTable table={table} virtualizer={virtualizer} />
+      return <table.DataTable virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -585,7 +582,7 @@ describe('DataTable', () => {
         columns: [{ accessorKey: 'name', header: 'Name' }],
         tableOptions: { getSubRows: (row) => row.children },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(screen.queryByText('Child')).toBeNull()
@@ -598,7 +595,7 @@ describe('DataTable', () => {
       const table = createPersonTable()
       return (
         <MoraineProvider theme={defineTheme({ dataTable: { base: { root: 'p-theme-root' } } })}>
-          <DataTable table={table} />
+          <table.DataTable />
         </MoraineProvider>
       )
     })
@@ -613,7 +610,7 @@ describe('DataTable', () => {
       const table = createPersonTable({
         selectionMode: 'single',
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const radios = screen.getAllByRole<HTMLInputElement>('radio')
@@ -637,7 +634,7 @@ describe('DataTable', () => {
   it('selects every row from a mixed select-all state', () => {
     const { container } = render(() => {
       const table = createPersonTable({ selectionMode: 'multiple' })
-      return <DataTable table={table} size="lg" classes={{ checkbox: 'custom-checkbox' }} />
+      return <table.DataTable size="lg" classes={{ checkbox: 'custom-checkbox' }} />
     })
 
     const [selectAll, firstRow] = screen.getAllByRole('checkbox')
@@ -670,8 +667,8 @@ describe('DataTable', () => {
       const second = createPersonTable({ selectionMode: 'single' })
       return (
         <>
-          <DataTable table={first} />
-          <DataTable table={second} />
+          <first.DataTable />
+          <second.DataTable />
         </>
       )
     })
@@ -688,7 +685,7 @@ describe('DataTable', () => {
         state: { rowSelection: {} },
         onRowSelectionChange,
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [radio] = screen.getAllByRole<HTMLInputElement>('radio')
@@ -703,7 +700,7 @@ describe('DataTable', () => {
         selectionMode: 'single',
         canSelectRow: (row) => row.original.role !== 'Intern',
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const radios = screen.getAllByRole<HTMLInputElement>('radio')
@@ -716,7 +713,7 @@ describe('DataTable', () => {
         selectionMode: 'multiple',
         canSelectRow: (row) => row.original.role !== 'Intern',
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const checkboxes = screen.getAllByRole('checkbox')
@@ -732,7 +729,7 @@ describe('DataTable', () => {
   it('sticks header cells and bounds the scroll height with maxHeight', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} sticky maxHeight={300} />
+      return <table.DataTable sticky maxHeight={300} />
     })
 
     const scrollDiv = container.querySelector('[data-slot="data-table-scroll"]') as HTMLElement
@@ -766,7 +763,7 @@ describe('DataTable', () => {
           },
         ],
       })
-      return <DataTable table={table} sticky maxHeight={200} />
+      return <table.DataTable sticky maxHeight={200} />
     })
 
     const thead = container.querySelector<HTMLTableSectionElement>('thead')!
@@ -784,7 +781,7 @@ describe('DataTable', () => {
   it('keeps the pagination toolbar outside the scroll viewport', () => {
     const { container } = render(() => {
       const table = createPersonTable({ paginated: true })
-      return <DataTable table={table} sticky maxHeight={200} />
+      return <table.DataTable sticky maxHeight={200} />
     })
 
     const scrollDiv = container.querySelector('[data-slot="data-table-scroll"]')!
@@ -803,7 +800,7 @@ describe('DataTable', () => {
 
     const { container, unmount } = render(() => {
       const table = createPersonTable({ columns: footerColumns })
-      return <DataTable table={table} sticky maxHeight={200} />
+      return <table.DataTable sticky maxHeight={200} />
     })
 
     const tfoot = container.querySelector<HTMLElement>('tfoot')!
@@ -814,7 +811,7 @@ describe('DataTable', () => {
 
     const { container: footerOnly } = render(() => {
       const table = createPersonTable({ columns: footerColumns })
-      return <DataTable table={table} sticky="footer" maxHeight={200} />
+      return <table.DataTable sticky="footer" maxHeight={200} />
     })
 
     const footerSection = footerOnly.querySelector<HTMLElement>('tfoot')!
@@ -846,7 +843,7 @@ describe('DataTable', () => {
         columns: pinnedCols,
         state: { columnPinning: { start: ['name'], end: ['role'] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [nameTh, ageTh, roleTh] = container.querySelectorAll<HTMLElement>(
@@ -880,7 +877,7 @@ describe('DataTable', () => {
         columns,
         state: { columnPinning: { start: ['name', 'age'], end: [] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [nameTh, ageTh] = container.querySelectorAll('th[data-slot="data-table-head"]')
@@ -899,7 +896,7 @@ describe('DataTable', () => {
         columns,
         state: { columnPinning: { start: ['name'], end: [] } },
       })
-      return <DataTable table={table} sticky maxHeight={200} loading />
+      return <table.DataTable sticky maxHeight={200} loading />
     })
 
     // The sticky thead is a stacking context above pinned body cells; inside it, the pinned
@@ -917,7 +914,7 @@ describe('DataTable', () => {
   it('shows a resize handle on every column when resizable', () => {
     const { container } = render(() => {
       const table = createPersonTable({ resizable: true })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const resizers = container.querySelectorAll('[data-slot="data-table-resizer"]')
@@ -930,8 +927,7 @@ describe('DataTable', () => {
         expandable: true,
       })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           expandedRowRender={(props) => (
             <div data-testid="detail-content">{props.row.original.name} details</div>
           )}
@@ -967,7 +963,7 @@ describe('DataTable', () => {
       const table = createPersonTable({
         state: { columnOrder: ['role', 'name', 'age'] },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const headers = [...container.querySelectorAll('thead th')].map(headLabel)
@@ -985,7 +981,7 @@ describe('DataTable', () => {
         selectionMode: 'multiple',
         state: { columnOrder: ['select', 'role', 'name'] },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const headers = [...container.querySelectorAll('thead th')].map((th) => headLabel(th)?.trim())
@@ -999,8 +995,7 @@ describe('DataTable', () => {
         expandable: true,
       })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           expandedRowRender={(props) => <div>{props.row.original.name}</div>}
           classes={{ expandButton: 'custom-expand' }}
         />
@@ -1016,7 +1011,7 @@ describe('DataTable', () => {
 
     render(() => {
       const table = createPersonTable({ selectionMode: 'multiple' })
-      return <DataTable table={table} onRowClick={onRowClick} />
+      return <table.DataTable onRowClick={onRowClick} />
     })
 
     const checkboxes = screen.getAllByRole('checkbox')
@@ -1033,7 +1028,7 @@ describe('DataTable', () => {
 
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} onRowClick={onRowClick} onRowDoubleClick={onRowDoubleClick} />
+      return <table.DataTable onRowClick={onRowClick} onRowDoubleClick={onRowDoubleClick} />
     })
 
     const bodyRows = screen.getAllByRole('row').slice(1)
@@ -1049,7 +1044,7 @@ describe('DataTable', () => {
   it('sets aria-sort on th headers according to sort state', () => {
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const nameTh = screen.getByText('Name').closest('th')!
@@ -1069,7 +1064,7 @@ describe('DataTable', () => {
   it('does not display empty message while loading is true', () => {
     render(() => {
       const table = createPersonTable({ data: [] })
-      return <DataTable table={table} loading />
+      return <table.DataTable loading />
     })
 
     expect(screen.queryByText('No results.')).toBeNull()
@@ -1084,7 +1079,7 @@ describe('DataTable', () => {
           { accessorKey: 'age', header: 'Age', size: 150 },
         ],
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const ths = container.querySelectorAll('thead th')
@@ -1119,7 +1114,7 @@ describe('DataTable', () => {
         ],
         state: { columnPinning: { start: ['select', 'name'], end: [] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const ths = container.querySelectorAll('thead th')
@@ -1140,8 +1135,7 @@ describe('DataTable', () => {
         paginated: true,
       })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           translations={{
             empty: 'Aucune donnée.',
             selectAll: 'Tout sélectionner',
@@ -1176,7 +1170,7 @@ describe('DataTable', () => {
           enableSorting: false,
         } as DataTableT.Options<Person>['tableOptions'],
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     // The top-level initial sort (ascending) applies, so Alice is first.
@@ -1195,7 +1189,7 @@ describe('DataTable', () => {
         columns: [{ accessorKey: 'name', header: 'Name', size: 100 }],
         tableOptions: { columnResizeMode: 'onEnd' },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const th = container.querySelector<HTMLElement>('thead th')!
@@ -1277,7 +1271,7 @@ describe('DataTable', () => {
         ],
         state: { columnPinning: { start: ['name'], end: ['role'] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [groupRow, leafRow] = container.querySelectorAll('thead tr')
@@ -1310,7 +1304,7 @@ describe('DataTable', () => {
         ],
         state: { columnPinning: { start: ['name'], end: ['role'] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const heads = [...container.querySelectorAll<HTMLElement>('thead th')]
@@ -1335,7 +1329,7 @@ describe('DataTable', () => {
         ],
         state: { columnPinning: { start: [], end: ['age', 'role'] } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [, ageTh, roleTh] = container.querySelectorAll<HTMLElement>('thead th')
@@ -1356,7 +1350,7 @@ describe('DataTable', () => {
         ],
         onColumnSizingChange,
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const [nameTh, ageTh] = container.querySelectorAll<HTMLElement>('thead th')
@@ -1400,7 +1394,7 @@ describe('DataTable', () => {
         columns: [{ accessorKey: 'name', header: 'Name' }],
         tableOptions: { defaultColumn: { maxSize: 400 } },
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const resizer = container.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
@@ -1412,7 +1406,7 @@ describe('DataTable', () => {
       const table = createPersonTable({
         columns: [{ accessorKey: 'name', header: 'Name', size: 1500 }],
       })
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     expect(container.querySelector<HTMLElement>('thead th')!.style.width).toBe('1500px')
@@ -1421,7 +1415,7 @@ describe('DataTable', () => {
   it('names each sort button after its column', () => {
     render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} />
+      return <table.DataTable />
     })
 
     const nameSort = screen.getByRole('button', { name: 'Name Sort' })
@@ -1436,7 +1430,7 @@ describe('DataTable', () => {
     const [loading, setLoading] = createSignal(true)
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} loading={loading()} />
+      return <table.DataTable loading={loading()} />
     })
 
     const table = container.querySelector('table')!
@@ -1460,7 +1454,7 @@ describe('DataTable', () => {
   it('lets callers override aria-busy', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} loading aria-busy={false} />
+      return <table.DataTable loading aria-busy={false} />
     })
 
     expect(container.querySelector('table')!.getAttribute('aria-busy')).toBe('false')
@@ -1478,8 +1472,7 @@ describe('DataTable', () => {
     const { container } = render(() => {
       table = createPersonTable({ expandable: true })
       return (
-        <DataTable
-          table={table}
+        <table.DataTable
           virtualizer={virtualizer}
           expandedRowRender={(props) => <div data-testid="detail">{props.row.original.name}</div>}
         />
@@ -1514,7 +1507,7 @@ describe('DataTable', () => {
           { accessorKey: 'age', header: 'Age' },
         ],
       })
-      return <DataTable table={table} virtualizer={virtualizer} />
+      return <table.DataTable virtualizer={virtualizer} />
     })
     await Promise.resolve()
 
@@ -1547,7 +1540,7 @@ describe('DataTable', () => {
     it('renders resize handles only on leaf headers, which resize from the keyboard', () => {
       const { container } = render(() => {
         const table = createPersonTable({ columns: GROUPED_COLUMNS, resizable: true })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(headerCell(container, 'Group').querySelector('[role="separator"]')).toBeNull()
@@ -1564,7 +1557,7 @@ describe('DataTable', () => {
     ])('gives a grouped %s table a colgroup of leaf widths', (_label, options) => {
       const { container } = render(() => {
         const table = createPersonTable({ columns: GROUPED_COLUMNS, ...options })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(container.querySelector('table')!.style.tableLayout).toBe('fixed')
@@ -1576,7 +1569,7 @@ describe('DataTable', () => {
     it('renders no colgroup for an auto-layout table', () => {
       const { container } = render(() => {
         const table = createPersonTable()
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
       expect(container.querySelector('colgroup')).toBeNull()
     })
@@ -1593,7 +1586,7 @@ describe('DataTable', () => {
           },
           onColumnVisibilityChange: setVisibility,
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
       const edges = () =>
         [...container.querySelectorAll('tbody tr:first-child td')].map((cell) =>
@@ -1630,7 +1623,7 @@ describe('DataTable', () => {
           initialState: { expanded: true },
           tableOptions: { getSubRows: (row) => row.children },
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
       const box = (name: string) =>
         screen.getByText(name).closest('tr')!.querySelector('[role="checkbox"]')!
@@ -1657,7 +1650,7 @@ describe('DataTable', () => {
             return paginated()
           },
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe(
@@ -1740,7 +1733,7 @@ describe('DataTable', () => {
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1784,7 +1777,7 @@ describe('DataTable', () => {
             { accessorKey: 'actions', header: 'Actions', size: 80 },
           ],
         })
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
       scrollColumns(container, 1000)
@@ -1801,7 +1794,7 @@ describe('DataTable', () => {
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1817,7 +1810,7 @@ describe('DataTable', () => {
       const { virtualizer } = createWideVirtualizer()
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
       scrollColumns(container, 1000)
@@ -1856,7 +1849,7 @@ describe('DataTable', () => {
           onColumnOrderChange: setOrder,
           onColumnVisibilityChange: setVisibility,
         })
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1890,7 +1883,7 @@ describe('DataTable', () => {
             getSubRows: (row) => (row.name === 'parent' ? [{ name: 'child' }] : undefined),
           },
         })
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1908,7 +1901,7 @@ describe('DataTable', () => {
       })
       const { container } = render(() => {
         const table = createWideTable()
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 
@@ -1928,7 +1921,7 @@ describe('DataTable', () => {
     it('shows the row count when nothing is selected', () => {
       const { container } = render(() => {
         const table = createPersonTable({ paginated: true })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(summary(container)).toBe('3 rows')
@@ -1937,7 +1930,7 @@ describe('DataTable', () => {
     it('uses the singular for one row', () => {
       const { container } = render(() => {
         const table = createPersonTable({ data: TEST_DATA.slice(0, 1), paginated: true })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(summary(container)).toBe('1 row')
@@ -1947,7 +1940,7 @@ describe('DataTable', () => {
       let table!: DataTableT.Instance<Person>
       const { container } = render(() => {
         table = createPersonTable({ paginated: true, selectionMode: 'multiple' })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(summary(container)).toBe('3 rows')
@@ -1965,7 +1958,7 @@ describe('DataTable', () => {
           paginated: true,
           initialState: { rowSelection: { '0': true, '2': true } },
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(summary(container)).toBe('2 of 3 selected')
@@ -1974,7 +1967,7 @@ describe('DataTable', () => {
     it('counts the server total in manual mode', () => {
       const { container } = render(() => {
         const table = createPersonTable({ paginated: true, manual: true, rowCount: 120 })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(summary(container)).toBe('120 rows')
@@ -2007,7 +2000,7 @@ describe('DataTable', () => {
     it('hides the priority while only one column is sorted', () => {
       const { container } = render(() => {
         const table = createPersonTable()
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       fireEvent.click(sortButton(container, 'Name'))
@@ -2018,7 +2011,7 @@ describe('DataTable', () => {
     it('numbers sorted columns in priority order after a shift-click', () => {
       const { container } = render(() => {
         const table = createPersonTable()
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       fireEvent.click(sortButton(container, 'Role'))
@@ -2051,7 +2044,7 @@ describe('DataTable', () => {
           },
           onSortingChange: setSorting,
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(priorities(container)).toEqual({ Name: '1', Age: '2', Role: '3' })
@@ -2077,10 +2070,7 @@ describe('DataTable', () => {
           },
         })
         return (
-          <DataTable
-            table={table}
-            translations={{ sortPriority: ({ index }) => `Priorité ${index}` }}
-          />
+          <table.DataTable translations={{ sortPriority: ({ index }) => `Priorité ${index}` }} />
         )
       })
 
@@ -2147,7 +2137,7 @@ describe('DataTable', () => {
     it('indents sub-rows by depth and marks only their tree cell', () => {
       const { container } = render(() => {
         const table = createTreeTable()
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       const root = bodyRow(container, 'src')
@@ -2172,7 +2162,7 @@ describe('DataTable', () => {
           selectionMode: 'multiple',
           expandable: (row) => row.subRows.length > 0,
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       const child = bodyRow(container, 'components')
@@ -2201,7 +2191,7 @@ describe('DataTable', () => {
           onColumnOrderChange: setOrder,
           onColumnVisibilityChange: setVisibility,
         })
-        return <DataTable table={table} />
+        return <table.DataTable />
       })
 
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
@@ -2223,7 +2213,7 @@ describe('DataTable', () => {
 
       const { container } = render(() => {
         const table = createTreeTable()
-        return <DataTable table={table} virtualizer={virtualizer} />
+        return <table.DataTable virtualizer={virtualizer} />
       })
       await Promise.resolve()
 

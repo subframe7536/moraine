@@ -1,4 +1,4 @@
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createSignal } from 'solid-js'
 
@@ -153,7 +153,7 @@ export default function TreeDataExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable table={table} aria-label="Project files" highlightOnHover />
+      <table.DataTable aria-label="Project files" highlightOnHover />
       <p class="text-sm text-muted-foreground" aria-live="polite">
         {selectedFiles().length > 0
           ? `Selected files: ${selectedFiles().join(', ')}`

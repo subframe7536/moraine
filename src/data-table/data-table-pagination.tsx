@@ -13,6 +13,9 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
+/** Default page sizes offered by the pagination toolbar and `paginated` option. */
+export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
+
 /** Pagination toolbar: row or selection summary, page navigation, and page-size menu. */
 export function DataTablePagination<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>

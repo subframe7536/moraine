@@ -1,6 +1,5 @@
 import { CommandPalette, Combobox, List, MultiSelect, Select, createTree } from 'moraine'
 import type { CommandPaletteT, ComboboxT, ListT, MultiSelectT, SelectT, TreeT } from 'moraine'
-import { DataTable } from 'moraine/data-table'
 import type { DataTableT, createDataTable } from 'moraine/data-table'
 import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualizer'
 
@@ -50,8 +49,7 @@ const options: SelectT.Item<string>[] = []
 />
 
 declare const table: ReturnType<typeof createDataTable<Item>>
-;<DataTable
-  table={table}
+;<table.DataTable
   virtualizer={createTableVirtualizer<DataTableT.Row<Item>>({
     estimateSize: () => 41,
     columns: { overscan: 2 },

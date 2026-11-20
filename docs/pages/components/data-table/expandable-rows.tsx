@@ -1,5 +1,5 @@
 import { Badge } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { For } from 'solid-js'
 
@@ -166,8 +166,7 @@ export default function ExpandableRowsExample() {
       <div class="text-sm text-muted-foreground">
         Click the chevron on any row to inspect its line items and shipping details.
       </div>
-      <DataTable
-        table={table}
+      <table.DataTable
         highlightOnHover
         expandedRowRender={(props) => (
           <div class="flex flex-col gap-3">

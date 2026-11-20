@@ -1,5 +1,5 @@
 import { Badge } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 interface AuditEvent {
@@ -121,14 +121,7 @@ export default function StickySectionsExample() {
 
   return (
     <div class="flex flex-col gap-3 w-full">
-      <DataTable
-        table={table}
-        aria-label="Audit log"
-        sticky
-        maxHeight={360}
-        highlightOnHover
-        size="sm"
-      />
+      <table.DataTable aria-label="Audit log" sticky maxHeight={360} highlightOnHover size="sm" />
     </div>
   )
 }

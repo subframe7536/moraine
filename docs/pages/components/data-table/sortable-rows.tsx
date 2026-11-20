@@ -1,5 +1,5 @@
 import { Icon } from '@src'
-import { DataTable, createDataTable } from '@src/data-table'
+import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createListSortable } from '@src/dnd'
 import { createSignal } from 'solid-js'
@@ -59,8 +59,7 @@ export default function SortableRowsExample() {
 
   return (
     <sortable.Provider>
-      <DataTable
-        table={table}
+      <table.DataTable
         aria-label="Release queue"
         rowProps={(context) => sortable.useRow(context).props}
       />
