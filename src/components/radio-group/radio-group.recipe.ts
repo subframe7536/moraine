@@ -15,6 +15,7 @@ import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group
 
 export const radioGroupDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  legend: /* @__PURE__ */ createDataAttributes('required'),
   item: /* @__PURE__ */ createDataAttributes('checked', 'disabled'),
   control: /* @__PURE__ */ createDataAttributes(
     'checked',
@@ -31,7 +32,10 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   RadioGroupStyleVariants
 >('radioGroup', {
   base: {
-    root: 'flex relative',
+    root: 'relative',
+    fieldset: 'flex',
+    legend:
+      "text-foreground font-medium mb-1.5 block data-required:after:(text-danger-ink ms-0.5 content-['*'])",
     item: `flex items-start ${DATA_DISABLED_CLASS}`,
     control: `outline-none border border-input rounded-full bg-control inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) ${PEER_FOCUS_VISIBLE_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`,
     container: 'flex items-center',
@@ -48,12 +52,13 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     orientation: {
-      horizontal: { root: 'flex-row' },
-      vertical: { root: 'flex-col' },
+      horizontal: { fieldset: 'flex-row' },
+      vertical: { fieldset: 'flex-col' },
     },
     size: {
       sm: {
         item: 'text-xs',
+        legend: 'text-xs',
         control: 'size-3.5',
         container: 'h-4',
         indicator: 'size-1.5',
@@ -61,6 +66,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
       },
       md: {
         item: 'text-sm',
+        legend: 'text-sm',
         control: 'size-4',
         container: 'h-5',
         indicator: 'size-2',
@@ -68,6 +74,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
       },
       lg: {
         item: 'text-base',
+        legend: 'text-base',
         control: 'size-4.5',
         container: 'h-6',
         indicator: 'size-2.5',
@@ -76,14 +83,14 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
     },
     variant: {
       card: {
-        root: 'gap-2',
+        fieldset: 'gap-2',
         item: 'border border-border rounded-md data-checked:border-primary',
       },
       table: {
         item: 'border border-muted relative data-checked:(border-primary bg-primary-soft z-base)',
       },
       list: {
-        root: 'gap-2',
+        fieldset: 'gap-2',
       },
     },
     indicatorPosition: {

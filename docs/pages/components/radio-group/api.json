@@ -76,6 +76,12 @@
           ]
         },
         {
+          "name": "legend",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Legend that labels the group (rendered as a `<legend>` inside the `<fieldset>`). A `Field`\nlabel takes precedence for `aria-labelledby`."
+        },
+        {
           "name": "loop",
           "optional": true,
           "type": "boolean",
@@ -199,6 +205,8 @@
   },
   "slots": [
     "root",
+    "fieldset",
+    "legend",
     "item",
     "control",
     "container",
@@ -214,6 +222,12 @@
         "data-disabled",
         "data-invalid",
         "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "legend",
+      "attributes": [
         "data-required"
       ]
     },

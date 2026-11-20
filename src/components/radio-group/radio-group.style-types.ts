@@ -6,6 +6,12 @@ export interface RadioGroupStyleSlot<T = unknown> {
    */
   root?: T
 
+  /** Fieldset element that groups radio options for accessibility. */
+  fieldset?: T
+
+  /** Legend text that labels the radio group. */
+  legend?: T
+
   /** Wrapper for one radio option. */
   item?: T
 

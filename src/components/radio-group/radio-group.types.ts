@@ -65,6 +65,12 @@ export namespace RadioGroupT {
     form?: string
 
     /**
+     * Legend that labels the group (rendered as a `<legend>` inside the `<fieldset>`). A `Field`
+     * label takes precedence for `aria-labelledby`.
+     */
+    legend?: JSX.Element
+
+    /**
      * Items to render, either plain strings (used as both `value` and `label`) or `Item` objects.
      * @example
      * ```tsx

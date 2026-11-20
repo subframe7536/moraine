@@ -35,6 +35,18 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain(description.id)
   })
 
+  test('names the radiogroup by its legend', () => {
+    const screen = render(() => (
+      <RadioGroup legend="Visibility" items={['Public', 'Private']} required />
+    ))
+
+    const group = screen.getByRole('radiogroup', { name: 'Visibility' })
+    const legend = screen.container.querySelector('[data-slot="radio-group-legend"]')!
+
+    expect(group.tagName).toBe('FIELDSET')
+    expect(group.getAttribute('aria-labelledby')).toBe(legend.id)
+  })
+
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => <RadioGroup required disabled items={['Basic', 'Pro']} />)
     const disabledGroup = disabledScreen.getByRole('radiogroup')

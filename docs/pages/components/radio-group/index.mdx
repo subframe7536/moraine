@@ -19,21 +19,27 @@ import Playground from './playground'
     root: { slot: 'root' },
     children: [
       {
-        slot: 'item',
+        slot: 'fieldset',
         children: [
+          { slot: 'legend' },
           {
-            slot: 'container',
+            slot: 'item',
             children: [
-              { internal: 'input' },
               {
-                slot: 'control',
-                children: [{ slot: 'indicator' }],
+                slot: 'container',
+                children: [
+                  { internal: 'input' },
+                  {
+                    slot: 'control',
+                    children: [{ slot: 'indicator' }],
+                  },
+                ],
+              },
+              {
+                slot: 'wrapper',
+                children: [{ slot: 'label' }, { slot: 'description' }],
               },
             ],
-          },
-          {
-            slot: 'wrapper',
-            children: [{ slot: 'label' }, { slot: 'description' }],
           },
         ],
       },
@@ -45,7 +51,8 @@ import Playground from './playground'
 
 Use RadioGroup for one choice from a small visible set. For a longer or space-constrained
 collection, use [Select](/components/select). Use [CheckboxGroup](/components/checkbox-group) when
-several options may be selected together.
+several options may be selected together. The group renders a `<fieldset>`; `legend` names it or a
+wrapping [Field](/components/field) label takes precedence.
 
 ```tsx
 import { Field, RadioGroup } from 'moraine'

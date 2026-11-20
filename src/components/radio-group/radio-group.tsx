@@ -78,6 +78,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'readOnly',
     'orientation',
     'items',
+    'legend',
     'loop',
     'onValueChange',
     'variant',
@@ -95,6 +96,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const {
     slots: {
       root: rootSlot,
+      fieldset: fieldsetSlot,
+      legend: legendSlot,
       container: containerSlot,
       wrapper: wrapperSlot,
       label: labelSlot,
@@ -110,6 +113,13 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         readonly: field.readOnly,
         required: field.required,
       })),
+      fieldset: radioGroupDataAttributes.root(() => ({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        required: field.required,
+      })),
+      legend: radioGroupDataAttributes.legend(() => ({ required: field.required })),
     },
     context: () => ({ variants: { size: themeField?.size } }),
   })
@@ -125,6 +135,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
   )
 
+  const legend = createMemo(() => merged.legend)
+  const legendId = () => `${groupId()}-legend`
   const items = createMemo(() => merged.items ?? [])
 
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
@@ -146,7 +158,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     field,
   })
   const inputRefs = new Map<string, HTMLInputElement>()
-  let groupEl: HTMLDivElement | undefined
+  let groupEl: HTMLFieldSetElement | undefined
   let pressedSpaceItemId: string | undefined
 
   const normalizedItems = createMemo<NormalizedRadioGroupItem[]>(() => {
@@ -307,7 +319,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
   )
 
-  const onGroupFocusIn: JSX.EventHandler<HTMLDivElement, FocusEvent> = (event) => {
+  const onGroupFocusIn: JSX.EventHandler<HTMLFieldSetElement, FocusEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, local.onFocusIn)
     if (defaultPrevented) {
       return
@@ -321,7 +333,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     field.emit('focus', event)
   }
 
-  const onGroupFocusOut: JSX.EventHandler<HTMLDivElement, FocusEvent> = (event) => {
+  const onGroupFocusOut: JSX.EventHandler<HTMLFieldSetElement, FocusEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, local.onFocusOut)
     if (defaultPrevented) {
       return
@@ -337,148 +349,164 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
   return (
     <div
-      role="radiogroup"
       data-slot="radio-group"
-      aria-orientation={merged.orientation}
       {...rootSlot}
       {...rest}
-      id={groupId()}
-      {...field.ariaAttrs()}
-      ref={(element) => {
-        groupEl = element
-        callRef(local.ref, element)
-      }}
-      onFocusIn={onGroupFocusIn}
-      onFocusOut={onGroupFocusOut}
+      id={`${groupId()}-root`}
+      ref={(element) => callRef(local.ref, element)}
     >
-      <For each={normalizedItems()}>
-        {(item) => {
-          const disabled = createMemo(() => item.disabled || field.disabled())
-          const selected = createMemo(() => isSelected(item))
-          const itemSlot = slotWith('item', {
-            data: radioGroupDataAttributes.item({
-              checked: selected,
-              disabled,
-            }),
-          })
-          const controlSlot = slotWith('control', {
-            data: radioGroupDataAttributes.control({
-              checked: selected,
-              invalid: field.invalid,
-              disabled,
-              readonly: field.readOnly,
-              required: field.required,
-            }),
-          })
-          const indicatorSlot = slotWith('indicator', {
-            data: radioGroupDataAttributes.indicator({ checked: selected }),
-          })
-
-          onCleanup(() => {
-            const input = inputRefs.get(item.id)
-            const shouldRestoreFocus =
-              input !== undefined && getActiveElement(input.ownerDocument) === input
-            inputRefs.delete(item.id)
-
-            if (shouldRestoreFocus) {
-              // oxlint-disable-next-line subf/solid-reactivity -- The replacement tab stop exists after For reconciles.
-              queueMicrotask(() => inputRefs.get(tabbableItemId() ?? '')?.focus())
-            }
-          })
-
-          return (
-            <Dynamic
-              component={variants.variant === 'list' ? 'div' : 'label'}
-              id={item.id}
-              data-slot="radio-group-item"
-              {...itemSlot}
-            >
-              <div data-slot="radio-group-container" {...containerSlot}>
-                <HiddenInput
-                  ref={(element) => {
-                    inputRefs.set(item.id, element)
-                  }}
-                  id={item.inputId}
-                  type="radio"
-                  name={field.name()}
-                  form={merged.form}
-                  value={item.value}
-                  checked={selected()}
-                  required={field.required()}
-                  disabled={disabled()}
-                  readonly={field.readOnly()}
-                  aria-required={field.required() || undefined}
-                  aria-disabled={disabled() || undefined}
-                  aria-readonly={field.readOnly() || undefined}
-                  aria-labelledby={item.label ? item.labelId : undefined}
-                  aria-describedby={
-                    [item.descriptionId, field.ariaAttrs()['aria-describedby']]
-                      .filter(Boolean)
-                      .join(' ') || undefined
-                  }
-                  tabIndex={item.id === tabbableItemId() ? 0 : -1}
-                  class={PEER_CLASS}
-                  data-slot="radio-group-input"
-                  onChange={(event) => {
-                    event.stopPropagation()
-                    onChange(item.value)
-                    syncInputCheckedState()
-                  }}
-                  onKeyDown={(event) => {
-                    onItemKeyDown(event, item)
-                  }}
-                  onKeyUp={(event) => onItemKeyUp(event, item)}
-                  onBlur={() => {
-                    if (pressedSpaceItemId === item.id) {
-                      pressedSpaceItemId = undefined
-                    }
-                  }}
-                />
-
-                <div data-slot="radio-group-control" {...controlSlot}>
-                  <Show when={selected()}>
-                    <div data-slot="radio-group-indicator" {...indicatorSlot} />
-                  </Show>
-                </div>
-              </div>
-
-              <Show when={item.label || item.description}>
-                <div data-slot="radio-group-wrapper" {...wrapperSlot}>
-                  <Show when={item.label}>
-                    <Show
-                      when={variants.variant === 'list'}
-                      fallback={
-                        <p id={item.labelId} data-slot="radio-group-label" {...labelSlot}>
-                          {item.label}
-                        </p>
-                      }
-                    >
-                      <label
-                        id={item.labelId}
-                        for={item.inputId}
-                        data-slot="radio-group-label"
-                        {...labelSlot}
-                      >
-                        {item.label}
-                      </label>
-                    </Show>
-                  </Show>
-
-                  <Show when={item.description}>
-                    <p
-                      id={item.descriptionId}
-                      data-slot="radio-group-description"
-                      {...descriptionSlot}
-                    >
-                      {item.description}
-                    </p>
-                  </Show>
-                </div>
-              </Show>
-            </Dynamic>
-          )
+      <fieldset
+        role="radiogroup"
+        data-slot="radio-group-fieldset"
+        {...fieldsetSlot}
+        id={groupId()}
+        disabled={field.disabled()}
+        aria-orientation={merged.orientation}
+        aria-labelledby={
+          field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
+        }
+        {...field.ariaAttrs()}
+        ref={(element) => {
+          groupEl = element
         }}
-      </For>
+        onFocusIn={onGroupFocusIn}
+        onFocusOut={onGroupFocusOut}
+      >
+        <Show when={legend()}>
+          <legend id={legendId()} data-slot="radio-group-legend" {...legendSlot}>
+            {legend()}
+          </legend>
+        </Show>
+
+        <For each={normalizedItems()}>
+          {(item) => {
+            const disabled = createMemo(() => item.disabled || field.disabled())
+            const selected = createMemo(() => isSelected(item))
+            const itemSlot = slotWith('item', {
+              data: radioGroupDataAttributes.item({
+                checked: selected,
+                disabled,
+              }),
+            })
+            const controlSlot = slotWith('control', {
+              data: radioGroupDataAttributes.control({
+                checked: selected,
+                invalid: field.invalid,
+                disabled,
+                readonly: field.readOnly,
+                required: field.required,
+              }),
+            })
+            const indicatorSlot = slotWith('indicator', {
+              data: radioGroupDataAttributes.indicator({ checked: selected }),
+            })
+
+            onCleanup(() => {
+              const input = inputRefs.get(item.id)
+              const shouldRestoreFocus =
+                input !== undefined && getActiveElement(input.ownerDocument) === input
+              inputRefs.delete(item.id)
+
+              if (shouldRestoreFocus) {
+                // oxlint-disable-next-line subf/solid-reactivity -- The replacement tab stop exists after For reconciles.
+                queueMicrotask(() => inputRefs.get(tabbableItemId() ?? '')?.focus())
+              }
+            })
+
+            return (
+              <Dynamic
+                component={variants.variant === 'list' ? 'div' : 'label'}
+                id={item.id}
+                data-slot="radio-group-item"
+                {...itemSlot}
+              >
+                <div data-slot="radio-group-container" {...containerSlot}>
+                  <HiddenInput
+                    ref={(element) => {
+                      inputRefs.set(item.id, element)
+                    }}
+                    id={item.inputId}
+                    type="radio"
+                    name={field.name()}
+                    form={merged.form}
+                    value={item.value}
+                    checked={selected()}
+                    required={field.required()}
+                    disabled={disabled()}
+                    readonly={field.readOnly()}
+                    aria-required={field.required() || undefined}
+                    aria-disabled={disabled() || undefined}
+                    aria-readonly={field.readOnly() || undefined}
+                    aria-labelledby={item.label ? item.labelId : undefined}
+                    aria-describedby={
+                      [item.descriptionId, field.ariaAttrs()['aria-describedby']]
+                        .filter(Boolean)
+                        .join(' ') || undefined
+                    }
+                    tabIndex={item.id === tabbableItemId() ? 0 : -1}
+                    class={PEER_CLASS}
+                    data-slot="radio-group-input"
+                    onChange={(event) => {
+                      event.stopPropagation()
+                      onChange(item.value)
+                      syncInputCheckedState()
+                    }}
+                    onKeyDown={(event) => {
+                      onItemKeyDown(event, item)
+                    }}
+                    onKeyUp={(event) => onItemKeyUp(event, item)}
+                    onBlur={() => {
+                      if (pressedSpaceItemId === item.id) {
+                        pressedSpaceItemId = undefined
+                      }
+                    }}
+                  />
+
+                  <div data-slot="radio-group-control" {...controlSlot}>
+                    <Show when={selected()}>
+                      <div data-slot="radio-group-indicator" {...indicatorSlot} />
+                    </Show>
+                  </div>
+                </div>
+
+                <Show when={item.label || item.description}>
+                  <div data-slot="radio-group-wrapper" {...wrapperSlot}>
+                    <Show when={item.label}>
+                      <Show
+                        when={variants.variant === 'list'}
+                        fallback={
+                          <p id={item.labelId} data-slot="radio-group-label" {...labelSlot}>
+                            {item.label}
+                          </p>
+                        }
+                      >
+                        <label
+                          id={item.labelId}
+                          for={item.inputId}
+                          data-slot="radio-group-label"
+                          {...labelSlot}
+                        >
+                          {item.label}
+                        </label>
+                      </Show>
+                    </Show>
+
+                    <Show when={item.description}>
+                      <p
+                        id={item.descriptionId}
+                        data-slot="radio-group-description"
+                        {...descriptionSlot}
+                      >
+                        {item.description}
+                      </p>
+                    </Show>
+                  </div>
+                </Show>
+              </Dynamic>
+            )
+          }}
+        </For>
+      </fieldset>
     </div>
   )
 }
