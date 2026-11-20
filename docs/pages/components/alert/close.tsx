@@ -15,7 +15,7 @@ export function CloseExample() {
         open={open()}
         onOpenChange={setOpen}
         closable
-        type="info"
+        tone="info"
         title="Dismissible notice"
         description="You can close this alert by clicking the close button on the right."
       />

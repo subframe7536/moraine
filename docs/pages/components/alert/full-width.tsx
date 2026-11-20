@@ -5,7 +5,7 @@ export function FullWidthExample() {
     <div class="flex flex-col gap-3 w-full">
       <Alert
         fullWidth
-        type="warning"
+        tone="warning"
         title="Scheduled maintenance notice"
         description="The platform will undergo scheduled maintenance tonight between 02:00 and 04:00 UTC."
         closable

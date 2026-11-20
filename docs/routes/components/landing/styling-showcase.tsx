@@ -625,7 +625,7 @@ export function StylingShowcase() {
               }
             >
               <Alert
-                type="info"
+                tone="info"
                 title="Zero-runtime recipes active"
                 description="All 15+ controls in this canvas share one semantic token layer."
                 closable

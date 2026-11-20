@@ -17,7 +17,7 @@ import { defaultAlertMessages } from './alert.messages'
 import { alertDataAttributes, alertRecipe } from './alert.recipe'
 import type { AlertT } from './alert.types'
 
-const ALERT_TYPE_ICONS: Record<string, IconT.Name> = {
+const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
   info: 'icon-info',
   success: 'icon-success',
   warning: 'icon-warning',
@@ -27,7 +27,7 @@ const ALERT_TYPE_ICONS: Record<string, IconT.Name> = {
 /**
  * Non-floating contextual feedback and status banner that stays in the page flow. Use `Toast` for
  * transient notifications and `BaseDialog` for feedback that must block the page. It renders a `div`
- * (change it with `as`) with `role="alert"` for the `warning` and `error` types and
+ * (change it with `as`) with `role="alert"` for the `warning` and `error` tones and
  * `role="status"` for the rest.
  *
  * @example
@@ -35,7 +35,7 @@ const ALERT_TYPE_ICONS: Record<string, IconT.Name> = {
  * import { Alert } from 'moraine'
  *
  * <Alert
- *   type="warning"
+ *   tone="warning"
  *   title="Storage almost full"
  *   description="You have used 85% of your quota."
  *   closable
@@ -56,7 +56,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'defaultOpen',
     'onOpenChange',
     'onExitComplete',
-    'type',
+    'tone',
     'variant',
     'classes',
     'styles',
@@ -86,7 +86,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const hasDescription = () => hasContent(description())
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.closable)
-  const resolvedType = () => local.type ?? 'default'
+  const resolvedTone = () => local.tone ?? 'default'
 
   const resolvedIcon = createMemo(() => {
     const custom = local.icon
@@ -96,8 +96,8 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     if (typeof custom === 'string' || typeof custom === 'object') {
       return custom
     }
-    const t = resolvedType()
-    return ALERT_TYPE_ICONS[t]
+    const t = resolvedTone()
+    return ALERT_TONE_ICONS[t]
   })
 
   const hasIcon = () => resolvedIcon() !== undefined
@@ -120,7 +120,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
         expanded: presence.dataAttrs['data-expanded'] !== undefined,
         fullWidth: isFullWidth(),
         hasDescription: hasDescription(),
-        type: resolvedType(),
+        tone: resolvedTone(),
       })),
     },
     context: () => ({
@@ -130,7 +130,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     }),
   })
 
-  const isUrgent = () => resolvedType() === 'error' || resolvedType() === 'warning'
+  const isUrgent = () => resolvedTone() === 'error' || resolvedTone() === 'warning'
   const defaultRole = () => (isUrgent() ? 'alert' : 'status')
   const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
 

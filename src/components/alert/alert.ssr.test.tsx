@@ -7,14 +7,14 @@ import { AlertHydrationFixture } from './alert.ssr.fixture'
 import type { AlertT } from './alert.types'
 
 test('hydrates alert fixture and updates reactive props', () => {
-  const [type, setType] = createSignal<AlertT.Variants['type']>('info')
+  const [tone, setTone] = createSignal<AlertT.Variants['tone']>('info')
   const [title, setTitle] = createSignal('Alert title')
   const [description] = createSignal<string | undefined>('Detailed alert description')
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',
     'renderAlertFixture',
     () => (
-      <AlertHydrationFixture type={type()} title={title()} description={description()} closable />
+      <AlertHydrationFixture tone={tone()} title={title()} description={description()} closable />
     ),
   )
   const root = container.firstElementChild
@@ -27,10 +27,10 @@ test('hydrates alert fixture and updates reactive props', () => {
   expect(container.querySelector('[data-slot="alert-close"]')).not.toBeNull()
 
   setTitle('Updated title')
-  setType('success')
+  setTone('success')
   expect(container.firstElementChild).toBe(root)
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated title')
-  expect(root?.getAttribute('data-type')).toBe('success')
+  expect(root?.getAttribute('data-tone')).toBe('success')
 })
 
 test('hydrates minimal alert fixture without description or close', () => {
@@ -38,11 +38,11 @@ test('hydrates minimal alert fixture without description or close', () => {
   const { container } = hydrateFixture(
     '/src/components/alert/alert.ssr.fixture.tsx',
     'renderMinimalAlertFixture',
-    () => <AlertHydrationFixture type="default" title={title()} />,
+    () => <AlertHydrationFixture tone="default" title={title()} />,
   )
   const root = container.firstElementChild
   expect(root).toBeDefined()
-  expect(root?.getAttribute('data-type')).toBe('default')
+  expect(root?.getAttribute('data-tone')).toBe('default')
   expect(container.querySelector('[data-slot="alert-icon"]')).toBeNull()
   expect(container.querySelector('[data-slot="alert-close"]')).toBeNull()
 

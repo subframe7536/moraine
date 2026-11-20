@@ -106,7 +106,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to the semantic icon of the `type` (`info`,\n  `success`, `warning`, `error`), or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to the semantic icon of the `tone` (`info`,\n  `success`, `warning`, `error`), or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
         },
         {
           "name": "onExitComplete",
@@ -145,16 +145,7 @@
           "description": "Primary title, rendered in bold above the description. Nothing is rendered when empty."
         },
         {
-          "name": "translations",
-          "optional": true,
-          "type": "Translations",
-          "description": "Overrides the built-in strings for this instance, merged over the provider locale. The only\nkey is `close`, the accessible label of the dismiss button (default `'Close alert'`).",
-          "examples": [
-            "import { Alert } from 'moraine'\n\n<Alert closable title=\"Saved\" translations={{ close: 'Dismiss' }} />"
-          ]
-        },
-        {
-          "name": "type",
+          "name": "tone",
           "optional": true,
           "type": "'default' | 'info' | 'success' | 'warning' | 'error'",
           "description": "Semantic intent of the alert.",
@@ -162,6 +153,15 @@
             "kind": "literal",
             "value": "default"
           }
+        },
+        {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Overrides the built-in strings for this instance, merged over the provider locale. The only\nkey is `close`, the accessible label of the dismiss button (default `'Close alert'`).",
+          "examples": [
+            "import { Alert } from 'moraine'\n\n<Alert closable title=\"Saved\" translations={{ close: 'Dismiss' }} />"
+          ]
         },
         {
           "name": "variant",
@@ -194,7 +194,7 @@
         "data-expanded",
         "data-full-width",
         "data-has-description",
-        "data-type"
+        "data-tone"
       ]
     }
   ]

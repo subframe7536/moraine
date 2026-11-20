@@ -14,7 +14,7 @@ export namespace AlertT {
   export type Variants = AlertStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Type = NonNullable<Variants['type']>
+  export type Tone = NonNullable<Variants['tone']>
   export type Messages = ComponentMessages<typeof defaultAlertMessages>
   export type Translations = Partial<Messages>
 
@@ -51,7 +51,7 @@ export namespace AlertT {
 
     /**
      * Leading icon displayed in the alert.
-     * - `undefined` (default): automatically resolves to the semantic icon of the `type` (`info`,
+     * - `undefined` (default): automatically resolves to the semantic icon of the `tone` (`info`,
      *   `success`, `warning`, `error`), or none for `default`.
      * - `false` or `null`: hides the icon.
      * - `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element.

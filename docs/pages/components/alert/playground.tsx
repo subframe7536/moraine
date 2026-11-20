@@ -8,8 +8,8 @@ export default function AlertPlayground() {
       controls={[
         {
           kind: 'select',
-          prop: 'type',
-          label: 'Type',
+          prop: 'tone',
+          label: 'Tone',
           defaultValue: 'info',
           options: [
             { label: 'Default', value: 'default' },
@@ -49,7 +49,7 @@ export default function AlertPlayground() {
       {(props) => (
         <div class="max-w-xl w-full">
           <Alert
-            type={props.type}
+            tone={props.tone}
             variant={props.variant}
             actions={
               props.actions ? (

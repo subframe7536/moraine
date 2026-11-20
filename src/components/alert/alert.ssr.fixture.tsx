@@ -4,7 +4,7 @@ import { Alert } from './alert'
 import type { AlertT } from './alert.types'
 
 export function AlertHydrationFixture(props: {
-  type?: AlertT.Variants['type']
+  tone?: AlertT.Variants['tone']
   variant?: AlertT.Variants['variant']
   title?: string
   description?: string
@@ -13,7 +13,7 @@ export function AlertHydrationFixture(props: {
 }) {
   return (
     <Alert
-      type={props.type ?? 'info'}
+      tone={props.tone ?? 'info'}
       variant={props.variant ?? 'subtle'}
       title={props.title ?? 'Alert title'}
       description={props.description}
@@ -30,5 +30,5 @@ export function renderAlertFixture(): string {
 }
 
 export function renderMinimalAlertFixture(): string {
-  return renderToString(() => <AlertHydrationFixture type="default" title="Minimal alert" />)
+  return renderToString(() => <AlertHydrationFixture tone="default" title="Minimal alert" />)
 }

@@ -23,14 +23,18 @@ export interface AlertStyleSlot<T = unknown> {
   close?: T
 }
 
-export type AlertType = 'default' | 'info' | 'success' | 'warning' | 'error'
+/**
+ * Semantic intent of the alert. Unlike the shared `Tone` token set, the status vocabulary keeps
+ * `'error'` (mapped to the `danger` tone internally) and uses `'default'` for the neutral state.
+ */
+export type AlertTone = 'default' | 'info' | 'success' | 'warning' | 'error'
 
 export interface AlertStyleVariants {
   /**
    * Semantic intent of the alert.
    * @default 'default'
    */
-  type?: AlertType
+  tone?: AlertTone
 
   /**
    * Visual surface variant.

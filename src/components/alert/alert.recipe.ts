@@ -12,7 +12,7 @@ export const alertDataAttributes = {
     'expanded',
     'full-width',
     'has-description',
-    'type',
+    'tone',
   ),
 } satisfies DataAttributeContract<keyof AlertStyleSlot>
 
@@ -29,12 +29,12 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertRec
       close: `text-muted-foreground rounded-sm inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`,
     },
     defaultVariants: {
-      type: 'default',
+      tone: 'default',
       variant: 'subtle',
       fullWidth: false,
     },
     variants: {
-      type: {
+      tone: {
         default: TONE_CLASS.primary,
         info: {
           ...TONE_CLASS.info,

@@ -33,21 +33,21 @@ import Playground from './playground'
 
 Use Alert for inline feedback that stays in the page flow. Choose [Toast](/components/toast) for
 transient notifications and [BaseDialog](/components/base-dialog) for feedback that must block the page. Alert
-sets `role="alert"` with `aria-live="assertive"` for the `warning` and `error` types, and
+sets `role="alert"` with `aria-live="assertive"` for the `warning` and `error` tones, and
 `role="status"` with `aria-live="polite"` for the rest.
 
 ```tsx
 import { Alert } from 'moraine'
 
 export function Example() {
-  return <Alert type="info" title="System update available" />
+  return <Alert tone="info" title="System update available" />
 }
 ```
 
-### Type and variant
+### Tone and variant
 
-`type` selects the semantic status: `default`, `info`, `success`, `warning`, and `error`. The
-`info`, `success`, `warning`, and `error` types render a matching status icon; `default` renders
+`tone` selects the semantic status: `default`, `info`, `success`, `warning`, and `error`. The
+`info`, `success`, `warning`, and `error` tones render a matching status icon; `default` renders
 none. `variant` selects the surface treatment: `subtle` (default), `soft`, `outline`, and `solid`.
 
 ### Description layout
@@ -56,7 +56,7 @@ Pass `description` for a supporting line below the title. With a description, th
 padding and the title turns bold. `children` render after the title and description.
 
 ```tsx
-<Alert type="warning" title="Storage almost full" description="You have used 85% of your quota." />
+<Alert tone="warning" title="Storage almost full" description="You have used 85% of your quota." />
 ```
 
 ### Dismissal
@@ -75,9 +75,9 @@ const [open, setOpen] = createSignal(true)
 
 ## Examples
 
-### Types
+### Tones
 
-Render one alert per `type` to compare their colors and status icons.
+Render one alert per `tone` to compare their colors and status icons.
 
 <Preview path="./basic" />
 

@@ -10,55 +10,55 @@ describe('Alert', () => {
     const alert = screen.getByRole('status')
     expect(alert).toBeDefined()
     expect(alert.getAttribute('data-slot')).toBe('alert')
-    expect(alert.getAttribute('data-type')).toBe('default')
+    expect(alert.getAttribute('data-tone')).toBe('default')
     expect(screen.getByText('Default announcement')).toBeDefined()
     expect(alert.querySelector('[data-slot="alert-icon"]')).toBeNull()
   })
 
   it('renders semantic status types with default icons and appropriate ARIA roles', () => {
-    const viewInfo = render(() => <Alert type="info" title="Info alert" />)
+    const viewInfo = render(() => <Alert tone="info" title="Info alert" />)
     let alert = viewInfo.getByRole('status')
-    expect(alert.getAttribute('data-type')).toBe('info')
+    expect(alert.getAttribute('data-tone')).toBe('info')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-info')
     viewInfo.unmount()
 
-    const viewSuccess = render(() => <Alert type="success" title="Success alert" />)
+    const viewSuccess = render(() => <Alert tone="success" title="Success alert" />)
     alert = viewSuccess.getByRole('status')
-    expect(alert.getAttribute('data-type')).toBe('success')
+    expect(alert.getAttribute('data-tone')).toBe('success')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-success')
     viewSuccess.unmount()
 
-    const viewWarning = render(() => <Alert type="warning" title="Warning alert" />)
+    const viewWarning = render(() => <Alert tone="warning" title="Warning alert" />)
     alert = viewWarning.getByRole('alert')
-    expect(alert.getAttribute('data-type')).toBe('warning')
+    expect(alert.getAttribute('data-tone')).toBe('warning')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-warning')
     viewWarning.unmount()
 
-    const viewError = render(() => <Alert type="error" title="Error alert" />)
+    const viewError = render(() => <Alert tone="error" title="Error alert" />)
     alert = viewError.getByRole('alert')
-    expect(alert.getAttribute('data-type')).toBe('error')
+    expect(alert.getAttribute('data-tone')).toBe('error')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-error')
     viewError.unmount()
   })
 
   it('allows suppressing the icon with icon={false} or icon={null}', () => {
-    const view1 = render(() => <Alert type="info" title="No icon" icon={false} />)
+    const view1 = render(() => <Alert tone="info" title="No icon" icon={false} />)
     expect(view1.getByRole('status').querySelector('[data-slot="alert-icon"]')).toBeNull()
     view1.unmount()
 
-    const view2 = render(() => <Alert type="success" title="No icon either" icon={null} />)
+    const view2 = render(() => <Alert tone="success" title="No icon either" icon={null} />)
     expect(view2.getByRole('status').querySelector('[data-slot="alert-icon"]')).toBeNull()
     view2.unmount()
   })
 
   it('supports custom icon names and custom JSX elements', () => {
-    const view1 = render(() => <Alert type="default" title="With custom icon" icon="icon-tip" />)
+    const view1 = render(() => <Alert tone="default" title="With custom icon" icon="icon-tip" />)
     const alert = view1.getByRole('status')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-tip')
     view1.unmount()
 
     const view2 = render(() => (
-      <Alert type="info" title="Custom JSX icon" icon={<span data-testid="custom-icon">★</span>} />
+      <Alert tone="info" title="Custom JSX icon" icon={<span data-testid="custom-icon">★</span>} />
     ))
     expect(view2.getByTestId('custom-icon')).toBeDefined()
     view2.unmount()
