@@ -26,7 +26,7 @@ import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
 
 type Orientation = NonNullable<ScrollAreaT.Variants['orientation']>
 type ScrollbarWidth = NonNullable<ScrollAreaT.Variants['scrollbarWidth']>
-type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbarVariant']>
+type ScrollbarMode = NonNullable<ScrollAreaT.Variants['scrollbarMode']>
 
 const AXES = { vertical: ['y'], horizontal: ['x'], both: ['y', 'x'] } as const
 
@@ -114,10 +114,10 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'viewportRef',
     'children',
     'orientation',
-    'scrollbarVariant',
+    'scrollbarMode',
     'scrollbarWidth',
-    'shadow',
-    'shadowSize',
+    'fade',
+    'fadeSize',
     'scrollThreshold',
     'scrollHideDelay',
     'onOverflowChange',
@@ -164,11 +164,11 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       corner: scrollAreaDataAttributes.corner(() => ({ visible: cornerVisible() })),
     },
     own: {
-      viewport: () => (shadow() ? { style: SCROLL_AREA_SHADOW_STYLE } : undefined),
+      viewport: () => (fade() ? { style: SCROLL_AREA_SHADOW_STYLE } : undefined),
       root: () =>
-        local.shadowSize === undefined
+        local.fadeSize === undefined
           ? undefined
-          : { style: { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` } },
+          : { style: { '--scroll-area-shadow-size': `${Math.max(0, local.fadeSize)}px` } },
     },
     enforced: {
       root: () => {
@@ -188,9 +188,9 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   })
 
   const orientation = (): Orientation => variants.orientation ?? 'vertical'
-  const shadow = (): boolean => variants.shadow ?? false
+  const fade = (): boolean => variants.fade ?? false
   const scrollbarWidth = (): ScrollbarWidth => variants.scrollbarWidth ?? 'normal'
-  const scrollbarMode = (): ScrollbarMode => variants.scrollbarVariant ?? 'hover'
+  const scrollbarMode = (): ScrollbarMode => variants.scrollbarMode ?? 'hover'
   const axes = (): readonly ScrollAreaT.Axis[] => AXES[orientation()]
   const axisMetrics = (axis: ScrollAreaT.Axis): AxisMetrics =>
     axes().includes(axis) ? metrics()[axis] : EMPTY_AXIS_METRICS

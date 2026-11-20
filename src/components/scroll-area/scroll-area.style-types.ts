@@ -24,11 +24,11 @@ export interface ScrollAreaStyleVariants {
    * scrolls, `scroll` shows them while it scrolls, `native` keeps browser scrollbars, and
    * `hidden` hides every scrollbar while retaining scrolling. @default 'hover'
    */
-  scrollbarVariant?: 'always' | 'hover' | 'scroll' | 'native' | 'hidden'
+  scrollbarMode?: 'always' | 'hover' | 'scroll' | 'native' | 'hidden'
   /** Scrollbar thickness, for both custom and `native` scrollbars. @default 'normal' */
   scrollbarWidth?: 'normal' | 'thin'
   /** Whether edges with more content beyond them fade out as a shadow. @default false */
-  shadow?: boolean
+  fade?: boolean
 }
 
 export type ScrollAreaStyleConfig = ComponentStyleConfig<

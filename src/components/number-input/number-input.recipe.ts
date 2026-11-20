@@ -82,7 +82,7 @@ export const numberInputRecipe = /* @__PURE__ */ defineRecipe<
       },
       none: { root: INPUT_VARIANT.none },
     },
-    align: {
+    textAlign: {
       center: { input: 'text-center' },
       start: { input: 'text-start' },
       end: { input: 'text-end' },
