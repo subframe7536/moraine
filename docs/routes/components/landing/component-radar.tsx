@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 
 import {
@@ -14,10 +14,11 @@ import {
   NumberInput,
   PinInput,
   Popover,
-  Resizable,
+  ScrollArea,
   Slider,
   Stepper,
   Switch,
+  Table,
   Tabs,
   cn,
 } from '../../../../src'
@@ -52,16 +53,71 @@ const GRANULAR_SNIPPET = `<BaseSelect items={frameworks} value={value()} onValue
   </BaseSelect.Content>
 </BaseSelect>`
 
-const UNOCSS_SNIPPET = `import { defineConfig } from 'unocss'
-import { presetMoraine } from 'moraine/theme/unocss'
+const INTEGRATIONS = [
+  {
+    entry: 'moraine/data-table',
+    engine: '@tanstack/table-core',
+    kind: 'Optional peer',
+  },
+  {
+    entry: 'moraine/virtualizer',
+    engine: '@tanstack/virtual-core',
+    kind: 'Optional peer',
+  },
+  {
+    entry: 'moraine/dnd',
+    engine: '@dnd-kit/dom',
+    kind: 'Optional peer',
+  },
+  {
+    entry: 'moraine (createForm)',
+    engine: '@formisch/solid',
+    kind: 'Built-in',
+  },
+] as const
 
-export default defineConfig({
-  presets: [presetMoraine()],
-})`
-
-const TAILWIND_SNIPPET = `@import "tailwindcss";
-@import "moraine/theme/tailwind.css";
-@source "../node_modules/moraine/dist";`
+const HOOKS = [
+  {
+    name: 'createControllableValue',
+    description: 'Controlled & uncontrolled state',
+    href: '/hooks/create-controllable-value',
+  },
+  {
+    name: 'createDisclosureState',
+    description: 'Overlay open & dismiss state',
+    href: '/hooks/create-disclosure-state',
+  },
+  {
+    name: 'createTransitionPresence',
+    description: 'Mount-aware CSS transitions',
+    href: '/hooks/create-transition-presence',
+  },
+  {
+    name: 'createCopy',
+    description: 'Clipboard copy with status',
+    href: '/hooks/create-copy',
+  },
+  {
+    name: 'createMediaQuery',
+    description: 'Reactive breakpoint matching',
+    href: '/hooks/create-media-query',
+  },
+  {
+    name: 'createSlider',
+    description: 'Pointer & keyboard range logic',
+    href: '/hooks/create-slider',
+  },
+  {
+    name: 'createEventListener',
+    description: 'Auto-cleaned DOM listeners',
+    href: '/hooks/create-event-listener',
+  },
+  {
+    name: 'createId',
+    description: 'SSR-safe deterministic IDs',
+    href: '/hooks/create-id',
+  },
+] as const
 
 const docsLinkClass = `group text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 
@@ -130,7 +186,6 @@ export function ComponentRadar() {
   const [emailAlerts, setEmailAlerts] = createSignal(true)
   const [inAppAlerts, setInAppAlerts] = createSignal(false)
   const [pinCode, setPinCode] = createSignal<string[]>(['4', '2', '', ''])
-  const [engineTab, setEngineTab] = createSignal('unocss')
 
   return (
     <section aria-labelledby="radar-title" class="py-10 space-y-14 sm:py-14">
@@ -365,37 +420,6 @@ export function ComponentRadar() {
           </SamplerItem>
 
           <SamplerItem
-            title="PinInput"
-            description="Segmented verification input with paste handling and automatic focus advance."
-            href="/components/pin-input"
-          >
-            <PinInput
-              size="sm"
-              length={4}
-              value={pinCode()}
-              onValueChange={setPinCode}
-              aria-label="Verification code"
-            />
-            <output aria-live="polite" class="text-xs text-muted-foreground font-mono mt-3 block">
-              {pinCode().filter(Boolean).length}/4 digits entered
-            </output>
-          </SamplerItem>
-
-          <SamplerItem
-            title="MultiSelect"
-            description="Searchable multi-value selector with removable tags and keyboard backspace."
-            href="/components/multi-select"
-          >
-            <MultiSelect
-              size="sm"
-              items={OPTIONS}
-              defaultValue={['solid', 'unocss']}
-              placeholder="Select stack..."
-              clearable
-            />
-          </SamplerItem>
-
-          <SamplerItem
             title="Stepper"
             description="Structured multi-step indicator with clickable transitions and active panels."
             href="/components/stepper"
@@ -438,10 +462,41 @@ export function ComponentRadar() {
               ]}
             />
           </SamplerItem>
+
+          <SamplerItem
+            title="PinInput"
+            description="Segmented verification input with paste handling and automatic focus advance."
+            href="/components/pin-input"
+          >
+            <PinInput
+              size="sm"
+              length={4}
+              value={pinCode()}
+              onValueChange={setPinCode}
+              aria-label="Verification code"
+            />
+            <output aria-live="polite" class="text-xs text-muted-foreground font-mono mt-3 block">
+              {pinCode().filter(Boolean).length}/4 digits entered
+            </output>
+          </SamplerItem>
+
+          <SamplerItem
+            title="MultiSelect"
+            description="Searchable multi-value selector with removable tags and keyboard backspace."
+            href="/components/multi-select"
+          >
+            <MultiSelect
+              size="sm"
+              items={OPTIONS}
+              defaultValue={['solid', 'unocss']}
+              placeholder="Select stack..."
+              clearable
+            />
+          </SamplerItem>
         </div>
       </div>
 
-      {/* 2. Composite vs Granular (Pure Code) */}
+      {/* 2. Composite vs Granular, Ecosystem Integrations & Headless Hooks */}
       <div>
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div class="max-w-2xl">
@@ -449,8 +504,8 @@ export function ComponentRadar() {
               Composite speed. Primitive control.
             </h2>
             <p class="text-sm text-muted-foreground mt-1.5 sm:text-base">
-              Start with ready-made controls and drop down to decomposed parts whenever a screen
-              needs custom structure.
+              Start with ready-made controls and drop down to decomposed parts, ecosystem
+              integrations, or headless hooks whenever a screen demands it.
             </p>
           </div>
           <Button
@@ -523,122 +578,109 @@ export function ComponentRadar() {
             />
           </div>
         </Show>
-      </div>
 
-      {/* 3. Complex Modules & Dual CSS Engine */}
-      <div class="gap-6 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
-          <div>
-            <div class="flex flex-wrap gap-2 items-center justify-between">
-              <h3 class="text-base font-semibold">Built for dense interfaces</h3>
-              <div class="flex flex-wrap gap-1.5">
+        <div class="mt-5 gap-5 grid md:grid-cols-2">
+          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
+            <div>
+              <h3 class="text-base font-semibold">Ecosystem library integrations</h3>
+              <p class="text-sm text-muted-foreground mt-1.5">
+                First-class adapters for TanStack Table, TanStack Virtual, dnd-kit, and Formisch via
+                dedicated subpath entries — keeping optional peers out of the core bundle.
+              </p>
+            </div>
+
+            <div class="mt-5 border border-border rounded-lg overflow-hidden">
+              <ScrollArea orientation="horizontal">
+                <Table size="sm" highlightOnHover>
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.Head>Entry point</Table.Head>
+                      <Table.Head>Library</Table.Head>
+                      <Table.Head align="end">Dependency</Table.Head>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    <For each={INTEGRATIONS}>
+                      {(item) => (
+                        <Table.Row>
+                          <Table.Cell class="text-xs font-medium font-mono whitespace-nowrap">
+                            {item.entry}
+                          </Table.Cell>
+                          <Table.Cell class="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                            {item.engine}
+                          </Table.Cell>
+                          <Table.Cell align="end">
+                            <Badge
+                              size="sm"
+                              variant={item.kind === 'Built-in' ? 'soft' : 'outline'}
+                            >
+                              {item.kind}
+                            </Badge>
+                          </Table.Cell>
+                        </Table.Row>
+                      )}
+                    </For>
+                  </Table.Body>
+                </Table>
+              </ScrollArea>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
+              <a href="/components/data-table" class={docsLinkClass}>
+                DataTable <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+              </a>
+              <a href="/docs/virtualization" class={docsLinkClass}>
+                Virtualization <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+              </a>
+              <a href="/docs/drag-and-drop" class={docsLinkClass}>
+                Drag &amp; Drop <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+              </a>
+              <a href="/components/form" class={docsLinkClass}>
+                Form <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+              </a>
+            </div>
+          </div>
+
+          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
+            <div>
+              <div class="flex flex-wrap gap-2 items-center justify-between">
+                <h3 class="text-base font-semibold">Headless hooks</h3>
                 <Badge size="sm" variant="soft">
-                  moraine/data-table
-                </Badge>
-                <Badge size="sm" variant="soft">
-                  moraine/virtualizer
-                </Badge>
-                <Badge size="sm" variant="soft">
-                  moraine/dnd
+                  moraine/utils
                 </Badge>
               </div>
+              <p class="text-sm text-muted-foreground mt-1.5">
+                The reactive state, transition, and interaction hooks behind Moraine&apos;s own
+                components — exported directly for custom primitives.
+              </p>
             </div>
-            <p class="text-sm text-muted-foreground mt-1.5">
-              Heavy features ship from optional peer entries so the main bundle stays lean. Drag the
-              handle below to resize panes with keyboard and pointer support.
-            </p>
-          </div>
 
-          <div class="mt-5 border border-border rounded-lg h-44 overflow-hidden">
-            <Resizable defaultValue={{ nav: 34, main: 66 }}>
-              <Resizable.Panel
-                id="nav"
-                min={24}
-                max={50}
-                class="p-3 bg-muted/30 flex flex-col justify-between"
-              >
-                <span class="text-xs font-medium">Sidebar</span>
-                <span class="text-xs text-muted-foreground font-mono">min 24%</span>
-              </Resizable.Panel>
-              <Resizable.Handle />
-              <Resizable.Panel
-                id="main"
-                min={40}
-                class="p-3 bg-background flex flex-col justify-between"
-              >
-                <span class="text-xs font-medium">Canvas</span>
-                <span class="text-xs text-muted-foreground">Drag divider or press arrow keys</span>
-              </Resizable.Panel>
-            </Resizable>
-          </div>
+            <ul class="mt-5 gap-2 grid sm:grid-cols-2">
+              <For each={HOOKS}>
+                {(hook) => (
+                  <li>
+                    <a
+                      href={hook.href}
+                      class={cn(
+                        'p-2.5 border border-border/70 rounded-lg bg-muted/20 flex flex-col gap-0.5 transition-colors hover:border-border hover:bg-muted/50',
+                        DOCS_FOCUS_RING_OFFSET_CLASS,
+                      )}
+                    >
+                      <span class="text-xs text-foreground font-medium font-mono truncate">
+                        {hook.name}
+                      </span>
+                      <span class="text-xs text-muted-foreground truncate">{hook.description}</span>
+                    </a>
+                  </li>
+                )}
+              </For>
+            </ul>
 
-          <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
-            <a href="/components/data-table" class={docsLinkClass}>
-              DataTable <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
-            </a>
-            <a href="/components/tree" class={docsLinkClass}>
-              Tree <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
-            </a>
-            <a href="/components/resizable" class={docsLinkClass}>
-              Resizable <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
-            </a>
-          </div>
-        </div>
-
-        <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
-          <div>
-            <h3 class="text-base font-semibold">UnoCSS &amp; Tailwind CSS v4</h3>
-            <p class="text-sm text-muted-foreground mt-1.5">
-              Drop into your existing atomic CSS pipeline with automatic class scanning and shared
-              semantic tokens.
-            </p>
-          </div>
-
-          <div class="mt-5">
-            <Tabs
-              size="sm"
-              value={engineTab()}
-              onValueChange={setEngineTab}
-              items={[
-                {
-                  value: 'unocss',
-                  label: 'UnoCSS',
-                  content: () => (
-                    <div class="pt-3 relative">
-                      <div class="right-2 top-5 absolute">
-                        <CopyButton value={UNOCSS_SNIPPET} size="icon-xs" variant="outline" />
-                      </div>
-                      <pre class="text-xs leading-5 p-3.5 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
-                        <code>{UNOCSS_SNIPPET}</code>
-                      </pre>
-                    </div>
-                  ),
-                },
-                {
-                  value: 'tailwind',
-                  label: 'Tailwind v4',
-                  content: () => (
-                    <div class="pt-3 relative">
-                      <div class="right-2 top-5 absolute">
-                        <CopyButton value={TAILWIND_SNIPPET} size="icon-xs" variant="outline" />
-                      </div>
-                      <pre class="text-xs leading-5 p-3.5 border border-border/70 rounded-lg bg-muted/30 overflow-x-auto">
-                        <code>{TAILWIND_SNIPPET}</code>
-                      </pre>
-                    </div>
-                  ),
-                },
-              ]}
-            />
-          </div>
-
-          <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
-            <a href="/docs/unocss" class={docsLinkClass}>
-              UnoCSS setup <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
-            </a>
-            <a href="/docs/tailwind" class={docsLinkClass}>
-              Tailwind setup <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
-            </a>
+            <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
+              <a href="/hooks" class={docsLinkClass}>
+                Explore all hooks <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
