@@ -29,7 +29,13 @@ import { dataSlotName } from '../../../theme/data-slot'
 
 import { acquireAriaHideOutside } from './aria-hide'
 import { useFloatingPosition, usePositionerZIndex } from './floating'
-import { containFocusInContainer, focusContent, focusTrigger, resolveFocusTarget } from './focus'
+import {
+  containFocusInContainer,
+  focusContent,
+  focusTrigger,
+  focusWithoutScrolling,
+  resolveFocusTarget,
+} from './focus'
 import { useOverlayInteraction } from './interaction'
 import { resolveFloatingPlacement } from './placement'
 import { popperDataAttributes } from './popper.recipe'
@@ -325,15 +331,27 @@ export function PopperContent(
           if (!currentContent || !currentPositioner) {
             return
           }
-          const releaseScrollLock =
-            modal || preventScroll ? acquireBodyScrollLock(currentContent) : undefined
+          const shouldPreventScroll = preventScroll ?? Boolean(modal)
+          const releaseScrollLock = shouldPreventScroll
+            ? acquireBodyScrollLock(currentContent)
+            : undefined
           let active = true
           let releaseAriaHide: (() => void) | undefined
           if (modal) {
             queueMicrotask(() => {
               if (active && currentContent.isConnected) {
                 releaseAriaHide = acquireAriaHideOutside(currentContent)
-                focusContent(currentContent)
+                const initialTarget = options.initialFocus
+                if (initialTarget === false) {
+                  return
+                }
+                const resolvedTarget =
+                  typeof initialTarget === 'function' ? initialTarget() : initialTarget
+                if (resolvedTarget) {
+                  focusWithoutScrolling(resolvedTarget)
+                } else {
+                  focusContent(currentContent)
+                }
               }
             })
           }

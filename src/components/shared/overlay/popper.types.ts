@@ -226,10 +226,17 @@ export interface PopperContentOptions {
   align?: OverlayAlign
 
   /**
-   * Whether body scroll is locked while the content is present. A modal content always locks it.
+   * Whether body scroll is locked while the content is present. Defaults to matching `modal`;
+   * set `false` to keep the page scrollable even when `modal` is `true`.
    * @default false
    */
   preventScroll?: boolean
+
+  /**
+   * Element (or accessor resolving to one) that receives focus when modal content opens, or
+   * `false` to skip initial focus. Defaults to the first focusable element inside the content.
+   */
+  initialFocus?: HTMLElement | (() => HTMLElement | undefined) | false
 
   /**
    * Element (or accessor resolving to one) that receives focus after the content closes, or

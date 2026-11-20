@@ -36,15 +36,15 @@ export namespace PopoverT {
     | 'closeOnEscape'
     | 'closeOnOutsideClick'
     | 'onClosePrevented'
+    | 'initialFocus'
     | 'finalFocus'
   > {
     /**
      * Whether the content traps focus, hides outside content from assistive technology, prevents
-     * the native default action of outside pointer events, and locks body scroll.
-     * This is enabled only when Popover.Content composes Popover.Close; otherwise the Popover
-     * remains non-modal so assistive-technology users retain a dismissal route, and a DEV
-     * warning is logged. Outside and Escape dismissal remain controlled by `closeOnOutsideClick`
-     * and `closeOnEscape`.
+     * the native default action of outside pointer events, and locks body scroll by default.
+     * When `Popover.Content` does not compose a `Popover.Close`, a visually hidden close button is
+     * rendered automatically so assistive-technology users retain a dismissal route. Outside and
+     * Escape dismissal remain controlled by `closeOnOutsideClick` and `closeOnEscape`.
      * @default false
      */
     modal?: boolean

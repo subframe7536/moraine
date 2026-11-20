@@ -317,15 +317,16 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   onClosePrevented?: () => void
 
   /**
-   * Whether outside content is hidden from assistive technology and outside pointer events have
-   * their native default action prevented while the menu is open.
+   * Whether outside content is hidden from assistive technology, outside pointer events are
+   * blocked behind the `overlay` slot, and body scroll is locked by default while the menu is open.
    * @default false
    */
   modal?: boolean
 
   /**
-   * Whether body scroll should be locked while the menu is open.
-   * @default true
+   * Whether body scroll should be locked while the menu is open. Defaults to matching `modal`.
+   * Does not render the `overlay` slot.
+   * @default false
    */
   preventScroll?: boolean
 

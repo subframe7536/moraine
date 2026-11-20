@@ -84,9 +84,9 @@ export namespace ContextMenuT {
      */
     shift?: number
     /**
-     * Locks body scroll while the menu is open and renders the `overlay` slot element behind the
-     * content. Set `false` to keep the page scrollable.
-     * @default true
+     * Locks body scroll while the menu is open. Defaults to matching `modal` and does not render
+     * the `overlay` slot. Set `false` to keep the page scrollable even when `modal` is `true`.
+     * @default false
      */
     preventScroll?: boolean
     /**

@@ -1,11 +1,8 @@
 import type { JSX } from 'solid-js'
 import {
-  DEV,
   Show,
   children as resolveChildren,
-  createEffect,
   mergeProps,
-  on,
   onCleanup,
   splitProps,
 } from 'solid-js'
@@ -24,8 +21,7 @@ import type { PopoverT } from './popover.types'
 /**
  * Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the
  * popover is open. It must be placed inside `Popover`. Renders a `div` with `role="dialog"`
- * wrapping its children. Compose a `Popover.Close` inside it for `Popover` `modal` behavior to
- * take effect.
+ * wrapping its children.
  *
  * @example
  * ```tsx
@@ -123,8 +119,9 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={!behavior.options.openOnHover}
+      initialFocus={behavior.options.initialFocus}
       finalFocus={behavior.options.finalFocus ?? (behavior.options.openOnHover ? false : undefined)}
-      modal={Boolean(behavior.options.modal && behavior.hasClose())}
+      modal={Boolean(behavior.options.modal)}
       role="dialog"
       onPointerDownOutside={(event) => {
         if (behavior.options.closeOnOutsideClick ?? true) {
@@ -163,21 +160,6 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
-        if (DEV) {
-          // Runs after this content renders, so a composed Popover.Close has already registered.
-          createEffect(
-            on(
-              () => Boolean(behavior.options.modal) && !behavior.hasClose(),
-              (modalWithoutClose) => {
-                if (modalWithoutClose) {
-                  console.warn(
-                    '[moraine] Popover modal has no effect without Popover.Close in Popover.Content.',
-                  )
-                }
-              },
-            ),
-          )
-        }
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,
@@ -194,6 +176,15 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
               <div data-slot="popover-body" {...bodySlot}>
                 {content()}
               </div>
+            </Show>
+            <Show when={behavior.options.modal && !behavior.hasClose()}>
+              <button
+                type="button"
+                class="sr-only"
+                onClick={() => behavior.popper.setOpen(false)}
+              >
+                Close
+              </button>
             </Show>
           </div>
         )

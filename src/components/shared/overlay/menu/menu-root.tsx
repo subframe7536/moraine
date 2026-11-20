@@ -84,9 +84,14 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
 
   createEffect(
     on(
-      [contentPresence.present, () => rootLayerState()?.contentElement()],
-      ([present, content]) => {
-        if (!present || !(props.preventScroll ?? true) || !content) {
+      [
+        contentPresence.present,
+        () => rootLayerState()?.contentElement(),
+        () => props.preventScroll,
+        () => props.modal,
+      ],
+      ([present, content, preventScroll, modal]) => {
+        if (!present || !(preventScroll ?? Boolean(modal)) || !content) {
           return
         }
 
@@ -202,7 +207,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   return (
     <Show when={contentPresence.present()}>
       <Portal mount={props.triggerElement?.ownerDocument.body}>
-        <Show when={props.preventScroll ?? true}>
+        <Show when={props.modal}>
           <div
             data-slot={dataSlotName(props.owner, 'overlay')}
             aria-hidden="true"
