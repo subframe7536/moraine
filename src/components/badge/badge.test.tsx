@@ -20,8 +20,8 @@ describe('Badge', () => {
     expect(label?.textContent).toBe('New')
   })
 
-  test('renders label and prefers it over children', () => {
-    const screen = render(() => <Badge label="Label">Child</Badge>)
+  test('renders children as the label content', () => {
+    const screen = render(() => <Badge>Label</Badge>)
 
     expect(screen.container.querySelector('[data-slot="badge-label"]')?.textContent).toBe('Label')
   })

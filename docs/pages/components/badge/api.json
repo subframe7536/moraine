@@ -36,7 +36,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Label content, used when `label` is not set. Empty content renders no label element."
+          "description": "Label content. Empty content renders no label element."
         },
         {
           "name": "class",
@@ -51,16 +51,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "label",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Label content. When set (not `undefined` or `null`), it is rendered instead of `children`."
-        },
-        {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Name of an icon rendered before the label. A badge with exactly one icon (`leading` or\n`trailing`) and no label renders as a square icon badge."
+          "description": "Name of an icon rendered before the label. A badge with exactly one icon (`leading` or\n`trailing`) and no children renders as a square icon badge."
         },
         {
           "name": "size",
@@ -98,7 +92,7 @@
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Name of an icon rendered after the label. A badge with exactly one icon (`leading` or\n`trailing`) and no label renders as a square icon badge."
+          "description": "Name of an icon rendered after the label. A badge with exactly one icon (`leading` or\n`trailing`) and no children renders as a square icon badge."
         },
         {
           "name": "variant",

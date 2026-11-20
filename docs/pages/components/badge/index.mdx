@@ -49,12 +49,12 @@ announcement where one is required. `variant` (`solid`, `soft` by default, `subt
 
 ### Label and icons
 
-Pass `label` instead of `children` when the text comes from data. `label` takes precedence over
-`children` when both are set. `leading` and `trailing` take icon names and render before and after
-the label. A badge with no label and exactly one icon renders as a square icon badge.
+Badge text always comes from `children`. `leading` and `trailing` take icon names and render
+before and after the label. A badge with no children and exactly one icon renders as a square
+icon badge.
 
 ```tsx
-<Badge label="Needs review" variant="soft" leading="i-lucide:eye" />
+<Badge variant="soft" leading="i-lucide:eye">Needs review</Badge>
 <Badge leading="i-lucide:check" />
 ```
 

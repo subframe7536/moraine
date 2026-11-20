@@ -26,23 +26,20 @@ export namespace BadgeT {
      */
     as?: T
 
-    /** Label content. When set (not `undefined` or `null`), it is rendered instead of `children`. */
-    label?: JSX.Element
-
     /**
      * Name of an icon rendered before the label. A badge with exactly one icon (`leading` or
-     * `trailing`) and no label renders as a square icon badge.
+     * `trailing`) and no children renders as a square icon badge.
      */
     leading?: IconT.Name
 
     /**
      * Name of an icon rendered after the label. A badge with exactly one icon (`leading` or
-     * `trailing`) and no label renders as a square icon badge.
+     * `trailing`) and no children renders as a square icon badge.
      */
     trailing?: IconT.Name
 
     /**
-     * Label content, used when `label` is not set. Empty content renders no label element.
+     * Label content. Empty content renders no label element.
      */
     children?: JSX.Element
   }
