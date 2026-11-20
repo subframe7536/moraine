@@ -960,24 +960,26 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('rejects invalid fallback placements with a descriptive error', () => {
-    expect(() =>
-      render(() => (
-        <PopperFixture
-          defaultOpen
-          contentRender={(popper) => (
-            <>
-              <PopperTrigger context={popper} type="button">
-                Open
-              </PopperTrigger>
-              <PopperContent context={popper} flip="bottom sideways">
-                {(context) => <div {...context.contentProps}>Content</div>}
-              </PopperContent>
-            </>
-          )}
-        />
-      )),
-    ).toThrow('`flip` expects a space-delimited list of placements')
+  test('accepts an ordered list of fallback placements', async () => {
+    render(() => (
+      <PopperFixture
+        defaultOpen
+        contentRender={(popper) => (
+          <>
+            <PopperTrigger context={popper} type="button">
+              Open
+            </PopperTrigger>
+            <PopperContent context={popper} flip={['top', 'bottom-end']}>
+              {(context) => <div {...context.contentProps}>Content</div>}
+            </PopperContent>
+          </>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="popover-positioner"]')).not.toBeNull()
+    })
   })
 })
 

@@ -1,3 +1,4 @@
+import type { Placement } from '@floating-ui/dom'
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -96,12 +97,11 @@ export namespace DropdownMenuT {
     overflowPadding?: number
     /**
      * Whether the content moves to the opposite side when the preferred `placement` does not fit.
-     * A space-delimited string such as `'top left'` is an ordered list of fallback placements
-     * (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`); an
-     * invalid entry throws.
+     * An array such as `['top', 'left']` is an ordered list of fallback `Placement` values tried
+     * in order (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`).
      * @default true
      */
-    flip?: boolean | string
+    flip?: boolean | Placement[]
     /**
      * Whether the content may slide along the edge of the anchor so it stays inside the viewport
      * instead of being clipped.

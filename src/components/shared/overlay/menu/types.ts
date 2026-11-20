@@ -1,4 +1,4 @@
-import type { ReferenceElement } from '@floating-ui/dom'
+import type { Placement, ReferenceElement } from '@floating-ui/dom'
 import type { ClassValue } from 'cn'
 import type { Accessor, Component, JSX } from 'solid-js'
 
@@ -289,10 +289,11 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   overflowPadding?: number
 
   /**
-   * Whether to flip placement when the preferred side lacks space.
+   * Whether to flip placement when the preferred side lacks space. An array is an ordered list of
+   * fallback `Placement` values tried in order.
    * @default true
    */
-  flip?: boolean | string
+  flip?: boolean | Placement[]
 
   /**
    * Whether the menu may slide along its main axis to remain visible.

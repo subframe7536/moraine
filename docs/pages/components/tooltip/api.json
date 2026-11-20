@@ -67,14 +67,14 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | string",
-          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. A string is a space-delimited list of fallback\nplacements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`; any other entry throws an error.",
+          "type": "boolean | Placement[]",
+          "description": "Whether the content moves to another side when the preferred `placement` does not fit in the\nviewport. `false` keeps the side fixed. An array is an ordered list of fallback `Placement`\nvalues tried in order (each `top`, `right`, `bottom` or `left`, optionally suffixed with\n`-start` or `-end`).",
           "default": {
             "kind": "literal",
             "value": true
           },
           "examples": [
-            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip=\"top bottom-end\">\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
+            "import { Button, Popover } from 'moraine'\n\n<Popover placement=\"bottom\" flip={['top', 'bottom-end']}>\n  <Popover.Trigger as={Button}>Details</Popover.Trigger>\n  <Popover.Content>More information</Popover.Content>\n</Popover>"
           ]
         },
         {

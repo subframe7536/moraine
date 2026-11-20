@@ -18,15 +18,13 @@ import { useLocale } from '../../../provider/locale/locale-context'
 import { resolveDirection } from './direction'
 import { getTransformOrigin } from './transform-origin'
 
-const PLACEMENT_PATTERN = /^(?:top|bottom|left|right)(?:-(?:start|end))?$/
-
 export interface FloatingPositionOptions {
   contentElement?: Accessor<HTMLElement | undefined>
   detachedPadding?: Accessor<number>
   deferPositioned?: boolean
   fitViewport?: Accessor<boolean>
   floatingElement: Accessor<HTMLElement | undefined>
-  flip?: Accessor<boolean | string>
+  flip?: Accessor<boolean | Placement[]>
   getReferenceElement: () => ReferenceElement | undefined
   gutter: Accessor<number>
   hideWhenDetached?: Accessor<boolean>
@@ -187,14 +185,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               const overlap = overlapValue ?? true
               const crossAxisOffset = shiftValue ?? 0
               const slide = slideValue ?? true
-              const fallbackPlacements =
-                typeof flipOption === 'string' ? flipOption.split(' ') : undefined
-              if (
-                fallbackPlacements &&
-                !fallbackPlacements.every((placement) => PLACEMENT_PATTERN.test(placement))
-              ) {
-                throw new Error('`flip` expects a space-delimited list of placements')
-              }
+              const fallbackPlacements = Array.isArray(flipOption) ? flipOption : undefined
               updatePosition = async () => {
                 if (!active) {
                   return
@@ -235,7 +226,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 if (flipOption !== false) {
                   middleware.push(
                     flip({
-                      fallbackPlacements: fallbackPlacements as Placement[] | undefined,
+                      fallbackPlacements,
                       padding: overflowPadding,
                     }),
                   )

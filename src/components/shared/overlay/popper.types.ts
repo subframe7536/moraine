@@ -138,21 +138,21 @@ export interface PopperContentOptions {
 
   /**
    * Whether the content moves to another side when the preferred `placement` does not fit in the
-   * viewport. `false` keeps the side fixed. A string is a space-delimited list of fallback
-   * placements tried in order, each `top`, `right`, `bottom` or `left`, optionally suffixed with
-   * `-start` or `-end`; any other entry throws an error.
+   * viewport. `false` keeps the side fixed. An array is an ordered list of fallback `Placement`
+   * values tried in order (each `top`, `right`, `bottom` or `left`, optionally suffixed with
+   * `-start` or `-end`).
    * @default true
    * @example
    * ```tsx
    * import { Button, Popover } from 'moraine'
    *
-   * <Popover placement="bottom" flip="top bottom-end">
+   * <Popover placement="bottom" flip={['top', 'bottom-end']}>
    *   <Popover.Trigger as={Button}>Details</Popover.Trigger>
    *   <Popover.Content>More information</Popover.Content>
    * </Popover>
    * ```
    */
-  flip?: boolean | string
+  flip?: boolean | Placement[]
 
   /**
    * Whether the content stays in the DOM while closed, hidden and marked with `data-closed`, for
