@@ -21,17 +21,18 @@ import {
   NumberInput,
   Popover,
   Progress,
+  RadioGroup,
   ScrollArea,
   Select,
   Switch,
   Table,
   Tabs,
   Toast,
+  ToggleButton,
   cn,
   createTree,
 } from '../../../../src'
 import { createMediaQuery } from '../../../../src/utils'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 interface ThemePreset {
   id: string
@@ -95,12 +96,22 @@ const ACCENTS = [
   { name: 'Amber', primary: 'hsl(24.6 95% 53.1%)', foreground: 'hsl(60 9.1% 97.8%)' },
 ] as const
 
-const RADII = [
+const RADIUS_ITEMS = [
   { label: '0', value: '0px' },
   { label: 'sm', value: '0.375rem' },
   { label: 'md', value: '0.625rem' },
   { label: 'lg', value: '0.875rem' },
-] as const
+]
+
+const INPUT_VARIANT_ITEMS = [
+  { label: 'outline', value: 'outline' },
+  { label: 'subtle', value: 'subtle' },
+]
+
+const DENSITY_ITEMS = [
+  { label: 'sm', value: 'sm' },
+  { label: 'md', value: 'md' },
+]
 
 interface FileNode {
   id: string
@@ -151,8 +162,6 @@ const REVIEWERS = [
 ]
 
 const TOAST_HOST_ID = 'landing-preview'
-
-const pillButtonClass = `text-xs px-3 py-1.5 border rounded-md inline-flex gap-2 min-h-11 sm:min-h-9 shrink-0 whitespace-nowrap transition-colors items-center cursor-pointer ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 
 export function StylingShowcase() {
   const isDesktop = createMediaQuery('(min-width: 768px)')
@@ -259,25 +268,25 @@ export function StylingShowcase() {
       <div class="space-y-5">
         <div>
           <p class="text-xs text-muted-foreground font-medium mb-2.5">Accent</p>
-          <div class="flex flex-wrap gap-2">
+          <div role="group" aria-label="Accent" class="flex flex-wrap gap-1.5">
             <For each={ACCENTS}>
               {(accent) => (
-                <button
-                  type="button"
+                <ToggleButton
+                  size="sm"
+                  variant="outline"
+                  activeVariant="soft"
+                  tone="neutral"
+                  activeTone="primary"
                   aria-label={`Accent ${accent.name}`}
-                  aria-pressed={primary() === accent.primary}
-                  onClick={() => {
-                    setActivePresetId('custom')
-                    setPrimary(accent.primary)
-                    setForeground(accent.foreground)
+                  classes={{ label: 'inline-flex gap-1.5 items-center' }}
+                  pressed={primary() === accent.primary}
+                  onPressedChange={(pressed) => {
+                    if (pressed) {
+                      setActivePresetId('custom')
+                      setPrimary(accent.primary)
+                      setForeground(accent.foreground)
+                    }
                   }}
-                  class={cn(
-                    'text-xs px-2.5 py-1.5 border rounded-md inline-flex gap-2 min-h-9 cursor-pointer transition-colors items-center',
-                    DOCS_FOCUS_RING_OFFSET_CLASS,
-                    primary() === accent.primary
-                      ? 'border-foreground text-foreground bg-accent'
-                      : 'border-border text-muted-foreground hover:bg-muted/50',
-                  )}
                 >
                   <span
                     class="rounded-full shrink-0 size-3"
@@ -285,7 +294,7 @@ export function StylingShowcase() {
                     aria-hidden="true"
                   />
                   {accent.name}
-                </button>
+                </ToggleButton>
               )}
             </For>
           </div>
@@ -294,84 +303,69 @@ export function StylingShowcase() {
         <div class="gap-4 grid grid-cols-2">
           <div>
             <p class="text-xs text-muted-foreground font-medium mb-2">Radius</p>
-            <div class="gap-1.5 grid grid-cols-2">
-              <For each={RADII}>
-                {(item) => (
-                  <button
-                    type="button"
-                    aria-pressed={radius() === item.value}
-                    onClick={() => {
-                      setActivePresetId('custom')
-                      setRadius(item.value)
-                    }}
-                    class={cn(
-                      'text-xs font-mono py-1.5 border rounded-md min-h-9 cursor-pointer transition-colors',
-                      DOCS_FOCUS_RING_OFFSET_CLASS,
-                      radius() === item.value
-                        ? 'border-foreground text-foreground bg-accent'
-                        : 'border-border text-muted-foreground hover:bg-muted/50',
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                )}
-              </For>
-            </div>
+            <RadioGroup
+              size="sm"
+              variant="card"
+              indicatorPosition="hidden"
+              orientation="horizontal"
+              aria-label="Radius"
+              value={radius()}
+              onValueChange={(value) => {
+                setActivePresetId('custom')
+                setRadius(value)
+              }}
+              items={RADIUS_ITEMS}
+              classes={{
+                root: 'gap-1.5 grid grid-cols-2',
+                item: 'px-2 py-1.5 cursor-pointer justify-center',
+                label: 'text-xs font-mono text-center',
+              }}
+            />
           </div>
 
           <div class="space-y-3">
             <div>
               <p class="text-xs text-muted-foreground font-medium mb-2">Input variant</p>
-              <div class="gap-1.5 grid grid-cols-2">
-                <For each={['outline', 'subtle'] as const}>
-                  {(variant) => (
-                    <button
-                      type="button"
-                      aria-pressed={inputVariant() === variant}
-                      onClick={() => {
-                        setActivePresetId('custom')
-                        setInputVariant(variant)
-                      }}
-                      class={cn(
-                        'text-xs py-1.5 border rounded-md min-h-9 cursor-pointer transition-colors',
-                        DOCS_FOCUS_RING_OFFSET_CLASS,
-                        inputVariant() === variant
-                          ? 'border-foreground text-foreground bg-accent'
-                          : 'border-border text-muted-foreground hover:bg-muted/50',
-                      )}
-                    >
-                      {variant}
-                    </button>
-                  )}
-                </For>
-              </div>
+              <RadioGroup
+                size="sm"
+                variant="card"
+                indicatorPosition="hidden"
+                orientation="horizontal"
+                aria-label="Input variant"
+                value={inputVariant()}
+                onValueChange={(value) => {
+                  setActivePresetId('custom')
+                  setInputVariant(value as 'outline' | 'subtle')
+                }}
+                items={INPUT_VARIANT_ITEMS}
+                classes={{
+                  root: 'gap-1.5 grid grid-cols-2',
+                  item: 'px-2 py-1.5 cursor-pointer justify-center',
+                  label: 'text-xs text-center',
+                }}
+              />
             </div>
 
             <div>
               <p class="text-xs text-muted-foreground font-medium mb-2">Density</p>
-              <div class="gap-1.5 grid grid-cols-2">
-                <For each={['sm', 'md'] as const}>
-                  {(size) => (
-                    <button
-                      type="button"
-                      aria-pressed={density() === size}
-                      onClick={() => {
-                        setActivePresetId('custom')
-                        setDensity(size)
-                      }}
-                      class={cn(
-                        'text-xs font-mono py-1.5 border rounded-md min-h-9 cursor-pointer transition-colors',
-                        DOCS_FOCUS_RING_OFFSET_CLASS,
-                        density() === size
-                          ? 'border-foreground text-foreground bg-accent'
-                          : 'border-border text-muted-foreground hover:bg-muted/50',
-                      )}
-                    >
-                      {size}
-                    </button>
-                  )}
-                </For>
-              </div>
+              <RadioGroup
+                size="sm"
+                variant="card"
+                indicatorPosition="hidden"
+                orientation="horizontal"
+                aria-label="Density"
+                value={density()}
+                onValueChange={(value) => {
+                  setActivePresetId('custom')
+                  setDensity(value as 'sm' | 'md')
+                }}
+                items={DENSITY_ITEMS}
+                classes={{
+                  root: 'gap-1.5 grid grid-cols-2',
+                  item: 'px-2 py-1.5 cursor-pointer justify-center',
+                  label: 'text-xs font-mono text-center',
+                }}
+              />
             </div>
           </div>
         </div>
@@ -748,6 +742,7 @@ export function StylingShowcase() {
         </Button>
       </div>
 
+      {/* Control bar: sticky on mobile (<768px), inline on desktop */}
       <div class="py-2.5 border-y border-border bg-background/95 flex gap-2 items-center justify-between top-0 sticky z-20 backdrop-blur sm:px-3 sm:border sm:rounded-t-xl sm:static">
         <div
           role="group"
@@ -756,16 +751,20 @@ export function StylingShowcase() {
         >
           <For each={PRESETS}>
             {(preset) => (
-              <button
-                type="button"
-                aria-pressed={activePresetId() === preset.id}
-                onClick={() => applyPreset(preset)}
-                class={cn(
-                  pillButtonClass,
-                  activePresetId() === preset.id
-                    ? 'text-foreground bg-accent border-foreground/40 font-medium'
-                    : 'text-muted-foreground border-border hover:bg-muted/50',
-                )}
+              <ToggleButton
+                size={isDesktop() ? 'sm' : 'md'}
+                variant="outline"
+                activeVariant="soft"
+                tone="neutral"
+                activeTone="primary"
+                pressed={activePresetId() === preset.id}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    applyPreset(preset)
+                  }
+                }}
+                class="shrink-0"
+                classes={{ label: 'inline-flex gap-1.5 items-center' }}
               >
                 <span
                   class="rounded-full shrink-0 size-2.5"
@@ -773,12 +772,24 @@ export function StylingShowcase() {
                   aria-hidden="true"
                 />
                 {preset.name}
-              </button>
+              </ToggleButton>
             )}
           </For>
         </div>
 
         <div class="flex shrink-0 gap-1.5 items-center">
+          <Show when={inspectSlots()}>
+            <Badge
+              size="md"
+              variant="soft"
+              tone="primary"
+              leading="i-lucide:eye"
+              class="px-2 rounded-md h-8 md:rounded-sm md:h-7"
+            >
+              <span class="hidden lg:inline">Inspecting data-slot</span>
+              <span class="lg:hidden">Slots</span>
+            </Badge>
+          </Show>
           <Show
             when={isDesktop()}
             fallback={
@@ -856,6 +867,7 @@ export function StylingShowcase() {
         </div>
       </div>
 
+      {/* Live Preview Canvas */}
       <div
         style={themeStyle()}
         class={cn(
@@ -903,7 +915,7 @@ export function StylingShowcase() {
             />
           }
         >
-          <div class="mb-5 flex items-center justify-between">
+          <div class="mb-5">
             <Tabs
               size="sm"
               value={desktopScene()}
@@ -914,11 +926,6 @@ export function StylingShowcase() {
                 { value: 'forms', label: 'Controls & Overlays' },
               ]}
             />
-            <Show when={inspectSlots()}>
-              <Badge size="sm" variant="soft" tone="primary" leading="i-lucide:eye">
-                Inspecting data-slot boundaries
-              </Badge>
-            </Show>
           </div>
 
           <Show when={desktopScene() === 'workspace'}>

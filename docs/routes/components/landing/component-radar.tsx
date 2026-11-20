@@ -136,6 +136,7 @@ export function ComponentRadar() {
 
   return (
     <section aria-labelledby="radar-title" class="py-10 space-y-12 sm:py-14">
+      {/* 1. Composite vs Granular */}
       <div>
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div class="max-w-2xl">
@@ -195,6 +196,7 @@ export function ComponentRadar() {
         </Show>
       </div>
 
+      {/* 2. Complex Modules & Dual CSS Engine */}
       <div class="gap-6 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div class="p-5 border border-border rounded-xl bg-card flex flex-col justify-between min-w-0">
           <div>
@@ -230,11 +232,7 @@ export function ComponentRadar() {
                 <span class="text-xs text-muted-foreground font-mono">min 24%</span>
               </Resizable.Panel>
               <Resizable.Handle />
-              <Resizable.Panel
-                id="main"
-                min={40}
-                class="p-3 bg-background flex flex-col justify-between"
-              >
+              <Resizable.Panel id="main" min={40} class="p-3 bg-background flex flex-col justify-between">
                 <span class="text-xs font-medium">Canvas</span>
                 <span class="text-xs text-muted-foreground">
                   Drag divider or press arrow keys
