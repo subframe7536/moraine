@@ -34,11 +34,11 @@ export function LandingPage() {
           <span class="text-primary block">Composable at every level.</span>
         </h1>
         <p class="text-sm text-muted-foreground leading-relaxed mt-4 max-w-2xl lg:text-lg sm:text-base sm:mt-5">
-          60 accessible SolidJS components with semantic tokens, zero-runtime recipes, and
-          decomposed primitives for UnoCSS and Tailwind CSS v4.
+          60 accessible SolidJS components with semantic tokens, intuitive props, and dedicated
+          primitives for UnoCSS and Tailwind CSS v4.
         </p>
 
-        <div class="mt-7 gap-2.5 grid grid-cols-2 max-w-sm w-full sm:flex sm:flex-wrap sm:gap-3 sm:max-w-none sm:w-auto sm:items-center sm:justify-center">
+        <div class="mt-7 gap-2.5 grid grid-cols-2 max-w-sm w-full sm:(flex flex-wrap gap-3 max-w-none w-auto items-center justify-center)">
           <Button
             as="a"
             size="xl"

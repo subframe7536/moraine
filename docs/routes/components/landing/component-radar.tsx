@@ -14,7 +14,6 @@ import {
   NumberInput,
   PinInput,
   Popover,
-  ScrollArea,
   Slider,
   Stepper,
   Switch,
@@ -78,21 +77,6 @@ const INTEGRATIONS = [
 
 const HOOKS = [
   {
-    name: 'createControllableValue',
-    description: 'Controlled & uncontrolled state',
-    href: '/hooks/create-controllable-value',
-  },
-  {
-    name: 'createDisclosureState',
-    description: 'Overlay open & dismiss state',
-    href: '/hooks/create-disclosure-state',
-  },
-  {
-    name: 'createTransitionPresence',
-    description: 'Mount-aware CSS transitions',
-    href: '/hooks/create-transition-presence',
-  },
-  {
     name: 'createCopy',
     description: 'Clipboard copy with status',
     href: '/hooks/create-copy',
@@ -111,11 +95,6 @@ const HOOKS = [
     name: 'createEventListener',
     description: 'Auto-cleaned DOM listeners',
     href: '/hooks/create-event-listener',
-  },
-  {
-    name: 'createId',
-    description: 'SSR-safe deterministic IDs',
-    href: '/hooks/create-id',
   },
 ] as const
 
@@ -154,9 +133,12 @@ function CodeCompareCard(props: {
   badge: string
   badgeVariant: 'soft' | 'outline'
   code: string
+  class?: string
 }) {
   return (
-    <div class="p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0">
+    <div
+      class={`p-5 border border-border rounded-xl bg-card flex flex-col gap-4 min-w-0 ${props.class}`}
+    >
       <div class="flex gap-3 items-start justify-between">
         <div>
           <h3 class="text-sm font-semibold">{props.title}</h3>
@@ -279,7 +261,7 @@ export function ComponentRadar() {
             description="Continuous numeric controls — raw slider track and composite BoldSlider."
             href="/components/slider"
           >
-            <div class="max-w-sm space-y-5">
+            <div class="max-w-sm space-y-8">
               <div>
                 <div class="text-sm mb-2 flex justify-between">
                   <span>Default</span>
@@ -388,7 +370,7 @@ export function ComponentRadar() {
             title="Accordion"
             description="Collapsible disclosure system with smooth transitions and keyboard roving."
             href="/components/accordion"
-            class="lg:col-span-2 lg:col-start-3 lg:row-span-2 lg:row-start-2 md:col-span-2"
+            class="lg:(col-span-2 row-span-2 col-start-3 row-start-2) md:col-span-2"
           >
             <Accordion
               defaultValue={['keyboard']}
@@ -409,6 +391,16 @@ export function ComponentRadar() {
                   value: 'content',
                   label: 'Flexible content',
                   content: 'Place text, links, or a richer layout inside any panel.',
+                },
+                {
+                  value: 'transition',
+                  label: 'Graceful transition',
+                  content: 'Expand and collapse with smooth movement',
+                },
+                {
+                  value: 'custom',
+                  label: 'Customizable',
+                  content: 'Control styles on every part of component',
                 },
               ]}
               classes={{
@@ -561,13 +553,14 @@ export function ComponentRadar() {
             />
           }
         >
-          <div class="gap-5 grid md:grid-cols-2">
+          <div class="flex gap-5">
             <CodeCompareCard
               title="Composite · Drop-in"
               description="Zero boilerplate for standard product flows."
               badge="Select"
               badgeVariant="soft"
               code={COMPOSITE_SNIPPET}
+              class="md:w-40%"
             />
             <CodeCompareCard
               title="Granular · Composable"
@@ -575,12 +568,13 @@ export function ComponentRadar() {
               badge="BaseSelect"
               badgeVariant="outline"
               code={GRANULAR_SNIPPET}
+              class="md:w-60%"
             />
           </div>
         </Show>
 
-        <div class="mt-5 gap-5 grid md:grid-cols-2">
-          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
+        <div class="mt-5 flex flex-col gap-5 md:flex-row">
+          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between md:w-60%">
             <div>
               <h3 class="text-base font-semibold">Ecosystem library integrations</h3>
               <p class="text-sm text-muted-foreground mt-1.5">
@@ -590,39 +584,34 @@ export function ComponentRadar() {
             </div>
 
             <div class="mt-5 border border-border rounded-lg overflow-hidden">
-              <ScrollArea orientation="horizontal">
-                <Table size="sm" highlightOnHover>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.Head>Entry point</Table.Head>
-                      <Table.Head>Library</Table.Head>
-                      <Table.Head align="end">Dependency</Table.Head>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    <For each={INTEGRATIONS}>
-                      {(item) => (
-                        <Table.Row>
-                          <Table.Cell class="text-xs font-medium font-mono whitespace-nowrap">
-                            {item.entry}
-                          </Table.Cell>
-                          <Table.Cell class="text-xs text-muted-foreground font-mono whitespace-nowrap">
-                            {item.engine}
-                          </Table.Cell>
-                          <Table.Cell align="end">
-                            <Badge
-                              size="sm"
-                              variant={item.kind === 'Built-in' ? 'soft' : 'outline'}
-                            >
-                              {item.kind}
-                            </Badge>
-                          </Table.Cell>
-                        </Table.Row>
-                      )}
-                    </For>
-                  </Table.Body>
-                </Table>
-              </ScrollArea>
+              <Table highlightOnHover>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Entry point</Table.Head>
+                    <Table.Head>Library</Table.Head>
+                    <Table.Head align="end">Dependency</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  <For each={INTEGRATIONS}>
+                    {(item) => (
+                      <Table.Row>
+                        <Table.Cell class="text-xs font-medium font-mono whitespace-nowrap">
+                          {item.entry}
+                        </Table.Cell>
+                        <Table.Cell class="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                          {item.engine}
+                        </Table.Cell>
+                        <Table.Cell align="end">
+                          <Badge size="sm" variant={item.kind === 'Built-in' ? 'soft' : 'outline'}>
+                            {item.kind}
+                          </Badge>
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                  </For>
+                </Table.Body>
+              </Table>
             </div>
 
             <div class="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-5 gap-y-2">
@@ -641,7 +630,7 @@ export function ComponentRadar() {
             </div>
           </div>
 
-          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
+          <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between md:w-40%">
             <div>
               <div class="flex flex-wrap gap-2 items-center justify-between">
                 <h3 class="text-base font-semibold">Headless hooks</h3>
@@ -655,7 +644,7 @@ export function ComponentRadar() {
               </p>
             </div>
 
-            <ul class="mt-5 gap-2 grid sm:grid-cols-2">
+            <ul class="mt-5 flex flex-col gap-2">
               <For each={HOOKS}>
                 {(hook) => (
                   <li>
