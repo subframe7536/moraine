@@ -67,6 +67,7 @@ export interface OverlayMenuBaseItem {
   /**
    * Whether the item is a destructive action. `danger` items use the danger text color and set
    * `data-danger` on the item.
+   * @default false
    */
   danger?: boolean
 

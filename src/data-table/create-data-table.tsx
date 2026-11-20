@@ -252,7 +252,7 @@ export function createDataTable<TData extends RowData = RowData>(
     },
   }
 
-  const BoundDataTable = (props: Omit<DataTableT.Props<TData>, 'table'>): JSX.Element => (
+  const BoundDataTable = (props: DataTableT.BoundProps<TData>): JSX.Element => (
     <DataTable {...props} table={table} />
   )
 

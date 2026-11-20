@@ -199,6 +199,7 @@ export namespace BaseDialogT {
      * Whether the overlay element itself scrolls, so content taller than the viewport scrolls
      * inside the backdrop (with padding) while `preventScroll` keeps the page itself from
      * scrolling.
+     * @default false
      */
     scrollable?: boolean
 

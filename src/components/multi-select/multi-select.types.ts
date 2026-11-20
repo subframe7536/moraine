@@ -312,6 +312,7 @@ export namespace MultiSelectT {
      * Whether a pointer click on the control (outside its buttons) opens the popup. Defaults
      * to `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing
      * non-blank text, `ArrowDown`, and the toggle button open it regardless.
+     * @default !(searchable || createItem)
      */
     openOnControlClick?: boolean
     /**

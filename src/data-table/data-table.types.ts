@@ -563,6 +563,8 @@ export namespace DataTableT {
     Classes,
     Styles
   >
+
+  export type BoundProps<TData extends RowData = RowData> = Omit<Props<TData>, 'table'>
 }
 
 /** Props for DataTable. */

@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Show, createSignal, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
@@ -59,8 +60,9 @@ interface RailDragSession {
 export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, [
+    'as',
     'disabled',
-    'ariaLabel',
+    'aria-label',
     'class',
     'style',
     'ref',
@@ -218,7 +220,8 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
 
   return (
     <Show when={!context.isMobile()}>
-      <button
+      <Dynamic
+        component={local.as}
         type="button"
         data-slot="sidebar-rail"
         {...railSlot}
@@ -229,7 +232,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
         aria-valuemin={0}
         aria-valuemax={context.maxWidth()}
         aria-valuenow={context.isOpen() ? context.width() : 0}
-        aria-label={local.ariaLabel ?? messages().resize}
+        aria-label={local['aria-label'] ?? messages().resize}
         disabled={disabled()}
         aria-disabled={disabled() ? 'true' : undefined}
         tabIndex={disabled() ? -1 : 0}

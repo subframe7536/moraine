@@ -198,7 +198,7 @@ describe('localized component text', () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
       onMount(() => frame.setOpen(true))
-      return <Sidebar.Panel ariaLabel={props.label}>Links</Sidebar.Panel>
+      return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }
 
     render(() => (

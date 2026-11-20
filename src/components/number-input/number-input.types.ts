@@ -171,6 +171,7 @@ export namespace NumberInputT {
 
     /**
      * Whether the increment button is disabled. Keyboard and wheel stepping stay available.
+     * @default false
      */
     incrementDisabled?: boolean
 
@@ -188,6 +189,7 @@ export namespace NumberInputT {
 
     /**
      * Whether the decrement button is disabled. Keyboard and wheel stepping stay available.
+     * @default false
      */
     decrementDisabled?: boolean
 

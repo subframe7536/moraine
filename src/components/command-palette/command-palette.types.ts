@@ -68,6 +68,7 @@ export namespace CommandPaletteT {
     /**
      * Keeps the item visible while the search text filters the list, even when it does not
      * match, for entries like "Search the docs for...".
+     * @default false
      */
     alwaysShow?: boolean
     /**
