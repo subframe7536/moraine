@@ -9,14 +9,14 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   const [label, setLabel] = createSignal('Loading')
   const [rounded, setRounded] = createSignal('rounded-full')
   const [width, setWidth] = createSignal('100px')
-  const [variant, setVariant] = createSignal<SkeletonT.Variants['variant']>()
+  const [animation, setAnimation] = createSignal<SkeletonT.Variants['animation']>()
   const { container } = hydrateFixture(
     '/src/components/skeleton/skeleton.ssr.fixture.tsx',
     'renderSkeletonFixture',
     () => (
       <Skeleton
         id="loading-placeholder"
-        variant={variant()}
+        animation={animation()}
         class={`h-4 w-24 ${rounded()}`}
         style={{ width: width() }}
       >
@@ -33,7 +33,7 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   setLabel('Still loading')
   setRounded('rounded-none')
   setWidth('200px')
-  setVariant('shimmer')
+  setAnimation('shimmer')
 
   expect(container.querySelector('#loading-placeholder')).toBe(root)
   expect(root.firstElementChild).toBe(content)
@@ -41,5 +41,5 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   expect(root.style.width).toBe('200px')
   expect(root.className).toContain('rounded-none')
   expect(root.className).not.toContain('rounded-full')
-  expect(root.hasAttribute('variant')).toBe(false)
+  expect(root.hasAttribute('animation')).toBe(false)
 })

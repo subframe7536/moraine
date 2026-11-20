@@ -14,6 +14,16 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "animation",
+          "optional": true,
+          "type": "'pulse' | 'shimmer'",
+          "description": "Loading animation displayed by the placeholder.",
+          "default": {
+            "kind": "literal",
+            "value": "pulse"
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -42,16 +52,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "variant",
-          "optional": true,
-          "type": "'pulse' | 'shimmer'",
-          "description": "Loading animation displayed by the placeholder.",
-          "default": {
-            "kind": "literal",
-            "value": "pulse"
-          }
         }
       ]
     }

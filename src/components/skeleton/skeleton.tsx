@@ -9,7 +9,7 @@ import type { SkeletonProps } from './skeleton.types'
 /**
  * Animated placeholder that reserves space for content while it loads. Size and shape it with
  * `class` or `style` to match the content it replaces, and use `Progress` instead for measurable
- * task completion. Renders a `div`; `variant="shimmer"` sweeps a gradient instead of the default
+ * task completion. Renders a `div`; `animation="shimmer"` sweeps a gradient instead of the default
  * pulse.
  *
  * @example
@@ -20,13 +20,13 @@ import type { SkeletonProps } from './skeleton.types'
  *   <Skeleton class="rounded-full shrink-0 size-12" />
  *   <div class="flex-1 min-w-0 space-y-2">
  *     <Skeleton class="h-4 w-full" />
- *     <Skeleton variant="shimmer" class="h-4 w-2/3" />
+ *     <Skeleton animation="shimmer" class="h-4 w-2/3" />
  *   </div>
  * </div>
  * ```
  */
 export function Skeleton(props: SkeletonProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['variant', 'class', 'style', 'classes', 'styles'])
+  const [local, rest] = splitProps(props, ['animation', 'class', 'style', 'classes', 'styles'])
   const {
     slots: { root: rootSlot },
   } = useRecipe(skeletonRecipe, local)

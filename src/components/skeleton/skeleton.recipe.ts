@@ -10,10 +10,10 @@ export const skeletonRecipe = /* @__PURE__ */ defineRecipe<
     root: 'rounded-md bg-muted',
   },
   defaultVariants: {
-    variant: 'pulse',
+    animation: 'pulse',
   },
   variants: {
-    variant: {
+    animation: {
       pulse: { root: 'animate-pulse motion-reduce:animate-none' },
       shimmer: {
         root: "bg-muted/70 relative overflow-hidden after:(pointer-events-none content-[''] inset-0 absolute animate-shimmer from-transparent to-transparent via-muted bg-gradient-to-r motion-reduce:animate-none)",

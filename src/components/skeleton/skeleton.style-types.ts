@@ -9,7 +9,7 @@ export interface SkeletonStyleVariants {
   /** Loading animation displayed by the placeholder.
    * @default 'pulse'
    */
-  variant?: 'pulse' | 'shimmer'
+  animation?: 'pulse' | 'shimmer'
 }
 
 export type SkeletonStyleConfig = ComponentStyleConfig<SkeletonStyleSlot, SkeletonStyleVariants>

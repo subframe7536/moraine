@@ -12,7 +12,7 @@ test('keeps placeholders mounted and applies user classes when the theme changes
   const { container } = render(() => (
     <MoraineProvider theme={theme()}>
       <Skeleton id="themed" class="user-skeleton" />
-      <Skeleton id="explicit" variant="pulse" />
+      <Skeleton id="explicit" animation="pulse" />
     </MoraineProvider>
   ))
   const themed = container.querySelector('#themed')!

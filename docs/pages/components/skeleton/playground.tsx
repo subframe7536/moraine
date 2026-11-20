@@ -8,7 +8,7 @@ export default function SkeletonPlayground() {
       controls={[
         {
           kind: 'select',
-          prop: 'variant',
+          prop: 'animation',
           label: 'Animation',
           defaultValue: 'pulse',
           options: [
@@ -29,7 +29,7 @@ export default function SkeletonPlayground() {
         },
       ]}
     >
-      {(props) => <Skeleton variant={props.variant} class={`size-20 ${props.shape}`} />}
+      {(props) => <Skeleton animation={props.animation} class={`size-20 ${props.shape}`} />}
     </DocsPlayground>
   )
 }

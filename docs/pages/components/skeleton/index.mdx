@@ -58,17 +58,17 @@ roles, so add them to the surrounding region when assistive technology needs a l
 
 ### Animation variants
 
-The default `variant="pulse"` fades the placeholder in and out. Use `variant="shimmer"` for a linear
+The default `animation="pulse"` fades the placeholder in and out. Use `animation="shimmer"` for a linear
 gradient sweep across the placeholder. Both animations respect the user's reduced-motion preference.
 
 Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-anim-duration-loop`
 or `--mo-anim-duration` in `style` to change its speed; `--mo-anim-duration` takes precedence.
-Configure `skeleton.defaultVariants.variant` in your Theme to set the default animation across your
+Configure `skeleton.defaultVariants.animation` in your Theme to set the default animation across your
 application.
 
 ```tsx
-<Skeleton variant="shimmer" class="h-4 w-full" />
-<Skeleton variant="shimmer" class="h-4 w-full" style={{ '--mo-anim-duration-loop': '1s' }} />
+<Skeleton animation="shimmer" class="h-4 w-full" />
+<Skeleton animation="shimmer" class="h-4 w-full" style={{ '--mo-anim-duration-loop': '1s' }} />
 ```
 
 ## Examples
@@ -105,7 +105,7 @@ Repeat a row of bars for each pending record.
 
 ### Shimmer
 
-Use `variant="shimmer"` when a sweep reads better than a pulse. Both animations honor reduced
+Use `animation="shimmer"` when a sweep reads better than a pulse. Both animations honor reduced
 motion.
 
 <Preview path="./animation-variants" />
