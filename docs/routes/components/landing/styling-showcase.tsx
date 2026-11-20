@@ -90,7 +90,11 @@ const PRESETS: ThemePreset[] = [
 
 const ACCENTS = [
   { name: 'Blue', primary: 'hsl(221.2 83.2% 53.3%)', foreground: 'hsl(210 40% 98%)' },
-  { name: 'Zinc', primary: 'light-dark(#18181b, #f4f4f5)', foreground: 'light-dark(#fafafa, #18181b)' },
+  {
+    name: 'Zinc',
+    primary: 'light-dark(#18181b, #f4f4f5)',
+    foreground: 'light-dark(#fafafa, #18181b)',
+  },
   { name: 'Emerald', primary: 'hsl(142.1 76.2% 36.3%)', foreground: 'hsl(355.7 100% 97.3%)' },
   { name: 'Violet', primary: 'hsl(262.1 83.3% 57.8%)', foreground: 'hsl(210 20% 98%)' },
   { name: 'Amber', primary: 'hsl(24.6 95% 53.1%)', foreground: 'hsl(60 9.1% 97.8%)' },
@@ -135,8 +139,20 @@ const WORKSPACE_FILES: FileNode[] = [
 
 const DEPLOYMENTS = [
   { id: 'dep-41', env: 'Production', branch: 'main', status: 'Ready', tone: 'success' as const },
-  { id: 'dep-40', env: 'Preview', branch: 'feat/theme', status: 'Building', tone: 'warning' as const },
-  { id: 'dep-39', env: 'Staging', branch: 'release/0.9', status: 'Ready', tone: 'success' as const },
+  {
+    id: 'dep-40',
+    env: 'Preview',
+    branch: 'feat/theme',
+    status: 'Building',
+    tone: 'warning' as const,
+  },
+  {
+    id: 'dep-39',
+    env: 'Staging',
+    branch: 'release/0.9',
+    status: 'Ready',
+    tone: 'success' as const,
+  },
 ]
 
 const FRAMEWORKS = [
@@ -434,7 +450,9 @@ export function StylingShowcase() {
       <Card size={density()} classes={slotOverrideCardClasses()} class="h-full">
         <Card.Header>
           <Card.Title>Deployment settings</Card.Title>
-          <Card.Description>Live form controls inheriting theme tokens and density.</Card.Description>
+          <Card.Description>
+            Live form controls inheriting theme tokens and density.
+          </Card.Description>
         </Card.Header>
         <Card.Body class="space-y-4">
           <Field label="Project name" size={density()}>
@@ -569,7 +587,7 @@ export function StylingShowcase() {
                             size="sm"
                             aria-label={`Select ${row.env}`}
                             checked={selectedRows().includes(row.id)}
-                            onCheckedChange={(checked) => toggleRow(row.id, Boolean(checked))}
+                            onCheckedChange={(checked) => toggleRow(row.id, checked)}
                           />
                         </Table.Cell>
                         <Table.Cell class="font-medium whitespace-nowrap">{row.env}</Table.Cell>
@@ -743,7 +761,7 @@ export function StylingShowcase() {
       </div>
 
       {/* Control bar: sticky on mobile (<768px), inline on desktop */}
-      <div class="py-2.5 border-y border-border bg-background/95 flex gap-2 items-center justify-between top-0 sticky z-20 backdrop-blur sm:px-3 sm:border sm:rounded-t-xl sm:static">
+      <div class="py-2.5 border-y border-border bg-background/95 flex gap-2 items-center top-0 justify-between sticky z-20 backdrop-blur sm:px-3 sm:border sm:rounded-t-xl sm:static">
         <div
           role="group"
           aria-label="Theme presets"
@@ -873,7 +891,7 @@ export function StylingShowcase() {
         class={cn(
           'p-4 border-b border-border bg-muted/20 min-w-0 sm:p-6 sm:border-x sm:rounded-b-xl',
           inspectSlots() &&
-            '[&_[data-slot]]:outline [&_[data-slot]]:outline-1 [&_[data-slot]]:outline-dashed [&_[data-slot]]:outline-primary/60',
+            '[&_[data-slot]]:outline-1 [&_[data-slot]]:outline-primary/60 [&_[data-slot]]:outline [&_[data-slot]]:outline-dashed',
         )}
       >
         <Show

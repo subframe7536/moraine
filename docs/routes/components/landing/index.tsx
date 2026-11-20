@@ -1,97 +1,11 @@
-import { For, createSignal } from 'solid-js'
-
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, Icon, cn } from '../../../../src'
-import { createCopy } from '../../../../src/utils'
+import { Badge, Button, Icon } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
 
-const PACKAGE_MANAGERS = [
-  { id: 'pnpm', label: 'pnpm', command: 'pnpm add moraine' },
-  { id: 'bun', label: 'bun', command: 'bun add moraine' },
-  { id: 'npm', label: 'npm', command: 'npm i moraine' },
-  { id: 'yarn', label: 'yarn', command: 'yarn add moraine' },
-] as const
-
 const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-3.5 max-sm:h-11 max-sm:w-full'
-
-function InstallCommand(props: { class?: string }) {
-  const clipboard = createCopy()
-  const [pmIndex, setPmIndex] = createSignal(0)
-  const active = () => PACKAGE_MANAGERS[pmIndex()]!
-
-  return (
-    <div
-      class={cn(
-        'border border-border rounded-lg bg-card flex flex-col max-w-full w-full overflow-hidden sm:flex-row sm:w-auto sm:items-center',
-        props.class,
-      )}
-    >
-      <div
-        role="group"
-        aria-label="Package manager"
-        class="p-1 border-b border-border bg-muted/30 flex gap-0.5 sm:border-b-0 sm:border-e"
-      >
-        <For each={PACKAGE_MANAGERS}>
-          {(pm, idx) => (
-            <button
-              type="button"
-              aria-pressed={pmIndex() === idx()}
-              onClick={() => setPmIndex(idx())}
-              class={cn(
-                'text-xs font-mono px-2 py-1 rounded flex-1 min-h-8 cursor-pointer transition-colors sm:flex-initial',
-                DOCS_FOCUS_RING_OFFSET_CLASS,
-                pmIndex() === idx()
-                  ? 'bg-background text-foreground font-medium shadow-2xs'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {pm.label}
-            </button>
-          )}
-        </For>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => clipboard.copy(active().command)}
-        class={cn(
-          'group text-sm px-3.5 py-2 text-left flex gap-3 min-h-10 cursor-pointer select-none transition-colors items-center justify-between hover:bg-muted/40',
-          DOCS_FOCUS_RING_OFFSET_CLASS,
-        )}
-        aria-label={`Copy ${active().command}`}
-        title={
-          clipboard.status() === 'copied'
-            ? 'Copied to clipboard'
-            : clipboard.status() === 'error'
-              ? 'Copy failed; try again'
-              : 'Click to copy'
-        }
-      >
-        <span class="flex gap-2 min-w-0 items-center">
-          <span class="text-sm text-primary font-medium font-mono select-none">$</span>
-          <code class="text-sm text-foreground font-mono truncate">{active().command}</code>
-        </span>
-        <span class="text-muted-foreground inline-flex shrink-0 transition-colors items-center group-hover:text-foreground">
-          <Icon
-            name={clipboard.status() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
-            class={cn('size-4 transition-colors', clipboard.status() === 'copied' && 'text-primary')}
-          />
-        </span>
-      </button>
-
-      <span class="sr-only" aria-live="polite">
-        {clipboard.status() === 'copied'
-          ? 'Install command copied'
-          : clipboard.status() === 'error'
-            ? 'Copy failed; try again'
-            : ''}
-      </span>
-    </div>
-  )
-}
 
 export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
@@ -141,19 +55,17 @@ export function LandingPage() {
             variant="outline"
             class={HERO_BUTTON_MOBILE_SIZE_CLASS}
           >
-            Components
+            Explore Components
           </Button>
         </div>
 
-        <InstallCommand class="mt-5 max-w-sm sm:max-w-none" />
-
-        <p class="text-xs text-muted-foreground mt-4 flex flex-wrap gap-x-3 gap-y-1 items-center justify-center">
+        <p class="text-xs text-muted-foreground mt-8 flex flex-wrap gap-x-3 gap-y-1 items-center justify-center">
           <span>60 Components</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">|</span>
           <span>UnoCSS &amp; Tailwind v4</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">|</span>
           <span>Optional Peer Entries</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">|</span>
           <span>SSR Safe</span>
         </p>
       </section>
@@ -183,7 +95,7 @@ export function LandingPage() {
 
           <nav
             aria-label="Explore Moraine"
-            class="gap-6 grid grid-cols-2 sm:grid-cols-3 md:ps-8 md:border-s md:border-border"
+            class="gap-6 grid grid-cols-2 md:ps-8 md:border-s md:border-border sm:grid-cols-3"
           >
             <div>
               <h3 class="text-xs text-muted-foreground font-semibold mb-3">Docs</h3>

@@ -106,11 +106,7 @@ export function ComponentRadar() {
           </Badge>
         </div>
 
-        <BaseSelect
-          items={FRAMEWORK_ITEMS}
-          value={granularVal()}
-          onValueChange={setGranularVal}
-        >
+        <BaseSelect items={FRAMEWORK_ITEMS} value={granularVal()} onValueChange={setGranularVal}>
           <BaseSelect.Control>
             <BaseSelect.Trigger class="text-sm px-3 border border-input rounded-md bg-control flex h-8 w-full items-center justify-between">
               <span>
@@ -198,7 +194,7 @@ export function ComponentRadar() {
 
       {/* 2. Complex Modules & Dual CSS Engine */}
       <div class="gap-6 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <div class="p-5 border border-border rounded-xl bg-card flex flex-col justify-between min-w-0">
+        <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
           <div>
             <div class="flex flex-wrap gap-2 items-center justify-between">
               <h3 class="text-base font-semibold">Built for dense interfaces</h3>
@@ -232,11 +228,13 @@ export function ComponentRadar() {
                 <span class="text-xs text-muted-foreground font-mono">min 24%</span>
               </Resizable.Panel>
               <Resizable.Handle />
-              <Resizable.Panel id="main" min={40} class="p-3 bg-background flex flex-col justify-between">
+              <Resizable.Panel
+                id="main"
+                min={40}
+                class="p-3 bg-background flex flex-col justify-between"
+              >
                 <span class="text-xs font-medium">Canvas</span>
-                <span class="text-xs text-muted-foreground">
-                  Drag divider or press arrow keys
-                </span>
+                <span class="text-xs text-muted-foreground">Drag divider or press arrow keys</span>
               </Resizable.Panel>
             </Resizable>
           </div>
@@ -254,7 +252,7 @@ export function ComponentRadar() {
           </div>
         </div>
 
-        <div class="p-5 border border-border rounded-xl bg-card flex flex-col justify-between min-w-0">
+        <div class="p-5 border border-border rounded-xl bg-card flex flex-col min-w-0 justify-between">
           <div>
             <h3 class="text-base font-semibold">UnoCSS &amp; Tailwind CSS v4</h3>
             <p class="text-sm text-muted-foreground mt-1.5">

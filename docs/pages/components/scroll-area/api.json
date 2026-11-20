@@ -179,6 +179,7 @@
       "target": "scrollbar",
       "attributes": [
         "data-corner",
+        "data-dragging",
         "data-orientation",
         "data-visible"
       ]
