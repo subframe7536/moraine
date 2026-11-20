@@ -383,4 +383,27 @@ export namespace NeverT {
     const variantProp = paginationPart.props.find((p) => p.name === 'variant')
     expect(variantProp?.type).toBe("'solid' | 'soft' | 'outline' | 'ghost' | 'link'")
   })
+
+  test('expands discriminated-union Item types into merged props', async () => {
+    const kbdGroupModule = await extractor.loadModule('src/components/kbd-group/kbd-group.types.ts')
+    const kbdGroupItem = await extractor.extractItem(kbdGroupModule!, 'KbdGroupT')
+    expect(kbdGroupItem?.props.map((prop) => prop.name)).toEqual(['value', 'ariaLabel', 'symbol'])
+    expect(kbdGroupItem?.props.find((p) => p.name === 'value')?.optional).toBe(true)
+    expect(kbdGroupItem?.props.find((p) => p.name === 'ariaLabel')?.optional).toBe(true)
+
+    const contextMenuModule = await extractor.loadModule(
+      'src/components/context-menu/context-menu.types.ts',
+    )
+    const menuItem = await extractor.extractItem(contextMenuModule!, 'ContextMenuT')
+    expect(menuItem?.props.length).toBeGreaterThan(0)
+    const names = menuItem!.props.map((prop) => prop.name)
+    for (const name of ['type', 'label', 'disabled', 'checked', 'value', 'items', 'onSelect']) {
+      expect(names).toContain(name)
+    }
+    const typeProp = menuItem!.props.find((prop) => prop.name === 'type')
+    expect(typeProp?.optional).toBe(true)
+    expect(typeProp?.type).toContain("'separator'")
+    expect(typeProp?.type).toContain("'checkbox'")
+    expect(menuItem!.props.find((prop) => prop.name === 'checked')?.optional).toBe(true)
+  })
 })

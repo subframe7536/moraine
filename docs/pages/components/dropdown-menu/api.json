@@ -77,8 +77,8 @@
         {
           "name": "flip",
           "optional": true,
-          "type": "boolean | string",
-          "description": "Whether the content moves to the opposite side when the preferred `placement` does not fit.\nA space-delimited string such as `'top left'` is an ordered list of fallback placements\n(`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`); an\ninvalid entry throws.",
+          "type": "boolean | Placement[]",
+          "description": "Whether the content moves to the opposite side when the preferred `placement` does not fit.\nAn array such as `['top', 'left']` is an ordered list of fallback `Placement` values tried\nin order (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`).",
           "default": {
             "kind": "literal",
             "value": true
@@ -330,7 +330,150 @@
     }
   ],
   "item": {
-    "props": []
+    "props": [
+      {
+        "name": "checked",
+        "optional": true,
+        "type": "boolean",
+        "description": "Controlled checked state. Leave it `undefined` to let the item manage its own state (see\n`defaultChecked`); when set, update it from `onCheckedChange`."
+      },
+      {
+        "name": "children",
+        "optional": true,
+        "type": "OverlayMenuItem[]",
+        "typeDetails": "({\n  /** Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`. */\n  label?: JSX.Element;\n  /** Secondary text shown below the label. */\n  description?: JSX.Element;\n  /** Name of the icon shown at the start of the item. */\n  icon?: IconT.Name;\n  /** Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu. */\n  kbds?: KbdT.Key[];\n  /** Custom CSS class applied to the item element. */\n  class?: ClassValue;\n  /** Custom inline styles applied to the item element. */\n  style?: JSX.CSSProperties;\n  /** Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item. */\n  danger?: boolean;\n  /** Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`. */\n  disabled?: boolean;\n  type?: 'item';\n  /** Controlled open state of the submenu. Only applies to items with `children`; leave it\n`undefined` to let the item manage its own state (see `defaultOpen`). */\n  open?: boolean;\n  /** Initial open state of the submenu when `open` is not set. */\n  defaultOpen?: boolean;\n  /** Called with the next open state when the submenu opens (pointer hover delay, click or arrow\nkey) or closes. Not called when `open` is changed from outside. */\n  onOpenChange?: (open: boolean) => void;\n  /** Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).\nA non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the\nmenu's `expandIcon` in place of `kbds`. Only items without a `type` (or with `type: 'item'`)\nopen submenus; on `group` and `radio-group` items `items` holds the group's entries. */\n  children?: OverlayMenuItem[];\n  /** Called when the item is activated by click, Enter or Space, before the whole menu closes and\nfocus returns to the trigger. Not called for disabled items or items that open a submenu. */\n  onSelect?: () => void;\n} | {\n  /** Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`. */\n  label?: JSX.Element;\n  /** Secondary text shown below the label. */\n  description?: JSX.Element;\n  /** Name of the icon shown at the start of the item. */\n  icon?: IconT.Name;\n  /** Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu. */\n  kbds?: KbdT.Key[];\n  /** Custom CSS class applied to the item element. */\n  class?: ClassValue;\n  /** Custom inline styles applied to the item element. */\n  style?: JSX.CSSProperties;\n  /** Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item. */\n  danger?: boolean;\n  /** Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`. */\n  disabled?: boolean;\n  type: 'checkbox';\n  /** Controlled checked state. Leave it `undefined` to let the item manage its own state (see\n`defaultChecked`); when set, update it from `onCheckedChange`. */\n  checked?: boolean;\n  /** Initial checked state when `checked` is not set. */\n  defaultChecked?: boolean;\n  /** Called with the next checked state each time the user toggles the item. The menu stays open. */\n  onCheckedChange?: (checked: boolean) => void;\n  /** Called after `onCheckedChange` each time the item is toggled. The menu stays open. */\n  onSelect?: () => void;\n} | {\n  /** Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`. */\n  label?: JSX.Element;\n  /** Secondary text shown below the label. */\n  description?: JSX.Element;\n  /** Name of the icon shown at the start of the item. */\n  icon?: IconT.Name;\n  /** Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu. */\n  kbds?: KbdT.Key[];\n  /** Custom CSS class applied to the item element. */\n  class?: ClassValue;\n  /** Custom inline styles applied to the item element. */\n  style?: JSX.CSSProperties;\n  /** Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item. */\n  danger?: boolean;\n  /** Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`. */\n  disabled?: boolean;\n  type: 'radio-group';\n  /** Radio items in this group. Selecting one unchecks the others. The group's `label`, when set,\nis rendered as its heading. */\n  items?: OverlayMenuRadioItem[];\n  /** Controlled selected value, matched against each radio item's `value`. Leave it `undefined`\nto let the group manage its own state (see `defaultValue`). */\n  value?: string;\n  /** Initial selected value when `value` is not set. */\n  defaultValue?: string;\n  /** Called with the `value` of the radio item the user chose. The menu stays open. */\n  onValueChange?: (value: string) => void;\n} | {\n  /** Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`. */\n  label?: JSX.Element;\n  /** Secondary text shown below the label. */\n  description?: JSX.Element;\n  /** Name of the icon shown at the start of the item. */\n  icon?: IconT.Name;\n  /** Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu. */\n  kbds?: KbdT.Key[];\n  /** Custom CSS class applied to the item element. */\n  class?: ClassValue;\n  /** Custom inline styles applied to the item element. */\n  style?: JSX.CSSProperties;\n  /** Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item. */\n  danger?: boolean;\n  /** Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`. */\n  disabled?: boolean;\n  type: 'group';\n  /** Child items in this group. The group's `label`, when set, is rendered as a non-interactive\nheading above the items. */\n  items?: OverlayMenuItem[];\n} | {\n  type: 'separator';\n})[]",
+        "description": "Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).\nA non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the\nmenu's `expandIcon` in place of `kbds`. Only items without a `type` (or with `type: 'item'`)\nopen submenus; on `group` and `radio-group` items `items` holds the group's entries.",
+        "examples": [
+          "import { Button, DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger as={Button}>Share</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[\n      { label: 'Copy link', onSelect: () => console.log('copied') },\n      { label: 'Send to', children: [{ label: 'Email' }, { label: 'Slack' }] },\n    ]}\n  />\n</DropdownMenu>"
+        ]
+      },
+      {
+        "name": "class",
+        "optional": true,
+        "type": "ClassValue",
+        "description": "Custom CSS class applied to the item element."
+      },
+      {
+        "name": "danger",
+        "optional": true,
+        "type": "boolean",
+        "description": "Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item."
+      },
+      {
+        "name": "defaultChecked",
+        "optional": true,
+        "type": "boolean",
+        "description": "Initial checked state when `checked` is not set.",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
+      },
+      {
+        "name": "defaultOpen",
+        "optional": true,
+        "type": "boolean",
+        "description": "Initial open state of the submenu when `open` is not set.",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
+      },
+      {
+        "name": "defaultValue",
+        "optional": true,
+        "type": "string",
+        "description": "Initial selected value when `value` is not set."
+      },
+      {
+        "name": "description",
+        "optional": true,
+        "type": "JSX.Element",
+        "description": "Secondary text shown below the label."
+      },
+      {
+        "name": "disabled",
+        "optional": true,
+        "type": "boolean",
+        "description": "Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`.",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
+      },
+      {
+        "name": "icon",
+        "optional": true,
+        "type": "IconT.Name",
+        "description": "Name of the icon shown at the start of the item."
+      },
+      {
+        "name": "items",
+        "optional": true,
+        "type": "OverlayMenuRadioItem[] | OverlayMenuItem[]",
+        "typeDetails": "({\n  /** Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`. */\n  label?: JSX.Element;\n  /** Secondary text shown below the label. */\n  description?: JSX.Element;\n  /** Name of the icon shown at the start of the item. */\n  icon?: IconT.Name;\n  /** Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu. */\n  kbds?: KbdT.Key[];\n  /** Custom CSS class applied to the item element. */\n  class?: ClassValue;\n  /** Custom inline styles applied to the item element. */\n  style?: JSX.CSSProperties;\n  /** Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item. */\n  danger?: boolean;\n  /** Whether the item is non-interactive: it ignores activation (no `onSelect`, no closing) and\nexposes `aria-disabled`. */\n  disabled?: boolean;\n  type: 'radio';\n  /** Value this item selects in its parent radio group; the item shows as checked while the\ngroup's selected value equals it. */\n  value: string;\n  /** Called after the group's `onValueChange` each time the item is chosen. The menu stays open. */\n  onSelect?: () => void;\n})[]",
+        "description": "Radio items in this group. Selecting one unchecks the others. The group's `label`, when set,\nis rendered as its heading."
+      },
+      {
+        "name": "kbds",
+        "optional": true,
+        "type": "KbdT.Key[]",
+        "description": "Keys shown as keycaps at the end of the item, for example `['ctrl', 's']`. Each key is resolved\nlike `Kbd` `value`, so names such as `meta` or `shift` render as symbols. Display only: it does\nnot register a keyboard shortcut. Not shown on items that open a submenu."
+      },
+      {
+        "name": "label",
+        "optional": true,
+        "type": "JSX.Element",
+        "description": "Text or element shown as the item's primary text. A string `label` is also what typeahead\nmatches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,\nit replaces the default rendering of `label`, `description`, `icon` and `kbds`."
+      },
+      {
+        "name": "onCheckedChange",
+        "optional": true,
+        "type": "(checked: boolean) => void",
+        "description": "Called with the next checked state each time the user toggles the item. The menu stays open."
+      },
+      {
+        "name": "onOpenChange",
+        "optional": true,
+        "type": "(open: boolean) => void",
+        "description": "Called with the next open state when the submenu opens (pointer hover delay, click or arrow\nkey) or closes. Not called when `open` is changed from outside."
+      },
+      {
+        "name": "onSelect",
+        "optional": true,
+        "type": "() => void",
+        "description": "Called when the item is activated by click, Enter or Space, before the whole menu closes and\nfocus returns to the trigger. Not called for disabled items or items that open a submenu."
+      },
+      {
+        "name": "onValueChange",
+        "optional": true,
+        "type": "(value: string) => void",
+        "description": "Called with the `value` of the radio item the user chose. The menu stays open."
+      },
+      {
+        "name": "open",
+        "optional": true,
+        "type": "boolean",
+        "description": "Controlled open state of the submenu. Only applies to items with `children`; leave it\n`undefined` to let the item manage its own state (see `defaultOpen`)."
+      },
+      {
+        "name": "style",
+        "optional": true,
+        "type": "JSX.CSSProperties",
+        "description": "Custom inline styles applied to the item element."
+      },
+      {
+        "name": "type",
+        "optional": true,
+        "type": "'item' | 'checkbox' | 'radio-group' | 'group' | 'separator'"
+      },
+      {
+        "name": "value",
+        "optional": true,
+        "type": "string",
+        "description": "Controlled selected value, matched against each radio item's `value`. Leave it `undefined`\nto let the group manage its own state (see `defaultValue`)."
+      }
+    ]
   },
   "slots": [
     "trigger",

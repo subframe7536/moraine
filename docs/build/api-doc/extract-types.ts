@@ -805,6 +805,9 @@ export class TypeExtractor {
       }
     } else if (decl.type === 'TSTypeAliasDeclaration') {
       const typeAnn = decl.typeAnnotation
+      if (typeAnn.type === 'TSUnionType') {
+        return this.#resolveUnionProperties(module, typeAnn.types, nsNode, substitutions)
+      }
       if (typeAnn.type === 'TSTypeLiteral') {
         props.push(
           ...(await this.#extractPropertiesFromTypeLiteral(module, typeAnn, nsNode, substitutions)),
@@ -840,6 +843,9 @@ export class TypeExtractor {
         res.push(...(await this.#resolvePropertiesFromTypeNode(module, t, nsNode, substitutions)))
       }
       return res
+    }
+    if (node.type === 'TSUnionType') {
+      return this.#resolveUnionProperties(module, node.types, nsNode, substitutions)
     }
     if (node.type === 'TSTypeReference') {
       const name = entityNameToText(node.typeName)
@@ -901,6 +907,50 @@ export class TypeExtractor {
       }
     }
     return []
+  }
+
+  /**
+   * Merge the props of every union member: a prop stays only if some member declares it, its type
+   * is the union of the member types, and it is optional unless every member requires it.
+   */
+  async #resolveUnionProperties(
+    module: ParsedModule,
+    members: readonly ESTree.TSType[],
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    const merged = new Map<string, PropApi>()
+    const typeParts = new Map<string, Set<string>>()
+    const memberCounts = new Map<string, number>()
+    for (const member of members) {
+      const memberProps = await this.#resolvePropertiesFromTypeNode(
+        module,
+        member,
+        nsNode,
+        substitutions,
+      )
+      for (const prop of memberProps) {
+        memberCounts.set(prop.name, (memberCounts.get(prop.name) ?? 0) + 1)
+        const parts = typeParts.get(prop.name) ?? new Set<string>()
+        parts.add(prop.type)
+        typeParts.set(prop.name, parts)
+        const existing = merged.get(prop.name)
+        if (existing) {
+          existing.optional ||= prop.optional
+          existing.description ??= prop.description
+          existing.default ??= prop.default
+        } else {
+          merged.set(prop.name, { ...prop })
+        }
+      }
+    }
+    for (const [name, prop] of merged) {
+      prop.type = [...typeParts.get(name)!].join(' | ')
+      if ((memberCounts.get(name) ?? 0) < members.length) {
+        prop.optional = true
+      }
+    }
+    return [...merged.values()]
   }
 
   async #extractPropertiesFromTypeLiteral(
