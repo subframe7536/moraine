@@ -564,9 +564,6 @@ export function createContextMenu(props: ContextMenuProps) {
       get closeOnOutsideClick() {
         return merged.closeOnOutsideClick
       },
-      get modal() {
-        return merged.modal
-      },
       onClosePrevented: () => merged.onClosePrevented?.(),
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),
       getAnchorRect,

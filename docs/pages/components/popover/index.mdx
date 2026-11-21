@@ -107,14 +107,8 @@ Escape and outside interaction close a popover. Closing restores focus to the tr
 an outside press or focus move, where focus has already gone elsewhere. Give `Popover.Content` an
 accessible name with `aria-label` when it has no visible label.
 
-`modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
-the content, outside content is hidden from assistive technology, and body scroll is locked.
-Without a Close, the popover stays non-modal so users retain a dismissal route, and development
-builds log a warning.
-
-`modal={false}` does not disable Escape or outside dismissal; `closeOnEscape` and
-`closeOnOutsideClick` control them independently. `preventScroll` can lock body scroll
-independently of `modal`.
+`closeOnEscape` and `closeOnOutsideClick` control dismissal independently, and `preventScroll`
+locks body scroll while the popover is open.
 
 ```tsx
 <Popover>
@@ -129,9 +123,9 @@ independently of `modal`.
 
 ### Keyboard interaction
 
-Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
-dismissal when `closeOnEscape` allows it; focusable controls inside non-modal content participate
-in normal document focus order. Modal content contains focus. With `openOnHover`, Tab from the
+Keyboard behavior depends on the trigger element. Escape requests dismissal when `closeOnEscape`
+allows it; focusable controls inside the content participate in normal document focus order. With
+`openOnHover`, Tab from the
 last control in the content moves to the next focusable element after the trigger, and
 Shift+Tab from the first control returns to the trigger.
 
