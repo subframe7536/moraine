@@ -84,9 +84,8 @@ export namespace DropdownMenuT {
      */
     shift?: number
     /**
-     * Locks body scroll while the menu is open. Defaults to matching `modal` and does not render
-     * the `overlay` slot. Set `false` to keep the page scrollable even when `modal` is `true`.
-     * @default false
+     * Locks body scroll while the menu is open. Set `false` to keep the page scrollable.
+     * @default true
      */
     preventScroll?: boolean
     /**
@@ -125,13 +124,6 @@ export namespace DropdownMenuT {
      * `closeOnOutsideClick` is `false`.
      */
     onClosePrevented?: () => void
-    /**
-     * Whether the menu is modal: while it is open, content outside it is hidden from assistive
-     * technology and the native default action of outside pointer presses is prevented. Outside
-     * presses still dismiss the menu unless `closeOnOutsideClick` is `false`.
-     * @default false
-     */
-    modal?: boolean
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }

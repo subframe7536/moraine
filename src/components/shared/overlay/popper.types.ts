@@ -21,13 +21,11 @@ export interface PopperPointerDownOutsideEvent {
 export interface PopperContentAttributes {
   'aria-describedby'?: string
   'aria-labelledby'?: string
-  'aria-modal'?: true
 
   'data-closed'?: string
   'data-expanded'?: string
 
   id: string
-  onKeyDown: (event: KeyboardEvent) => void
   /** Stores the content host; see `PopperContentContext.contentProps` for its lifetime contract. */
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
@@ -174,14 +172,6 @@ export interface PopperContentOptions {
   hideWhenDetached?: boolean
 
   /**
-   * Whether the content traps focus, hides outside content from assistive technology, prevents
-   * the native default action of outside pointer events, and locks body scroll.
-   * Outside and Escape dismissal remain controlled by `closeOnOutsideClick` and `closeOnEscape`.
-   * @default false
-   */
-  modal?: boolean
-
-  /**
    * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press or focus
    * move (`closeOnOutsideClick` is `false`) tried to close the content and was blocked.
    */
@@ -226,24 +216,17 @@ export interface PopperContentOptions {
   align?: OverlayAlign
 
   /**
-   * Whether body scroll is locked while the content is present. Defaults to matching `modal`;
-   * set `false` to keep the page scrollable even when `modal` is `true`.
+   * Whether body scroll is locked while the content is present.
    * @default false
    */
   preventScroll?: boolean
 
   /**
-   * Element (or accessor resolving to one) that receives focus when modal content opens, or
-   * `false` to skip initial focus. Defaults to the first focusable element inside the content.
-   */
-  initialFocus?: HTMLElement | (() => HTMLElement | undefined) | false
-
-  /**
    * Element (or accessor resolving to one) that receives focus after the content closes, or
    * `false` to skip the close-time focus restore. Defaults to the trigger. An accessor that
-   * returns `undefined` restores no focus. Focus is not restored when a non-modal content is
-   * dismissed by an outside press or focus move, since focus already went elsewhere. Hover-opened
-   * popovers (`openOnHover`) default to not restoring focus.
+   * returns `undefined` restores no focus. Focus is not restored when the content is dismissed by
+   * an outside press or focus move, since focus already went elsewhere. Hover-opened popovers
+   * (`openOnHover`) default to not restoring focus.
    * @example
    * ```tsx
    * import { Button, Popover } from 'moraine'
