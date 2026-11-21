@@ -83,11 +83,13 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   })
   createEffect(
     on(presence.present, (present) => {
-      if (present) {
-        onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
-      } else {
+      if (!present) {
         // The content unmounted with the Show branch; release its presence registration.
         setContent(undefined)
+        return
+      }
+      if (state.props.preventScroll ?? true) {
+        onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
       }
     }),
   )

@@ -528,6 +528,10 @@ export function createContextMenu(props: ContextMenuProps) {
         return open()
       },
       onClose: () => commitOpen(false),
+      onExitComplete: () => merged.onExitComplete?.(),
+      get mount() {
+        return merged.mount
+      },
       get triggerElement() {
         return triggerElement()
       },
@@ -563,9 +567,6 @@ export function createContextMenu(props: ContextMenuProps) {
       },
       get closeOnOutsideClick() {
         return merged.closeOnOutsideClick
-      },
-      get modal() {
-        return merged.modal
       },
       onClosePrevented: () => merged.onClosePrevented?.(),
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),

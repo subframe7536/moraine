@@ -25,7 +25,6 @@ import Playground from './playground'
         part: 'ContextMenu.Trigger',
         slot: 'trigger',
       },
-      { slot: 'overlay' },
       {
         internal: 'positioner',
         children: [
@@ -155,8 +154,7 @@ keyboard handling, and selection.
 
 Escape and outside presses close the menu. Set `closeOnEscape` or `closeOnOutsideClick` to `false` to
 block them, and use `onClosePrevented` to react to the blocked attempt. While the menu is open, body
-scroll is locked and an overlay renders behind the content; set `preventScroll` to `false` to keep the
-page scrollable. Set `modal` to hide outside content from assistive technology while the menu is open.
+scroll is locked by default; set `preventScroll` to `false` to keep the page scrollable.
 
 ### Keyboard interaction
 

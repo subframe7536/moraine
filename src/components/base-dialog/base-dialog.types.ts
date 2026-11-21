@@ -3,6 +3,11 @@ import type { Component, JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPortalProps,
+} from '../shared/overlay/types'
 
 import type { BaseDialogStyleSlot, BaseDialogStyleVariants } from './base-dialog.style-types'
 
@@ -18,7 +23,7 @@ export namespace BaseDialogT {
     close: () => void
   }
 
-  export interface Base {
+  export interface Base extends OverlayDisclosureProps, OverlayDismissProps, OverlayPortalProps {
     /**
      * Unique identifier used to derive the content id, which becomes `<id>-content`. Generated
      * when omitted.

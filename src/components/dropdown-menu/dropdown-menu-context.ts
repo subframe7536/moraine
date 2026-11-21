@@ -57,6 +57,10 @@ export function createDropdownMenu(props: DropdownMenuProps) {
         return isOpen()
       },
       onClose: () => commitOpen(false),
+      onExitComplete: () => props.onExitComplete?.(),
+      get mount() {
+        return props.mount
+      },
       get triggerElement() {
         return triggerElement()
       },
@@ -92,9 +96,6 @@ export function createDropdownMenu(props: DropdownMenuProps) {
       },
       get closeOnOutsideClick() {
         return props.closeOnOutsideClick
-      },
-      get modal() {
-        return props.modal
       },
       onClosePrevented: () => props.onClosePrevented?.(),
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),

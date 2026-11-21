@@ -27,9 +27,8 @@ import { useButtonInteraction } from '../../../shared/use-button-interaction'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
-import { acquireAriaHideOutside } from './aria-hide'
 import { useFloatingPosition, usePositionerZIndex } from './floating'
-import { containFocusInContainer, focusContent, focusTrigger, resolveFocusTarget } from './focus'
+import { focusTrigger, resolveFocusTarget } from './focus'
 import { useOverlayInteraction } from './interaction'
 import { resolveFloatingPlacement } from './placement'
 import { popperDataAttributes } from './popper.recipe'
@@ -118,7 +117,10 @@ export function createPopper(
   const isOpen = createMemo(() => open() && !props.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const contentPresence = createTransitionPresence({ open: isOpen })
+  const contentPresence = createTransitionPresence({
+    open: isOpen,
+    onExitComplete: () => props.onExitComplete?.(),
+  })
 
   function setOpen(nextOpen: boolean): void {
     if (!props.disabled) {
@@ -227,7 +229,6 @@ export function PopperContent(
       forceMount: false,
       gutter: 0,
       hideWhenDetached: false,
-      modal: false,
       overlap: false,
       overflowPadding: 4,
       placement: 'bottom' as const,
@@ -317,29 +318,18 @@ export function PopperContent(
       if (!present) {
         return
       }
-      const modal = options.modal
       const preventScroll = options.preventScroll
+      if (!preventScroll) {
+        return
+      }
 
       createEffect(
         on([contentElement, positionerElement], ([currentContent, currentPositioner]) => {
           if (!currentContent || !currentPositioner) {
             return
           }
-          const releaseScrollLock =
-            modal || preventScroll ? acquireBodyScrollLock(currentContent) : undefined
-          let active = true
-          let releaseAriaHide: (() => void) | undefined
-          if (modal) {
-            queueMicrotask(() => {
-              if (active && currentContent.isConnected) {
-                releaseAriaHide = acquireAriaHideOutside(currentContent)
-                focusContent(currentContent)
-              }
-            })
-          }
+          const releaseScrollLock = acquireBodyScrollLock(currentContent)
           onCleanup(() => {
-            active = false
-            releaseAriaHide?.()
             releaseScrollLock?.()
           })
         }),
@@ -363,20 +353,13 @@ export function PopperContent(
       }
 
       options.onPointerDownOutside?.(interactEvent)
-      const nativeDefaultPrevented = event.defaultPrevented
 
-      if (options.modal) {
-        event.preventDefault()
-      }
-
-      if (nativeDefaultPrevented || interactEvent.defaultPrevented) {
+      if (event.defaultPrevented || interactEvent.defaultPrevented) {
         return
       }
 
       if (options.closeOnOutsideClick) {
-        if (!options.modal) {
-          restoreFocusAfterClose = false
-        }
+        restoreFocusAfterClose = false
         setOpen(false)
         return
       }
@@ -399,23 +382,13 @@ export function PopperContent(
       }
 
       if (options.closeOnOutsideFocus && options.closeOnOutsideClick) {
-        if (!options.modal) {
-          restoreFocusAfterClose = false
-        }
+        restoreFocusAfterClose = false
         setOpen(false)
         return
       }
 
       if (!options.closeOnOutsideClick) {
         options.onClosePrevented?.()
-
-        if (options.modal) {
-          event.preventDefault()
-          const currentContent = contentElement()
-          queueMicrotask(() => {
-            focusContent(currentContent)
-          })
-        }
       }
     },
     onEscape: (event) => {
@@ -447,12 +420,6 @@ export function PopperContent(
     },
   })
 
-  const onContentKeyDown = (event: KeyboardEvent): void => {
-    if (options.modal) {
-      containFocusInContainer(event, context.contentElement())
-    }
-  }
-
   const contentProps = {
     get 'aria-describedby'() {
       return options.ariaDescribedBy
@@ -460,13 +427,9 @@ export function PopperContent(
     get 'aria-labelledby'() {
       return options.ariaLabelledBy
     },
-    get 'aria-modal'() {
-      return options.modal ? true : undefined
-    },
     get id() {
       return contentId()
     },
-    onKeyDown: onContentKeyDown,
     ref: setContent,
     get role() {
       return options.role
@@ -500,7 +463,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={mount()}>
+          <Portal mount={options.mount ?? mount()}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}
