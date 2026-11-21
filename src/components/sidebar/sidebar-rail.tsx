@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
+import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
@@ -221,7 +222,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   return (
     <Show when={!context.isMobile()}>
       <Dynamic
-        component={local.as}
+        component={(local.as ?? 'button') as ValidComponent}
         type="button"
         data-slot="sidebar-rail"
         {...railSlot}
@@ -241,16 +242,22 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
           bindings.setElement(node)
           callRef(local.ref, node)
         }}
-        onClick={(event) => callRailEvent(event, local.onClick, onClick)}
-        onKeyDown={(event) => callRailEvent(event, local.onKeyDown, bindings.onKeyDown)}
-        onPointerDown={(event) => {
+        onClick={(event: MouseEvent) => callRailEvent(event, local.onClick, onClick)}
+        onKeyDown={(event: KeyboardEvent) =>
+          callRailEvent(event, local.onKeyDown, bindings.onKeyDown)
+        }
+        onPointerDown={(event: PointerEvent) => {
           sessionMoved = false
           callRailEvent(event, local.onPointerDown, bindings.onPointerDown)
         }}
-        onMouseEnter={(event) => callRailEvent(event, local.onMouseEnter, bindings.onMouseEnter)}
-        onMouseLeave={(event) => callRailEvent(event, local.onMouseLeave, bindings.onMouseLeave)}
-        onFocus={(event) => callRailEvent(event, local.onFocus, bindings.onFocus)}
-        onBlur={(event) => callRailEvent(event, local.onBlur, bindings.onBlur)}
+        onMouseEnter={(event: MouseEvent) =>
+          callRailEvent(event, local.onMouseEnter, bindings.onMouseEnter)
+        }
+        onMouseLeave={(event: MouseEvent) =>
+          callRailEvent(event, local.onMouseLeave, bindings.onMouseLeave)
+        }
+        onFocus={(event: FocusEvent) => callRailEvent(event, local.onFocus, bindings.onFocus)}
+        onBlur={(event: FocusEvent) => callRailEvent(event, local.onBlur, bindings.onBlur)}
       />
     </Show>
   )

@@ -846,12 +846,12 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<Sidebar width={280} defaultWidth={240} minWidth={200} maxWidth={400}>
   <Sidebar.Panel />
-  <Sidebar.Rail ariaLabel="Resize sidebar" />
+  <Sidebar.Rail aria-label="Resize sidebar" />
   <Sidebar.Inset />
 </Sidebar>
 
 ;<Sidebar mobile={false}>
-  <Sidebar.Panel ariaLabel="Sidebar navigation">
+  <Sidebar.Panel aria-label="Sidebar navigation">
     <Sidebar.Header>Header</Sidebar.Header>
     <Sidebar.Content>
       <Sidebar.Group>
