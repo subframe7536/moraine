@@ -278,12 +278,6 @@
           "description": "Maximum number of tags rendered in the control. The remaining selected values collapse into\na `+N` summary, or into `tagOverflowRender`. The selection itself is unaffected. `0` hides\nevery tag; unlimited when omitted."
         },
         {
-          "name": "mount",
-          "optional": true,
-          "type": "Node",
-          "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
-        },
-        {
           "name": "name",
           "optional": true,
           "type": "string",
