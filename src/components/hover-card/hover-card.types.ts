@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -83,11 +83,14 @@ export namespace HoverCardT {
     'a'
   >
 
-  /** Render context passed to `Content` function children. */
-  export interface ContentContext {
+  /** Props passed to `Content` function children. */
+  export interface ContentRenderProps {
     /** `value` of the trigger that opened or most recently anchored the card. */
     value: Accessor<string | undefined>
   }
+
+  /** @deprecated Use `ContentRenderProps`. */
+  export type ContentContext = ContentRenderProps
 
   export interface ContentBase {
     /**
@@ -105,7 +108,7 @@ export namespace HoverCardT {
      * </HoverCard>
      * ```
      */
-    children?: JSX.Element | ((context: ContentContext) => JSX.Element)
+    children?: JSX.Element | Component<ContentRenderProps>
   }
 
   /**

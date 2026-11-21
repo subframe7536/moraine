@@ -59,7 +59,7 @@ export namespace CollapsibleT {
      * pixels and exposed as the `--mo-collapsible-content-height` CSS variable on the root, and
      * on close it stays mounted until the animation ends. Animations are skipped with
      * `prefers-reduced-motion`.
-     * @default false
+     * @default true
      */
     transition?: boolean
 

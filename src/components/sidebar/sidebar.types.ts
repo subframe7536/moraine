@@ -339,7 +339,7 @@ export namespace SidebarT {
     disabled?: boolean
     /**
      * Whether to animate the content height.
-     * @default false
+     * @default true
      */
     transition?: boolean
     /**
