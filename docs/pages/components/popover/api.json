@@ -88,7 +88,7 @@
           "name": "finalFocus",
           "optional": true,
           "type": "HTMLElement | (() => HTMLElement | undefined) | false",
-          "description": "Element (or accessor resolving to one) that receives focus after the content closes, or\n`false` to skip the close-time focus restore. Defaults to the trigger. An accessor that\nreturns `undefined` restores no focus. Focus is not restored when a non-modal content is\ndismissed by an outside press or focus move, since focus already went elsewhere. Hover-opened\npopovers (`openOnHover`) default to not restoring focus.",
+          "description": "Element (or accessor resolving to one) that receives focus after the content closes, or\n`false` to skip the close-time focus restore. Defaults to the trigger. An accessor that\nreturns `undefined` restores no focus. Focus is not restored when the content is dismissed by\nan outside press or focus move, since focus already went elsewhere. Hover-opened popovers\n(`openOnHover`) default to not restoring focus.",
           "examples": [
             "import { Button, Popover } from 'moraine'\n\n<Popover finalFocus={() => document.getElementById('search') ?? undefined}>\n  <Popover.Trigger as={Button}>Filters</Popover.Trigger>\n  <Popover.Content>Filter options</Popover.Content>\n</Popover>"
           ]
@@ -131,16 +131,6 @@
           "optional": true,
           "type": "string",
           "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
-        },
-        {
-          "name": "modal",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route, and a DEV\nwarning is logged. Outside and Escape dismissal remain controlled by `closeOnOutsideClick`\nand `closeOnEscape`.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         },
         {
           "name": "onClosePrevented",
@@ -207,7 +197,7 @@
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
-          "description": "Whether body scroll is locked while the content is present. A modal content always locks it.",
+          "description": "Whether body scroll is locked while the content is present.",
           "default": {
             "kind": "literal",
             "value": false
@@ -302,7 +292,7 @@
         "root": "Popover",
         "member": "Content"
       },
-      "description": "Props for the Popover component.",
+      "description": "Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the\npopover is open. It must be placed inside `Popover`. Renders a `div` with `role=\"dialog\"`\nwrapping its children.",
       "defaultElement": "div",
       "props": [
         {
@@ -376,7 +366,8 @@
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
-      ]
+      ],
+      "description": "Element that closes the surrounding `Popover` when pressed. Compose it inside\n`Popover.Content`. Renders a `button`; pass `as` to render another component such as `Button`."
     }
   ],
   "slots": [
