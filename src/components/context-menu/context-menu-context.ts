@@ -528,6 +528,10 @@ export function createContextMenu(props: ContextMenuProps) {
         return open()
       },
       onClose: () => commitOpen(false),
+      onExitComplete: () => merged.onExitComplete?.(),
+      get mount() {
+        return merged.mount
+      },
       get triggerElement() {
         return triggerElement()
       },

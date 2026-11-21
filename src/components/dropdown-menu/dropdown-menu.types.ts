@@ -15,6 +15,12 @@ import type {
   OverlayMenuItemRenderProps,
 } from '../shared/overlay/menu'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPortalProps,
+  OverlayPositionProps,
+} from '../shared/overlay/types'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
@@ -35,7 +41,8 @@ export namespace DropdownMenuT {
   /**
    * Base props for the DropdownMenu root component.
    */
-  export interface Base {
+  export interface Base
+    extends OverlayDisclosureProps, OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
     /**
      * Base for the generated trigger and content ids; the content id is `<id>-content`. Generated
      * when omitted.
