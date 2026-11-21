@@ -7,7 +7,7 @@ export function Rtl() {
   return (
     <ScrollArea
       dir="rtl"
-      shadow
+      fade
       class="border border-border rounded-md h-48 max-w-sm w-full"
       classes={{ content: 'px-3' }}
       role="region"

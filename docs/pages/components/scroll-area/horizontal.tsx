@@ -7,7 +7,7 @@ export function Horizontal() {
   return (
     <ScrollArea
       orientation="horizontal"
-      shadow
+      fade
       class="max-w-lg w-full"
       classes={{ content: 'pb-3 flex gap-3' }}
       role="region"
