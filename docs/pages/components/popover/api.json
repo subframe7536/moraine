@@ -133,10 +133,22 @@
           "description": "Unique identifier used to derive the content id, which becomes `<id>-content`. Generated when\nomitted."
         },
         {
+          "name": "mount",
+          "optional": true,
+          "type": "Node",
+          "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
+        },
+        {
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
           "description": "Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press or focus\nmove (`closeOnOutsideClick` is `false`) tried to close the content and was blocked."
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once each time the overlay finishes its exit after closing. It is not called while the\noverlay is open."
         },
         {
           "name": "onOpenChange",
@@ -292,7 +304,7 @@
         "root": "Popover",
         "member": "Content"
       },
-      "description": "Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the\npopover is open. It must be placed inside `Popover`. Renders a `div` with `role=\"dialog\"`\nwrapping its children.",
+      "description": "Props for the Popover component.",
       "defaultElement": "div",
       "props": [
         {
@@ -366,8 +378,7 @@
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "description": "Element that closes the surrounding `Popover` when pressed. Compose it inside\n`Popover.Content`. Renders a `button`; pass `as` to render another component such as `Button`."
+      ]
     }
   ],
   "slots": [
