@@ -110,43 +110,6 @@ describe('Popover', () => {
     }
   })
 
-  test('isolates modal content opened from a ShadowRoot', async () => {
-    const outside = document.createElement('main')
-    const host = document.createElement('div')
-    const shadowRoot = host.attachShadow({ mode: 'open' })
-    const container = document.createElement('div')
-    shadowRoot.append(container)
-    document.body.append(outside, host)
-    const screen = render(
-      () => (
-        <Popover modal defaultOpen>
-          <Popover.Trigger>Shadow trigger</Popover.Trigger>
-          <Popover.Content>
-            <Popover.Close>Close</Popover.Close>
-          </Popover.Content>
-        </Popover>
-      ),
-      { container },
-    )
-    try {
-      await waitFor(() =>
-        expect(
-          document.body.querySelector('[data-slot="popover-content"][aria-modal]'),
-        ).not.toBeNull(),
-      )
-      await waitFor(() => expect(outside.getAttribute('aria-hidden')).toBe('true'))
-      expect(
-        document.body
-          .querySelector('[data-slot="popover-content"]')
-          ?.closest('[aria-hidden="true"]'),
-      ).toBeNull()
-    } finally {
-      screen.unmount()
-      expect(outside.hasAttribute('aria-hidden')).toBe(false)
-      outside.remove()
-      host.remove()
-    }
-  })
   test.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
@@ -1025,49 +988,13 @@ describe('Popover', () => {
     })
   })
 
-  test('prevents native outside pointer default action only for modal popovers', async () => {
+  test('keeps preventScroll through exit presence and restores trigger focus when closed from its content', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <>
-        <button type="button" data-testid="outside">
-          Outside target
-        </button>
-        <Popover defaultOpen modal onOpenChange={onOpenChange}>
-          <Popover.Trigger as="button" type="button">
-            Trigger
-          </Popover.Trigger>
-          <Popover.Content>
-            Modal
-            <Popover.Close>Close</Popover.Close>
-          </Popover.Content>
-        </Popover>
-      </>
-    ))
-
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    const event = new PointerEvent('pointerdown', {
-      bubbles: true,
-      cancelable: true,
-      pointerType: 'mouse',
-    })
-    screen.getByTestId('outside').dispatchEvent(event)
-
-    expect(event.defaultPrevented).toBe(true)
-    await finishExitMotion()
-
-    await waitFor(() => {
-      expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
-    })
-  })
-
-  test('keeps modal behavior through exit presence when closed from its content', async () => {
-    const onOpenChange = vi.fn()
-    const screen = render(() => (
-      <Popover defaultOpen modal onOpenChange={onOpenChange}>
+      <Popover defaultOpen preventScroll onOpenChange={onOpenChange}>
         <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Content>
-          Modal content
+          Popover content
           <Popover.Close>Close</Popover.Close>
         </Popover.Content>
       </Popover>
@@ -1075,16 +1002,16 @@ describe('Popover', () => {
     const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
     const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
 
-    await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
-    expect(document.body.style.overflow).toBe('hidden')
+    await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
     fireEvent.click(document.body.querySelector('[data-slot="popover-close"]')!)
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false)
     expect(content.hasAttribute('data-closed')).toBe(true)
-    expect(content.getAttribute('aria-modal')).toBe('true')
+    expect(document.body.style.overflow).toBe('hidden')
 
     await finishExitMotion(content)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+      expect(document.body.style.overflow).toBe('')
       expect(document.activeElement).toBe(trigger)
     })
     screen.unmount()
@@ -1118,12 +1045,12 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('closes an uncontrolled modal popover with Escape and restores its trigger', async () => {
+  test('closes an uncontrolled popover with Escape and restores its trigger', async () => {
     const screen = render(() => (
-      <Popover defaultOpen modal>
+      <Popover defaultOpen>
         <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Content>
-          Modal content
+          Popover content
           <Popover.Close>Close</Popover.Close>
         </Popover.Content>
       </Popover>
@@ -1131,7 +1058,6 @@ describe('Popover', () => {
     const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
     const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
 
-    await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
     expect(content.hasAttribute('data-closed')).toBe(true)
@@ -1144,71 +1070,15 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('activates modal with a visually hidden fallback close button when Popover.Close is absent', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const screen = render(() => (
-      <>
-        <button type="button" data-testid="outside">
-          Outside
-        </button>
-        <Popover defaultOpen modal>
-          <Popover.Trigger>Trigger</Popover.Trigger>
-          <Popover.Content>Modal request without a close route</Popover.Content>
-        </Popover>
-      </>
-    ))
-    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
-    await waitFor(() => expect(screen.container.getAttribute('aria-hidden')).toBe('true'))
-
-    expect(content.getAttribute('aria-modal')).toBe('true')
-    expect(document.body.style.overflow).toBe('hidden')
-    const fallbackClose = content.querySelector<HTMLButtonElement>('button.sr-only')
-    expect(fallbackClose).not.toBeNull()
-    expect(warnSpy).not.toHaveBeenCalled()
-    warnSpy.mockRestore()
-  })
-
-  test('closes modal popover via the fallback close button when Popover.Close is absent', async () => {
-    render(() => (
-      <Popover defaultOpen modal>
-        <Popover.Trigger>Trigger</Popover.Trigger>
-        <Popover.Content>Modal request without a close route</Popover.Content>
-      </Popover>
-    ))
-    const fallbackClose = document.body.querySelector<HTMLButtonElement>(
-      '[data-slot="popover-content"] button.sr-only',
-    )!
-    expect(fallbackClose).not.toBeNull()
-    fireEvent.click(fallbackClose)
-    await finishExitMotion()
-    expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
-  })
-
-  test('does not warn when modal content composes Popover.Close', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    render(() => (
-      <Popover defaultOpen modal>
-        <Popover.Trigger>Trigger</Popover.Trigger>
-        <Popover.Content>
-          <Popover.Close>Close</Popover.Close>
-        </Popover.Content>
-      </Popover>
-    ))
-    await Promise.resolve()
-
-    expect(warnSpy).not.toHaveBeenCalled()
-    warnSpy.mockRestore()
-  })
-
-  test('keeps a parent modal popover open when a nested modal Popover.Close is used', async () => {
+  test('keeps a parent popover open when a nested Popover.Close is used', async () => {
     const outerChanges = vi.fn()
     const innerChanges = vi.fn()
     render(() => (
-      <Popover defaultOpen modal onOpenChange={outerChanges}>
+      <Popover defaultOpen onOpenChange={outerChanges}>
         <Popover.Trigger>Outer trigger</Popover.Trigger>
         <Popover.Content>
           <Popover.Close>Close outer</Popover.Close>
-          <Popover defaultOpen modal onOpenChange={innerChanges}>
+          <Popover defaultOpen onOpenChange={innerChanges}>
             <Popover.Trigger>Inner trigger</Popover.Trigger>
             <Popover.Content>
               <Popover.Close>Close inner</Popover.Close>
@@ -1230,7 +1100,7 @@ describe('Popover', () => {
     })
   })
 
-  test('does not restore focus after non-modal outside pointer dismissal', async () => {
+  test('does not restore focus after outside pointer dismissal', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
