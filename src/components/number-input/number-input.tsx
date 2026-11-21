@@ -132,7 +132,8 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       root: numberInputDataAttributes.root(() => fieldDataState),
       input: numberInputDataAttributes.input(() => ({
         ...fieldDataState,
-        autoAlign: (): boolean => variants.textAlign === undefined && !isVertical() && !showDecrement(),
+        autoAlign: (): boolean =>
+          variants.textAlign === undefined && !isVertical() && !showDecrement(),
       })),
       increment: numberInputDataAttributes.increment(() => ({
         active: () => press.isActive('increment'),
