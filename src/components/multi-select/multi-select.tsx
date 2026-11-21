@@ -555,7 +555,10 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
     <BaseSelectRoot<Item>
       slotOwner="multi-select"
       {...baseSelectProps}
-      onExitComplete={() => search.setValue('')}
+      onExitComplete={() => {
+        search.setValue('')
+        baseSelectProps.onExitComplete?.()
+      }}
       closeOnSelect={false}
       items={search.view().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}
