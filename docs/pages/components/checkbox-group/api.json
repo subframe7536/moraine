@@ -13,16 +13,6 @@
         "name": "CheckboxGroup"
       },
       "description": "Props for the CheckboxGroup component.",
-      "generics": [
-        {
-          "name": "TTrue",
-          "default": "boolean"
-        },
-        {
-          "name": "TFalse",
-          "default": "boolean"
-        }
-      ],
       "defaultElement": "div",
       "props": [
         {
@@ -94,8 +84,8 @@
         {
           "name": "items",
           "optional": true,
-          "type": "(string | Item<TTrue, TFalse>)[]",
-          "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). Falls back to the item's index as a string. */\n  value?: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
+          "type": "(string | Item)[]",
+          "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). */\n  value: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
           "description": "Options to render. A string is shorthand for an item whose `value` and `label` are that\nstring.",
           "examples": [
             "import { CheckboxGroup } from 'moraine'\n\n<CheckboxGroup\n  legend=\"Toppings\"\n  defaultValue={['cheese']}\n  items={[\n    'cheese',\n    { value: 'mushroom', label: 'Mushroom', description: 'Fresh, sliced' },\n    { value: 'olives', label: 'Olives', disabled: true },\n  ]}\n/>"
@@ -191,16 +181,6 @@
     }
   ],
   "item": {
-    "generics": [
-      {
-        "name": "TTrue",
-        "default": "boolean"
-      },
-      {
-        "name": "TFalse",
-        "default": "boolean"
-      }
-    ],
     "props": [
       {
         "name": "checkedIcon",
@@ -240,9 +220,9 @@
       },
       {
         "name": "value",
-        "optional": true,
+        "optional": false,
         "type": "string",
-        "description": "Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). Falls back to the item's index as a string."
+        "description": "Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment)."
       }
     ]
   },

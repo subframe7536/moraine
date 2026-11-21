@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
 import { Show, createSignal, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
+import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
@@ -59,8 +61,9 @@ interface RailDragSession {
 export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
   const context = useSidebarContext()
   const [local, rest] = splitProps(props, [
+    'as',
     'disabled',
-    'ariaLabel',
+    'aria-label',
     'class',
     'style',
     'ref',
@@ -218,7 +221,8 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
 
   return (
     <Show when={!context.isMobile()}>
-      <button
+      <Dynamic
+        component={(local.as ?? 'button') as ValidComponent}
         type="button"
         data-slot="sidebar-rail"
         {...railSlot}
@@ -229,7 +233,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
         aria-valuemin={0}
         aria-valuemax={context.maxWidth()}
         aria-valuenow={context.isOpen() ? context.width() : 0}
-        aria-label={local.ariaLabel ?? messages().resize}
+        aria-label={local['aria-label'] ?? messages().resize}
         disabled={disabled()}
         aria-disabled={disabled() ? 'true' : undefined}
         tabIndex={disabled() ? -1 : 0}
@@ -238,16 +242,22 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
           bindings.setElement(node)
           callRef(local.ref, node)
         }}
-        onClick={(event) => callRailEvent(event, local.onClick, onClick)}
-        onKeyDown={(event) => callRailEvent(event, local.onKeyDown, bindings.onKeyDown)}
-        onPointerDown={(event) => {
+        onClick={(event: MouseEvent) => callRailEvent(event, local.onClick, onClick)}
+        onKeyDown={(event: KeyboardEvent) =>
+          callRailEvent(event, local.onKeyDown, bindings.onKeyDown)
+        }
+        onPointerDown={(event: PointerEvent) => {
           sessionMoved = false
           callRailEvent(event, local.onPointerDown, bindings.onPointerDown)
         }}
-        onMouseEnter={(event) => callRailEvent(event, local.onMouseEnter, bindings.onMouseEnter)}
-        onMouseLeave={(event) => callRailEvent(event, local.onMouseLeave, bindings.onMouseLeave)}
-        onFocus={(event) => callRailEvent(event, local.onFocus, bindings.onFocus)}
-        onBlur={(event) => callRailEvent(event, local.onBlur, bindings.onBlur)}
+        onMouseEnter={(event: MouseEvent) =>
+          callRailEvent(event, local.onMouseEnter, bindings.onMouseEnter)
+        }
+        onMouseLeave={(event: MouseEvent) =>
+          callRailEvent(event, local.onMouseLeave, bindings.onMouseLeave)
+        }
+        onFocus={(event: FocusEvent) => callRailEvent(event, local.onFocus, bindings.onFocus)}
+        onBlur={(event: FocusEvent) => callRailEvent(event, local.onBlur, bindings.onBlur)}
       />
     </Show>
   )

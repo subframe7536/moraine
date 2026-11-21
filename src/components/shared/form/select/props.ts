@@ -8,6 +8,7 @@ type SharedBaseSelectForwardProp = keyof Pick<
   | 'getItemLabel'
   | 'id'
   | 'name'
+  | 'form'
   | 'required'
   | 'disabled'
   | 'readOnly'
@@ -34,6 +35,7 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'getItemLabel',
   'id',
   'name',
+  'form',
   'required',
   'disabled',
   'readOnly',

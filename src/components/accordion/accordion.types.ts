@@ -156,6 +156,12 @@ export namespace AccordionT {
     disabled?: boolean
 
     /**
+     * Whether to animate the content height when items expand or collapse. Respects
+     * `prefers-reduced-motion`.
+     * @default true
+     */
+    transition?: boolean
+    /**
      * Whether closed content stays mounted. When `false`, content mounts on first open and
      * unmounts once it closes; when `true`, content mounts even before the first open.
      * @default false

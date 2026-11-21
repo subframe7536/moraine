@@ -115,16 +115,12 @@ export namespace SidebarT {
 
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
-  export interface RailBase {
+  export interface RailBase<T extends ValidComponent = 'button'> {
+    as?: T
     /** Disables pointer, keyboard, and click resizing. */
     disabled?: boolean
-    /**
-     * Accessible name for the resize separator, rendered as `aria-label`.
-     * Localized via MoraineProvider messages when omitted. English default is `Resize sidebar`.
-     */
-    ariaLabel?: string
   }
-  export type RailProps = Omit<BaseProps<'button', RailBase, never, never, never>, 'aria-label'>
+  export type RailProps = BaseProps<'button', RailBase, never, never, never>
 
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element
@@ -135,17 +131,15 @@ export namespace SidebarT {
      */
     id?: string
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
-    /**
-     * Accessible name of the panel, rendered as `aria-label`: set on the desktop panel element
-     * and on the mobile drawer content. In the mobile drawer, falls back to the `title`
-     * attribute, then to the localized `label` message (English default `Sidebar navigation`).
-     */
-    ariaLabel?: string
   }
 
-  export type PanelProps<T extends ValidComponent = 'aside'> = Omit<
-    BaseProps<T, PanelBase<T>, never, never, never, 'aside'>,
-    'aria-label'
+  export type PanelProps<T extends ValidComponent = 'aside'> = BaseProps<
+    T,
+    PanelBase<T>,
+    never,
+    never,
+    never,
+    'aside'
   >
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
@@ -289,6 +283,7 @@ export namespace SidebarT {
      * the button is disabled, or when the click handler calls `preventDefault()`; modified and
      * non-primary clicks never close it. When omitted, buttons with `href` close the drawer and
      * others stay open.
+     * @default Boolean(href)
      */
     closeOnSelect?: boolean
   }
@@ -339,7 +334,7 @@ export namespace SidebarT {
     disabled?: boolean
     /**
      * Whether to animate the content height.
-     * @default false
+     * @default true
      */
     transition?: boolean
     /**

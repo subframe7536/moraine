@@ -35,7 +35,7 @@ function renderCollapsible(props?: {
 describe('Collapsible', () => {
   test('renders closed by default, unmounts closed content, and toggles on trigger click', () => {
     const screen = render(() => (
-      <Collapsible defaultOpen={false}>
+      <Collapsible defaultOpen={false} transition={false}>
         <Collapsible.Trigger>Toggle Details</Collapsible.Trigger>
         <Collapsible.Content>
           <span data-testid="content">Expanded Content</span>
@@ -260,14 +260,26 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
-  test('transition defaults to false so closing unmounts content immediately', async () => {
-    const screen = renderCollapsible({ defaultOpen: true })
-    const trigger = screen.getByTestId('trigger-control')
+  test('transition defaults to true and transition=false unmounts content immediately', async () => {
+    const animated = renderCollapsible({ defaultOpen: true })
+    const animatedTrigger = animated.getByTestId('trigger-control')
+    const wrapper = animated.container.querySelector(
+      '[data-slot="collapsible-content-wrapper"]',
+    ) as HTMLElement
 
-    fireEvent.click(trigger)
+    fireEvent.click(animatedTrigger)
     await Promise.resolve()
+    expect(animated.queryByTestId('content')).not.toBeNull()
 
-    expect(screen.queryByTestId('content')).toBeNull()
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
+    expect(animated.queryByTestId('content')).toBeNull()
+    animated.unmount()
+
+    const immediate = renderCollapsible({ defaultOpen: true, transition: false })
+    fireEvent.click(immediate.getByTestId('trigger-control'))
+    await Promise.resolve()
+    expect(immediate.queryByTestId('content')).toBeNull()
   })
 
   test('initial open with transition suppresses entrance animation until toggled', async () => {
@@ -341,7 +353,7 @@ describe('Collapsible', () => {
 
   test('polymorphic trigger supporting as="div" and keyboard Enter / Space activation', async () => {
     const screen = render(() => (
-      <Collapsible>
+      <Collapsible transition={false}>
         <Collapsible.Trigger as="div" class="custom-div-trigger">
           Custom Div Trigger
         </Collapsible.Trigger>
@@ -568,7 +580,7 @@ describe('Collapsible', () => {
 
   test('renders the trigger and lazily renders Content children only while open', async () => {
     const screen = render(() => (
-      <Collapsible>
+      <Collapsible transition={false}>
         {createComponent(Collapsible.Trigger, {
           children: 'Trigger Evaluation',
         })}

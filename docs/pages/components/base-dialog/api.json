@@ -260,7 +260,11 @@
           "name": "scrollable",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the overlay element itself scrolls, so content taller than the viewport scrolls\ninside the backdrop (with padding) while `preventScroll` keeps the page itself from\nscrolling."
+          "description": "Whether the overlay element itself scrolls, so content taller than the viewport scrolls\ninside the backdrop (with padding) while `preventScroll` keeps the page itself from\nscrolling.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "style",

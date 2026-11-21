@@ -4,7 +4,6 @@ import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
-  BaseSelectCloseOnSelectOption,
   BaseSelectDisclosureProps,
   BaseSelectItemBehaviorProps,
   BaseSelectResetProps,
@@ -56,9 +55,13 @@ export namespace SelectT {
       FieldT.ControlBase,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
-      BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       Omit<ContentProps<NormalizedItem<TItem>>, 'virtualizer'> {
+    /**
+     * Whether choosing an item closes the popup and returns focus to the trigger.
+     * @default true
+     */
+    closeOnSelect?: boolean
     /**
      * Initial selected value when `value` is not set. Read once on creation; a native form reset
      * restores it.

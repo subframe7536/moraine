@@ -57,7 +57,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   const disclosure = createDisclosureState({
     open,
     disabled: () => Boolean(local.disabled),
-    transition: () => Boolean(local.transition),
+    transition: () => local.transition !== false,
     forceMount: () => local.forceMount,
     onBeforeMatch: () => {
       if (!open()) {

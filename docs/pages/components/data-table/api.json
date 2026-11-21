@@ -5,11 +5,12 @@
   "kind": "single",
   "parts": [
     {
-      "id": "data-table",
-      "name": "DataTable",
+      "id": "data-table-data-table",
+      "name": "table.DataTable",
       "access": {
-        "kind": "export",
-        "name": "DataTable"
+        "kind": "factory-member",
+        "factory": "createDataTable",
+        "member": "DataTable"
       },
       "generics": [
         {
@@ -18,7 +19,6 @@
           "default": "RowData"
         }
       ],
-      "defaultElement": "table",
       "props": [
         {
           "name": "border",
@@ -161,12 +161,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "table",
-          "optional": false,
-          "type": "Instance<TData> | Table<Features, TData>",
-          "description": "Table instance created with `createDataTable`. Sorting, selection, pagination, expansion,\nand the other behavior live on it; `DataTable` only renders it. A bare TanStack table from\n`createTable` also works, but without the instance's pagination settings no pagination\ntoolbar is rendered. Prefer the instance's bound `<table.DataTable />` over this prop."
         },
         {
           "name": "translations",

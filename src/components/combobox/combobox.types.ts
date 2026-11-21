@@ -4,7 +4,6 @@ import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
-  BaseSelectCloseOnSelectOption,
   BaseSelectDisclosureProps,
   BaseSelectItemBehaviorProps,
   BaseSelectResetProps,
@@ -67,10 +66,14 @@ export namespace ComboboxT {
       FieldT.ControlBase,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
-      BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       SearchProps<NormalizedItem<TItem>>,
       ContentProps<NormalizedItem<TItem>> {
+    /**
+     * Whether choosing an item closes the popup and returns focus to the input.
+     * @default true
+     */
+    closeOnSelect?: boolean
     /**
      * Initial selected value when `value` is not set. Read once on creation; a native form reset
      * restores it.
@@ -136,8 +139,8 @@ export namespace ComboboxT {
      */
     placeholder?: string
     /**
-     * Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it
-     * `aria-busy`. Typing and the clear button keep working.
+     * Replaces the toggle icon with `loadingIcon`, marks the toggle button `aria-busy`, and hides
+     * the clear button. It does not disable the input or toggle button.
      */
     loading?: boolean
     /**

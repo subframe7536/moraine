@@ -43,7 +43,11 @@ describe('generateApiDoc', () => {
       publicNames,
     )
     for (const component of result.componentDocs.values()) {
-      if (component.name === 'Form' || component.name === 'Tree') {
+      if (
+        component.name === 'Form' ||
+        component.name === 'Tree' ||
+        component.name === 'DataTable'
+      ) {
         continue
       }
       const exported = (Moraine as Record<string, unknown>)[component.name]
@@ -254,6 +258,13 @@ describe('generateApiDoc', () => {
       expect.arrayContaining(['name', 'label', 'description', 'required']),
     )
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
+
+    const dataTable = result.componentDocs.get('data-table')
+    expect(dataTable?.parts.map((part) => part.name)).toEqual(['table.DataTable'])
+    expect(dataTable?.parts[0]?.access).toMatchObject({
+      kind: 'factory-member',
+      factory: 'createDataTable',
+    })
 
     const tree = result.componentDocs.get('tree')
     expect(tree?.parts.map((part) => part.name)).toEqual([

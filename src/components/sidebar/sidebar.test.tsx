@@ -173,14 +173,14 @@ describe('Sidebar', () => {
 
   test.each([
     ['falls back to the localized default', {}, 'Sidebar navigation'],
-    ['uses the Panel ariaLabel', { ariaLabel: 'Project navigation' }, 'Project navigation'],
+    ['uses the Panel aria-label', { 'aria-label': 'Project navigation' }, 'Project navigation'],
     [
-      'prefers the Panel ariaLabel over title',
-      { ariaLabel: 'Workspace navigation', title: 'Billing navigation' },
+      'prefers the Panel aria-label over title',
+      { 'aria-label': 'Workspace navigation', title: 'Billing navigation' },
       'Workspace navigation',
     ],
     [
-      'uses the Panel title when no ariaLabel is set',
+      'uses the Panel title when no aria-label is set',
       { title: 'Billing navigation' },
       'Billing navigation',
     ],
@@ -253,7 +253,7 @@ describe('Sidebar', () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar mobile={mobile()}>
-        <Sidebar.Panel ariaLabel="Account navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Account navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1022,7 +1022,7 @@ describe('Sidebar open state', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile onOpenChange={onOpenChange}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1045,7 +1045,7 @@ describe('Sidebar open state', () => {
   test('defaultOpen opens the uncontrolled mobile drawer on mount', async () => {
     const screen = render(() => (
       <Sidebar mobile defaultOpen>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1063,7 +1063,7 @@ describe('Sidebar open state', () => {
     const [mobile, setMobile] = createSignal(true)
     const screen = render(() => (
       <Sidebar mobile={mobile()} defaultOpen="desktop-only">
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1092,7 +1092,7 @@ describe('Sidebar open state', () => {
     const onOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
       <Sidebar mobile open={open()} onOpenChange={onOpenChange}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1116,7 +1116,7 @@ describe('Sidebar open state', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile open={false} onOpenChange={onOpenChange}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1136,7 +1136,7 @@ describe('Sidebar open state', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile={mobile()} open onOpenChange={onOpenChange}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1161,7 +1161,7 @@ describe('Sidebar open state', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sidebar mobile={mobile()} onOpenChange={onOpenChange}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>
@@ -1188,7 +1188,7 @@ describe('Sidebar open state', () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <Sidebar mobile={mobile()}>
-        <Sidebar.Panel ariaLabel="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         </Sidebar.Inset>

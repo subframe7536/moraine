@@ -359,7 +359,11 @@
         "name": "danger",
         "optional": true,
         "type": "boolean",
-        "description": "Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item."
+        "description": "Whether the item is a destructive action. `danger` items use the danger text color and set\n`data-danger` on the item.",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
       },
       {
         "name": "defaultChecked",

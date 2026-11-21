@@ -46,7 +46,7 @@ describe('Collapsible SSR Hydration', () => {
     expect(wrapper.hidden).toBe(false)
   })
 
-  test('hydrates closed composable markup without content and supports open, close, and reopen', () => {
+  test('hydrates closed composable markup without content and supports open, close, and reopen', async () => {
     let contentMounts = 0
     const Content = () => {
       contentMounts += 1
@@ -79,6 +79,9 @@ describe('Collapsible SSR Hydration', () => {
     expect(wrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
     fireEvent.click(trigger)
+    await Promise.resolve()
+    fireEvent.animationEnd(stableWrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
     expect(container.querySelector('[data-slot="collapsible-content-wrapper"]')).toBe(stableWrapper)
     fireEvent.click(trigger)
     expect(contentMounts).toBe(2)

@@ -32,6 +32,26 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "fade",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether edges with more content beyond them fade out as a shadow.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "fadeSize",
+          "optional": true,
+          "type": "number",
+          "description": "Length in pixels of the edge fade shadows while the `fade` variant is enabled. Negative values count as `0`.",
+          "default": {
+            "kind": "literal",
+            "value": 40
+          }
+        },
+        {
           "name": "onBottomReached",
           "optional": true,
           "type": "() => void",
@@ -72,7 +92,7 @@
           }
         },
         {
-          "name": "scrollbarVariant",
+          "name": "scrollbarMode",
           "optional": true,
           "type": "'always' | 'hover' | 'scroll' | 'native' | 'hidden'",
           "description": "Scrollbar presentation. Custom scrollbars only appear on an axis whose content overflows:\n`always` keeps them visible, `hover` shows them while the pointer is over the area or it\nscrolls, `scroll` shows them while it scrolls, `native` keeps browser scrollbars, and\n`hidden` hides every scrollbar while retaining scrolling.",
@@ -109,26 +129,6 @@
           "default": {
             "kind": "literal",
             "value": 0
-          }
-        },
-        {
-          "name": "shadow",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether edges with more content beyond them fade out as a shadow.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "shadowSize",
-          "optional": true,
-          "type": "number",
-          "description": "Length in pixels of the edge fade shadows while the `shadow` variant is enabled. Negative values count as `0`.",
-          "default": {
-            "kind": "literal",
-            "value": 40
           }
         },
         {

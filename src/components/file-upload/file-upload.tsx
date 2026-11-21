@@ -58,6 +58,7 @@ export function FileUpload<TMultiple extends boolean = false>(
   const [local, rest] = splitProps(props, [
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'required',
@@ -347,6 +348,7 @@ export function FileUpload<TMultiple extends boolean = false>(
           setHiddenInput(element)
           callRef(local.inputRef, element)
         }}
+        form={local.form}
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}

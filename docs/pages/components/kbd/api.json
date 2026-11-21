@@ -13,13 +13,8 @@
         "name": "Kbd"
       },
       "description": "Props for the Kbd component.",
+      "defaultElement": "kbd",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible label for the keycap, rendered as `aria-label`. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set."
-        },
         {
           "name": "class",
           "optional": true,
@@ -68,7 +63,7 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `ariaLabel` is not set."
+          "description": "Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set."
         },
         {
           "name": "value",

@@ -90,7 +90,8 @@ describe('localized component text', () => {
         <Select items={FRUIT} defaultValue="apple" clearable />
         <Select items={FRUIT} />
         <Select items={FRUIT} placeholder="Fruit" />
-        <Combobox items={FRUIT} clearable defaultValue="apple" loading />
+        <Combobox items={FRUIT} clearable defaultValue="apple" />
+        <Combobox items={FRUIT} loading />
         <MultiSelect items={FRUIT} defaultValue={['apple']} clearable />
       </MoraineProvider>
     ))
@@ -197,7 +198,7 @@ describe('localized component text', () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
       onMount(() => frame.setOpen(true))
-      return <Sidebar.Panel ariaLabel={props.label}>Links</Sidebar.Panel>
+      return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }
 
     render(() => (
