@@ -1764,9 +1764,9 @@ describe('DropdownMenu', () => {
     expect(item.style.height).toBe('40px')
   })
 
-  test('locks body scroll and renders an overlay layer while open', async () => {
+  test('locks body scroll and renders an overlay layer while open when modal', async () => {
     render(() => (
-      <DropdownMenu defaultOpen>
+      <DropdownMenu defaultOpen modal>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
