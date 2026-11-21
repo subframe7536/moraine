@@ -7,18 +7,13 @@ import { ScrollArea } from './scroll-area'
 
 describe('ScrollArea SSR hydration', () => {
   test('retains server nodes and reactive children, and measures after hydration', async () => {
-    const [shadow, setShadow] = createSignal(true)
+    const [fade, setFade] = createSignal(true)
     const [text, setText] = createSignal('Server content')
     const { container } = hydrateFixture(
       '/src/components/scroll-area/scroll-area.ssr.fixture.tsx',
       'renderScrollAreaFixture',
       () => (
-        <ScrollArea
-          shadow={shadow()}
-          orientation="both"
-          scrollbarVariant="always"
-          aria-label="Activity"
-        >
+        <ScrollArea fade={fade()} orientation="both" scrollbarMode="always" aria-label="Activity">
           <span>{text()}</span>
         </ScrollArea>
       ),
@@ -39,7 +34,7 @@ describe('ScrollArea SSR hydration', () => {
     expect(scrollbars[0]!.hasAttribute('data-visible')).toBe(true)
 
     setText('Updated content')
-    setShadow(false)
+    setFade(false)
     expect(root.querySelector('span')).toBe(child)
     expect(child.textContent).toBe('Updated content')
     expect(container.firstElementChild).toBe(root)

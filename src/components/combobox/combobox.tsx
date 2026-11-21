@@ -260,7 +260,10 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     <BaseSelectRoot<ComboboxT.NormalizedItem<T>>
       slotOwner="combobox"
       {...baseSelectProps}
-      onExitComplete={() => search.setValue('')}
+      onExitComplete={() => {
+        search.setValue('')
+        baseSelectProps.onExitComplete?.()
+      }}
       items={search.view().items}
       getItemByValue={(value) => source().byValue.get(value)}
       serializeValue={(value) => serializeSourceValue(source(), value)}

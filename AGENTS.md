@@ -208,7 +208,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   - A callback for a proposed value the component refused (characters dropped by a filter, files failing validation) is `onValueInvalid(details)`. It pairs with `onValueChange`, receives a `details` object, never a bare value, and does not cancel anything. Name a `reason` with the matching `ValidityState` key (`patternMismatch`, `tooLong`, `rangeOverflow`). `onInvalid` is reserved for passing through the native constraint-validation event, and `onReject` is not used.
   - Internal calculated variants belong on `*RecipeVariant extends *StyleVariants`; they must never appear in the public `*StyleVariants` or component props.
   - Render functions end with `*Render`; refs end with `*Ref`.
-  - Accessibility-label aliases use `ariaLabel` on component props and item/option objects; rendered attributes stay `aria-label`. Declared component props use camelCase DOM names (`autoFocus`, `autoFocusDelay`, `autoComplete`), while the native attributes they emit stay lowercase.
+  - Components with a DOM host element use native `aria-label`; only data objects (`*Item` and imperative options) use `ariaLabel`. Declared component props use camelCase DOM names (`autoFocus`, `autoFocusDelay`, `autoComplete`), while the native attributes they emit stay lowercase.
 
 ### JSDoc
 

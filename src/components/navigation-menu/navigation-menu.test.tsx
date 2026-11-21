@@ -671,7 +671,9 @@ describe('NavigationMenu', () => {
               >
                 Cancelled
               </NavigationMenu.Link>
-              <NavigationMenu.Link href="#kept">Keep open</NavigationMenu.Link>
+              <NavigationMenu.Link href="#kept" closeOnSelect={false}>
+                Keep open
+              </NavigationMenu.Link>
               <NavigationMenu.Link href="#close" closeOnSelect>
                 Close
               </NavigationMenu.Link>

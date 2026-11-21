@@ -1049,7 +1049,7 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
   })
 
-  test('locks body scroll and renders an overlay layer while open', async () => {
+  test('locks body scroll without rendering an overlay layer by default while open', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
@@ -1060,16 +1060,16 @@ describe('ContextMenu', () => {
     fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="context-menu-overlay"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
     })
 
+    expect(document.body.querySelector('[data-slot="context-menu-overlay"]')).toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
 
-    const overlay = document.body.querySelector('[data-slot="context-menu-overlay"]') as HTMLElement
-    fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
+    fireEvent.pointerDown(document.body, { pointerType: 'mouse' })
     await finishMenuExitMotion()
 
-    expect(document.body.querySelector('[data-slot="context-menu-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
   })
 

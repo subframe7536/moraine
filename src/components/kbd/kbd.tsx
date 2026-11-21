@@ -12,7 +12,7 @@ import type { KbdProps } from './kbd.types'
 /**
  * Keycap that displays one keyboard key as shortcut notation in a `kbd` element. Known aliases
  * such as `meta`, `ctrl`, `shift`, and `escape` resolve to symbols unless `symbol={false}`, and
- * `ariaLabel` overrides the spoken name. Use `KbdGroup` to combine several keys into one
+ * `aria-label` overrides the spoken name. Use `KbdGroup` to combine several keys into one
  * shortcut. It only displays the key; it does not register a keyboard handler.
  *
  * @example
@@ -20,7 +20,7 @@ import type { KbdProps } from './kbd.types'
  * import { Kbd } from 'moraine'
  *
  * <p>
- *   Press <Kbd value="meta" /> <Kbd value="K" ariaLabel="K" /> to search, or{' '}
+ *   Press <Kbd value="meta" /> <Kbd value="K" aria-label="K" /> to search, or{' '}
  *   <Kbd value="escape" symbol={false} /> to cancel.
  * </p>
  * ```
@@ -35,7 +35,7 @@ export function Kbd(props: KbdProps): JSX.Element {
     'style',
     'classes',
     'styles',
-    'ariaLabel',
+    'aria-label',
     'translations',
   ])
   const {
@@ -56,7 +56,7 @@ export function Kbd(props: KbdProps): JSX.Element {
   })
   const label = () => {
     const key = aliasKey()
-    return local.ariaLabel ?? (key ? messages()[key] : undefined)
+    return local['aria-label'] ?? (key ? messages()[key] : undefined)
   }
 
   return (

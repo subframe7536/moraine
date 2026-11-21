@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  DEV,
-  Show,
-  children as resolveChildren,
-  createEffect,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -24,8 +15,7 @@ import type { PopoverT } from './popover.types'
 /**
  * Floating panel of the surrounding `Popover`, shown next to its `Popover.Trigger` while the
  * popover is open. It must be placed inside `Popover`. Renders a `div` with `role="dialog"`
- * wrapping its children. Compose a `Popover.Close` inside it for `Popover` `modal` behavior to
- * take effect.
+ * wrapping its children.
  *
  * @example
  * ```tsx
@@ -124,7 +114,6 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       context={behavior.popper}
       closeOnOutsideFocus={!behavior.options.openOnHover}
       finalFocus={behavior.options.finalFocus ?? (behavior.options.openOnHover ? false : undefined)}
-      modal={Boolean(behavior.options.modal && behavior.hasClose())}
       role="dialog"
       onPointerDownOutside={(event) => {
         if (behavior.options.closeOnOutsideClick ?? true) {
@@ -163,21 +152,6 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
-        if (DEV) {
-          // Runs after this content renders, so a composed Popover.Close has already registered.
-          createEffect(
-            on(
-              () => Boolean(behavior.options.modal) && !behavior.hasClose(),
-              (modalWithoutClose) => {
-                if (modalWithoutClose) {
-                  console.warn(
-                    '[moraine] Popover modal has no effect without Popover.Close in Popover.Content.',
-                  )
-                }
-              },
-            ),
-          )
-        }
         const contentSlot = slotWith('content', {
           data: popoverContentDataAttributes({
             side: () => parseFloatingPlacement(context.currentPlacement()).side,

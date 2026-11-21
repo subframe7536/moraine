@@ -21,10 +21,10 @@ export namespace RadioGroupT {
    */
   export interface Item {
     /**
-     * Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to
-     * the item's index as a string when omitted, so set it explicitly for stable values.
+     * Value of the radio item, submitted with the form and passed to `onValueChange`. Must be
+     * unique within the group.
      */
-    value?: string
+    value: string
 
     /**
      * Label for the radio item. It names the radio input for assistive technology.

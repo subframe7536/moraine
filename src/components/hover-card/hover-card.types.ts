@@ -26,6 +26,8 @@ export namespace HoverCardT {
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
+    | 'onExitComplete'
+    | 'mount'
     | 'disabled'
     | 'placement'
     | 'align'

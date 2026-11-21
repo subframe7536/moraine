@@ -10,8 +10,6 @@ export interface PopoverContextValue {
   scheduleClose: () => void
   clearCloseTimer: () => void
   invalidateHoverTimers: () => void
-  hasClose: () => boolean
-  registerClose: () => () => void
   slotOverrides: { classes?: PopoverT.Classes; styles?: PopoverT.Styles }
 }
 

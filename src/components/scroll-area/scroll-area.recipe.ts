@@ -27,7 +27,7 @@ export const SCROLL_AREA_SCROLLBAR_CLASS = {
   },
 } as const
 
-/** Viewport mask for the `shadow` variant; the mask layers are recipe variables on the root. */
+/** Viewport mask for the `fade` variant; the mask layers are recipe variables on the root. */
 export const SCROLL_AREA_SHADOW_STYLE: JSX.CSSProperties = {
   'mask-composite': 'intersect',
   'mask-image': 'var(--scroll-area-shadow-y), var(--scroll-area-shadow-x)',
@@ -70,9 +70,9 @@ export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     orientation: 'vertical',
-    scrollbarVariant: 'hover',
+    scrollbarMode: 'hover',
     scrollbarWidth: 'normal',
-    shadow: false,
+    fade: false,
   },
   variants: {
     orientation: {
@@ -80,7 +80,7 @@ export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
       horizontal: { viewport: 'overflow-x-auto overflow-y-hidden', content: 'min-w-full w-max' },
       both: { viewport: 'overflow-auto', content: 'min-w-full w-max' },
     },
-    scrollbarVariant: {
+    scrollbarMode: {
       always: { viewport: SCROLLBAR_NONE_CLASS },
       hover: { viewport: SCROLLBAR_NONE_CLASS },
       scroll: { viewport: SCROLLBAR_NONE_CLASS },
@@ -89,7 +89,7 @@ export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
   },
   compoundVariants: [
     {
-      variants: { scrollbarVariant: 'native', scrollbarWidth: 'thin' },
+      variants: { scrollbarMode: 'native', scrollbarWidth: 'thin' },
       viewport: '[scrollbar-width:thin]',
     },
   ],

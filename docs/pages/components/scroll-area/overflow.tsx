@@ -10,8 +10,8 @@ export function Overflow() {
   return (
     <div class="max-w-sm w-full space-y-3">
       <ScrollArea
-        shadow
-        shadowSize={24}
+        fade
+        fadeSize={24}
         scrollThreshold={8}
         onOverflowChange={setOverflow}
         viewportRef={(element) => (viewport = element)}
