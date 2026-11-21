@@ -97,6 +97,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The `id` of a `<form>` the hidden file input belongs to, for a control rendered outside that form."
+        },
+        {
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",

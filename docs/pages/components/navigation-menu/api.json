@@ -377,7 +377,7 @@
           "description": "Closes the open panel when the link is clicked, unless a click handler calls\n`preventDefault()`.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": true
           }
         },
         {

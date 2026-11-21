@@ -289,7 +289,11 @@
         "name": "alwaysShow",
         "optional": true,
         "type": "boolean",
-        "description": "Keeps the item visible while the search text filters the list, even when it does not\nmatch, for entries like \"Search the docs for...\"."
+        "description": "Keeps the item visible while the search text filters the list, even when it does not\nmatch, for entries like \"Search the docs for...\".",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
       },
       {
         "name": "description",

@@ -167,13 +167,8 @@
           "default": "'aside'"
         }
       ],
+      "defaultElement": "aside",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name of the panel, rendered as `aria-label`: set on the desktop panel element\nand on the mobile drawer content. In the mobile drawer, falls back to the `title`\nattribute, then to the localized `label` message (English default `Sidebar navigation`)."
-        },
         {
           "name": "as",
           "optional": true,
@@ -224,12 +219,17 @@
         "root": "Sidebar",
         "member": "Rail"
       },
+      "defaultElement": "button",
       "props": [
         {
-          "name": "ariaLabel",
+          "name": "as",
           "optional": true,
-          "type": "string",
-          "description": "Accessible name for the resize separator, rendered as `aria-label`.\nLocalized via MoraineProvider messages when omitted. English default is `Resize sidebar`."
+          "type": "'button'",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          },
+          "description": "Element or component to render as."
         },
         {
           "name": "class",
@@ -741,7 +741,11 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether activating this button on mobile closes the drawer. Has no effect on desktop, when\nthe button is disabled, or when the click handler calls `preventDefault()`; modified and\nnon-primary clicks never close it. When omitted, buttons with `href` close the drawer and\nothers stay open."
+          "description": "Whether activating this button on mobile closes the drawer. Has no effect on desktop, when\nthe button is disabled, or when the click handler calls `preventDefault()`; modified and\nnon-primary clicks never close it. When omitted, buttons with `href` close the drawer and\nothers stay open.",
+          "default": {
+            "kind": "expression",
+            "text": "Boolean(href)"
+          }
         },
         {
           "name": "disabled",
@@ -905,7 +909,7 @@
           "description": "Whether to animate the content height.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": true
           }
         }
       ]

@@ -86,7 +86,11 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether choosing an item closes the popup and returns focus to the control. Defaults to\n`true` for single selection and `false` when `multiple` is set on `BaseSelect`; `MultiSelect`\nalways keeps the popup open."
+          "description": "Whether choosing an item closes the popup and returns focus to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "defaultOpen",
@@ -132,6 +136,12 @@
             "kind": "literal",
             "value": true
           }
+        },
+        {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The `id` of a `<form>` the hidden inputs belong to, for a control rendered outside that form."
         },
         {
           "name": "getItemLabel",
