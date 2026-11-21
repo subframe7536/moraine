@@ -117,7 +117,10 @@ export function createPopper(
   const isOpen = createMemo(() => open() && !props.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const contentPresence = createTransitionPresence({ open: isOpen })
+  const contentPresence = createTransitionPresence({
+    open: isOpen,
+    onExitComplete: () => props.onExitComplete?.(),
+  })
 
   function setOpen(nextOpen: boolean): void {
     if (!props.disabled) {
@@ -460,7 +463,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={mount()}>
+          <Portal mount={options.mount ?? mount()}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}

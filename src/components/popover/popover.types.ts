@@ -25,6 +25,8 @@ export namespace PopoverT {
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
+    | 'onExitComplete'
+    | 'mount'
     | 'disabled'
     | 'placement'
     | 'align'

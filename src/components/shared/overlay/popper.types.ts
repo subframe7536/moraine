@@ -5,6 +5,12 @@ import type { ValidComponent } from '../../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
 
 import type { OverlayTriggerComponentProps } from './trigger'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPortalProps,
+  OverlayPositionProps,
+} from './types'
 
 export interface PopperInteractOutsideEvent {
   defaultPrevented: boolean
@@ -32,7 +38,7 @@ export interface PopperContentAttributes {
   tabIndex: number
 }
 
-export interface PopperProps {
+export interface PopperProps extends OverlayDisclosureProps, OverlayPortalProps {
   /**
    * Initial open state when uncontrolled. Ignored while `open` is set.
    * @default false
@@ -94,7 +100,8 @@ export type PopperTriggerProps<T extends ValidComponent = 'button'> =
      */
     toggleOnClick?: boolean
   }
-export interface PopperContentOptions {
+export interface PopperContentOptions
+  extends OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
   /** Id of the element that describes the positioned content. */
   ariaDescribedBy?: string
 

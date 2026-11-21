@@ -57,6 +57,10 @@ export function createDropdownMenu(props: DropdownMenuProps) {
         return isOpen()
       },
       onClose: () => commitOpen(false),
+      onExitComplete: () => props.onExitComplete?.(),
+      get mount() {
+        return props.mount
+      },
       get triggerElement() {
         return triggerElement()
       },

@@ -22,6 +22,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   const contentId = () => `${rootId()}-content`
   const contentPresence = createTransitionPresence({
     open: () => props.open,
+    onExitComplete: () => props.onExitComplete?.(),
   })
   const branches = new Set<HTMLElement>()
   const [pendingFocusOnClose, setPendingFocusOnClose] = createSignal<'trigger' | 'next'>()
@@ -187,7 +188,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
 
   return (
     <Show when={contentPresence.present()}>
-      <Portal mount={props.triggerElement?.ownerDocument.body}>
+      <Portal mount={props.mount ?? props.triggerElement?.ownerDocument.body}>
         <OverlayMenuLayer<TItem>
           {...props}
           id={contentId()}
