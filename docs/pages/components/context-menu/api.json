@@ -101,16 +101,6 @@
           "description": "Base for the generated trigger and content ids; the content id is `<id>-content`. Generated\nwhen omitted."
         },
         {
-          "name": "modal",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the menu is modal: while it is open, content outside it is hidden from assistive\ntechnology and the native default action of outside pointer presses is prevented. Outside\npresses still dismiss the menu unless `closeOnOutsideClick` is `false`.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
@@ -152,7 +142,7 @@
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
-          "description": "Locks body scroll while the menu is open and renders the `overlay` slot element behind the\ncontent. Set `false` to keep the page scrollable.",
+          "description": "Locks body scroll while the menu is open. Set `false` to keep the page scrollable.",
           "default": {
             "kind": "literal",
             "value": true
@@ -307,7 +297,7 @@
           "type": "Component<ItemRenderProps>",
           "description": "Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu\nindicator and checkmark); the row keeps its role, keyboard handling and selection. It is\nmounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in\nsubmenus) and `hasChildren`. Read `item.type` to tell checkbox and radio items apart.",
           "examples": [
-            "import { ContextMenu } from 'moraine'\n\n<ContextMenu>\n  <ContextMenu.Trigger>Open</ContextMenu.Trigger>\n  <ContextMenu.Content\n    items={[{ label: 'Rename' }, { label: 'Share', children: [{ label: 'Copy link' }] }]}\n    itemRender={(props) => (\n      <span>\n        {props.item.label}\n        {props.hasChildren ? ' ›' : ''}\n      </span>\n    )}\n  />\n</ContextMenu>"
+            "import { ContextMenu } from 'moraine'\n\n<ContextMenu>\n  <ContextMenu.Trigger>Open</ContextMenu.Trigger>\n  <ContextMenu.Content\n    items={[{ label: 'Rename' }, { label: 'Share', children: [{ label: 'Copy link' }] }]}\n    itemRender={(props) => (\n      <span>\n        {props.item.label}\n        {props.hasChildren ? ' \u203a' : ''}\n      </span>\n    )}\n  />\n</ContextMenu>"
           ]
         },
         {
@@ -477,7 +467,6 @@
   },
   "slots": [
     "trigger",
-    "overlay",
     "content",
     "group",
     "item",
