@@ -628,7 +628,7 @@ describe('Popper primitives', () => {
   test('keeps modal isolation for an open cycle when modal and scroll options change', async () => {
     const [open, setOpen] = createSignal(true)
     const [modal, setModal] = createSignal(true)
-    const [preventScroll, setPreventScroll] = createSignal(false)
+    const [preventScroll, setPreventScroll] = createSignal<boolean | undefined>(undefined)
     const background = document.createElement('main')
     document.body.append(background)
     const screen = render(() => (
