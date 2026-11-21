@@ -157,7 +157,12 @@ describe('Popper primitives', () => {
             <PopperTrigger context={popper} type="button">
               Open
             </PopperTrigger>
-            <PopperContent context={popper} forceMount preventScroll onEscapeKeyDown={onEscapeKeyDown}>
+            <PopperContent
+              context={popper}
+              forceMount
+              preventScroll
+              onEscapeKeyDown={onEscapeKeyDown}
+            >
               {(context) => (
                 <div data-slot="popover-content" {...context.contentProps}>
                   Content
