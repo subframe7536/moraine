@@ -88,6 +88,8 @@ export namespace FileUploadT {
      * ```
      */
     translations?: Translations
+    /** The `id` of a `<form>` the hidden file input belongs to, for a control rendered outside that form. */
+    form?: string
     /** Ref to the hidden native `<input type="file">` that backs the control. */
     inputRef?: Ref<HTMLInputElement>
 

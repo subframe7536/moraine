@@ -206,7 +206,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             }}
             onKeyDown={onInputKeyDown}
           />
-          <Show when={local.clearable && canClear()}>
+          <Show when={!local.loading && local.clearable && canClear()}>
             <ClearButton
               dataSlot="combobox-clear"
               ariaLabel={messages().clear}

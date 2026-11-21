@@ -175,6 +175,11 @@ export interface BaseSelectResetProps {
    * at `value`, so use this callback to reset your own state.
    */
   onReset?: () => void
+
+  /**
+   * The `id` of a `<form>` the hidden inputs belong to, for a control rendered outside that form.
+   */
+  form?: string
 }
 
 /**

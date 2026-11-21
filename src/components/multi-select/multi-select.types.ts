@@ -281,8 +281,8 @@ export namespace MultiSelectT {
      */
     placeholder?: string
     /**
-     * Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it
-     * `aria-busy`. Typing and the clear button keep working in the editable input.
+     * Replaces the toggle icon with `loadingIcon`, marks the trigger `aria-busy`, and hides the
+     * clear button. It does not disable the control or editable input.
      */
     loading?: boolean
     /**
