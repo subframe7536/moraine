@@ -1144,7 +1144,7 @@ describe('Popover', () => {
     screen.unmount()
   })
 
-  test('falls back to non-modal behavior when modal content has no Popover.Close', async () => {
+  test('activates modal with a visually hidden fallback close button when Popover.Close is absent', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const screen = render(() => (
       <>
@@ -1158,34 +1158,30 @@ describe('Popover', () => {
       </>
     ))
     const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
-    await Promise.resolve()
+    await waitFor(() => expect(screen.container.getAttribute('aria-hidden')).toBe('true'))
 
-    expect(content.getAttribute('aria-modal')).toBeNull()
-    expect(screen.getByTestId('outside').getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
-    expect(warnSpy).toHaveBeenCalledExactlyOnceWith(
-      expect.stringContaining('Popover modal has no effect without Popover.Close'),
-    )
+    expect(content.getAttribute('aria-modal')).toBe('true')
+    expect(document.body.style.overflow).toBe('hidden')
+    const fallbackClose = content.querySelector<HTMLButtonElement>('button.sr-only')
+    expect(fallbackClose).not.toBeNull()
+    expect(warnSpy).not.toHaveBeenCalled()
     warnSpy.mockRestore()
   })
 
-  test('warns in DEV each time modal content opens without Popover.Close', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const [open, setOpen] = createSignal(true)
+  test('closes modal popover via the fallback close button when Popover.Close is absent', async () => {
     render(() => (
-      <Popover open={open()} modal onOpenChange={setOpen}>
+      <Popover defaultOpen modal>
         <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Content>Modal request without a close route</Popover.Content>
       </Popover>
     ))
-    await Promise.resolve()
-    expect(warnSpy).toHaveBeenCalledTimes(1)
-
-    setOpen(false)
+    const fallbackClose = document.body.querySelector<HTMLButtonElement>(
+      '[data-slot="popover-content"] button.sr-only',
+    )!
+    expect(fallbackClose).not.toBeNull()
+    fireEvent.click(fallbackClose)
     await finishExitMotion()
-    setOpen(true)
-    await waitFor(() => expect(warnSpy).toHaveBeenCalledTimes(2))
-    warnSpy.mockRestore()
+    expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
   })
 
   test('does not warn when modal content composes Popover.Close', async () => {
