@@ -1764,9 +1764,9 @@ describe('DropdownMenu', () => {
     expect(item.style.height).toBe('40px')
   })
 
-  test('locks body scroll and renders an overlay layer while open when modal', async () => {
+  test('locks body scroll without rendering an overlay layer by default while open', async () => {
     render(() => (
-      <DropdownMenu defaultOpen modal>
+      <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
@@ -1775,18 +1775,16 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
+    expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
 
-    const overlay = document.body.querySelector(
-      '[data-slot="dropdown-menu-overlay"]',
-    ) as HTMLElement
-    fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
+    fireEvent.pointerDown(document.body, { pointerType: 'mouse' })
     await finishMenuExitMotion()
 
-    expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
   })
 
