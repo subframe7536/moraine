@@ -331,7 +331,7 @@ export function PopperContent(
           if (!currentContent || !currentPositioner) {
             return
           }
-          const shouldPreventScroll = preventScroll ?? Boolean(modal)
+          const shouldPreventScroll = preventScroll ?? modal
           const releaseScrollLock = shouldPreventScroll
             ? acquireBodyScrollLock(currentContent)
             : undefined

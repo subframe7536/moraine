@@ -83,25 +83,32 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    on(
-      [
-        contentPresence.present,
-        () => rootLayerState()?.contentElement(),
-        () => props.preventScroll,
-        () => props.modal,
-      ],
-      ([present, content, preventScroll, modal]) => {
-        if (!present || !(preventScroll ?? Boolean(modal)) || !content) {
-          return
-        }
+    on(contentPresence.present, (present) => {
+      if (!present) {
+        return
+      }
+      const shouldPreventScroll = props.preventScroll ?? Boolean(props.modal)
+      if (!shouldPreventScroll) {
+        return
+      }
 
-        const releaseBodyScrollLock = acquireBodyScrollLock(content)
+      createEffect(
+        on(
+          () => rootLayerState()?.contentElement(),
+          (content) => {
+            if (!content) {
+              return
+            }
 
-        onCleanup(() => {
-          releaseBodyScrollLock?.()
-        })
-      },
-    ),
+            const releaseBodyScrollLock = acquireBodyScrollLock(content)
+
+            onCleanup(() => {
+              releaseBodyScrollLock?.()
+            })
+          },
+        ),
+      )
+    }),
   )
 
   createEffect(
@@ -169,12 +176,13 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     contentElement: () => rootLayerState()?.contentElement(),
     triggerElement: () => props.triggerElement,
     onPointerOutside: (event) => {
+      if (!props.open || event.defaultPrevented) {
+        return
+      }
       if (props.modal) {
         event.preventDefault()
       }
-      if (props.open && !event.defaultPrevented) {
-        closeOrPrevent(props.closeOnOutsideClick)
-      }
+      closeOrPrevent(props.closeOnOutsideClick)
     },
     onFocusOutside: (event) => {
       if (props.open && !event.defaultPrevented) {

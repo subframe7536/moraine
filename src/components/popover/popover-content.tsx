@@ -1,11 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  mergeProps,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -178,11 +172,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
               </div>
             </Show>
             <Show when={behavior.options.modal && !behavior.hasClose()}>
-              <button
-                type="button"
-                class="sr-only"
-                onClick={() => behavior.popper.setOpen(false)}
-              >
+              <button type="button" class="sr-only" onClick={() => behavior.popper.setOpen(false)}>
                 Close
               </button>
             </Show>
