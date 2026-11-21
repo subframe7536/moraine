@@ -89,9 +89,6 @@ export namespace HoverCardT {
     value: Accessor<string | undefined>
   }
 
-  /** @deprecated Use `ContentRenderProps`. */
-  export type ContentContext = ContentRenderProps
-
   export interface ContentBase {
     /**
      * Card content shown while the card is open. A function receives `{ value }`, an accessor for
