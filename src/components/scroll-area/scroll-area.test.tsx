@@ -220,7 +220,7 @@ describe('ScrollArea', () => {
   )
 
   test('scrolls both axes with two scrollbars and a corner', async () => {
-    const screen = render(() => <ScrollArea orientation="both" scrollbarVariant="always" />)
+    const screen = render(() => <ScrollArea orientation="both" scrollbarMode="always" />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const corner = root.querySelector<HTMLElement>('[data-slot="scroll-area-corner"]')!
     setDimensions(viewport, {
@@ -251,7 +251,7 @@ describe('ScrollArea', () => {
     const screen = render(() => (
       <ScrollArea
         orientation="horizontal"
-        scrollbarVariant="always"
+        scrollbarMode="always"
         styles={{ viewport: { direction: 'rtl' } }}
       />
     ))
@@ -277,8 +277,8 @@ describe('ScrollArea', () => {
 
   test('shows scrollbars according to the scrollbar mode', async () => {
     vi.useFakeTimers()
-    const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbarVariant']>('hover')
-    const screen = render(() => <ScrollArea scrollbarVariant={mode()} scrollHideDelay={300} />)
+    const [mode, setMode] = createSignal<ScrollAreaT.Variants['scrollbarMode']>('hover')
+    const screen = render(() => <ScrollArea scrollbarMode={mode()} scrollHideDelay={300} />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const visible = () => scrollbar('vertical')?.hasAttribute('data-visible')
     setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
@@ -316,7 +316,7 @@ describe('ScrollArea', () => {
   })
 
   test('drags the thumb and jumps to track presses', async () => {
-    const screen = render(() => <ScrollArea scrollbarVariant="always" />)
+    const screen = render(() => <ScrollArea scrollbarMode="always" />)
     const { viewport, scrollbar } = parts(screen.container)
     setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
     const track = scrollbar('vertical')!
@@ -424,17 +424,17 @@ describe('ScrollArea', () => {
   test('uses theme defaults and resolves the shadow size from theme, prop, and overrides', () => {
     const theme = defineTheme({
       scrollArea: {
-        defaultVariants: { shadow: true, scrollbarVariant: 'native' },
+        defaultVariants: { fade: true, scrollbarMode: 'native' },
         base: { root: 'theme-scroll-root', '--scroll-area-shadow-size': '18px' },
       },
     })
-    const [shadowSize, setShadowSize] = createSignal<number>()
+    const [fadeSize, setFadeSize] = createSignal<number>()
     const [styles, setStyles] = createSignal<ScrollAreaT.Styles>({ root: { height: '100px' } })
     const [style, setStyle] = createSignal<ScrollAreaT.Props['style']>({ width: '200px' })
     const screen = render(() => (
       <MoraineProvider theme={theme}>
         <ScrollArea
-          shadowSize={shadowSize()}
+          fadeSize={fadeSize()}
           tabIndex={-1}
           class="custom-root"
           classes={{ viewport: 'custom-viewport' }}
@@ -455,7 +455,7 @@ describe('ScrollArea', () => {
     expect(root.style.width).toBe('200px')
     expect(size()).toBe('18px')
 
-    setShadowSize(24)
+    setFadeSize(24)
     expect(size()).toBe('24px')
     setStyles({ root: { height: '100px', '--scroll-area-shadow-size': '30px' } })
     expect(size()).toBe('30px')
@@ -464,7 +464,7 @@ describe('ScrollArea', () => {
     setStyle({ width: '200px' })
     setStyles({ root: { height: '100px' } })
     expect(size()).toBe('24px')
-    setShadowSize(undefined)
+    setFadeSize(undefined)
     expect(size()).toBe('18px')
   })
 })

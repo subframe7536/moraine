@@ -13,10 +13,10 @@ interface NormalizedKbdItem {
   key: string
 }
 
-function toItemProps(item: KbdGroupT.Item): KbdT.Base {
+function toItemProps(item: KbdGroupT.Item): KbdT.Props {
   return typeof item === 'string'
     ? { value: item }
-    : { value: item.value, symbol: item.symbol, ariaLabel: item.ariaLabel }
+    : { value: item.value, symbol: item.symbol, 'aria-label': item.ariaLabel }
 }
 
 /**

@@ -692,9 +692,9 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 // @ts-expect-error Icon uses a data-slot attribute instead of slotName
 ;<Icon name="i-lucide-search" slotName="custom-icon" />
 
-// @ts-expect-error Kbd has no label prop; use ariaLabel.
+// @ts-expect-error Kbd has no label prop; use aria-label.
 ;<Kbd value="K" label="Search" />
-;<Kbd value="K" ariaLabel="Search" class="px-2" style={{ color: 'red' }} />
+;<Kbd value="K" aria-label="Search" class="px-2" style={{ color: 'red' }} />
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />
 
 ;<KbdGroup items={['meta', 'k']} />
