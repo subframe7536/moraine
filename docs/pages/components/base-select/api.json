@@ -165,12 +165,6 @@
           }
         },
         {
-          "name": "mount",
-          "optional": true,
-          "type": "Node",
-          "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
-        },
-        {
           "name": "multiple",
           "optional": true,
           "type": "boolean",

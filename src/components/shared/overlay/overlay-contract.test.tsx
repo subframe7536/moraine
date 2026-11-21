@@ -122,14 +122,12 @@ describe('Unified overlay contract', () => {
     }
   })
 
-  test('BaseSelect and Combobox support preventScroll={false}, custom mount, and onExitComplete', async () => {
-    const portalHost = document.createElement('div')
-    document.body.append(portalHost)
+  test('BaseSelect and Combobox support preventScroll={false} and onExitComplete', async () => {
     const onExitComplete = vi.fn()
     const [open, setOpen] = createSignal(true)
     const items = [{ label: 'Apple', value: 'apple' }]
     const baseScreen = render(() => (
-      <BaseSelect items={items} defaultOpen preventScroll={false} mount={portalHost}>
+      <BaseSelect items={items} defaultOpen preventScroll={false}>
         <BaseSelect.Control>
           <BaseSelect.Trigger>Pick</BaseSelect.Trigger>
         </BaseSelect.Control>
@@ -141,7 +139,7 @@ describe('Unified overlay contract', () => {
       </BaseSelect>
     ))
     try {
-      expect(portalHost.querySelector('[data-slot="base-select-content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="base-select-content"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('')
     } finally {
       baseScreen.unmount()
@@ -153,25 +151,23 @@ describe('Unified overlay contract', () => {
         open={open()}
         onOpenChange={setOpen}
         preventScroll={false}
-        mount={portalHost}
         onExitComplete={onExitComplete}
       />
     ))
     try {
       await waitFor(() => {
-        expect(portalHost.querySelector('[data-slot="combobox-content"]')).not.toBeNull()
+        expect(document.body.querySelector('[data-slot="combobox-content"]')).not.toBeNull()
       })
       expect(document.body.style.overflow).toBe('')
 
       setOpen(false)
-      await finishExit('[data-slot="combobox-content"]', portalHost)
+      await finishExit('[data-slot="combobox-content"]')
       await waitFor(() => {
-        expect(portalHost.querySelector('[data-slot="combobox-content"]')).toBeNull()
+        expect(document.body.querySelector('[data-slot="combobox-content"]')).toBeNull()
         expect(onExitComplete).toHaveBeenCalledTimes(1)
       })
     } finally {
       comboScreen.unmount()
-      portalHost.remove()
     }
   })
 })

@@ -123,9 +123,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
   })
   return (
     <Show when={presence.present()}>
-      <Portal
-        mount={state.props.mount ?? (state.anchor() ?? state.focusOwner())?.ownerDocument.body}
-      >
+      <Portal mount={(state.anchor() ?? state.focusOwner())?.ownerDocument.body}>
         <div
           data-slot={state.slotName('positioner')}
           ref={setPositioner}

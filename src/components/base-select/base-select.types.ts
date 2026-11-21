@@ -12,7 +12,6 @@ import type { FieldT } from '../field'
 import type {
   OverlayDisclosureProps,
   OverlayDismissProps,
-  OverlayPortalProps,
   OverlayPositionProps,
 } from '../shared/overlay/types'
 
@@ -50,8 +49,7 @@ export interface BaseSelectDisclosureProps extends OverlayDisclosureProps {
  * Popup positioning and dismissal shared by BaseSelect and its visual wrappers.
  * @internal
  */
-export interface BaseSelectPopupProps
-  extends OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
+export interface BaseSelectPopupProps extends OverlayDismissProps, OverlayPositionProps {
   /**
    * Locks body scroll while the popup is open. Set `false` to keep the page scrollable.
    * @default true

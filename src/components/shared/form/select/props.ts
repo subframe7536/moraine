@@ -15,7 +15,6 @@ type SharedBaseSelectForwardProp = keyof Pick<
   | 'defaultOpen'
   | 'onOpenChange'
   | 'onExitComplete'
-  | 'mount'
   | 'preventScroll'
   | 'isItemDisabled'
   | 'placement'
@@ -42,7 +41,6 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'defaultOpen',
   'onOpenChange',
   'onExitComplete',
-  'mount',
   'preventScroll',
   'isItemDisabled',
   'placement',
