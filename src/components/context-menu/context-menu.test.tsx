@@ -1049,9 +1049,9 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).toBeNull()
   })
 
-  test('locks body scroll and renders an overlay layer while open', async () => {
+  test('locks body scroll and renders an overlay layer while open when modal', async () => {
     const screen = render(() => (
-      <ContextMenu>
+      <ContextMenu modal>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Pinned action' }]} />
       </ContextMenu>
