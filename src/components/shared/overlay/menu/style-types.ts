@@ -4,9 +4,6 @@ export interface OverlayMenuStyleSlot<T = unknown> {
   /** Element that opens the menu. */
   trigger?: T
 
-  /** Optional backdrop rendered behind modal menu content. */
-  overlay?: T
-
   /** Positioned menu panel that contains groups, items, and submenus. */
   content?: T
 

@@ -113,9 +113,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={!behavior.options.openOnHover}
-      initialFocus={behavior.options.initialFocus}
       finalFocus={behavior.options.finalFocus ?? (behavior.options.openOnHover ? false : undefined)}
-      modal={Boolean(behavior.options.modal)}
       role="dialog"
       onPointerDownOutside={(event) => {
         if (behavior.options.closeOnOutsideClick ?? true) {
@@ -170,11 +168,6 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
               <div data-slot="popover-body" {...bodySlot}>
                 {content()}
               </div>
-            </Show>
-            <Show when={behavior.options.modal && !behavior.hasClose()}>
-              <button type="button" class="sr-only" onClick={() => behavior.popper.setOpen(false)}>
-                Close
-              </button>
             </Show>
           </div>
         )

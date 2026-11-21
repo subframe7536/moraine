@@ -5,8 +5,6 @@ import { Portal } from 'solid-js/web'
 
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { createId } from '../../../../shared/utils'
-import { dataSlotName } from '../../../../theme/data-slot'
-import { acquireAriaHideOutside } from '../aria-hide'
 import { containsComposed, isNode } from '../dom'
 import { focusTrigger, focusWithoutScrolling, getFocusableElements } from '../focus'
 import { useOverlayInteraction } from '../interaction'
@@ -87,7 +85,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
       if (!present) {
         return
       }
-      const shouldPreventScroll = props.preventScroll ?? Boolean(props.modal)
+      const shouldPreventScroll = props.preventScroll ?? true
       if (!shouldPreventScroll) {
         return
       }
@@ -109,28 +107,6 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
         ),
       )
     }),
-  )
-
-  createEffect(
-    on(
-      [contentPresence.present, () => rootLayerState()?.contentElement(), () => props.modal],
-      ([present, content, modal]) => {
-        if (!present || !modal || !content) {
-          return
-        }
-        let active = true
-        let release: (() => void) | undefined
-        queueMicrotask(() => {
-          if (active && content.isConnected) {
-            release = acquireAriaHideOutside(content)
-          }
-        })
-        onCleanup(() => {
-          active = false
-          release?.()
-        })
-      },
-    ),
   )
 
   const containsTarget = (node: Node): boolean => {
@@ -179,9 +155,6 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
       if (!props.open || event.defaultPrevented) {
         return
       }
-      if (props.modal) {
-        event.preventDefault()
-      }
       closeOrPrevent(props.closeOnOutsideClick)
     },
     onFocusOutside: (event) => {
@@ -215,13 +188,6 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   return (
     <Show when={contentPresence.present()}>
       <Portal mount={props.triggerElement?.ownerDocument.body}>
-        <Show when={props.modal}>
-          <div
-            data-slot={dataSlotName(props.owner, 'overlay')}
-            aria-hidden="true"
-            {...props.slotBinding('overlay')}
-          />
-        </Show>
         <OverlayMenuLayer<TItem>
           {...props}
           id={contentId()}
