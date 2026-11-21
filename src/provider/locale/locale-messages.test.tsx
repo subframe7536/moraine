@@ -90,7 +90,8 @@ describe('localized component text', () => {
         <Select items={FRUIT} defaultValue="apple" clearable />
         <Select items={FRUIT} />
         <Select items={FRUIT} placeholder="Fruit" />
-        <Combobox items={FRUIT} clearable defaultValue="apple" loading />
+        <Combobox items={FRUIT} clearable defaultValue="apple" />
+        <Combobox items={FRUIT} loading />
         <MultiSelect items={FRUIT} defaultValue={['apple']} clearable />
       </MoraineProvider>
     ))
