@@ -165,6 +165,12 @@
           }
         },
         {
+          "name": "mount",
+          "optional": true,
+          "type": "Node",
+          "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
+        },
+        {
           "name": "multiple",
           "optional": true,
           "type": "boolean",
@@ -186,7 +192,7 @@
           "name": "onExitComplete",
           "optional": true,
           "type": "() => void",
-          "description": "Called once each time the popup finishes its exit after closing. It is not called while\nthe popup is open."
+          "description": "Called once each time the overlay finishes its exit after closing. It is not called while the\noverlay is open."
         },
         {
           "name": "onOpenChange",
@@ -230,6 +236,16 @@
           "default": {
             "kind": "literal",
             "value": "bottom"
+          }
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": "boolean",
+          "description": "Locks body scroll while the popup is open. Set `false` to keep the page scrollable.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
