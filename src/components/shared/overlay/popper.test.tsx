@@ -157,7 +157,7 @@ describe('Popper primitives', () => {
             <PopperTrigger context={popper} type="button">
               Open
             </PopperTrigger>
-            <PopperContent context={popper} forceMount modal onEscapeKeyDown={onEscapeKeyDown}>
+            <PopperContent context={popper} forceMount preventScroll onEscapeKeyDown={onEscapeKeyDown}>
               {(context) => (
                 <div data-slot="popover-content" {...context.contentProps}>
                   Content
@@ -605,7 +605,7 @@ describe('Popper primitives', () => {
               Open
             </PopperTrigger>
             <Show when={show()}>
-              <PopperContent context={popper} modal onEscapeKeyDown={onEscapeKeyDown}>
+              <PopperContent context={popper} preventScroll onEscapeKeyDown={onEscapeKeyDown}>
                 {(context) => <div {...context.contentProps}>Hidden content</div>}
               </PopperContent>
             </Show>
@@ -625,86 +625,16 @@ describe('Popper primitives', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('keeps modal isolation for an open cycle when modal and scroll options change', async () => {
+  test('keeps preventScroll state for an open cycle when preventScroll changes', async () => {
     const [open, setOpen] = createSignal(true)
-    const [modal, setModal] = createSignal(true)
-    const [preventScroll, setPreventScroll] = createSignal<boolean | undefined>(undefined)
-    const background = document.createElement('main')
-    document.body.append(background)
+    const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
       <PopperFixture
         open={open()}
         contentRender={(popper) => (
           <>
             <PopperTrigger context={popper}>Open</PopperTrigger>
-            <PopperContent
-              context={popper}
-              forceMount
-              modal={modal()}
-              preventScroll={preventScroll()}
-            >
-              {(context) => (
-                <div data-slot="popover-content" {...context.contentProps}>
-                  <button type="button" data-testid="sample-first">
-                    First
-                  </button>
-                  <button type="button" data-testid="sample-second">
-                    Second
-                  </button>
-                </div>
-              )}
-            </PopperContent>
-          </>
-        )}
-      />
-    ))
-    try {
-      const second = document.body.querySelector<HTMLButtonElement>(
-        '[data-testid="sample-second"]',
-      )!
-      await waitFor(() => expect(background.getAttribute('aria-hidden')).toBe('true'))
-      second.focus()
-      setPreventScroll(true)
-      await Promise.resolve()
-      expect(document.activeElement).toBe(second)
-      setModal(false)
-      await Promise.resolve()
-      expect(background.getAttribute('aria-hidden')).toBe('true')
-      expect(document.body.style.overflow).toBe('hidden')
-
-      setOpen(false)
-      await finishExitMotion()
-      await waitFor(() => expect(document.body.style.overflow).toBe(''))
-      expect(background.hasAttribute('aria-hidden')).toBe(false)
-      setOpen(true)
-      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
-      expect(background.hasAttribute('aria-hidden')).toBe(false)
-      setPreventScroll(false)
-      expect(document.body.style.overflow).toBe('hidden')
-      setOpen(false)
-      await finishExitMotion()
-      await waitFor(() => expect(document.body.style.overflow).toBe(''))
-      setOpen(true)
-      await Promise.resolve()
-      expect(document.body.style.overflow).toBe('')
-    } finally {
-      screen.unmount()
-      background.remove()
-    }
-  })
-
-  test('isolates background content while a modal popper is open', async () => {
-    const background = document.createElement('main')
-    document.body.append(background)
-    const screen = render(() => (
-      <PopperFixture
-        defaultOpen
-        contentRender={(popper) => (
-          <>
-            <PopperTrigger context={popper} type="button">
-              Open
-            </PopperTrigger>
-            <PopperContent context={popper} modal>
+            <PopperContent context={popper} forceMount preventScroll={preventScroll()}>
               {(context) => (
                 <div data-slot="popover-content" {...context.contentProps}>
                   Content
@@ -715,14 +645,30 @@ describe('Popper primitives', () => {
         )}
       />
     ))
+    try {
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      setPreventScroll(false)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('hidden')
 
-    await Promise.resolve()
-    await Promise.resolve()
-    expect(background.getAttribute('aria-hidden')).toBe('true')
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
 
-    screen.unmount()
-    expect(background.hasAttribute('aria-hidden')).toBe(false)
-    background.remove()
+      setOpen(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+      setPreventScroll(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+
+      setOpen(false)
+      await finishExitMotion()
+      setOpen(true)
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+    } finally {
+      screen.unmount()
+    }
   })
 
   test('reports the resolved placement when placement options change', async () => {
@@ -836,7 +782,7 @@ describe('Popper primitives', () => {
     }
   })
 
-  test('releases modal resources when conditional content unmounts', async () => {
+  test('releases scroll lock and interaction resources when conditional content unmounts', async () => {
     const [showContent, setShowContent] = createSignal(true)
     const onEscapeKeyDown = vi.fn()
     render(() => (
@@ -848,7 +794,7 @@ describe('Popper primitives', () => {
               Open
             </PopperTrigger>
             <Show when={showContent()}>
-              <PopperContent context={popper} modal onEscapeKeyDown={onEscapeKeyDown}>
+              <PopperContent context={popper} preventScroll onEscapeKeyDown={onEscapeKeyDown}>
                 {(context) => (
                   <div data-slot="popover-content" {...context.contentProps}>
                     Content
@@ -1147,16 +1093,16 @@ describe('Floating component context isolation', () => {
     },
   )
 
-  test('modal popper starts resources after delayed inner content', async () => {
+  test('starts scroll lock after delayed inner content mounts', async () => {
     const [show, setShow] = createSignal(false)
-    const [modal, setModal] = createSignal(true)
+    const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
       <PopperFixture
         defaultOpen
         contentRender={(popper) => (
           <>
             <PopperTrigger context={popper}>Open</PopperTrigger>
-            <PopperContent context={popper} modal={modal()}>
+            <PopperContent context={popper} preventScroll={preventScroll()}>
               {(context) => (
                 <Show when={show()}>
                   <div {...context.contentProps} data-testid="delayed-content">
@@ -1171,14 +1117,9 @@ describe('Floating component context isolation', () => {
     ))
     try {
       expect(document.body.style.overflow).toBe('')
-      setModal(false)
+      setPreventScroll(false)
       setShow(true)
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
-      expect(
-        document.body
-          .querySelector('[data-testid="delayed-content"]')!
-          .contains(document.activeElement),
-      ).toBe(true)
     } finally {
       screen.unmount()
     }
