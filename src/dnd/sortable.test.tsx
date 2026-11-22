@@ -105,7 +105,7 @@ describe('createListSortable', () => {
     renderedItems?: () => readonly string[]
     onReorder: (event: ListReorderEvent<string>) => void
     canDrop?: (source: string, target: string, position: 'before' | 'after') => boolean
-    isDisabled?: (item: string, index: number) => boolean
+    isItemDisabled?: (item: string, index: number) => boolean
   }) {
     const sortable = createListSortable<string>(options)
 
@@ -259,7 +259,7 @@ describe('createListSortable', () => {
     const { rows, handles } = renderList({
       items,
       onReorder,
-      isDisabled: (item) => item === 'b',
+      isItemDisabled: (item) => item === 'b',
     })
 
     fireEvent.pointerDown(handles[1]!, { ...POINTER_DOWN, clientX: 10, clientY: 150 })

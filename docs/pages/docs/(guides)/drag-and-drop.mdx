@@ -83,7 +83,7 @@ const sortable = createListSortable({
 ```tsx
 const sortable = createListSortable({
   items: () => table.getRowModel().rows,
-  getId: (row) => row.id,
+  getItemKey: (row) => row.id,
   onReorder: (event) => setData(event.items.map((row) => row.original)),
 })
 
@@ -185,8 +185,8 @@ const sortable = createListSortable({ items, onReorder, sensors: [PointerSensor]
 
 `createListSortable` also takes:
 
-- `getId(item, index)`: a stable id, used by `handleRefFor`. Defaults to the index.
-- `isDisabled(item, index)`: keeps a row from being dragged or dropped on.
+- `getItemKey(item, index)`: a stable id, used by `handleRefFor`. Defaults to the index.
+- `isItemDisabled(item, index)`: keeps a row from being dragged or dropped on.
 - `canDrop(source, target, position)`: rejects a drop location before it shows an indicator.
 
 All three also take `dropAnimation`. `createSortable` and `createListSortable` take `orientation`;

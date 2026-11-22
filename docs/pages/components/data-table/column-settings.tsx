@@ -75,7 +75,7 @@ export default function ColumnSettingsExample() {
   // The header cells are the visible leaf columns in display order.
   const sortable = createListSortable({
     items: () => table.getVisibleLeafColumns(),
-    getId: (column) => column.id,
+    getItemKey: (column) => column.id,
     orientation: 'horizontal',
     onReorder: (event) => table.setColumnOrder(event.items.map((column) => column.id)),
   })

@@ -53,7 +53,7 @@ export default function SortableRowsExample() {
   // Rows render in data order here: no sorting, filtering, or pagination reorders them.
   const sortable = createListSortable({
     items: () => table.getRowModel().rows,
-    getId: (row) => row.id,
+    getItemKey: (row) => row.id,
     onReorder: (event) => setReleases(event.items.map((row) => row.original)),
   })
 

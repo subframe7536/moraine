@@ -33,7 +33,10 @@ export interface TreeMoveEvent<T> {
   readonly position: SortableDropPosition
 }
 
-export interface TreeSortableOptions<T> extends Omit<SortableOptions, 'canDrop' | 'onDrop'> {
+export interface TreeSortableOptions<T> extends Omit<
+  SortableOptions,
+  'canDrop' | 'onDrop' | 'orientation'
+> {
   /**
    * Called once per drop that moves an item to a new place; not called for canceled drags or
    * drops that leave it where it was. Nothing is moved for you: update your tree items from the
@@ -55,7 +58,7 @@ export interface TreeSortableOptions<T> extends Omit<SortableOptions, 'canDrop' 
    */
   canDrop?: (move: Omit<TreeMoveEvent<T>, 'fromIndex' | 'fromParentKey'>) => boolean
   /** Prevents dragging an item and dropping on it while it returns `true`. Items that are disabled in the tree are always excluded. */
-  isDisabled?: (item: TreeT.ItemInstance<T>) => boolean
+  isItemDisabled?: (item: TreeT.ItemInstance<T>) => boolean
   /**
    * Milliseconds the source hovers inside a collapsed item before it expands, loading lazy
    * children. Pass `false` to disable.
@@ -119,7 +122,7 @@ export function createTreeSortable<T>(
     if (drop.position === 'inside') {
       parentKey = target.key
       index = target.children.length
-    } else if (drop.position === 'after' && target.isExpanded && target.children.length > 0) {
+    } else if (drop.position === 'after' && target.expanded && target.children.length > 0) {
       parentKey = target.key
       index = 0
     } else {
@@ -170,7 +173,7 @@ export function createTreeSortable<T>(
       }
       options.onMove(move)
       // Shows the moved item, and gives the drop animation an element to land on.
-      if (move.parentKey !== undefined && !move.target.isExpanded && move.position === 'inside') {
+      if (move.parentKey !== undefined && !move.target.expanded && move.position === 'inside') {
         tree.expand(move.parentKey)
       }
     },
@@ -187,7 +190,7 @@ export function createTreeSortable<T>(
         },
         (key) => {
           const item = key === undefined ? undefined : tree.getItem(key)
-          if (!item || item.isExpanded || !item.hasChildren) {
+          if (!item || item.expanded || !item.hasChildren) {
             return
           }
           const timer = setTimeout(() => tree.expand(item.key), expandDelay)
@@ -201,7 +204,7 @@ export function createTreeSortable<T>(
     const node = sortable.useItem({
       id: () => item.key,
       index: () => indexes().get(item.key) ?? -1,
-      disabled: () => item.isDisabled || (options.isDisabled?.(item) ?? false),
+      disabled: () => item.disabled || (options.isItemDisabled?.(item) ?? false),
       positions: () =>
         (options.canNest?.(item) ?? true) ? ['before', 'inside', 'after'] : ['before', 'after'],
     })

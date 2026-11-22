@@ -511,7 +511,7 @@ and `aria-sort` stay owned by the table.
 
 `createListSortable` from `moraine/dnd` (needs `@dnd-kit/dom`) reorders rows through `rowProps`.
 Pass the rendered rows as `items`, wrap the table in `sortable.Provider`, and return
-`sortable.useRow(context).props` from `rowProps`. With `getId: (row) => row.id`, a cell can render
+`sortable.useRow(context).props` from `rowProps`. With `getItemKey: (row) => row.id`, a cell can render
 the drag handle through `sortable.handleRefFor(row.id)`.
 
 ```tsx
@@ -519,7 +519,7 @@ import { createListSortable } from 'moraine/dnd'
 
 const sortable = createListSortable({
   items: () => table.getRowModel().rows,
-  getId: (row) => row.id,
+  getItemKey: (row) => row.id,
   onReorder: (event) => setData(event.items.map((row) => row.original)),
 })
 
@@ -533,7 +533,7 @@ when the rows render in data order. Otherwise, update `data` from the moved `eve
 `event.target` row with `event.position`:
 
 - **Sorting**: the rendered order is not the data order. Control `state.sorting` with a signal and
-  pause dragging with `isDisabled: () => sorting().length > 0`, or turn sorting off.
+  pause dragging with `isItemDisabled: () => sorting().length > 0`, or turn sorting off.
 - **Pagination**: `from` and `to` are page positions. Add the page offset and move the item in
   `data` with `moveItem(data, offset + event.from, offset + event.to)`.
 - **Sub-rows**: pass `canDrop: (source, target) => source.parentId === target.parentId` so rows

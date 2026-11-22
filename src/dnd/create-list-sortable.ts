@@ -60,9 +60,9 @@ export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDr
    * when ids must not change as items move. Without it a row's id is its index.
    * @default the item index
    */
-  getId?: (item: TItem, index: number) => SortableId
+  getItemKey?: (item: TItem, index: number) => SortableId
   /** Prevents dragging an item and dropping on it while it returns `true`. Return `true` for every item to pause dragging. */
-  isDisabled?: (item: TItem, index: number) => boolean
+  isItemDisabled?: (item: TItem, index: number) => boolean
   /**
    * Rejects a drop location, such as a row that must stay in its group. Receives the dragged
    * item, the item under it, and the side of `target` (`before` or `after`); return `false` to
@@ -165,13 +165,13 @@ export function createListSortable<TItem>(
         position: target.position,
       })
       // Index ids follow the item to its new index.
-      return options.getId ? undefined : move.to
+      return options.getItemKey ? undefined : move.to
     },
   })
 
   const idAt = (index: number): SortableId => {
     const item = options.items()[index]
-    return item === undefined ? index : (options.getId?.(item, index) ?? index)
+    return item === undefined ? index : (options.getItemKey?.(item, index) ?? index)
   }
 
   const useRow = <TRowProps extends object = {}>(
@@ -182,7 +182,7 @@ export function createListSortable<TItem>(
       index: () => context.index,
       disabled: () => {
         const current = options.items()[context.index]
-        return current !== undefined && (options.isDisabled?.(current, context.index) ?? false)
+        return current !== undefined && (options.isItemDisabled?.(current, context.index) ?? false)
       },
     })
     const hostRef = (): ((element: HTMLElement) => void) | undefined =>
