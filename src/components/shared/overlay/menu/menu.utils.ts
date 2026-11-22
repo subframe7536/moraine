@@ -171,6 +171,8 @@ export interface OverlayMenuLayerState {
   clearQueuedPointerEnter: (element?: HTMLElement) => void
   closeSubmenus: (exceptId?: string, registeredSubmenus?: OverlayMenuRegisteredSubmenu[]) => void
   submenus: Accessor<OverlayMenuRegisteredSubmenu[]>
+  /** Whether `node` sits inside this layer's positioner or a descendant submenu positioner. */
+  containsTarget: (node: Node) => boolean
   contentElement: Accessor<HTMLDivElement | undefined>
   currentPlacement: Accessor<Placement>
   focusContent: () => void
@@ -355,7 +357,9 @@ export function focusElement(element: HTMLElement | undefined): void {
   }
 }
 
-export function useOverlayMenuLayerState(): OverlayMenuLayerState {
+export function useOverlayMenuLayerState(
+  subtreeBranches?: Set<HTMLElement>,
+): OverlayMenuLayerState {
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
   const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
@@ -537,6 +541,8 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     clearQueuedPointerEnter,
     closeSubmenus,
     submenus,
+    containsTarget: (node) =>
+      subtreeBranches !== undefined && [...subtreeBranches].some((branch) => branch.contains(node)),
     contentElement,
     currentPlacement,
     focusContent,

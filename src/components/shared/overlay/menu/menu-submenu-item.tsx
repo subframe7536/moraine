@@ -1,21 +1,41 @@
+import type { Placement } from '@floating-ui/dom'
 import type { Accessor, Component, JSX } from 'solid-js'
 import { createSignal, onCleanup, onMount, Show, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
+import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { createId } from '../../../../shared/utils'
+import type { OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { resolveDirection } from '../direction'
+import { isNode } from '../dom'
 import { focusWithoutScrolling } from '../focus'
+import { parseFloatingPlacement } from '../placement'
 
 import { bindSelectableItemHandlers, createSelectableItemHandlers } from './menu-item'
 import type { MenuItemSlotOptions, OverlayMenuEntry } from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
-import { createPointerGraceIntent, getOverlayMenuTextValue } from './menu.utils'
-import type { OverlayMenuFocusStrategy, OverlayMenuLayerState } from './menu.utils'
+import {
+  createPointerGraceIntent,
+  getOverlayMenuTextValue,
+  isPointInPointerGraceIntent,
+} from './menu.utils'
+import type {
+  OverlayMenuFocusStrategy,
+  OverlayMenuLayerState,
+  OverlayMenuPointerGraceIntent,
+} from './menu.utils'
 import type { OverlayMenuItem, OverlayMenuLayerProps } from './types'
+
+const OPPOSITE_PLACEMENT_SIDE: Record<OverlayPlacement, Placement> = {
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
+  top: 'bottom',
+}
 
 export interface CreateSubmenuItemOptions<TItem extends OverlayMenuItem = OverlayMenuItem> {
   layer: OverlayMenuLayerState
@@ -66,11 +86,90 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
     let openTimeoutId = 0
     let openTimeoutWindow: Window | undefined
     let submenuLayerState: OverlayMenuLayerState | undefined
+    let removePointerExitListener: (() => void) | undefined
 
     const clearOpenTimeout = (): void => {
       openTimeoutWindow?.clearTimeout(openTimeoutId)
       openTimeoutId = 0
       openTimeoutWindow = undefined
+    }
+
+    const stopPointerExitWatch = (): void => {
+      removePointerExitListener?.()
+      removePointerExitListener = undefined
+    }
+
+    const dismissSubmenu = (): void => {
+      clearOpenTimeout()
+      stopPointerExitWatch()
+      submenuLayerState?.closeSubmenus()
+      setOpenState(false)
+      setAutoFocusStrategy('none')
+    }
+
+    /**
+     * Closes the submenu once the pointer leaves the trigger, the submenu subtree,
+     * and the grace area between them (see Base UI's `safePolygon` close).
+     */
+    const watchPointerExit = (intent: OverlayMenuPointerGraceIntent | null): void => {
+      stopPointerExitWatch()
+      const ownerDocument = triggerElement()?.ownerDocument
+      if (!ownerDocument) {
+        return
+      }
+
+      const onPointerExit = (event: PointerEvent): void => {
+        if (event.pointerType !== 'mouse') {
+          return
+        }
+
+        const target = event.target
+        if (
+          isNode(target) &&
+          (triggerElement()?.contains(target) ||
+            (submenuLayerState?.containsTarget(target) ?? false))
+        ) {
+          return
+        }
+
+        if (intent && isPointInPointerGraceIntent([event.clientX, event.clientY], intent)) {
+          return
+        }
+
+        layer.setPointerGraceIntent(null)
+        dismissSubmenu()
+      }
+
+      removePointerExitListener = attachEventListenerMap(ownerDocument, {
+        pointerleave: onPointerExit,
+        pointermove: onPointerExit,
+      })
+    }
+
+    const onContentPointerLeave = (
+      event: PointerEvent & { currentTarget: HTMLDivElement },
+    ): void => {
+      const trigger = triggerElement()
+      const contentElement = submenuLayerState?.contentElement()
+      if (!trigger || !contentElement) {
+        return
+      }
+
+      // The grace area mirrors back toward the trigger: the pointer may return to the
+      // parent menu, but moving anywhere else closes the submenu.
+      const side = parseFloatingPlacement(
+        submenuLayerState?.currentPlacement() ?? 'right-start',
+      ).side
+      const returnSide = OPPOSITE_PLACEMENT_SIDE[side]
+
+      watchPointerExit(
+        createPointerGraceIntent(
+          returnSide,
+          [event.clientX, event.clientY],
+          contentElement,
+          trigger,
+        ),
+      )
     }
 
     onMount(() => {
@@ -85,23 +184,16 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       )
       onCleanup(
         layer.registerSubmenu({
-          close: () => {
-            clearOpenTimeout()
-            submenuLayerState?.closeSubmenus()
-            setOpenState(false)
-            setAutoFocusStrategy('none')
-          },
+          close: dismissSubmenu,
           id: submenuId(),
         }),
       )
       onCleanup(clearOpenTimeout)
+      onCleanup(stopPointerExitWatch)
     })
 
     const closeSubmenu = (): void => {
-      clearOpenTimeout()
-      submenuLayerState?.closeSubmenus()
-      setOpenState(false)
-      setAutoFocusStrategy('none')
+      dismissSubmenu()
       layer.setHighlightedItemId(submenuId())
       focusWithoutScrolling(triggerElement())
     }
@@ -175,17 +267,14 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
           return
         }
 
-        layer.setPointerGraceIntent(
-          {
-            ...createPointerGraceIntent(
-              submenuPlacement,
-              [event.clientX, event.clientY],
-              event.currentTarget,
-              contentElement,
-            ),
-          },
+        const intent = createPointerGraceIntent(
+          submenuPlacement,
           [event.clientX, event.clientY],
+          event.currentTarget,
+          contentElement,
         )
+        layer.setPointerGraceIntent({ ...intent }, [event.clientX, event.clientY])
+        watchPointerExit(intent)
       },
     })
     bindSelectableItemHandlers(triggerElement, handlers)
@@ -254,6 +343,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
               present={contentPresence.present}
               registerBranch={registerLayerBranch}
               registerPresenceElement={contentPresence.registerElement}
+              onContentPointerLeave={onContentPointerLeave}
               autoFocusStrategy={autoFocusStrategy()}
               onAutoFocusHandled={() => {
                 setAutoFocusStrategy('none')

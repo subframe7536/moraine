@@ -21,6 +21,7 @@ import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
 import type { SlotBinding } from '../../../../theme/use-recipe'
+import { isNode } from '../dom'
 import { useFloatingPosition, usePositionerZIndex } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 
@@ -43,7 +44,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
-  const layer = useOverlayMenuLayerState()
+  const subtreeBranches = new Set<HTMLElement>()
+  const layer = useOverlayMenuLayerState(subtreeBranches)
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => props.slotBinding(slot)
   const slotName = (slot: string) => dataSlotName(props.owner, slot)
   function slotWithData(
@@ -70,7 +72,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   )
   const [isPositioned, setIsPositioned] = createSignal(false)
   const groups = createMemo(() => resolveMenuGroups(props.items))
-  const subtreeBranches = new Set<HTMLElement>()
 
   /**
    * Track this layer's positioner and descendant submenu branches while
@@ -366,6 +367,20 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           if (props.parentLayer) {
             event.stopPropagation()
           }
+        }}
+        onPointerLeave={(event) => {
+          const { defaultPrevented } = callHandler(event, props.elementAttrs?.onPointerLeave)
+          if (defaultPrevented || event.pointerType !== 'mouse') {
+            return
+          }
+          const relatedTarget = event.relatedTarget
+          if (
+            isNode(relatedTarget) &&
+            [...subtreeBranches].some((branch) => branch.contains(relatedTarget))
+          ) {
+            return
+          }
+          props.onContentPointerLeave?.(event)
         }}
         onFocusIn={(event) => {
           const { defaultPrevented } = callHandler(event, props.elementAttrs?.onFocusIn)

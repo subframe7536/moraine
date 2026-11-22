@@ -360,4 +360,6 @@ export interface OverlayMenuLayerProps<
   registerBranch: (element: HTMLElement) => () => void
   /** Keeps this layer's content mounted through its exit animation. */
   registerPresenceElement: (element: HTMLElement) => () => void
+  /** Called when the pointer leaves this layer's content and descendant submenu branches. */
+  onContentPointerLeave?: (event: PointerEvent & { currentTarget: HTMLDivElement }) => void
 }

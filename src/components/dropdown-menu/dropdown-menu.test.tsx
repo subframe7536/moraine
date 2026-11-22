@@ -1640,6 +1640,104 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).toContain('Nested action')
   })
 
+  test('closes the submenu when the pointer leaves the trigger and moves outside the menu', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+    })
+
+    const subTrigger = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+    ).find((item) => item.textContent?.includes('More')) as HTMLElement
+    const subContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+
+    subContent.getBoundingClientRect = () => ({
+      bottom: 120,
+      height: 80,
+      left: 60,
+      right: 140,
+      top: 40,
+      width: 80,
+      x: 60,
+      y: 40,
+      toJSON: () => ({}),
+    })
+
+    fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+    fireEvent.pointerMove(subContent, { clientX: 80, clientY: 80, pointerType: 'mouse' })
+    expect(subTrigger.getAttribute('data-expanded')).toBe('')
+
+    fireEvent.pointerMove(document.body, { clientX: 300, clientY: 300, pointerType: 'mouse' })
+
+    await waitFor(() => {
+      expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+    })
+    await finishMenuExitMotion()
+    expect(document.body.textContent).not.toContain('Nested action')
+  })
+
+  test('closes the submenu when the pointer leaves the submenu content to outside the menu', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+    })
+
+    const subTrigger = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+    ).find((item) => item.textContent?.includes('More')) as HTMLElement
+    const subContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+
+    fireEvent.pointerLeave(subContent, {
+      clientX: 150,
+      clientY: 80,
+      pointerType: 'mouse',
+      relatedTarget: document.body,
+    })
+    fireEvent.pointerMove(document.body, { clientX: 300, clientY: 300, pointerType: 'mouse' })
+
+    await waitFor(() => {
+      expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+    })
+    await finishMenuExitMotion()
+    expect(document.body.textContent).not.toContain('Nested action')
+  })
+
   test('restores submenu selection after pointer grace when moving toward another submenu', async () => {
     vi.useFakeTimers()
 
