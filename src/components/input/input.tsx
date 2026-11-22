@@ -123,9 +123,11 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     if (!isLazy()) {
       textControl.updateValue(event.currentTarget.value)
       field.emit('input')
-      restoreControlledValue()
     }
     callHandler(event, merged.onInput)
+    if (!isLazy()) {
+      restoreControlledValue()
+    }
   }
 
   const onChange: JSX.EventHandler<HTMLInputElement, Event> = (event) => {
@@ -141,8 +143,8 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
     }
 
     field.emit('change', event)
-    restoreControlledValue()
     callHandler(event, merged.onChange)
+    restoreControlledValue()
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {

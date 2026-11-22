@@ -210,6 +210,18 @@ describe('Textarea', () => {
     expect(root?.style.width).toBe('200px')
   })
 
+  test('accepts controlled updates from native onInput', () => {
+    const [value, setValue] = createSignal('abc')
+    const screen = render(() => (
+      <Textarea value={value()} onInput={(event) => setValue(event.currentTarget.value)} />
+    ))
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
+
+    fireEvent.input(textarea, { target: { value: 'abcd' } })
+
+    expect(textarea.value).toBe('abcd')
+  })
+
   test('keeps the DOM and Field aligned when a controlled edit is rejected', async () => {
     const [value, setValue] = createSignal('Locked')
     const onValueChange = vi.fn()

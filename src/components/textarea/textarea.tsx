@@ -211,9 +211,11 @@ export function Textarea<
     if (!isLazy()) {
       textControl.updateValue(event.currentTarget.value)
       field.emit('input')
-      restoreControlledValue()
     }
     callHandler(event, merged.onInput)
+    if (!isLazy()) {
+      restoreControlledValue()
+    }
   }
 
   const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
@@ -228,8 +230,8 @@ export function Textarea<
     }
 
     field.emit('change', event)
-    restoreControlledValue()
     callHandler(event, merged.onChange)
+    restoreControlledValue()
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {

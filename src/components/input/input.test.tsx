@@ -449,6 +449,18 @@ describe('Input', () => {
     expect(input.value).toBe('Accepted')
   })
 
+  test('accepts controlled updates from native onInput', () => {
+    const [value, setValue] = createSignal('abc')
+    const screen = render(() => (
+      <Input value={value()} onInput={(event) => setValue(event.currentTarget.value)} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    fireEvent.input(input, { target: { value: 'abcd' } })
+
+    expect(input.value).toBe('abcd')
+  })
+
   test('cancels delayed autoFocus on unmount and rechecks disabled state', () => {
     vi.useFakeTimers()
 
