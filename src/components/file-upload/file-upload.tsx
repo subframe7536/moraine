@@ -295,7 +295,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     }
   }
 
-  const onControlKeyDown = createKeyDownHandler<HTMLDivElement>({
+  const onControlKeyDown = createKeyDownHandler<HTMLButtonElement>({
     onKeyDown: () => merged.onKeyDown,
     keys: { Enter: openFileDialog, ' ': openFileDialog },
   })

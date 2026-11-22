@@ -95,7 +95,10 @@ export namespace FileUploadT {
     translations?: Translations
     /** The `id` of a `<form>` the hidden file input belongs to, for a control rendered outside that form. */
     form?: string
-    /** Ref to the hidden native `<input type="file">` that backs the control. */
+    /**
+     * Ref to the hidden native `<input type="file">` that backs the control and submits the files.
+     * The focusable control is a separate `<button>`.
+     */
     inputRef?: Ref<HTMLInputElement>
 
     /**
@@ -132,6 +135,39 @@ export namespace FileUploadT {
     onBlur?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
 
     /**
+     * Called when the control button is clicked, before it opens the file dialog. Calling
+     * `preventDefault` on the event keeps the dialog closed.
+     */
+    onClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+
+    /**
+     * Called on `keydown` on the control button, before `Enter` / `Space` open the file dialog.
+     * Calling `preventDefault` on the event skips that handling.
+     */
+    onKeyDown?: JSX.EventHandlerUnion<HTMLButtonElement, KeyboardEvent>
+
+    /**
+     * Called on `dragover` on the control button, before it accepts a file drag and sets
+     * `data-dragging`. Calling `preventDefault` on the event skips that handling. Only called
+     * while `dropzone` is `true`.
+     */
+    onDragOver?: JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>
+
+    /**
+     * Called on `dragleave` on the control button, before it clears `data-dragging`. Calling
+     * `preventDefault` on the event keeps the dragging state. Only called while `dropzone` is
+     * `true`.
+     */
+    onDragLeave?: JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>
+
+    /**
+     * Called on `drop` on the control button, before the dropped files are validated and added.
+     * Calling `preventDefault` on the event keeps the files out of the selection; the dragging
+     * state is cleared either way. Only called while `dropzone` is `true`.
+     */
+    onDrop?: JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>
+
+    /**
      * Whether files can be dragged and dropped onto the control. When `false`, drag events are
      * ignored, but clicking the control or pressing `Enter` / `Space` still opens the file dialog.
      * @default true
@@ -141,7 +177,7 @@ export namespace FileUploadT {
     /**
      * Whether to render the list of selected files below the control, with an object-URL
      * thumbnail for image files. When `false`, no list or previews are rendered and `itemRender`
-     * is not used.
+     * is not used; the selection is still available from `onValueChange`.
      * @default true
      */
     fileList?: boolean

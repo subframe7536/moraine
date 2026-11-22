@@ -8,9 +8,9 @@ import { isFileDragEvent } from './file-input-sync'
 export interface CreateFileDropzoneOptions {
   dropzone: Accessor<boolean>
   interactive: Accessor<boolean>
-  onDragOver: Accessor<JSX.EventHandlerUnion<HTMLDivElement, DragEvent> | undefined>
-  onDragLeave: Accessor<JSX.EventHandlerUnion<HTMLDivElement, DragEvent> | undefined>
-  onDrop: Accessor<JSX.EventHandlerUnion<HTMLDivElement, DragEvent> | undefined>
+  onDragOver: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
+  onDragLeave: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
+  onDrop: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, DragEvent> | undefined>
   onFiles: (files: File[]) => void
 }
 
