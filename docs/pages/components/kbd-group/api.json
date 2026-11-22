@@ -31,7 +31,7 @@
           "name": "items",
           "optional": false,
           "type": "Item[]",
-          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** The key to display, resolved like `Kbd` `value`. */\n  value: KbdT.Key;\n  /** Accessible label for this keycap. Overrides the spoken name of a key alias. */\n  ariaLabel?: string;\n  /** Whether to resolve a known key alias to its symbol. */\n  symbol?: boolean;\n})[]",
+          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** The key to display, resolved like `Kbd` `value`. */\n  value: KbdT.Key;\n  /** Accessible label for this keycap. Overrides the spoken name of a key alias. */\n  ariaLabel?: string;\n  /** Whether to resolve a known key alias to its symbol and spoken name, like `Kbd` `symbol`. */\n  symbol?: boolean;\n})[]",
           "description": "Keys displayed in order as one simultaneous shortcut. Each item is a key string, resolved\nlike `Kbd` `value`, or an object with `value` and optional `ariaLabel` and `symbol` to\ncustomize one key. The group `size` and `variant` apply to every key. The group renders\nnothing when empty.",
           "examples": [
             "import { KbdGroup } from 'moraine'\n\n<KbdGroup items={['meta', { value: 'K', ariaLabel: 'letter K' }]} />"
@@ -41,13 +41,13 @@
           "name": "separator",
           "optional": true,
           "type": "string | Component<SeparatorRenderProps>",
-          "description": "Text between keys, or a component rendered between each pair of keys. The component receives the\n`index` of the key it follows.",
+          "description": "Plain text between keys (not an icon name), or a component rendered between each pair of\nkeys, for example to show an icon. The component receives the `index` of the key it follows.",
           "default": {
             "kind": "literal",
             "value": "+"
           },
           "examples": [
-            "import { KbdGroup } from 'moraine'\n\n<KbdGroup\n  items={['g', 'i']}\n  separator={(props) => <span aria-hidden=\"true\">then {props.index}</span>}\n/>"
+            "import { Icon, KbdGroup } from 'moraine'\n\n<KbdGroup\n  items={['ctrl', 'shift', 'P']}\n  separator={() => <Icon name=\"i-lucide:plus\" class=\"text-xs\" />}\n/>"
           ]
         },
         {
@@ -98,7 +98,7 @@
         "name": "symbol",
         "optional": true,
         "type": "boolean",
-        "description": "Whether to resolve a known key alias to its symbol.",
+        "description": "Whether to resolve a known key alias to its symbol and spoken name, like `Kbd` `symbol`.",
         "default": {
           "kind": "literal",
           "value": true

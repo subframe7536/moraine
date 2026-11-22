@@ -255,7 +255,7 @@
         "root": "HoverCard",
         "member": "Content"
       },
-      "description": "Props for the HoverCard component.",
+      "description": "Props for `HoverCard.Content`.",
       "defaultElement": "div",
       "props": [
         {

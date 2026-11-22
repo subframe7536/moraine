@@ -58,7 +58,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether clicking or focusing outside dismisses the overlay. When `false`, outside interaction\nfires `onClosePrevented` instead.",
+          "description": "Whether a pointer press outside the overlay and its trigger dismisses it. Menus also close\nwhen focus moves outside; dialogs do not, since a modal dialog keeps focus inside and a\nnon-modal one stays open. When `false`, a blocked attempt fires `onClosePrevented` instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -582,7 +582,6 @@
           "default": "'button'"
         }
       ],
-      "defaultElement": "button",
       "props": [
         {
           "name": "as",
@@ -598,7 +597,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Trigger label and visual content."
+          "description": "Label or icon of the close control."
         },
         {
           "name": "class",
@@ -610,7 +609,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this trigger is disabled."
+          "description": "Whether this close control is disabled; pressing it then leaves the overlay open."
         },
         {
           "name": "style",

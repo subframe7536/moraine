@@ -90,7 +90,7 @@
           "name": "fileList",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to render the list of selected files below the control, with an object-URL\nthumbnail for image files. When `false`, no list or previews are rendered and `itemRender`\nis not used.",
+          "description": "Whether to render the list of selected files below the control, with an object-URL\nthumbnail for image files. When `false`, no list or previews are rendered and `itemRender`\nis not used; the selection is still available from `onValueChange`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -116,13 +116,13 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "inputRef",
           "optional": true,
           "type": "Ref<HTMLInputElement>",
-          "description": "Ref to the hidden native `<input type=\"file\">` that backs the control."
+          "description": "Ref to the hidden native `<input type=\"file\">` that backs the control and submits the files.\nThe focusable control is a separate `<button>`."
         },
         {
           "name": "itemRender",
@@ -180,10 +180,40 @@
           "description": "Called when the file upload control loses focus, before the `Field` blur notification."
         },
         {
+          "name": "onClick",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>",
+          "description": "Called when the control button is clicked, before it opens the file dialog. Calling\n`preventDefault` on the event keeps the dialog closed."
+        },
+        {
+          "name": "onDragLeave",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>",
+          "description": "Called on `dragleave` on the control button, before it clears `data-dragging`. Calling\n`preventDefault` on the event keeps the dragging state. Only called while `dropzone` is\n`true`."
+        },
+        {
+          "name": "onDragOver",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>",
+          "description": "Called on `dragover` on the control button, before it accepts a file drag and sets\n`data-dragging`. Calling `preventDefault` on the event skips that handling. Only called\nwhile `dropzone` is `true`."
+        },
+        {
+          "name": "onDrop",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, DragEvent>",
+          "description": "Called on `drop` on the control button, before the dropped files are validated and added.\nCalling `preventDefault` on the event keeps the files out of the selection; the dragging\nstate is cleared either way. Only called while `dropzone` is `true`."
+        },
+        {
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
           "description": "Called when the file upload control gains focus, before the `Field` focus notification."
+        },
+        {
+          "name": "onKeyDown",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, KeyboardEvent>",
+          "description": "Called on `keydown` on the control button, before `Enter` / `Space` open the file dialog.\nCalling `preventDefault` on the event skips that handling."
         },
         {
           "name": "onValueChange",

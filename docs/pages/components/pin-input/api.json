@@ -82,17 +82,13 @@
           "name": "groupSize",
           "optional": true,
           "type": "number | readonly number[]",
-          "description": "Group inputs by inserting a separator between groups: a number for groups of that size,\nor an array of consecutive group sizes.",
-          "examples": [
-            "3 // groups of 3 -> [X][X][X] • [X][X][X]",
-            "[3, 1, 3] // explicit sizes -> [X][X][X] • [X] • [X][X][X]"
-          ]
+          "description": "Group inputs by inserting a separator between groups: a number for groups of that size\n(`3` gives `[X][X][X] • [X][X][X]`), or an array of consecutive group sizes (`[3, 1, 3]`\ngives `[X][X][X] • [X] • [X][X][X]`). Sizes that do not fit inside `length` add no\nseparator."
         },
         {
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "inputMode",
@@ -104,7 +100,7 @@
           "name": "inputsRef",
           "optional": true,
           "type": "Ref<HTMLInputElement[]>",
-          "description": "Receives the array of the slot `<input>` elements, in order, after mount and whenever\n`length` changes. It is called with an empty array on cleanup."
+          "description": "Receives the array of the slot `<input>` elements, in order, after mount and whenever\n`length` changes."
         },
         {
           "name": "length",
@@ -160,13 +156,13 @@
           "name": "onFocusIn",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native focusin event for every slot focus, including moves between slots. Called before\n`onFocus`."
+          "description": "Native focusin event for every slot focus, including moves between slots. Called before\n`onFocus`; calling `preventDefault` skips `onFocus` and the `Field` focus notification."
         },
         {
           "name": "onFocusOut",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native focusout event for every slot blur, including moves between slots. Called before\n`onBlur`."
+          "description": "Native focusout event for every slot blur, including moves between slots. Called before\n`onBlur`; calling `preventDefault` skips `onBlur` and the `Field` blur notification."
         },
         {
           "name": "onValueChange",
@@ -231,7 +227,7 @@
           "type": "string | Component<SeparatorRenderProps>",
           "description": "Text or component rendered between groups, replacing the default `•`. The component\nreceives the `index` of the input it follows and only appears when `groupSize` creates groups.",
           "examples": [
-            "import { PinInput } from 'moraine'\n\n<PinInput length={6} groupSize={3} separator=\"–\" />\n<PinInput length={6} groupSize={3} separator={() => <span>–</span>} />"
+            "import { PinInput } from 'moraine'\n\n<PinInput\n  length={6}\n  groupSize={3}\n  separator={(props) => <span data-after={props.index}>–</span>}\n/>"
           ]
         },
         {

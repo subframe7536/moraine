@@ -304,7 +304,7 @@
         "root": "Popover",
         "member": "Content"
       },
-      "description": "Props for the Popover component.",
+      "description": "Props for `Popover.Content`.",
       "defaultElement": "div",
       "props": [
         {
@@ -358,7 +358,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Trigger label and visual content."
+          "description": "Label or icon of the close control."
         },
         {
           "name": "class",
@@ -370,7 +370,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this trigger is disabled."
+          "description": "Whether this close control is disabled; pressing it then leaves the overlay open."
         },
         {
           "name": "style",

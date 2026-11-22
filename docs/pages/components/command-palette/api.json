@@ -179,7 +179,7 @@
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Icon name of input's leading icon. Replaced by `loadingIcon` while `loading` is `true`.",
+          "description": "Icon shown at the start of the search input. Replaced by `loadingIcon` while `loading` is\n`true`.",
           "default": {
             "kind": "literal",
             "value": "icon-search"
@@ -221,7 +221,7 @@
           "name": "onSearchValueChange",
           "optional": true,
           "type": "(value: string) => void",
-          "description": "Called with the new search text when the user edits the input. While an IME composition\nis in progress it is deferred until the composition ends (except on Android). It is not called when\n`searchValue` changes from outside."
+          "description": "Called with the new search text when the user edits the input, already truncated to\n`searchMaxLength`. While an IME composition is in progress it is deferred until the\ncomposition ends (except on Android). It is not called when `searchValue` changes from\noutside."
         },
         {
           "name": "onSelect",
@@ -245,7 +245,7 @@
           "name": "searchMaxLength",
           "optional": true,
           "type": "number",
-          "description": "Maximum number of characters the search input accepts (the native `maxlength`)."
+          "description": "Maximum number of characters in the search text. Applied as the input's `maxLength` and by\ntruncating text the user commits (for example a finished IME composition); a controlled\n`searchValue` is not truncated. Unlimited when omitted."
         },
         {
           "name": "searchValue",

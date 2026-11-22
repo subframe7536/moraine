@@ -53,7 +53,7 @@
           "name": "symbol",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to resolve known key aliases to symbols.",
+          "description": "Whether to resolve a known key alias to its symbol or short label (`⌘`, `Esc`) and localized\nspoken name. When `false`, `value` renders as written and gets no default `aria-label`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -63,7 +63,7 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set."
+          "description": "Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the\n`aria-label` when `value` resolves to an alias (so not with `symbol={false}`) and `aria-label`\nis not set."
         },
         {
           "name": "value",

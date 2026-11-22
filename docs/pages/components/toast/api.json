@@ -164,7 +164,7 @@
           "name": "type",
           "optional": true,
           "type": "'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'",
-          "description": "Visual status variant.",
+          "description": "Status of the toast. It picks the icon and its color (`default` has no icon), and `error`\ntoasts use `role=\"alert\"` instead of `role=\"status\"`. `loading` toasts never auto-close. On the\nhost it is the default for toasts that do not set it.",
           "default": {
             "kind": "literal",
             "value": "default"

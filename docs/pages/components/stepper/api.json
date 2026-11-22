@@ -73,7 +73,7 @@
           "name": "loop",
           "optional": true,
           "type": "boolean",
-          "description": "Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps are skipped.",
+          "description": "Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps\nare skipped. Off by default, unlike `Tabs`, because a sequence has a first and a last step.",
           "default": {
             "kind": "literal",
             "value": false
@@ -83,7 +83,7 @@
           "name": "navigation",
           "optional": true,
           "type": "'none' | 'linear' | 'free'",
-          "description": "How users move between steps. `none` keeps only the active step enabled, `linear` also allows\ncompleted steps and the next step, and `free` allows every enabled step.",
+          "description": "How users move between steps. `none` keeps only the active step enabled, `linear` also allows\ncompleted steps and the next step, and `free` allows every enabled step. Steps locked by\n`navigation` render disabled and are skipped by arrow keys, so with `none` neither\n`activationMode` nor `loop` has an effect and only your own controls change the step.",
           "default": {
             "kind": "literal",
             "value": "none"

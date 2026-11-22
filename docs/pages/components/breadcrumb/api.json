@@ -56,7 +56,7 @@
           "name": "separator",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Name of the icon rendered between consecutive items. The separator is hidden from assistive\ntechnology.",
+          "description": "Icon rendered between consecutive items: an icon name, an element, or a component. The\nseparator is hidden from assistive technology.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"

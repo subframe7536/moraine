@@ -38,7 +38,7 @@
           "name": "closeDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds between the pointer leaving the trigger and content and closing;\nmoving onto the content keeps the tooltip open. `0` closes immediately.",
+          "description": "Delay in milliseconds between the pointer leaving the trigger and content, or the trigger\nlosing focus, and closing; moving onto the content keeps the tooltip open. `0` closes\nimmediately.",
           "default": {
             "kind": "literal",
             "value": 200
@@ -275,7 +275,7 @@
         "root": "Tooltip",
         "member": "Content"
       },
-      "description": "Props for the Tooltip component.",
+      "description": "Props for `Tooltip.Content`.",
       "defaultElement": "div",
       "props": [
         {

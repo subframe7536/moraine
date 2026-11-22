@@ -82,7 +82,7 @@
           "name": "scrollThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance in pixels from an edge within which it counts as reached. Negative values count\nas `0`.",
+          "description": "Distance in pixels from the top or bottom edge within which `onTopReached` or\n`onBottomReached` fires. Negative values count as `0`.",
           "default": {
             "kind": "literal",
             "value": 0

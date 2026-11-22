@@ -83,7 +83,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "maxLength",
@@ -110,7 +110,7 @@
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Event handler for the blur event."
+          "description": "Native blur event handler, called after the `Field` blur notification."
         },
         {
           "name": "onChange",
@@ -122,13 +122,13 @@
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Event handler for the focus event."
+          "description": "Native focus event handler, called after the `Field` focus notification."
         },
         {
           "name": "onInput",
           "optional": true,
           "type": "JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>",
-          "description": "Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`."
+          "description": "Native `input` event handler, called after `onValueChange` and the `Field` notification and\nbefore a controlled `value` is restored. It fires on every keystroke, also with\n`modifiers.lazy`."
         },
         {
           "name": "onValueChange",

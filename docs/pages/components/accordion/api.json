@@ -71,7 +71,7 @@
           "name": "forceMount",
           "optional": true,
           "type": "boolean",
-          "description": "Whether closed content stays mounted. When `false`, content mounts on first open and\nunmounts once it closes; when `true`, content mounts even before the first open.",
+          "description": "Whether closed content stays mounted. When `false`, an item's content mounts each time it\nopens and unmounts once it has closed (after the exit transition); when `true`, it mounts\nbefore the first open and stays mounted while hidden. The content panel element itself is\nalways rendered.",
           "default": {
             "kind": "literal",
             "value": false
@@ -97,7 +97,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,\nthe trigger's accessible name falls back to `value`. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value identifying the item. It is the entry stored in the accordion's `value` array and\npassed to `onValueChange`; duplicates trigger a development warning. */\n  value: string;\n  /** Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by\narrow-key, `Home` and `End` navigation. */\n  disabled?: boolean;\n  /** Name of an icon rendered before the label inside the trigger. */\n  icon?: IconT.Name;\n  /** Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, disabled, value }`. It is mounted when the item first opens (see\n`forceMount` on the accordion). */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Extra class applied to this item's root element, merged after the `item` slot class and\n`classes.item`, so it wins on conflicts. */\n  class?: SlotClassValue;\n})[]",
+          "typeDetails": "({\n  /** Header label rendered inside the trigger button. When omitted and `ariaLabel` is not set,\nthe trigger's accessible name falls back to `value`. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value identifying the item. It is the entry stored in the accordion's `value` array and\npassed to `onValueChange`; duplicates trigger a development warning. */\n  value: string;\n  /** Whether this item's trigger is disabled. A disabled item cannot be toggled and is skipped by\narrow-key, `Home` and `End` navigation. */\n  disabled?: boolean;\n  /** Name of an icon rendered before the label inside the trigger. */\n  icon?: IconT.Name;\n  /** Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, disabled, value }`. It is mounted while the item is open and unmounted after it\ncloses, unless `forceMount` is set on the accordion. */\n  content?: JSX.Element | Component<ContentRenderProps>;\n  /** Extra class applied to this item's root element, merged after the `item` slot class and\n`classes.item`, so it wins on conflicts. */\n  class?: SlotClassValue;\n})[]",
           "description": "Items to render, in order. Each item needs a unique `value`; `label`, `icon`, `content`,\n`disabled`, `ariaLabel` and `class` are optional.",
           "examples": [
             "import { Accordion } from 'moraine'\n\n<Accordion\n  defaultValue={['intro']}\n  items={[\n    { value: 'intro', label: 'Intro', icon: 'icon-info', content: 'Getting started.' },\n    { value: 'faq', label: 'FAQ', content: (state) => (state.expanded ? 'Open' : 'Closed') },\n    { value: 'beta', label: 'Beta', disabled: true },\n  ]}\n/>"
@@ -181,7 +181,7 @@
         "name": "content",
         "optional": true,
         "type": "JSX.Element | Component<ContentRenderProps>",
-        "description": "Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, disabled, value }`. It is mounted when the item first opens (see\n`forceMount` on the accordion)."
+        "description": "Panel content for the item. Accepts static JSX or a component that receives\n`{ expanded, disabled, value }`. It is mounted while the item is open and unmounted after it\ncloses, unless `forceMount` is set on the accordion."
       },
       {
         "name": "disabled",

@@ -96,11 +96,11 @@
           "name": "as",
           "optional": true,
           "type": "T",
+          "description": "The HTML element or component to render as.",
           "default": {
             "kind": "literal",
             "value": "div"
-          },
-          "description": "Element or component to render as."
+          }
         },
         {
           "name": "children",
@@ -118,7 +118,7 @@
           "name": "compact",
           "optional": true,
           "type": "boolean",
-          "description": "Removes the padding between this part and the adjacent control.",
+          "description": "Reduces this part's padding (inline padding in a horizontal group, padding on all sides in a\nvertical group), for example around an icon-only button.",
           "default": {
             "kind": "literal",
             "value": false
@@ -153,11 +153,11 @@
           "name": "as",
           "optional": true,
           "type": "T",
+          "description": "The HTML element or component to render as.",
           "default": {
             "kind": "literal",
             "value": "div"
-          },
-          "description": "Element or component to render as."
+          }
         },
         {
           "name": "children",
@@ -175,7 +175,7 @@
           "name": "compact",
           "optional": true,
           "type": "boolean",
-          "description": "Removes the padding between this part and the adjacent control.",
+          "description": "Reduces this part's padding (inline padding in a horizontal group, padding on all sides in a\nvertical group), for example around an icon-only button.",
           "default": {
             "kind": "literal",
             "value": false

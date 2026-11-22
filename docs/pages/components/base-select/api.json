@@ -146,7 +146,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "isItemDisabled",
@@ -400,7 +400,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this trigger is disabled."
+          "description": "Disables only this trigger element, so it cannot be pressed or focused. The select itself\nstays enabled: its form value is still submitted and the render props report the root\n`disabled`. Set `disabled` on `BaseSelect` to disable the whole control."
         },
         {
           "name": "style",

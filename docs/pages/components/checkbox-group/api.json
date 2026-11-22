@@ -63,7 +63,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "indeterminateIcon",
@@ -75,7 +75,7 @@
           "name": "indicatorPosition",
           "optional": true,
           "type": "'leading' | 'trailing' | 'hidden'",
-          "description": "Where the checkbox control sits relative to the label for every item (`'leading'`,\n`'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).",
+          "description": "Where each item's checkbox control sits relative to its label: `'leading'`, `'trailing'`, or\n`'hidden'` to visually hide the control, as in selectable cards.",
           "default": {
             "kind": "literal",
             "value": "leading"
@@ -85,7 +85,7 @@
           "name": "items",
           "optional": true,
           "type": "(string | Item)[]",
-          "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). */\n  value: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
+          "typeDetails": "(string | {\n  /** Value of the item, added to the group's `value` array when selected and submitted as the\nnative checkbox value. Must be unique within the group (a duplicate logs a warning in\ndevelopment). */\n  value: string;\n  /** Label rendered beside the item's checkbox. */\n  label?: JSX.Element;\n  /** Description rendered under the item's label. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. A disabled item is skipped by the group's `required`\nvalidation. */\n  disabled?: boolean;\n  /** Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling a mixed item always checks it: it adds the `value` to the group's `value` array, or\nchanges nothing when the `value` is already selected. Clear `indeterminate` to let the user\nuncheck it. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. Overrides the group's `indeterminateIcon`. */\n  indeterminateIcon?: IconT.Name;\n})[]",
           "description": "Options to render. A string is shorthand for an item whose `value` and `label` are that\nstring.",
           "examples": [
             "import { CheckboxGroup } from 'moraine'\n\n<CheckboxGroup\n  legend=\"Toppings\"\n  defaultValue={['cheese']}\n  items={[\n    'cheese',\n    { value: 'mushroom', label: 'Mushroom', description: 'Fresh, sliced' },\n    { value: 'olives', label: 'Olives', disabled: true },\n  ]}\n/>"
@@ -106,14 +106,14 @@
         {
           "name": "onBlur",
           "optional": true,
-          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Focus event when focus leaves the checkbox group entirely, called before the `Field` blur\nnotification. Moving focus between items does not fire it."
+          "type": "JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>",
+          "description": "Focus event when focus leaves the checkbox group entirely, called before the `Field` blur\nnotification. Moving focus between items does not fire it; `currentTarget` is the\ngroup `<fieldset>`."
         },
         {
           "name": "onFocus",
           "optional": true,
-          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Focus event when focus enters the checkbox group from outside, called before the `Field`\nfocus notification. Moving focus between items does not fire it."
+          "type": "JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>",
+          "description": "Focus event when focus enters the checkbox group from outside, called before the `Field`\nfocus notification. Moving focus between items does not fire it; `currentTarget` is the\ngroup `<fieldset>`."
         },
         {
           "name": "onValueChange",
@@ -216,7 +216,7 @@
         "name": "indeterminate",
         "optional": true,
         "type": "boolean",
-        "description": "Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling it still adds or removes the `value` from the group's `value` array."
+        "description": "Displays the item in the mixed state regardless of whether its `value` is selected.\nToggling a mixed item always checks it: it adds the `value` to the group's `value` array, or\nchanges nothing when the `value` is already selected. Clear `indeterminate` to let the user\nuncheck it."
       },
       {
         "name": "indeterminateIcon",

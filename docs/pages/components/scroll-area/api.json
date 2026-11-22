@@ -2,6 +2,7 @@
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "scroll-area",
   "name": "ScrollArea",
+  "description": "Props for the ScrollArea component.",
   "kind": "single",
   "parts": [
     {
@@ -11,6 +12,7 @@
         "kind": "export",
         "name": "ScrollArea"
       },
+      "description": "Props for the ScrollArea component.",
       "defaultElement": "div",
       "props": [
         {
@@ -61,7 +63,7 @@
           "name": "onLeftReached",
           "optional": true,
           "type": "() => void",
-          "description": "Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end."
+          "description": "Called once each time scrolling reaches the physical left edge (within `scrollThreshold`) of an overflowing horizontal axis, regardless of direction; in RTL content that is the logical end, unlike `Overflow.x.start`. Not called for the initial position."
         },
         {
           "name": "onOverflowChange",
@@ -73,7 +75,7 @@
           "name": "onRightReached",
           "optional": true,
           "type": "() => void",
-          "description": "Called once each time scrolling reaches the right edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical start."
+          "description": "Called once each time scrolling reaches the physical right edge (within `scrollThreshold`) of an overflowing horizontal axis, regardless of direction; in RTL content that is the logical start, unlike `Overflow.x.end`. Not called for the initial position."
         },
         {
           "name": "onTopReached",
@@ -125,7 +127,7 @@
           "name": "scrollThreshold",
           "optional": true,
           "type": "number",
-          "description": "Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `on*Reached` callbacks respond. Negative values count as `0`.",
+          "description": "Distance in pixels from an edge within which it counts as reached. It decides the `Overflow` passed to `onOverflowChange`, the `data-overflow-*` edge attributes, and when the `on*Reached` callbacks fire; the `fade` mask ignores it. Negative values count as `0`.",
           "default": {
             "kind": "literal",
             "value": 0

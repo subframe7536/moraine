@@ -142,13 +142,13 @@
           "name": "title",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Primary title, rendered in bold above the description. Nothing is rendered when empty."
+          "description": "Primary title, rendered above the description (in bold when a `description` is present).\nNothing is rendered when empty."
         },
         {
           "name": "tone",
           "optional": true,
           "type": "'default' | 'info' | 'success' | 'warning' | 'danger'",
-          "description": "Semantic intent of the alert.",
+          "description": "Semantic intent of the alert. It sets the colors, the default status icon, and the live region:\n`warning` and `danger` render `role=\"alert\"`, the others `role=\"status\"`.",
           "default": {
             "kind": "literal",
             "value": "default"

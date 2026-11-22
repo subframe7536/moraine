@@ -25,7 +25,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Content rendered inside the element."
+          "description": "Form content, such as `form.Field` wrappers and submit or reset buttons."
         },
         {
           "name": "class",
