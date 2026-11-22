@@ -215,7 +215,7 @@ describe('generateApiDoc', () => {
     }
     const buttonGroup = result.componentDocs.get('button-group')!
     expect(buttonGroup.parts[0]!.props.find((prop) => prop.name === 'size')?.type).toBe(
-      "'sm' | 'md' | 'lg'",
+      "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
     )
     const separator = buttonGroup.parts.find((part) => part.name === 'ButtonGroup.Separator')!
     expect(separator.props.find((prop) => prop.name === 'orientation')?.default).toBeUndefined()

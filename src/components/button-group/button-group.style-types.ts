@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { ButtonStyleVariants } from '../button/button.style-types'
 
@@ -15,7 +15,7 @@ export interface ButtonGroupStyleVariants {
    * Size inherited by descendant `Button`, `ToggleButton`, and `CopyButton` children that do not
    * set their own. When omitted, each child uses its own default size.
    */
-  size?: ComponentSize
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /**
    * Variant inherited by descendant buttons that do not set their own (the unpressed `variant` of a
    * `ToggleButton`; `CopyButton` ignores `link`). When omitted, each child uses its own default,

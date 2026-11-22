@@ -5,8 +5,10 @@ import { describe, expect, test } from 'vitest'
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 import { Button } from '../button/button'
+import { CopyButton } from '../copy-button/copy-button'
 import { DropdownMenu } from '../dropdown-menu'
 import { Popover } from '../popover'
+import { ToggleButton } from '../toggle-button/toggle-button'
 
 import { ButtonGroup } from './button-group'
 
@@ -215,5 +217,29 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain('slot-override')
     expect(group.style.width).toBe('200px')
     expect(group.style.height).toBe('40px')
+  })
+
+  test('passes the xs and xl text sizes to every button kind', () => {
+    const screen = render(() => (
+      <>
+        <ButtonGroup size="xl" aria-label="Large actions">
+          <Button>Save</Button>
+          <ToggleButton>Pin</ToggleButton>
+          <CopyButton value="x" />
+        </ButtonGroup>
+        <ButtonGroup size="xs" aria-label="Small actions">
+          <Button>Save</Button>
+        </ButtonGroup>
+      </>
+    ))
+
+    const large = screen.getByRole('group', { name: 'Large actions' })
+    const [button, toggle, copy] = Array.from(large.querySelectorAll('button'))
+    expect(button?.className).toContain('h-10')
+    expect(toggle?.className).toContain('h-10')
+    expect(copy?.className).toContain('size-10')
+
+    const small = screen.getByRole('group', { name: 'Small actions' })
+    expect(small.querySelector('button')?.className).toContain('h-6')
   })
 })

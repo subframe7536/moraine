@@ -19,7 +19,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Buttons rendered as one joined set, optionally with `ButtonGroup.Separator` between them.\nDescendant `Button`s inherit the group's `size`, `variant` and `tone` unless they set their own."
+          "description": "Buttons rendered as one joined set, optionally with `ButtonGroup.Separator` between them.\nDescendant `Button`, `ToggleButton`, and `CopyButton` children inherit the group's `size`,\n`variant`, and `tone` unless they set their own."
         },
         {
           "name": "class",
@@ -62,12 +62,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "description": "Shared button size.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          }
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+          "description": "Size inherited by descendant `Button`, `ToggleButton`, and `CopyButton` children that do not\nset their own. When omitted, each child uses its own default size."
         },
         {
           "name": "style",
@@ -85,21 +81,13 @@
           "name": "tone",
           "optional": true,
           "type": "Tone",
-          "description": "Shared button tone.",
-          "default": {
-            "kind": "literal",
-            "value": "primary"
-          }
+          "description": "Tone inherited by descendant buttons that do not set their own (both `tone` and `activeTone` of\na `ToggleButton`). It also colors `ButtonGroup.Separator`. When omitted, each child uses its\nown default tone."
         },
         {
           "name": "variant",
           "optional": true,
           "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
-          "description": "Shared button treatment.",
-          "default": {
-            "kind": "literal",
-            "value": "solid"
-          }
+          "description": "Variant inherited by descendant buttons that do not set their own (the unpressed `variant` of a\n`ToggleButton`; `CopyButton` ignores `link`). When omitted, each child uses its own default,\nsuch as `solid` for `Button` and `ghost` for `ToggleButton` and `CopyButton`."
         }
       ]
     },
