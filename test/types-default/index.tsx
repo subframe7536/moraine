@@ -750,7 +750,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   }}
 />
 
-;<Popover modal>
+;<Popover>
   <Popover.Trigger as={CustomRoot} data-testid="popover-trigger" required="popover">
     Open popover
   </Popover.Trigger>

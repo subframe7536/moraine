@@ -28,6 +28,8 @@ export namespace TooltipT {
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
+    | 'onExitComplete'
+    | 'mount'
     | 'disabled'
     | 'align'
     | 'shift'

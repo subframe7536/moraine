@@ -5,6 +5,12 @@ import type { ValidComponent } from '../../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
 
 import type { OverlayTriggerComponentProps } from './trigger'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPortalProps,
+  OverlayPositionProps,
+} from './types'
 
 export interface PopperInteractOutsideEvent {
   defaultPrevented: boolean
@@ -21,20 +27,18 @@ export interface PopperPointerDownOutsideEvent {
 export interface PopperContentAttributes {
   'aria-describedby'?: string
   'aria-labelledby'?: string
-  'aria-modal'?: true
 
   'data-closed'?: string
   'data-expanded'?: string
 
   id: string
-  onKeyDown: (event: KeyboardEvent) => void
   /** Stores the content host; see `PopperContentContext.contentProps` for its lifetime contract. */
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
   tabIndex: number
 }
 
-export interface PopperProps {
+export interface PopperProps extends OverlayDisclosureProps, OverlayPortalProps {
   /**
    * Initial open state when uncontrolled. Ignored while `open` is set.
    * @default false
@@ -96,7 +100,8 @@ export type PopperTriggerProps<T extends ValidComponent = 'button'> =
      */
     toggleOnClick?: boolean
   }
-export interface PopperContentOptions {
+export interface PopperContentOptions
+  extends OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
   /** Id of the element that describes the positioned content. */
   ariaDescribedBy?: string
 
@@ -174,14 +179,6 @@ export interface PopperContentOptions {
   hideWhenDetached?: boolean
 
   /**
-   * Whether the content traps focus, hides outside content from assistive technology, prevents
-   * the native default action of outside pointer events, and locks body scroll.
-   * Outside and Escape dismissal remain controlled by `closeOnOutsideClick` and `closeOnEscape`.
-   * @default false
-   */
-  modal?: boolean
-
-  /**
    * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press or focus
    * move (`closeOnOutsideClick` is `false`) tried to close the content and was blocked.
    */
@@ -226,7 +223,7 @@ export interface PopperContentOptions {
   align?: OverlayAlign
 
   /**
-   * Whether body scroll is locked while the content is present. A modal content always locks it.
+   * Whether body scroll is locked while the content is present.
    * @default false
    */
   preventScroll?: boolean
@@ -234,9 +231,9 @@ export interface PopperContentOptions {
   /**
    * Element (or accessor resolving to one) that receives focus after the content closes, or
    * `false` to skip the close-time focus restore. Defaults to the trigger. An accessor that
-   * returns `undefined` restores no focus. Focus is not restored when a non-modal content is
-   * dismissed by an outside press or focus move, since focus already went elsewhere. Hover-opened
-   * popovers (`openOnHover`) default to not restoring focus.
+   * returns `undefined` restores no focus. Focus is not restored when the content is dismissed by
+   * an outside press or focus move, since focus already went elsewhere. Hover-opened popovers
+   * (`openOnHover`) default to not restoring focus.
    * @example
    * ```tsx
    * import { Button, Popover } from 'moraine'

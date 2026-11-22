@@ -9,6 +9,11 @@ import type {
   SlotStyleValue,
 } from '../../theme/style-types'
 import type { FieldT } from '../field'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPositionProps,
+} from '../shared/overlay/types'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
 
@@ -18,7 +23,7 @@ export type BaseSelectValue = string | number
  * Controlled and uncontrolled popup state.
  * @internal
  */
-export interface BaseSelectDisclosureProps {
+export interface BaseSelectDisclosureProps extends OverlayDisclosureProps {
   /**
    * Controlled popup state. `undefined` keeps it uncontrolled. In controlled mode the popup
    * opens or closes only when you update this prop in `onOpenChange`. Page scrolling is locked
@@ -44,7 +49,13 @@ export interface BaseSelectDisclosureProps {
  * Popup positioning and dismissal shared by BaseSelect and its visual wrappers.
  * @internal
  */
-export interface BaseSelectPopupProps {
+export interface BaseSelectPopupProps extends OverlayDismissProps, OverlayPositionProps {
+  /**
+   * Locks body scroll while the popup is open. Set `false` to keep the page scrollable.
+   * @default true
+   */
+  preventScroll?: boolean
+
   /**
    * Preferred side of the anchor (the control) on which the popup opens. Combined with `align`;
    * see `flip` for when the side can change.
@@ -327,11 +338,6 @@ export namespace BaseSelectT {
      * `disabled: true`. With `multiple`, each selected value is submitted as its own entry.
      */
     serializeValue?: (value: TItem['value']) => string | undefined
-    /**
-     * Called once each time the popup finishes its exit after closing. It is not called while
-     * the popup is open.
-     */
-    onExitComplete?: () => void
     /** Composed trigger and popup parts. */
     children?: JSX.Element
   }

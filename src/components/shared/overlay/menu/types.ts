@@ -1,4 +1,4 @@
-import type { Placement, ReferenceElement } from '@floating-ui/dom'
+import type { ReferenceElement } from '@floating-ui/dom'
 import type { ClassValue } from 'cn'
 import type { Accessor, Component, JSX } from 'solid-js'
 
@@ -6,6 +6,7 @@ import type { OverlayAlign, OverlayPlacement } from '../../../../theme/style-typ
 import type { SlotBinding as ComponentSlotBinding } from '../../../../theme/use-recipe'
 import type { IconT } from '../../../icon'
 import type { KbdT } from '../../../kbd/kbd.types'
+import type { OverlayDismissProps, OverlayPortalProps, OverlayPositionProps } from '../types'
 
 import type {
   OverlayMenuAnchorRect,
@@ -231,7 +232,8 @@ export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
   hasChildren: boolean
 }
 
-export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuItem> {
+export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuItem>
+  extends OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
   owner: 'dropdown-menu' | 'context-menu'
 
   /**
@@ -254,6 +256,9 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
    */
   onClose: () => void
 
+  /** Called once each time the menu finishes its exit after closing. */
+  onExitComplete?: () => void
+
   /**
    * Trigger element used as the position reference.
    */
@@ -269,59 +274,6 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
    * @default 'start'
    */
   align?: OverlayAlign
-
-  /**
-   * Gap between the anchor and the content.
-   * @default 4
-   */
-  gutter?: number
-
-  /**
-   * Cross-axis or alignment offset relative to the anchor.
-   * @default 0
-   */
-  shift?: number
-
-  /**
-   * Padding applied to the overflow area when calculating the menu's position.
-   * @default 4
-   */
-  overflowPadding?: number
-
-  /**
-   * Whether to flip placement when the preferred side lacks space. An array is an ordered list of
-   * fallback `Placement` values tried in order.
-   * @default true
-   */
-  flip?: boolean | Placement[]
-
-  /**
-   * Whether the menu may slide along its main axis to remain visible.
-   * @default true
-   */
-  slide?: boolean
-
-  /**
-   * Whether Escape dismisses the menu.
-   * @default true
-   */
-  closeOnEscape?: boolean
-
-  /**
-   * Whether outside interaction, pointer or focus, dismisses the menu.
-   * @default true
-   */
-  closeOnOutsideClick?: boolean
-
-  /** Called when a dismissal attempt is blocked. */
-  onClosePrevented?: () => void
-
-  /**
-   * Whether outside content is hidden from assistive technology and outside pointer events have
-   * their native default action prevented while the menu is open.
-   * @default false
-   */
-  modal?: boolean
 
   /**
    * Whether body scroll should be locked while the menu is open.

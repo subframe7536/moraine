@@ -25,7 +25,6 @@ import Playground from './playground'
         part: 'DropdownMenu.Trigger',
         slot: 'trigger',
       },
-      { slot: 'overlay' },
       {
         internal: 'positioner',
         children: [
@@ -149,9 +148,8 @@ a controlled `open`, the submenu stays at the prop value until you update it.
 
 Escape and outside interaction close the menu by default. Set `closeOnEscape={false}` or
 `closeOnOutsideClick={false}` to keep it open and receive `onClosePrevented` for each blocked
-attempt. `modal` hides the rest of the page from assistive technology and prevents the native action
-of outside pointer presses while the menu is open. By default the menu also locks body scroll and
-renders an overlay behind the content; set `preventScroll={false}` to keep the page scrollable.
+attempt. By default the menu locks body scroll while open; set `preventScroll={false}` to keep the
+page scrollable.
 `placement` (default `'bottom'`), `align`, `gutter`, `shift`, `flip`, and `slide` tune where the
 content opens.
 

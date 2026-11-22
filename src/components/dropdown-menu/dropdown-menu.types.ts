@@ -15,6 +15,12 @@ import type {
   OverlayMenuItemRenderProps,
 } from '../shared/overlay/menu'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
+import type {
+  OverlayDisclosureProps,
+  OverlayDismissProps,
+  OverlayPortalProps,
+  OverlayPositionProps,
+} from '../shared/overlay/types'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
@@ -35,7 +41,8 @@ export namespace DropdownMenuT {
   /**
    * Base props for the DropdownMenu root component.
    */
-  export interface Base {
+  export interface Base
+    extends OverlayDisclosureProps, OverlayDismissProps, OverlayPortalProps, OverlayPositionProps {
     /**
      * Base for the generated trigger and content ids; the content id is `<id>-content`. Generated
      * when omitted.
@@ -84,8 +91,7 @@ export namespace DropdownMenuT {
      */
     shift?: number
     /**
-     * Locks body scroll while the menu is open and renders the `overlay` slot element behind the
-     * content. Set `false` to keep the page scrollable.
+     * Locks body scroll while the menu is open. Set `false` to keep the page scrollable.
      * @default true
      */
     preventScroll?: boolean
@@ -125,13 +131,6 @@ export namespace DropdownMenuT {
      * `closeOnOutsideClick` is `false`.
      */
     onClosePrevented?: () => void
-    /**
-     * Whether the menu is modal: while it is open, content outside it is hidden from assistive
-     * technology and the native default action of outside pointer presses is prevented. Outside
-     * presses still dismiss the menu unless `closeOnOutsideClick` is `false`.
-     * @default false
-     */
-    modal?: boolean
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
