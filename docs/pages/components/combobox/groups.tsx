@@ -5,7 +5,7 @@ const TECH_GROUPS: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Frontend Frameworks',
-    items: [
+    children: [
       { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
       { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
       { label: 'React', value: 'react', icon: 'i-lucide:box' },
@@ -15,7 +15,7 @@ const TECH_GROUPS: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Backend & Systems',
-    items: [
+    children: [
       { label: 'Rust', value: 'rust', icon: 'i-lucide:cog' },
       { label: 'Go', value: 'go', icon: 'i-lucide:zap' },
       { label: 'Node.js', value: 'node', icon: 'i-lucide:server' },
@@ -24,7 +24,7 @@ const TECH_GROUPS: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Databases',
-    items: [
+    children: [
       { label: 'PostgreSQL', value: 'postgres', icon: 'i-lucide:database' },
       { label: 'Redis', value: 'redis', icon: 'i-lucide:database' },
       { label: 'SQLite', value: 'sqlite', icon: 'i-lucide:database' },

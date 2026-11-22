@@ -70,7 +70,7 @@ test('hydrates string and grouped shorthand without replacing server elements', 
       <Combobox
         id="string-fruit"
         name="string-fruit"
-        items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
+        items={['Apple', { type: 'group', label: 'More', children: ['Banana'] }]}
         defaultValue="Banana"
       />
     ),

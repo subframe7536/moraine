@@ -134,7 +134,7 @@ export namespace MultiSelectT {
     translations?: Translations
     /**
      * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
-     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values must
+     * `{ type: 'group', label, children }` groups, and `{ type: 'separator' }` dividers. Item values must
      * be unique across the whole collection; a repeated value is ignored and logs an error in
      * development. Items created through `createItem` are added on top of this list.
      * @example
@@ -148,7 +148,7 @@ export namespace MultiSelectT {
      *     {
      *       type: 'group',
      *       label: 'Engineering',
-     *       items: [
+     *       children: [
      *         { label: 'Frontend', value: 'frontend' },
      *         { label: 'Backend', value: 'backend', disabled: true },
      *       ],

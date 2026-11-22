@@ -7,7 +7,7 @@ const FRAMEWORK_ITEMS: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Client frameworks',
-    items: [
+    children: [
       {
         label: 'SolidJS',
         description: 'Fine-grained reactivity',
@@ -27,7 +27,7 @@ const FRAMEWORK_ITEMS: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Compiler-based frameworks',
-    items: [
+    children: [
       { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
       { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
     ],

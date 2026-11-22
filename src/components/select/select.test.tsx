@@ -154,10 +154,10 @@ describe('Select', () => {
       <Select
         defaultOpen
         items={[
-          { type: 'group', label: 'Fruit', items: ITEMS },
+          { type: 'group', label: 'Fruit', children: ITEMS },
           { type: 'separator' },
-          { type: 'group', label: 'Vegetables', items: [{ label: 'Carrot', value: 'carrot' }] },
-          { type: 'group', label: 'Empty', items: [] },
+          { type: 'group', label: 'Vegetables', children: [{ label: 'Carrot', value: 'carrot' }] },
+          { type: 'group', label: 'Empty', children: [] },
         ]}
       />
     ))
@@ -604,7 +604,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
   const seen: unknown[] = []
   const screen = render(() => (
     <Select<string | typeof object>
-      items={[object, { type: 'group', label: 'Fruit', items: keys() }]}
+      items={[object, { type: 'group', label: 'Fruit', children: keys() }]}
       defaultOpen
       isItemDisabled={(item) => item.value === 'Banana'}
       itemRender={({ item }) => {

@@ -7,7 +7,7 @@ const TOPICS: MultiSelectT.Entry[] = [
   {
     type: 'group',
     label: 'Product',
-    items: [
+    children: [
       {
         label: 'Design',
         description: 'Interface and visual design',
@@ -22,7 +22,7 @@ const TOPICS: MultiSelectT.Entry[] = [
   {
     type: 'group',
     label: 'Go-to-market',
-    items: [
+    children: [
       { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
       { label: 'Research', value: 'research', icon: 'i-lucide:search' },
     ],

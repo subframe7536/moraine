@@ -35,7 +35,7 @@ export interface SelectGroup<T extends string | BaseSelectT.Item> {
    * group: a repeated value is ignored (the first occurrence wins). A group with no remaining
    * items, or none matching the current search, renders nothing.
    */
-  items: T[]
+  children: T[]
 }
 export interface SelectSeparator {
   /** Structural separator discriminator. */

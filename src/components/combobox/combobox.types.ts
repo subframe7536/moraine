@@ -93,7 +93,7 @@ export namespace ComboboxT {
     value?: NormalizedItem<TItem>['value'] | null
     /**
      * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
-     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values
+     * `{ type: 'group', label, children }` groups, and `{ type: 'separator' }` dividers. Item values
      * must be unique across the whole collection; a repeated value is ignored and logs an error
      * in development. Filtering by the search text hides non-matching items from the list but
      * never changes the selection.
@@ -103,9 +103,9 @@ export namespace ComboboxT {
      *
      * <Combobox
      *   items={[
-     *     { type: 'group', label: 'Fruit', items: ['Apple', { label: 'Pear', value: 'pear' }] },
+     *     { type: 'group', label: 'Fruit', children: ['Apple', { label: 'Pear', value: 'pear' }] },
      *     { type: 'separator' },
-     *     { type: 'group', label: 'Veg', items: [{ label: 'Leek', value: 'leek' }] },
+     *     { type: 'group', label: 'Veg', children: [{ label: 'Leek', value: 'leek' }] },
      *   ]}
      * />
      * ```

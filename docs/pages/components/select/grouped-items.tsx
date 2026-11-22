@@ -5,7 +5,7 @@ const TIMEZONE_GROUPS: SelectT.Entry[] = [
   {
     label: 'Americas',
     type: 'group',
-    items: [
+    children: [
       { label: 'America/New_York (UTC-5)', value: 'America/New_York' },
       { label: 'America/Chicago (UTC-6)', value: 'America/Chicago' },
       { label: 'America/Los_Angeles (UTC-8)', value: 'America/Los_Angeles' },
@@ -15,7 +15,7 @@ const TIMEZONE_GROUPS: SelectT.Entry[] = [
   {
     label: 'Europe',
     type: 'group',
-    items: [
+    children: [
       { label: 'Europe/London (UTC+0)', value: 'Europe/London' },
       { label: 'Europe/Frankfurt (UTC+1)', value: 'Europe/Frankfurt' },
       { label: 'Europe/Paris (UTC+1)', value: 'Europe/Paris' },
@@ -24,7 +24,7 @@ const TIMEZONE_GROUPS: SelectT.Entry[] = [
   {
     label: 'Asia Pacific',
     type: 'group',
-    items: [
+    children: [
       { label: 'Asia/Tokyo (UTC+9)', value: 'Asia/Tokyo' },
       { label: 'Asia/Singapore (UTC+8)', value: 'Asia/Singapore' },
       { label: 'Australia/Sydney (UTC+11)', value: 'Australia/Sydney' },

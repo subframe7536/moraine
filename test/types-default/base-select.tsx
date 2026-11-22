@@ -23,7 +23,7 @@ interface BusinessItem extends BaseSelectT.Item<string> {
   department: string
 }
 const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
-const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
+const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', children: items }
 const divRef = (element: HTMLDivElement) => element.focus()
 const inputRef = (element: HTMLInputElement) => element.focus()
 
@@ -154,7 +154,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
     {
       type: 'group',
       label: 'Departments',
-      items: [{ type: 'group', value: 'engineering', label: 'Engineering', department: 'dev' }],
+      children: [{ type: 'group', value: 'engineering', label: 'Engineering', department: 'dev' }],
     },
   ]}
   itemRender={({ item }) => item.department}
@@ -268,7 +268,7 @@ const stringItems: string[] = ['Apple', 'Banana']
   }}
 />
 ;<Select<string | UserItem>
-  items={['Apple', ...items, { type: 'group', label: 'Mixed', items: ['Banana', ...items] }]}
+  items={['Apple', ...items, { type: 'group', label: 'Mixed', children: ['Banana', ...items] }]}
   itemRender={({ item }) => ('email' in item ? item.email : item.label)}
   onValueChange={(value) => {
     const mixed: string | number | null = value
@@ -305,14 +305,14 @@ const stringItems: string[] = ['Apple', 'Banana']
   itemRender={({ item }) => ('email' in item ? item.email : item.label)}
 />
 ;<Combobox
-  items={[{ type: 'group', label: 'Users', items }]}
+  items={[{ type: 'group', label: 'Users', children: items }]}
   itemRender={({ item }) => item.email}
 />
 const shorthandProps: SelectProps = { items: ['Apple'] }
 const groupedShorthand: ComboboxT.Group<string> = {
   type: 'group',
   label: 'Fruit',
-  items: ['Apple'],
+  children: ['Apple'],
 }
 void shorthandProps
 void groupedShorthand

@@ -657,7 +657,7 @@ test('virtual rows remain a small view of canonical selection and compose both r
       <MultiSelect
         searchable
         name="virtual"
-        items={[{ type: 'group', label: 'All items', items: leaves }]}
+        items={[{ type: 'group', label: 'All items', children: leaves }]}
         defaultValue={[3999]}
         defaultOpen
         itemProps={() => ({ ref: userRef })}

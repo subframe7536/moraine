@@ -7,7 +7,7 @@ const MIXED_REGIONS: SelectT.Entry[] = [
   {
     type: 'group',
     label: 'Asia Pacific',
-    items: ['ap-northeast-1', { value: 'ap-south-1', label: 'ap-south-1', disabled: true }],
+    children: ['ap-northeast-1', { value: 'ap-south-1', label: 'ap-south-1', disabled: true }],
   },
 ]
 

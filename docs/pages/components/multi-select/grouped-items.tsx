@@ -6,7 +6,7 @@ const PERMISSION_GROUPS: MultiSelectT.Entry[] = [
   {
     label: 'User Management',
     type: 'group',
-    items: [
+    children: [
       { label: 'Invite Members', value: 'users:invite', icon: 'i-lucide:user-plus' },
       { label: 'Edit Roles', value: 'users:roles', icon: 'i-lucide:shield' },
       { label: 'Remove Members', value: 'users:remove', icon: 'i-lucide:user-minus' },
@@ -15,7 +15,7 @@ const PERMISSION_GROUPS: MultiSelectT.Entry[] = [
   {
     label: 'Content Management',
     type: 'group',
-    items: [
+    children: [
       { label: 'Create Articles', value: 'content:create', icon: 'i-lucide:file-plus' },
       { label: 'Publish Content', value: 'content:publish', icon: 'i-lucide:send' },
       { label: 'Delete Content', value: 'content:delete', icon: 'i-lucide:trash-2' },
@@ -24,7 +24,7 @@ const PERMISSION_GROUPS: MultiSelectT.Entry[] = [
   {
     label: 'Billing & Settings',
     type: 'group',
-    items: [
+    children: [
       { label: 'View Invoices', value: 'billing:view', icon: 'i-lucide:receipt' },
       { label: 'Modify Subscriptions', value: 'billing:edit', icon: 'i-lucide:credit-card' },
     ],

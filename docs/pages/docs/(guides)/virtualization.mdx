@@ -100,7 +100,7 @@ const items: ComboboxT.Entry<ComboboxT.Item<string>>[] = [
   {
     type: 'group',
     label: 'Projects',
-    items: Array.from({ length: 10_000 }, (_, index) => ({
+    children: Array.from({ length: 10_000 }, (_, index) => ({
       value: `project-${index}`,
       label: `Project ${index + 1}`,
     })),

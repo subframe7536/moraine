@@ -11,7 +11,7 @@ import {
 describe('canonical select collection', () => {
   test('preserves raw items and flattens one-level groups', () => {
     const item = { value: 1, label: 'One', metadata: { name: 'custom' } }
-    const collection = createSource([{ type: 'group', label: 'Numbers', items: [item] }])
+    const collection = createSource([{ type: 'group', label: 'Numbers', children: [item] }])
     expect(collection.items).toEqual([item])
     expect(collection.byValue.get(1)).toBe(item)
   })
@@ -28,7 +28,7 @@ describe('canonical select collection', () => {
         {
           type: 'group',
           label: 'First group',
-          items: [
+          children: [
             sameGroupFirst,
             { value: 'same-group-duplicate', label: 'Same group duplicate' },
             acrossGroupsFirst,
@@ -37,7 +37,7 @@ describe('canonical select collection', () => {
         {
           type: 'group',
           label: 'Rejected group',
-          items: [
+          children: [
             { value: 'flat-duplicate', label: 'Cross-source duplicate' },
             { value: 'across-groups-duplicate', label: 'Across groups duplicate' },
           ],
@@ -92,7 +92,7 @@ describe('canonical select collection', () => {
       {
         type: 'group',
         label: 'Collisions',
-        items: [
+        children: [
           { value: 'group-0', label: 'Dash group' },
           { value: 'group:0', label: 'Colon group' },
           { value: 'item:string:x', label: 'Item namespace' },
@@ -119,7 +119,7 @@ describe('canonical select collection', () => {
   test('treats a valued business item with type group as a leaf', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const leaf = { type: 'group' as const, value: 'business', label: 'Business item', rank: 1 }
-    const group = { type: 'group' as const, label: 'Real group', items: [leaf] }
+    const group = { type: 'group' as const, label: 'Real group', children: [leaf] }
     expect(isGroup(leaf)).toBe(false)
     expect(isGroup(group)).toBe(true)
     expect(createSource([leaf, group]).items).toEqual([leaf])
@@ -127,7 +127,7 @@ describe('canonical select collection', () => {
   })
 
   test('empty groups contain no selectable items', () => {
-    expect(createSource([{ type: 'group', label: 'Empty', items: [] }]).items).toEqual([])
+    expect(createSource([{ type: 'group', label: 'Empty', children: [] }]).items).toEqual([])
   })
 
   test('resolves machine text independently of the visual label', () => {
@@ -141,7 +141,7 @@ describe('canonical select collection', () => {
 test('shares filtered rows without changing canonical lookup', () => {
   const first = { value: 1, label: 'One', extra: 'raw' }
   const second = { value: 2, label: 'Two', extra: 'raw' }
-  const source = createSource([{ type: 'group', label: 'Numbers', items: [first, second] }])
+  const source = createSource([{ type: 'group', label: 'Numbers', children: [first, second] }])
   const view = filterView(source, (item) => item.value === 2)
   expect(view.items).toEqual([second])
   expect(view.rows.map((row) => row.type)).toEqual(['label', 'item'])
@@ -156,7 +156,7 @@ test('normalizes string shorthand and preserves object identity across mixed gro
     ' Apple ',
     '1',
     object,
-    { type: 'group', label: 'Fruit', items: ['Banana'] },
+    { type: 'group', label: 'Fruit', children: ['Banana'] },
   ])
   const source = createSource(entries)
   expect(source.items).toEqual([
@@ -176,7 +176,7 @@ test('applies the same duplicate policy to string and object entries', () => {
     normalizeSelectEntries([
       'string-duplicate',
       { value: 'string-duplicate', label: 'Ignored' },
-      { type: 'group', label: 'Duplicates', items: ['string-duplicate'] },
+      { type: 'group', label: 'Duplicates', children: ['string-duplicate'] },
     ]),
   )
   expect(source.items).toEqual([{ value: 'string-duplicate', label: 'string-duplicate' }])
@@ -189,11 +189,11 @@ test('filters separators with their surrounding options without selecting them',
   const source = createSource(
     normalizeSelectEntries([
       { type: 'separator' },
-      { type: 'group', label: 'First', items: ['Apple'] },
+      { type: 'group', label: 'First', children: ['Apple'] },
       { type: 'separator' },
-      { type: 'group', label: 'Middle', items: ['Banana'] },
+      { type: 'group', label: 'Middle', children: ['Banana'] },
       { type: 'separator' },
-      { type: 'group', label: 'Last', items: ['Carrot'] },
+      { type: 'group', label: 'Last', children: ['Carrot'] },
       { type: 'separator' },
     ]),
   )

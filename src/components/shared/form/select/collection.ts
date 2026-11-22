@@ -19,8 +19,8 @@ export function isGroup<T extends string | BaseSelectT.Item>(
     'type' in entry &&
     entry.type === 'group' &&
     !('value' in entry) &&
-    'items' in entry &&
-    Array.isArray(entry.items)
+    'children' in entry &&
+    Array.isArray(entry.children)
   )
 }
 
@@ -48,7 +48,7 @@ export function normalizeSelectEntries<T extends string | BaseSelectT.Item>(
         get label() {
           return entry.label
         },
-        items: entry.items.map(normalize),
+        children: entry.children.map(normalize),
       }
     }
     return isSeparator(entry) ? entry : normalize(entry)
@@ -136,7 +136,7 @@ export function createSource<T extends BaseSelectT.Item>(
   }
   entries.forEach((entry, index) => {
     if (isGroup(entry)) {
-      const items = entry.items.filter(accept)
+      const items = entry.children.filter(accept)
       if (items.length > 0) {
         view.items.push(...items)
         const groupKey = `group:${index}`

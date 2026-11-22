@@ -7,7 +7,7 @@ const MIXED_STATUSES: ComboboxT.Entry[] = [
   {
     type: 'group',
     label: 'Closed',
-    items: ['Done', { value: 'wontfix', label: "Won't fix", disabled: true }],
+    children: ['Done', { value: 'wontfix', label: "Won't fix", disabled: true }],
   },
 ]
 

@@ -41,7 +41,7 @@ export function renderStringItemsFixture(): string {
     <Select
       id="string-fruit"
       name="string-fruit"
-      items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
+      items={['Apple', { type: 'group', label: 'More', children: ['Banana'] }]}
       defaultValue="Banana"
     />
   ))

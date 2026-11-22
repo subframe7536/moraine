@@ -531,7 +531,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
   const seen: unknown[] = []
   const screen = render(() => (
     <Combobox<string | typeof object>
-      items={[object, { type: 'group', label: 'Fruit', items: keys() }]}
+      items={[object, { type: 'group', label: 'Fruit', children: keys() }]}
       defaultOpen
       isItemDisabled={(item) => item.value === 'Banana'}
       itemRender={({ item }) => {

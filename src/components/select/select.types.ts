@@ -90,7 +90,7 @@ export namespace SelectT {
     value?: NormalizedItem<TItem>['value'] | null
     /**
      * Options of the popup list: plain strings (shorthand for `{ value, label }`), item objects,
-     * `{ type: 'group', label, items }` groups, and `{ type: 'separator' }` dividers. Item values
+     * `{ type: 'group', label, children }` groups, and `{ type: 'separator' }` dividers. Item values
      * must be unique across the whole collection; a repeated value is ignored and logs an error
      * in development.
      * @example
@@ -104,7 +104,7 @@ export namespace SelectT {
      *     {
      *       type: 'group',
      *       label: 'Citrus',
-     *       items: [
+     *       children: [
      *         { label: 'Lemon', value: 'lemon' },
      *         { label: 'Lime', value: 'lime', disabled: true },
      *       ],
