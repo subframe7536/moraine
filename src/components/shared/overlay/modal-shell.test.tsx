@@ -234,7 +234,7 @@ describe.each([
 
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
-    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
 
     setModal(true)
     await waitFor(() => {
@@ -247,7 +247,7 @@ describe.each([
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()
-      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.body.style.overflow).toBe('')
     })
   })
 })

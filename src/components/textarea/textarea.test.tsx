@@ -60,7 +60,6 @@ describe('Textarea', () => {
     const onLazy = vi.fn()
     const onPreserve = vi.fn()
     const onNullable = vi.fn()
-    const onOptional = vi.fn()
 
     const screen = render(() => (
       <>
@@ -68,11 +67,9 @@ describe('Textarea', () => {
         <Textarea onValueChange={onLazy} modifiers={{ lazy: true }} />
         <Textarea onValueChange={onPreserve} />
         <Textarea onValueChange={onNullable} modifiers={{ empty: 'null' }} />
-        <Textarea onValueChange={onOptional} modifiers={{ empty: 'undefined' }} />
       </>
     ))
-    const [trimInput, lazyInput, preserveInput, nullableInput, optionalInput] =
-      screen.getAllByRole('textbox')
+    const [trimInput, lazyInput, preserveInput, nullableInput] = screen.getAllByRole('textbox')
 
     fireEvent.input(trimInput!, {
       target: { value: ' value  ' },
@@ -102,12 +99,17 @@ describe('Textarea', () => {
       currentTarget: { value: '' },
     })
     expect(onNullable).toHaveBeenLastCalledWith(null)
+  })
 
-    fireEvent.input(optionalInput!, {
-      target: { value: '' },
-      currentTarget: { value: '' },
-    })
-    expect(onOptional).toHaveBeenLastCalledWith(undefined)
+  test('clears the displayed text when a controlled value becomes null', () => {
+    const [value, setValue] = createSignal<string | number | null>('Filled')
+    const screen = render(() => <Textarea value={value()} />)
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
+
+    expect(textarea.value).toBe('Filled')
+
+    setValue(null)
+    expect(textarea.value).toBe('')
   })
 
   test('syncs trimmed DOM value on change', async () => {

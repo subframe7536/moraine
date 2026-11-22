@@ -219,17 +219,24 @@
         "root": "Sidebar",
         "member": "Rail"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
       "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": "'button'",
+          "type": "T",
+          "description": "Element or component to render as. A tag name (`'div'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the rail would put on\nits element, so it should spread them onto its root and forward `ref`. `type=\"button\"` and\nthe native `disabled` attribute are emitted only for a `'button'` host.",
           "default": {
             "kind": "literal",
             "value": "button"
-          },
-          "description": "Element or component to render as."
+          }
         },
         {
           "name": "class",
@@ -242,6 +249,12 @@
           "optional": true,
           "type": "boolean",
           "description": "Disables pointer, keyboard, and click resizing."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",

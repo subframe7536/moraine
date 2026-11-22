@@ -167,7 +167,7 @@ export function ComponentRadar() {
   const [boldValue, setBoldValue] = createSignal(70)
   const [emailAlerts, setEmailAlerts] = createSignal(true)
   const [inAppAlerts, setInAppAlerts] = createSignal(false)
-  const [pinCode, setPinCode] = createSignal<string[]>(['4', '2', '', ''])
+  const [pinCode, setPinCode] = createSignal('42')
 
   return (
     <section aria-labelledby="radar-title" class="py-10 space-y-14 sm:py-14">
@@ -468,7 +468,7 @@ export function ComponentRadar() {
               aria-label="Verification code"
             />
             <output aria-live="polite" class="text-xs text-muted-foreground font-mono mt-3 block">
-              {pinCode().filter(Boolean).length}/4 digits entered
+              {pinCode().length}/4 digits entered
             </output>
           </SamplerItem>
 

@@ -5,13 +5,13 @@ import type { InputModifiers, ModifierValue } from '../../../shared/input-modifi
 import { applyInputModifiers } from '../../../shared/input-modifiers'
 
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
-type TextControlValue = string | number | undefined
+type TextControlValue = string | number | null
 
 export interface UseTextControlValueOptions<
   TValue extends TextControlValue,
   TModifiers extends InputModifiers | undefined,
 > {
-  defaultValue: Accessor<TValue>
+  defaultValue: Accessor<TValue | undefined>
   getElement: Accessor<TextControlElement | undefined>
   getFormValue: Accessor<unknown>
   getFormPath?: Accessor<readonly (string | number)[] | undefined>
@@ -19,7 +19,7 @@ export interface UseTextControlValueOptions<
   onValueChange: Accessor<((value: ModifierValue<TModifiers>) => void) | undefined>
   setFormValue: (value: unknown) => void
   shouldRestoreValue?: Accessor<boolean>
-  value: Accessor<TValue>
+  value: Accessor<TValue | undefined>
 }
 
 /** Shares controlled and uncontrolled value synchronization for native text controls. */
@@ -56,16 +56,23 @@ export function useTextControlValue<
     return undefined
   }
 
-  const initialValue = untrack(() => getExternalValue() ?? initialDefaultValue)
+  const initialValue = untrack(() => {
+    const externalValue = getExternalValue()
+    return externalValue !== undefined ? externalValue : initialDefaultValue
+  })
   const valueProps = createMemo<{
-    value?: TValue
-    defaultValue?: TValue
+    value?: string | number
+    defaultValue?: string | number
   }>(() => {
+    const domValue = initialValue === null ? '' : initialValue
     if (initialDefaultValue !== undefined) {
-      return { value: initialValue, defaultValue: initialDefaultValue }
+      return {
+        value: domValue,
+        defaultValue: initialDefaultValue === null ? '' : initialDefaultValue,
+      }
     }
 
-    return initialValue !== undefined ? { value: initialValue } : {}
+    return domValue !== undefined ? { value: domValue } : {}
   })
 
   function applyValue(value: string): ModifierValue<TModifiers> {
@@ -90,7 +97,7 @@ export function useTextControlValue<
     const element = options.getElement()
 
     if (element && value !== undefined && options.shouldRestoreValue?.() !== false) {
-      element.value = String(value)
+      element.value = String(value ?? '')
     }
   }
 

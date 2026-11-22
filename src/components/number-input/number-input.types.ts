@@ -220,13 +220,13 @@ export namespace NumberInputT {
     inputRef?: Ref<HTMLInputElement>
 
     /**
-     * Called when the input loses focus, before the typed text is committed. Calling
-     * `preventDefault` skips that commit and the `Field` blur notification.
+     * Called when the input loses focus, before the typed text is committed and the `Field` blur
+     * notification.
      */
     onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
-     * Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification.
+     * Called when the input gains focus, before the `Field` focus notification.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 

@@ -116,11 +116,25 @@ export namespace SidebarT {
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface RailBase<T extends ValidComponent = 'button'> {
+    /**
+     * Element or component to render as. A tag name (`'div'`) renders that element and narrows the
+     * other props to its attributes; a Solid component receives the props the rail would put on
+     * its element, so it should spread them onto its root and forward `ref`. `type="button"` and
+     * the native `disabled` attribute are emitted only for a `'button'` host.
+     */
     as?: T
     /** Disables pointer, keyboard, and click resizing. */
     disabled?: boolean
+    ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
   }
-  export type RailProps = BaseProps<'button', RailBase, never, never, never>
+  export type RailProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    RailBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
 
   export interface PanelBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element

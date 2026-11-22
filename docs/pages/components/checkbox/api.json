@@ -140,16 +140,22 @@
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the checkbox control button loses focus, before the `Field` blur\nnotification."
+        },
+        {
           "name": "onCheckedChange",
           "optional": true,
           "type": "(value: TTrue | TFalse) => void",
           "description": "Called when the user toggles the checkbox, with `trueValue` (now checked) or `falseValue`\n(now unchecked). Toggling from `'indeterminate'` checks it. Not called while `disabled` or\n`readOnly`, nor when `checked` changes from outside."
         },
         {
-          "name": "onPointerDown",
+          "name": "onFocus",
           "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>",
-          "description": "Handler for `pointerdown` on the checkbox control button. Call `event.preventDefault()` to\nskip the built-in handling, which keeps focus on the hidden input when it is already\nfocused."
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the checkbox control button gains focus, before the `Field` focus\nnotification."
         },
         {
           "name": "readOnly",

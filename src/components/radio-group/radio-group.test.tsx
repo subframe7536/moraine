@@ -283,6 +283,54 @@ describe('RadioGroup', () => {
     expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
   })
 
+  test('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => (
+      <>
+        <RadioGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
+        <button type="button">Outside</button>
+      </>
+    ))
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+    radioA.focus()
+    expect(onFocus).toHaveBeenCalledTimes(1)
+
+    radioB.focus()
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onBlur).not.toHaveBeenCalled()
+
+    screen.getByRole('button', { name: 'Outside' }).focus()
+    expect(onBlur).toHaveBeenCalledTimes(1)
+  })
+
+  test('still calls user onFocusIn and onFocusOut for every item focus change', () => {
+    const onFocusIn = vi.fn()
+    const onFocusOut = vi.fn()
+    const screen = render(() => (
+      <>
+        <RadioGroup items={['A', 'B']} onFocusIn={onFocusIn} onFocusOut={onFocusOut} />
+        <button type="button">Outside</button>
+      </>
+    ))
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+    radioA.focus()
+    expect(onFocusIn).toHaveBeenCalledTimes(1)
+    expect(onFocusIn.mock.calls[0]?.[0].target).toBe(radioA)
+
+    radioB.focus()
+    expect(onFocusIn).toHaveBeenCalledTimes(2)
+    expect(onFocusOut).toHaveBeenCalledTimes(1)
+    expect(onFocusOut.mock.calls[0]?.[0].target).toBe(radioA)
+
+    screen.getByRole('button', { name: 'Outside' }).focus()
+    expect(onFocusOut).toHaveBeenCalledTimes(2)
+  })
+
   test('marks a Form.Field radio group touched on entry and validates only after focus leaves', async () => {
     const schema = v.object({
       plan: v.pipe(

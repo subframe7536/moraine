@@ -58,28 +58,43 @@ interface RailDragSession {
  * </Sidebar>
  * ```
  */
-export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
+export function SidebarRail<T extends ValidComponent = 'button'>(
+  props: SidebarT.RailProps<T>,
+): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props, [
-    'as',
-    'disabled',
-    'aria-label',
-    'class',
-    'style',
-    'ref',
-    'onClick',
-    'onKeyDown',
-    'onPointerDown',
-    'onMouseEnter',
-    'onMouseLeave',
-    'onFocus',
-    'onBlur',
-  ])
+  const [local, rest] = splitProps(
+    props as SidebarT.RailProps<T> & {
+      'aria-label'?: string
+      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+      onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+      onMouseEnter?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onMouseLeave?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+      onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    },
+    [
+      'as',
+      'disabled',
+      'aria-label',
+      'class',
+      'style',
+      'ref',
+      'onClick',
+      'onKeyDown',
+      'onPointerDown',
+      'onMouseEnter',
+      'onMouseLeave',
+      'onFocus',
+      'onBlur',
+    ],
+  )
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
   const disabled = () => local.disabled === true
+  const isButton = () => (local.as ?? 'button') === 'button'
 
-  const [element, setElement] = createSignal<HTMLButtonElement>()
+  const [element, setElement] = createSignal<HTMLElement>()
   let session: RailDragSession | null = null
   let sessionMoved = false
 
@@ -154,8 +169,8 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
     return true
   }
 
-  const dispatchKeyDown = createKeyDownHandler<HTMLButtonElement>({
-    keys: (event: KeyEvent<HTMLButtonElement>) => {
+  const dispatchKeyDown = createKeyDownHandler({
+    keys: (event: KeyEvent) => {
       const open = context.isOpen()
       const sign = measureSign()
       const step = event.shiftKey ? KEYBOARD_STEP_SHIFT : KEYBOARD_STEP
@@ -223,7 +238,7 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
     <Show when={!context.isMobile()}>
       <Dynamic
         component={(local.as ?? 'button') as ValidComponent}
-        type="button"
+        type={isButton() ? 'button' : undefined}
         data-slot="sidebar-rail"
         {...railSlot}
         {...rest}
@@ -234,10 +249,10 @@ export function SidebarRail(props: SidebarT.RailProps): JSX.Element {
         aria-valuemax={context.maxWidth()}
         aria-valuenow={context.isOpen() ? context.width() : 0}
         aria-label={local['aria-label'] ?? messages().resize}
-        disabled={disabled()}
+        disabled={isButton() ? disabled() : undefined}
         aria-disabled={disabled() ? 'true' : undefined}
         tabIndex={disabled() ? -1 : 0}
-        ref={(node: HTMLButtonElement) => {
+        ref={(node: HTMLElement) => {
           setElement(node)
           bindings.setElement(node)
           callRef(local.ref, node)

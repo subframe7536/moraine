@@ -142,8 +142,8 @@ and `finalFocus` to choose where focus returns. Both apply only while `modal` is
 
 Setting `modal={false}` allows focus to leave the surface, but does not disable Escape or outside
 dismissal. `closeOnOutsideClick` and `closeOnEscape` control those close requests. Both default to
-`true`. Scroll locking is independent: `preventScroll` defaults to `true`. For interaction with the
-background page, also set `preventScroll={false}` and `overlay={false}`.
+`true`. `preventScroll` locks body scroll and defaults to the value of `modal`, so a
+non-modal surface leaves the page scrollable unless `preventScroll` is set.
 
 ### Styling and portal
 

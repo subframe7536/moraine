@@ -34,9 +34,9 @@ describe('Alert', () => {
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-warning')
     viewWarning.unmount()
 
-    const viewError = render(() => <Alert tone="error" title="Error alert" />)
+    const viewError = render(() => <Alert tone="danger" title="Error alert" />)
     alert = viewError.getByRole('alert')
-    expect(alert.getAttribute('data-tone')).toBe('error')
+    expect(alert.getAttribute('data-tone')).toBe('danger')
     expect(alert.querySelector('[data-slot="alert-icon"] > *')?.className).toContain('icon-error')
     viewError.unmount()
   })

@@ -457,11 +457,37 @@ describe('Slider', () => {
     expect(typeof onChange.mock.calls[0]?.[0]).toBe('number')
   })
 
-  test('uses continuous pointer values when step is omitted', async () => {
+  test('snaps pointer values to the default step of 1', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <Slider defaultValue={0} onValueChange={onValueChange} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const input = getInputs(screen.container)[0]
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+
+    fireEvent.pointerDown(thumb, {
+      button: 0,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+    })
+    fireEvent.pointerMove(thumb, {
+      pointerId: 1,
+      clientX: 25.4,
+      clientY: 0,
+    })
+
+    expect(input?.step).toBe('1')
+    expect(onValueChange).toHaveBeenLastCalledWith(25)
+  })
+
+  test('uses continuous pointer values when step is 0', async () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <Slider defaultValue={0} onValueChange={onValueChange} onValueCommit={onChange} />
+      <Slider defaultValue={0} step={0} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const input = getInputs(screen.container)[0]
@@ -611,6 +637,27 @@ describe('Slider', () => {
       ['blur', expect.any(FocusEvent)],
     ])
     expect(onChange).toHaveBeenLastCalledWith([21, 80])
+  })
+
+  test('calls user onFocus once when focus enters the slider and onBlur when it leaves', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => (
+      <Slider defaultValue={[20, 80]} onFocus={onFocus} onBlur={onBlur} />
+    ))
+    const [first, second] = getThumbs(screen.container)
+    const outside = document.createElement('button')
+
+    fireEvent.focus(first!, { relatedTarget: outside })
+    expect(onFocus).toHaveBeenCalledTimes(1)
+
+    fireEvent.blur(first!, { relatedTarget: second })
+    fireEvent.focus(second!, { relatedTarget: first })
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onBlur).not.toHaveBeenCalled()
+
+    fireEvent.blur(second!, { relatedTarget: outside })
+    expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
   test('keeps Formisch blur validation dormant while range focus moves between thumbs', async () => {

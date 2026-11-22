@@ -117,6 +117,16 @@ export namespace FileUploadT {
     onValueChange?: (value: Value<TMultiple>) => void
 
     /**
+     * Called when the file upload control gains focus, before the `Field` focus notification.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
+
+    /**
+     * Called when the file upload control loses focus, before the `Field` blur notification.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
+
+    /**
      * Whether files can be dragged and dropped onto the control. When `false`, drag events are
      * ignored, but clicking the control or pressing `Enter` / `Space` still opens the file dialog.
      * @default true

@@ -187,13 +187,13 @@
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Called when the input loses focus, before the typed text is committed. Calling\n`preventDefault` skips that commit and the `Field` blur notification."
+          "description": "Called when the input loses focus, before the typed text is committed and the `Field` blur\nnotification."
         },
         {
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification."
+          "description": "Called when the input gains focus, before the `Field` focus notification."
         },
         {
           "name": "onStep",

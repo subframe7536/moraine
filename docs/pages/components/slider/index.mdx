@@ -65,9 +65,9 @@ as when saving a setting.
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to multiples of it from `min`. Set `markers`
-to `true` to draw a tick at each step (this requires a `step` above `0`), or to a number to draw a
-tick every that many units without changing how the value snaps.
+`step` (default `1`) snaps pointer drag and keyboard navigation to multiples of it from `min`;
+`step={0}` keeps the slider continuous. Set `markers` to `true` to draw a tick at each step, or to a
+number to draw a tick every that many units without changing how the value snaps.
 
 ```tsx
 <Slider value={value()} min={0} max={100} step={10} markers onValueChange={setValue} />
@@ -109,8 +109,8 @@ it; a zero-argument function is called as an accessor and is not mounted as a co
 
 ### Keyboard interaction
 
-When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized
-movement is approximately 10% of the range and is snapped to `step` when one is defined. Horizontal
+Arrow keys move by `step` (default `1`); with `step={0}` they move by 1% of the configured range.
+Page-sized movement is approximately 10% of the range and is snapped to `step` when above `0`. Horizontal
 arrow keys swap in right-to-left layouts, and a `reversed` vertical slider swaps <kbd>ArrowUp</kbd>
 and <kbd>ArrowDown</kbd>.
 

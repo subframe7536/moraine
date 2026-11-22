@@ -59,8 +59,8 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string[] | string",
-          "description": "Initial value for uncontrolled usage, as a joined string or one character per slot. Also\nthe value restored when the owning form is reset."
+          "type": "string",
+          "description": "Initial value for uncontrolled usage, as the joined string. Also the value restored when the\nowning form is reset."
         },
         {
           "name": "disabled",
@@ -142,7 +142,7 @@
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native blur event when focus leaves the pin input group. Calling `preventDefault` skips the\n`Field` blur notification."
+          "description": "Native blur event when focus leaves the pin input group, called before the `Field` blur\nnotification."
         },
         {
           "name": "onComplete",
@@ -154,25 +154,25 @@
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native focus event when focus enters the pin input group from outside. Calling\n`preventDefault` skips the `Field` focus notification."
+          "description": "Native focus event when focus enters the pin input group from outside, called before the\n`Field` focus notification."
         },
         {
           "name": "onFocusIn",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native focusin event for every slot focus, including moves between slots.\nCalling `preventDefault` skips `onFocus`."
+          "description": "Native focusin event for every slot focus, including moves between slots. Called before\n`onFocus`."
         },
         {
           "name": "onFocusOut",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
-          "description": "Native focusout event for every slot blur, including moves between slots.\nCalling `preventDefault` skips `onBlur`."
+          "description": "Native focusout event for every slot blur, including moves between slots. Called before\n`onBlur`."
         },
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string[]) => void",
-          "description": "Called whenever the entered characters change, with an array of `length` entries holding\none character per slot and `''` for empty slots. Use `.join('')` for the string."
+          "type": "(value: string) => void",
+          "description": "Called whenever the entered characters change, with the joined string of at most `length`\ncharacters. A cleared middle slot keeps its position in the UI but is dropped from the\nstring: clearing the middle of `'123'` reports `'13'`."
         },
         {
           "name": "onValueInvalid",
@@ -278,8 +278,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string[] | string",
-          "description": "Controlled value as a joined string (`'123456'`) or an array with one character per slot\n(an empty string `''` leaves that slot empty). `undefined` leaves the input uncontrolled. The\nvalue is filtered by `validationType` and truncated to `length`; update it from `onValueChange`."
+          "type": "string",
+          "description": "Controlled value as the joined string (`'123456'`). `undefined` leaves the input\nuncontrolled. The value is filtered by `validationType` and truncated to `length`; update it\nfrom `onValueChange`."
         },
         {
           "name": "variant",

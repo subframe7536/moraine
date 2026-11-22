@@ -8,12 +8,11 @@ describe('applyInputModifiers', () => {
     expect(applyInputModifiers('  hello  ', {})).toBe('  hello  ')
   })
 
-  test('maps empty strings to null or undefined when empty mode is set', () => {
+  test('maps empty strings to null when empty mode is set', () => {
     expect(applyInputModifiers('', { empty: 'null' })).toBe(null)
     expect(applyInputModifiers('   ', { empty: 'null' })).toBe(null)
-    expect(applyInputModifiers('', { empty: 'undefined' })).toBe(undefined)
-    expect(applyInputModifiers('   ', { empty: 'undefined' })).toBe(undefined)
     expect(applyInputModifiers('', {})).toBe('')
+    expect(applyInputModifiers('   ', {})).toBe('   ')
   })
 
   test('handles number modifier contract for numbers, whitespace, empty, and invalid input', () => {
@@ -22,14 +21,13 @@ describe('applyInputModifiers', () => {
     expect(applyInputModifiers('0', { number: true })).toBe(0)
     expect(applyInputModifiers('-3.14', { number: true })).toBe(-3.14)
 
-    // Empty and whitespace return undefined (or null if empty: 'null'), never "" or 0
-    expect(applyInputModifiers('', { number: true })).toBe(undefined)
-    expect(applyInputModifiers('   ', { number: true })).toBe(undefined)
-    expect(applyInputModifiers('', { number: true, empty: 'null' })).toBe(null)
-    expect(applyInputModifiers('   ', { number: true, empty: 'null' })).toBe(null)
+    // Empty and whitespace return null, never "" or 0
+    expect(applyInputModifiers('', { number: true })).toBe(null)
+    expect(applyInputModifiers('   ', { number: true })).toBe(null)
+    expect(applyInputModifiers('', { number: true, empty: 'preserve' })).toBe(null)
 
-    // Non-numeric text returns undefined, never NaN
-    expect(applyInputModifiers('abc', { number: true })).toBe(undefined)
-    expect(applyInputModifiers('12px', { number: true })).toBe(undefined)
+    // Non-numeric text returns null, never NaN
+    expect(applyInputModifiers('abc', { number: true })).toBe(null)
+    expect(applyInputModifiers('12px', { number: true })).toBe(null)
   })
 })

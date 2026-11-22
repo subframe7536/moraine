@@ -368,7 +368,9 @@ export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Elem
 
   return (
     <TreeItem item={props}>
-      <TreeItemTrigger />
+      <Show when={context.options.trigger !== false}>
+        <TreeItemTrigger />
+      </Show>
       <TreeItemCheckbox />
       <Show when={context.options.getIcon?.(props)}>
         {(icon) => <TreeItemIcon icon={icon()} />}

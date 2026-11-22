@@ -99,6 +99,18 @@ export namespace RadioGroupT {
      * `disabled` or `readOnly`.
      */
     onValueChange?: (value: string) => void
+
+    /**
+     * Focus event when focus enters the radio group from outside, called before the `Field`
+     * focus notification. Moving focus between items does not fire it.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
+     * Focus event when focus leaves the radio group entirely, called before the `Field` blur
+     * notification. Moving focus between items does not fire it.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
   }
 
   /**

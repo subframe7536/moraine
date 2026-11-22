@@ -65,12 +65,12 @@ through ARIA attributes. Set `variant` (`'outline'`, `'subtle'`, `'ghost'`, or `
 `modifiers` transforms the text before it reaches `onValueChange` and form state, and sets the
 callback's value type.
 
-| Modifier | Effect                                                                            |
-| -------- | --------------------------------------------------------------------------------- |
-| `trim`   | Strips surrounding whitespace, also from the displayed text on `change`           |
-| `lazy`   | Updates the value on `change` (blur or Enter) instead of on every keystroke       |
-| `number` | Parses the text to a `number`; non-numeric text gives `undefined`                 |
-| `empty`  | `'null'` or `'undefined'` turns empty text into that value; `'preserve'` keeps it |
+| Modifier | Effect                                                                      |
+| -------- | --------------------------------------------------------------------------- |
+| `trim`   | Strips surrounding whitespace, also from the displayed text on `change`     |
+| `lazy`   | Updates the value on `change` (blur or Enter) instead of on every keystroke |
+| `number` | Parses the text to a `number`; empty or non-numeric text gives `null`       |
+| `empty`  | `'null'` turns empty text into `null`; `'preserve'` keeps the string        |
 
 ```tsx
 <Input modifiers={{ number: true, empty: 'null' }} onValueChange={(value) => setAge(value)} />

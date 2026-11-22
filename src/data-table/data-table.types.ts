@@ -135,22 +135,23 @@ export namespace DataTableT {
 
   /**
    * Options for `createDataTable`. Options are read through the reactive
-   * table options object: declare getters (`get data() { return rows() }`)
-   * on the options object or on `state` for values that change over time.
+   * table options object: `data` and `columns` accept an accessor or a getter
+   * (`get data() { return rows() }`), and `state` slices are read lazily, so use
+   * those forms for values that change over time.
    */
   export interface Options<TData extends RowData = RowData> {
     /**
-     * Row records to display. Declare a getter (`get data() { return rows() }`) so the table
-     * follows changes; a plain array is read once. With `manual`, pass only the rows of the
-     * current page.
+     * Row records to display: a plain array, an accessor (`data: () => rows()`), or a getter
+     * (`get data() { return rows() }`). A plain array is static; the two other forms let the
+     * table follow changes. With `manual`, pass only the rows of the current page.
      */
-    data: readonly TData[]
+    data: readonly TData[] | (() => readonly TData[])
     /**
-     * Column definitions (TanStack `ColumnDef`s, such as `{ accessorKey, header }`). Declare a
-     * getter for reactive columns. Generated `select` and `expand` columns are prepended to
-     * these.
+     * Column definitions (TanStack `ColumnDef`s, such as `{ accessorKey, header }`): a plain
+     * array, an accessor, or a getter for reactive columns. Generated `select` and `expand`
+     * columns are prepended to these.
      */
-    columns: readonly Column<TData>[]
+    columns: readonly Column<TData>[] | (() => readonly Column<TData>[])
     /**
      * Derives a stable unique ID for each row, used as the key of `rowSelection` and `expanded`
      * state. Defaults to the row index. Nested rows are automatically prefixed with their parent
@@ -174,7 +175,7 @@ export namespace DataTableT {
      * Predicate controlling whether a given row can be selected. Rows it rejects render a
      * disabled checkbox or radio button.
      */
-    canSelectRow?: (row: Row<TData>) => boolean
+    isRowSelectable?: (row: Row<TData>) => boolean
     /**
      * Prepends an expand/collapse chevron column with id `'expand'`; a user column whose resolved
      * id is `'expand'` replaces it. `true` lets every row expand; a predicate decides per row. When omitted, only rows with sub-rows

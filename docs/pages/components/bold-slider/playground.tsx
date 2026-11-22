@@ -44,7 +44,7 @@ export default function BoldSliderPlayground() {
             label={props.label}
             size={props.size}
             variant={props.variant}
-            step={props.step ? 0.1 : undefined}
+            step={props.step ? 0.1 : 0}
             valueLabel={props.valueLabel}
             markers={props.markers ? 0.1 : false}
             disabled={props.disabled}

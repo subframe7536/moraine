@@ -217,10 +217,8 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('renders no trigger and toggles on row click when trigger is false', () => {
-      const { container } = render(() => (
-        <Harness options={{ trigger: false, expandOnClick: false }} />
-      ))
+    test('renders no trigger in the default item and still toggles on row click when trigger is false', () => {
+      const { container } = render(() => <Harness options={{ trigger: false }} />)
       const src = item(container, 'src')
 
       expect(src.querySelector('[data-slot="tree-trigger"]')).toBeNull()
@@ -231,7 +229,20 @@ describe('createTree', () => {
       expect(src.getAttribute('aria-expanded')).toBe('false')
     })
 
-    test('custom items also render no trigger when trigger is false', () => {
+    test('does not toggle on row click when trigger and expandOnClick are both false', () => {
+      const { container } = render(() => (
+        <Harness options={{ trigger: false, expandOnClick: false }} />
+      ))
+      const src = item(container, 'src')
+
+      expect(src.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(src.getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).not.toContain('components')
+    })
+
+    test('an explicit ItemTrigger still renders when trigger is false', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -249,7 +260,13 @@ describe('createTree', () => {
         />
       ))
 
-      expect(container.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+      const src = item(container, 'src')
+      const trigger = src.querySelector<HTMLElement>('[data-slot="tree-trigger"]')
+      expect(trigger).not.toBeNull()
+
+      fireEvent.click(trigger!)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(labels(container)).toContain('components')
     })
 
     test('renders the getIcon icon in the default item', () => {

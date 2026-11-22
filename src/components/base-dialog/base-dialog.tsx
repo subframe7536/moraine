@@ -137,7 +137,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
 
   createEffect(
     on(
-      [isPresent, () => props.preventScroll !== false, overlayScroll],
+      [isPresent, () => props.preventScroll ?? isModal(), overlayScroll],
       ([present, preventScroll]) => {
         if (!present || !preventScroll) {
           return

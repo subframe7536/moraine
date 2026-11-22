@@ -27,6 +27,16 @@ describe('Checkbox', () => {
     expect(ref).toBeInstanceOf(HTMLInputElement)
     expect(ref?.type).toBe('checkbox')
   })
+  test('fires a root onPointerDown handler when the control is pressed', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Checkbox onPointerDown={onPointerDown} label="Press me" />)
+    const control = screen.getByRole('checkbox')
+
+    fireEvent.pointerDown(control)
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(onPointerDown.mock.calls[0]?.[0].target).toBe(control)
+  })
+
   test('applies tabIndex to the focusable control instead of the root', () => {
     const screen = render(() => <Checkbox tabIndex={-1} aria-hidden="true" label="Skipped" />)
 
@@ -133,6 +143,25 @@ describe('Checkbox', () => {
     fireEvent.blur(hiddenInput)
 
     expect(emit).toHaveBeenCalledTimes(2)
+  })
+
+  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => <Checkbox label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
+    const control = screen.getByRole('checkbox', { name: 'Focusable' })
+    const root = screen.container.querySelector('[data-slot="checkbox"]')!
+
+    fireEvent.focus(root)
+    expect(onFocus).not.toHaveBeenCalled()
+
+    fireEvent.focus(control)
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onFocus.mock.calls[0]?.[0].target).toBe(control)
+
+    fireEvent.blur(control)
+    expect(onBlur).toHaveBeenCalledTimes(1)
+    expect(onBlur.mock.calls[0]?.[0].target).toBe(control)
   })
 
   test('marks a Form.Field checkbox touched on visual focus and validates on blur', async () => {

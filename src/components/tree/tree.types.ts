@@ -176,8 +176,8 @@ export namespace TreeT {
     expandOnClick?: boolean
 
     /**
-     * Whether items render the expand chevron. When `false`, `tree.ItemTrigger` renders
-     * nothing and clicking a branch row toggles it even when `expandOnClick` is `false`.
+     * Whether the default item content renders the expand chevron (`tree.ItemTrigger`). An
+     * explicitly rendered `tree.ItemTrigger` is unaffected.
      * @default true
      */
     trigger?: boolean

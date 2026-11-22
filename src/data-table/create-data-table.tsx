@@ -53,8 +53,8 @@ function findColumnById(
  * Creates a reactive TanStack Solid Table instance with a `DataTable` presenter bound to it:
  * render `<table.DataTable />` without passing a `table` prop.
  *
- * Options read through the table options object, so declare getters for
- * values that change over time (`get data() { return rows() }`). Controlled
+ * Options read through the table options object, so declare getters or pass accessors for
+ * values that change over time (`get data() { return rows() }` or `data: () => rows()`). Controlled
  * state slices live under `state` (`get sorting() { return sorting() }`) and
  * report resolved values through `on[Slice]Change` callbacks.
  */
@@ -98,9 +98,11 @@ export function createDataTable<TData extends RowData = RowData>(
   // Row-model memos treat `data`/`columns` by reference. Getters that rebuild
   // arrays on every read would churn them into spurious auto-resets, so cache
   // resolution behind memos that only recompute when tracked inputs change.
-  const memoizedData = createMemo(() => options.data as TData[])
+  const memoizedData = createMemo(() =>
+    typeof options.data === 'function' ? options.data() : options.data,
+  )
   const memoizedColumns = createMemo(() => {
-    const userColumns = options.columns
+    const userColumns = typeof options.columns === 'function' ? options.columns() : options.columns
     const prefix: DataTableT.Column<TData>[] = []
     if (options.selectionMode && !hasUserColumn(userColumns, SELECT_COLUMN_ID)) {
       prefix.push(buildSelectColumn<TData>(options.selectionMode))
@@ -192,7 +194,7 @@ export function createDataTable<TData extends RowData = RowData>(
         return options.selectionMode !== 'single'
       },
       get enableRowSelection() {
-        return options.canSelectRow ?? (options.selectionMode !== undefined ? true : null)
+        return options.isRowSelectable ?? (options.selectionMode !== undefined ? true : null)
       },
       get enableColumnResizing() {
         return options.resizable ?? false

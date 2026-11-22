@@ -97,8 +97,8 @@ export namespace BaseDialogT {
     onClosePrevented?: () => void
 
     /**
-     * Whether body scroll should be locked while the shell is present.
-     * @default true
+     * Whether body scroll should be locked while the shell is present. Defaults to the value of
+     * `modal`: modal shells lock scroll, non-modal shells do not unless set.
      */
     preventScroll?: boolean
 

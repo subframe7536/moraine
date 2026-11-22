@@ -129,7 +129,7 @@ export function Textarea<
       return generatedId()
     },
     get initialValue() {
-      return merged.defaultValue ?? ''
+      return merged.defaultValue === undefined ? '' : merged.defaultValue
     },
   })
 
@@ -288,7 +288,7 @@ export function Textarea<
     if (textareaEl) {
       initialOverflow = textareaEl.style.overflow
       if (textControl.initialDefaultValue !== undefined) {
-        textareaEl.defaultValue = String(textControl.initialDefaultValue)
+        textareaEl.defaultValue = String(textControl.initialDefaultValue ?? '')
       }
       restoreControlledValue()
     }

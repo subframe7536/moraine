@@ -52,7 +52,7 @@ export namespace AlertT {
     /**
      * Leading icon displayed in the alert.
      * - `undefined` (default): automatically resolves to the semantic icon of the `tone` (`info`,
-     *   `success`, `warning`, `error`), or none for `default`.
+     *   `success`, `warning`, `danger`), or none for `default`.
      * - `false` or `null`: hides the icon.
      * - `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element.
      */

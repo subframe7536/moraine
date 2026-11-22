@@ -8,7 +8,7 @@ import { PinInput } from './pin-input'
 
 describe('PinInput SSR Hydration', () => {
   test('hydrates default value and slot nodes stably', async () => {
-    const [value, setValue] = createSignal(['1', '2', '3'])
+    const [value, setValue] = createSignal('123')
 
     const { container } = hydrateFixture(
       '/src/components/pin-input/pin-input.ssr.fixture.tsx',
@@ -28,7 +28,7 @@ describe('PinInput SSR Hydration', () => {
     expect(inputs[4]?.value).toBe('')
 
     const first = inputs[0]
-    setValue(['9', '8', '7'])
+    setValue('987')
     await waitFor(() => expect(inputs[0]?.value).toBe('9'))
     expect(inputs[1]?.value).toBe('8')
     expect(inputs[2]?.value).toBe('7')

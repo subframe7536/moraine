@@ -208,6 +208,32 @@ describe('BaseDialog primitives', () => {
       outside.remove()
     },
   )
+
+  test('defaults preventScroll to the value of modal', async () => {
+    const nonModal = render(() => (
+      <BaseDialog defaultOpen modal={false}>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Non-modal">Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
+    ))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(document.body.style.overflow).toBe('')
+    nonModal.unmount()
+
+    const locking = render(() => (
+      <BaseDialog defaultOpen modal={false} preventScroll>
+        <BaseDialog.Portal>
+          <BaseDialog.Content aria-label="Non-modal locking">Content</BaseDialog.Content>
+        </BaseDialog.Portal>
+      </BaseDialog>
+    ))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(document.body.style.overflow).toBe('hidden')
+    locking.unmount()
+  })
   test.each([
     [
       'dialog',
@@ -1945,7 +1971,7 @@ describe('BaseDialog primitives', () => {
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
     expect(document.activeElement).toBe(outside)
     last.focus()
 
@@ -2067,7 +2093,7 @@ describe('BaseDialog primitives', () => {
 
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
-    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
 
     setModal(true)
     await waitFor(() => {
@@ -2080,7 +2106,7 @@ describe('BaseDialog primitives', () => {
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()
-      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.body.style.overflow).toBe('')
     })
     screen.unmount()
   })

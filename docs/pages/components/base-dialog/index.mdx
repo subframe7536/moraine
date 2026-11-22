@@ -108,8 +108,8 @@ the move, and `finalFocus` to choose where focus returns. Both apply only while 
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
 closure. `closeOnOutsideClick` controls outside pointer dismissal and `closeOnEscape` controls
 Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
-`onClosePrevented`. Scroll locking is independent: `preventScroll` defaults to `true`. To allow
-background page interaction, set `preventScroll={false}` and omit `BaseDialog.Overlay`.
+`onClosePrevented`. `preventScroll` locks body scroll and defaults to the value of `modal`.
+To allow background page interaction, set `modal={false}` and omit `BaseDialog.Overlay`.
 
 ### Styling and portal
 

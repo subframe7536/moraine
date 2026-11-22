@@ -78,17 +78,15 @@ describe('Input', () => {
     const lazyChange = vi.fn()
     const preserveChange = vi.fn()
     const nullableChange = vi.fn()
-    const optionalChange = vi.fn()
 
     const screen = render(() => (
       <>
         <Input onValueChange={lazyChange} modifiers={{ lazy: true }} />
         <Input onValueChange={preserveChange} />
         <Input onValueChange={nullableChange} modifiers={{ empty: 'null' }} />
-        <Input onValueChange={optionalChange} modifiers={{ empty: 'undefined' }} />
       </>
     ))
-    const [lazyInput, preserveInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
+    const [lazyInput, preserveInput, nullableInput] = screen.getAllByRole('textbox')
 
     fireEvent.input(lazyInput!, {
       target: { value: 'lazy' },
@@ -112,12 +110,67 @@ describe('Input', () => {
       currentTarget: { value: '' },
     })
     expect(nullableChange).toHaveBeenLastCalledWith(null)
+  })
 
-    fireEvent.input(optionalInput!, {
+  test('clears the displayed text when a controlled value becomes null', () => {
+    const [value, setValue] = createSignal<string | number | null>(5)
+    const screen = render(() => <Input value={value()} />)
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    expect(input.value).toBe('5')
+
+    setValue(null)
+    expect(input.value).toBe('')
+  })
+
+  test('emits null and stays controlled through a number modifier round trip', () => {
+    const [value, setValue] = createSignal<number | null>(5)
+    const onValueChange = vi.fn((next: number | null) => setValue(next))
+    const screen = render(() => (
+      <Input value={value()} onValueChange={onValueChange} modifiers={{ number: true }} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    expect(input.value).toBe('5')
+
+    fireEvent.input(input, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
-    expect(optionalChange).toHaveBeenLastCalledWith(undefined)
+
+    expect(onValueChange).toHaveBeenLastCalledWith(null)
+    expect(input.value).toBe('')
+
+    fireEvent.input(input, {
+      target: { value: '42' },
+      currentTarget: { value: '42' },
+    })
+
+    expect(onValueChange).toHaveBeenLastCalledWith(42)
+    expect(input.value).toBe('42')
+  })
+
+  test('restores an empty input on form reset with a null defaultValue', async () => {
+    const screen = render(() => (
+      <form>
+        <Input name="value" defaultValue={null} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form')!
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    expect(input.value).toBe('')
+
+    fireEvent.input(input, {
+      target: { value: 'Typed' },
+      currentTarget: { value: 'Typed' },
+    })
+    expect(input.value).toBe('Typed')
+
+    form.reset()
+    await Promise.resolve()
+
+    expect(input.value).toBe('')
   })
 
   test('syncs trimmed DOM value on change', async () => {

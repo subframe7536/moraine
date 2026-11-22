@@ -27,6 +27,16 @@ describe('Switch', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
+  test('fires a root onPointerDown handler when the track is pressed', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Switch onPointerDown={onPointerDown} label="Press me" />)
+    const track = screen.getByRole('switch')
+
+    fireEvent.pointerDown(track)
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(onPointerDown.mock.calls[0]?.[0].target).toBe(track)
+  })
+
   test('names the switch by its label and describes it by its description', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 
@@ -100,6 +110,25 @@ describe('Switch', () => {
     fireEvent.blur(hiddenInput)
 
     expect(emit).toHaveBeenCalledTimes(2)
+  })
+
+  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => <Switch label="Focusable" onFocus={onFocus} onBlur={onBlur} />)
+    const track = screen.getByRole('switch', { name: 'Focusable' })
+    const root = screen.container.querySelector('[data-slot="switch"]')!
+
+    fireEvent.focus(root)
+    expect(onFocus).not.toHaveBeenCalled()
+
+    fireEvent.focus(track)
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onFocus.mock.calls[0]?.[0].target).toBe(track)
+
+    fireEvent.blur(track)
+    expect(onBlur).toHaveBeenCalledTimes(1)
+    expect(onBlur.mock.calls[0]?.[0].target).toBe(track)
   })
 
   test('marks a Form.Field switch touched on visual focus and validates on blur', async () => {

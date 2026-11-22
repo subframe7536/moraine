@@ -134,7 +134,7 @@ export default function SelectionModesExample() {
     get selectionMode() {
       return mode()
     },
-    canSelectRow: (row) => row.original.status !== 'terminated',
+    isRowSelectable: (row) => row.original.status !== 'terminated',
     state: {
       get rowSelection() {
         return selectedRows()
@@ -179,7 +179,7 @@ export default function SelectionModesExample() {
       />
 
       <div class="text-xs text-muted-foreground">
-        Terminated nodes are locked by <code class="font-mono">canSelectRow</code> and cannot be
+        Terminated nodes are locked by <code class="font-mono">isRowSelectable</code> and cannot be
         selected.
       </div>
     </div>

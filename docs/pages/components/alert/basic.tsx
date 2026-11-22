@@ -7,7 +7,7 @@ export function Basic() {
       <Alert tone="info" title="Informational note for users" />
       <Alert tone="success" title="Success! Operation completed successfully" />
       <Alert tone="warning" title="Warning: Please check your configuration" />
-      <Alert tone="error" title="Error: An unexpected error occurred" />
+      <Alert tone="danger" title="Error: An unexpected error occurred" />
     </div>
   )
 }

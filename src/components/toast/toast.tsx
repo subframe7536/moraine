@@ -180,8 +180,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
 }
 
 /**
- * Imperative notification API plus its host. Mount `<Toast />` once; it holds no open state and
- * renders a portaled `role="region"` live region. Open toasts from event handlers with the static
+ * Host for imperative notifications, not a composable toast: it has no trigger or content parts.
+ * Mount `<Toast />` once; it holds no open state and renders a portaled `role="region"` live region. Open toasts from event handlers with the static
  * methods (`Toast.show`, `Toast.success`, `Toast.promise`, `Toast.update`, `Toast.close`), which
  * return a handle. Use `Toast` for temporary feedback that stays in the page and `AlertDialog`
  * when the next step should wait for an explicit choice. A call before the host is mounted

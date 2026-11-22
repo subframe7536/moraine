@@ -87,6 +87,27 @@ describe('FileUpload', () => {
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
 
+  test('calls user onFocus and onBlur when the control gains and loses focus', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => <FileUpload onFocus={onFocus} onBlur={onBlur} />)
+    const control = screen.container.querySelector(
+      '[data-slot="file-upload-control"]',
+    ) as HTMLElement
+    const root = screen.container.querySelector('[data-slot="file-upload"]')!
+
+    fireEvent.focus(root)
+    expect(onFocus).not.toHaveBeenCalled()
+
+    fireEvent.focus(control)
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onFocus.mock.calls[0]?.[0].target).toBe(control)
+
+    fireEvent.blur(control)
+    expect(onBlur).toHaveBeenCalledTimes(1)
+    expect(onBlur.mock.calls[0]?.[0].target).toBe(control)
+  })
+
   test('opens the picker from click, Enter, and Space while respecting cancellation', async () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => {
       if (event.key === 'Escape') {

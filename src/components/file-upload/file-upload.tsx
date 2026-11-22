@@ -67,6 +67,8 @@ export function FileUpload<TMultiple extends boolean = false>(
     'inputRef',
     'onClick',
     'onKeyDown',
+    'onFocus',
+    'onBlur',
     'onDragOver',
     'onDragLeave',
     'onDrop',
@@ -316,8 +318,14 @@ export function FileUpload<TMultiple extends boolean = false>(
         {...controlSlot}
         ref={setControlElement}
         disabled={field.disabled()}
-        onFocus={(event) => field.emit('focus', event)}
-        onBlur={(event) => field.emit('blur', event)}
+        onFocus={(event) => {
+          callHandler(event, local.onFocus)
+          field.emit('focus', event)
+        }}
+        onBlur={(event) => {
+          callHandler(event, local.onBlur)
+          field.emit('blur', event)
+        }}
         onClick={onControlClick}
         onKeyDown={onControlKeyDown}
         onDragOver={onDropzoneDragOver}

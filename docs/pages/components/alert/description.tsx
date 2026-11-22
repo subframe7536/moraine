@@ -19,7 +19,7 @@ export function Description() {
         description="You have used 85% of your available storage capacity. Consider upgrading your plan."
       />
       <Alert
-        tone="error"
+        tone="danger"
         title="Deployment failed"
         description="The build process encountered syntax errors in src/index.ts. Check pipeline logs for details."
       />

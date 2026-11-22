@@ -98,6 +98,18 @@
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus leaves the radio group entirely, called before the `Field` blur\nnotification. Moving focus between items does not fire it."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus enters the radio group from outside, called before the `Field`\nfocus notification. Moving focus between items does not fire it."
+        },
+        {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",

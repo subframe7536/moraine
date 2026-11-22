@@ -1410,6 +1410,7 @@ interface RailFrameProps {
   onOpenChange?: (open: boolean) => void
   side?: 'left' | 'right'
   railDisabled?: boolean
+  railAs?: 'div'
   rail?: boolean
 }
 
@@ -1428,7 +1429,7 @@ function RailFrame(props: RailFrameProps): JSX.Element {
     >
       <Sidebar.Panel>Navigation</Sidebar.Panel>
       <Show when={props.rail !== false}>
-        <Sidebar.Rail disabled={props.railDisabled} />
+        <Sidebar.Rail as={props.railAs} disabled={props.railDisabled} />
       </Show>
       <Sidebar.Inset>
         <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1464,6 +1465,22 @@ describe('Sidebar.Rail', () => {
     expect(rail.getAttribute('aria-label')).toBe('Resize sidebar')
     expect(rail.getAttribute('aria-controls')).toBe(panelOf(screen.container).id)
     expect(rail.tabIndex).toBe(0)
+  })
+
+  test('renders a custom host without button attributes and still works as a separator', () => {
+    const screen = render(() => <RailFrame defaultWidth={240} railAs="div" />)
+    const rail = railOf(screen.container)
+
+    expect(rail.tagName).toBe('DIV')
+    expect(rail.getAttribute('type')).toBeNull()
+    expect(rail.getAttribute('disabled')).toBeNull()
+    expect(rail.getAttribute('role')).toBe('separator')
+    expect(rail.tabIndex).toBe(0)
+
+    fireEvent.click(rail)
+    expect(panelOf(screen.container).getAttribute('data-closed')).not.toBeNull()
+    fireEvent.click(rail)
+    expect(panelOf(screen.container).getAttribute('data-closed')).toBeNull()
   })
 
   test('omits aria-valuenow while open with no resolved width', () => {

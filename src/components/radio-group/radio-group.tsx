@@ -89,6 +89,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'class',
     'style',
     'ref',
+    'onFocus',
+    'onBlur',
     'onFocusIn',
     'onFocusOut',
   ])
@@ -330,6 +332,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
+    callHandler(event, local.onFocus)
     field.emit('focus', event)
   }
 
@@ -344,6 +347,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
+    callHandler(event, local.onBlur)
     field.emit('blur', event)
   }
 

@@ -60,8 +60,8 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
 }
 
 /**
- * Host for imperative confirm, info, warning, error, and success prompts. Mount it once under
- * `MoraineProvider`: it renders no DOM of its own, and its props are the defaults for every dialog
+ * Host for imperative confirm, info, warning, error, and success prompts, not a composable dialog:
+ * it has no trigger or content parts. Mount it once under `MoraineProvider`: it renders no DOM of its own, and its props are the defaults for every dialog
  * opened with `AlertDialog.confirm(...)`, `AlertDialog.show(...)`, and the other static methods.
  * Use `Dialog` instead when the task has its own trigger, body, and footer. Calling a method
  * before a host is mounted throws.
