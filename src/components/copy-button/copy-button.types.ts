@@ -1,9 +1,11 @@
 import type { Component, JSX } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
+import type { defaultCopyButtonMessages } from './copy-button.messages'
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyData, CopySource, CopyStatus } from './create-copy'
 
@@ -19,6 +21,8 @@ export namespace CopyButtonT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultCopyButtonMessages>
+  export type Translations = Partial<Messages>
 
   export interface ChildrenRenderProps {
     /**
@@ -81,9 +85,23 @@ export namespace CopyButtonT {
     value: CopySource
 
     /**
+     * Overrides the built-in strings for this instance, merged over the provider locale. They are
+     * the default `aria-label` of a button without a visible label: `copy` while idle (default
+     * `'Copy to clipboard'`), `copied` after a successful copy (`'Copied to clipboard'`), and
+     * `failed` after a failed copy (`'Copy failed'`). An explicit `aria-label` takes precedence.
+     * @example
+     * ```tsx
+     * import { CopyButton } from 'moraine'
+     *
+     * <CopyButton value="npm i moraine" translations={{ copy: 'Copy install command' }} />
+     * ```
+     */
+    translations?: Translations
+
+    /**
      * Delay in milliseconds before the `'copied'` or `'error'` status returns to `'idle'`. While
-     * the `'copied'` status is active the icon switches to `copiedIcon` and the default
-     * `aria-label` changes to the localized "copied" message.
+     * the `'copied'` status is active the icon switches to `copiedIcon`; without a visible label
+     * the default `aria-label` follows the status (see `translations`).
      * @default 2000
      */
     resetDelay?: number
@@ -126,8 +144,9 @@ export namespace CopyButtonT {
     onCopyError?: (error: unknown) => void
 
     /**
-     * Called with each status a copy reports: `'idle'` when a copy starts (even if the status was
-     * already `'idle'`), then `'copied'` or `'error'`, and `'idle'` again after `resetDelay`.
+     * Called whenever the status changes: to `'copied'` or `'error'` when a copy settles, back to
+     * `'idle'` after `resetDelay` or when a new copy starts while the previous result is shown. It
+     * is not called when the status stays the same.
      * @example
      * ```tsx
      * import { CopyButton } from 'moraine'

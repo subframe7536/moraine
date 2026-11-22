@@ -19,6 +19,13 @@ import type { CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
 
+/** Message used as the default `aria-label` of an icon-only button in each copy status. */
+const STATUS_MESSAGE_KEYS = {
+  idle: 'copy',
+  copied: 'copied',
+  error: 'failed',
+} as const satisfies Record<CopyButtonT.Status, keyof typeof defaultCopyButtonMessages>
+
 /**
  * Button that copies a string or `ClipboardItem` (`value`) to the clipboard and briefly shows a
  * copied state. It writes through `navigator.clipboard` and falls back to
@@ -37,7 +44,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   props: CopyButtonProps<T>,
 ): JSX.Element {
   const group = useButtonGroupContext()
-  const messages = useMessages('copyButton', defaultCopyButtonMessages)
 
   const [local, rest] = splitProps(
     props as CopyButtonProps<T> & {
@@ -66,9 +72,12 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'onClick',
       'children',
       'aria-label',
+      'translations',
       'size',
     ],
   )
+
+  const messages = useMessages('copyButton', defaultCopyButtonMessages, () => local.translations)
 
   const clipboard = createCopy({
     ownerDocument: () => root.element()?.ownerDocument,
@@ -181,7 +190,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       aria-invalid={clipboard.isError() ? true : undefined}
       aria-label={
         local['aria-label'] ??
-        (hasLabel() ? undefined : clipboard.isCopied() ? messages().copied : messages().copy)
+        (hasLabel() ? undefined : messages()[STATUS_MESSAGE_KEYS[clipboard.status()]])
       }
     >
       <Show when={hasIcon() && local.iconPosition !== 'trailing'}>

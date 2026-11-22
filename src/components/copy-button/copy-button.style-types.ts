@@ -26,8 +26,8 @@ export interface CopyButtonStyleVariants {
   /** Color tone while uncopied. @default 'neutral' */
   tone?: ButtonStyleVariants['tone']
   /**
-   * Button size, including icon-only sizes. When `size` is omitted, an icon-only CopyButton uses the
-   * matching `icon-*` size and a labeled one the matching text size.
+   * Button scale. The square `icon-*` form is chosen from the content: an icon-only CopyButton uses
+   * `icon-<size>` and a labeled one the text size, so `sm` and `icon-sm` render the same way.
    * @default 'md'
    */
   size?: ButtonStyleVariants['size']

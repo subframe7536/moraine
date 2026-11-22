@@ -102,7 +102,7 @@
           "name": "onStatusChange",
           "optional": true,
           "type": "(status: CopyStatus) => void",
-          "description": "Called with the new status on every status change: `'idle'` when a copy starts, then\n`'copied'` or `'error'`, and `'idle'` again after `resetDelay`.",
+          "description": "Called whenever the status changes: to `'copied'` or `'error'` when a copy settles, back to\n`'idle'` after `resetDelay` or when a new copy starts while the previous result is shown. It\nis not called when the status stays the same.",
           "examples": [
             "import { CopyButton } from 'moraine'\n\n<CopyButton value=\"npm i moraine\" onStatusChange={(status) => console.log(status)}>\n  Copy install command\n</CopyButton>"
           ]
@@ -111,7 +111,7 @@
           "name": "resetDelay",
           "optional": true,
           "type": "number",
-          "description": "Delay in milliseconds before the `'copied'` or `'error'` status returns to `'idle'`. While\nthe `'copied'` status is active the icon switches to `copiedIcon` and the default\n`aria-label` changes to the localized \"copied\" message.",
+          "description": "Delay in milliseconds before the `'copied'` or `'error'` status returns to `'idle'`. While\nthe `'copied'` status is active the icon switches to `copiedIcon`; without a visible label\nthe default `aria-label` follows the status (see `translations`).",
           "default": {
             "kind": "literal",
             "value": 2000
@@ -121,7 +121,7 @@
           "name": "size",
           "optional": true,
           "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
-          "description": "Button size, including icon-only sizes.",
+          "description": "Button scale. The square `icon-*` form is chosen from the content: an icon-only CopyButton uses\n`icon-<size>` and a labeled one the text size, so `sm` and `icon-sm` render the same way.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -148,6 +148,15 @@
             "kind": "literal",
             "value": "neutral"
           }
+        },
+        {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Overrides the built-in strings for this instance, merged over the provider locale. They are\nthe default `aria-label` of a button without a visible label: `copy` while idle (default\n`'Copy to clipboard'`), `copied` after a successful copy (`'Copied to clipboard'`), and\n`failed` after a failed copy (`'Copy failed'`). An explicit `aria-label` takes precedence.",
+          "examples": [
+            "import { CopyButton } from 'moraine'\n\n<CopyButton value=\"npm i moraine\" translations={{ copy: 'Copy install command' }} />"
+          ]
         },
         {
           "name": "value",

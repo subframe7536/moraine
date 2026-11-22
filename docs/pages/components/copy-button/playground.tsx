@@ -66,7 +66,7 @@ export default function CopyButtonPlayground() {
           value="pnpm add moraine"
           variant={props.variant}
           tone={props.tone}
-          size={props.label ? props.size : `icon-${props.size}`}
+          size={props.size}
           disabled={props.disabled}
           iconPosition={props.iconPosition}
         >

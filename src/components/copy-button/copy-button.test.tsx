@@ -112,10 +112,32 @@ describe('CopyButton', () => {
 
     expect(onCopyError).toHaveBeenCalled()
     expect(button.getAttribute('aria-invalid')).toBe('true')
+    expect(button.getAttribute('aria-label')).toBe('Copy failed')
     expect(button.hasAttribute('data-copied')).toBe(false)
 
     vi.advanceTimersByTime(2000)
     expect(button.hasAttribute('aria-invalid')).toBe(false)
+    expect(button.getAttribute('aria-label')).toBe('Copy to clipboard')
+  })
+
+  test('uses instance translations for the status labels', async () => {
+    writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
+    const screen = render(() => (
+      <CopyButton
+        value="token"
+        translations={{ copy: 'Copy token', copied: 'Token copied', failed: 'Token not copied' }}
+      />
+    ))
+    const button = screen.getByRole('button', { name: 'Copy token' })
+
+    fireEvent.click(button)
+    await flushMicrotasks()
+    expect(button.getAttribute('aria-label')).toBe('Token not copied')
+
+    vi.advanceTimersByTime(2000)
+    fireEvent.click(button)
+    await flushMicrotasks()
+    expect(button.getAttribute('aria-label')).toBe('Token copied')
   })
 
   test('disabled button prevents copy', () => {
@@ -143,10 +165,10 @@ describe('CopyButton', () => {
     await flushMicrotasks()
 
     expect(onCopySuccess).toHaveBeenCalledWith('callback-test')
-    expect(onStatusChange).toHaveBeenCalledWith('copied')
+    expect(onStatusChange.mock.calls).toEqual([['copied']])
 
     vi.advanceTimersByTime(1500)
-    expect(onStatusChange).toHaveBeenCalledWith('idle')
+    expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle']])
   })
 
   test('omits icon when icon={false}', () => {

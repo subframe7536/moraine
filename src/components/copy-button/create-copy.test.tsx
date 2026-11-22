@@ -146,10 +146,19 @@ describe('createCopy', () => {
     const clipboard = setup({ onStatusChange })
 
     await clipboard.copy('status check')
-    expect(onStatusChange).toHaveBeenCalledWith('copied')
+    expect(onStatusChange.mock.calls).toEqual([['copied']])
 
     vi.advanceTimersByTime(1000)
-    expect(onStatusChange).toHaveBeenCalledWith('idle')
+    expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle']])
+  })
+
+  test('reports idle when a new copy starts only if the previous result is still shown', async () => {
+    const onStatusChange = vi.fn()
+    const clipboard = setup({ onStatusChange })
+
+    await clipboard.copy('first')
+    await clipboard.copy('second')
+    expect(onStatusChange.mock.calls).toEqual([['copied'], ['idle'], ['copied']])
   })
 
   test('reset returns to idle and prevents the pending reset from reporting again', async () => {

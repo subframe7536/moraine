@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createSignal, onCleanup } from 'solid-js'
+import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 export type CopyData = string | ClipboardItem | ClipboardItem[]
@@ -37,7 +37,8 @@ export interface CreateCopyOptions {
   onCopyError?: (error: unknown) => void
 
   /**
-   * Callback invoked with the new status whenever the copy status changes.
+   * Callback invoked with the new status whenever the copy status changes. It is not called when
+   * the status stays the same, such as a copy starting while the status is already `'idle'`.
    */
   onStatusChange?: (status: CopyStatus) => void
 }
@@ -211,6 +212,9 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   })
 
   function notifyStatus(nextStatus: CopyStatus) {
+    if (untrack(status) === nextStatus) {
+      return
+    }
     setStatus(nextStatus)
     options.onStatusChange?.(nextStatus)
   }
