@@ -24,7 +24,7 @@ export const TABLE_HEAD_CLASS = 'text-muted-foreground font-medium align-middle 
 export const TABLE_CELL_CLASS = 'align-middle border-border'
 export const TABLE_STRIPED_ROW_CLASS = '[&:nth-child(even):not([data-selected])]:bg-muted/50'
 export const TABLE_HOVER_ROW_CLASS = '[tbody>&:not([data-selected]):hover]:bg-accent/50'
-export const TABLE_COLUMN_BORDER_CLASS = '[&:not(:last-child)]:border-r'
+export const TABLE_COLUMN_BORDER_CLASS = '[&:not(:last-child)]:border-e'
 
 export const TABLE_SIZE_SM = {
   root: 'text-xs',

@@ -23,7 +23,7 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     prev: 'data-text:ps-2!',
     next: 'data-text:pe-2!',
     ellipsis: '',
-    controlLabel: 'hidden sm:block',
+    controlLabel: 'max-sm:sr-only',
   },
   defaultVariants: {
     size: 'md',
