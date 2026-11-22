@@ -180,7 +180,7 @@ describe('Avatar', () => {
     const screen = render(() => <Avatar src="/broken.png" icon="i-lucide-user" />)
 
     const root = screen.container.querySelector('[data-slot="avatar"]')
-    const icon = screen.container.querySelector('[data-slot="avatar-fallback-content"]')
+    const icon = screen.container.querySelector('[data-slot="avatar-fallback-icon"]')
 
     await waitFor(() => {
       expect(root?.getAttribute('data-status')).toBe('error')
@@ -193,7 +193,7 @@ describe('Avatar', () => {
     const screen = render(() => <Avatar text="MR" icon="i-lucide-user" />)
     const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
-    expect(screen.container.querySelector('[data-slot="avatar-fallback-content"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="avatar-fallback-icon"]')).not.toBeNull()
     expect(fallback?.textContent).not.toContain('MR')
   })
 
@@ -470,7 +470,7 @@ describe('Avatar', () => {
           badge="i-lucide-check"
           styles={{
             fallback: { width: '200px' },
-            fallbackContent: { width: '200px' },
+            fallbackIcon: { width: '200px' },
             badge: { width: '200px' },
           }}
         />
@@ -483,7 +483,7 @@ describe('Avatar', () => {
       screen.container.querySelectorAll<HTMLElement>('[data-slot="avatar-fallback"]'),
     ).at(-1)
     const fallbackIcon = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-fallback-content"]',
+      '[data-slot="avatar-fallback-icon"]',
     )
     const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
 
@@ -520,17 +520,17 @@ describe('Avatar', () => {
     const screen = render(() => (
       <AvatarGroup
         items={[{ icon: 'icon-check', badge: 'icon-check' }]}
-        classes={{ image: 'group-image', fallbackContent: 'group-content', badge: 'group-badge' }}
+        classes={{ image: 'group-image', fallbackIcon: 'group-content', badge: 'group-badge' }}
         styles={{
           image: { width: '21px' },
-          fallbackContent: { width: '22px' },
+          fallbackIcon: { width: '22px' },
           badge: { width: '23px' },
         }}
       />
     ))
     const image = screen.container.querySelector<HTMLElement>('[data-slot="avatar-image"]')
     const content = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-fallback-content"]',
+      '[data-slot="avatar-fallback-icon"]',
     )
     const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
 

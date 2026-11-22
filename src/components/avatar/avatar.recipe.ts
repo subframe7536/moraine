@@ -22,7 +22,7 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
         'rounded-full opacity-0 size-full pointer-events-none transition-opacity inset-0 absolute object-cover data-[status=loaded]:(opacity-100 pointer-events-auto)',
       fallback:
         'text-muted-foreground font-medium rounded-full bg-muted opacity-100 flex uppercase transition-opacity items-center inset-0 justify-center absolute data-[status=loaded]:(opacity-0 pointer-events-none)',
-      fallbackContent: 'shrink-0',
+      fallbackIcon: 'shrink-0',
       badge:
         'text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
     },
@@ -35,19 +35,19 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
         sm: {
           root: 'text-xs size-6',
           fallback: 'text-xs',
-          fallbackContent: 'text-sm',
+          fallbackIcon: 'text-sm',
           badge: 'size-3',
         },
         md: {
           root: 'text-sm size-8',
           fallback: 'text-sm',
-          fallbackContent: 'text-base',
+          fallbackIcon: 'text-base',
           badge: 'size-3.5',
         },
         lg: {
           root: 'text-base size-10',
           fallback: 'text-base',
-          fallbackContent: 'text-lg',
+          fallbackIcon: 'text-lg',
           badge: 'size-4',
         },
       },

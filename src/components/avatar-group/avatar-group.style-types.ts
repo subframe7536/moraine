@@ -17,7 +17,7 @@ export interface AvatarGroupStyleSlot<T = unknown> {
   fallback?: T
 
   /** Fallback icon of each avatar whose item sets `icon`. */
-  fallbackContent?: T
+  fallbackIcon?: T
 
   /** Status or indicator badge anchored to an avatar frame. */
   badge?: T

@@ -319,11 +319,9 @@ export type ListStyleContract = [
 ]
 
 export type SlotOwnershipContract = [
-  Assert<'fallbackContent' extends keyof AvatarT.Slot ? true : false>,
+  Assert<'fallbackIcon' extends keyof AvatarT.Slot ? true : false>,
   Assert<
-    'image' | 'fallback' | 'fallbackContent' | 'badge' extends keyof AvatarGroupT.Slot
-      ? true
-      : false
+    'image' | 'fallback' | 'fallbackIcon' | 'badge' extends keyof AvatarGroupT.Slot ? true : false
   >,
   Assert<'control' | 'indicator' | 'label' extends keyof CheckboxGroupT.Slot ? true : false>,
   Assert<'icon' extends keyof CheckboxGroupT.Slot ? false : true>,

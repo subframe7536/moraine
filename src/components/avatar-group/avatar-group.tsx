@@ -73,7 +73,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               {...overrides({
                 image: 'image',
                 fallback: 'fallback',
-                fallbackContent: 'fallbackContent',
+                fallbackIcon: 'fallbackIcon',
                 badge: 'badge',
               })}
             />

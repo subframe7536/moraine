@@ -198,7 +198,7 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
   'avatar-group': {
     image: 'avatar-image',
     fallback: 'avatar-fallback',
-    fallbackContent: 'avatar-fallback-content',
+    fallbackIcon: 'avatar-fallback-icon',
     badge: 'avatar-badge',
   },
   'checkbox-group': {

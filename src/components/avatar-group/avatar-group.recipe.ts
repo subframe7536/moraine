@@ -21,7 +21,7 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
       'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-2 ring-background items-center justify-center relative z-0 -ms-2 first:ms-0',
     image: '',
     fallback: '',
-    fallbackContent: '',
+    fallbackIcon: '',
     badge: '',
   },
   defaultVariants: { size: 'md' },

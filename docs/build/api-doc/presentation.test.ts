@@ -329,7 +329,7 @@ describe('createApiReferenceModel', () => {
   })
 
   test('maps forwarded style keys to the child DOM owner', () => {
-    expect(getDomSlotName('avatar-group', 'fallbackContent')).toBe('avatar-fallback-content')
+    expect(getDomSlotName('avatar-group', 'fallbackIcon')).toBe('avatar-fallback-icon')
     expect(getDomSlotName('checkbox-group', 'control')).toBe('checkbox-control')
     expect(getDomSlotName('pagination', 'controlLabel')).toBe('button-label')
     expect(getDomSlotName('toggle-button', 'root')).toBe('toggle-button')

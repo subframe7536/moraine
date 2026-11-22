@@ -74,7 +74,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       root: rootSlot,
       image: imageSlot,
       fallback: fallbackSlot,
-      fallbackContent: fallbackContentSlot,
+      fallbackIcon: fallbackIconSlot,
       badge: badgeSlot,
     },
   } = useRecipe(avatarRecipe, local, {
@@ -181,12 +181,8 @@ export function Avatar(props: AvatarProps): JSX.Element {
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
       >
         <Show when={icon()} fallback={fallbackText()}>
-          {(fallbackContent) => (
-            <Icon
-              name={fallbackContent()}
-              data-slot="avatar-fallback-content"
-              {...fallbackContentSlot}
-            />
+          {(fallbackIcon) => (
+            <Icon name={fallbackIcon()} data-slot="avatar-fallback-icon" {...fallbackIconSlot} />
           )}
         </Show>
       </span>
