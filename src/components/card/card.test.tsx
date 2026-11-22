@@ -82,6 +82,29 @@ describe('Card', () => {
     expect(slot(container, 'footer')?.tagName).toBe('NAV')
   })
 
+  test.each([
+    ['outline', true, false],
+    ['subtle', true, true],
+    ['none', false, false],
+  ] as const)(
+    'variant %s styles the surface and footer together',
+    (variant, bordered, mutedFooter) => {
+      const { container } = render(() => (
+        <Card variant={variant}>
+          <Card.Body>Body</Card.Body>
+          <Card.Footer>Footer</Card.Footer>
+        </Card>
+      ))
+      const root = slot(container, '')!
+      const footer = slot(container, 'footer')!
+
+      expect(root.classList.contains('border')).toBe(bordered)
+      expect(root.classList.contains('shadow-surface')).toBe(bordered)
+      expect(footer.classList.contains('border-t')).toBe(bordered)
+      expect(footer.classList.contains('bg-muted/50')).toBe(mutedFooter)
+    },
+  )
+
   test('requires Card for parts', () => {
     expect(() => render(() => <Card.Body />)).toThrow('useCardContext')
   })

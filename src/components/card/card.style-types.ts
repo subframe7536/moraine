@@ -18,7 +18,12 @@ export interface CardStyleSlot<T = unknown> {
 }
 
 export interface CardStyleVariants {
-  /** Footer border and background. The outer border is always present. @default 'outline' */
+  /**
+   * Surface treatment. `outline` draws the outer border and shadow and a footer divider; `subtle`
+   * adds a muted footer background to that; `none` drops the outer border, shadow, and footer
+   * divider, for a card nested in another bordered surface.
+   * @default 'outline'
+   */
   variant?: 'outline' | 'subtle' | 'none'
   /** Density of all Card parts. @default 'md' */
   size?: 'sm' | 'md' | 'lg'

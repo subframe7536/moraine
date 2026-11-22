@@ -76,7 +76,7 @@
           "name": "variant",
           "optional": true,
           "type": "'outline' | 'subtle' | 'none'",
-          "description": "Footer border and background. The outer border is always present.",
+          "description": "Surface treatment. `outline` draws the outer border and shadow and a footer divider; `subtle`\nadds a muted footer background to that; `none` drops the outer border, shadow, and footer\ndivider, for a card nested in another bordered surface.",
           "default": {
             "kind": "literal",
             "value": "outline"

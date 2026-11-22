@@ -74,9 +74,10 @@ export function Example() {
 
 ### Variants and sizes
 
-Every variant has an outer border, and the header looks the same as the body. `outline` (default)
-adds a top border to the footer. `subtle` adds the footer divider and a muted footer background.
-`none` keeps only the outer border and the part spacing. The `sm`, `md` (default), and `lg` sizes
+`variant` sets the surface; the header always looks the same as the body. `outline` (default) draws
+the outer border and shadow and a top border on the footer. `subtle` adds a muted footer background.
+`none` drops the outer border, shadow, and footer divider and keeps only the background and part
+spacing, for a card nested inside another bordered surface. The `sm`, `md` (default), and `lg` sizes
 change the density of the header, body, footer, title, and description together. Set `variant` and
 `size` on `Card`; the parts inherit them.
 

@@ -2,9 +2,12 @@ import { defineRecipe } from '../../theme/recipe'
 
 import type { CardStyleSlot, CardStyleVariants } from './card.style-types'
 
+/** Outer border and elevation of the `outline` and `subtle` variants. */
+const CARD_SURFACE_CLASS = 'border border-border shadow-surface'
+
 export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariants>('card', {
   base: {
-    root: 'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-surface',
+    root: 'text-card-foreground rounded-xl bg-card flex flex-col',
     header:
       'grid auto-rows-min grid-cols-[minmax(0,1fr)_auto] items-start first:rounded-t-[inherit]',
     title: 'leading-snug font-medium col-start-1',
@@ -17,9 +20,11 @@ export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleV
   variants: {
     variant: {
       outline: {
+        root: CARD_SURFACE_CLASS,
         footer: 'border-t border-border',
       },
       subtle: {
+        root: CARD_SURFACE_CLASS,
         footer: 'border-t border-border bg-muted/50',
       },
     },
