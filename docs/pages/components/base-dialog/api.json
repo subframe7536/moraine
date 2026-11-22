@@ -249,7 +249,7 @@
         {
           "name": "ref",
           "optional": true,
-          "type": "(element: HTMLDivElement) => void",
+          "type": "Ref<HTMLDivElement>",
           "description": "Receives the mounted overlay element."
         },
         {

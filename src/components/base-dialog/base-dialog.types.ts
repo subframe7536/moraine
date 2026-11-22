@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -161,7 +161,7 @@ export namespace BaseDialogT {
 
   export interface OverlayBase {
     /** Receives the mounted overlay element. */
-    ref?: (element: HTMLDivElement) => void
+    ref?: Ref<HTMLDivElement>
 
     /**
      * Whether the overlay element itself scrolls, so content taller than the viewport scrolls
