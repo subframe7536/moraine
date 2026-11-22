@@ -30,8 +30,8 @@ export namespace ScrollAreaT {
   export type Base = {
     /** Content rendered inside the viewport. */
     children?: JSX.Element
-    /** Length in pixels of the edge fade shadows while the `shadow` variant is enabled. Negative values count as `0`. @default 40 */
-    shadowSize?: number
+    /** Length in pixels of the edge fade shadows while the `fade` variant is enabled. Negative values count as `0`. @default 40 */
+    fadeSize?: number
     /** Distance in pixels from an edge within which it counts as reached. It also decides when the edge shadows and the `on*Reached` callbacks respond. Negative values count as `0`. @default 0 */
     scrollThreshold?: number
     /** Milliseconds `hover` and `scroll` scrollbars stay visible after pointer or scroll activity ends. Other scrollbar modes ignore it. @default 600 */

@@ -15,7 +15,7 @@ const entries = [
 export function Shadow() {
   return (
     <ScrollArea
-      shadow
+      fade
       class="h-48"
       classes={{ content: 'pe-3 space-y-1' }}
       role="region"

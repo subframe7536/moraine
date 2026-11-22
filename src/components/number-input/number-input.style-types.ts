@@ -32,7 +32,7 @@ export interface NumberInputStyleVariants {
    * Text alignment of the input. When omitted, the text is start-aligned in a `horizontal` input
    * without a decrement button (`decrement={false}`) and centered otherwise.
    */
-  align?: 'start' | 'center' | 'end'
+  textAlign?: 'start' | 'center' | 'end'
   /** Visual layout direction.
    * @default 'horizontal'
    */

@@ -64,7 +64,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         onClick: (event) => {
           if (disabled()) {
             event.preventDefault()
-          } else if (local.closeOnSelect) {
+          } else if (local.closeOnSelect !== false) {
             context.close()
           }
         },

@@ -11,7 +11,7 @@ export function ScrollbarWidth() {
           <div class="space-y-2">
             <p class="text-sm font-medium capitalize">{width}</p>
             <ScrollArea
-              scrollbarVariant="always"
+              scrollbarMode="always"
               scrollbarWidth={width}
               class="border border-border rounded-md h-40"
               classes={{ content: 'px-3 pe-4' }}

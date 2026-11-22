@@ -47,7 +47,7 @@ export namespace KbdT {
 
   /** Base props for the Kbd component. */
   export interface Base {
-    /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `ariaLabel` is not set. */
+    /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set. */
     translations?: Translations
     /**
      * The key to display. A name matching a built-in alias, compared case-insensitively
@@ -61,12 +61,10 @@ export namespace KbdT {
      * @default true
      */
     symbol?: boolean
-    /** Accessible label for the keycap, rendered as `aria-label`. Overrides the spoken name of a key alias; plain keys have no `aria-label` unless set. */
-    ariaLabel?: string
   }
 
   /** Props for the Kbd component. */
-  export type Props = Omit<BaseProps<'kbd', Base, Variants, Classes, Styles>, 'aria-label'>
+  export type Props = BaseProps<'kbd', Base, Variants, Classes, Styles>
 }
 
 /** Props for the Kbd component. */

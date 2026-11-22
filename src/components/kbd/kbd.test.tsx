@@ -55,8 +55,8 @@ describe('Kbd', () => {
     expect(root?.hasAttribute('aria-label')).toBe(false)
   })
 
-  test('lets ariaLabel win over the alias label', () => {
-    render(() => <Kbd value="meta" ariaLabel="Super key" />)
+  test('lets aria-label win over the alias label', () => {
+    render(() => <Kbd value="meta" aria-label="Super key" />)
 
     expect(screen.getByLabelText('Super key').textContent).toBe('⌘')
   })

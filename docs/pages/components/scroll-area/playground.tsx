@@ -20,7 +20,7 @@ export default function ScrollAreaPlayground() {
         },
         {
           kind: 'select',
-          prop: 'scrollbarVariant',
+          prop: 'scrollbarMode',
           label: 'Scrollbar',
           defaultValue: 'hover',
           options: [
@@ -41,10 +41,10 @@ export default function ScrollAreaPlayground() {
             { label: 'Thin', value: 'thin' },
           ],
         },
-        { kind: 'switch', prop: 'shadow', label: 'Edge shadows', defaultValue: true },
+        { kind: 'switch', prop: 'fade', label: 'Edge shadows', defaultValue: true },
         {
           kind: 'input',
-          prop: 'shadowSize',
+          prop: 'fadeSize',
           label: 'Shadow size (px)',
           defaultValue: 40,
           inputType: 'number',
@@ -61,10 +61,10 @@ export default function ScrollAreaPlayground() {
       {(props) => (
         <ScrollArea
           orientation={props.orientation}
-          scrollbarVariant={props.scrollbarVariant}
+          scrollbarMode={props.scrollbarMode}
           scrollbarWidth={props.scrollbarWidth}
-          shadow={props.shadow}
-          shadowSize={props.shadowSize}
+          fade={props.fade}
+          fadeSize={props.fadeSize}
           scrollThreshold={props.scrollThreshold}
           class="h-48 max-w-lg w-full"
           classes={{
