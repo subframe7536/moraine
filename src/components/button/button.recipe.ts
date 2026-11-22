@@ -22,10 +22,10 @@ export const BUTTON_BASE_ROOT_CLASS = `border inline-flex gap-1.5 cursor-pointer
 
 export const BUTTON_ACTION_VARIANT = {
   solid: {
-    root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover data-expanded:bg-tone-active',
+    root: 'text-tone-foreground border-tone bg-tone active:(border-tone-active bg-tone-active) hover:(border-tone-hover bg-tone-hover) data-expanded:(border-tone-active bg-tone-active)',
   },
   soft: {
-    root: 'text-tone-ink border-transparent bg-tone-soft active:bg-tone-soft-active hover:bg-tone-soft-hover data-expanded:bg-tone-soft-active',
+    root: 'text-tone-ink border-tone-soft bg-tone-soft active:(border-tone-soft-active bg-tone-soft-active) hover:(border-tone-soft-hover bg-tone-soft-hover) data-expanded:(border-tone-soft-active bg-tone-soft-active)',
   },
   outline: {
     root: 'text-tone-ink border-tone-border bg-background active:bg-tone-soft-hover hover:bg-tone-soft data-expanded:bg-tone-soft-hover',
