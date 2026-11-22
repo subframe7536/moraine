@@ -19,10 +19,10 @@ function shouldCloseOnSelect(
     closeOnSelect?: boolean
     disabled: boolean
     href?: string
-    isMobile: boolean
+    mobile: boolean
   },
 ): boolean {
-  if (!options.isMobile || options.disabled || event.defaultPrevented) {
+  if (!options.mobile || options.disabled || event.defaultPrevented) {
     return false
   }
   if (
@@ -100,7 +100,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     data: sidebarDataAttributes.menuButton({
       active: () => Boolean(local.active),
       disabled,
-      mobile: context.isMobile,
+      mobile: context.mobile,
     }),
   })
 
@@ -123,7 +123,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
           closeOnSelect: local.closeOnSelect,
           disabled: disabled(),
           href: local.href,
-          isMobile: context.isMobile(),
+          mobile: context.mobile(),
         }) &&
         !result.defaultPrevented
       ) {

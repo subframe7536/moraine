@@ -112,7 +112,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
   function applyDrag(deltaPx: number): void {
     if (!session) {
-      const startWidth = context.isOpen() ? (context.width() ?? measuredPanelWidth()) : 0
+      const startWidth = context.open() ? (context.width() ?? measuredPanelWidth()) : 0
       session = {
         sign: measureSign(),
         total: 0,
@@ -129,13 +129,13 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
     const candidate = session.startWidth + session.sign * session.total
     if (candidate < context.minWidth() / 2) {
-      if (context.isOpen()) {
+      if (context.open()) {
         context.setOpen(false)
       }
       return
     }
 
-    if (!context.isOpen()) {
+    if (!context.open()) {
       context.setOpen(true)
     }
     const next = clamp(candidate, context.minWidth(), context.maxWidth())
@@ -171,7 +171,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
 
   const dispatchKeyDown = createKeyDownHandler({
     keys: (event: KeyEvent) => {
-      const open = context.isOpen()
+      const open = context.open()
       const sign = measureSign()
       const step = event.shiftKey ? KEYBOARD_STEP_SHIFT : KEYBOARD_STEP
       const startWidth = () => context.width() ?? measuredPanelWidth()
@@ -218,7 +218,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
   const { slotWith } = useSidebarStyles('rail', local)
   const railSlot = slotWith('rail', {
     data: sidebarDataAttributes.rail({
-      closed: () => !context.isOpen(),
+      closed: () => !context.open(),
       dragging: bindings.dragging,
     }),
   })
@@ -235,7 +235,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
   }
 
   return (
-    <Show when={!context.isMobile()}>
+    <Show when={!context.mobile()}>
       <Dynamic
         component={(local.as ?? 'button') as ValidComponent}
         type={isButton() ? 'button' : undefined}
@@ -247,7 +247,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
         aria-controls={context.panelId()}
         aria-valuemin={0}
         aria-valuemax={context.maxWidth()}
-        aria-valuenow={context.isOpen() ? context.width() : 0}
+        aria-valuenow={context.open() ? context.width() : 0}
         aria-label={local['aria-label'] ?? messages().resize}
         disabled={isButton() ? disabled() : undefined}
         aria-disabled={disabled() ? 'true' : undefined}

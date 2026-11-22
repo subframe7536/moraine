@@ -2,6 +2,7 @@
   "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "sidebar",
   "name": "Sidebar",
+  "description": "Props for the Sidebar component.",
   "kind": "composite",
   "parts": [
     {
@@ -11,6 +12,7 @@
         "kind": "export",
         "name": "Sidebar"
       },
+      "description": "Props for the Sidebar component.",
       "defaultElement": "div",
       "props": [
         {
@@ -42,10 +44,24 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "defaultMobileOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial open state of the mobile drawer when `mobileOpen` is uncontrolled. Leaving the\nmobile layout closes an uncontrolled drawer without calling `onMobileOpenChange`.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "defaultOpen",
           "optional": true,
-          "type": "boolean | 'desktop-only'",
-          "description": "Initial open state. Unlike `open`, which is a plain boolean for the active layout, this\naccepts `'desktop-only'` because the sidebar remembers uncontrolled state per layout:\n`true` opens both layouts, `'desktop-only'` opens only the desktop panel, and `false`\ncloses both. When omitted, the desktop panel starts expanded and the mobile drawer starts\nclosed. Ignored while `open` is controlled."
+          "type": "boolean",
+          "description": "Initial open state of the desktop panel when `open` is uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "defaultWidth",
@@ -80,10 +96,22 @@
           "description": "Controlled mobile mode: `true` renders the panel in a drawer, `false` inline. When omitted,\na `matchMedia` query on `breakpoint` decides, and the server renders the desktop layout."
         },
         {
+          "name": "mobileOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled open state of the mobile drawer. Ignored by the desktop panel."
+        },
+        {
+          "name": "onMobileOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Called with the next drawer open state when the user opens or closes the mobile drawer:\n`Sidebar.Trigger`, Escape or overlay dismissal, and `Sidebar.MenuButton` with\n`closeOnSelect`. Not called when the layout switches."
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called with the next open state for every user-driven change of the active layout: the\ntrigger, the rail, and Escape or overlay dismissal of the mobile drawer. Not called when\nthe layout switches."
+          "description": "Called with the next desktop open state when the user toggles the panel with\n`Sidebar.Trigger` or `Sidebar.Rail` (click, `Enter`, or a drag that closes or reopens it).\nNot called on mobile or when the layout switches."
         },
         {
           "name": "onWidthChange",
@@ -101,16 +129,16 @@
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state of the active layout: the desktop panel, or the mobile drawer when\nthe sidebar is mobile. Switching layouts does not write this value."
+          "description": "Controlled open state of the desktop panel. The mobile drawer has its own state in\n`mobileOpen`, so this value never opens the drawer."
         },
         {
           "name": "side",
           "optional": true,
-          "type": "'left' | 'right'",
-          "description": "Which viewport edge the sidebar attaches to.",
+          "type": "'start' | 'end'",
+          "description": "Inline edge the sidebar attaches to: `start` is the left edge in LTR content and the right\nedge in RTL content, and `end` is the opposite. The mobile drawer opens from the same edge.",
           "default": {
             "kind": "literal",
-            "value": "left"
+            "value": "start"
           }
         },
         {
@@ -248,7 +276,11 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disables pointer, keyboard, and click resizing."
+          "description": "Disables dragging, keyboard resizing, and toggling the sidebar with a click or `Enter`, and\nremoves the rail from the tab order.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "ref",
@@ -881,7 +913,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the trigger is disabled.",
+          "description": "Whether the `MenuSubTrigger` cannot toggle the sub-menu. The current expanded state is kept.",
           "default": {
             "kind": "literal",
             "value": false
@@ -901,7 +933,7 @@
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Callback invoked when the expanded state changes."
+          "description": "Called with the next expanded state when the user toggles the sub-menu with its trigger, or\nwhen in-page search reveals `forceMount`ed content. Not called while `disabled` or when\n`open` changes from outside."
         },
         {
           "name": "open",
@@ -919,7 +951,7 @@
           "name": "transition",
           "optional": true,
           "type": "boolean",
-          "description": "Whether to animate the content height.",
+          "description": "Whether to animate the content height when expanding and collapsing. Skipped with\n`prefers-reduced-motion`.",
           "default": {
             "kind": "literal",
             "value": true
@@ -976,6 +1008,16 @@
           "description": "Whether this trigger is disabled."
         },
         {
+          "name": "expandIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Disclosure icon rendered after the label; it rotates a quarter turn while the sub-menu is\nexpanded.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
+        },
+        {
           "name": "leading",
           "optional": true,
           "type": "IconT.Name",
@@ -992,16 +1034,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": "IconT.Name",
-          "description": "Disclosure icon that rotates while expanded.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-right"
-          }
         }
       ]
     },

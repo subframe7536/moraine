@@ -41,7 +41,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           >
             <img src="/favicon.svg" alt="" class="size-6" />
             <span class="text-base font-semibold">Moraine</span>
-            <Show when={!frame.isMobile()}>
+            <Show when={!frame.mobile()}>
               <Badge
                 size="sm"
                 variant="outline"
@@ -51,7 +51,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
               </Badge>
             </Show>
           </a>
-          <Show when={!frame.isMobile()}>
+          <Show when={!frame.mobile()}>
             <div class="ms-5 flex gap-1 items-center">
               <ToggleButton
                 as="a"
@@ -106,7 +106,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           paletteOpen={props.paletteOpen}
           setPaletteOpen={props.setPaletteOpen}
           onNavigate={props.onNavigate}
-          mobile={frame.isMobile()}
+          mobile={frame.mobile()}
           theme={props.theme}
           updateTheme={props.updateTheme}
         />

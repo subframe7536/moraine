@@ -12,7 +12,7 @@ export function SideAndVariantUsage() {
 
   return (
     <div class="border border-border rounded-xl bg-muted/20 h-96 w-full shadow-xs overflow-hidden">
-      <Sidebar mobile={false} side="right" variant="inset" defaultWidth={256}>
+      <Sidebar mobile={false} side="end" variant="inset" defaultWidth={256}>
         <Sidebar.Panel class="bg-card/60">
           <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="flex gap-2 items-center">

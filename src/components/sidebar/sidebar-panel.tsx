@@ -63,7 +63,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
 
   // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
-    const closed = () => !contentProps.mobile && !context.isOpen()
+    const closed = () => !contentProps.mobile && !context.open()
     const [element, setElement] = createSignal<HTMLElement>()
     // Publish only the inline panel so `Rail` can measure it, even while closed.
     const publishedElement = () => (contentProps.mobile ? undefined : element())
@@ -99,11 +99,11 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   }
 
   return (
-    <Show when={context.isMobile()} fallback={<PanelContent mobile={false} />}>
+    <Show when={context.mobile()} fallback={<PanelContent mobile={false} />}>
       <Drawer
-        open={context.isOpen()}
+        open={context.open()}
         onOpenChange={context.setOpen}
-        side={context.side}
+        side={context.drawerSide()}
         closable={false}
       >
         <Drawer.Content aria-label={mobileAriaLabel()}>

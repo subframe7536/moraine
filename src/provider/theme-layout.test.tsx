@@ -25,8 +25,8 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     resizable: { defaultVariants: { orientation: 'vertical' } },
     radioGroup: { defaultVariants: { orientation: 'horizontal' } },
     sidebar: {
-      defaultVariants: { side: 'right' },
-      variants: { side: { right: { root: 'sidebar-right' }, left: { root: 'sidebar-left' } } },
+      defaultVariants: { side: 'end' },
+      variants: { side: { end: { root: 'sidebar-right' }, start: { root: 'sidebar-left' } } },
     },
   })
   const [theme, setTheme] = createSignal<MoraineTheme | null>(verticalTheme)
@@ -155,7 +155,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     'horizontal',
   )
 
-  // Sidebar inherits built-in side: 'left', so mobile Drawer opens on the left
+  // Sidebar inherits built-in side: 'start', so mobile Drawer opens on the left
   fireEvent.click(screen.getByText('Toggle Sidebar'))
   await waitFor(() => {
     const content = document.body.querySelector('[data-slot="drawer-content"]')!
@@ -172,7 +172,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
           root: 'custom-frame-root',
           panel: 'custom-sidebar',
         },
-        defaultVariants: { side: 'right' },
+        defaultVariants: { side: 'end' },
       },
       slider: {
         base: {

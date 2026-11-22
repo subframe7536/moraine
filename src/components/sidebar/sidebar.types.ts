@@ -23,21 +23,20 @@ export namespace SidebarT {
   export type Messages = ComponentMessages<typeof defaultSidebarMessages>
   export type Translations = Partial<Messages>
 
-  export type State = 'expanded' | 'collapsed'
-
   /** Sidebar state returned by `Sidebar.useContext()` inside `Sidebar`. */
   export interface Context {
     /** Resolved `side` of the root. */
-    side: 'left' | 'right'
+    side: 'start' | 'end'
     /** Resolved `variant` of the root. */
     variant?: Variants['variant'] | null
-    /** `'expanded'` while the active layout is open, otherwise `'collapsed'`. */
-    state: Accessor<State>
     /** Whether the panel currently renders in the mobile drawer. */
-    isMobile: Accessor<boolean>
+    mobile: Accessor<boolean>
     /** Open state of the active layout: the desktop panel or the mobile drawer. */
-    isOpen: Accessor<boolean>
-    /** Requests a new open state for the active layout and calls `onOpenChange` when it differs. */
+    open: Accessor<boolean>
+    /**
+     * Requests a new open state for the active layout; calls `onOpenChange` on desktop and
+     * `onMobileOpenChange` on mobile when it differs.
+     */
     setOpen: (open: boolean) => void
     /** Toggles the open state of the active layout. */
     toggle: () => void
@@ -63,24 +62,37 @@ export namespace SidebarT {
      */
     translations?: Translations
     /**
-     * Controlled open state of the active layout: the desktop panel, or the mobile drawer when
-     * the sidebar is mobile. Switching layouts does not write this value.
+     * Controlled open state of the desktop panel. The mobile drawer has its own state in
+     * `mobileOpen`, so this value never opens the drawer.
      */
     open?: boolean
     /**
-     * Initial open state. Unlike `open`, which is a plain boolean for the active layout, this
-     * accepts `'desktop-only'` because the sidebar remembers uncontrolled state per layout:
-     * `true` opens both layouts, `'desktop-only'` opens only the desktop panel, and `false`
-     * closes both. When omitted, the desktop panel starts expanded and the mobile drawer starts
-     * closed. Ignored while `open` is controlled.
+     * Initial open state of the desktop panel when `open` is uncontrolled.
+     * @default true
      */
-    defaultOpen?: boolean | 'desktop-only'
+    defaultOpen?: boolean
     /**
-     * Called with the next open state for every user-driven change of the active layout: the
-     * trigger, the rail, and Escape or overlay dismissal of the mobile drawer. Not called when
-     * the layout switches.
+     * Called with the next desktop open state when the user toggles the panel with
+     * `Sidebar.Trigger` or `Sidebar.Rail` (click, `Enter`, or a drag that closes or reopens it).
+     * Not called on mobile or when the layout switches.
      */
     onOpenChange?: (open: boolean) => void
+    /**
+     * Controlled open state of the mobile drawer. Ignored by the desktop panel.
+     */
+    mobileOpen?: boolean
+    /**
+     * Initial open state of the mobile drawer when `mobileOpen` is uncontrolled. Leaving the
+     * mobile layout closes an uncontrolled drawer without calling `onMobileOpenChange`.
+     * @default false
+     */
+    defaultMobileOpen?: boolean
+    /**
+     * Called with the next drawer open state when the user opens or closes the mobile drawer:
+     * `Sidebar.Trigger`, Escape or overlay dismissal, and `Sidebar.MenuButton` with
+     * `closeOnSelect`. Not called when the layout switches.
+     */
+    onMobileOpenChange?: (open: boolean) => void
     /**
      * Controlled mobile mode: `true` renders the panel in a drawer, `false` inline. When omitted,
      * a `matchMedia` query on `breakpoint` decides, and the server renders the desktop layout.
@@ -384,10 +396,11 @@ export namespace SidebarT {
     /** Icon rendered before the label. */
     leading?: IconT.Name
     /**
-     * Disclosure icon that rotates while expanded.
+     * Disclosure icon rendered after the label; it rotates a quarter turn while the sub-menu is
+     * expanded.
      * @default 'icon-chevron-right'
      */
-    trailing?: IconT.Name
+    expandIcon?: IconT.Name
   }
 
   export type MenuSubTriggerProps<T extends ValidComponent = 'button'> = BaseProps<

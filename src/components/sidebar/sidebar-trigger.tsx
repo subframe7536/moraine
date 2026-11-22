@@ -40,7 +40,7 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
   const disabled = () => Boolean(local.disabled)
   const defaultAriaControls = () =>
-    context.isMobile() && !context.isOpen() ? undefined : context.panelId()
+    context.mobile() && !context.open() ? undefined : context.panelId()
 
   const interactionProps = useButtonInteraction(
     {
@@ -56,8 +56,8 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
   // The trigger has no recipe slot, so its state stays a separate bag.
   // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- no recipe slot binding on this host
   const triggerData = sidebarDataAttributes.trigger({
-    open: context.isOpen,
-    closed: () => !context.isOpen(),
+    open: context.open,
+    closed: () => !context.open(),
     disabled,
   })
 
@@ -65,7 +65,7 @@ export function SidebarTrigger<T extends ValidComponent = 'button'>(
     <Dynamic
       component={tag()}
       data-slot="sidebar-trigger"
-      aria-expanded={context.isOpen()}
+      aria-expanded={context.open()}
       aria-controls={defaultAriaControls()}
       {...triggerData}
       {...binding}

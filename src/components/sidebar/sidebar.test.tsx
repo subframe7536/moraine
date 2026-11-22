@@ -903,12 +903,12 @@ describe('Sidebar.MenuSub', () => {
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
   })
 
-  test('applies Sidebar and user classes to a sub-trigger with a custom trailing icon', () => {
+  test('applies Sidebar and user classes to a sub-trigger with a custom expand icon', () => {
     const screen = render(() => (
       <Sidebar classes={{ menuSubTrigger: 'theme-sub-trigger' }}>
         <Sidebar.MenuItem>
           <Sidebar.MenuSub>
-            <Sidebar.MenuSubTrigger trailing="i-lucide:chevron-down" class="custom-trigger">
+            <Sidebar.MenuSubTrigger expandIcon="i-lucide:chevron-down" class="custom-trigger">
               Submenu
             </Sidebar.MenuSubTrigger>
           </Sidebar.MenuSub>
@@ -1020,8 +1020,9 @@ describe('Sidebar open state', () => {
 
   test('uncontrolled mobile drawer starts closed and reports trigger and Escape dismissal', async () => {
     const onOpenChange = vi.fn()
+    const onMobileOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar mobile onOpenChange={onOpenChange}>
+      <Sidebar mobile onOpenChange={onOpenChange} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1033,18 +1034,19 @@ describe('Sidebar open state', () => {
 
     fireEvent.click(trigger)
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
-    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+    expect(onMobileOpenChange).toHaveBeenLastCalledWith(true)
 
     fireEvent.keyDown(document, { key: 'Escape' })
     await finishExitMotion()
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(onOpenChange.mock.calls).toEqual([[true], [false]])
+    expect(onMobileOpenChange.mock.calls).toEqual([[true], [false]])
+    expect(onOpenChange).not.toHaveBeenCalled()
   })
 
-  test('defaultOpen opens the uncontrolled mobile drawer on mount', async () => {
+  test('defaultMobileOpen opens the uncontrolled mobile drawer on mount', async () => {
     const screen = render(() => (
-      <Sidebar mobile defaultOpen>
+      <Sidebar mobile defaultMobileOpen>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1059,10 +1061,10 @@ describe('Sidebar open state', () => {
     ).toBe('true')
   })
 
-  test("defaultOpen='desktop-only' leaves the mobile drawer closed but expands the panel", async () => {
+  test('defaultOpen seeds only the desktop panel', async () => {
     const [mobile, setMobile] = createSignal(true)
     const screen = render(() => (
-      <Sidebar mobile={mobile()} defaultOpen="desktop-only">
+      <Sidebar mobile={mobile()} defaultOpen>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1087,11 +1089,11 @@ describe('Sidebar open state', () => {
     )
   })
 
-  test('controlled mobile open drives the drawer and onOpenChange only requests changes', async () => {
+  test('controlled mobileOpen drives the drawer and onMobileOpenChange only requests changes', async () => {
     const [open, setOpen] = createSignal(false)
-    const onOpenChange = vi.fn((next: boolean) => setOpen(next))
+    const onMobileOpenChange = vi.fn((next: boolean) => setOpen(next))
     const screen = render(() => (
-      <Sidebar mobile open={open()} onOpenChange={onOpenChange}>
+      <Sidebar mobile mobileOpen={open()} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1101,21 +1103,21 @@ describe('Sidebar open state', () => {
     const trigger = screen.getByRole('button', { name: 'Toggle' })
 
     fireEvent.click(trigger)
-    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
 
     fireEvent.keyDown(document, { key: 'Escape' })
-    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    expect(onMobileOpenChange).toHaveBeenLastCalledWith(false)
     await finishExitMotion()
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('controlled mobile open that the consumer ignores keeps the drawer closed', async () => {
-    const onOpenChange = vi.fn()
+  test('controlled mobileOpen that the consumer ignores keeps the drawer closed', async () => {
+    const onMobileOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar mobile open={false} onOpenChange={onOpenChange}>
+      <Sidebar mobile mobileOpen={false} onMobileOpenChange={onMobileOpenChange}>
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1124,18 +1126,24 @@ describe('Sidebar open state', () => {
     ))
 
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
-    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
     expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-expanded')).toBe(
       'false',
     )
   })
 
-  test('a controlled open value applies to the layout it switches to without reporting', async () => {
+  test('a controlled desktop open does not open the drawer when switching to mobile', async () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
+    const onMobileOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar mobile={mobile()} open onOpenChange={onOpenChange}>
+      <Sidebar
+        mobile={mobile()}
+        open
+        onOpenChange={onOpenChange}
+        onMobileOpenChange={onMobileOpenChange}
+      >
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1147,20 +1155,62 @@ describe('Sidebar open state', () => {
     ).toBe(false)
 
     setMobile(true)
-    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
-    expect(
-      screen.container
-        .querySelector('[data-slot="sidebar-trigger"]')
-        ?.getAttribute('aria-expanded'),
-    ).toBe('true')
+    await waitFor(() =>
+      expect(
+        screen.container
+          .querySelector('[data-slot="sidebar-trigger"]')
+          ?.getAttribute('aria-expanded'),
+      ).toBe('false'),
+    )
+    await finishExitMotion()
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
     expect(onOpenChange).not.toHaveBeenCalled()
+
+    setMobile(false)
+    await waitFor(() =>
+      expect(
+        screen.container.querySelector('[data-slot="sidebar-panel"]')?.hasAttribute('data-closed'),
+      ).toBe(false),
+    )
+  })
+
+  test('a controlled mobileOpen stays as written after leaving mobile', async () => {
+    const [mobile, setMobile] = createSignal(true)
+    const onMobileOpenChange = vi.fn()
+    const screen = render(() => (
+      <Sidebar mobile={mobile()} mobileOpen onMobileOpenChange={onMobileOpenChange}>
+        <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
+        <Sidebar.Inset>
+          <Sidebar.Trigger>Toggle</Sidebar.Trigger>
+        </Sidebar.Inset>
+      </Sidebar>
+    ))
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+
+    setMobile(false)
+    await finishExitMotion()
+    expect(
+      screen.container.querySelector('[data-slot="sidebar-panel"]')?.hasAttribute('data-closed'),
+    ).toBe(false)
+
+    setMobile(true)
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+    expect(onMobileOpenChange).not.toHaveBeenCalled()
   })
 
   test('uncontrolled layouts keep their own state and leaving mobile closes the drawer silently', async () => {
     const [mobile, setMobile] = createSignal(false)
     const onOpenChange = vi.fn()
+    const onMobileOpenChange = vi.fn()
     const screen = render(() => (
-      <Sidebar mobile={mobile()} onOpenChange={onOpenChange}>
+      <Sidebar
+        mobile={mobile()}
+        onOpenChange={onOpenChange}
+        onMobileOpenChange={onMobileOpenChange}
+      >
         <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1175,13 +1225,18 @@ describe('Sidebar open state', () => {
 
     fireEvent.click(trigger)
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
-    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
 
     setMobile(false)
     await finishExitMotion()
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
-    expect(onOpenChange).toHaveBeenCalledOnce()
+    expect(onMobileOpenChange).toHaveBeenCalledOnce()
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    setMobile(true)
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
   test('an expanded desktop panel does not open the drawer when entering mobile', async () => {
@@ -1206,7 +1261,7 @@ describe('Sidebar open state', () => {
 
   test('exposes side and variant as root data attributes', () => {
     const screen = render(() => (
-      <Sidebar mobile={false} side="right" variant="inset">
+      <Sidebar mobile={false} side="end" variant="inset">
         <Sidebar.Panel>Navigation</Sidebar.Panel>
         <Sidebar.Inset>
           <Sidebar.Trigger>Toggle</Sidebar.Trigger>
@@ -1214,10 +1269,32 @@ describe('Sidebar open state', () => {
       </Sidebar>
     ))
     const root = screen.container.querySelector('[data-slot="sidebar"]')
-    expect(root?.getAttribute('data-side')).toBe('right')
+    expect(root?.getAttribute('data-side')).toBe('end')
     expect(root?.getAttribute('data-variant')).toBe('inset')
     expect(root?.hasAttribute('data-mobile')).toBe(false)
   })
+
+  test.each([
+    ['start', 'ltr', 'left-0'],
+    ['end', 'ltr', 'right-0'],
+    ['start', 'rtl', 'right-0'],
+    ['end', 'rtl', 'left-0'],
+  ] as const)(
+    'opens the mobile drawer of side %s in %s content from the physical %s edge',
+    async (side, dir, edge) => {
+      const screen = render(() => (
+        <Sidebar mobile side={side} dir={dir} defaultMobileOpen>
+          <Sidebar.Panel aria-label="Navigation">Navigation</Sidebar.Panel>
+          <Sidebar.Inset>Content</Sidebar.Inset>
+        </Sidebar>
+      ))
+      await waitFor(() => {
+        const content = document.body.querySelector('[data-slot="drawer-content"]')
+        expect(content?.classList.contains(edge)).toBe(true)
+      })
+      screen.unmount()
+    },
+  )
 })
 
 describe('Sidebar closeOnSelect', () => {
@@ -1408,7 +1485,7 @@ interface RailFrameProps {
   onWidthChange?: (width: number) => void
   onWidthCommit?: (width: number) => void
   onOpenChange?: (open: boolean) => void
-  side?: 'left' | 'right'
+  side?: 'start' | 'end'
   railDisabled?: boolean
   railAs?: 'div'
   rail?: boolean
@@ -1438,13 +1515,13 @@ function RailFrame(props: RailFrameProps): JSX.Element {
   )
 }
 
-// Panel left of the rail (side="left"): rail center >= panel center => grows right.
+// Panel left of the rail (side="start"): rail center >= panel center => grows right.
 function mockRailRects(
   container: HTMLElement,
-  options?: { side?: 'left' | 'right'; panelWidth?: number },
+  options?: { side?: 'start' | 'end'; panelWidth?: number },
 ): void {
   const width = options?.panelWidth ?? 240
-  if (options?.side === 'right') {
+  if (options?.side === 'end') {
     setRect(railOf(container), createRect({ top: 0, right: 559, bottom: 600, left: 559 }))
     setRect(panelOf(container), createRect({ top: 0, right: 800, bottom: 600, left: 560 }))
     return
@@ -1508,7 +1585,7 @@ describe('Sidebar.Rail', () => {
   test('a user ref on Panel receives the element without breaking rail measurement', () => {
     let userPanel: HTMLElement | undefined
     const screen = render(() => (
-      <Sidebar mobile={false} side="right" defaultWidth={240}>
+      <Sidebar mobile={false} side="end" defaultWidth={240}>
         <Sidebar.Panel
           ref={(element: HTMLElement) => {
             userPanel = element
@@ -1522,7 +1599,7 @@ describe('Sidebar.Rail', () => {
     ))
     const panel = panelOf(screen.container)
     expect(userPanel).toBe(panel)
-    mockRailRects(screen.container, { side: 'right' })
+    mockRailRects(screen.container, { side: 'end' })
     const rail = railOf(screen.container)
 
     dragRail(rail, { x: 559, y: 10 }, { x: 519, y: 10 })
@@ -1531,8 +1608,8 @@ describe('Sidebar.Rail', () => {
   })
 
   test('dragging a rail on the far side of the panel still grows it', () => {
-    const screen = render(() => <RailFrame side="right" defaultWidth={240} />)
-    mockRailRects(screen.container, { side: 'right' })
+    const screen = render(() => <RailFrame side="end" defaultWidth={240} />)
+    mockRailRects(screen.container, { side: 'end' })
     const rail = railOf(screen.container)
 
     // sign = -1: dragging left grows the panel

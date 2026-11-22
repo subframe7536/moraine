@@ -2,9 +2,11 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, splitProps, untrack } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { createId } from '../../shared/utils'
+import { callRef, createId } from '../../shared/utils'
+import { resolveDirection } from '../shared/overlay/direction'
 
 import { SidebarContent } from './sidebar-content'
 import { SidebarProvider, useSidebarContext } from './sidebar-context'
@@ -32,9 +34,10 @@ const SIDEBAR_DEFAULT_BREAKPOINT = 768
  * Responsive application-shell sidebar: `Sidebar.Panel` renders inline on desktop and moves into a
  * mobile `Drawer` below `breakpoint`. Use it for persistent app navigation, `Drawer` for a
  * standalone drawer that is not a layout region, and `NavigationMenu` for a website header of
- * links. It is the state provider for all `Sidebar.*` parts; `open`, `defaultOpen`, and
- * `onOpenChange` drive whichever layout is active, and `Sidebar.useContext()` reads that state from
- * descendants.
+ * links. It is the state provider for all `Sidebar.*` parts. Each layout has its own open state:
+ * `open` / `defaultOpen` / `onOpenChange` for the desktop panel and `mobileOpen` /
+ * `defaultMobileOpen` / `onMobileOpenChange` for the mobile drawer. `Sidebar.Trigger` and
+ * `Sidebar.useContext()` act on the active layout.
  *
  * @example
  * ```tsx
@@ -69,9 +72,13 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'classes',
     'class',
     'defaultOpen',
+    'defaultMobileOpen',
     'mobile',
+    'mobileOpen',
     'onOpenChange',
+    'onMobileOpenChange',
     'open',
+    'ref',
     'side',
     'styles',
     'style',
@@ -90,7 +97,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   } = useRecipe(sidebarRecipe, local, {
     data: {
       root: sidebarDataAttributes.root(() => ({
-        mobile: isMobile,
+        mobile,
         side: () => context.side,
         splitterRoot: true,
         variant: () => context.variant,
@@ -107,19 +114,34 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   const [panelIdProp, setPanelId] = createSignal<string>()
   const panelId = createId(panelIdProp, 'sidebar-panel')
+  const [rootElement, setRootElement] = createSignal<HTMLElement>()
+  const localeDirection = useLocale().dir
   const mediaMatches = createMediaQuery(
     () => `(max-width: ${local.breakpoint ?? SIDEBAR_DEFAULT_BREAKPOINT}px)`,
     false,
   )
-  const isMobile = createMemo(() => local.mobile ?? mediaMatches())
+  const mobile = createMemo(() => local.mobile ?? mediaMatches())
 
-  // Uncontrolled state is remembered per layout. `defaultOpen` seeds both, because the media
-  // query resolves asynchronously and the active layout is unknown during setup. The
-  // 'desktop-only' value seeds only the panel so a restored desktop state does not open the drawer.
-  const [desktopOpen, setDesktopOpen] = createSignal(
-    untrack(() => local.defaultOpen === 'desktop-only' || (local.defaultOpen ?? true)),
+  // Each layout owns its open state, so a controlled desktop `open` never opens the drawer.
+  const [desktopOpen, setDesktopOpen] = createControllableValue<boolean>({
+    value: () => local.open,
+    defaultValue: () => local.defaultOpen ?? true,
+    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
+  })
+  const [uncontrolledMobileOpen, setUncontrolledMobileOpen] = createSignal(
+    untrack(() => local.defaultMobileOpen ?? false),
   )
-  const [mobileOpen, setMobileOpen] = createSignal(untrack(() => local.defaultOpen === true))
+  const mobileOpen = () => local.mobileOpen ?? uncontrolledMobileOpen()
+
+  function setMobileOpen(nextOpen: boolean): void {
+    if (nextOpen === mobileOpen()) {
+      return
+    }
+    if (local.mobileOpen === undefined) {
+      setUncontrolledMobileOpen(nextOpen)
+    }
+    local.onMobileOpenChange?.(nextOpen)
+  }
 
   const [width, setWidth] = createControllableValue<number | undefined>({
     value: () => local.width,
@@ -135,54 +157,48 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const [resizing, setResizing] = createSignal(false)
   const [panelElement, setPanelElement] = createSignal<HTMLElement>()
 
+  // Leaving mobile closes an uncontrolled drawer without reporting it.
   createEffect(
-    on(isMobile, (mobile, previous) => {
-      if (previous === true && mobile === false) {
-        setMobileOpen(false)
+    on(mobile, (isMobileLayout, previous) => {
+      if (previous === true && isMobileLayout === false) {
+        setUncontrolledMobileOpen(false)
       }
     }),
   )
 
-  const isOpen = createMemo(() => {
-    if (local.open !== undefined) {
-      return local.open
-    }
-    return isMobile() ? mobileOpen() : desktopOpen()
-  })
-
-  const state = createMemo<SidebarT.State>(() => (isOpen() ? 'expanded' : 'collapsed'))
+  const open = createMemo(() => (mobile() ? mobileOpen() : desktopOpen()))
 
   function setOpen(nextOpen: boolean): void {
-    if (nextOpen === isOpen()) {
-      return
+    if (mobile()) {
+      setMobileOpen(nextOpen)
+    } else {
+      setDesktopOpen(nextOpen)
     }
-    if (local.open === undefined) {
-      if (isMobile()) {
-        setMobileOpen(nextOpen)
-      } else {
-        setDesktopOpen(nextOpen)
-      }
-    }
-    local.onOpenChange?.(nextOpen)
+  }
+
+  /** Physical edge for the mobile Drawer: `start` is the left edge in LTR and the right in RTL. */
+  const drawerSide = (): 'left' | 'right' => {
+    const rtl = resolveDirection(rootElement(), localeDirection()) === 'rtl'
+    return (context.side === 'end') !== rtl ? 'right' : 'left'
   }
 
   const context = {
     get slotOverrides() {
       return { classes: local.classes, styles: local.styles }
     },
-    isMobile,
-    state,
+    mobile,
     panelId,
     setPanelId,
-    isOpen,
+    open,
     setOpen,
-    toggle: () => setOpen(!isOpen()),
+    toggle: () => setOpen(!open()),
     get variant(): SidebarT.Context['variant'] {
       return variants.variant
     },
     get side(): SidebarT.Context['side'] {
       return variants.side
     },
+    drawerSide,
     translations: () => local.translations,
     width,
     setWidth,
@@ -197,7 +213,15 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   return (
     <SidebarProvider value={context}>
-      <div data-slot="sidebar" {...rootSlot} {...rest}>
+      <div
+        data-slot="sidebar"
+        {...rootSlot}
+        {...rest}
+        ref={(element) => {
+          setRootElement(element)
+          callRef(local.ref, element)
+        }}
+      >
         {local.children}
       </div>
     </SidebarProvider>

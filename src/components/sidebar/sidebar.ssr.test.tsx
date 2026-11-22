@@ -47,7 +47,7 @@ function FixtureContent() {
           <span>Footer</span>
         </Sidebar.Footer>
       </Sidebar.Panel>
-      <Sidebar.Inset data-open={frame.isOpen() ? '' : undefined}>
+      <Sidebar.Inset data-open={frame.open() ? '' : undefined}>
         <Sidebar.Trigger>Toggle</Sidebar.Trigger>
         <h1>Main content</h1>
       </Sidebar.Inset>

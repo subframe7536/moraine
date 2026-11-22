@@ -104,9 +104,9 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         />
 
         <div class="flex flex-1 min-h-0 w-full overflow-hidden">
-          <Show when={!isLanding() || frame.isMobile()}>
+          <Show when={!isLanding() || frame.mobile()}>
             <Sidebar.Panel data-docs-sidebar class="border-r-0 bg-background">
-              <Show when={frame.isMobile()}>
+              <Show when={frame.mobile()}>
                 <Sidebar.Header class="p-0">
                   <DocsSidebarHeader />
                 </Sidebar.Header>
@@ -114,7 +114,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               <Sidebar.Content class="overscroll-contain">
                 <DocsSidebar pages={pages} activePage={committedPage} />
               </Sidebar.Content>
-              <Show when={frame.isMobile()}>
+              <Show when={frame.mobile()}>
                 <Sidebar.Footer class="p-3 border-t border-border">
                   <Button
                     as="a"

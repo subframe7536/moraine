@@ -98,10 +98,10 @@ export default function SidebarPlayground() {
           kind: 'select',
           prop: 'side',
           label: 'Side',
-          defaultValue: 'left',
+          defaultValue: 'start',
           options: [
-            { label: 'Left', value: 'left' },
-            { label: 'Right', value: 'right' },
+            { label: 'Start', value: 'start' },
+            { label: 'End', value: 'end' },
           ],
         },
       ]}

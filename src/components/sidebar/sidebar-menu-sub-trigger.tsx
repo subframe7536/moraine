@@ -9,12 +9,12 @@ import { useSidebarStyles } from './sidebar-context'
 import { SidebarMenuButton } from './sidebar-menu-button'
 import type { SidebarT } from './sidebar.types'
 
-const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'icon-chevron-right'
+const DEFAULT_EXPAND_ICON: IconT.Name = 'icon-chevron-right'
 
 /**
  * Menu button that expands or collapses the enclosing `Sidebar.MenuSub`; place it before the
- * `Sidebar.MenuSubContent`. It takes the same `leading` icon as `Sidebar.MenuButton` and shows a
- * chevron that rotates while expanded. Renders a `button` by default; pass `as` to render another
+ * `Sidebar.MenuSubContent`. It takes the same `leading` icon as `Sidebar.MenuButton` and shows an
+ * `expandIcon` chevron that rotates while expanded. Renders a `button` by default; pass `as` to render another
  * component.
  *
  * @example
@@ -42,7 +42,7 @@ export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
     'as',
     'class',
     'style',
-    'trailing',
+    'expandIcon',
   ])
   const {
     slots: { menuSubTrigger: menuSubTriggerSlot },
@@ -55,7 +55,7 @@ export function SidebarMenuSubTrigger<T extends ValidComponent = 'button'>(
     <SidebarMenuButton
       as={TriggerRoot}
       data-slot="sidebar-menu-sub-trigger"
-      trailing={local.trailing ?? DEFAULT_SUBMENU_TRAILING}
+      trailing={local.expandIcon ?? DEFAULT_EXPAND_ICON}
       {...menuSubTriggerSlot}
       {...(rest as object)}
     />

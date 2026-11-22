@@ -61,12 +61,11 @@ export interface SidebarStyleSlot<T = unknown> {
 
 export interface SidebarStyleVariants {
   /**
-   * Edge the sidebar attaches to. The desktop layout applies it in the inline direction, so
-   * `left` is the inline start (the right edge in RTL content); the mobile drawer opens from the
-   * physical `left` or `right` edge.
-   * @default 'left'
+   * Inline edge the sidebar attaches to: `start` is the left edge in LTR content and the right
+   * edge in RTL content, and `end` is the opposite. The mobile drawer opens from the same edge.
+   * @default 'start'
    */
-  side?: 'left' | 'right'
+  side?: 'start' | 'end'
   /**
    * Sidebar chrome variant: `default` sits inline, `floating` and `inset` lift it from the page.
    * @default 'default'

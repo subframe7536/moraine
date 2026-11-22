@@ -54,7 +54,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
   })
 
   createEffect(
-    on([frame.isMobile, frame.isOpen, () => props.activePage()], ([mobile, open]) => {
+    on([frame.mobile, frame.open, () => props.activePage()], ([mobile, open]) => {
       if (!mobile || !open) {
         return
       }
@@ -74,7 +74,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
         active={props.activePage() === page.path}
         class={DOCS_FOCUS_RING_OFFSET_CLASS}
       >
-        <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>
+        <span class={frame.mobile() ? 'break-words min-w-0' : 'truncate'}>{page.label}</span>
         <Show when={page.badge}>
           {(badge) => (
             <Badge variant="outline" size="sm" class="text-[0.7rem] ms-auto px-1.5 py-0">
@@ -159,7 +159,7 @@ export const DocsSidebarHeader = () => {
               <a
                 href={surface.href}
                 onClick={() => {
-                  if (frame.isMobile()) {
+                  if (frame.mobile()) {
                     frame.setOpen(false)
                   }
                 }}

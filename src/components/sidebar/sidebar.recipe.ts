@@ -25,7 +25,7 @@ export const sidebarDataAttributes = {
 } satisfies DataAttributeContract<SidebarDataSlot>
 
 /** Shared by `MenuButton` and `MenuSubTrigger`, which renders a `MenuButton`. */
-const MENU_BUTTON_CLASS = `text-sm text-muted-foreground px-2 text-left outline-none rounded-md flex gap-2 h-8 min-w-0 w-full cursor-pointer select-none items-center overflow-hidden data-active:(text-accent-foreground font-medium bg-accent) hover:bg-muted-hover data-mobile:h-11 ${FOCUS_VISIBLE_RING_CLASS} focus-visible:ring-inset ${DATA_DISABLED_CLASS}`
+const MENU_BUTTON_CLASS = `text-sm text-muted-foreground px-2 text-start outline-none rounded-md flex gap-2 h-8 min-w-0 w-full cursor-pointer select-none items-center overflow-hidden data-active:(text-accent-foreground font-medium bg-accent) hover:bg-muted-hover data-mobile:h-11 ${FOCUS_VISIBLE_RING_CLASS} focus-visible:ring-inset ${DATA_DISABLED_CLASS}`
 
 export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, SidebarStyleVariants>(
   'sidebar',
@@ -58,16 +58,16 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
       '--mo-sidebar-offset': 'calc(-1 * var(--mo-sidebar-width))',
     },
     defaultVariants: {
-      side: 'left',
+      side: 'start',
       variant: 'default',
     },
     variants: {
       side: {
-        left: {
+        start: {
           root: 'flex-row',
           panel: 'data-closed:ms-(--mo-sidebar-offset)',
         },
-        right: {
+        end: {
           root: 'flex-row-reverse',
           panel: 'data-closed:me-(--mo-sidebar-offset)',
         },
@@ -88,19 +88,19 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
     },
     compoundVariants: [
       {
-        variants: { variant: 'default', side: 'left' },
+        variants: { variant: 'default', side: 'start' },
         panel: 'border-e border-border data-mobile:border-0',
       },
       {
-        variants: { variant: 'default', side: 'right' },
+        variants: { variant: 'default', side: 'end' },
         panel: 'border-s border-border data-mobile:border-0',
       },
       {
-        variants: { variant: ['floating', 'inset'], side: 'left' },
+        variants: { variant: ['floating', 'inset'], side: 'start' },
         panel: 'me-2',
       },
       {
-        variants: { variant: ['floating', 'inset'], side: 'right' },
+        variants: { variant: ['floating', 'inset'], side: 'end' },
         panel: 'ms-2',
       },
     ],

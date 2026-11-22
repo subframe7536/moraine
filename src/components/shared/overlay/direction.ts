@@ -16,7 +16,7 @@ export function resolveDirection(element?: Element, explicit?: 'ltr' | 'rtl'): '
     }
   }
 
-  return (ownerDocument?.dir || ownerDocument?.documentElement.dir || 'ltr') === 'rtl'
+  return (ownerDocument?.dir || ownerDocument?.documentElement?.dir || 'ltr') === 'rtl'
     ? 'rtl'
     : 'ltr'
 }

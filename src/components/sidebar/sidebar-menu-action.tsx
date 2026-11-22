@@ -39,7 +39,7 @@ export function SidebarMenuAction<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props as SidebarT.MenuActionProps, ['as', 'class', 'style'])
   const { slotWith } = useSidebarStyles('menuAction', local)
   const menuActionSlot = slotWith('menuAction', {
-    data: sidebarDataAttributes.menuAction({ mobile: context.isMobile }),
+    data: sidebarDataAttributes.menuAction({ mobile: context.mobile }),
   })
   return (
     <Dynamic

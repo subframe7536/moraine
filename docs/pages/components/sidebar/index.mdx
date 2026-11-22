@@ -165,13 +165,21 @@ state.
 </Sidebar.Trigger>
 ```
 
-Root `open`, `defaultOpen`, and `onOpenChange` drive whichever layout is active: the desktop panel or
-the mobile drawer. Uncontrolled desktop and mobile states are remembered separately. `defaultOpen`
-seeds both layouts, `defaultOpen="desktop-only"` seeds only the panel, and when omitted the desktop
-panel starts expanded and the drawer starts closed. Switching layouts never calls `onOpenChange` and
-never writes a controlled `open`. Leaving mobile closes an uncontrolled drawer, and returning to
-desktop restores the desktop state. The trigger, the rail, and Escape or overlay dismissal of the
-drawer all report through `onOpenChange`.
+Each layout has its own open state. `open`, `defaultOpen` (default `true`), and `onOpenChange`
+control the desktop panel; `mobileOpen`, `defaultMobileOpen` (default `false`), and
+`onMobileOpenChange` control the mobile drawer. `Sidebar.Trigger` and `Sidebar.useContext()` act on
+the layout that is active, so a persisted desktop `open` never opens the drawer when the viewport
+shrinks. The trigger and the rail report desktop changes through `onOpenChange`; the trigger, Escape
+or overlay dismissal, and `closeOnSelect` report drawer changes through `onMobileOpenChange`.
+Switching layouts calls neither callback. Leaving mobile closes an uncontrolled drawer, while a
+controlled `mobileOpen` stays as you wrote it.
+
+```tsx
+<Sidebar open={desktopOpen()} onOpenChange={setDesktopOpen}>
+  <Sidebar.Panel>{navigation}</Sidebar.Panel>
+  <Sidebar.Inset>{page}</Sidebar.Inset>
+</Sidebar>
+```
 
 On mobile, a `Sidebar.MenuButton` with `href` closes the drawer when activated. Modified and
 non-primary clicks, and clicks that call `preventDefault()`, leave it open. Set
@@ -182,8 +190,9 @@ When `mobile` is omitted, `breakpoint` (default `768`) selects the layout throug
 `(max-width: ${breakpoint}px)` media query, and the server renders the desktop layout. Pass `mobile`
 to force either layout.
 
-`side` (`'left'` or `'right'`) and `variant` (`'default'`, `'floating'`, or `'inset'`) on the root
-choose the viewport edge and chrome. Root `classes` and `styles` set defaults for the slots of every
+`side` (`'start'`, the default, or `'end'`) and `variant` (`'default'`, `'floating'`, or `'inset'`)
+on the root choose the edge and chrome. `side` follows the text direction: `start` is the left edge in
+LTR content and the right edge in RTL content, for both the desktop panel and the mobile drawer. Root `classes` and `styles` set defaults for the slots of every
 part. On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
 slots; Sidebar overrides do not style the internal Drawer. See [Theming](/docs/theming) for
 nested Provider behavior.
@@ -198,8 +207,8 @@ and slides out with a negative margin, so its content does not reflow during the
 The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
 `class="h-dvh"` (or `h-svh`) on the root.
 
-Call `Sidebar.useContext()` from a descendant for `side`, `variant`, `isMobile`, `isOpen`, `state`
-(`'expanded'` or `'collapsed'`), `setOpen`, and `toggle`. Place a global application header outside
+Call `Sidebar.useContext()` from a descendant for `side`, `variant`, `mobile`, `open` (the active
+layout's state), `setOpen`, `toggle`, and `panelId`. Place a global application header outside
 the frame. Pass `translations` (`label` for the mobile drawer, `resize` for the rail) to localize
 the accessible names of one sidebar.
 
@@ -222,7 +231,8 @@ off resizing and toggling. Because the root is a splitter scope, a nested `Resiz
 | `Enter`                                                      | Toggles open; the only key that acts while closed.     |
 
 To persist desktop layout across reloads, control `open` and `width` from the app and store them in
-a cookie inside `onOpenChange` and `onWidthCommit`. Do not use `localStorage`, which mismatches SSR
+a cookie inside `onOpenChange` and `onWidthCommit`. Leave the drawer uncontrolled unless the app
+needs to open it programmatically. Do not use `localStorage`, which mismatches SSR
 hydration.
 
 ### Navigation menu
@@ -243,7 +253,7 @@ Build labeled navigation with these parts:
 - `Sidebar.MenuSub` / `MenuSubTrigger` / `MenuSubContent`: collapsible sub-navigation built on
   `Collapsible`, placed inside a `MenuItem`. `MenuSub` takes `open`, `defaultOpen`, `onOpenChange`,
   `disabled`, `transition` (animates the height), and `forceMount`. `MenuSubTrigger` renders a
-  `MenuButton` with a chevron (`trailing`) that rotates while expanded. `MenuSubContent` renders a
+  `MenuButton` with an `expandIcon` chevron that rotates while expanded. `MenuSubContent` renders a
   nested `<ul>` of `MenuItem`s
 
 ```tsx
@@ -284,7 +294,7 @@ Nest `Sidebar.MenuSub` inside `Sidebar.MenuItem` for collapsible multi-level nav
 
 ### Side and variant
 
-Combine `side="right"` and `variant="inset"` to place a panel on the trailing edge.
+Combine `side="end"` and `variant="inset"` to place a panel on the trailing edge.
 
 <Preview path="./side-and-variant" />
 
