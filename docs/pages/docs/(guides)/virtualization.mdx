@@ -215,7 +215,7 @@ Return a stable, unique identity. Use an item ID for `List` and the supplied `ro
 - `gap` adds space in pixels between rows.
 - `scrollMargin`, `scrollPaddingStart`, and `scrollPaddingEnd` account for content inside the scroll container that is not a row, such as a sticky header. `DataTable` measures them when you omit them.
 - `rangeExtractor` chooses which row indexes to render. Use it to keep a row mounted while it scrolls out of view, as [drag and drop](/docs/drag-and-drop#virtualization) does.
-- `createListVirtualizer` also accepts `horizontal` to lay rows out side by side. Set `isRtl` when a horizontal scroll container has `dir="rtl"`.
+- `createListVirtualizer` also accepts `horizontal` to lay rows out side by side. In a right-to-left scroll container (`dir="rtl"`), rows start at the right edge; the direction is detected from the container.
 
 ### Dynamic measurements
 

@@ -243,7 +243,6 @@ describe('List', () => {
       const virtualRendering = createListVirtualizer<number>({
         estimateSize: () => 20,
         horizontal: true,
-        isRtl: true,
         ...scrollViewport(100, 24),
         scrollMargin: 4,
       })

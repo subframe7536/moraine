@@ -349,6 +349,7 @@ describe('createListVirtualizer', () => {
   test('uses logical horizontal row placement for LTR and RTL lists', async () => {
     const ltrScrollElement = document.createElement('div')
     const rtlScrollElement = document.createElement('div')
+    rtlScrollElement.style.direction = 'rtl'
     document.body.append(ltrScrollElement, rtlScrollElement)
     const entries = [20, 35, 25]
 
@@ -376,7 +377,6 @@ describe('createListVirtualizer', () => {
       const virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
-        isRtl: true,
         ...scrollViewport(100, 20),
         scrollMargin: 4,
       })
@@ -416,6 +416,7 @@ describe('createListVirtualizer', () => {
 
   test('scrolls horizontal RTL indexes with negative physical offsets', async () => {
     const scrollElement = document.createElement('div')
+    scrollElement.style.direction = 'rtl'
     const scrollTo = vi.fn()
     Object.defineProperties(scrollElement, {
       clientWidth: { configurable: true, value: 50 },
@@ -429,7 +430,6 @@ describe('createListVirtualizer', () => {
       virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
-        isRtl: true,
         ...scrollViewport(50, 20),
       })
       const VirtualRender = virtualizer.virtualRender

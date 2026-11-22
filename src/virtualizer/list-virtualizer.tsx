@@ -1,5 +1,6 @@
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component, JSX } from 'solid-js'
+import { createEffect, createMemo, createSignal, on } from 'solid-js'
 
 import { createVirtualizerController } from './controller'
 import type { VirtualizerAdapterOptions } from './controller'
@@ -9,14 +10,10 @@ import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from './vir
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
   /**
    * Lays rows out side by side and scrolls horizontally. Sizes (`estimateSize`, `gap`, scroll padding) then apply to widths.
+   * In a scroll container whose computed `direction` is `rtl`, rows start at the right edge.
    * @default false
    */
   horizontal?: boolean
-  /**
-   * Places rows from the right edge and scrolls with RTL offsets in a horizontal list. Set it to `true` when the scroll container has `dir="rtl"`; it has no effect unless `horizontal` is set.
-   * @default false
-   */
-  isRtl?: boolean
 }
 
 export interface ListVirtualizerReturn<TItem> extends ListVirtualizer<TItem> {
@@ -33,9 +30,24 @@ export function createListVirtualizer<TItem>(
   const controller = createVirtualizerController<TItem>(options)
 
   const virtualRender: Component<VirtualRenderProps<TItem>> = (props) => {
+    // A right-to-left container places rows from its right edge, and its `scrollLeft` counts down
+    // from 0. The direction is read once the scroll element is mounted.
+    const [rtl, setRtl] = createSignal(false)
+    createEffect(
+      on(
+        () => props.scrollElement,
+        (element) => {
+          if (element) {
+            setRtl(getComputedStyle(element).direction === 'rtl')
+          }
+        },
+      ),
+    )
+    const layout = createMemo(() => ({ isRtl: rtl() }))
     const { virtualizer, virtualItems, totalSize } = controller.attach({
       entries: () => props.entries,
       scrollElement: () => props.scrollElement,
+      layout,
     })
 
     const contentStyle = (): JSX.CSSProperties =>
@@ -57,15 +69,15 @@ export function createListVirtualizer<TItem>(
             height: '100%',
             position: 'absolute',
             get right() {
-              return virtualizer.options.isRtl ? '0' : undefined
+              return rtl() ? '0' : undefined
             },
             top: '0',
             get transform() {
               const offset = virtualItem.start - virtualizer.options.scrollMargin
-              return `translateX(${virtualizer.options.isRtl ? -offset : offset}px)`
+              return `translateX(${rtl() ? -offset : offset}px)`
             },
             get left() {
-              return virtualizer.options.isRtl ? undefined : '0'
+              return rtl() ? undefined : '0'
             },
           }
         : {

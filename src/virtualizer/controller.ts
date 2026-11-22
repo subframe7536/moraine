@@ -112,7 +112,7 @@ export function createVirtualizerController<
   TScrollElement extends HTMLElement = HTMLElement,
   TItemElement extends HTMLElement = HTMLElement,
 >(
-  options: VirtualizerAdapterOptions<TItem> & { readonly isRtl?: boolean },
+  options: VirtualizerAdapterOptions<TItem>,
 ): {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<TScrollElement, TItemElement> | undefined>
@@ -194,7 +194,7 @@ export function createVirtualizerController<
             return options.scrollPaddingEnd ?? adapterProps.layout?.().scrollPaddingEnd
           },
           get isRtl() {
-            return options.isRtl ?? adapterProps.layout?.().isRtl ?? false
+            return adapterProps.layout?.().isRtl ?? false
           },
           getScrollElement: () => (mounted() ? (adapterProps.scrollElement() ?? null) : null),
           estimateSize: (index: number) => currentEstimates[index]!,
