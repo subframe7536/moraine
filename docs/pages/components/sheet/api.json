@@ -48,7 +48,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevented`.",
+          "description": "Whether pressing Escape dismisses the overlay. When `false`, Escape fires `onClosePrevented`\ninstead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -58,7 +58,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether a pointer press outside the content, such as on the backdrop, dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevented`.",
+          "description": "Whether clicking or focusing outside dismisses the overlay. When `false`, outside interaction\nfires `onClosePrevented` instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -68,7 +68,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial open state when uncontrolled. Ignored while `open` is set.",
+          "description": "Initial open state when `open` is not set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -131,7 +131,7 @@
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
-          "description": "Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press\n(`closeOnOutsideClick` is `false`) tried to close the shell and was blocked."
+          "description": "Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside interaction\n(`closeOnOutsideClick` is `false`) tried to close the overlay and was blocked."
         },
         {
           "name": "onExitComplete",
@@ -152,7 +152,7 @@
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component\nmanage its own state (see `defaultOpen`)."
+          "description": "Controlled open state. Leave it `undefined` to manage state internally (see `defaultOpen`);\nwhen set, update it from `onOpenChange`."
         },
         {
           "name": "overlay",

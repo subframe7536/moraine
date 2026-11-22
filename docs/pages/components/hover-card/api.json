@@ -144,7 +144,7 @@
           "name": "overflowPadding",
           "optional": true,
           "type": "number",
-          "description": "Minimum padding in pixels between the content and the viewport edge.",
+          "description": "Padding in pixels between positioned content and the viewport boundary.",
           "default": {
             "kind": "literal",
             "value": 4

@@ -17,10 +17,10 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Alignment of the panel relative to the active trigger: `'start'`, `'center'` or `'end'`.",
+          "description": "Alignment of the content along the trigger edge: `'start'` and `'end'` line up the content\nedge with the matching trigger edge, `'center'` centers it. Combines with `placement`.",
           "default": {
-            "kind": "expression",
-            "text": "center"
+            "kind": "literal",
+            "value": "center"
           }
         },
         {

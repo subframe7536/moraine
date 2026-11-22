@@ -28,7 +28,6 @@ export function FileActions() {
         },
       ],
     },
-    { type: 'separator' },
     {
       label: 'Move to',
       icon: 'i-lucide:folder-input',

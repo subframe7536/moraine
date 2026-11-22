@@ -35,6 +35,7 @@ export namespace TooltipT {
     | 'shift'
     | 'flip'
     | 'slide'
+    | 'overflowPadding'
     | 'forceMount'
   > {
     /**
@@ -49,12 +50,6 @@ export namespace TooltipT {
      * @default 4
      */
     gutter?: number
-
-    /**
-     * Minimum padding in pixels between the content and the viewport edge.
-     * @default 4
-     */
-    overflowPadding?: number
 
     /**
      * Delay in milliseconds between pointer hover or keyboard focus on the trigger and opening;

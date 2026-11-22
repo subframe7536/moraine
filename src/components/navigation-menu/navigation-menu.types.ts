@@ -6,7 +6,7 @@ import type {
   TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types'
-import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { PopperContentOptions } from '../shared/overlay/popper.types'
 
 import type {
@@ -23,13 +23,8 @@ export namespace NavigationMenuT {
 
   export interface Base extends Pick<
     PopperContentOptions,
-    'placement' | 'shift' | 'overflowPadding' | 'flip' | 'slide'
+    'placement' | 'shift' | 'align' | 'overflowPadding' | 'flip' | 'slide'
   > {
-    /**
-     * Alignment of the panel relative to the active trigger: `'start'`, `'center'` or `'end'`.
-     * @default center
-     */
-    align?: OverlayAlign
     /** Gap between the trigger and panel, in pixels. @default 8 */
     gutter?: number
     /**

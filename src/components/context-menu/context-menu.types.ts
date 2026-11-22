@@ -1,4 +1,3 @@
-import type { Placement } from '@floating-ui/dom'
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -49,22 +48,6 @@ export namespace ContextMenuT {
      */
     id?: string
     /**
-     * Controlled open state. While `undefined` the menu is uncontrolled and follows `defaultOpen`;
-     * update it from `onOpenChange`.
-     */
-    open?: boolean
-    /**
-     * Initial open state when uncontrolled. Ignored when `open` is set.
-     * @default false
-     */
-    defaultOpen?: boolean
-    /**
-     * Called with the next open state when the user opens or closes the menu, and when `disabled`
-     * becomes `true` while it is open. It fires in controlled and uncontrolled mode alike, so a
-     * controlled menu must write the value back to `open`.
-     */
-    onOpenChange?: (open: boolean) => void
-    /**
      * Disables the context menu: right-click, long press and keyboard opening no longer open it, the native browser menu shows instead, and an open menu closes.
      * @default false
      */
@@ -81,11 +64,6 @@ export namespace ContextMenuT {
      */
     align?: OverlayAlign
     /**
-     * Distance in pixels between the anchor and the content along the placement axis.
-     * @default 4
-     */
-    gutter?: number
-    /**
      * Offset in pixels along the cross axis, applied on top of `align`.
      * @default 4
      */
@@ -95,42 +73,6 @@ export namespace ContextMenuT {
      * @default true
      */
     preventScroll?: boolean
-    /**
-     * Minimum distance in pixels kept between the content and the viewport edge when `flip` and
-     * `slide` position it.
-     * @default 4
-     */
-    overflowPadding?: number
-    /**
-     * Whether the content moves to the opposite side when the preferred `placement` does not fit.
-     * An array such as `['top', 'left']` is an ordered list of fallback `Placement` values tried
-     * in order (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`).
-     * @default true
-     */
-    flip?: boolean | Placement[]
-    /**
-     * Whether the content may slide along the edge of the anchor so it stays inside the viewport
-     * instead of being clipped.
-     * @default true
-     */
-    slide?: boolean
-    /**
-     * Whether pressing Escape closes the menu. When `false`, Escape is ignored and `onClosePrevented`
-     * is called.
-     * @default true
-     */
-    closeOnEscape?: boolean
-    /**
-     * Whether a pointer press or focus move outside the menu closes it. When `false`, the attempt
-     * is ignored and `onClosePrevented` is called.
-     * @default true
-     */
-    closeOnOutsideClick?: boolean
-    /**
-     * Called when Escape or an outside interaction tries to close the menu but `closeOnEscape` or
-     * `closeOnOutsideClick` is `false`.
-     */
-    onClosePrevented?: () => void
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }

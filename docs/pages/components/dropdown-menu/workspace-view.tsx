@@ -38,7 +38,6 @@ export function WorkspaceView() {
         },
       ],
     },
-    { type: 'separator' },
     {
       label: 'Sort projects',
       icon: 'i-lucide:arrow-down-wide-narrow',

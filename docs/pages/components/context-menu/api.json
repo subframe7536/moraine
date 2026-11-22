@@ -38,7 +38,7 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether pressing Escape closes the menu. When `false`, Escape is ignored and `onClosePrevented`\nis called.",
+          "description": "Whether pressing Escape dismisses the overlay. When `false`, Escape fires `onClosePrevented`\ninstead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -48,7 +48,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether a pointer press or focus move outside the menu closes it. When `false`, the attempt\nis ignored and `onClosePrevented` is called.",
+          "description": "Whether clicking or focusing outside dismisses the overlay. When `false`, outside interaction\nfires `onClosePrevented` instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -58,7 +58,7 @@
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
-          "description": "Initial open state when uncontrolled. Ignored when `open` is set.",
+          "description": "Initial open state when `open` is not set.",
           "default": {
             "kind": "literal",
             "value": false
@@ -78,7 +78,7 @@
           "name": "flip",
           "optional": true,
           "type": "boolean | Placement[]",
-          "description": "Whether the content moves to the opposite side when the preferred `placement` does not fit.\nAn array such as `['top', 'left']` is an ordered list of fallback `Placement` values tried\nin order (`top`, `bottom`, `left` or `right`, each optionally followed by `-start` or `-end`).",
+          "description": "Whether the content flips to another side when it would overflow the viewport. Pass an array\nof fallback placements to constrain which sides it tries.",
           "default": {
             "kind": "literal",
             "value": true
@@ -88,7 +88,7 @@
           "name": "gutter",
           "optional": true,
           "type": "number",
-          "description": "Distance in pixels between the anchor and the content along the placement axis.",
+          "description": "Gap in pixels between the trigger and the content.",
           "default": {
             "kind": "literal",
             "value": 4
@@ -110,7 +110,7 @@
           "name": "onClosePrevented",
           "optional": true,
           "type": "() => void",
-          "description": "Called when Escape or an outside interaction tries to close the menu but `closeOnEscape` or\n`closeOnOutsideClick` is `false`."
+          "description": "Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside interaction\n(`closeOnOutsideClick` is `false`) tried to close the overlay and was blocked."
         },
         {
           "name": "onExitComplete",
@@ -122,19 +122,19 @@
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
-          "description": "Called with the next open state when the user opens or closes the menu, and when `disabled`\nbecomes `true` while it is open. It fires in controlled and uncontrolled mode alike, so a\ncontrolled menu must write the value back to `open`."
+          "description": "Called with the next open state when the user opens or closes the overlay. Not called when\n`open` is changed from outside."
         },
         {
           "name": "open",
           "optional": true,
           "type": "boolean",
-          "description": "Controlled open state. While `undefined` the menu is uncontrolled and follows `defaultOpen`;\nupdate it from `onOpenChange`."
+          "description": "Controlled open state. Leave it `undefined` to manage state internally (see `defaultOpen`);\nwhen set, update it from `onOpenChange`."
         },
         {
           "name": "overflowPadding",
           "optional": true,
           "type": "number",
-          "description": "Minimum distance in pixels kept between the content and the viewport edge when `flip` and\n`slide` position it.",
+          "description": "Minimum padding in pixels kept between the content and the viewport edge when `flip` and\n`slide` position it.",
           "default": {
             "kind": "literal",
             "value": 4
@@ -184,7 +184,7 @@
           "name": "slide",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content may slide along the edge of the anchor so it stays inside the viewport\ninstead of being clipped.",
+          "description": "Whether the content slides along the trigger edge to stay within the viewport.",
           "default": {
             "kind": "literal",
             "value": true
