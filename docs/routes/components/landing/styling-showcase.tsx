@@ -244,7 +244,6 @@ export function StylingShowcase() {
     getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
     defaultSelectedKeys: ['theme'],
-    getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file-code'),
   })
 
   const cssTokenSnippet = createMemo(
@@ -649,7 +648,11 @@ export function StylingShowcase() {
           </Card.Action>
         </Card.Header>
         <Card.Body class="flex-1 space-y-4">
-          <fileTree.Tree aria-label="Workspace files" size="sm" />
+          <fileTree.Tree
+            aria-label="Workspace files"
+            size="sm"
+            getItemIcon={(item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file-code')}
+          />
           <div class="pt-3 border-t border-border flex items-center justify-between">
             <span class="text-xs text-muted-foreground">Reviewers</span>
             <AvatarGroup items={REVIEWERS} maxVisible={3} size="sm" />

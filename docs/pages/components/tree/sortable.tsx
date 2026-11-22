@@ -57,7 +57,7 @@ export function Sortable() {
                 <tree.ItemIcon
                   icon={
                     item.raw.children
-                      ? item.isExpanded
+                      ? item.expanded
                         ? 'icon-folder-open'
                         : 'icon-folder'
                       : 'i-lucide:file'

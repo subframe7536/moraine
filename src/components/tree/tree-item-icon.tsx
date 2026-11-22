@@ -10,7 +10,7 @@ import type { TreeT } from './tree.types'
 
 /**
  * Prefix icon of the surrounding `tree.Item`, for custom `itemRender` content. The default item
- * renders it from `getIcon` instead.
+ * renders it from `getItemIcon` instead.
  *
  * @example
  * ```tsx
@@ -22,7 +22,7 @@ import type { TreeT } from './tree.types'
  *   aria-label="Folders"
  *   itemRender={(item) => (
  *     <tree.Item item={item}>
- *       <tree.ItemIcon icon={item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'} />
+ *       <tree.ItemIcon icon={item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder'} />
  *       <tree.ItemLabel />
  *     </tree.Item>
  *   )}
@@ -39,8 +39,8 @@ export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
     slot: 'icon',
     data: {
       icon: treeDataAttributes.icon({
-        expanded: () => item.isExpanded,
-        leaf: () => item.isLeaf,
+        expanded: () => item.expanded,
+        leaf: () => item.leaf,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),

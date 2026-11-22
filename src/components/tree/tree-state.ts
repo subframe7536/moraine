@@ -66,10 +66,10 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get hasChildren(): boolean {
     return this.node.hasChildren
   }
-  get isLeaf(): boolean {
+  get leaf(): boolean {
     return !this.node.hasChildren
   }
-  get isLastChild(): boolean {
+  get lastChild(): boolean {
     const node = this.node
     return node.posInSet === node.setSize
   }
@@ -82,19 +82,19 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get label(): string {
     return this.node.label
   }
-  get isDisabled(): boolean {
+  get disabled(): boolean {
     return this.node.disabled
   }
-  get isExpanded(): boolean {
+  get expanded(): boolean {
     return this.state.isExpanded(this.key)
   }
-  get isSelected(): boolean {
+  get selected(): boolean {
     return this.state.isSelected(this.key)
   }
-  get isLoading(): boolean {
+  get loading(): boolean {
     return this.state.isLoading(this.key)
   }
-  get isFocused(): boolean {
+  get focused(): boolean {
     return this.state.navigation.focusedKey() === this.key
   }
   get checkedState(): TreeT.CheckedState {
@@ -590,7 +590,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     toggleCheck: (key) => setChecked(key, getCheckedState(key) !== 'checked'),
     focus: (key) => {
       const item = getItem(key)
-      if (!item || item.isDisabled) {
+      if (!item || item.disabled) {
         return
       }
       expandTo(key)

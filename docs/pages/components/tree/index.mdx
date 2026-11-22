@@ -118,17 +118,17 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 | Concern    | `createTree` options                                                                                                              |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Data       | `items` (accessor), `getKey`, `getChildren`, `getItemLabel`, `isItemDisabled`, `isLeaf`                                           |
-| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedKeysChange`, `expandOnClick` (`true`), `trigger` (`true`)                       |
+| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedKeysChange`, `expandOnClick` (`true`)                                           |
 | Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectedKeysChange` |
 | Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedKeysChange`                        |
 | Lazy loads | `loadChildren`, `onLoadChildrenSuccess`, `onLoadChildrenError`                                                                    |
-| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                                |
+| Other      | `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                                                               |
 
-| Concern      | `tree.Tree` props                                                                 |
-| ------------ | --------------------------------------------------------------------------------- |
-| Rendering    | `itemRender`, `actionRender`, `virtualizer`                                       |
-| Icons        | `expandIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)           |
-| Presentation | `size`, `variant`, `indentGuide`, `transition`, `forceMount`, `classes`, `styles` |
+| Concern      | `tree.Tree` props                                                                      |
+| ------------ | -------------------------------------------------------------------------------------- |
+| Rendering    | `itemRender`, `actionRender`, `virtualizer`                                            |
+| Icons        | `getItemIcon`, `expandIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`) |
+| Presentation | `size`, `variant`, `indentGuide`, `transition`, `forceMount`, `classes`, `styles`      |
 
 `createTree` reads options reactively. Pass changing or controlled values as getters, for example
 `get selectedKeys() { return selected() }`; a plain value is read once.
@@ -156,12 +156,12 @@ effects like any signal.
 | `Tree`, `Item`, `ItemTrigger`, `ItemCheckbox`, `ItemIcon`, `ItemLabel`, `ItemAction` | Components bound to this instance.                                                  |
 
 `getItem(key)` returns a stable item handle (`TreeT.ItemInstance<T>`), and `itemRender`,
-`actionRender`, `getIcon`, and `onAction` receive the same handle. Its fields are reactive, and it
-carries per-item actions:
+`actionRender`, `getItemIcon`, and `onAction` receive the same handle. Its fields are reactive,
+and it carries per-item actions:
 
 - Data: `key`, `raw`, `label`, `parentKey`, `children`.
-- Position: `level` (one-based), `posInSet`, `setSize`, `isLastChild`, `hasChildren`, `isLeaf`.
-- State: `isExpanded`, `isSelected`, `isFocused`, `isLoading`, `isDisabled`, `checkedState`
+- Position: `level` (one-based), `posInSet`, `setSize`, `lastChild`, `hasChildren`, `leaf`.
+- State: `expanded`, `selected`, `focused`, `loading`, `disabled`, `checkedState`
   (`'checked'`, `'unchecked'`, or `'indeterminate'`).
 - Actions: `expand()`, `collapse()`, `toggle()`, `select()`, `toggleSelect()`, `toggleCheck()`,
   `focus()`.
@@ -189,8 +189,8 @@ const tree = createTree({
 ```
 
 Clicking a branch row toggles it, and the trigger chevron always toggles. Set `expandOnClick: false`
-so row clicks only select. Set `trigger: false` so the default item renders no chevron; an
-explicitly rendered `tree.ItemTrigger` still shows and toggles.
+so row clicks only select. Set `expandIcon={false}` on `tree.Tree` so the default item renders no
+chevron; an explicitly rendered `tree.ItemTrigger` still shows the default chevron and toggles.
 
 Branch height animates by default; set `transition={false}` on `tree.Tree` to turn it off.
 Collapsed branches unmount their children unless `forceMount`. Neither prop applies
@@ -341,34 +341,33 @@ const sortable = createTreeSortable(tree, {
 `tree.ItemCheckbox`, `tree.ItemIcon`, `tree.ItemLabel`, your own content, and `tree.ItemAction` last.
 
 Without `itemRender`, the default item renders the trigger, the checkbox when `checkable`, the icon
-from `getIcon`, the label, and the `actionRender` actions.
+from `getItemIcon`, the label, and the `actionRender` actions.
 
 - `tree.ItemTrigger` toggles the branch and is hidden from assistive technology. Pass `icon` to
   change the chevron for one item, or `children` to replace it.
 - `tree.ItemLabel` shows `label`. Pass `children` to render other content.
-- `tree.ItemIcon` renders the `icon` you pass. Use `getIcon` instead when you keep the default item.
+- `tree.ItemIcon` renders the `icon` you pass. Use `getItemIcon` instead when you keep the default item.
 
 ### Icons
 
-`getIcon` returns the prefix icon of the default item. It receives the item handle, so the icon
-can follow `hasChildren`, `isExpanded`, or `isLoading`. Return `undefined` for no icon.
+`getItemIcon` on `tree.Tree` returns the prefix icon of the default item. It receives the item
+handle, so the icon can follow `hasChildren`, `expanded`, or `loading`. Return `undefined` for no
+icon.
 
 ```tsx
-const tree = createTree({
-  items,
-  getKey,
-  getChildren,
-  getIcon: (item) => {
+<tree.Tree
+  aria-label="Files"
+  getItemIcon={(item) => {
     if (!item.hasChildren) {
       return 'i-lucide:file'
     }
-    return item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
-  },
-})
+    return item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
+  }}
+/>
 ```
 
-On `tree.Tree`, `expandIcon` replaces the chevron of every item and `loadingIcon` replaces the
-glyph shown while a branch loads.
+`expandIcon` replaces the chevron of every item, or removes it from the default item when `false`,
+and `loadingIcon` replaces the glyph shown while a branch loads.
 
 ### Row actions
 
@@ -377,7 +376,7 @@ Clicks inside the actions never select or expand the item. Actions are always vi
 them on hover, style the `action` slot with the `group/tree-row` group that every row sets.
 
 The tree keeps a single tab stop and does not manage focus inside actions. Set
-`tabIndex={item.isFocused ? 0 : -1}` on each control so <kbd>Tab</kbd> from the focused item
+`tabIndex={item.focused ? 0 : -1}` on each control so <kbd>Tab</kbd> from the focused item
 reaches only that row's actions.
 
 ```tsx
@@ -391,7 +390,7 @@ reaches only that row's actions.
       variant="ghost"
       size="icon-xs"
       leading="i-lucide:trash-2"
-      tabIndex={item.isFocused ? 0 : -1}
+      tabIndex={item.focused ? 0 : -1}
       aria-label={`Delete ${item.label}`}
     />
   )}
@@ -512,6 +511,6 @@ Return a `tree.Item` from `itemRender` and compose the bound parts with your own
 
 Pass `actionRender` to add a button and a dropdown menu to each row. The `action` slot hides them
 until the row is hovered, focused, or its menu is open. Each control sets
-`tabIndex={item.isFocused ? 0 : -1}`, so <kbd>Tab</kbd> from an item reaches only its actions.
+`tabIndex={item.focused ? 0 : -1}`, so <kbd>Tab</kbd> from an item reaches only its actions.
 
 <Preview path="./item-action" />

@@ -44,8 +44,8 @@
         {
           "name": "expandIcon",
           "optional": true,
-          "type": "IconT.Name",
-          "description": "Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its\nown. The recipe rotates it as the branch expands.",
+          "type": "IconT.Name | false | null",
+          "description": "Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its\nown. The recipe rotates it as the branch expands. `false` or `null` removes the trigger from\nthe default item content; an explicitly rendered `tree.ItemTrigger` then shows the default\nchevron and still toggles.",
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"
@@ -62,6 +62,15 @@
           }
         },
         {
+          "name": "getItemIcon",
+          "optional": true,
+          "type": "(item: ItemInstance<T>) => IconT.Name | undefined",
+          "description": "Returns the prefix icon of an item in the default item content, shown before the label.\nNot used when `itemRender` is set; render `tree.ItemIcon` there instead. Receives the item\ninstance, so the icon can follow `expanded` or `loading`. `undefined` renders no icon.",
+          "examples": [
+            "import { createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['docs', 'src'], getKey: (name) => name })\n\n<tree.Tree\n  aria-label=\"Folders\"\n  getItemIcon={(item) => (item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder')}\n/>"
+          ]
+        },
+        {
           "name": "indentGuide",
           "optional": true,
           "type": "boolean",
@@ -75,7 +84,7 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, label, and `actionRender` actions. Receives the item instance.\nUse `tree.Item` as the root of the rendered content; it also renders the nested children\nof expanded branches when the tree is not virtualized.",
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getItemIcon`, label, and `actionRender` actions. Receives the item instance.\nUse `tree.Item` as the root of the rendered content; it also renders the nested children\nof expanded branches when the tree is not virtualized.",
           "examples": [
             "import { createTree } from 'moraine'\n\nconst tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })\n\n<tree.Tree\n  itemRender={(item) => (\n    <tree.Item item={item}>\n      <tree.ItemTrigger />\n      <tree.ItemLabel>{item.raw.toUpperCase()}</tree.ItemLabel>\n    </tree.Item>\n  )}\n/>"
           ]
@@ -228,7 +237,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Overrides the expand icon of this trigger (otherwise the tree's `expandIcon`). The loading\nicon still replaces it while the branch loads."
+          "description": "Overrides the expand icon of this trigger. Otherwise it uses the tree's `expandIcon`, or the\ndefault chevron when that is `false` or `null`. The loading icon still replaces it while the\nbranch loads."
         },
         {
           "name": "style",

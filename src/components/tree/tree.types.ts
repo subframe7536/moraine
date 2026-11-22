@@ -67,25 +67,6 @@ export namespace TreeT {
     getItemLabel?: (item: T) => string | undefined
 
     /**
-     * Returns the prefix icon of an item, shown before the label of the default item. Not used
-     * when `itemRender` is set. Receives the item instance so the icon can react to expansion or
-     * loading state. `undefined` renders no icon.
-     * @example
-     * ```tsx
-     * import { createTree } from 'moraine'
-     *
-     * const tree = createTree<string>({
-     *   items: () => ['docs', 'src'],
-     *   getKey: (name) => name,
-     *   getIcon: (item) => (item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'),
-     * })
-     *
-     * <tree.Tree />
-     * ```
-     */
-    getIcon?: (item: ItemInstance<T>) => IconT.Name | undefined
-
-    /**
      * Whether an item is disabled. Disabled items are skipped by keyboard navigation and cannot
      * be selected, checked, expanded, collapsed, or focused.
      */
@@ -174,13 +155,6 @@ export namespace TreeT {
      * @default true
      */
     expandOnClick?: boolean
-
-    /**
-     * Whether the default item content renders the expand chevron (`tree.ItemTrigger`). An
-     * explicitly rendered `tree.ItemTrigger` is unaffected.
-     * @default true
-     */
-    trigger?: boolean
 
     /**
      * How many items can be selected. `'none'` disables selection (no `aria-selected`, and
@@ -339,9 +313,9 @@ export namespace TreeT {
     /** Whether the item has children or is a lazy branch that has not loaded yet. */
     readonly hasChildren: boolean
     /** Whether the item has no children and cannot load any. The opposite of `hasChildren`. */
-    readonly isLeaf: boolean
+    readonly leaf: boolean
     /** Whether the item is the last among its siblings. */
-    readonly isLastChild: boolean
+    readonly lastChild: boolean
     /** Key of the parent item; `undefined` for root items. */
     readonly parentKey: string | undefined
     /** Direct children, whether or not the item is expanded. */
@@ -349,15 +323,15 @@ export namespace TreeT {
     /** Text from `getItemLabel`, used as the accessible name, label, and typeahead text. */
     readonly label: string
     /** Whether the branch is expanded. */
-    readonly isExpanded: boolean
+    readonly expanded: boolean
     /** Whether the item is in the selected keys. */
-    readonly isSelected: boolean
+    readonly selected: boolean
     /** Whether the branch is loading its children. */
-    readonly isLoading: boolean
+    readonly loading: boolean
     /** Whether the item holds focus; always `false` while focus is outside the tree. */
-    readonly isFocused: boolean
+    readonly focused: boolean
     /** Whether `isItemDisabled` marked the item disabled. */
-    readonly isDisabled: boolean
+    readonly disabled: boolean
     /** Check state; `'indeterminate'` only occurs on branches with `checkCascade`. */
     readonly checkedState: CheckedState
     /** Same as `tree.expand(key)` for this item. */
@@ -385,7 +359,7 @@ export namespace TreeT {
   export interface Base<T = unknown> {
     /**
      * Renders one visible item. Defaults to trigger, check box when checkable, the icon
-     * returned by `getIcon`, label, and `actionRender` actions. Receives the item instance.
+     * returned by `getItemIcon`, label, and `actionRender` actions. Receives the item instance.
      * Use `tree.Item` as the root of the rendered content; it also renders the nested children
      * of expanded branches when the tree is not virtualized.
      * @example
@@ -446,11 +420,31 @@ export namespace TreeT {
     virtualizer?: Virtualizer<T>
 
     /**
+     * Returns the prefix icon of an item in the default item content, shown before the label.
+     * Not used when `itemRender` is set; render `tree.ItemIcon` there instead. Receives the item
+     * instance, so the icon can follow `expanded` or `loading`. `undefined` renders no icon.
+     * @example
+     * ```tsx
+     * import { createTree } from 'moraine'
+     *
+     * const tree = createTree<string>({ items: () => ['docs', 'src'], getKey: (name) => name })
+     *
+     * <tree.Tree
+     *   aria-label="Folders"
+     *   getItemIcon={(item) => (item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder')}
+     * />
+     * ```
+     */
+    getItemIcon?: (item: ItemInstance<T>) => IconT.Name | undefined
+
+    /**
      * Icon of the expand trigger, used when `tree.ItemTrigger` has no `icon` or children of its
-     * own. The recipe rotates it as the branch expands.
+     * own. The recipe rotates it as the branch expands. `false` or `null` removes the trigger from
+     * the default item content; an explicitly rendered `tree.ItemTrigger` then shows the default
+     * chevron and still toggles.
      * @default 'icon-chevron-right'
      */
-    expandIcon?: IconT.Name
+    expandIcon?: IconT.Name | false | null
 
     /**
      * Icon shown in the trigger instead of the expand icon while a lazy branch loads its children.
@@ -489,8 +483,9 @@ export namespace TreeT {
      */
     as?: T
     /**
-     * Overrides the expand icon of this trigger (otherwise the tree's `expandIcon`). The loading
-     * icon still replaces it while the branch loads.
+     * Overrides the expand icon of this trigger. Otherwise it uses the tree's `expandIcon`, or the
+     * default chevron when that is `false` or `null`. The loading icon still replaces it while the
+     * branch loads.
      */
     icon?: IconT.Name
     /** Replaces the icon entirely, including the loading icon. */

@@ -217,8 +217,8 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('renders no trigger in the default item and still toggles on row click when trigger is false', () => {
-      const { container } = render(() => <Harness options={{ trigger: false }} />)
+    test('renders no trigger in the default item and still toggles on row click when expandIcon is false', () => {
+      const { container } = render(() => <Harness treeProps={{ expandIcon: false }} />)
       const src = item(container, 'src')
 
       expect(src.querySelector('[data-slot="tree-trigger"]')).toBeNull()
@@ -229,9 +229,9 @@ describe('createTree', () => {
       expect(src.getAttribute('aria-expanded')).toBe('false')
     })
 
-    test('does not toggle on row click when trigger and expandOnClick are both false', () => {
+    test('does not toggle on row click without a trigger when expandOnClick is false', () => {
       const { container } = render(() => (
-        <Harness options={{ trigger: false, expandOnClick: false }} />
+        <Harness options={{ expandOnClick: false }} treeProps={{ expandIcon: null }} />
       ))
       const src = item(container, 'src')
 
@@ -242,13 +242,13 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
-    test('an explicit ItemTrigger still renders when trigger is false', () => {
+    test('an explicit ItemTrigger still renders the default chevron when expandIcon is false', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
           onTree={(value) => (tree = value)}
-          options={{ trigger: false }}
           treeProps={{
+            expandIcon: false,
             transition: false,
             itemRender: (context) => (
               <tree.Item item={context}>
@@ -263,17 +263,20 @@ describe('createTree', () => {
       const src = item(container, 'src')
       const trigger = src.querySelector<HTMLElement>('[data-slot="tree-trigger"]')
       expect(trigger).not.toBeNull()
+      expect(
+        trigger!.querySelector('[data-slot="tree-trigger-icon"]')?.getAttribute('class'),
+      ).toContain('icon-chevron-right')
 
       fireEvent.click(trigger!)
       expect(src.getAttribute('aria-expanded')).toBe('true')
       expect(labels(container)).toContain('components')
     })
 
-    test('renders the getIcon icon in the default item', () => {
+    test('renders the getItemIcon icon in the default item', () => {
       const { container } = render(() => (
         <Harness
-          options={{
-            getIcon: (item) => (item.hasChildren ? 'icon-folder' : 'icon-file'),
+          treeProps={{
+            getItemIcon: (item) => (item.hasChildren ? 'icon-folder' : 'icon-file'),
           }}
         />
       ))
@@ -286,14 +289,14 @@ describe('createTree', () => {
       ).toContain('icon-file')
     })
 
-    test('getIcon can react to expansion state', () => {
+    test('getItemIcon can react to expansion state', () => {
       const { container } = render(() => (
         <Harness
-          options={{
-            getIcon: (item) =>
-              item.hasChildren ? (item.isExpanded ? 'icon-open' : 'icon-closed') : 'icon-file',
+          treeProps={{
+            transition: false,
+            getItemIcon: (item) =>
+              item.hasChildren ? (item.expanded ? 'icon-open' : 'icon-closed') : 'icon-file',
           }}
-          treeProps={{ transition: false }}
         />
       ))
       const src = item(container, 'src')
@@ -304,7 +307,7 @@ describe('createTree', () => {
       expect(icon()?.className).toContain('icon-open')
     })
 
-    test('renders no icon without getIcon', () => {
+    test('renders no icon without getItemIcon', () => {
       const { container } = render(() => <Harness />)
 
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
@@ -845,13 +848,13 @@ describe('createTree', () => {
       const src = item(container, 'src')
       src.focus()
       expect(tree.focusedKey).toBe('src')
-      expect(tree.getItem('src')?.isFocused).toBe(true)
+      expect(tree.getItem('src')?.focused).toBe(true)
 
       const outside = container.querySelector('button')!
       outside.focus()
       fireEvent.focusOut(src, { relatedTarget: outside })
       expect(tree.focusedKey).toBeUndefined()
-      expect(tree.getItem('src')?.isFocused).toBe(false)
+      expect(tree.getItem('src')?.focused).toBe(false)
       expect(src.getAttribute('tabindex')).toBe('0')
     })
   })

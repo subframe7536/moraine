@@ -35,7 +35,6 @@ export function ItemAction() {
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
     getItemLabel: (node) => node.name,
-    getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file'),
     defaultExpandedKeys: ['src', 'components'],
   })
 
@@ -43,6 +42,7 @@ export function ItemAction() {
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Files"
+        getItemIcon={(item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file')}
         classes={{
           action:
             'opacity-0 transition-opacity group-hover/tree-row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100',
@@ -54,7 +54,7 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
-                tabIndex={item.isFocused ? 0 : -1}
+                tabIndex={item.focused ? 0 : -1}
                 aria-label={`New file in ${item.label}`}
                 onClick={() => setStatus(`New file in ${item.label}`)}
               />
@@ -65,7 +65,7 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
-                tabIndex={item.isFocused ? 0 : -1}
+                tabIndex={item.focused ? 0 : -1}
                 aria-label={`More actions for ${item.label}`}
               />
               <DropdownMenu.Content

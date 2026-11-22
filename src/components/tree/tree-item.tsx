@@ -59,7 +59,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const [lastHeight, setLastHeight] = createSignal(0)
   const transition = () => Boolean(context.variants.transition)
   const disclosure = createDisclosureState({
-    open: () => props.item.isExpanded,
+    open: () => props.item.expanded,
     transition,
     forceMount: () => context.props.forceMount,
     // Layout height of the child list: a row still translated by a drop animation overflows it and
@@ -260,18 +260,18 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     data: {
       item: treeDataAttributes.item({
         checked: () => local.item.checkedState === 'checked',
-        disabled: () => local.item.isDisabled,
-        expanded: () => local.item.isExpanded,
+        disabled: () => local.item.disabled,
+        expanded: () => local.item.expanded,
         indeterminate: () => local.item.checkedState === 'indeterminate',
-        leaf: () => local.item.isLeaf,
-        loading: () => local.item.isLoading,
-        selected: () => local.item.isSelected,
+        leaf: () => local.item.leaf,
+        loading: () => local.item.loading,
+        selected: () => local.item.selected,
       }),
       row: treeDataAttributes.row({
-        disabled: () => local.item.isDisabled,
-        expanded: () => local.item.isExpanded,
-        leaf: () => local.item.isLeaf,
-        selected: () => local.item.isSelected,
+        disabled: () => local.item.disabled,
+        expanded: () => local.item.expanded,
+        leaf: () => local.item.leaf,
+        selected: () => local.item.selected,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
@@ -305,7 +305,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         {...rest}
         {...rowAttributes()}
         tabIndex={
-          local.item.isDisabled
+          local.item.disabled
             ? undefined
             : context.state.navigation.tabStopKey() === local.item.key
               ? 0
@@ -314,8 +314,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-level={local.item.level}
         aria-posinset={local.item.posInSet}
         aria-setsize={local.item.setSize}
-        aria-expanded={local.item.hasChildren ? local.item.isExpanded : undefined}
-        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.isSelected}
+        aria-expanded={local.item.hasChildren ? local.item.expanded : undefined}
+        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.selected}
         aria-checked={
           context.options.checkable
             ? local.item.checkedState === 'indeterminate'
@@ -323,8 +323,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
               : local.item.checkedState === 'checked'
             : undefined
         }
-        aria-disabled={local.item.isDisabled ? true : undefined}
-        aria-busy={local.item.isLoading ? true : undefined}
+        aria-disabled={local.item.disabled ? true : undefined}
+        aria-busy={local.item.loading ? true : undefined}
         ref={(element: HTMLElement) => {
           setItemElement(element)
           callRef(row()?.ref, element)
@@ -335,7 +335,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
             !callHandler(event, local.onClick).defaultPrevented &&
             belongsToItem(event) &&
             !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
-            !local.item.isDisabled
+            !local.item.disabled
           ) {
             context.state.handleClick(event, local.item.key)
           }
@@ -347,7 +347,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         }}
         onFocusIn={(event: FocusEvent) => {
           callHandler(event, local.onFocusIn)
-          if (belongsToItem(event) && !local.item.isDisabled) {
+          if (belongsToItem(event) && !local.item.disabled) {
             context.state.setFocusedKey(local.item.key)
           }
         }}
@@ -355,7 +355,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           if (
             !callHandler(event, local.onMouseDown).defaultPrevented &&
             belongsToItem(event) &&
-            !local.item.isDisabled &&
+            !local.item.disabled &&
             isFromDescendant(event, POINTER_FOCUS_SELECTOR) &&
             !isFromDescendant(event, ACTION_SELECTOR)
           ) {
@@ -384,17 +384,20 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   )
 }
 
-/** Default item content: trigger, check box when checkable, prefix icon, label, and actions. */
+/**
+ * Default item content: trigger (unless `expandIcon` is `false` or `null`), check box when
+ * checkable, prefix icon from `getItemIcon`, label, and actions.
+ */
 export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Element {
   const context = useTreeContext()
 
   return (
     <TreeItem item={props}>
-      <Show when={context.options.trigger !== false}>
+      <Show when={context.props.expandIcon !== false && context.props.expandIcon !== null}>
         <TreeItemTrigger />
       </Show>
       <TreeItemCheckbox />
-      <Show when={context.options.getIcon?.(props)}>
+      <Show when={context.props.getItemIcon?.(props)}>
         {(icon) => <TreeItemIcon icon={icon()} />}
       </Show>
       <TreeItemLabel />

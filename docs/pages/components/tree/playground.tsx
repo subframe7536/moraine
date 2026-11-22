@@ -80,19 +80,17 @@ export default function TreePlayground() {
           get checkable() {
             return props.checkable
           },
-          get trigger() {
-            return props.trigger
-          },
-          getIcon(item) {
-            if (!props.icon) {
-              return undefined
-            }
-            if (!item.hasChildren) {
-              return 'i-lucide:file'
-            }
-            return item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
-          },
         })
+
+        const getItemIcon = (item: TreeT.ItemInstance<FileNode>) => {
+          if (!props.icon) {
+            return undefined
+          }
+          if (!item.hasChildren) {
+            return 'i-lucide:file'
+          }
+          return item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
+        }
 
         const actionRender = (item: TreeT.ItemInstance<FileNode>) => (
           <>
@@ -101,7 +99,7 @@ export default function TreePlayground() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
-                tabIndex={item.isFocused ? 0 : -1}
+                tabIndex={item.focused ? 0 : -1}
                 aria-label={`New file in ${item.label}`}
                 onClick={() => setStatus(`New file in ${item.label}`)}
               />
@@ -112,7 +110,7 @@ export default function TreePlayground() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
-                tabIndex={item.isFocused ? 0 : -1}
+                tabIndex={item.focused ? 0 : -1}
                 aria-label={`More actions for ${item.label}`}
               />
               <DropdownMenu.Content
@@ -141,6 +139,8 @@ export default function TreePlayground() {
               variant={props.variant}
               transition={props.transition}
               indentGuide={props.indentGuide}
+              expandIcon={props.trigger ? undefined : false}
+              getItemIcon={getItemIcon}
               actionRender={props.action ? actionRender : undefined}
             />
             <Show when={status()}>

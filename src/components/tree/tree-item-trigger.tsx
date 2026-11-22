@@ -62,9 +62,9 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     slot: 'trigger',
     data: {
       trigger: treeDataAttributes.trigger({
-        expanded: () => item.isExpanded,
-        leaf: () => item.isLeaf,
-        loading: () => item.isLoading,
+        expanded: () => item.expanded,
+        leaf: () => item.leaf,
+        loading: () => item.loading,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
@@ -91,9 +91,9 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         fallback={
           <Icon
             name={
-              item.isLoading
+              item.loading
                 ? (context.props.loadingIcon ?? 'icon-loading')
-                : (local.icon ?? context.props.expandIcon ?? 'icon-chevron-right')
+                : (local.icon ?? (context.props.expandIcon || 'icon-chevron-right'))
             }
             data-slot="tree-trigger-icon"
             class={TREE_TRIGGER_ICON_CLASS}

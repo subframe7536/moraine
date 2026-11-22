@@ -26,6 +26,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'itemRender',
     'actionRender',
     'virtualizer',
+    'getItemIcon',
     'expandIcon',
     'loadingIcon',
     'transition',

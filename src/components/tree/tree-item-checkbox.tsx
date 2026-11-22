@@ -56,7 +56,7 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
         checked={
           item.checkedState === 'indeterminate' ? 'indeterminate' : item.checkedState === 'checked'
         }
-        disabled={item.isDisabled}
+        disabled={item.disabled}
         checkedIcon={local.checkedIcon}
         indeterminateIcon={local.indeterminateIcon}
         onCheckedChange={(checked) => context.state.setChecked(item.key, checked)}
