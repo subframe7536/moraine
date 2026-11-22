@@ -16,7 +16,6 @@ import {
 import { useRecipe } from '../../provider'
 import { collatorMatches, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
-import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -26,6 +25,7 @@ import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
 import type { ListT } from '../list'
+import { useSearchQuery } from '../shared/form/select/search-query'
 import { createCompositionState } from '../shared/overlay/composition'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -252,10 +252,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     local,
   )
 
-  const [currentSearchValue, setSearchValue] = createControllableValue<string>({
-    value: () => merged.searchValue,
-    defaultValue: () => merged.defaultSearchValue ?? '',
+  const search = useSearchQuery({
+    get value() {
+      return merged.searchValue
+    },
+    get defaultValue() {
+      return merged.defaultSearchValue
+    },
+    get onValueChange() {
+      return merged.onSearchValueChange
+    },
+    get maxLength() {
+      return merged.searchMaxLength
+    },
   })
+  const currentSearchValue = search.value
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const isActive = createSelector(activeKey)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
@@ -303,8 +314,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function applySearchValue(value: string): void {
-    setSearchValue(value)
-    merged.onSearchValueChange?.(value)
+    const next = search.setValue(value)
+    const input = inputElement()
+    // Committed text past `searchMaxLength` (IME or programmatic input) is cut back in the field too.
+    if (input && next !== value) {
+      input.value = next
+    }
   }
 
   createEffect(

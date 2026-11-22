@@ -218,9 +218,10 @@ export namespace CommandPaletteT {
      */
     defaultSearchValue?: string
     /**
-     * Called with the new search text when the user edits the input. While an IME composition
-     * is in progress it is deferred until the composition ends (except on Android). It is not called when
-     * `searchValue` changes from outside.
+     * Called with the new search text when the user edits the input, already truncated to
+     * `searchMaxLength`. While an IME composition is in progress it is deferred until the
+     * composition ends (except on Android). It is not called when `searchValue` changes from
+     * outside.
      */
     onSearchValueChange?: (value: string) => void
     /**
@@ -229,7 +230,11 @@ export namespace CommandPaletteT {
      * `closeOnSelect` is `true`.
      */
     onSelect?: (item: TItem) => void
-    /** Maximum number of characters the search input accepts (the native `maxlength`). */
+    /**
+     * Maximum number of characters in the search text. Applied as the input's `maxLength` and by
+     * truncating text the user commits (for example a finished IME composition); a controlled
+     * `searchValue` is not truncated. Unlimited when omitted.
+     */
     searchMaxLength?: number
     /**
      * Whether to focus the search input when the palette mounts. Skipped when the palette is

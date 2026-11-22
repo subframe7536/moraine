@@ -515,6 +515,26 @@ describe('CommandPalette', () => {
     expect(body().queryByRole('option', { name: /New File/ })).toBeNull()
   })
 
+  test('truncates committed search text to searchMaxLength', () => {
+    const onSearchValueChange = vi.fn()
+    const screen = render(() => (
+      <CommandPalette
+        items={GROUPS}
+        autoFocus={false}
+        searchMaxLength={3}
+        onSearchValueChange={onSearchValueChange}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(input.maxLength).toBe(3)
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: 'settings' } })
+    fireEvent.compositionEnd(input)
+    expect(onSearchValueChange).toHaveBeenLastCalledWith('set')
+    expect(input.value).toBe('set')
+    expect(body().getByRole('option', { name: /Settings/ })).not.toBeNull()
+  })
+
   test('keeps Home and End on the search caret', () => {
     const screen = render(() => <CommandPalette items={GROUPS} />)
     const input = screen.getByRole('combobox')
