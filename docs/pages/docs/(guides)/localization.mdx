@@ -33,9 +33,9 @@ const zhCN = {
   dialog: { close: '关闭', ok: '确定', cancel: '取消' },
   pagination: {
     label: '分页',
-    status: ({ page, total }) => `第 ${page} 页，共 ${total} 页`,
-    page: ({ page, total }) => `第 ${page} 页，共 ${total} 页`,
-    currentPage: ({ page, total }) => `第 ${page} 页，共 ${total} 页，当前页`,
+    status: ({ page, pageCount }) => `第 ${page} 页，共 ${pageCount} 页`,
+    page: ({ page, pageCount }) => `第 ${page} 页，共 ${pageCount} 页`,
+    currentPage: ({ page, pageCount }) => `第 ${page} 页，共 ${pageCount} 页，当前页`,
     prev: ({ page }) => (page === undefined ? '上一页' : `上一页，第 ${page} 页`),
     next: ({ page }) => (page === undefined ? '下一页' : `下一页，第 ${page} 页`),
   },
@@ -54,7 +54,7 @@ Changing `messages`, `locale`, or `dir` updates the rendered text and behavior w
 
 A component prop always wins over messages. `placeholder`, `aria-label`, `ariaLabel`, and `label` keep the caller's text, and messages fill only what the caller left unset.
 
-Besides the tree-level `messages` on `MoraineProvider`, components with messages accept a `translations` prop (typed as `<Component>T.Translations`) for instance-level overrides without a nested provider. `CopyButton` is the exception: it reads its messages from the provider only.
+Besides the tree-level `messages` on `MoraineProvider`, components with messages accept a `translations` prop (typed as `<Component>T.Translations`) for instance-level overrides without a nested provider.
 
 ```tsx
 import { Pagination } from 'moraine'
@@ -89,10 +89,10 @@ const pagination = {
 const rules = new Intl.PluralRules('en-US')
 
 const pagination = {
-  page: ({ page, total }) =>
-    rules.select(total) === 'one'
-      ? `Go to page ${page} of ${total} page`
-      : `Go to page ${page} of ${total} pages`,
+  page: ({ page, pageCount }) =>
+    rules.select(pageCount) === 'one'
+      ? `Go to page ${page} of ${pageCount} page`
+      : `Go to page ${page} of ${pageCount} pages`,
 }
 ```
 

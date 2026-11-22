@@ -44,9 +44,9 @@ export namespace ScrollAreaT {
     onTopReached?: () => void
     /** Called once each time scrolling reaches the bottom edge (within `scrollThreshold`) of an overflowing vertical axis, such as to load more items. */
     onBottomReached?: () => void
-    /** Called once each time scrolling reaches the left edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical end. */
+    /** Called once each time scrolling reaches the physical left edge (within `scrollThreshold`) of an overflowing horizontal axis, regardless of direction; in RTL content that is the logical end, unlike `Overflow.x.start`. Not called for the initial position. */
     onLeftReached?: () => void
-    /** Called once each time scrolling reaches the right edge (within `scrollThreshold`) of an overflowing horizontal axis; in RTL content that is the logical start. */
+    /** Called once each time scrolling reaches the physical right edge (within `scrollThreshold`) of an overflowing horizontal axis, regardless of direction; in RTL content that is the logical start, unlike `Overflow.x.end`. Not called for the initial position. */
     onRightReached?: () => void
   }
 

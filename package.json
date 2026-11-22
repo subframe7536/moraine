@@ -120,7 +120,6 @@
   },
   "peerDependencies": {
     "@dnd-kit/dom": "^0.5.3",
-    "@iconify/tailwind": "^1.2.0",
     "@subf/unocss": "catalog:peers",
     "@tanstack/table-core": "^9.3.1",
     "@tanstack/virtual-core": "^3.19.11",
@@ -129,9 +128,6 @@
   },
   "peerDependenciesMeta": {
     "@dnd-kit/dom": {
-      "optional": true
-    },
-    "@iconify/tailwind": {
       "optional": true
     },
     "@subf/unocss": {

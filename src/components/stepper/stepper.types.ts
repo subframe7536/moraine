@@ -149,7 +149,8 @@ export namespace StepperT {
     disabled?: boolean
 
     /**
-     * Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps are skipped.
+     * Whether arrow-key navigation wraps from the last step to the first and back. Disabled steps
+     * are skipped. Off by default, unlike `Tabs`, because a sequence has a first and a last step.
      * @default false
      */
     loop?: boolean

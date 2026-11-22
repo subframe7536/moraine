@@ -4,6 +4,7 @@ export type { CreateControllableValueOptions } from './shared/controllable-value
 export { createDisclosureState } from './shared/disclosure-state'
 export type { CreateDisclosureStateOptions, DisclosureState } from './shared/disclosure-state'
 export { createEventListener, createEventListenerMap } from './shared/event-listener'
+export type { EventListenerEntry, EventListenerMap } from './shared/event-listener'
 export { createMediaQuery } from './shared/media-query'
 export { createSelectableCollectionNavigation } from './shared/selectable-collection-navigation'
 export type { CreateSelectableCollectionNavigationOptions } from './shared/selectable-collection-navigation'
