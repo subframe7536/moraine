@@ -8,18 +8,15 @@ export function ItemsUsage() {
           as="div"
           class="text-xs text-muted-foreground b-1 b-border rounded-xl flex h-28 w-full select-none items-center justify-center"
         >
-          Right-click to view item model actions
+          Right-click to view grouped file actions
         </ContextMenu.Trigger>
         <ContextMenu.Content
           items={[
-            {
-              label: 'Actions',
-              children: [
-                { label: 'Copy path', icon: 'i-lucide:copy' },
-                { label: 'Rename file', icon: 'i-lucide:edit-2' },
-                { label: 'Delete', icon: 'i-lucide:trash-2', danger: true },
-              ],
-            },
+            [
+              { label: 'Copy path', icon: 'i-lucide:copy' },
+              { label: 'Rename file', icon: 'i-lucide:edit-2' },
+            ],
+            [{ label: 'Delete', icon: 'i-lucide:trash-2', danger: true }],
           ]}
         />
       </ContextMenu>

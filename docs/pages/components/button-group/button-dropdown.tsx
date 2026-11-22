@@ -34,11 +34,11 @@ export function DropdownAction() {
 
   return (
     <div class="flex flex-col gap-3 items-start">
-      <ButtonGroup>
+      <ButtonGroup aria-label="Export actions">
         <Button leading="i-lucide:download">Export report</Button>
         <ButtonGroup.Separator />
         <DropdownMenu placement="bottom" align="end">
-          <DropdownMenu.Trigger as={Button} size="icon-md">
+          <DropdownMenu.Trigger as={Button} size="icon-md" aria-label="Choose export format">
             <Icon name="i-lucide:chevron-down" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content items={exportItems} />

@@ -91,10 +91,10 @@ export namespace PinInputT {
     placeholder?: string
 
     /**
-     * Group inputs by inserting a separator between groups: a number for groups of that size,
-     * or an array of consecutive group sizes.
-     * @example 3 // groups of 3 -> [X][X][X] • [X][X][X]
-     * @example [3, 1, 3] // explicit sizes -> [X][X][X] • [X] • [X][X][X]
+     * Group inputs by inserting a separator between groups: a number for groups of that size
+     * (`3` gives `[X][X][X] • [X][X][X]`), or an array of consecutive group sizes (`[3, 1, 3]`
+     * gives `[X][X][X] • [X] • [X][X][X]`). Sizes that do not fit inside `length` add no
+     * separator.
      */
     groupSize?: number | readonly number[]
 
@@ -105,8 +105,11 @@ export namespace PinInputT {
      * ```tsx
      * import { PinInput } from 'moraine'
      *
-     * <PinInput length={6} groupSize={3} separator="–" />
-     * <PinInput length={6} groupSize={3} separator={() => <span>–</span>} />
+     * <PinInput
+     *   length={6}
+     *   groupSize={3}
+     *   separator={(props) => <span data-after={props.index}>–</span>}
+     * />
      * ```
      */
     separator?: string | Component<SeparatorRenderProps>
@@ -193,13 +196,13 @@ export namespace PinInputT {
 
     /**
      * Native focusin event for every slot focus, including moves between slots. Called before
-     * `onFocus`.
+     * `onFocus`; calling `preventDefault` skips `onFocus` and the `Field` focus notification.
      */
     onFocusIn?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
      * Native focusout event for every slot blur, including moves between slots. Called before
-     * `onBlur`.
+     * `onBlur`; calling `preventDefault` skips `onBlur` and the `Field` blur notification.
      */
     onFocusOut?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 

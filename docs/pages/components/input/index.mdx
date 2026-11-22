@@ -95,6 +95,7 @@ icons into these parts and provide their labels and handlers.
     <Button
       variant="ghost"
       size="icon-sm"
+      leading={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'}
       onClick={() => setShowPassword((prev) => !prev)}
       aria-label={showPassword() ? 'Hide token' : 'Show token'}
     />
@@ -110,17 +111,10 @@ Control the input value with `value` and `onValueChange`.
 
 <Preview path="./controlled-input" />
 
-### Visibility toggle
-
-Compose the visibility toggle yourself. InputGroup does not own the show/hide state or the
-button's label.
-
-<Preview path="./composed-controls" />
-
 ### InputGroup addons
 
 Compose `InputGroup` addons around Input. Your application owns visibility toggles, clear buttons,
-and unit suffixes.
+and unit suffixes, including the state and accessible labels of their buttons.
 
 <Preview path="./input-with-icons" />
 

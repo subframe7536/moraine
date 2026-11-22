@@ -70,7 +70,7 @@ Theme variables and page background and text styles belong in your CSS. The plug
 
 Set the global `--sidebar-width` in `:root` to customize the desktop sidebar width. Sidebar uses `clamp(14rem, 25%, 20rem)` when it is unset.
 
-`bg-control` supplies outline field, unchecked choice, and upload surfaces. `border-input` keeps the existing boundary role, including neutral tracks and separators elsewhere. `control` uses the existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
+`bg-control` supplies outline field, unchecked choice, and upload surfaces. `border-input` is the field boundary color, also used for neutral tracks and separators. `control` uses the field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` are supported. See [Form control surface](/docs/design#form-control-surface).
 
 Surface hover and active utilities (`hover:bg-accent-hover`, `active:bg-accent-active`) mix the surface toward its foreground in browsers that support `color-mix(in oklch, …)`, and fall back to the base surface color elsewhere. Tone components handle interaction states through the component tone channel. Tones also expose derived `--<tone>-ink` text colors and `--<tone>-soft` washes that mix toward transparent, so they composite on the local surface.
 
@@ -123,11 +123,11 @@ Target component DOM states with these utility prefixes:
 
 The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/design#css-variables).
 
-The default `text-xs` through `text-9xl` scale reads the local `--font-size`, and named radius utilities read `--radius`. Explicit Tailwind theme values can replace these mappings. See [Typography and spacing](/docs/design#typography-and-spacing) for the differences between Tailwind, UnoCSS Wind3, and UnoCSS Wind4.
+The default `text-tiny` through `text-9xl` scale reads the local `--font-size`, and named radius utilities read `--radius`. Explicit Tailwind theme values can replace these mappings. See [Typography and spacing](/docs/design#typography-and-spacing) for the differences between Tailwind, UnoCSS Wind3, and UnoCSS Wind4.
 
 ## Troubleshooting
 
-Check the installation button on a clean dev-server start, after a restart with Vite's cache retained, on a directly opened lazy-loaded route, and in a production preview.
+Check the installation button in each [verification scenario](/docs/installation#3-verify-the-installation).
 
 - **No utility styles**: Confirm Tailwind's build integration runs and your application entry imports its stylesheet.
 - **Application classes work, but Moraine classes are missing**: Confirm `@plugin 'moraine/tailwind'` is loaded and `@source` points to the installed distribution. Registering a plugin does not scan a dependency.

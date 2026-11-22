@@ -36,8 +36,8 @@ export namespace PaginationT {
     /**
      * Overrides for the localized accessibility strings of this instance; omitted keys fall back to
      * the locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive
-     * `{ page, total }`; `prev` and `next` receive `{ page }`, which is `undefined` when already at
-     * that edge.
+     * `{ page, total }`, where `total` is the page count (not the `total` prop); `prev` and `next`
+     * receive `{ page }`, which is `undefined` when already at that edge.
      * @example
      * ```tsx
      * import { Pagination } from 'moraine'
@@ -123,8 +123,8 @@ export namespace PaginationT {
 
     /**
      * Text shown in the previous button. When set, the control shows the text with `prevIcon`
-     * before it instead of an icon-only button. Its accessible name still comes from
-     * `translations.prev`, not from this text.
+     * before it instead of an icon-only button, and the text replaces `translations.prev` as its
+     * accessible name. The `controlLabel` slot hides the text visually below the `sm` breakpoint; it still names the control.
      */
     prevText?: string
 
@@ -136,8 +136,8 @@ export namespace PaginationT {
 
     /**
      * Text shown in the next button. When set, the control shows the text with `nextIcon` after it
-     * instead of an icon-only button. Its accessible name still comes from `translations.next`,
-     * not from this text.
+     * instead of an icon-only button, and the text replaces `translations.next` as its accessible
+     * name. The `controlLabel` slot hides the text visually below the `sm` breakpoint; it still names the control.
      */
     nextText?: string
 

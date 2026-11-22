@@ -52,6 +52,9 @@ export const brandTheme = defineTheme({
 Pass an existing theme to `extends` to build a specialized theme, such as a high-contrast or compact mode. The new theme applies the parent's overrides first, then its own on top:
 
 ```ts
+import { defineTheme } from 'moraine/theme'
+import { brandTheme } from './brand-theme'
+
 export const highContrastTheme = defineTheme({
   extends: brandTheme,
   button: {
@@ -67,25 +70,18 @@ export const highContrastTheme = defineTheme({
 Wrap your application root or any subtree in `MoraineProvider` to apply a theme:
 
 ```tsx title="src/App.tsx"
+import type { ParentProps } from 'solid-js'
 import { MoraineProvider } from 'moraine'
 import { brandTheme } from './theme/brand-theme'
 
-export function App(props) {
+export function App(props: ParentProps) {
   return <MoraineProvider theme={brandTheme}>{props.children}</MoraineProvider>
 }
 ```
 
 ### Provider Nesting Behavior
 
-| `theme` prop           | Behavior                                                                                                                                                |
-| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Omitted or `undefined` | Inherits the parent Provider's theme unchanged. At root, uses built-in recipe defaults.                                                                 |
-| `defineTheme(...)`     | Replaces the parent's theme for this subtree. Overrides apply on top of built-in component recipes; the object is not merged with the ancestor's theme. |
-| `theme={null}`         | Disables theming for this subtree: any inherited theme is dropped, and components use built-in recipe defaults.                                         |
-
-Omit the prop to keep the parent's theme, pass a theme to replace it, and pass `null` to opt a subtree out of theming. Instance `classes`, `styles`, `class`, and `style` props still win over the theme.
-
-`locale`, `dir`, and `messages` also inherit from the parent when omitted, with their own merge rules. See [Localization](/docs/localization).
+Omit `theme` on a nested provider to keep the parent's theme, pass a theme to replace it (themes are not merged; use `extends` to combine them), and pass `null` to opt a subtree out of theming. Instance `classes`, `styles`, `class`, and `style` props still win over the theme. See [Nesting and reset rules](/docs/provider#nesting-and-reset-rules) for every `MoraineProvider` prop.
 
 ## Dynamic Theme Switching
 
@@ -114,6 +110,8 @@ Interactive elements keep their focus, text selection, and native element refere
 Variants define stable design dimensions (`size`, `variant`, `tone`). Style transient state (such as disabled or loading) with attribute selectors in `base`:
 
 ```ts
+import { defineTheme } from 'moraine/theme'
+
 const theme = defineTheme({
   button: {
     base: {
@@ -134,7 +132,7 @@ Overlay components (`Dialog.Content`, `Popover.Content`, `Tooltip.Content`) rend
 
 Portaled nodes sit outside their parent container in the DOM tree, so **CSS custom properties declared on local container elements do not cascade into portaled overlays**.
 
-`Dialog`, `Sheet`, and `Drawer` accept a `mount` node, so you can portal them into a container that declares the variables. To pass custom variables or classes to any portaled overlay directly, set them on its slots:
+Overlay roots such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `DropdownMenu`, and `Tooltip` accept a `mount` node, so you can portal them into a container that declares the variables. To pass custom variables or classes to any portaled overlay directly, set them on its slots:
 
 ```tsx
 import { Dialog, Button } from 'moraine'

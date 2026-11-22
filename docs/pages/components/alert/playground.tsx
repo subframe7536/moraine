@@ -40,7 +40,7 @@ export default function AlertPlayground() {
           defaultValue: 'default',
           options: [
             { label: 'Default', value: 'default' },
-            { label: 'Circle (icon-x-circle)', value: 'icon-x-circle' },
+            { label: 'Circle (i-lucide:circle-x)', value: 'i-lucide:circle-x' },
           ],
         },
         { kind: 'switch', prop: 'fullWidth', label: 'Full Width', defaultValue: false },

@@ -15,7 +15,7 @@ export interface SwitchStyleSlot<T = unknown> {
   /** Checked, unchecked, or loading icon rendered inside the thumb. */
   icon?: T
 
-  /** Inner layout wrapper used by switch list and card variants. */
+  /** Text column that holds the label and description. */
   wrapper?: T
 
   /** Primary switch label text. */

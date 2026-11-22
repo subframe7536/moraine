@@ -60,8 +60,9 @@ export namespace TooltipT {
     openDelay?: number
 
     /**
-     * Delay in milliseconds between the pointer leaving the trigger and content and closing;
-     * moving onto the content keeps the tooltip open. `0` closes immediately.
+     * Delay in milliseconds between the pointer leaving the trigger and content, or the trigger
+     * losing focus, and closing; moving onto the content keeps the tooltip open. `0` closes
+     * immediately.
      * @default 200
      */
     closeDelay?: number
@@ -112,9 +113,7 @@ export namespace TooltipT {
     children?: JSX.Element
   }
 
-  /**
-   * Props for the Tooltip component.
-   */
+  /** Props for `Tooltip.Content`. */
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }
 

@@ -7,7 +7,7 @@ export function IconsPolymorphism() {
       <Button variant="outline" trailing="i-lucide:external-link" as="a" href="#polymorphic">
         Documentation Link
       </Button>
-      <Button variant="ghost" size="xs" aria-label="Settings" leading="i-lucide:settings" />
+      <Button variant="ghost" size="icon-md" aria-label="Settings" leading="i-lucide:settings" />
     </div>
   )
 }

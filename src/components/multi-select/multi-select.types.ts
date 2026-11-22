@@ -59,8 +59,8 @@ export namespace MultiSelectT {
     item: NormalizedItem<TItem> | undefined
     /** Original selected value, including unresolved values. */
     value: NormalizedItem<TItem>['value']
-    /** Visual label, or String(value) when unresolved. */
-    label: import('solid-js').JSX.Element
+    /** Visual label, or `String(value)` when unresolved. */
+    label: JSX.Element
     /** Removes this item from the selection. */
     remove: () => void
   }
@@ -86,9 +86,13 @@ export namespace MultiSelectT {
     selectedValues: readonly NormalizedItem<TItem>['value'][]
     /** Whether the maximum selection count has been reached. */
     atMaxValues: boolean
-    /** Create a new tag (requires `createItem`). Returns true if successfully created. */
+    /**
+     * Commits `value` (default: the current search text) like `Enter` does: selects the item it
+     * matches by label or value, otherwise creates one through `createItem`. Returns whether a
+     * value was added.
+     */
     create: (value?: string) => boolean
-    /** Close the dropdown menu. */
+    /** Closes the popup. */
     close: () => void
   }
 
@@ -161,7 +165,7 @@ export namespace MultiSelectT {
     /**
      * Called with the full new array of selected values when the user adds or removes an item
      * (clicking an option, `Enter`, removing a tag, or clearing). The search text is cleared
-     * afterwards. Not called for prop updates or while disabled or read-only.
+     * just before it is called. Not called for prop updates or while disabled or read-only.
      */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'][]>) => void
     /**
@@ -276,7 +280,8 @@ export namespace MultiSelectT {
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
      * Text shown in the control while no value is selected: a label in the non-editable control,
-     * or the input placeholder when editable. Hidden as soon as there is a tag.
+     * or the input placeholder when editable. Hidden as soon as there is a tag. While it is unset,
+     * the `placeholder` translation only names the non-editable trigger for assistive technology.
      * @default ''
      */
     placeholder?: string
@@ -323,7 +328,10 @@ export namespace MultiSelectT {
      * @default false
      */
     searchable?: boolean
-    /** Optional editable inner input element ref. Not assigned in non-editable mode. */
+    /**
+     * Receives the inner `<input>` element of an editable control (`searchable` or `createItem`
+     * set). Not called for a non-editable control, which has no input.
+     */
     inputRef?: Ref<HTMLInputElement>
   }
 

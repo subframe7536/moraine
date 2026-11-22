@@ -113,8 +113,8 @@ export namespace BreadcrumbT {
     items?: Item[]
 
     /**
-     * Name of the icon rendered between consecutive items. The separator is hidden from assistive
-     * technology.
+     * Icon rendered between consecutive items: an icon name, an element, or a component. The
+     * separator is hidden from assistive technology.
      * @default 'icon-chevron-right'
      */
     separator?: IconT.Name

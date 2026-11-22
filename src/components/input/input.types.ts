@@ -109,17 +109,19 @@ export namespace InputT {
     onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>
 
     /**
-     * Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`.
+     * Native `input` event handler, called after `onValueChange` and the `Field` notification and
+     * before a controlled `value` is restored. It fires on every keystroke, also with
+     * `modifiers.lazy`.
      */
     onInput?: JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>
 
     /**
-     * Event handler for the blur event.
+     * Native blur event handler, called after the `Field` blur notification.
      */
     onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
-     * Event handler for the focus event.
+     * Native focus event handler, called after the `Field` focus notification.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   }

@@ -24,7 +24,7 @@ export function LandingPage() {
           class="mb-5 px-3.5 border-primary/60 rounded-full bg-primary/10 gap-2 h-8"
           classes={{ leading: 'text-primary' }}
         >
-          SolidJS Component Library · Beta
+          SolidJS Component Library
         </Badge>
         <h1
           id="landing-title"

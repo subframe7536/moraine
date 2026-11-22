@@ -7,7 +7,7 @@ search:
   tags: [i18n, locale, rtl, direction, messages, translation, MoraineProvider]
 ---
 
-Moraine components ship with English accessible names and placeholders and parse numbers by locale. Without a `MoraineProvider`, `locale` is `en-US`. A root provider follows the browser after hydration (`detectLocale` defaults to `true`); SSR and the first client render stay `en-US`. Add a provider to replace the copy, pin a BCP 47 locale such as `zh-CN`, disable detection with `detectLocale={false}`, or override the direction. Nest a provider to override part of the tree.
+Moraine components ship with English accessible names and placeholders and format numbers by locale. Add a `MoraineProvider` to replace the copy, pin a BCP 47 locale such as `zh-CN`, control browser locale detection, or override the direction. Nest a provider to override part of the tree.
 
 ## Provider props
 
@@ -25,6 +25,7 @@ Set `lang` and `dir` on `<html>` for document language and CSS/layout. Pass the 
 In production, pass an explicit `locale` from a cookie or `Accept-Language` so formatted values do not flash from `en-US` to the browser language after hydration.
 
 ```tsx title="src/App.tsx"
+import type { ParentProps } from 'solid-js'
 import { MoraineProvider } from 'moraine'
 import type { MoraineProviderProps } from 'moraine'
 
@@ -40,7 +41,7 @@ const zhCN = {
   },
 } satisfies MoraineProviderProps['messages']
 
-export function App(props) {
+export function App(props: ParentProps) {
   return (
     <MoraineProvider locale="zh-CN" dir="ltr" messages={zhCN}>
       {props.children}
@@ -66,7 +67,7 @@ import { Pagination } from 'moraine'
 />
 ```
 
-Component-level `translations` override `MoraineProvider messages`, while explicit component props (`aria-label`, `placeholder`, `label`) have final precedence over both.
+Component-level `translations` override `MoraineProvider` messages; explicit component props still win over both.
 
 ## Messages
 

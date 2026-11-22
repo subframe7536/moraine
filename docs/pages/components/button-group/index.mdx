@@ -28,7 +28,8 @@ import Playground from './playground'
   }}
 />
 
-The group owns its separators; the caller supplies the child Buttons and their content.
+The caller supplies the child buttons and places `ButtonGroup.Separator` between them where needed;
+the group renders no separators of its own.
 
 ## Usage
 
@@ -52,8 +53,9 @@ export function Example() {
 
 ### Composition
 
-Root `size` (`sm`, `md`, `lg`; default `md`), `variant` (default `solid`), and `tone` (default
-`primary`) set defaults for every descendant Button. A Button can override any of them. `orientation`
+Root `size` (`sm`, `md`, `lg`), `variant`, and `tone` set defaults for every descendant Button,
+ToggleButton, and CopyButton, and each child can override them. When the group omits one, each
+child keeps its own default (for example `solid` for Button, `ghost` for ToggleButton). `orientation`
 (`horizontal` by default, or `vertical`) sets the layout direction. Compose a menu or popover trigger
 as a child when an action needs an overlay.
 
@@ -86,7 +88,7 @@ It renders a `div` with `role="separator"`.
 
 ### Basic
 
-Group related buttons into a single connected control bar.
+Set `variant` once on the group so every action in the bar shares it.
 
 <Preview path="./group-composition" />
 

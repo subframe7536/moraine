@@ -55,10 +55,15 @@ export namespace FileUploadT {
   }
 
   export interface ItemRenderProps {
+    /** The selected file this entry renders. */
     file: File
+    /** Zero-based position of the file in the selection. */
     index: number
+    /** Object URL of an image thumbnail; `undefined` for non-image files. */
     previewUrl?: string
+    /** Removes this file from the selection; does nothing while `disabled`. */
     remove: () => void
+    /** Whether the control is disabled or read-only, so the entry should not offer removal. */
     disabled: boolean
   }
 

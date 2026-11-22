@@ -17,8 +17,8 @@ import type { NavigationMenuT } from './navigation-menu.types'
 /**
  * Navigation destination, rendered as an `a`. Place it inside `NavigationMenu.Content` or
  * directly inside a `NavigationMenu.Item`. `active` marks the current page with
- * `aria-current="page"`, `closeOnSelect` also closes the panel on activation, and `linkRender`
- * swaps in a router link component.
+ * `aria-current="page"`, clicking it closes the open panel unless `closeOnSelect` is `false`, and
+ * `linkRender` swaps in a router link component.
  *
  * @example
  * ```tsx

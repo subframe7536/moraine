@@ -57,6 +57,24 @@ function findColumnById(
  * values that change over time (`get data() { return rows() }` or `data: () => rows()`). Controlled
  * state slices live under `state` (`get sorting() { return sorting() }`) and
  * report resolved values through `on[Slice]Change` callbacks.
+ *
+ * @example
+ * ```tsx
+ * import { createDataTable } from 'moraine/data-table'
+ *
+ * const table = createDataTable({
+ *   data: [
+ *     { id: '1', name: 'Ada' },
+ *     { id: '2', name: 'Alan' },
+ *   ],
+ *   columns: [{ accessorKey: 'name', header: 'Name' }],
+ *   getRowId: (user) => user.id,
+ *   selectionMode: 'multiple',
+ *   paginated: true,
+ * })
+ *
+ * <table.DataTable aria-label="Users" />
+ * ```
  */
 export function createDataTable<TData extends RowData = RowData>(
   options: DataTableT.Options<TData>,

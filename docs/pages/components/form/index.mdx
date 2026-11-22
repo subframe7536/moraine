@@ -83,6 +83,17 @@ export function NotificationForm() {
 }
 ```
 
+### Validation timing
+
+`createForm` takes the Formisch options `schema`, `initialInput`, `validate`, and `revalidate`.
+`validate` (default `'submit'`) sets when a field is first validated: `'initial'`, `'touch'`,
+`'input'`, `'change'`, `'blur'`, or `'submit'`. After that, `revalidate` (default `'input'`) sets
+when it validates again.
+
+```tsx
+const form = createForm({ schema, validate: 'blur', revalidate: 'input' })
+```
+
 ### Submission
 
 `form.Form` renders Formisch's `Form`: it prevents native navigation, validates the schema, focuses

@@ -21,8 +21,10 @@ export namespace FieldT {
   /** Identity and state props shared by controls that bind to a Field. */
   export interface ControlBase {
     /**
-     * The ID of the control's main focusable element, which a surrounding `Field` label points to
-     * with `for`. A unique ID is generated when omitted. The control's related parts (hidden
+     * The ID that a surrounding `Field` label points to with `for`. Most controls set it on their
+     * focusable element; `CheckboxGroup` and `RadioGroup` set it on their `<fieldset>`, `Slider`
+     * and `FileUpload` on their hidden native input, and `PinInput` uses it as the prefix of its
+     * slot IDs. A unique ID is generated when omitted. The control's related parts (root, hidden
      * input, label, description) derive their IDs from it, so keep it unique on the page.
      */
     id?: string

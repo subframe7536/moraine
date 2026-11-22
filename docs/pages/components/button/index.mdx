@@ -86,8 +86,8 @@ receives `{ loading }`. Declare its parameter even when unused.
 
 ### Icons and polymorphism
 
-`leading` and `trailing` accept icon names, elements, or components. Icon-only buttons need an
-`aria-label` or another accessible name. Polymorphic roots without native link semantics receive the
+`leading` and `trailing` accept icon names, elements, or components. Icon-only buttons use the square
+sizes `icon-xs` to `icon-xl` and need an `aria-label` or another accessible name. Polymorphic roots without native link semantics receive the
 button role and keyboard activation; anchors with `href` keep native link behavior. When `disabled`
 is set on such a root, it gets `aria-disabled` and leaves the tab order. When a custom component
 forwards its root ref, Moraine resolves native button semantics from the rendered DOM element.
@@ -98,14 +98,6 @@ forwards its root ref, Moraine resolves native button semantics from the rendere
   Docs
 </Button>
 <Button size="icon-sm" aria-label="Settings" leading="i-lucide:settings" />
-```
-
-### Icon sizes
-
-Icon-only buttons use the square sizes `icon-xs` to `icon-xl`.
-
-```tsx
-<Button size="icon-md" aria-label="Search" leading="i-lucide:search" />
 ```
 
 ## Examples
@@ -123,8 +115,9 @@ click handler returns a promise.
 
 <Preview path="./loading-usage" />
 
-### Icons and polymorphism
+### Project header actions
 
-Combine leading/trailing icons, polymorphic link rendering (`as="a"`), and icon-only buttons with an accessible name.
+Mix a command with a leading icon, a destination rendered with `as="a"`, and an icon-only settings
+button that keeps an `aria-label`.
 
 <Preview path="./icons-polymorphism" />

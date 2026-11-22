@@ -24,7 +24,7 @@ export interface RadioGroupStyleSlot<T = unknown> {
   /** Selected-state layer inside an option control. */
   indicator?: T
 
-  /** Inner layout wrapper used by grouped radio variants. */
+  /** Text column for an option label and description. */
   wrapper?: T
 
   /** Primary label text for an option. */

@@ -11,7 +11,29 @@ import { useTreeContext, useTreeItemContext } from './tree-context'
 import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
-/** Expand affordance. Shows the loading icon while the branch loads its children. */
+/**
+ * Expand chevron of the surrounding `tree.Item`; clicking it toggles the branch. It is hidden from
+ * assistive technology and out of the tab order because the `treeitem` owns expansion, invisible
+ * on leaves, and shows the tree's `loadingIcon` while a lazy branch loads. Renders a `span`; pass
+ * `as` for another element.
+ *
+ * @example
+ * ```tsx
+ * import { createTree } from 'moraine'
+ *
+ * const tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })
+ *
+ * <tree.Tree
+ *   aria-label="Folders"
+ *   itemRender={(item) => (
+ *     <tree.Item item={item}>
+ *       <tree.ItemTrigger icon="i-lucide:chevron-right" />
+ *       <tree.ItemLabel />
+ *     </tree.Item>
+ *   )}
+ * />
+ * ```
+ */
 export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   props: TreeT.ItemTriggerProps<T>,
 ): JSX.Element {

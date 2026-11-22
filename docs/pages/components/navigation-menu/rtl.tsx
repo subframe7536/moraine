@@ -9,21 +9,15 @@ export function Rtl() {
             <NavigationMenu.Trigger>المنتجات</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-40">
-                <NavigationMenu.Link href="#overview" closeOnSelect>
-                  نظرة عامة
-                </NavigationMenu.Link>
-                <NavigationMenu.Link href="#features" closeOnSelect>
-                  الميزات
-                </NavigationMenu.Link>
+                <NavigationMenu.Link href="#overview">نظرة عامة</NavigationMenu.Link>
+                <NavigationMenu.Link href="#features">الميزات</NavigationMenu.Link>
               </div>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
           <NavigationMenu.Item value="resources">
             <NavigationMenu.Trigger>الموارد</NavigationMenu.Trigger>
             <NavigationMenu.Content>
-              <NavigationMenu.Link href="#guides" closeOnSelect>
-                الأدلة
-              </NavigationMenu.Link>
+              <NavigationMenu.Link href="#guides">الأدلة</NavigationMenu.Link>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
         </NavigationMenu.List>

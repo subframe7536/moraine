@@ -11,11 +11,22 @@ export interface ButtonGroupStyleSlot<T = unknown> {
 }
 
 export interface ButtonGroupStyleVariants {
-  /** Shared button size. @default 'md' */
+  /**
+   * Size inherited by descendant `Button`, `ToggleButton`, and `CopyButton` children that do not
+   * set their own. When omitted, each child uses its own default size.
+   */
   size?: ComponentSize
-  /** Shared button treatment. @default 'solid' */
+  /**
+   * Variant inherited by descendant buttons that do not set their own (the unpressed `variant` of a
+   * `ToggleButton`; `CopyButton` ignores `link`). When omitted, each child uses its own default,
+   * such as `solid` for `Button` and `ghost` for `ToggleButton` and `CopyButton`.
+   */
   variant?: ButtonStyleVariants['variant']
-  /** Shared button tone. @default 'primary' */
+  /**
+   * Tone inherited by descendant buttons that do not set their own (both `tone` and `activeTone` of
+   * a `ToggleButton`). It also colors `ButtonGroup.Separator`. When omitted, each child uses its
+   * own default tone.
+   */
   tone?: ButtonStyleVariants['tone']
   /** Visual layout direction.
    * @default 'horizontal'

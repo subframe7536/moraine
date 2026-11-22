@@ -84,13 +84,6 @@ Hover card content is supplementary: keyboard users cannot reach it and screen r
 announce it, so it must never be the only place the information lives. Make the same content
 available at the link destination.
 
-```tsx
-<HoverCard>
-  <HoverCard.Trigger href="/u/alex.morgan">@alex.morgan</HoverCard.Trigger>
-  <HoverCard.Content>Profile summary also shown on the author page.</HoverCard.Content>
-</HoverCard>
-```
-
 ### Keyboard interaction
 
 Moving keyboard focus to the trigger opens the card after `openDelay`, and blurring the trigger
@@ -102,8 +95,7 @@ is ignored. The card itself is not keyboard reachable; keep interactive content 
 
 ### Basic
 
-Hover or focus an inline trigger to open the card. Multi-line inline triggers anchor the card to the
-line the pointer entered.
+Hover or focus an inline trigger to open the card.
 
 <Preview path="./profile-preview" />
 

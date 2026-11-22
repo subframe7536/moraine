@@ -19,7 +19,7 @@ const className = cn('p-2 text-sm', 'p-4 text-foreground')
 // => "text-sm p-4 text-foreground"
 ```
 
-The exported `cn` always uses the default rules and ignores any `MoraineProvider`. Call `useCn()` inside a component to merge with the nearest Provider's rules.
+The exported `cn` always uses the default rules and ignores any `MoraineProvider`. Call `useCn()` inside a component to merge with the nearest `MoraineProvider`'s rules.
 
 Keep UnoCSS's automatic class sorting enabled. Sorting orders tokens within a string, while `cn` resolves conflicts across the inputs it receives, and later classes win. Put component overrides in a later input or in the appropriate [override layer](/docs/customization#the-4-layer-override-hierarchy). Avoid placing competing values such as `p-2 p-4` in the same string, because sorting can change which one comes last.
 
@@ -60,7 +60,7 @@ function DensityExample() {
 
   return (
     <div class={scopedCn('density-roomy', 'density-compact')}>
-      {/* Button uses the nearest Provider's merger */}
+      {/* Button uses the nearest provider's merger */}
       <Button class="density-roomy density-compact">Compact Action</Button>
     </div>
   )
@@ -75,10 +75,4 @@ export function App() {
 }
 ```
 
-### `cnConfig` Inheritance
-
-| `cnConfig` prop        | Behavior                                                               |
-| :--------------------- | :--------------------------------------------------------------------- |
-| Omitted or `undefined` | Inherits the parent merger, or uses the default Moraine rules at root. |
-| Configuration object   | Replaces the parent merger with the Moraine defaults plus this config. |
-| `{}`                   | Resets to the default Moraine rules, dropping any parent's extensions. |
+A nested provider without `cnConfig` inherits the parent merger. A `cnConfig` object replaces it with the Moraine defaults plus that config, without the parent's extensions, so `cnConfig={{}}` restores the defaults. See [Nesting and reset rules](/docs/provider#nesting-and-reset-rules).

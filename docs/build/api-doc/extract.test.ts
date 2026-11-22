@@ -137,7 +137,7 @@ describe('generateApiDoc', () => {
     expect(keyboardItems?.typeDetails).toContain('symbol?: boolean;')
     expect(keyboardItems?.typeDetails).not.toContain('translations?')
     expect(keyboardItems?.typeDetails).toContain(
-      'Whether to resolve a known key alias to its symbol.',
+      'Whether to resolve a known key alias to its symbol and spoken name',
     )
     expect(keyboardItems?.typeDetails).toMatch(/\)\[\]$/)
 

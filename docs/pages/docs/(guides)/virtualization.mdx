@@ -85,7 +85,7 @@ export function VirtualizedList() {
 }
 ```
 
-Keep custom padding and row content inside the positioned row when they could replace its inline styles. See the [List examples](/components/list#row-ownership-and-virtualization) for fixed and dynamic heights.
+Keep custom padding and row content inside the positioned row when they could replace its inline styles. See the List [virtualization](/components/list#virtualization) and [dynamic height](/components/list#dynamic-height) sections for fixed and dynamic heights.
 
 ## Combobox and MultiSelect
 
@@ -235,7 +235,7 @@ underlying TanStack virtualizer after virtual content mounts; before mounting it
 ## Common pitfalls
 
 - An unbounded scroll container can render the whole collection. Set a height or max height and scrolling overflow.
-- Applying `context.props` to an inner label prevents correct row positioning and measurement. Spread them onto the outer row DOM.
+- Applying `context.rowProps` to an inner label prevents correct row positioning and measurement. Spread them onto the outer row DOM.
 - Using item values as collection row keys ignores group labels. Use the row type and `row.key`.
 - Sharing one adapter across multiple mounted lists makes its instance ambiguous. Create one per list.
 - Virtualization only mounts a window of rows, so browser find and DOM queries cannot inspect the full dataset. Provide filtering or search for large collections.

@@ -84,7 +84,7 @@ export function DeleteConfirmation() {
         as={Button}
         variant="solid"
         tone="danger"
-        ref={(el) => (triggerRef = el)}
+        ref={(el: HTMLButtonElement) => (triggerRef = el)}
         onClick={() => console.log('Opening delete modal')}
       >
         Delete Account

@@ -40,9 +40,11 @@ export namespace ResizableT {
    * Imperative panel API returned by `Resizable.usePanel()` inside panel content.
    */
   export interface PanelContext {
+    /** Panel id, the key of this panel in layout records. */
     id: string
     /** Current size of the panel as a percentage of the group (0-100). */
     size: Accessor<number>
+    /** Whether the panel is `collapsible` and currently at its `collapsedSize`. */
     collapsed: Accessor<boolean>
     /** Collapses the panel to `collapsedSize`. */
     collapse: () => void
@@ -115,10 +117,12 @@ export namespace ResizableT {
     /**
      * Whether pointer and keyboard resizing are disabled for every handle in the group. Panel
      * sizes can still change through `value` or `Resizable.usePanel()`.
+     * @default false
      */
     disabled?: boolean
   }
 
+  /** Props for the Resizable component. */
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface PanelBase {
@@ -195,4 +199,5 @@ export namespace ResizableT {
   export type HandleProps = BaseProps<'div', HandleBase, never, never, never>
 }
 
+/** Props for the Resizable component. */
 export type ResizableProps = ResizableT.Props

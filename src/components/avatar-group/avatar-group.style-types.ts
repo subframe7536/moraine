@@ -13,10 +13,10 @@ export interface AvatarGroupStyleSlot<T = unknown> {
   /** Loaded avatar image rendered inside each frame. */
   image?: T
 
-  /** Text fallback shown while an image is unavailable or failed. */
+  /** Fallback layer of each avatar, shown while its image is loading, missing, or failed. */
   fallback?: T
 
-  /** Icon fallback shown when no image or text fallback is available. */
+  /** Fallback icon of each avatar whose item sets `icon`. */
   fallbackContent?: T
 
   /** Status or indicator badge anchored to an avatar frame. */

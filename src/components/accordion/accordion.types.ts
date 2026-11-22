@@ -16,8 +16,11 @@ export namespace AccordionT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface ContentRenderProps {
+    /** Whether the item is expanded. */
     expanded: boolean
+    /** Whether the item is disabled, by its own `disabled` or the accordion's. */
     disabled: boolean
+    /** The item `value`. */
     value: string
   }
 
@@ -54,8 +57,8 @@ export namespace AccordionT {
 
     /**
      * Panel content for the item. Accepts static JSX or a component that receives
-     * `{ expanded, disabled, value }`. It is mounted when the item first opens (see
-     * `forceMount` on the accordion).
+     * `{ expanded, disabled, value }`. It is mounted while the item is open and unmounted after it
+     * closes, unless `forceMount` is set on the accordion.
      */
     content?: JSX.Element | Component<ContentRenderProps>
 
@@ -162,8 +165,10 @@ export namespace AccordionT {
      */
     transition?: boolean
     /**
-     * Whether closed content stays mounted. When `false`, content mounts on first open and
-     * unmounts once it closes; when `true`, content mounts even before the first open.
+     * Whether closed content stays mounted. When `false`, an item's content mounts each time it
+     * opens and unmounts once it has closed (after the exit transition); when `true`, it mounts
+     * before the first open and stays mounted while hidden. The content panel element itself is
+     * always rendered.
      * @default false
      */
     forceMount?: boolean

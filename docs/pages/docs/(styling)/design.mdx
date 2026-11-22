@@ -37,7 +37,7 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--<tone>-border`                                                                                           | Opaque subtle boundary for tones.                                                                        | Explicit override, then auto-mixed with `--border`, then `--border`.                                                   |
 | `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | `--background`.                                                                                                        |
 | `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | `--background`.                                                                                                        |
-| `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
+| `--font-size`                                                                                               | Local base for Moraine's `text-tiny` through `text-9xl` scale in Tailwind 4 and Wind4.                   | `1rem`.                                                                                                                |
 | `--sidebar-width`                                                                                           | Desktop sidebar width; also used by `w-sidebar`.                                                         | No variable value is set by default; the width falls back to `clamp(14rem, 25%, 20rem)`.                               |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
 | `--mo-anim-duration-enter`, `--mo-anim-duration-exit`, `--mo-anim-duration-loop`, `--mo-anim-duration-spin` | Duration per animation family when the global duration is unset.                                         | `250ms`, `150ms`, `2s`, and `1s`, respectively.                                                                        |
@@ -89,7 +89,7 @@ Moraine distinguishes surfaces (containers and canvas) from tones (semantic inte
 | **Success**   | `--success`   | `--success-foreground`   | `--success-ink`   | Confirmed completion and positive status.          |
 | **Warning**   | `--warning`   | `--warning-foreground`   | `--warning-ink`   | Caution that needs attention.                      |
 
-### Form surface migration
+### Form control surface
 
 Define `--control` in both light and dark external themes. It controls outline fields, unchecked choices, and upload surfaces independently of `--input` boundaries. Subtle fields use `--muted`; field text uses `--foreground` and placeholders use `--muted-foreground`.
 
@@ -159,15 +159,15 @@ Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS eng
 
 ## Typography and Spacing
 
-| Token          | Description                                           | Fallback        |
-| :------------- | :---------------------------------------------------- | :-------------- |
-| `--font-sans`  | Primary UI typeface                                   | None in Moraine |
-| `--font-mono`  | Code, numbers, and Kbd                                | None in Moraine |
-| `--font-serif` | Editorial serif typeface                              | None in Moraine |
-| `--font-size`  | Base for `text-xs`–`text-9xl` in Tailwind 4 and Wind4 | `1rem`          |
-| `--spacing`    | Base spacing unit                                     | `0.25rem`       |
+| Token          | Description                                             | Fallback        |
+| :------------- | :------------------------------------------------------ | :-------------- |
+| `--font-sans`  | Primary UI typeface                                     | None in Moraine |
+| `--font-mono`  | Code, numbers, and Kbd                                  | None in Moraine |
+| `--font-serif` | Editorial serif typeface                                | None in Moraine |
+| `--font-size`  | Base for `text-tiny`–`text-9xl` in Tailwind 4 and Wind4 | `1rem`          |
+| `--spacing`    | Base spacing unit                                       | `0.25rem`       |
 
-With Wind4 and Tailwind v4, set `--font-size` on a container to scale the default `text-xs` through `text-9xl` utilities. Wind3 uses its configured font sizes and does not scale them through `--font-size`. Explicit CSS engine typography overrides follow the values you configure.
+With Wind4 and Tailwind v4, set `--font-size` on a container to scale the default `text-tiny` through `text-9xl` utilities. Wind3 uses its configured font sizes and does not scale them through `--font-size`. Explicit CSS engine typography overrides follow the values you configure.
 
 Moraine's default `font-sans`, `font-mono`, and `font-serif` utilities use the corresponding CSS variables, but Moraine does not supply family values. With UnoCSS, configure `theme.font` (Wind4) or `theme.fontFamily` (Wind3) to use literal families or your own variable references; see [Font families](/docs/unocss#font-families). To use the default variable mapping, define the families in your stylesheet:
 

@@ -126,8 +126,8 @@ export namespace CopyButtonT {
     onCopyError?: (error: unknown) => void
 
     /**
-     * Called with the new status on every status change: `'idle'` when a copy starts, then
-     * `'copied'` or `'error'`, and `'idle'` again after `resetDelay`.
+     * Called with each status a copy reports: `'idle'` when a copy starts (even if the status was
+     * already `'idle'`), then `'copied'` or `'error'`, and `'idle'` again after `resetDelay`.
      * @example
      * ```tsx
      * import { CopyButton } from 'moraine'

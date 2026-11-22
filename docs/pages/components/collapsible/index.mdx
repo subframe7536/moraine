@@ -63,9 +63,10 @@ update it. The trigger and content parts can sit anywhere inside the root, so yo
 into a custom layout.
 
 `disabled` on `Collapsible` blocks every trigger and keeps the current open state. `disabled` on
-`Collapsible.Trigger` blocks only that trigger. Set `transition` to animate the content height. The
-content then stays mounted until the closing animation finishes, and the measured height is exposed
-as `--mo-collapsible-content-height` on the root. Animation is skipped for `prefers-reduced-motion`.
+`Collapsible.Trigger` blocks only that trigger. `transition` (default `true`) animates the content
+height: the content stays mounted until the closing animation finishes, and the measured height is
+exposed as `--mo-collapsible-content-height` on the root. Set `transition={false}` to toggle
+instantly. Animation is skipped for `prefers-reduced-motion`.
 
 ```tsx
 <Collapsible open={open()} onOpenChange={setOpen}>

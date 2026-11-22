@@ -78,8 +78,8 @@ export namespace ListT {
      */
     virtualizer?: Virtualizer<TItem>
     /**
-     * Distance in pixels from an edge within which it counts as reached. Negative values count
-     * as `0`.
+     * Distance in pixels from the top or bottom edge within which `onTopReached` or
+     * `onBottomReached` fires. Negative values count as `0`.
      * @default 0
      */
     scrollThreshold?: number

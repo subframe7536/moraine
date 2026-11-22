@@ -45,7 +45,6 @@ export default function ProgressPlayground() {
           size={props.size}
           orientation={props.orientation}
           valueLabel={props.valueLabel}
-          aria-label="Upload progress"
         />
       )}
     </DocsPlayground>

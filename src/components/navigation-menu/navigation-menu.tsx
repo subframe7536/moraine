@@ -34,9 +34,7 @@ import type { NavigationMenuProps } from './navigation-menu.types'
  *     <NavigationMenu.Item value="products">
  *       <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
  *       <NavigationMenu.Content>
- *         <NavigationMenu.Link href="/overview" closeOnSelect>
- *           Overview
- *         </NavigationMenu.Link>
+ *         <NavigationMenu.Link href="/overview">Overview</NavigationMenu.Link>
  *       </NavigationMenu.Content>
  *     </NavigationMenu.Item>
  *     <NavigationMenu.Item>

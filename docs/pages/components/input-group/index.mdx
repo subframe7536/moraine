@@ -88,7 +88,7 @@ icon buttons, keyboard shortcuts, and inline prefixes.
   <InputGroup.Leading>https://</InputGroup.Leading>
   <Input aria-label="Website" placeholder="example.com" />
   <InputGroup.Trailing compact>
-    <Button size="icon-sm" variant="ghost" aria-label="Clear" />
+    <Button size="icon-sm" variant="ghost" leading="i-lucide:x" aria-label="Clear" />
   </InputGroup.Trailing>
 </InputGroup>
 ```
@@ -123,17 +123,11 @@ Supporting content accepts plain text and JSX. No dedicated text part is require
 
 ### Actions
 
-Use Button for copy, toggle, and submit. Add `compact` on the part when the button needs less
-padding. Set each button's state and disabled behavior explicitly.
+Use Button for copy, toggle, and submit. Add `compact` on the part when an icon-only button needs
+less padding, and keep an `aria-label` on that button. Set each button's state and disabled
+behavior explicitly.
 
 <Preview path="./actions" />
-
-### Compact
-
-Set `compact` on Trailing so an icon-only clear button fits the field. Keep `aria-label` on the
-button.
-
-<Preview path="./compact" />
 
 ### Keyboard shortcut
 

@@ -152,7 +152,7 @@ slot defaults for every part: `trigger`, `overlay`, `content`, `header`, `title`
 Set root `mount` to place Content in a chosen container. This also works for controlled
 surfaces without a Trigger.
 
-### Structured drawer
+### Side and layout
 
 Choose the viewport edge with root `side` (`top`, `right`, `bottom`, or `left`; default `right`), and set `inset` when the sheet needs space around it.
 Compose body and footer regions to keep the task content separate from its actions.
@@ -186,7 +186,7 @@ attempts.
 <Sheet closeOnOutsideClick={false} closeOnEscape={false} onClosePrevented={onBlocked}>
   <Sheet.Content title="Persistent sheet">
     <Sheet.Footer>
-      <Button onClick={() => setOpen(false)}>Close</Button>
+      <Sheet.Close as={Button}>Close</Sheet.Close>
     </Sheet.Footer>
   </Sheet.Content>
 </Sheet>

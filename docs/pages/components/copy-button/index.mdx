@@ -48,8 +48,9 @@ the copy fails and `onCopyError` receives the error. The `execCommand` fallback 
 
 ### Label and icons
 
-Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
-button at the matching icon size. `iconPosition` places the icon before (`leading`, default) or after
+Pass children to render a labeled button. Without children and without an explicit `size`,
+CopyButton renders a square icon-only button at the matching icon size; with an explicit `size`, pass
+an `icon-*` size for a square button. `iconPosition` places the icon before (`leading`, default) or after
 (`trailing`) the label. Children can also be a function that receives the copy state, including
 `copied`, `error`, `status`, `supported`, and `copy`.
 
@@ -59,8 +60,9 @@ button at the matching icon size. `iconPosition` places the icon before (`leadin
 
 ### Accessible name
 
-The button's `aria-label` is `Copy to clipboard`, and `Copied to clipboard` while copied. Override
-the wording through the provider messages, or set `aria-label` to name what is copied. After a failed
+The button's `aria-label` is `Copy to clipboard`, and `Copied to clipboard` while copied, even when
+it has a visible label. Override the wording through the provider messages, or set `aria-label` to
+name what is copied; on a labeled button, include the visible text in it. After a failed
 copy the button sets `aria-invalid` until `resetDelay` elapses.
 
 ### Variant, tone, and size

@@ -252,9 +252,11 @@ export namespace AlertDialogT {
 
   /** Props for `AlertDialog.custom` and `dialogRender`. */
   export interface DialogRenderProps {
+    /** Id of the dialog being rendered. */
     id: Id
     /** Host defaults merged with the call options. Reflects later `update` calls. */
     options: Options
+    /** Which button (`action` or `cancel`) is awaiting a returned promise; `undefined` when idle. */
     pending: () => FeedbackPending | undefined
     /** Runs `options.action.onClick`, then closes with reason `action`. */
     action: (event?: MouseEvent) => Promise<void>
@@ -262,6 +264,7 @@ export namespace AlertDialogT {
     cancel: (event?: MouseEvent) => Promise<void>
     /** Closes the dialog. The reason defaults to `dismiss`. */
     close: (reason?: CloseReason) => void
+    /** Merges options into this dialog, like `handle.update`. */
     update: (options: UpdateOptions) => void
     /** Id to place on the custom title so the dialog is named by `aria-labelledby`. */
     titleId: string

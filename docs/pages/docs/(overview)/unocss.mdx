@@ -102,7 +102,7 @@ Filesystem globs are relative to Vite's root, and the examples assume `src/` and
 
 ### Verification and troubleshooting
 
-Verify the button from the installation guide on a clean dev-server start, after a restart with Vite's dependency cache retained, on a directly opened lazy-loaded route, and in a production preview. Check its background, padding, and border radius. A working click handler does not verify CSS generation.
+Check the installation button in each [verification scenario](/docs/installation#3-verify-the-installation): its background, padding, and border radius. A working click handler does not verify CSS generation.
 
 If styles are missing:
 
@@ -211,45 +211,27 @@ For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and put the
 
 ### Surface states and tone derivation
 
-Moraine separates semantic roles into surfaces (`background`, `card`, `popover`, `muted`, `accent`) and tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`).
-
-For surfaces, the internal `--mo-<surface>-hover` and `--mo-<surface>-active` variables mix the surface base color toward its foreground, inside an `@supports (color: color-mix(in oklch, black, white))` block, using the configured mix percentages. The `hover:bg-<surface>-hover` and `active:bg-<surface>-active` utilities read an explicit `--<surface>-hover` or `--<surface>-active` first, then these mixed values, then the base color:
+Moraine separates semantic roles into surfaces (`background`, `card`, `popover`, `muted`, `accent`) and tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), and derives their hover, active, ink, soft, and border colors with `color-mix`. [State Colors and Tone Ink Derivation](/docs/design#state-colors-and-tone-ink-derivation) describes the fallback chain. In the preset, `mix` sets the mixing percentages globally, `override.<name>.mix` sets them per theme, and an explicit `colors.<tone>.hover`, `active`, `ink`, `soft`, or `border` value bypasses the mix:
 
 ```ts
 presetMoraine({
-  mix: { hover: 6, active: 10 }, // global mixing percentages (the defaults)
+  mix: { hover: 6, active: 10, ink: 25 }, // global mixing percentages (the defaults)
   override: {
     light: {
-      mix: { hover: 6 }, // per-theme override
-    },
-  },
-})
-```
-
-For tones, semantic utilities (such as `hover:bg-primary-hover`, `active:bg-primary-active`, and `bg-primary-soft`) resolve through a three-tier fallback chain:
-
-1. Explicit theme override (`colors.<tone>.hover`, `active`, `ink`, `soft`, or `border`), which emits `--<tone>-hover`, `--<tone>-active`, `--<tone>-ink`, `--<tone>-soft`, or `--<tone>-border`.
-2. Auto-mixed state, emitted as internal `--mo-<tone>-*` variables inside an `@supports (color: color-mix(in oklch, ...))` block, using the configured `mix.hover`, `mix.active`, `mix.ink`, `mix.soft`, or `mix.border` percentage. Soft blends with `transparent` so the wash composites on the local surface. Border blends with `var(--border)` for an opaque, subtle boundary.
-3. Base fallback: `var(--<tone>)` for hover, active, and ink; `transparent` for soft; `var(--border)` for border.
-
-Moraine's own component recipes (such as `Button` and `Badge`) bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `hover:bg-tone-hover`, `active:bg-tone-active`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, and `active:bg-tone-soft-active`), which avoids compound variants for every tone. The `tone-<color>` utility publishes a color group's channels on any element. Application classes, application components, and theme overrides can use the tone tokens and utilities directly.
-
-```ts
-presetMoraine({
-  mix: { ink: 25 }, // default 25%
-  override: {
-    light: {
+      mix: { hover: 8 }, // per-theme override
       colors: {
         primary: {
           base: '#2563eb',
           foreground: '#ffffff',
-          ink: '#1d4ed8', // explicit override bypasses auto-mix
+          ink: '#1d4ed8', // explicit value bypasses the mix
         },
       },
     },
   },
 })
 ```
+
+The `tone-<color>` utility publishes a color group's channels (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-hover`, and so on) on an element, and descendants read them with `bg-tone`, `text-tone-ink`, `hover:bg-tone-hover`, and similar utilities.
 
 When your CSS supplies its own palette, disable the built-in palette and add Moraine's `--control` variable:
 
@@ -268,4 +250,4 @@ Define your `:root` and `.dark` color variables, including an explicit control s
 }
 ```
 
-`themeDefaults: false` omits control values unless you configure them in `override`. A shadcn/ui palette alone is not sufficient; see the [form surface migration](/docs/design#form-surface-migration). `control` has no foreground or state family, uses the existing field foreground, and supports explicit utility opacity such as `bg-control/30`. With `themeDefaults: false`, the preset still emits the default `--radius`, `--font-size`, and `--spacing` values, which your CSS can override.
+`themeDefaults: false` omits control values unless you configure them in `override`. A shadcn/ui palette alone is not sufficient; see [Form control surface](/docs/design#form-control-surface). `control` has no foreground or state family, uses the field foreground, and supports explicit utility opacity such as `bg-control/30`. With `themeDefaults: false`, the preset still emits the default `--radius`, `--font-size`, and `--spacing` values, which your CSS can override.

@@ -7,7 +7,7 @@ export interface SeparatorStyleSlot<T = unknown> {
 
 export interface SeparatorStyleVariants {
   /**
-   * `horizontal` draws a full-width line; `vertical` draws a full-height line for use between items in a row, and sets `aria-orientation`.
+   * `horizontal` draws a full-width line; `vertical` draws a full-height line for use between items in a row. Both set the matching `aria-orientation` and `data-orientation`.
    * @default 'horizontal'
    */
   orientation?: Orientation

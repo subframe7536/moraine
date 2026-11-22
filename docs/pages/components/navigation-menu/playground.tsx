@@ -35,7 +35,7 @@ export default function NavigationMenuPlayground() {
                 <NavigationMenu.Content>
                   <ul class="m-0 p-0 list-none w-[min(24rem,calc(100vw-2rem))]">
                     <li>
-                      <NavigationMenu.Link href="/docs/getting-started" closeOnSelect>
+                      <NavigationMenu.Link href="/docs/getting-started">
                         <span class="font-medium">Introduction</span>
                         <span class="text-muted-foreground leading-snug">
                           Composable SolidJS components for your application.
@@ -43,7 +43,7 @@ export default function NavigationMenuPlayground() {
                       </NavigationMenu.Link>
                     </li>
                     <li>
-                      <NavigationMenu.Link href="/docs/installation" closeOnSelect>
+                      <NavigationMenu.Link href="/docs/installation">
                         <span class="font-medium">Installation</span>
                         <span class="text-muted-foreground leading-snug">
                           Set up Moraine and your styling tools.
@@ -51,7 +51,7 @@ export default function NavigationMenuPlayground() {
                       </NavigationMenu.Link>
                     </li>
                     <li>
-                      <NavigationMenu.Link href="/docs/theming" closeOnSelect>
+                      <NavigationMenu.Link href="/docs/theming">
                         <span class="font-medium">Theming</span>
                         <span class="text-muted-foreground leading-snug">
                           Customize colors, design tokens, and component recipes.
@@ -103,7 +103,7 @@ export default function NavigationMenuPlayground() {
                     >
                       {(component) => (
                         <li>
-                          <NavigationMenu.Link href={component.href} closeOnSelect>
+                          <NavigationMenu.Link href={component.href}>
                             <span class="font-medium">{component.title}</span>
                             <span class="text-muted-foreground leading-snug line-clamp-2">
                               {component.description}
@@ -123,7 +123,6 @@ export default function NavigationMenuPlayground() {
                       <NavigationMenu.Link
                         href="/components/command-palette"
                         class="flex-row gap-2 items-center"
-                        closeOnSelect
                       >
                         <Icon name="i-lucide:circle-alert" class="text-muted-foreground size-4" />
                         Backlog
@@ -133,7 +132,6 @@ export default function NavigationMenuPlayground() {
                       <NavigationMenu.Link
                         href="/components/checkbox"
                         class="flex-row gap-2 items-center"
-                        closeOnSelect
                       >
                         <Icon name="i-lucide:circle-dashed" class="text-muted-foreground size-4" />
                         To Do
@@ -143,7 +141,6 @@ export default function NavigationMenuPlayground() {
                       <NavigationMenu.Link
                         href="/components/progress"
                         class="flex-row gap-2 items-center"
-                        closeOnSelect
                       >
                         <Icon name="i-lucide:circle-check" class="text-muted-foreground size-4" />
                         Done

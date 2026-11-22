@@ -74,8 +74,9 @@ controlled mode, so write the value back to `page`.
 `siblingCount` (default `2`) sets how many page numbers show on each side of the current page. The
 first and last pages always show, with ellipses for skipped ranges. Every page shows without
 ellipses when `2 * siblingCount + 5` reaches the page count. Set `controls={false}` to hide Previous
-and Next. `prevText` and `nextText` add visible text to those controls; their accessible names still
-come from `translations`.
+and Next. `prevText` and `nextText` add visible text to those controls, and that text replaces
+`translations.prev` and `translations.next` as their accessible names. The text is hidden below the
+`sm` breakpoint.
 
 ```tsx
 <Pagination total={500} pageSize={10} siblingCount={1} prevText="Previous" nextText="Next" />

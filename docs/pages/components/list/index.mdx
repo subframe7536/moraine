@@ -69,9 +69,14 @@ const virtualizer = createListVirtualizer<Item>({
 
 <List
   as="div"
+  class="h-80 overflow-y-auto"
   items={items}
   virtualizer={virtualizer}
-  itemRender={(context) => <div {...context.rowProps}>{context.item.label}</div>}
+  itemRender={(context) => (
+    <div {...context.rowProps} role="listitem">
+      {context.item.label}
+    </div>
+  )}
 />
 ```
 

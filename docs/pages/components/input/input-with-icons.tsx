@@ -32,11 +32,7 @@ export function InputWithIcons() {
         <InputGroup.Leading>
           <Icon name="i-lucide:search" />
         </InputGroup.Leading>
-        <Input
-          value={query()}
-          onInput={(e) => setQuery(e.currentTarget.value)}
-          placeholder="Search documents..."
-        />
+        <Input value={query()} onValueChange={setQuery} placeholder="Search documents..." />
         <InputGroup.Trailing compact>
           <Show when={query()}>
             <Button

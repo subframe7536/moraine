@@ -61,9 +61,7 @@ export function Example() {
         <NavigationMenu.Item value="products">
           <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
           <NavigationMenu.Content>
-            <NavigationMenu.Link href="/overview" closeOnSelect>
-              Overview
-            </NavigationMenu.Link>
+            <NavigationMenu.Link href="/overview">Overview</NavigationMenu.Link>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
         <NavigationMenu.Item>
@@ -79,15 +77,15 @@ export function Example() {
 
 Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and
 `NavigationMenu.Link` for its destinations; a link can also sit directly in a `NavigationMenu.Item`.
-`active` marks the current page with `aria-current="page"`. `closeOnSelect` defaults to `false`;
-enable it to close the panel on activation. A click handler that calls `preventDefault()` cancels
+`active` marks the current page with `aria-current="page"`. Clicking a link closes the open panel;
+set `closeOnSelect={false}` to keep it open, or call `preventDefault()` in a click handler to cancel
 the close. A disabled link loses its `href` and gets `aria-disabled`.
 
 ```tsx
 <NavigationMenu.Item value="products">
   <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
   <NavigationMenu.Content>
-    <NavigationMenu.Link href="/overview" closeOnSelect>
+    <NavigationMenu.Link href="/overview">
       Overview
     </NavigationMenu.Link>
   </NavigationMenu.Content>

@@ -9,12 +9,8 @@ export function Orientation() {
             <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-40">
-                <NavigationMenu.Link href="#overview" closeOnSelect>
-                  Overview
-                </NavigationMenu.Link>
-                <NavigationMenu.Link href="#features" closeOnSelect>
-                  Features
-                </NavigationMenu.Link>
+                <NavigationMenu.Link href="#overview">Overview</NavigationMenu.Link>
+                <NavigationMenu.Link href="#features">Features</NavigationMenu.Link>
               </div>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
@@ -22,12 +18,8 @@ export function Orientation() {
             <NavigationMenu.Trigger>Resources</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="w-40">
-                <NavigationMenu.Link href="#guides" closeOnSelect>
-                  Guides
-                </NavigationMenu.Link>
-                <NavigationMenu.Link href="#support" closeOnSelect>
-                  Support
-                </NavigationMenu.Link>
+                <NavigationMenu.Link href="#guides">Guides</NavigationMenu.Link>
+                <NavigationMenu.Link href="#support">Support</NavigationMenu.Link>
               </div>
             </NavigationMenu.Content>
           </NavigationMenu.Item>

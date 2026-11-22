@@ -83,7 +83,31 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
   )
 }
 
-/** Creates a reactive Formisch store with Moraine form adapters. */
+/**
+ * Creates a reactive Formisch store from a schema config (`schema`, `initialInput`, `validate`,
+ * `revalidate`) and attaches the bound `form.Form` and `form.Field` components. `form.Form` owns
+ * submission and reset; `form.Field` is a `Field` whose `name` is a schema path and whose value,
+ * error, and focus come from the store. Use a standalone `Field` when no schema binding is needed.
+ *
+ * @example
+ * ```tsx
+ * import { Button, createForm, Input } from 'moraine'
+ * import * as v from 'valibot'
+ *
+ * const form = createForm({
+ *   schema: v.object({ email: v.pipe(v.string(), v.email()) }),
+ *   initialInput: { email: '' },
+ *   validate: 'blur',
+ * })
+ *
+ * <form.Form onSubmit={(output) => console.log(output.email)}>
+ *   <form.Field name="email" label="Email">
+ *     <Input type="email" />
+ *   </form.Field>
+ *   <Button type="submit">Subscribe</Button>
+ * </form.Form>
+ * ```
+ */
 export function createForm<TSchema extends Schema>(
   config: FormT.Config<TSchema>,
 ): FormT.Instance<TSchema> {

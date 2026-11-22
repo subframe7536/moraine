@@ -22,7 +22,7 @@ Choose the layer that matches the scope of your change:
 
 ### How Classes Merge Across Layers
 
-Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) with Moraine's `cn` merger. When utilities conflict (for example `bg-primary` and `bg-danger`, or `p-2` and `p-4`), the higher layer wins. Two refinements apply: the `classes` of an ancestor component sit between the Theme layer and the instance, and classes a component enforces for functional reasons (positioning, virtual scroll sizes) always win and cannot be overridden. `styles` and `style` merge per property in the same order, and `undefined` or `null` values are skipped.
+Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) with Moraine's `cn` merger. When utilities conflict (for example `bg-primary` and `bg-danger`, or `p-2` and `p-4`), the higher layer wins. Two refinements apply: the `classes` of an ancestor component sit between the theme layer and the instance, and classes a component enforces for functional reasons (positioning, virtual scroll sizes) always win and cannot be overridden. `styles` and `style` merge per property in the same order, and `undefined` or `null` values are skipped.
 
 ```tsx
 import { Button } from 'moraine'

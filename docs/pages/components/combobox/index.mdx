@@ -135,8 +135,8 @@ resets to `''` when the popup finishes closing and after a native form reset; in
 
 `clearable` shows a clear button while there is a selected value or query text. Clearing resets the
 selection and the query, calls `onValueChange(null)` if a value existed, then `onClear`, and returns
-focus to the input. `loading` replaces the toggle icon with `loadingIcon` and disables the toggle
-button; typing and the clear button keep working.
+focus to the input. `loading` replaces the toggle icon with `loadingIcon`, marks the toggle button
+`aria-busy`, and hides the clear button. It does not disable the input or the toggle button.
 
 ### Pointer opening
 
@@ -248,7 +248,7 @@ anywhere on the control should open it, as in an assignee picker.
 
 ### String items
 
-Pass a string array when the label is the value. Mix strings, item objects, and `type: 'group'`
-entries in one `items` list.
+Pick an issue status whose name is also its value. The second combobox mixes status names with an
+item that has a `description` and a group that holds a disabled status.
 
 <Preview path="./string-items" />

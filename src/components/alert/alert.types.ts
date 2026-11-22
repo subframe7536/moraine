@@ -37,7 +37,10 @@ export namespace AlertT {
      */
     as?: T
 
-    /** Primary title, rendered in bold above the description. Nothing is rendered when empty. */
+    /**
+     * Primary title, rendered above the description (in bold when a `description` is present).
+     * Nothing is rendered when empty.
+     */
     title?: JSX.Element
 
     /**

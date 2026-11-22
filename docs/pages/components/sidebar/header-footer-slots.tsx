@@ -62,8 +62,8 @@ export function HeaderFooterSlots() {
 
   return (
     <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
-      <Sidebar mobile={false}>
-        <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-60">
+      <Sidebar mobile={false} defaultWidth={240}>
+        <Sidebar.Panel class="border-r border-border/60 bg-card/40">
           {/* Header slot: Team Switcher Dropdown */}
           <Sidebar.Header class="border-b border-border/60 h-12">
             <DropdownMenu>

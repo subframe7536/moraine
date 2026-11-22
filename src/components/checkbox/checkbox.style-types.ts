@@ -10,7 +10,7 @@ export interface CheckboxStyleSlot<T = unknown> {
   /** Visual checked or indeterminate state layer inside the control; holds the state icon. */
   indicator?: T
 
-  /** Inner layout wrapper used by card and list checkbox variants. */
+  /** Text column that holds the label and description. */
   wrapper?: T
 
   /** Vertical alignment wrapper for the checkbox control. */

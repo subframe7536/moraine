@@ -26,7 +26,8 @@ export namespace ButtonGroupT {
     role?: JSX.AriaAttributes['role']
     /**
      * Buttons rendered as one joined set, optionally with `ButtonGroup.Separator` between them.
-     * Descendant `Button`s inherit the group's `size`, `variant` and `tone` unless they set their own.
+     * Descendant `Button`, `ToggleButton`, and `CopyButton` children inherit the group's `size`,
+     * `variant`, and `tone` unless they set their own.
      */
     children?: JSX.Element
   }

@@ -40,14 +40,15 @@ export function Example() {
 
 Known aliases such as `meta`, `command`, `shift`, `escape`, and `arrowup` resolve to a symbol or
 short label (`⌘`, `⇧`, `Esc`, `↑`), matched case-insensitively. Any other value renders as written.
-Pass `symbol={false}` to render the value as written instead. An alias also gets a spoken name from
-the locale messages; `translations` overrides it per instance. Set `ariaLabel` when assistive
-technology needs a different name than the visible keycap. It takes precedence over the alias name.
+Pass `symbol={false}` to render an alias as written, without its spoken name. An alias also gets a
+spoken name from the locale messages; `translations` overrides it per instance. Set `aria-label`
+when assistive technology needs a different name than the visible keycap. It takes precedence over
+the alias name.
 
 ```tsx
 <Kbd value="meta" />
 <Kbd value="escape" symbol={false} />
-<Kbd value="K" ariaLabel="Search" />
+<Kbd value="K" aria-label="Search" />
 ```
 
 ### Root styling
@@ -68,9 +69,3 @@ technology needs a different name than the visible keycap. It takes precedence o
 Place keycaps in instructional copy. Registration of those shortcuts stays in application code.
 
 <Preview path="./kbd-usage" />
-
-### Single key
-
-Use a single `Kbd` when the hint is one key rather than a chord.
-
-<Preview path="./shortcut-composition" />

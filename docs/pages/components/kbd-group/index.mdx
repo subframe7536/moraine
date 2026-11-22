@@ -52,13 +52,14 @@ or `symbol` for one key. The group's `size` and `variant` apply to every key.
 
 ### Separator
 
-`separator` defaults to `"+"` and accepts a string for inline notation. For custom JSX,
-pass a component that receives the `index` of the key it follows; each position mounts its own
-instance. It is unrelated to the layout [Separator](/components/separator).
+`separator` defaults to `"+"` and accepts a string, rendered as plain text rather than an icon name.
+For custom JSX such as an icon, pass a component that receives the `index` of the key it follows;
+each position mounts its own instance. It is unrelated to the layout
+[Separator](/components/separator).
 
 ```tsx
 <KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
-<KbdGroup items={['Ctrl', 'K']} separator={() => <span class="text-muted-foreground">then</span>} />
+<KbdGroup items={['Ctrl', 'K']} separator={() => <Icon name="i-lucide:plus" />} />
 ```
 
 ## Examples
@@ -71,6 +72,6 @@ Place the group beside the command it describes. Alias keys resolve to platform 
 
 ### Custom separator
 
-Pass a `separator` component when the notation should not use `+`.
+Pass a `separator` component when the separator is markup, such as an icon, rather than text.
 
 <Preview path="./custom-separator" />

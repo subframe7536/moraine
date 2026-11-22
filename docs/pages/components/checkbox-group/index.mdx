@@ -88,7 +88,7 @@ can also be disabled independently.
 
 `items` accepts objects with `value`, `label`, `description`, `disabled`, `indeterminate`,
 `checkedIcon`, and `indeterminateIcon`. A string is shorthand for an item whose `value` and `label`
-are that string. Item `value` must be unique. An item without a `value` falls back to its index.
+are that string. Item `value` is required and must be unique within the group.
 
 ```tsx
 <CheckboxGroup
@@ -119,8 +119,8 @@ toggles when clicked, and `table` joins bordered cards into one connected block.
 (`vertical` by default, or `horizontal`) sets the layout direction, and `size` accepts `sm`, `md`
 (default), or `lg`.
 
-`indicatorPosition` places the check mark at the `leading` (default) or `trailing` edge, or hides it
-visually with `hidden`.
+`indicatorPosition` places each item's checkbox control at the `leading` (default) or `trailing`
+edge, or hides it visually with `hidden`.
 
 ```tsx
 <CheckboxGroup indicatorPosition="trailing" items={items} />

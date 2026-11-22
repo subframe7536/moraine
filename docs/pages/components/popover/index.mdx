@@ -125,9 +125,9 @@ locks body scroll while the popover is open.
 
 Keyboard behavior depends on the trigger element. Escape requests dismissal when `closeOnEscape`
 allows it; focusable controls inside the content participate in normal document focus order. With
-`openOnHover`, Tab from the
-last control in the content moves to the next focusable element after the trigger, and
-Shift+Tab from the first control returns to the trigger.
+`openOnHover`, Tab from the trigger moves into the open content, Tab from the last control in the
+content moves to the next focusable element after the trigger, and Shift+Tab from the first
+control returns to the trigger.
 
 ## Examples
 
@@ -146,7 +146,9 @@ popover.
 
 ### Hover trigger
 
-Set `openOnHover` with `openDelay` and `closeDelay` to prevent flicker on hover or focus.
+Use `openOnHover` instead of [HoverCard](/components/hover-card) when the preview holds controls
+the user must reach, such as the Follow button here: Tab from the trigger moves into the card.
+`openDelay` and `closeDelay` prevent flicker as the pointer moves between trigger and content.
 
 <Preview path="./hover-mode" />
 

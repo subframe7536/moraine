@@ -7,10 +7,10 @@ export interface AvatarStyleSlot<T = unknown> {
   /** Loaded avatar image rendered inside the frame. */
   image?: T
 
-  /** Text fallback shown while the image is unavailable or failed. */
+  /** Fallback layer shown while the image is loading, missing, or failed; holds the text or icon. */
   fallback?: T
 
-  /** Icon fallback shown when no image or text fallback is available. */
+  /** Fallback icon, rendered inside `fallback` in place of the text when `icon` is set. */
   fallbackContent?: T
 
   /** Status or indicator badge anchored to the avatar frame. */

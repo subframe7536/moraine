@@ -58,9 +58,10 @@ export function Example() {
 ### Content
 
 `content` accepts text or JSX, or a component that receives `{ value, expanded, disabled }`.
-Use the component form when the panel depends on the item state. Content mounts on first open. `headingLevel` (default `3`) sets the heading level that
-wraps each trigger. `icon` adds a leading icon to an item, and `expandIcon` replaces the indicator icon
-for every item.
+Use the component form when the panel depends on the item state. Content mounts while its item is
+open (see [Content lifetime](#content-lifetime)). `headingLevel` (default `3`) sets the heading level
+that wraps each trigger. `icon` adds a leading icon to an item, and `expandIcon` replaces the
+indicator icon for every item.
 
 ```tsx
 <Accordion
@@ -81,16 +82,16 @@ controls whether the open item can close; with `multiple`, every item can always
 ```tsx
 const [open, setOpen] = createSignal<string[]>(['shipping'])
 
-<Accordion items={items} value={open()} onValueChange={setOpen} collapsible />
+<Accordion items={items} value={open()} onValueChange={setOpen} />
 <Accordion multiple defaultValue={['general', 'security']} items={items} />
 ```
 
 ### Content lifetime
 
 The content shell always stays mounted, so each trigger's `aria-controls` points to a real element.
-`forceMount` controls only the content inside that shell. By default, content mounts on first open and
-unmounts when it closes. Set `forceMount` to mount content before the first open and keep it mounted, so
-hidden fields preserve local state.
+`forceMount` controls only the content inside that shell. By default, content mounts each time its
+item opens and unmounts after it closes. Set `forceMount` to mount content before the first open and
+keep it mounted, so hidden fields preserve local state.
 
 ```tsx
 <Accordion forceMount defaultValue={['notes']} items={items} />
@@ -113,7 +114,7 @@ either end. Disabled items are skipped.
 
 ### Single
 
-Keep one section open at a time by default.
+Keep one section open at a time. `defaultValue` opens the first answer without owning state.
 
 <Preview path="./single" />
 

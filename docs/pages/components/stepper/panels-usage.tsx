@@ -5,6 +5,7 @@ export function PanelsUsage() {
     <div class="max-w-md w-full">
       <Stepper
         defaultValue="details"
+        navigation="free"
         items={[
           {
             value: 'details',

@@ -195,7 +195,29 @@ export function TreeItemList(props: {
   return <For each={props.items}>{(item) => <context.RenderItem item={item} />}</For>
 }
 
-/** Host of one item: `treeitem` semantics around its row and, when nested, its child group. */
+/**
+ * Host of one item: a `li` with `treeitem` semantics, keyboard and click handling, and the item's
+ * row. Return it as the root of `itemRender` with the item instance `itemRender` receives; its
+ * children render inside the row. Without a `virtualizer` it also renders the nested group of an
+ * expanded branch, so do not render children items yourself.
+ *
+ * @example
+ * ```tsx
+ * import { createTree } from 'moraine'
+ *
+ * const tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })
+ *
+ * <tree.Tree
+ *   aria-label="Folders"
+ *   itemRender={(item) => (
+ *     <tree.Item item={item}>
+ *       <tree.ItemTrigger />
+ *       <tree.ItemLabel />
+ *     </tree.Item>
+ *   )}
+ * />
+ * ```
+ */
 export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'item',

@@ -44,10 +44,10 @@ Portal owns the mounted Overlay and Content subtree and preserves it through exi
 ## Usage
 
 Use BaseDialog when you compose trigger, backdrop, and content yourself. Use [Dialog](/components/dialog)
-for a structured title, description, body, and footer. Use [Sheet](/components/sheet) for a drawer
-from a viewport edge. Use [Popover](/components/popover) for anchored interactive content.
-[Dialog](/components/dialog) and [Sheet](/components/sheet) wrap this primitive; their Content
-parts include a Portal internally.
+for a structured title, description, body, and footer. Use [Sheet](/components/sheet) or
+[Drawer](/components/drawer) for a panel from a viewport edge. Use [Popover](/components/popover)
+for anchored interactive content. [Dialog](/components/dialog), [Sheet](/components/sheet), and
+[Drawer](/components/drawer) wrap this primitive; their Content parts include a Portal internally.
 
 ```tsx
 import { Button, BaseDialog } from 'moraine'
@@ -174,13 +174,7 @@ Compose a draggable header that repositions the dialog surface and resets its of
 
 ### Exit lifecycle
 
-Control visibility and wait for overlay and content exit animations to finish before unmounting or
-cleaning up.
+Control visibility and use `onExitComplete` to run cleanup once the overlay and content exit
+animations finish.
 
 <Preview path="./base-dialog-lifecycle" />
-
-### Exit callback
-
-Use `onExitComplete` to run side effects after exit animations finish.
-
-<Preview path="./exit-lifecycle" />

@@ -359,7 +359,11 @@ export namespace BaseSelectT {
   export interface TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> {
     /** Element or component to render as. */
     as?: T
-    /** Whether this trigger is disabled. */
+    /**
+     * Disables only this trigger element, so it cannot be pressed or focused. The select itself
+     * stays enabled: its form value is still submitted and the render props report the root
+     * `disabled`. Set `disabled` on `BaseSelect` to disable the whole control.
+     */
     disabled?: boolean
     /**
      * Label or reactive presentation function.

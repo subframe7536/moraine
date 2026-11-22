@@ -101,9 +101,13 @@ export namespace ToastT {
      * unmounting). Cannot cancel the close. Passing a new `onClose` to `update` replaces it.
      */
     onClose?: (reason: CloseReason) => void
+    /** Class for this toast (the `item` slot). */
     class?: SlotClassValue
+    /** Inline style for this toast (the `item` slot). */
     style?: SlotStyleValue
+    /** Per-slot classes, merged per slot over the host's `classes`. */
     classes?: Classes
+    /** Per-slot styles, merged per slot over the host's `styles`. */
     styles?: Styles
     /**
      * Auto-close duration in milliseconds. `Infinity` stays open. Loading toasts never auto-close.

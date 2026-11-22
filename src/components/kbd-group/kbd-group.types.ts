@@ -25,7 +25,7 @@ export namespace KbdGroupT {
         /** Accessible label for this keycap. Overrides the spoken name of a key alias. */
         ariaLabel?: string
         /**
-         * Whether to resolve a known key alias to its symbol.
+         * Whether to resolve a known key alias to its symbol and spoken name, like `Kbd` `symbol`.
          * @default true
          */
         symbol?: boolean
@@ -52,16 +52,16 @@ export namespace KbdGroupT {
     items: Item[]
 
     /**
-     * Text between keys, or a component rendered between each pair of keys. The component receives the
-     * `index` of the key it follows.
+     * Plain text between keys (not an icon name), or a component rendered between each pair of
+     * keys, for example to show an icon. The component receives the `index` of the key it follows.
      * @default '+'
      * @example
      * ```tsx
-     * import { KbdGroup } from 'moraine'
+     * import { Icon, KbdGroup } from 'moraine'
      *
      * <KbdGroup
-     *   items={['g', 'i']}
-     *   separator={(props) => <span aria-hidden="true">then {props.index}</span>}
+     *   items={['ctrl', 'shift', 'P']}
+     *   separator={() => <Icon name="i-lucide:plus" class="text-xs" />}
      * />
      * ```
      */

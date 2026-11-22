@@ -105,9 +105,7 @@ export namespace HoverCardT {
     children?: JSX.Element | Component<ContentRenderProps>
   }
 
-  /**
-   * Props for the HoverCard component.
-   */
+  /** Props for `HoverCard.Content`. */
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }
 

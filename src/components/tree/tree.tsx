@@ -123,7 +123,28 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
 
 /**
  * Creates a headless tree instance that carries reactive state, imperative methods, and the
- * components bound to it. Call it inside a reactive owner.
+ * components bound to it. Behavior (expansion, selection, checking, lazy loading) is configured
+ * here; presentation is configured on the bound `tree.Tree`. Call it inside a reactive owner, such
+ * as a component body; each call creates an independent tree.
+ *
+ * @example
+ * ```tsx
+ * import { createTree } from 'moraine'
+ *
+ * interface Node {
+ *   id: string
+ *   children?: Node[]
+ * }
+ * const nodes: Node[] = [{ id: 'src', children: [{ id: 'index.ts' }] }, { id: 'README.md' }]
+ * const tree = createTree<Node>({
+ *   items: () => nodes,
+ *   getKey: (node) => node.id,
+ *   getChildren: (node) => node.children,
+ *   defaultExpandedKeys: ['src'],
+ * })
+ *
+ * <tree.Tree aria-label="Files" />
+ * ```
  */
 export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
   const state = createTreeState(options)

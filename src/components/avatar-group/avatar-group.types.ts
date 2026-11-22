@@ -23,6 +23,7 @@ export namespace AvatarGroupT {
      * Avatars to render, in order. Each entry accepts the `Avatar` props (`src`, `alt`, `text`,
      * `icon`, `badge`, `badgePosition`, `onStatusChange`) except `size`; every avatar uses the
      * group `size`. An empty array renders nothing.
+     * @default []
      * @example
      * ```tsx
      * import { AvatarGroup } from 'moraine'
@@ -34,7 +35,6 @@ export namespace AvatarGroupT {
      *   ]}
      * />
      * ```
-     * @default []
      */
     items?: Item[]
 

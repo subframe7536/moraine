@@ -40,6 +40,11 @@ interface CreateDisclosureStateOptions {
    * so you can open the panel.
    */
   onBeforeMatch?: () => void
+  /**
+   * Reads the height of the registered measure element. Defaults to `scrollHeight`; content in
+   * normal flow can use `offsetHeight`, which ignores overflow such as transformed children.
+   */
+  measure?: (element: HTMLElement) => number
 }
 
 interface DisclosureState {
@@ -75,7 +80,7 @@ interface DisclosureState {
    */
   registerContentElement: (element: HTMLElement) => () => void
   /**
-   * Registers the element whose `scrollHeight` feeds `contentHeight`. The latest registration wins;
+   * Registers the element whose measured height feeds `contentHeight`. The latest registration wins;
    * releasing it falls back to the previous one. Returns a release function.
    */
   registerMeasureElement: (element: HTMLElement) => () => void
@@ -129,7 +134,7 @@ export function MyCollapsible() {
 
 ## Features
 
-- Attaches a `ResizeObserver` to the measured element and reports its `scrollHeight` through `contentHeight()`, remeasuring when the element resizes and when `open` changes.
+- Attaches a `ResizeObserver` to the measured element and reports its height (`scrollHeight`, or the `measure` result) through `contentHeight()`, remeasuring when the element resizes and when `open` changes.
 - Exposes `data-expanded`, `data-closed`, and `data-disabled` as getters, so each attribute tracks its own condition when you spread `dataAttrs`.
 - Keeps the content shell mounted through its exit animation (`shouldMount()`, `exiting()`) unless `transition` is `false`, and always mounts it with `forceMount`.
 - Returns focus to the trigger (set with `setTriggerElement`) when the panel closes while focus is inside the content shell (registered with `registerContentElement`).

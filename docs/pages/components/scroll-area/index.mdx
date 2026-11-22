@@ -29,8 +29,8 @@ import Playground from './playground'
 
 Use ScrollArea to constrain overflowing content. Scrolling stays native: wheel, touch, keyboard,
 and scroll anchoring behave as in any scroll container. By default ScrollArea hides the native
-scrollbar and draws its own over the content; set `scrollbarVariant="native"` to keep the browser's. When the area is a landmark of its own, label it with
-`role="region"` and `aria-label`.
+scrollbar and draws its own over the content; set `scrollbarMode="native"` to keep the browser's.
+When the area is a landmark of its own, label it with `role="region"` and `aria-label`.
 
 ```tsx
 import { For } from 'solid-js'
@@ -72,7 +72,7 @@ natural width.
 
 ### Scrollbars
 
-`scrollbarVariant` selects how scrollbars appear:
+`scrollbarMode` selects how scrollbars appear:
 
 | Value    | Behavior                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
@@ -92,12 +92,12 @@ viewport.
 
 ### Edge shadows
 
-Set `shadow` to fade content out at edges that have more content beyond them. The shadow grows with
-the remaining distance up to `shadowSize` pixels (default `40`), so it appears gradually instead of
+Set `fade` to fade content out at edges that have more content beyond them. The shadow grows with
+the remaining distance up to `fadeSize` pixels (default `40`), so it appears gradually instead of
 switching on. The mask fades content into the background behind the container.
 
 ```tsx
-<ScrollArea shadow shadowSize={24} class="h-48" role="region" aria-label="Activity">
+<ScrollArea fade fadeSize={24} class="h-48" role="region" aria-label="Activity">
   {entries}
 </ScrollArea>
 ```
@@ -107,7 +107,8 @@ switching on. The mask fades content into the background behind the container.
 `onOverflowChange` receives `{ x: { start, end }, y: { start, end } }` whenever the edges with
 more content beyond them change. `start` and `end` are logical: in RTL content, the `x` start
 edge is on the right. `scrollThreshold` sets how close to an edge, in pixels, scrolling counts as
-reaching it.
+reaching it. It applies to `onOverflowChange`, the `data-overflow-*-start` and `-end`
+attributes, and the `on*Reached` callbacks, not to the shadow mask.
 
 `onTopReached`, `onBottomReached`, `onLeftReached`, and `onRightReached` fire once each time scrolling
 reaches a physical edge (within `scrollThreshold`) of an overflowing axis; in RTL content
@@ -132,18 +133,18 @@ edge effects.
 ### Theme overrides
 
 Set `scrollArea.defaultVariants` to choose the scrollbar mode or enable shadows across a provider;
-`scrollbarVariant: 'native'` restores browser scrollbars everywhere. The recipe exposes
+`scrollbarMode: 'native'` restores browser scrollbars everywhere. The recipe exposes
 `--scroll-area-shadow-size` and the mask layers `--scroll-area-shadow-y` and
 `--scroll-area-shadow-x`.
 
 The shadow size resolves in this order, highest first: root `style`, `styles.root`, an explicit
-`shadowSize`, then recipe and Theme defaults.
+`fadeSize`, then recipe and Theme defaults.
 
 ## Examples
 
 ### Edge shadows
 
-Enable `shadow` to indicate clipped content along overflowing edges.
+Enable `fade` to indicate clipped content along overflowing edges.
 
 <Preview path="./shadow" />
 
@@ -163,7 +164,7 @@ edge, and the thumb and shadows follow the logical edges.
 ### Scrollbar width
 
 `scrollbarWidth="thin"` draws thinner custom scrollbars, or applies `scrollbar-width: thin` with
-`scrollbarVariant="native"`.
+`scrollbarMode="native"`.
 
 <Preview path="./scrollbar-width" />
 

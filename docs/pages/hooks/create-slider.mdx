@@ -36,7 +36,7 @@ function createSlider<TValue extends number | number[]>(
 | ------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------- |
 | `value`, `defaultValue`                     | `min`                   | Controlled and initial value. The shape of `value` or `defaultValue` sets the shape of callback values. |
 | `min`, `max`                                | `0`, `100`              | Values clamp to this range.                                                                             |
-| `step`                                      | None                    | Pointer and keyboard values snap to multiples of it from `min`. Without it, values are continuous.      |
+| `step`                                      | `1`                     | Pointer and keyboard values snap to multiples of it from `min`. `0` or less makes values continuous.    |
 | `orientation`, `reversed`                   | `'horizontal'`, `false` | Axis and direction of the track.                                                                        |
 | `minStepsBetweenThumbs`                     | `0`                     | Minimum gap between thumbs in `step` units. Above `0`, thumbs cannot cross.                             |
 | `allowThumbCrossing`                        | `true`                  | When `false`, a dragged thumb stops at its neighbor.                                                    |

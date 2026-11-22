@@ -84,9 +84,7 @@ export namespace PopoverT {
     children?: JSX.Element
   }
 
-  /**
-   * Props for the Popover component.
-   */
+  /** Props for `Popover.Content`. */
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
   export type CloseBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>

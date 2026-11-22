@@ -64,15 +64,9 @@ value) to show only the `+N` count. `N` is the number of hidden items.
 
 ## Examples
 
-### Max visible
+### Reviewer overflow
 
-Cap the rendered avatars with `maxVisible`. Remaining items collapse into an overflow count.
-
-<Preview path="./grouping-usage" />
-
-### Overflow only
-
-A positive `maxVisible` shows that many avatars plus `+N`. Set `maxVisible={0}` to render only the
-overflow count.
+Cap a reviewer stack with `maxVisible` so the remaining people collapse into `+N`. Set
+`maxVisible={0}` where only the count fits.
 
 <Preview path="./overflow-count" />

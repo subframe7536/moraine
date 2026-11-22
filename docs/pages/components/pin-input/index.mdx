@@ -40,8 +40,8 @@ export function Example() {
 (`'123456'`), filtered by `validationType` and truncated to `length`. `onValueChange` receives the
 joined string; cleared slots are dropped from it, and `onComplete` receives the joined string once
 every slot is filled. Set `name` to submit the joined value through a hidden input, and `form` to
-associate
-the control with a `<form>` outside its ancestors. A native form reset restores `defaultValue`.
+associate the control with a `<form>` outside its ancestors. A native form reset restores
+`defaultValue`.
 
 ```tsx
 <PinInput length={4} value={code()} onValueChange={setCode} />
@@ -117,16 +117,16 @@ an array of consecutive group sizes. Use `separator` to replace the default `•
 
 ### Keyboard interaction
 
-| Key                                        | Description                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------- |
-| <kbd>ArrowLeft</kbd>                       | Moves focus to the previous input (in RTL, the next).                           |
-| <kbd>ArrowRight</kbd>                      | Moves focus to the next input (in RTL, the previous).                           |
-| <kbd>Ctrl/Cmd</kbd> + arrow                | Moves focus to the first input (previous) or the first empty input (next).      |
-| <kbd>Home</kbd> / <kbd>ArrowUp</kbd>       | Moves focus to the first input.                                                 |
-| <kbd>End</kbd> / <kbd>ArrowDown</kbd>      | Moves focus to the first empty input (the last when all are filled).            |
-| <kbd>Backspace</kbd>                       | Clears the focused slot, or the previous slot when it is empty, and moves back. |
-| <kbd>Ctrl/Cmd</kbd> + <kbd>Backspace</kbd> | Clears all inputs and moves to the first.                                       |
-| <kbd>Delete</kbd>                          | Clears the focused slot.                                                        |
+| Key                                        | Description                                                                         |
+| ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| <kbd>ArrowLeft</kbd>                       | Moves focus to the previous input (in RTL, the next).                               |
+| <kbd>ArrowRight</kbd>                      | Moves focus to the next input (in RTL, the previous).                               |
+| <kbd>Ctrl/Cmd</kbd> + arrow                | Moves focus to the first input (previous) or the first empty input (next).          |
+| <kbd>Home</kbd> / <kbd>ArrowUp</kbd>       | Moves focus to the first input.                                                     |
+| <kbd>End</kbd> / <kbd>ArrowDown</kbd>      | Moves focus to the first empty input (the last when all are filled).                |
+| <kbd>Backspace</kbd>                       | Clears the focused slot; in an empty slot, clears the previous one and moves to it. |
+| <kbd>Ctrl/Cmd</kbd> + <kbd>Backspace</kbd> | Clears all inputs and moves to the first.                                           |
+| <kbd>Delete</kbd>                          | Clears the focused slot.                                                            |
 
 Backspace and Delete have no effect when the control is read-only. Pasted text fills the slots
 from the focused one.

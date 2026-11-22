@@ -29,13 +29,13 @@ Looping and activation depend on the component and its options. See each compone
 
 ### Overlay Dismissal
 
-Dismissible overlays (such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`, and select popups) close on <kbd>Escape</kbd>. Only the topmost active overlay handles the key, so closing a nested overlay leaves its parent open. Escape is ignored during IME composition. Set `closeOnEscape` to `false` to keep an overlay open; `onClosePrevented` reports the blocked attempt.
+Dismissible overlays (such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`, and select popups) close on <kbd>Escape</kbd>. Only the topmost active overlay handles the key, so closing a nested overlay leaves its parent open. Escape is ignored during IME composition. On overlays with a `closeOnEscape` prop, set it to `false` to keep the overlay open; `onClosePrevented` reports the blocked attempt.
 
 ## Focus Management
 
 ### Focus Trapping in Modals
 
-Modal surfaces such as `Dialog`, `Sheet`, `Drawer`, and `BaseDialog` keep keyboard focus inside their content while open. Tabbing past the last focusable element returns focus to the first. While open, they also hide outside content from assistive technology and lock page scroll. `Popover` is non-modal by default; `modal` applies the same behavior only when the content includes `Popover.Close`. With `modal={false}` on a modal surface, focus is not trapped, moved on open, or restored on close.
+Modal surfaces such as `Dialog`, `Sheet`, `Drawer`, and `BaseDialog` keep keyboard focus inside their content while open. Tabbing past the last focusable element returns focus to the first. While open, they also hide outside content from assistive technology and lock page scroll. `Popover` is non-modal and does not trap focus. With `modal={false}` on a modal surface, focus is not trapped, moved on open, or restored on close.
 
 ### Focus Restoration
 

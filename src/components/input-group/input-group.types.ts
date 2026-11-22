@@ -6,9 +6,14 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { InputGroupStyleSlot, InputGroupStyleVariants } from './input-group.style-types'
 
 interface InputGroupPartBase<T extends ValidComponent = 'div'> {
+  /**
+   * The HTML element or component to render as.
+   * @default 'div'
+   */
   as?: T
   /**
-   * Removes the padding between this part and the adjacent control.
+   * Reduces this part's padding (inline padding in a horizontal group, padding on all sides in a
+   * vertical group), for example around an icon-only button.
    * @default false
    */
   compact?: boolean

@@ -39,19 +39,22 @@ export function App() {
 
 ## Props
 
-| Prop           | Type                     | Default     | Behavior when omitted (`undefined`) |
-| :------------- | :----------------------- | :---------- | :---------------------------------- |
-| `theme`        | `MoraineTheme \| null`   | `null`      | Inherits parent provider's theme.   |
-| `cnConfig`     | `CnConfig`               | Default cn  | Inherits parent provider's merger.  |
-| `locale`       | `string`                 | `'en-US'`\* | Inherits parent provider's locale.  |
-| `detectLocale` | `boolean`                | `true`\*    | Inherits parent provider's locale.  |
-| `dir`          | `'ltr' \| 'rtl' \| null` | Document    | Inherits parent direction.          |
-| `messages`     | `MoraineMessagesInput`   | English     | Inherits parent messages.           |
-| `children`     | `JSX.Element`            | —           | Descendants receiving this context. |
+| Prop           | Type                       | Default     | Behavior when omitted (`undefined`) |
+| :------------- | :------------------------- | :---------- | :---------------------------------- |
+| `theme`        | `MoraineTheme \| null`     | `null`      | Inherits parent provider's theme.   |
+| `cnConfig`     | `CnConfig`                 | Default cn  | Inherits parent provider's merger.  |
+| `locale`       | `string`                   | `'en-US'`\* | Inherits parent provider's locale.  |
+| `detectLocale` | `boolean`                  | `true`\*    | Inherits parent provider's locale.  |
+| `dir`          | `'ltr' \| 'rtl' \| null`   | Document    | Inherits parent direction.          |
+| `messages`     | Partial message groups\*\* | English     | Inherits parent messages.           |
+| `children`     | `JSX.Element`              | —           | Descendants receiving this context. |
 
 \* On a root provider with no explicit `locale`, `detectLocale` defaults to `true`. SSR and the
 first client render always use `en-US`, and after hydration the root provider follows
 `navigator.language` and the `languagechange` event. Setting `locale` disables `detectLocale`.
+
+\*\* Type it as `MoraineProviderProps['messages']`; see [Localization](/docs/localization#messages)
+for the groups and keys.
 
 ## Nesting and reset rules
 

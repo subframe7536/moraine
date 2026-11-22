@@ -12,8 +12,8 @@ export function CollapsibleGroups() {
 
   return (
     <div class="border border-border rounded-xl bg-background h-[420px] w-full shadow-xs overflow-hidden">
-      <Sidebar mobile={false}>
-        <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-64">
+      <Sidebar mobile={false} defaultWidth={256}>
+        <Sidebar.Panel class="border-r border-border/60 bg-card/40">
           <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="text-xs font-bold flex gap-2 items-center">
               <div class="text-white rounded-md bg-emerald-600 flex size-6 items-center justify-center">

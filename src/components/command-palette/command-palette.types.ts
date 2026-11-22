@@ -14,10 +14,15 @@ import type {
 } from './command-palette.style-types'
 
 interface CommandPaletteBaseRenderProps<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
+  /** Current search text, before trimming. */
   searchValue: string
+  /** Whether the palette `loading` prop is `true`. */
   loading: boolean
+  /** Whether at least one command is visible after filtering. */
   hasItems: boolean
+  /** All groups built from `items`, unfiltered; ungrouped commands form label-less groups. */
   groups: CommandPaletteT.Group<TItem>[]
+  /** Groups that still have visible commands after filtering, each holding only those commands. */
   visibleGroups: CommandPaletteT.Group<TItem>[]
 }
 
@@ -137,10 +142,13 @@ export namespace CommandPaletteT {
   export interface ItemRenderProps<
     TItem extends Item = Item,
   > extends CommandPaletteBaseRenderProps<TItem> {
+    /** The command being rendered. */
     item: TItem
+    /** Group that contains the command; a label-less group for ungrouped commands. */
     group: Group<TItem>
     /** Whether the item is currently highlighted. */
     highlighted: boolean
+    /** Whether the item is disabled (`item.disabled`). */
     disabled: boolean
   }
 
@@ -230,7 +238,8 @@ export namespace CommandPaletteT {
      */
     autoFocus?: boolean
     /**
-     * Icon name of input's leading icon. Replaced by `loadingIcon` while `loading` is `true`.
+     * Icon shown at the start of the search input. Replaced by `loadingIcon` while `loading` is
+     * `true`.
      * @default 'icon-search'
      */
     leading?: IconT.Name

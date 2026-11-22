@@ -78,7 +78,9 @@ export namespace DataTableT {
 
   /** Pagination settings `createDataTable` records on its instance for `DataTable`. */
   export interface PaginationSettings {
+    /** Whether the `paginated` option is enabled. */
     readonly paginated: boolean
+    /** Page size choices of the toolbar dropdown, or `false` when the dropdown is hidden. */
     readonly pageSizes: readonly number[] | false
   }
 
@@ -87,6 +89,7 @@ export namespace DataTableT {
    * presenter bound to it — render `<table.DataTable />` without passing a `table` prop.
    */
   export type Instance<TData extends RowData = RowData> = Table<Features, TData> & {
+    /** Pagination settings resolved from the `paginated` option, read by `DataTable`. */
     readonly paginationSettings: PaginationSettings
     /** `DataTable` presenter bound to this instance; accepts every `DataTable` prop but `table`. */
     readonly DataTable: Component<Omit<Props<TData>, 'table'>>
@@ -178,7 +181,8 @@ export namespace DataTableT {
     isRowSelectable?: (row: Row<TData>) => boolean
     /**
      * Prepends an expand/collapse chevron column with id `'expand'`; a user column whose resolved
-     * id is `'expand'` replaces it. `true` lets every row expand; a predicate decides per row. When omitted, only rows with sub-rows
+     * id is `'expand'` replaces it. `true` lets every row expand; a predicate decides per row.
+     * When omitted or `false`, no column is added and only rows with sub-rows
      * (`tableOptions.getSubRows`) can expand. For tree data, pass
      * `(row) => row.subRows.length > 0` to show the chevron only on parent rows.
      * @default false
@@ -337,6 +341,7 @@ export namespace DataTableT {
 
   /** Row passed to `rowProps`. */
   export interface RowPropsContext<TData extends RowData = RowData> {
+    /** The body row; use `row.original` for the source record. */
     readonly row: Row<TData>
     /** Position among the rendered body rows. */
     readonly index: number
@@ -344,6 +349,7 @@ export namespace DataTableT {
 
   /** Header cell passed to `headProps`. */
   export interface HeadPropsContext<TData extends RowData = RowData> {
+    /** The TanStack header; `header.column` is its column. */
     readonly header: Header<TData>
     /** Position among the cells of its header row, in display order. */
     readonly index: number

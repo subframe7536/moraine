@@ -9,8 +9,30 @@ import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 /**
- * Checkbox bound to the item's check state. The `treeitem` announces the state through
- * `aria-checked` and toggles it with Space, so the control is hidden and out of the tab order.
+ * Checkbox bound to the check state of the surrounding `tree.Item`. It renders nothing unless
+ * `createTree` has `checkable: true`. The `treeitem` announces the state through `aria-checked`
+ * and toggles it with Space, so the control is hidden and out of the tab order.
+ *
+ * @example
+ * ```tsx
+ * import { createTree } from 'moraine'
+ *
+ * const tree = createTree<string>({
+ *   items: () => ['Read', 'Write'],
+ *   getKey: (name) => name,
+ *   checkable: true,
+ * })
+ *
+ * <tree.Tree
+ *   aria-label="Permissions"
+ *   itemRender={(item) => (
+ *     <tree.Item item={item}>
+ *       <tree.ItemCheckbox />
+ *       <tree.ItemLabel />
+ *     </tree.Item>
+ *   )}
+ * />
+ * ```
  */
 export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Element {
   const [local, rest] = splitProps(props, ['checkedIcon', 'indeterminateIcon', 'class', 'style'])

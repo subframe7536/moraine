@@ -30,11 +30,15 @@ export interface DialogStyleSlot<T = unknown> {
 }
 
 export interface DialogStyleVariants {
-  /** Whether the surface fills the viewport.
+  /**
+   * Whether the surface fills the viewport, without border or radius.
    * @default false
    */
   fullscreen?: boolean
-  /** Whether the overlay scrolls its content.
+  /**
+   * Whether a panel taller than the viewport scrolls as a whole inside the backdrop. When
+   * `false`, the panel is capped to the viewport height and centered. Has no effect with
+   * `fullscreen` or when `overlay` is `false`.
    * @default false
    */
   scrollable?: boolean

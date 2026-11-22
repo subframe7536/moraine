@@ -80,6 +80,7 @@ export default function ButtonPlayground() {
             variant={props.variant}
             tone={props.tone}
             size={`icon-${props.size}`}
+            aria-label="Open menu"
             disabled={props.disabled}
             loading={props.loading}
             pressEffect={props.pressEffect}

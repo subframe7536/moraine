@@ -7,7 +7,7 @@ export function NoResults() {
     <div class="max-w-md w-full">
       <Input
         value={search()}
-        onInput={(event) => setSearch(event.currentTarget.value)}
+        onValueChange={setSearch}
         aria-label="Search projects"
         placeholder="Search projects"
       />

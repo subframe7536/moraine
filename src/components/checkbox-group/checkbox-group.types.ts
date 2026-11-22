@@ -38,7 +38,9 @@ export namespace CheckboxGroupT {
     disabled?: boolean
     /**
      * Displays the item in the mixed state regardless of whether its `value` is selected.
-     * Toggling it still adds or removes the `value` from the group's `value` array.
+     * Toggling a mixed item always checks it: it adds the `value` to the group's `value` array, or
+     * changes nothing when the `value` is already selected. Clear `indeterminate` to let the user
+     * uncheck it.
      */
     indeterminate?: boolean
     /** Custom checked icon for this item. Overrides the group's `checkedIcon`. */

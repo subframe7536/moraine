@@ -63,8 +63,9 @@ export function UserDialog() {
 
 ## Conditional JSX and item content
 
-Create JSX inside the branch that renders it. For collection items with optional panels, use a
-`content` getter so an inactive panel does not consume hydration IDs before it mounts:
+Create JSX inside the branch that renders it. For collection items with optional panels, pass
+`content` as a component so an inactive panel is not built, and does not consume hydration IDs,
+before it mounts:
 
 ```tsx
 import { Tabs } from 'moraine'
@@ -73,19 +74,11 @@ export function SettingsTabs() {
   return (
     <Tabs
       items={[
-        {
-          value: 'account',
-          label: 'Account',
-          get content() {
-            return <p>Account settings</p>
-          },
-        },
+        { value: 'account', label: 'Account', content: () => <p>Account settings</p> },
         {
           value: 'notifications',
           label: 'Notifications',
-          get content() {
-            return <p>Notification settings</p>
-          },
+          content: () => <p>Notification settings</p>,
         },
       ]}
     />
@@ -110,8 +103,9 @@ zero-argument function for that prop type. Moraine calls a zero-argument functio
 and does not mount it with a component boundary. Use a parameter when the callback depends on a
 Solid owner, lifecycle, or owned reactive computation.
 
-[Field](/components/field) children call every function with the field state, with or without a
-declared parameter. The call is tracked, so signals read directly in the function body re-run it.
+[Field](/components/field) children and [HoverCard](/components/hover-card) content call every
+function with their render props, with or without a declared parameter. The call is tracked, so
+signals read directly in the function body re-run it.
 
 ## Responsive Queries in SSR
 
@@ -148,7 +142,7 @@ During server rendering:
 
 ## Locale and Direction
 
-`MoraineProvider` renders the same locale on the server and during hydration. SSR and the first client render use `en-US`. A root provider then follows `navigator.language` unless you set `locale` or `detectLocale={false}`. To render localized text on the server, pass `locale` from a cookie or an `Accept-Language` header. The provider's `dir` prop changes component behavior but does not set a `dir` attribute; set `dir` on `<html>` for layout. See the [Localization guide](/docs/localization).
+SSR and the first client render use `en-US`; a root `MoraineProvider` follows `navigator.language` only after hydration. To render localized text on the server, pass `locale` from a cookie or an `Accept-Language` header, and set `lang` and `dir` on `<html>`. See the [Localization guide](/docs/localization).
 
 ## Best Practices for SSR Safety
 

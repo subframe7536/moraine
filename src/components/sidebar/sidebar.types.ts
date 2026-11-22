@@ -25,17 +25,25 @@ export namespace SidebarT {
 
   export type State = 'expanded' | 'collapsed'
 
+  /** Sidebar state returned by `Sidebar.useContext()` inside `Sidebar`. */
   export interface Context {
-    /** Which viewport edge the sidebar attaches to. */
+    /** Resolved `side` of the root. */
     side: 'left' | 'right'
-    /** Sidebar chrome variant: `default` sits inline, `floating` and `inset` lift it from the page. */
+    /** Resolved `variant` of the root. */
     variant?: Variants['variant'] | null
+    /** `'expanded'` while the active layout is open, otherwise `'collapsed'`. */
     state: Accessor<State>
+    /** Whether the panel currently renders in the mobile drawer. */
     isMobile: Accessor<boolean>
+    /** Open state of the active layout: the desktop panel or the mobile drawer. */
     isOpen: Accessor<boolean>
+    /** Requests a new open state for the active layout and calls `onOpenChange` when it differs. */
     setOpen: (open: boolean) => void
+    /** Toggles the open state of the active layout. */
     toggle: () => void
+    /** DOM `id` of `Sidebar.Panel`, for `aria-controls` on custom triggers. */
     panelId: Accessor<string>
+    /** The root `translations` prop. */
     translations?: Accessor<Translations | undefined>
   }
 
@@ -113,6 +121,7 @@ export namespace SidebarT {
     children?: JSX.Element
   }
 
+  /** Props for the Sidebar component. */
   export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface RailBase<T extends ValidComponent = 'button'> {
@@ -123,7 +132,11 @@ export namespace SidebarT {
      * the native `disabled` attribute are emitted only for a `'button'` host.
      */
     as?: T
-    /** Disables pointer, keyboard, and click resizing. */
+    /**
+     * Disables dragging, keyboard resizing, and toggling the sidebar with a click or `Enter`, and
+     * removes the rail from the tab order.
+     * @default false
+     */
     disabled?: boolean
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
   }
@@ -339,15 +352,20 @@ export namespace SidebarT {
      * @default false
      */
     defaultOpen?: boolean
-    /** Callback invoked when the expanded state changes. */
+    /**
+     * Called with the next expanded state when the user toggles the sub-menu with its trigger, or
+     * when in-page search reveals `forceMount`ed content. Not called while `disabled` or when
+     * `open` changes from outside.
+     */
     onOpenChange?: (open: boolean) => void
     /**
-     * Whether the trigger is disabled.
+     * Whether the `MenuSubTrigger` cannot toggle the sub-menu. The current expanded state is kept.
      * @default false
      */
     disabled?: boolean
     /**
-     * Whether to animate the content height.
+     * Whether to animate the content height when expanding and collapsing. Skipped with
+     * `prefers-reduced-motion`.
      * @default true
      */
     transition?: boolean
@@ -396,4 +414,5 @@ export namespace SidebarT {
   >
 }
 
+/** Props for the Sidebar component. */
 export type SidebarProps = SidebarT.Props

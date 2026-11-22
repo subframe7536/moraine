@@ -13,7 +13,7 @@ export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Wrapper for one checkbox option in the group. */
   item?: T
 
-  /** Text column for an option label and description. */
+  /** Vertical alignment wrapper for an option's checkbox control. */
   container?: T
 
   /** Visible checkbox control for an individual option. */
@@ -22,7 +22,7 @@ export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Visual checked or indeterminate state layer for an option. */
   indicator?: T
 
-  /** Inner layout wrapper used by grouped checkbox variants. */
+  /** Text column for an option label and description. */
   wrapper?: T
 
   /** Primary label text for an option. */

@@ -27,6 +27,7 @@ export function FilterIssues() {
             <Badge
               as="button"
               type="button"
+              aria-pressed={filter() === item.value}
               variant={filter() === item.value ? 'solid' : 'outline'}
               onClick={() => setFilter(item.value)}
             >

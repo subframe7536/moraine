@@ -8,7 +8,7 @@ export interface CopyButtonStyleSlot<T = unknown> {
   root?: T
 
   /**
-   * Copy icon element or container holding the copy and check icons.
+   * Status icon: `icon` while idle or after an error, `copiedIcon` while copied.
    */
   icon?: T
 
@@ -25,7 +25,11 @@ export interface CopyButtonStyleVariants {
   variant?: CopyButtonVariant
   /** Color tone while uncopied. @default 'neutral' */
   tone?: ButtonStyleVariants['tone']
-  /** Button size, including icon-only sizes. @default 'md' */
+  /**
+   * Button size, including icon-only sizes. When `size` is omitted, an icon-only CopyButton uses the
+   * matching `icon-*` size and a labeled one the matching text size.
+   * @default 'md'
+   */
   size?: ButtonStyleVariants['size']
 }
 

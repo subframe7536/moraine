@@ -199,9 +199,10 @@ either one is blocked.
 </Dialog>
 ```
 
-### Lifecycle
+### Layout and exit
 
-Use root `scrollable` for long content or `fullscreen` for a full-viewport task. `onExitComplete`
+Use root `scrollable` when a long panel should scroll as a whole inside the backdrop instead of
+being capped to the viewport height, or `fullscreen` for a full-viewport task. `onExitComplete`
 runs after the overlay and content finish their exit animations.
 
 ```tsx
@@ -245,7 +246,7 @@ outside clicks and Escape. `onClosePrevented` counts blocked attempts until Save
 
 ### Scrollable and fullscreen
 
-Use `scrollable` so long content scrolls with the overlay, or `fullscreen` for a full-viewport
+Use `scrollable` so a long panel scrolls inside the overlay, or `fullscreen` for a full-viewport
 task.
 
 <Preview path="./scrollable-fullscreen" />
@@ -255,9 +256,3 @@ task.
 Use `onExitComplete` to react after overlay and content exit animations complete.
 
 <Preview path="./structure-lifecycle" />
-
-### Controlled
-
-Control `open` from external state and track finished exits with `onExitComplete`.
-
-<Preview path="./controlled-lifecycle" />

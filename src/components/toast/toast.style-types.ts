@@ -41,7 +41,9 @@ export interface ToastStyleSlot<T = unknown> {
 
 export interface ToastStyleVariants {
   /**
-   * Visual status variant.
+   * Status of the toast. It picks the icon and its color (`default` has no icon), and `error`
+   * toasts use `role="alert"` instead of `role="status"`. `loading` toasts never auto-close. On the
+   * host it is the default for toasts that do not set it.
    * @default 'default'
    */
   type?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'

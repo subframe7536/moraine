@@ -57,6 +57,14 @@ export namespace BaseDialogT {
     onExitComplete?: () => void
 
     /**
+     * Whether a pointer press outside the content dismisses it. Focus moving outside never
+     * dismisses: a modal surface pulls focus back, and a non-modal one stays open. When `false`,
+     * the press fires `onClosePrevented` instead.
+     * @default true
+     */
+    closeOnOutsideClick?: boolean
+
+    /**
      * Whether enter and exit transition animations play. When `false`, the content and overlay
      * mount and unmount without waiting for an animation to end. The value is read when content
      * registers, so changes take effect the next time content mounts.

@@ -135,7 +135,9 @@ export namespace StepperT {
 
     /**
      * How users move between steps. `none` keeps only the active step enabled, `linear` also allows
-     * completed steps and the next step, and `free` allows every enabled step.
+     * completed steps and the next step, and `free` allows every enabled step. Steps locked by
+     * `navigation` render disabled and are skipped by arrow keys, so with `none` neither
+     * `activationMode` nor `loop` has an effect and only your own controls change the step.
      * @default 'none'
      */
     navigation?: 'none' | 'linear' | 'free'

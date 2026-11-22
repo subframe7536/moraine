@@ -49,8 +49,8 @@ export function FrameRender() {
       </header>
 
       {/* Embedded Sidebar taking remaining height */}
-      <Sidebar mobile={false} class="flex-1 h-auto min-h-0">
-        <Sidebar.Panel class="border-r border-border/60 bg-card/30 w-56">
+      <Sidebar mobile={false} defaultWidth={224} class="flex-1 h-auto min-h-0">
+        <Sidebar.Panel class="border-r border-border/60 bg-card/30">
           <Sidebar.Content>
             <Sidebar.Group>
               <Sidebar.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">

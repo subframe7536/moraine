@@ -47,7 +47,11 @@ export namespace KbdT {
 
   /** Base props for the Kbd component. */
   export interface Base {
-    /** Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the `aria-label` when `value` is an alias and `aria-label` is not set. */
+    /**
+     * Localized spoken names for key aliases, keyed by alias such as `meta` or `escape`. Used as the
+     * `aria-label` when `value` resolves to an alias (so not with `symbol={false}`) and `aria-label`
+     * is not set.
+     */
     translations?: Translations
     /**
      * The key to display. A name matching a built-in alias, compared case-insensitively
@@ -57,7 +61,8 @@ export namespace KbdT {
      */
     value: Key
     /**
-     * Whether to resolve known key aliases to symbols.
+     * Whether to resolve a known key alias to its symbol or short label (`⌘`, `Esc`) and localized
+     * spoken name. When `false`, `value` renders as written and gets no default `aria-label`.
      * @default true
      */
     symbol?: boolean

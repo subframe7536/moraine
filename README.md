@@ -2,9 +2,6 @@
 
 Inspired by Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component library with atomic class styling.
 
-> [!important]
-> **Status: Beta.** Breaking changes are allowed between minors before `v1.0.0`. Use at your own risk.
-
 ## Documentation
 
 Full guide and examples: https://moraine.subf.dev
@@ -59,7 +56,7 @@ For Tailwind CSS v4, add the plugin and a source path relative to your styleshee
 
 Import `moraine/icon.css` only when you want the optional bundled icon masks. It does not replace the required preset/plugin configuration.
 
-3. Render a component. Built-in styles work without a Provider.
+3. Render a component. Built-in styles work without `MoraineProvider`.
 
 ```tsx
 import { Button, Input } from 'moraine'
@@ -74,13 +71,13 @@ function App() {
 }
 ```
 
-4. See the [component guides](https://moraine.subf.dev/components) for usage and [Customization](https://moraine.subf.dev/docs/customization) for style overrides. Components use built-in styles by default. Add [`MoraineProvider`](https://moraine.subf.dev/docs/provider) for Theme, locale, or class-merging overrides; [Theming](https://moraine.subf.dev/docs/theming) explains inheritance and composition.
+4. See the [component guides](https://moraine.subf.dev/components) for usage and [Customization](https://moraine.subf.dev/docs/customization) for style overrides. Add [`MoraineProvider`](https://moraine.subf.dev/docs/provider) for theme, locale, or class-merging overrides; [Theming](https://moraine.subf.dev/docs/theming) explains inheritance and composition.
 
 ## Package entry points
 
 Import components and `MoraineProvider` from `moraine`. Component subpaths and internal files are not supported entry points.
 
-Use `moraine/theme` for Theme authoring, `moraine/utils` for composable behavior primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` and `createTableVirtualizer`, which components take through their `virtualizer` prop, and requires `@tanstack/virtual-core`. `moraine/data-table` provides `DataTable` and `createDataTable` and requires `@tanstack/table-core`. `moraine/dnd` provides `createListSortable` and `createTreeSortable` for drag-and-drop reordering and requires `@dnd-kit/dom`.
+Use `moraine/theme` for theme authoring with `defineTheme()`, `moraine/utils` for composable behavior primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` and `createTableVirtualizer`, which components take through their `virtualizer` prop, and requires `@tanstack/virtual-core`. `moraine/data-table` provides `DataTable` and `createDataTable` and requires `@tanstack/table-core`. `moraine/dnd` provides `createListSortable` and `createTreeSortable` for drag-and-drop reordering and requires `@dnd-kit/dom`.
 
 ## Development
 

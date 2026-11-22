@@ -123,17 +123,19 @@ export namespace TextareaT {
     onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
 
     /**
-     * Native `input` event handler, called after the component has handled the event. It fires on every keystroke, also with `modifiers.lazy`.
+     * Native `input` event handler, called after `onValueChange` and the `Field` notification and
+     * before a controlled `value` is restored. It fires on every keystroke, also with
+     * `modifiers.lazy`.
      */
     onInput?: JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>
 
     /**
-     * Native blur event handler.
+     * Native blur event handler, called after the `Field` blur notification.
      */
     onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
 
     /**
-     * Native focus event handler.
+     * Native focus event handler, called after the `Field` focus notification.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
   }

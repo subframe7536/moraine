@@ -83,6 +83,7 @@ eagerly can emit markup the hydrated tree does not expect.
 `activationMode="automatic"` (the default) selects a tab as arrow navigation moves focus. In manual
 mode, arrows move focus and Enter or Space selects. `loop` (default `true`) wraps navigation at the
 first and last enabled tabs. The arrow keys that move focus follow the list `orientation`.
+`aria-label` and `aria-labelledby` on `Tabs` name the `tablist`, not the root element.
 
 ```tsx
 <Tabs items={TABS} activationMode="automatic" defaultValue="overview" />
@@ -104,14 +105,9 @@ Control the active tab with `value` and `onValueChange`.
 
 <Preview path="./selection-usage" />
 
-### Automatic activation
-
-`activationMode="automatic"` activates each tab immediately as arrow keys move focus.
-
-<Preview path="./activation-usage" />
-
 ### Manual activation
 
 `activationMode="manual"` moves focus with arrow keys and switches panels only on Enter or Space.
+Use it when selecting a tab is expensive, such as a panel that fetches data.
 
 <Preview path="./activation-mode" />

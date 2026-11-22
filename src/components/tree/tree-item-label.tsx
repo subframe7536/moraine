@@ -9,7 +9,26 @@ import { useTreeContext, useTreeItemContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
-/** Text of the item. */
+/**
+ * Text of the surrounding `tree.Item`: its `label` from `getItemLabel`, or `children` instead.
+ * Renders a `span`; pass `as` for another element.
+ *
+ * @example
+ * ```tsx
+ * import { createTree } from 'moraine'
+ *
+ * const tree = createTree<string>({ items: () => ['Docs', 'Src'], getKey: (name) => name })
+ *
+ * <tree.Tree
+ *   aria-label="Folders"
+ *   itemRender={(item) => (
+ *     <tree.Item item={item}>
+ *       <tree.ItemLabel>{item.label.toUpperCase()}</tree.ItemLabel>
+ *     </tree.Item>
+ *   )}
+ * />
+ * ```
+ */
 export function TreeItemLabel<T extends ValidComponent = 'span'>(
   props: TreeT.ItemLabelProps<T>,
 ): JSX.Element {

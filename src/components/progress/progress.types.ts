@@ -44,8 +44,8 @@ export namespace ProgressT {
 
     /**
      * `Intl.NumberFormat` options for the displayed value and `aria-valuetext`, using the provider
-     * locale. They format the raw clamped `value`, not the completed fraction, as `Slider` and
-     * `BoldSlider` do; a `percent` style multiplies by 100, so pair it with a `max` of `1`. Without
+     * locale. Like `Slider` and `BoldSlider`, they format the raw clamped `value`, not the completed
+     * fraction; a `percent` style multiplies by 100, so pair it with a `max` of `1`. Without
      * `formatOptions` the text is the completed percentage rounded to 2 decimal places (`'40%'`).
      * A `valueLabel` function takes precedence.
      * @example

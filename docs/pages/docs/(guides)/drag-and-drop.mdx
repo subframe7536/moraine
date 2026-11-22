@@ -70,7 +70,7 @@ const sortable = createListSortable({
 - `items` is an accessor for the items in rendered order. The sortable reads it at drop time.
 - `onReorder` receives the moved `item`, its `from` and `to` indexes, and `items`, a copy of the
   collection with the move applied. A drop that leaves the item where it was reports nothing.
-- `useRow(context)` takes the row `index` and optional `props` from the render context.
+- `useRow(context)` takes the row `index` and optional `rowProps` from the render context.
   `row.props` keeps those props, composes the drag ref into their `ref`, and adds the drag state
   attributes. Spread it onto the outer row element.
 - Mount `sortable.Provider` once, around the component that renders the rows.
@@ -189,9 +189,10 @@ const sortable = createListSortable({ items, onReorder, sensors: [PointerSensor]
 - `isDisabled(item, index)`: keeps a row from being dragged or dropped on.
 - `canDrop(source, target, position)`: rejects a drop location before it shows an indicator.
 
-`createSortable` and `createListSortable` also take `orientation` and `dropAnimation`. Set
-`orientation: 'horizontal'` for items laid out in a row, such as chips. `before` and `after` then
-come from the inline start and end halves of an item, mirrored in right-to-left layouts.
+All three also take `dropAnimation`. `createSortable` and `createListSortable` take `orientation`;
+tree items are always vertical. Set `orientation: 'horizontal'` for items laid out in a row, such
+as chips. `before` and `after` then come from the inline start and end halves of an item, mirrored
+in right-to-left layouts.
 
 `onReorder` also receives the `target` item and the `position` (`before` or `after`) for data that
 is not a flat array. `moveItem(items, from, to)` returns a moved copy of an array.
@@ -228,6 +229,7 @@ const sortable = createSortable({
     }}
   </For>
 </sortable.Provider>
+```
 
 ## Common pitfalls
 
@@ -237,4 +239,3 @@ const sortable = createSortable({
 - Call `useRow`, `useNode`, and `useItem` under `sortable.Provider`. On the client they throw
   outside it.
 - The server renders rows without drag behavior; rows become draggable after hydration.
-```

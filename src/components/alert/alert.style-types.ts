@@ -24,14 +24,15 @@ export interface AlertStyleSlot<T = unknown> {
 }
 
 /**
- * Semantic intent of the alert. The status vocabulary uses `'default'` for the neutral state and
- * shares the `'danger'` name of the `Tone` token set.
+ * Semantic intent of the alert. `'default'` is a message without a status, styled with the
+ * `primary` tone and shown without a status icon; the other values match the `Tone` token names.
  */
 export type AlertTone = 'default' | 'info' | 'success' | 'warning' | 'danger'
 
 export interface AlertStyleVariants {
   /**
-   * Semantic intent of the alert.
+   * Semantic intent of the alert. It sets the colors, the default status icon, and the live region:
+   * `warning` and `danger` render `role="alert"`, the others `role="status"`.
    * @default 'default'
    */
   tone?: AlertTone

@@ -94,6 +94,7 @@ export namespace FormT {
   > {
     /** Localized message overrides for this form instance. `unknownError` is the form error recorded when a submit handler throws an error without a `message`. */
     translations?: Translations
+    /** Form content, such as `form.Field` wrappers and submit or reset buttons. */
     children?: JSX.Element
     /**
      * Called when the form is submitted and the schema validates. Receives the schema output
