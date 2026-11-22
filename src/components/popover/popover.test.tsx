@@ -136,6 +136,26 @@ describe('Popover', () => {
     vi.useRealTimers()
   })
 
+  test('a disabled hover trigger does not open on hover, focus, or click', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover openOnHover openDelay={50} onOpenChange={onOpenChange}>
+        <Popover.Trigger as="span" disabled>
+          Hover target
+        </Popover.Trigger>
+        <Popover.Content>{'Hover content'}</Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByText('Hover target')
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    fireEvent.click(trigger)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('renders content as a dialog in a portal outside the trigger container', () => {
     const screen = render(() => (
       <Popover open>

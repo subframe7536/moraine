@@ -822,6 +822,38 @@ describe('Drawer', () => {
       )
       expect(onSnapPointChange).toHaveBeenCalledWith('148px')
     })
+
+    test('defaultSnapPoint null opens fully and is restored after closing', async () => {
+      const onSnapPointChange = vi.fn()
+      const [open, setOpen] = createSignal(true)
+      render(() => (
+        <Drawer
+          open={open()}
+          snapPoints={['148px', 1]}
+          defaultSnapPoint={null}
+          onSnapPointChange={onSnapPointChange}
+        >
+          <Drawer.Content>
+            <Drawer.Body>Body</Drawer.Body>
+          </Drawer.Content>
+        </Drawer>
+      ))
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
+      )
+      expect(snapOffsetValue()).toBe('0px')
+
+      // Drag down 200px from fully open (offset 0) settles on the 148px point (offset 252).
+      dragPointer(content(), { x: 0, y: 100 }, { x: 0, y: 300 }, { steps: 4, stepMs: 100 })
+      expect(onSnapPointChange).toHaveBeenLastCalledWith('148px')
+
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() =>
+        expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
+      )
+      expect(onSnapPointChange).toHaveBeenLastCalledWith(null)
+    })
   })
 
   test('resets drag state when the drawer reopens after a swipe close', async () => {

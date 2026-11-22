@@ -151,6 +151,27 @@ describe('HoverCard', () => {
     expect(document.body.querySelector(contentSelector)).not.toBeNull()
   })
 
+  test('a disabled trigger does not open on hover or keyboard focus', async () => {
+    vi.useFakeTimers()
+    stubFocusVisible(true)
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <HoverCard openDelay={50} onOpenChange={onOpenChange}>
+        <HoverCard.Trigger href="/u/solid" disabled>
+          @solidjs
+        </HoverCard.Trigger>
+        <HoverCard.Content>Card content</HoverCard.Content>
+      </HoverCard>
+    ))
+    const trigger = screen.getByText('@solidjs')
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(document.body.querySelector(contentSelector)).toBeNull()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('opens on keyboard focus but not on pointer focus', { timeout: 15_000 }, async () => {
     vi.useFakeTimers()
     stubFocusVisible(false)

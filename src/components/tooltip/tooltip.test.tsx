@@ -381,6 +381,26 @@ describe('Tooltip', () => {
     expect(updatedContent?.getAttribute('data-align')).toBe('start')
   })
 
+  test('a disabled non-button trigger does not open on hover or focus', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Tooltip openDelay={0} onOpenChange={onOpenChange}>
+        <Tooltip.Trigger as="span" disabled>
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content>Tooltip content</Tooltip.Content>
+      </Tooltip>
+    ))
+    const trigger = screen.getByText('Trigger').closest('[data-slot="tooltip-trigger"]')!
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('opens first hover after delay', async () => {
     vi.useFakeTimers()
 

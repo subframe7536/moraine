@@ -39,8 +39,9 @@ export interface OverlayDismissProps {
   closeOnEscape?: boolean
 
   /**
-   * Whether clicking or focusing outside dismisses the overlay. When `false`, outside interaction
-   * fires `onClosePrevented` instead.
+   * Whether a pointer press outside the overlay and its trigger dismisses it. Menus also close
+   * when focus moves outside; dialogs do not, since a modal dialog keeps focus inside and a
+   * non-modal one stays open. When `false`, a blocked attempt fires `onClosePrevented` instead.
    * @default true
    */
   closeOnOutsideClick?: boolean

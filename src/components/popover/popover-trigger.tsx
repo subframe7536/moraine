@@ -36,6 +36,8 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
     context: () => context.slotOverrides,
   })
   const popper = context.popper
+  // Hover and focus open the popover outside the button interaction, so they check `disabled` here.
+  const disabled = () => Boolean(props.disabled)
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
       {
@@ -47,7 +49,11 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
             }
           }
         },
-        onFocus: context.scheduleOpen,
+        onFocus: () => {
+          if (!disabled()) {
+            context.scheduleOpen()
+          }
+        },
         onBlur: context.scheduleClose,
         onKeyDown: createKeyDownHandler({
           keys: {
@@ -70,7 +76,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
           },
         }),
         onPointerEnter: (event) => {
-          if (event.pointerType === 'mouse') {
+          if (event.pointerType === 'mouse' && !disabled()) {
             context.scheduleOpen()
           }
         },

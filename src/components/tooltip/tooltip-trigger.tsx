@@ -38,18 +38,24 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
     context: () => context.slotOverrides,
   })
   const popper = context.popper
+  // Hover and focus open the tooltip outside the button interaction, so they check `disabled` here.
+  const disabled = () => Boolean(props.disabled)
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
       {
         onPointerDown: context.dismiss,
         onClick: context.dismiss,
-        onFocus: () => context.scheduleOpen(true),
+        onFocus: () => {
+          if (!disabled()) {
+            context.scheduleOpen(true)
+          }
+        },
         onBlur: () => {
           context.resetPress()
           context.scheduleClose()
         },
         onPointerEnter: (event) => {
-          if (event.pointerType === 'mouse' || !event.pointerType) {
+          if ((event.pointerType === 'mouse' || !event.pointerType) && !disabled()) {
             context.resetPress()
             context.scheduleOpen()
           }

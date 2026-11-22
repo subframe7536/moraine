@@ -45,8 +45,11 @@ import type { DrawerProps, DrawerT } from './drawer.types'
  */
 export function Drawer(props: DrawerProps): JSX.Element {
   const [modalProps, drawerProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
+  // `null` is a valid default (fully open), so only `undefined` falls back to the first snap point.
   const defaultSnapPoint = (): DrawerT.SnapPoint | null =>
-    drawerProps.defaultSnapPoint ?? drawerProps.snapPoints?.[0] ?? null
+    drawerProps.defaultSnapPoint !== undefined
+      ? drawerProps.defaultSnapPoint
+      : (drawerProps.snapPoints?.[0] ?? null)
   const [snapPoint, setSnapPoint] = createControllableValue<DrawerT.SnapPoint | null>({
     value: () => drawerProps.snapPoint,
     defaultValue: defaultSnapPoint,

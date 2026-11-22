@@ -100,8 +100,8 @@ export namespace DrawerT {
     snapPoint?: SnapPoint | null
 
     /**
-     * Snap point the drawer opens at when `snapPoint` is not set. The drawer returns to it after
-     * each close.
+     * Snap point the drawer opens at when `snapPoint` is not set; `null` opens it fully. The drawer
+     * returns to it after each close.
      * @default snapPoints[0] ?? null
      */
     defaultSnapPoint?: SnapPoint | null

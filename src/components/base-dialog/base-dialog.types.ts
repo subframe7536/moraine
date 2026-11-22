@@ -2,7 +2,12 @@ import type { Component, JSX, Ref } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
+import type {
+  OverlayCloseBase,
+  OverlayCloseComponentProps,
+  OverlayTriggerBase,
+  OverlayTriggerComponentProps,
+} from '../shared/overlay/trigger'
 import type {
   OverlayDisclosureProps,
   OverlayDismissProps,
@@ -55,14 +60,6 @@ export namespace BaseDialogT {
      * when the content is removed while still open.
      */
     onExitComplete?: () => void
-
-    /**
-     * Whether a pointer press outside the content dismisses it. Focus moving outside never
-     * dismisses: a modal surface pulls focus back, and a non-modal one stays open. When `false`,
-     * the press fires `onClosePrevented` instead.
-     * @default true
-     */
-    closeOnOutsideClick?: boolean
 
     /**
      * Whether enter and exit transition animations play. When `false`, the content and overlay
@@ -204,15 +201,8 @@ export namespace BaseDialogT {
     'div'
   >
 
-  export type CloseBase<T extends ValidComponent = 'button'> = TriggerBase<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<
-    T,
-    CloseBase<T>,
-    never,
-    never,
-    never,
-    'button'
-  >
+  export type CloseBase<T extends ValidComponent = 'button'> = OverlayCloseBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = OverlayCloseComponentProps<T>
 }
 
 /** Props for the BaseDialog component. */

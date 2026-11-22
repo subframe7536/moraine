@@ -3,7 +3,12 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { PopperContentOptions, PopperProps } from '../shared/overlay/popper.types'
-import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
+import type {
+  OverlayCloseBase,
+  OverlayCloseComponentProps,
+  OverlayTriggerBase,
+  OverlayTriggerComponentProps,
+} from '../shared/overlay/trigger'
 
 import type { PopoverStyleSlot, PopoverStyleVariants } from './popover.style-types'
 
@@ -87,8 +92,8 @@ export namespace PopoverT {
   /** Props for `Popover.Content`. */
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
-  export type CloseBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
+  export type CloseBase<T extends ValidComponent = 'button'> = OverlayCloseBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = OverlayCloseComponentProps<T>
 }
 
 /**

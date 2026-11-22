@@ -24,6 +24,24 @@ export type OverlayTriggerComponentProps<T extends ValidComponent = 'button'> = 
   'button'
 >
 
+export interface OverlayCloseBase<T extends ValidComponent = 'button'> {
+  /** Element or component to render as. */
+  as?: T
+  /** Whether this close control is disabled; pressing it then leaves the overlay open. */
+  disabled?: boolean
+  /** Label or icon of the close control. */
+  children?: JSX.Element
+}
+
+export type OverlayCloseComponentProps<T extends ValidComponent = 'button'> = BaseProps<
+  T,
+  OverlayCloseBase<T>,
+  never,
+  never,
+  never,
+  'button'
+>
+
 /** Props that an overlay render prop must forward to its trigger root. */
 export type OverlayTriggerBinding = Omit<
   ElementProps,

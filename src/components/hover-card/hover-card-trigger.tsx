@@ -39,6 +39,8 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
     context: () => context.slotOverrides,
   })
   const popper = context.popper
+  // Hover and focus open the card outside the button interaction, so they check `disabled` here.
+  const disabled = () => Boolean(props.disabled)
   const triggerProps = mergeProps(
     { as: 'a' as const },
     mergePopperElementProps<HTMLElement>(
@@ -51,7 +53,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
           } catch {
             // Engines without :focus-visible support still open on keyboard focus.
           }
-          if (focusVisible) {
+          if (focusVisible && !disabled()) {
             context.activateTrigger(local.value, trigger)
             context.scheduleOpen(true)
           }
@@ -60,7 +62,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
           context.scheduleClose()
         },
         onPointerEnter: (event) => {
-          if (event.pointerType === 'mouse' || !event.pointerType) {
+          if ((event.pointerType === 'mouse' || !event.pointerType) && !disabled()) {
             context.activateTrigger(local.value, event.currentTarget)
             context.recordPoint(event.clientX, event.clientY)
             context.scheduleOpen()
