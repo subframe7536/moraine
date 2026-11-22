@@ -16,7 +16,7 @@ export function Submenus() {
             children: [
               {
                 type: 'group',
-                items: [
+                children: [
                   { label: 'Name', icon: 'i-lucide:arrow-down-a-z' },
                   { label: 'Modified date', icon: 'i-lucide:calendar-arrow-down' },
                 ],

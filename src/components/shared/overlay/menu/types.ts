@@ -104,7 +104,7 @@ export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
    * Items of the submenu, in the same shape as the menu `items` (flat items and `group` objects).
    * A non-empty list makes the item open a submenu instead of calling `onSelect`, and shows the
    * menu's `expandIcon` in place of `kbds`. Only items without a `type` (or with `type: 'item'`)
-   * open submenus; on `group` and `radio-group` items `items` holds the group's entries.
+   * open submenus; on `group` and `radio-group` items `children` holds the group's entries.
    * @example
    * ```tsx
    * import { Button, DropdownMenu } from 'moraine'
@@ -174,10 +174,10 @@ export interface OverlayMenuRadioGroupItem extends OverlayMenuBaseItem {
   type: 'radio-group'
 
   /**
-   * Radio items in this group. Selecting one unchecks the others. The group's `label`, when set,
-   * is rendered as its heading.
+   * Child items in this group, each a radio item (`type: 'radio'`). Selecting one unchecks the
+   * others. The group's `label`, when set, is rendered as its heading.
    */
-  items?: OverlayMenuRadioItem[]
+  children?: OverlayMenuRadioItem[]
 
   /**
    * Controlled selected value, matched against each radio item's `value`. Leave it `undefined`
@@ -203,7 +203,7 @@ export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
    * Child items in this group. The group's `label`, when set, is rendered as a non-interactive
    * heading above the items.
    */
-  items?: OverlayMenuItem[]
+  children?: OverlayMenuItem[]
 }
 
 /** Divider line between items. It takes no content or presentation options. */

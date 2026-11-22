@@ -4,7 +4,10 @@ import {
   overlayMenuDataAttributes,
   overlayMenuRecipeOptions,
 } from '../shared/overlay/menu/menu.recipe'
-import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
+import {
+  overlayTriggerDataAttributes,
+  OVERLAY_TRIGGER_CLASS,
+} from '../shared/overlay/trigger.recipe'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
@@ -19,4 +22,8 @@ export const dropdownMenuRecipe = /* @__PURE__ */ defineRecipe<
   DropdownMenuStyleVariants
 >('dropdownMenu', {
   ...overlayMenuRecipeOptions,
+  base: {
+    ...overlayMenuRecipeOptions.base,
+    trigger: OVERLAY_TRIGGER_CLASS,
+  },
 })

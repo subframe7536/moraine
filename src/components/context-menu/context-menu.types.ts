@@ -93,7 +93,7 @@ export namespace ContextMenuT {
      * Items rendered in the menu body. Each entry is an item object or an array of items; consecutive
      * plain entries form one group, and every array starts a new group, with a separator drawn
      * between groups. An item's `type` is `'item'` (the default), `'checkbox'`, `'radio-group'`
-     * (with radio `items`), `'group'` (with a `label` and child `items`) or `'separator'`. An `'item'`
+     * (with radio `children`), `'group'` (with a `label` and `children`) or `'separator'`. An `'item'`
      * with `children` opens a submenu, `danger` marks a destructive item, and `onSelect` runs
      * when an item is activated.
      * @example

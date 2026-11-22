@@ -31,7 +31,7 @@ export function Basic() {
     items: () => FILES,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
   })
 

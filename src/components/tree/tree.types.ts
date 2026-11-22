@@ -64,7 +64,7 @@ export namespace TreeT {
      * Returns the text used for the item's accessible name (`aria-label`), the default label, and
      * typeahead matching. Defaults to the item itself when it is a string, otherwise to its key.
      */
-    getLabel?: (item: T) => string | undefined
+    getItemLabel?: (item: T) => string | undefined
 
     /**
      * Returns the prefix icon of an item, shown before the label of the default item. Not used
@@ -89,7 +89,7 @@ export namespace TreeT {
      * Whether an item is disabled. Disabled items are skipped by keyboard navigation and cannot
      * be selected, checked, expanded, collapsed, or focused.
      */
-    isDisabled?: (item: T) => boolean
+    isItemDisabled?: (item: T) => boolean
 
     /**
      * Marks an item as a leaf, so it is never treated as a lazy branch.
@@ -346,7 +346,7 @@ export namespace TreeT {
     readonly parentKey: string | undefined
     /** Direct children, whether or not the item is expanded. */
     readonly children: readonly ItemInstance<T>[]
-    /** Text from `getLabel`, used as the accessible name, label, and typeahead text. */
+    /** Text from `getItemLabel`, used as the accessible name, label, and typeahead text. */
     readonly label: string
     /** Whether the branch is expanded. */
     readonly isExpanded: boolean
@@ -356,7 +356,7 @@ export namespace TreeT {
     readonly isLoading: boolean
     /** Whether the item holds focus; always `false` while focus is outside the tree. */
     readonly isFocused: boolean
-    /** Whether `isDisabled` marked the item disabled. */
+    /** Whether `isItemDisabled` marked the item disabled. */
     readonly isDisabled: boolean
     /** Check state; `'indeterminate'` only occurs on branches with `checkCascade`. */
     readonly checkedState: CheckedState

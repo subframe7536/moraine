@@ -23,7 +23,7 @@ export function WorkspaceView() {
     {
       type: 'group',
       label: 'Visible fields',
-      items: [
+      children: [
         {
           type: 'checkbox',
           label: 'Project owner',
@@ -46,7 +46,7 @@ export function WorkspaceView() {
           type: 'radio-group',
           value: sort(),
           onValueChange: setSort,
-          items: [
+          children: [
             { type: 'radio', label: 'Recently updated', value: 'updated' },
             { type: 'radio', label: 'Name', value: 'name' },
           ],

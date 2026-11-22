@@ -33,7 +33,7 @@ export function Selection() {
     items: () => FOLDERS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['inbox', 'projects'],
     selectionMode: 'multiple',
     expandOnClick: false,

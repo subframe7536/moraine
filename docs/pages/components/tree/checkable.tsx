@@ -33,7 +33,7 @@ export function Checkable() {
     items: () => PERMISSIONS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.label,
+    getItemLabel: (node) => node.label,
     defaultExpandedKeys: ['billing', 'members'],
     checkable: true,
     selectionMode: 'none',

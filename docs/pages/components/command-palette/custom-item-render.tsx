@@ -10,7 +10,7 @@ const GROUPS: CommandPaletteT.Group<TeamCommand>[] = [
   {
     type: 'group',
     label: 'Projects',
-    items: [
+    children: [
       {
         value: 'moraine-docs',
         label: 'Moraine Docs',

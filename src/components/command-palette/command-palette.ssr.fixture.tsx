@@ -10,7 +10,7 @@ export function renderCommandPaletteFixture(): string {
       items={[
         {
           type: 'group',
-          items: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
+          children: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
         },
       ]}
     />

@@ -397,7 +397,7 @@ export namespace NeverT {
     const menuItem = await extractor.extractItem(contextMenuModule!, 'ContextMenuT')
     expect(menuItem?.props.length).toBeGreaterThan(0)
     const names = menuItem!.props.map((prop) => prop.name)
-    for (const name of ['type', 'label', 'disabled', 'checked', 'value', 'items', 'onSelect']) {
+    for (const name of ['type', 'label', 'disabled', 'checked', 'value', 'children', 'onSelect']) {
       expect(names).toContain(name)
     }
     const typeProp = menuItem!.props.find((prop) => prop.name === 'type')

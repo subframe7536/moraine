@@ -62,8 +62,8 @@ export function buildRegistry<T>(
         level,
         hasChildren: children ? children.length > 0 : needsLoad,
         needsLoad,
-        disabled: Boolean(options.isDisabled?.(raw)),
-        label: options.getLabel?.(raw) ?? (typeof raw === 'string' ? raw : key),
+        disabled: Boolean(options.isItemDisabled?.(raw)),
+        label: options.getItemLabel?.(raw) ?? (typeof raw === 'string' ? raw : key),
       }
       nodes.set(key, node)
       keys.push(key)

@@ -11,7 +11,7 @@ export function FileActions() {
     {
       type: 'group',
       label: 'Project brief.pdf',
-      items: [
+      children: [
         {
           label: 'Open preview',
           icon: 'i-lucide:eye',

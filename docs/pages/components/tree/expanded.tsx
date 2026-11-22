@@ -39,7 +39,7 @@ export function Expanded() {
     items: () => SECTIONS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.title,
+    getItemLabel: (node) => node.title,
     get expandedKeys() {
       return expanded()
     },

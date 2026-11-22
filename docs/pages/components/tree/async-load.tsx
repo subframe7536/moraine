@@ -33,7 +33,7 @@ export function AsyncLoad() {
     items: () => REMOTE.root!,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     isLeaf: (node) => !node.hasChildren,
     loadChildren: (node) => fetchChildren(node.id),
   })

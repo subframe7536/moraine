@@ -1,4 +1,4 @@
-import { CommandPalette, Icon } from '@src'
+import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -6,24 +6,27 @@ const COMMAND_GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',
     label: 'Workspace sections',
-    items: [
+    children: [
       {
         value: 'overview',
         label: 'Overview',
         description: 'Recent activity and open work',
-        leadingRender: () => <Icon name="i-lucide:layout-dashboard" />,
+        icon: 'i-lucide:layout-dashboard',
+        kbds: ['meta', '1'],
       },
       {
         value: 'members',
         label: 'Members',
         description: 'People with workspace access',
-        leadingRender: () => <Icon name="i-lucide:users" />,
+        icon: 'i-lucide:users',
+        kbds: ['meta', '2'],
       },
       {
         value: 'security',
         label: 'Security',
         description: 'Sign-in and access policies',
-        leadingRender: () => <Icon name="i-lucide:shield-check" />,
+        icon: 'i-lucide:shield-check',
+        kbds: ['meta', '3'],
       },
     ],
   },

@@ -20,7 +20,7 @@ const GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',
     label: 'Actions',
-    items: [
+    children: [
       {
         value: 'new-file',
         label: 'New File',
@@ -38,7 +38,7 @@ const GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',
     label: 'Navigation',
-    items: [
+    children: [
       { value: 'go-dashboard', label: 'Go to Dashboard' },
       { value: 'go-settings', label: 'Go to Settings' },
     ],
@@ -84,7 +84,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autoFocus={false}
-        items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
+        items={[{ type: 'group', children: [{ value: 'run', label: 'Run' }] }]}
         virtualizer={{
           scrollToIndex: () => {},
           virtualRender: (context) => (
@@ -119,7 +119,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autoFocus={false}
-        items={[{ type: 'group', items: [item()] }]}
+        items={[{ type: 'group', children: [item()] }]}
         onSelect={onSelect}
         itemRender={(context) => (
           <span>
@@ -157,7 +157,7 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         autoFocus={false}
-        items={[{ type: 'group', items: [{ value: 'run', label: 'Run' }] }]}
+        items={[{ type: 'group', children: [{ value: 'run', label: 'Run' }] }]}
         onSelect={select}
         listboxProps={{ id: 'wrong', role: 'menu', 'data-slot': 'wrong-list' }}
         itemProps={() => ({
@@ -293,7 +293,7 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [selectedItem] }]}
+        items={[{ type: 'group', children: [selectedItem] }]}
         onSelect={onSelect}
         onCloseRequest={onCloseRequest}
       />
@@ -313,7 +313,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
         onSelect={onSelect}
       />
@@ -351,7 +351,7 @@ describe('CommandPalette', () => {
   test('preserves caller pointerdown cancellation', () => {
     render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
         itemProps={() => ({ onPointerDown: (event) => event.preventDefault() })}
       />
     ))
@@ -375,7 +375,7 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
         onSelect={onSelect}
         onCloseRequest={onCloseRequest}
@@ -400,7 +400,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'first', label: 'First' },
               { value: 'second', label: 'Second' },
             ],
@@ -425,7 +425,7 @@ describe('CommandPalette', () => {
     const onCompositionEnd = vi.fn()
     const screen = render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
         filterMethod={false}
         onSelect={onSelect}
         onCloseRequest={onCloseRequest}
@@ -477,7 +477,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     const screen = render(() => (
       <CommandPalette
-        items={[{ type: 'group', items: [{ value: 'action', label: 'Action' }] }]}
+        items={[{ type: 'group', children: [{ value: 'action', label: 'Action' }] }]}
         onSelect={onSelect}
       />
     ))
@@ -690,7 +690,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'dup', label: 'First' },
               { value: 'dup', label: 'Second' },
             ],
@@ -743,7 +743,7 @@ describe('CommandPalette', () => {
         items={GROUPS}
         searchValue="Settings"
         footerRender={(ctx) => (
-          <span>Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}</span>
+          <span>Visible {ctx.visibleGroups.flatMap((group) => group.children ?? []).length}</span>
         )}
       />
     ))
@@ -760,7 +760,8 @@ describe('CommandPalette', () => {
         searchValue="missing"
         emptyRender={(ctx) => (
           <span>
-            Empty {ctx.searchValue}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+            Empty {ctx.searchValue}:
+            {ctx.visibleGroups.flatMap((group) => group.children ?? []).length}
           </span>
         )}
       />
@@ -775,7 +776,10 @@ describe('CommandPalette', () => {
     render(() => (
       <CommandPalette
         items={[
-          { type: 'group', items: [{ value: 'action', label: 'Action', description: 'Run it' }] },
+          {
+            type: 'group',
+            children: [{ value: 'action', label: 'Action', description: 'Run it' }],
+          },
         ]}
         itemRender={(ctx) => (
           <span data-testid="custom-item">
@@ -797,7 +801,7 @@ describe('CommandPalette', () => {
         searchValue="Settings"
         itemRender={(ctx) => (
           <span data-testid="visible-groups">
-            {ctx.item.value}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+            {ctx.item.value}:{ctx.visibleGroups.flatMap((group) => group.children ?? []).length}
           </span>
         )}
       />
@@ -819,7 +823,7 @@ describe('CommandPalette', () => {
           {
             type: 'group',
             label: 'g',
-            items: [{ value: 'action', label: 'Action', route: '/docs/action' }],
+            children: [{ value: 'action', label: 'Action', route: '/docs/action' }],
           },
         ]}
         itemRender={(ctx) => (
@@ -850,7 +854,7 @@ describe('CommandPalette', () => {
           items={[
             {
               type: 'group',
-              items: [{ value: 'item', label: 'Item', description: 'Description' }],
+              children: [{ value: 'item', label: 'Item', description: 'Description' }],
             },
           ]}
         />
@@ -882,7 +886,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               {
                 value: 'run',
                 label: 'Run',
@@ -907,6 +911,67 @@ describe('CommandPalette', () => {
     await waitFor(() => {
       expect(body().getByTestId('leading-state').textContent).toBe('highlighted:enabled')
       expect(body().getByTestId('trailing-state').textContent).toBe('run:highlighted')
+    })
+  })
+
+  test('renders item icon and kbds in the default item content', async () => {
+    render(() => (
+      <CommandPalette
+        autoFocus={false}
+        items={[
+          {
+            type: 'group',
+            children: [
+              {
+                value: 'run',
+                label: 'Run',
+                icon: 'i-lucide:play',
+                kbds: ['meta', 'r'],
+              },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    await waitFor(() => {
+      const leading = document.body.querySelector('[data-slot="command-palette-item-leading"]')
+      const trailing = document.body.querySelector('[data-slot="command-palette-item-trailing"]')
+      expect(leading?.querySelector('span')?.className).toContain('i-lucide:play')
+      expect(trailing?.querySelector('[data-slot="kbd-group"]')).not.toBeNull()
+      expect(trailing?.querySelectorAll('[data-slot="kbd-group-item"]')).toHaveLength(2)
+    })
+  })
+
+  test('prefers leadingRender and trailingRender over icon and kbds', async () => {
+    render(() => (
+      <CommandPalette
+        autoFocus={false}
+        items={[
+          {
+            type: 'group',
+            children: [
+              {
+                value: 'run',
+                label: 'Run',
+                icon: 'i-lucide:play',
+                kbds: ['meta', 'r'],
+                leadingRender: () => <span data-testid="custom-leading" />,
+                trailingRender: () => <span data-testid="custom-trailing" />,
+              },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    await waitFor(() => {
+      const leading = document.body.querySelector('[data-slot="command-palette-item-leading"]')
+      const trailing = document.body.querySelector('[data-slot="command-palette-item-trailing"]')
+      expect(leading?.querySelector('[data-testid="custom-leading"]')).not.toBeNull()
+      expect(leading?.querySelector('span')?.className).not.toContain('i-lucide:play')
+      expect(trailing?.querySelector('[data-testid="custom-trailing"]')).not.toBeNull()
+      expect(trailing?.querySelector('[data-slot="kbd-group"]')).toBeNull()
     })
   })
 
@@ -1006,7 +1071,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'run', label: 'Run', description: 'Visible by description' },
               { value: 'docs', label: 'Docs', keywords: ['alias'] },
             ],
@@ -1028,7 +1093,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'run', label: 'Run', description: 'Visible by description' },
               { value: 'docs', label: 'Docs' },
             ],
@@ -1051,7 +1116,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'first', label: 'First' },
               { value: 'second', label: 'Second' },
             ],
@@ -1094,7 +1159,7 @@ describe('CommandPalette', () => {
         items={[
           {
             type: 'group',
-            items: [
+            children: [
               { value: 'a', label: 'Alpha' },
               { value: 'b', label: 'Beta' },
             ],

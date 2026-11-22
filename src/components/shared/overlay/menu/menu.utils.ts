@@ -26,11 +26,7 @@ export function getOverlayMenuTextValue(item: {
 }
 
 /** Whether an item opens a submenu: an untyped (or `'item'`) entry with at least one non-empty child. */
-export function hasOverlayMenuChildren(item: {
-  type?: string
-  children?: unknown[]
-  items?: unknown[]
-}): boolean {
+export function hasOverlayMenuChildren(item: { type?: string; children?: unknown[] }): boolean {
   if ((item.type !== undefined && item.type !== 'item') || !item.children?.length) {
     return false
   }
@@ -38,7 +34,7 @@ export function hasOverlayMenuChildren(item: {
   return item.children.some(
     (child) =>
       (child as { type?: string }).type !== 'group' ||
-      Boolean((child as { items?: unknown[] }).items?.length),
+      Boolean((child as { children?: unknown[] }).children?.length),
   )
 }
 
@@ -87,7 +83,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     for (const child of list) {
       if (child.type === 'radio-group') {
         flush()
-        if (child.items?.length) {
+        if (child.children?.length) {
           push({
             label: first ? (label ?? child.label) : child.label,
             items: [],
@@ -111,7 +107,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     if (item.type === 'radio-group') {
       flushDefaultGroup()
 
-      if (item.items?.length) {
+      if (item.children?.length) {
         groups.push({ label: item.label, items: [], radioGroup: item })
       }
 
@@ -121,7 +117,7 @@ export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuIte
     if (item.type === 'group') {
       flushDefaultGroup()
 
-      const groupItems = item.items as TItem[] | undefined
+      const groupItems = item.children as TItem[] | undefined
       if (groupItems?.length) {
         pushNestedItems(groupItems, item.label)
       }

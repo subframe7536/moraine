@@ -75,14 +75,14 @@ export function buildDocsCommandItems(
     {
       type: 'group',
       label: 'Pages',
-      items: pageItems,
+      children: pageItems,
     },
   ]
   if (sectionItems.length > 0) {
     groups.push({
       type: 'group',
       label: 'Sections',
-      items: sectionItems,
+      children: sectionItems,
     })
   }
   return groups
@@ -249,7 +249,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
               <div class="flex w-full items-center justify-between">
                 <span>
                   {ctx.visibleGroups.reduce(
-                    (count, group) => count + (group.items?.length ?? 0),
+                    (count, group) => count + (group.children?.length ?? 0),
                     0,
                   )}{' '}
                   matches

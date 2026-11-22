@@ -35,7 +35,7 @@ export function Sortable() {
     items: files,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
   })
   const sortable = createTreeSortable(tree, {

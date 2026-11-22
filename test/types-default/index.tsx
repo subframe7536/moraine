@@ -219,7 +219,7 @@ void separatorWithLabel
 const radioGroupMenuItem: DropdownMenuT.Item = {
   type: 'radio-group',
   value: 'list',
-  items: [{ type: 'radio', label: 'List', value: 'list' }],
+  children: [{ type: 'radio', label: 'List', value: 'list' }],
 }
 void radioGroupMenuItem
 

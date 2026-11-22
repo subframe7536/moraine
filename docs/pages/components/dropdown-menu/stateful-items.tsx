@@ -21,7 +21,7 @@ export function StatefulItems() {
           type: 'radio-group',
           value: theme(),
           onValueChange: setTheme,
-          items: [
+          children: [
             { type: 'radio', label: 'Light', value: 'light' },
             { type: 'radio', label: 'Dark', value: 'dark' },
             { type: 'radio', label: 'System', value: 'system' },

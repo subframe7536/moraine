@@ -34,7 +34,7 @@ export function ItemAction() {
     items: () => FILES,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file'),
     defaultExpandedKeys: ['src', 'components'],
   })

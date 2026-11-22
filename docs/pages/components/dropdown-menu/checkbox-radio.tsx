@@ -17,7 +17,7 @@ export function CheckboxRadio() {
       type: 'radio-group',
       value: layout(),
       onValueChange: setLayout,
-      items: [
+      children: [
         { type: 'radio', label: 'Grid', value: 'grid' },
         { type: 'radio', label: 'List', value: 'list' },
       ],

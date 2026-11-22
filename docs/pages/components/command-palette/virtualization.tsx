@@ -5,7 +5,7 @@ import { createListVirtualizer } from '@src/virtualizer'
 const GROUPS: CommandPaletteT.Group[] = ['Files', 'Symbols'].map((label) => ({
   type: 'group',
   label,
-  items: Array.from({ length: 5_000 }, (_, index) => ({
+  children: Array.from({ length: 5_000 }, (_, index) => ({
     value: `${label.toLowerCase()}-${index}`,
     label: `${label.slice(0, -1)} ${index + 1}`,
   })),

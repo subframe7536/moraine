@@ -58,9 +58,9 @@ describe('hasOverlayMenuChildren', () => {
     expect(hasOverlayMenuChildren({ children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ type: 'item', children: [{ label: 'Email' }] })).toBe(true)
     expect(hasOverlayMenuChildren({ children: [] })).toBe(false)
-    expect(hasOverlayMenuChildren({ children: [{ type: 'group', items: [] }] })).toBe(false)
-    expect(hasOverlayMenuChildren({ type: 'group', items: [{ label: 'Email' }] })).toBe(false)
-    expect(hasOverlayMenuChildren({ type: 'radio-group', items: [{ value: 'a' }] })).toBe(false)
+    expect(hasOverlayMenuChildren({ children: [{ type: 'group', children: [] }] })).toBe(false)
+    expect(hasOverlayMenuChildren({ type: 'group', children: [{ label: 'Email' }] })).toBe(false)
+    expect(hasOverlayMenuChildren({ type: 'radio-group', children: [{ value: 'a' }] })).toBe(false)
   })
 })
 
@@ -371,8 +371,8 @@ describe('resolveMenuGroups', () => {
 
     const groups = resolveMenuGroups([
       item1,
-      { type: 'group', label: 'Account', items: [item2] },
-      { type: 'group', label: 'Preferences', items: [item3] },
+      { type: 'group', label: 'Account', children: [item2] },
+      { type: 'group', label: 'Preferences', children: [item3] },
     ])
 
     expect(groups).toHaveLength(3)
@@ -395,7 +395,7 @@ describe('resolveMenuGroups', () => {
       [],
       [{ label: 'Item 1' }],
       [],
-      { type: 'group', label: 'Empty Group', items: [] },
+      { type: 'group', label: 'Empty Group', children: [] },
       [{ label: 'Item 2' }],
     ])
 
@@ -412,7 +412,7 @@ describe('resolveMenuGroups', () => {
     const radioGroup = {
       type: 'radio-group' as const,
       label: 'Density',
-      items: [
+      children: [
         { type: 'radio' as const, value: 'compact', label: 'Compact' },
         { type: 'radio' as const, value: 'comfortable', label: 'Comfortable' },
       ],
@@ -431,10 +431,10 @@ describe('resolveMenuGroups', () => {
     const radioGroup = {
       type: 'radio-group' as const,
       label: 'Density',
-      items: [{ type: 'radio' as const, value: 'compact', label: 'Compact' }],
+      children: [{ type: 'radio' as const, value: 'compact', label: 'Compact' }],
     }
     const groups = resolveMenuGroups([
-      { type: 'group' as const, label: 'Account', items: [before, radioGroup, after] },
+      { type: 'group' as const, label: 'Account', children: [before, radioGroup, after] },
     ])
 
     expect(groups).toHaveLength(3)
