@@ -1,6 +1,7 @@
 import { defineRecipe } from '../../theme/recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
+  overlayMenuBase,
   overlayMenuDataAttributes,
   overlayMenuRecipeOptions,
 } from '../shared/overlay/menu/menu.recipe'
@@ -23,7 +24,7 @@ export const dropdownMenuRecipe = /* @__PURE__ */ defineRecipe<
 >('dropdownMenu', {
   ...overlayMenuRecipeOptions,
   base: {
-    ...overlayMenuRecipeOptions.base,
+    ...overlayMenuBase,
     trigger: OVERLAY_TRIGGER_CLASS,
   },
 })
