@@ -141,8 +141,9 @@ export namespace ContextMenuT {
      */
     itemRender?: Component<ItemRenderProps>
     /**
-     * Content rendered above the item groups, in the root menu and in every submenu. A function is
-     * mounted as a component and receives `{ sub }`, which is `true` inside a submenu.
+     * Component mounted above the item groups, once in the root menu and once in every open
+     * submenu. It receives `{ sub }`, which is `true` inside a submenu. A component rather than a
+     * JSX element because each menu layer mounts its own instance.
      * @example
      * ```tsx
      * import { ContextMenu } from 'moraine'
@@ -156,12 +157,24 @@ export namespace ContextMenuT {
      * </ContextMenu>
      * ```
      */
-    headerRender?: JSX.Element | Component<HeaderRenderProps>
+    headerRender?: Component<HeaderRenderProps>
     /**
-     * Content rendered below the item groups, in the root menu and in every submenu. A function is
-     * mounted as a component and receives `{ sub }`, which is `true` inside a submenu.
+     * Component mounted below the item groups, once in the root menu and once in every open
+     * submenu. It receives `{ sub }`, which is `true` inside a submenu.
+     * @example
+     * ```tsx
+     * import { ContextMenu } from 'moraine'
+     *
+     * <ContextMenu>
+     *   <ContextMenu.Trigger>Open</ContextMenu.Trigger>
+     *   <ContextMenu.Content
+     *     items={[{ label: 'Rename' }]}
+     *     footerRender={(props) => <small>{props.sub ? 'Submenu' : 'Signed in as Alex'}</small>}
+     *   />
+     * </ContextMenu>
+     * ```
      */
-    footerRender?: JSX.Element | Component<FooterRenderProps>
+    footerRender?: Component<FooterRenderProps>
     /**
      * Icon shown on checked checkbox and radio items.
      * @default 'icon-check'

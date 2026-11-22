@@ -79,7 +79,10 @@ import {
 ;<DropdownMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<ContextMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<DropdownMenu.Content headerRender={(props) => <span>{props.sub}</span>} />
+;<ContextMenu.Content footerRender={(props) => <span>{props.sub}</span>} />
+// @ts-expect-error menu header and footer mount once per menu layer, so they take a component
 ;<DropdownMenu.Content headerRender={<span />} />
+// @ts-expect-error menu header and footer mount once per menu layer, so they take a component
 ;<ContextMenu.Content footerRender={<span />} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator="/" />

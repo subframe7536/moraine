@@ -394,7 +394,7 @@ describe('render and polymorphic contracts', () => {
     const TopComponent = (props: { sub: boolean }) => (
       <div data-testid="top-comp">Sub: {String(props.sub)}</div>
     )
-    const BottomStatic = <div data-testid="bottom-static">Static Bottom</div>
+    const BottomComponent = () => <div data-testid="bottom-comp">Static Bottom</div>
     const ItemComponent = (props: { item: { label?: JSX.Element } }) => (
       <div data-testid="item-comp">{props.item.label}</div>
     )
@@ -404,13 +404,13 @@ describe('render and polymorphic contracts', () => {
         <DropdownMenu.Content
           items={[{ label: 'Custom Item' }]}
           headerRender={TopComponent}
-          footerRender={BottomStatic}
+          footerRender={BottomComponent}
           itemRender={ItemComponent}
         />
       </DropdownMenu>
     ))
     expect(screen.getByTestId('top-comp').textContent).toBe('Sub: false')
-    expect(screen.getByTestId('bottom-static').textContent).toBe('Static Bottom')
+    expect(screen.getByTestId('bottom-comp').textContent).toBe('Static Bottom')
     expect(screen.getByTestId('item-comp').textContent).toBe('Custom Item')
     view.unmount()
   })

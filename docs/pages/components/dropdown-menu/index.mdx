@@ -204,6 +204,7 @@ Display shortcut hints with `kbds` and prevent activation on individual items wi
 ### Header and footer
 
 Use `headerRender` and `footerRender` on `DropdownMenu.Content` to pin a user identity
-banner, search input, or status bar above and below the scrollable menu items.
+banner or status bar above and below the menu items. Both take a component, because the root menu
+and every open submenu mount their own copy; read `sub` to render something different in submenus.
 
 <Preview path="./content-header-footer" />

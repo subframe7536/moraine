@@ -7,18 +7,18 @@ export function ContentHeaderFooter() {
         Workspace
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
-        headerRender={
+        headerRender={() => (
           <div class="text-xs px-2 py-1.5 border-b border-border">
             <p class="font-medium">Acme Corp</p>
             <p class="text-muted-foreground">acme@example.com</p>
           </div>
-        }
-        footerRender={
+        )}
+        footerRender={() => (
           <div class="text-[11px] text-muted-foreground px-2 py-1 border-t border-border flex justify-between">
             <span>Moraine UI</span>
             <span>Free Plan</span>
           </div>
-        }
+        )}
         items={[
           { label: 'Settings', icon: 'i-lucide:settings' },
           { label: 'Team members', icon: 'i-lucide:users' },

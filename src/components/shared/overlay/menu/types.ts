@@ -320,14 +320,14 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   slotBinding: OverlayMenuSlotBinding
 
   /**
-   * Content rendered before the resolved item groups.
+   * Component mounted before the resolved item groups of every menu layer.
    */
-  headerRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
+  headerRender?: Component<OverlayMenuContentSlotProps>
 
   /**
-   * Content rendered after the resolved item groups.
+   * Component mounted after the resolved item groups of every menu layer.
    */
-  footerRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
+  footerRender?: Component<OverlayMenuContentSlotProps>
 
   /**
    * Renderer for each menu item.

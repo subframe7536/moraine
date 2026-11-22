@@ -48,7 +48,7 @@
           "name": "closeOnOutsideClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether clicking or focusing outside dismisses the overlay. When `false`, outside interaction\nfires `onClosePrevented` instead.",
+          "description": "Whether a pointer press outside the overlay and its trigger dismisses it. Menus also close\nwhen focus moves outside; dialogs do not, since a modal dialog keeps focus inside and a\nnon-modal one stays open. When `false`, a blocked attempt fires `onClosePrevented` instead.",
           "default": {
             "kind": "literal",
             "value": true
@@ -291,14 +291,17 @@
         {
           "name": "footerRender",
           "optional": true,
-          "type": "JSX.Element | Component<FooterRenderProps>",
-          "description": "Content rendered below the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu."
+          "type": "Component<FooterRenderProps>",
+          "description": "Component mounted below the item groups, once in the root menu and once in every open\nsubmenu. It receives `{ sub }`, which is `true` inside a submenu.",
+          "examples": [
+            "import { DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[{ label: 'Rename' }]}\n    footerRender={(props) => <small>{props.sub ? 'Submenu' : 'Signed in as Alex'}</small>}\n  />\n</DropdownMenu>"
+          ]
         },
         {
           "name": "headerRender",
           "optional": true,
-          "type": "JSX.Element | Component<HeaderRenderProps>",
-          "description": "Content rendered above the item groups, in the root menu and in every submenu. A function is\nmounted as a component and receives `{ sub }`, which is `true` inside a submenu.",
+          "type": "Component<HeaderRenderProps>",
+          "description": "Component mounted above the item groups, once in the root menu and once in every open\nsubmenu. It receives `{ sub }`, which is `true` inside a submenu. A component rather than a\nJSX element because each menu layer mounts its own instance.",
           "examples": [
             "import { DropdownMenu } from 'moraine'\n\n<DropdownMenu>\n  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>\n  <DropdownMenu.Content\n    items={[{ label: 'Rename' }]}\n    headerRender={(props) => <div>{props.sub ? 'More actions' : 'Actions'}</div>}\n  />\n</DropdownMenu>"
           ]

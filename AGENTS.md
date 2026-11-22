@@ -97,6 +97,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── field/              # Field layout, labels, descriptions, and validation messages.
 │   ├── file-upload/        # File upload control and dropzone behavior.
 │   ├── form/               # Form root, field wrapper, submission, and context.
+│   ├── hover-card/         # Hover-triggered preview card for supplementary content.
 │   ├── icon/               # Icon rendering helpers and component.
 │   ├── input/              # Text input control.
 │   ├── input-group/        # Compound input layout with addons and triggers.
@@ -226,7 +227,7 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 - Component namespaces should contain `Slot`, `Variants`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
 - **Render prop typing rules:**
   - **Reusable / Multi-instance renderers:** Multi-instance renderers evaluated across collections, loops, or multiple dynamic instances (`itemRender`, `tagRender`, `linkRender`, `separatorRender`, host `<AlertDialog dialogRender={...} />`) must be typed strictly as `Component<*RenderProps>`. Never accept `JSX.Element` here: in SolidJS, static JSX expressions create a single DOM node instance on evaluation that cannot be cloned or distributed across multiple iterations or instances.
-  - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`headerRender`, `footerRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`.
+  - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`headerRender`, `footerRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`. Menu `headerRender` / `footerRender` (DropdownMenu, ContextMenu) mount once per open menu layer, so they are multi-instance and take `Component<*RenderProps>` only.
   - **No type aliases on `*Render`:** Do not create type aliases for the prop itself (`type Render = ...` or `type ItemRender = ...`). Type the prop directly as `Component<*RenderProps>` or `JSX.Element | Component<*RenderProps>`.
   - **Render prop parameter types:** Export parameter types in the component namespace: `<Component>T.<Slot>RenderProps` (e.g. `SelectT.ItemRenderProps`, `SelectT.EmptyRenderProps`, `DropdownMenuT.HeaderRenderProps`).
 - **Composite component contracts:**

@@ -16,7 +16,6 @@ import { isServer } from 'solid-js/web'
 import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'
 import { createEventListener } from '../../../../shared/event-listener'
-import { renderWithProps } from '../../../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
@@ -411,11 +410,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         }}
       >
         <Show when={props.headerRender} keyed>
-          {(render) => renderWithProps(render, { sub: props.depth > 0 })}
+          {(HeaderRender) => <HeaderRender sub={props.depth > 0} />}
         </Show>
         <For each={groups()}>{(group) => <MenuGroup group={group} />}</For>
         <Show when={props.footerRender} keyed>
-          {(render) => renderWithProps(render, { sub: props.depth > 0 })}
+          {(FooterRender) => <FooterRender sub={props.depth > 0} />}
         </Show>
       </div>
     </div>
