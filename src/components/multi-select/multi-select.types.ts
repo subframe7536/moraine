@@ -80,8 +80,6 @@ export namespace MultiSelectT {
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Current search text. */
     searchValue: string
-    /** Whether the current filter has any matches. */
-    hasMatches: boolean
     /** Currently selected values. */
     selectedValues: readonly NormalizedItem<TItem>['value'][]
     /** Whether the maximum selection count has been reached. */
@@ -257,7 +255,7 @@ export namespace MultiSelectT {
     tagOverflowRender?: JSX.Element | Component<TagOverflowRenderProps<TItem>>
     /**
      * Content shown in the popup when no item matches the search text or `items` is empty. A
-     * function receives `{ searchValue, hasMatches, selectedValues, atMaxValues, create, close }`,
+     * function receives `{ searchValue, selectedValues, atMaxValues, create, close }`,
      * where `create(value?)` runs `createItem` for `value` (default: the current search text) and
      * returns whether an item was added. Defaults to the `create` translation (`Press Enter to
      * create “text”`) when `createItem` is set and text was typed, otherwise to the `empty`
@@ -280,9 +278,8 @@ export namespace MultiSelectT {
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
      * Text shown in the control while no value is selected: a label in the non-editable control,
-     * or the input placeholder when editable. Hidden as soon as there is a tag. While it is unset,
-     * the `placeholder` translation only names the non-editable trigger for assistive technology.
-     * @default ''
+     * or the input placeholder when editable. Hidden as soon as there is a tag. Takes precedence
+     * over the `placeholder` translation (`'Select options'`).
      */
     placeholder?: string
     /**

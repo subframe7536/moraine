@@ -260,6 +260,8 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
       return state.value().some((value) => sameValue(value, query))
     }
 
+    const placeholder = () => local.placeholder ?? messages().placeholder
+
     function focusControl(): void {
       state.focusOwner()?.focus()
     }
@@ -437,10 +439,15 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
             <Show
               when={editable()}
               fallback={
-                <Show when={tags.tags().length === 0 && local.placeholder}>
-                  <span data-slot="multi-select-placeholder" class={MULTI_SELECT_PLACEHOLDER_CLASS}>
-                    {local.placeholder}
-                  </span>
+                <Show when={tags.tags().length === 0 && placeholder()}>
+                  {(text) => (
+                    <span
+                      data-slot="multi-select-placeholder"
+                      class={MULTI_SELECT_PLACEHOLDER_CLASS}
+                    >
+                      {text()}
+                    </span>
+                  )}
                 </Show>
               }
             >
@@ -449,7 +456,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 {...state.ariaAttrs()}
                 data-slot="multi-select-input"
                 {...inputSlot}
-                placeholder={tags.tags().length ? '' : local.placeholder}
+                placeholder={tags.tags().length ? '' : placeholder()}
                 ref={(element) => {
                   inputBinding.inputProps.ref(element)
                   callRef(local.inputRef, element)
@@ -491,7 +498,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                         .tags()
                         .map((tag) => tag.title)
                         .join(', ')
-                    : (local.placeholder ?? messages().placeholder)}
+                    : placeholder()}
                 </span>
                 <Icon
                   name={
@@ -536,9 +543,6 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
               {renderWithProps(local.emptyRender, {
                 get searchValue() {
                   return search.value()
-                },
-                get hasMatches() {
-                  return state.items().length > 0
                 },
                 get selectedValues() {
                   return state.value()

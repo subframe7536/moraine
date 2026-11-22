@@ -142,7 +142,7 @@
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
-          "description": "Content shown in the popup when no item matches the search text. A function receives\n`{ searchValue, hasMatches, selectedValue, close }`. Defaults to the `empty` translation\n(`'No items'`).",
+          "description": "Content shown in the popup when no item matches the search text. A function receives\n`{ searchValue, selectedValue, close }`. Defaults to the `empty` translation\n(`'No items'`).",
           "examples": [
             "import { Combobox } from 'moraine'\n\n<Combobox\n  items={['Apple', 'Pear']}\n  emptyRender={(state) => <span>No fruit matches \"{state.searchValue}\"</span>}\n/>"
           ]
@@ -199,7 +199,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "The ID of the control's main focusable element, which a surrounding `Field` label points to\nwith `for`. A unique ID is generated when omitted. The control's related parts (hidden\ninput, label, description) derive their IDs from it, so keep it unique on the page."
+          "description": "The ID of the control's labelable element, which a surrounding `Field` label points to with\n`for`. Most controls set it on their focusable element and `PinInput` on its first slot;\n`Slider` and `FileUpload` set it on their hidden native input. `CheckboxGroup` and\n`RadioGroup` set it on their `<fieldset>`, which the `Field` label names through\n`aria-labelledby` instead of `for`. A unique ID is generated when omitted. The control's\nrelated parts (root, hidden input, label, description) derive their IDs from it, so keep it\nunique on the page."
         },
         {
           "name": "inputRef",

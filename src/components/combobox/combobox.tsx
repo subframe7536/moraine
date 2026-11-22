@@ -241,9 +241,6 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
                 get searchValue() {
                   return search.value()
                 },
-                get hasMatches() {
-                  return state.items().length > 0
-                },
                 get selectedValue() {
                   return emptyProps.selectedValue
                 },

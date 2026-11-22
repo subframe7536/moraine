@@ -553,6 +553,41 @@ describe('MultiSelect', () => {
     expect(selected.container.querySelector('[data-slot="multi-select-placeholder"]')).toBeNull()
   })
 
+  test('shows the placeholder translation when no placeholder is set', () => {
+    const fallback = render(() => <MultiSelect items={ITEMS} />)
+    expect(
+      fallback.container.querySelector('[data-slot="multi-select-placeholder"]')?.textContent,
+    ).toBe('Select options')
+
+    const translated = render(() => (
+      <MultiSelect items={ITEMS} translations={{ placeholder: 'Pick fruit' }} />
+    ))
+    expect(
+      translated.container.querySelector('[data-slot="multi-select-placeholder"]')?.textContent,
+    ).toBe('Pick fruit')
+
+    const editable = render(() => (
+      <MultiSelect items={ITEMS} searchable translations={{ placeholder: 'Search fruit' }} />
+    ))
+    const input = editable.container.querySelector<HTMLInputElement>(
+      'input[data-slot="multi-select-input"]',
+    )!
+    expect(input.placeholder).toBe('Search fruit')
+
+    const explicit = render(() => (
+      <MultiSelect
+        items={ITEMS}
+        searchable
+        placeholder="Choose fruit"
+        translations={{ placeholder: 'Search fruit' }}
+      />
+    ))
+    expect(
+      explicit.container.querySelector<HTMLInputElement>('input[data-slot="multi-select-input"]')!
+        .placeholder,
+    ).toBe('Choose fruit')
+  })
+
   test('serializes created values and restores uncontrolled values on form reset', async () => {
     const screen = render(() => (
       <form>

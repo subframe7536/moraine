@@ -54,8 +54,6 @@ export namespace ComboboxT {
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Current search text. */
     searchValue: string
-    /** Whether the filtered collection has matches. */
-    hasMatches: boolean
     /** Currently selected value, or `null` when nothing is selected. */
     selectedValue: NormalizedItem<TItem>['value'] | null
     /** Close the popup. */
@@ -120,7 +118,7 @@ export namespace ComboboxT {
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | null) => void
     /**
      * Content shown in the popup when no item matches the search text. A function receives
-     * `{ searchValue, hasMatches, selectedValue, close }`. Defaults to the `empty` translation
+     * `{ searchValue, selectedValue, close }`. Defaults to the `empty` translation
      * (`'No items'`).
      * @example
      * ```tsx
