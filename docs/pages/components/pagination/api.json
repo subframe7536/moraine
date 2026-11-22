@@ -125,7 +125,7 @@
           "name": "nextText",
           "optional": true,
           "type": "string",
-          "description": "Text shown in the next button. When set, the control shows the text with `nextIcon` after it\ninstead of an icon-only button. Its accessible name still comes from `translations.next`,\nnot from this text."
+          "description": "Text shown in the next button. When set, the control shows the text with `nextIcon` after it\ninstead of an icon-only button, and the text replaces `translations.next` as its accessible\nname. The `controlLabel` slot hides the text visually below the `sm` breakpoint; it still names the control."
         },
         {
           "name": "onPageChange",
@@ -163,7 +163,7 @@
           "name": "prevText",
           "optional": true,
           "type": "string",
-          "description": "Text shown in the previous button. When set, the control shows the text with `prevIcon`\nbefore it instead of an icon-only button. Its accessible name still comes from\n`translations.prev`, not from this text."
+          "description": "Text shown in the previous button. When set, the control shows the text with `prevIcon`\nbefore it instead of an icon-only button, and the text replaces `translations.prev` as its\naccessible name. The `controlLabel` slot hides the text visually below the `sm` breakpoint; it still names the control."
         },
         {
           "name": "ref",
@@ -227,9 +227,9 @@
           "name": "translations",
           "optional": true,
           "type": "Translations",
-          "description": "Overrides for the localized accessibility strings of this instance; omitted keys fall back to\nthe locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive\n`{ page, total }`; `prev` and `next` receive `{ page }`, which is `undefined` when already at\nthat edge.",
+          "description": "Overrides for the localized accessibility strings of this instance; omitted keys fall back to\nthe locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive\n`{ page, pageCount }`; `prev` and `next` receive `{ page }`, which is `undefined` when\nalready at that edge.",
           "examples": [
-            "import { Pagination } from 'moraine'\n\n<Pagination\n  total={100}\n  translations={{\n    label: 'Pages des résultats',\n    status: ({ page, total }) => `Page ${page} sur ${total}`,\n    prev: () => 'Page précédente',\n    next: () => 'Page suivante',\n  }}\n/>"
+            "import { Pagination } from 'moraine'\n\n<Pagination\n  total={100}\n  translations={{\n    label: 'Pages des résultats',\n    status: ({ page, pageCount }) => `Page ${page} sur ${pageCount}`,\n    prev: () => 'Page précédente',\n    next: () => 'Page suivante',\n  }}\n/>"
           ]
         },
         {

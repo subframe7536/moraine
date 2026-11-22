@@ -244,9 +244,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
   }
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
-    const total = pageCount()
+    const count = pageCount()
     const pagination = messages()
-    return isCurrent ? pagination.currentPage({ page, total }) : pagination.page({ page, total })
+    return isCurrent
+      ? pagination.currentPage({ page, pageCount: count })
+      : pagination.page({ page, pageCount: count })
   }
 
   const getPrevLabel = (): string => {
@@ -374,7 +376,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         aria-atomic="true"
         class={VISUALLY_HIDDEN_CLASS}
       >
-        {messages().status({ page: currentPage(), total: pageCount() })}
+        {messages().status({ page: currentPage(), pageCount: pageCount() })}
       </div>
     </nav>
   )

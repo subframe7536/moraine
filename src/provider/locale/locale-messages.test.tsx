@@ -136,7 +136,7 @@ describe('localized component text', () => {
         messages={{
           pagination: {
             label: 'Seiten',
-            currentPage: ({ page, total }) => `Seite ${page} von ${total}`,
+            currentPage: ({ page, pageCount }) => `Seite ${page} von ${pageCount}`,
             prev: () => 'Zuruck',
             next: () => 'Weiter',
           },

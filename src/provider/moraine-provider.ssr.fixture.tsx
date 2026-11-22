@@ -58,7 +58,7 @@ export const localeMessages = {
   dialog: { close: 'Fermer' },
   pagination: {
     label: 'Pages',
-    currentPage: ({ page, total }) => `Seite ${page} von ${total}`,
+    currentPage: ({ page, pageCount }) => `Seite ${page} von ${pageCount}`,
   },
 } satisfies MoraineMessagesInput
 

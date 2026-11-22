@@ -36,8 +36,8 @@ export namespace PaginationT {
     /**
      * Overrides for the localized accessibility strings of this instance; omitted keys fall back to
      * the locale defaults. `label` is the `nav` label; `status`, `page` and `currentPage` receive
-     * `{ page, total }`, where `total` is the page count (not the `total` prop); `prev` and `next`
-     * receive `{ page }`, which is `undefined` when already at that edge.
+     * `{ page, pageCount }`; `prev` and `next` receive `{ page }`, which is `undefined` when
+     * already at that edge.
      * @example
      * ```tsx
      * import { Pagination } from 'moraine'
@@ -46,7 +46,7 @@ export namespace PaginationT {
      *   total={100}
      *   translations={{
      *     label: 'Pages des résultats',
-     *     status: ({ page, total }) => `Page ${page} sur ${total}`,
+     *     status: ({ page, pageCount }) => `Page ${page} sur ${pageCount}`,
      *     prev: () => 'Page précédente',
      *     next: () => 'Page suivante',
      *   }}
