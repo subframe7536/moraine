@@ -109,7 +109,8 @@ export namespace SwitchT {
     description?: JSX.Element
 
     /**
-     * Receives the hidden `<input type="checkbox">` that submits the switch with a form.
+     * Ref to the hidden native `<input type="checkbox">` that submits the switch with a form. The
+     * focusable control is a separate `<button role="switch">`.
      */
     inputRef?: Ref<HTMLInputElement>
 

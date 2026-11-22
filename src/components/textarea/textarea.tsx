@@ -68,6 +68,7 @@ export function Textarea<
     'disabled',
     'size',
     'variant',
+    'autoComplete',
     'autoFocus',
     'autoFocusDelay',
     'autoResize',
@@ -317,6 +318,7 @@ export function Textarea<
       required={field.required()}
       disabled={field.disabled()}
       readonly={field.readOnly()}
+      autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
       ref={(element) => {

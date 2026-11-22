@@ -3,7 +3,9 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
+import { defineTheme } from '../../theme/create-theme'
 import { FieldProvider } from '../field/field-context'
 import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
@@ -19,6 +21,27 @@ function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElem
 }
 
 describe('CheckboxGroup', () => {
+  test('reads indicatorPosition from theme defaults and lets the prop override it', () => {
+    const theme = defineTheme({
+      checkboxGroup: { defaultVariants: { indicatorPosition: 'trailing' } },
+    })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <CheckboxGroup data-testid="themed" items={['a']} />
+        <CheckboxGroup data-testid="explicit" indicatorPosition="leading" items={['b']} />
+      </MoraineProvider>
+    ))
+    const themedItem = screen
+      .getByTestId('themed')
+      .querySelector('[data-slot="checkbox-group-item"]')
+    const explicitItem = screen
+      .getByTestId('explicit')
+      .querySelector('[data-slot="checkbox-group-item"]')
+
+    expect(themedItem?.className).toContain('flex-row-reverse')
+    expect(explicitItem?.className).not.toContain('flex-row-reverse')
+  })
+
   test('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
 

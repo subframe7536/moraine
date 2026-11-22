@@ -232,7 +232,7 @@ export namespace PinInputT {
 
     /**
      * Receives the array of the slot `<input>` elements, in order, after mount and whenever
-     * `length` changes. It is called with an empty array on cleanup.
+     * `length` changes.
      */
     inputsRef?: Ref<HTMLInputElement[]>
   }

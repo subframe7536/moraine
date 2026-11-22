@@ -94,7 +94,7 @@ export function Field<T extends ValidComponent = 'div'>(
 
   const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
-    { id: () => string; bind: () => boolean; key: symbol }[]
+    { id: () => string; labelFor: () => boolean; key: symbol }[]
   >([])
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
@@ -117,7 +117,7 @@ export function Field<T extends ValidComponent = 'div'>(
     const controls = registeredControls()
     for (let index = controls.length - 1; index >= 0; index -= 1) {
       const control = controls[index]
-      if (control && control.bind()) {
+      if (control && control.labelFor()) {
         return control.id()
       }
     }

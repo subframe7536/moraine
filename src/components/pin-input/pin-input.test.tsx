@@ -33,14 +33,14 @@ describe('PinInput', () => {
     expect(inputs[3]?.getAttribute('aria-label')).toBe('Pin input 4 of 4')
   })
 
-  test('calls inputsRef with an empty array on unmount', () => {
+  test('does not call inputsRef on unmount', () => {
     const inputsRef = vi.fn()
     const screen = render(() => <PinInput length={2} inputsRef={inputsRef} />)
     expect(inputsRef).toHaveBeenCalledOnce()
 
     screen.unmount()
 
-    expect(inputsRef).toHaveBeenLastCalledWith([])
+    expect(inputsRef).toHaveBeenCalledOnce()
   })
 
   test('clears placeholder when an input is focused and restores it on blur', () => {
@@ -615,12 +615,29 @@ describe('PinInput', () => {
     const root = screen.container.querySelector('[data-slot="pin-input"]')!
     const inputs = screen.container.querySelectorAll('[data-slot="pin-input-input"]')
 
-    // The group is labelled through aria-labelledby; no single input owns the field id.
-    expect(label.getAttribute('for')).toBeNull()
+    // The group is labelled through aria-labelledby, and the label targets the first slot.
+    expect(label.getAttribute('for')).toBe(inputs[0]?.id)
+    expect(inputs[0]?.id).toBeTruthy()
     expect(root.getAttribute('aria-labelledby')).toBe(label.id)
     expect(root.getAttribute('aria-describedby')).toBe(description.id)
     expect(inputs[0]?.getAttribute('aria-describedby')).toBe(description.id)
     expect(inputs[3]?.getAttribute('aria-describedby')).toBe(description.id)
+  })
+
+  test('uses the control id for the first slot so a Field label focuses the input', () => {
+    const screen = render(() => (
+      <Field label="Code">
+        <PinInput id="otp" length={3} defaultValue="1" />
+      </Field>
+    ))
+    const label = screen.container.querySelector('label')!
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
+      '[data-slot="pin-input-input"]',
+    )
+
+    expect(inputs[0]?.id).toBe('otp')
+    expect(inputs[1]?.id).toBe('otp-1')
+    expect(label.getAttribute('for')).toBe('otp')
   })
 
   test('form reset restores the default value without firing value callbacks', async () => {

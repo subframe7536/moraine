@@ -347,7 +347,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
                 }
                 size={variants.size}
                 variant={variants.variant === 'table' ? 'card' : variants.variant}
-                indicatorPosition={merged.indicatorPosition}
+                indicatorPosition={variants.indicatorPosition}
                 checkedIcon={item().checkedIcon ?? merged.checkedIcon}
                 indeterminateIcon={item().indeterminateIcon ?? merged.indeterminateIcon}
                 {...overrides({

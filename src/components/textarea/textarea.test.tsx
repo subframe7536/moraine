@@ -24,6 +24,18 @@ describe('Textarea', () => {
     expect(control?.placeholder).toBe('ref test')
   })
 
+  test('renders autoComplete as the native autocomplete attribute', () => {
+    const screen = render(() => <Textarea autoComplete="street-address" />)
+    const textarea = screen.container.querySelector('textarea')!
+
+    expect(textarea.getAttribute('autocomplete')).toBe('street-address')
+    expect(
+      render(() => <Textarea />)
+        .container.querySelector('textarea')
+        ?.hasAttribute('autocomplete'),
+    ).toBe(false)
+  })
+
   test('renders base attributes', () => {
     const screen = render(() => (
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />

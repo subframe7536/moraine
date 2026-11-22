@@ -39,6 +39,7 @@ export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
     variant: 'list',
     orientation: 'vertical',
     size: 'md',
+    indicatorPosition: 'leading',
   },
   variants: {
     orientation: {

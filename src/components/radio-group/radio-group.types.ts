@@ -102,15 +102,17 @@ export namespace RadioGroupT {
 
     /**
      * Focus event when focus enters the radio group from outside, called before the `Field`
-     * focus notification. Moving focus between items does not fire it.
+     * focus notification. Moving focus between items does not fire it; `currentTarget` is the
+     * group `<fieldset>`.
      */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>
 
     /**
      * Focus event when focus leaves the radio group entirely, called before the `Field` blur
-     * notification. Moving focus between items does not fire it.
+     * notification. Moving focus between items does not fire it; `currentTarget` is the
+     * group `<fieldset>`.
      */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>
   }
 
   /**

@@ -38,7 +38,7 @@ export interface FieldContextOptions {
   disabled?: boolean
   readOnly?: boolean
   ariaAttrs?: Accessor<Record<string, string | boolean | undefined>>
-  registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
+  registerControl?: (entry: { id: Accessor<string>; labelFor: Accessor<boolean> }) => () => void
 }
 
 export interface UseFormFieldProps {
@@ -53,6 +53,8 @@ export interface UseFormFieldProps {
 export interface UseFormFieldOptions {
   bind?: boolean
   focus?: boolean
+  /** Whether a surrounding Field label targets this control's id with `for`; defaults to `bind`. */
+  labelFor?: boolean
   defaultId: string
   defaultAriaAttrs?: Record<string, string | boolean | undefined>
   initialValue?: unknown
@@ -94,11 +96,12 @@ export function useFormField(
   const fieldContext = useFieldContext()
   const bind = createMemo(() => options.bind ?? true)
   const focus = createMemo(() => options.focus ?? bind())
+  const labelFor = createMemo(() => options.labelFor ?? bind())
   const localId = createMemo(() => props?.id ?? options.defaultId)
   const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
   if (fieldContext?.registerControl) {
-    const unregister = fieldContext.registerControl({ id: localId, bind })
+    const unregister = fieldContext.registerControl({ id: localId, labelFor })
     onCleanup(unregister)
   }
 

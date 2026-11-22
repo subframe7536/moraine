@@ -90,6 +90,16 @@ describe('BoldSlider', () => {
     expect(range.hasAttribute('data-empty')).toBe(false)
   })
 
+  test('keeps the fill visible at value 0 when min is negative', () => {
+    const screen = render(() => <BoldSlider min={-50} max={50} value={0} />)
+    const range = query(screen.container, '[data-slot="slider-range"]')
+    const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
+
+    expect(range.style.display).not.toBe('none')
+    expect(range.hasAttribute('data-empty')).toBe(false)
+    expect(fill.getAttribute('style')).toContain('* 0.5')
+  })
+
   test('formats the value from step decimals or a custom formatter', () => {
     const [step, setStep] = createSignal<number | undefined>(0.25)
     const screen = render(() => (

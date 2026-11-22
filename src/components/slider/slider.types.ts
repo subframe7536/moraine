@@ -152,7 +152,8 @@ export namespace SliderT {
     thumbAlignment?: 'contain' | 'overflow'
 
     /**
-     * Receives the hidden `<input type="range">` of the first thumb.
+     * Ref to the hidden native `<input type="range">` of the first thumb, which submits its value.
+     * The focusable thumbs are separate `<div role="slider">` elements.
      */
     inputRef?: Ref<HTMLInputElement>
 

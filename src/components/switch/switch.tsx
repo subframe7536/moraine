@@ -75,6 +75,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
     'onFocus',
     'onBlur',
+    'tabIndex',
   ])
   const themeField = useFieldContext()
   const {
@@ -378,6 +379,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         {...trackSlot}
         ref={field.setControlRef}
         id={field.id()}
+        tabIndex={local.tabIndex}
         disabled={field.disabled()}
         aria-checked={checked()}
         onPointerDown={onPointerDown}

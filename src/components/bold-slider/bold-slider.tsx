@@ -77,8 +77,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     ),
   )
 
-  const isZeroValue = () =>
-    internalValue() === 0 || (props.min !== undefined && internalValue() <= props.min)
+  // The fill is empty only at `min`, which is not necessarily 0.
+  const isAtMin = () => internalValue() <= (props.min ?? 0)
 
   // The track gets a transparent border as wide as the minimum fill on the fill's start side.
   // Slider positions the range and markers in the track's padding box and maps the pointer onto
@@ -96,7 +96,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         style: { [`border-inline-${insetSide()}`]: 'var(--bs-inset) solid transparent' },
       }),
       range: () => ({
-        style: isZeroValue()
+        style: isAtMin()
           ? { display: 'none' }
           : { [`margin-inline-${insetSide()}`]: 'calc(var(--bs-inset) * -1)' },
       }),
@@ -120,8 +120,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // Rendered as Slider root children after the track and thumb, so each part can read their
   // state through `peer-*` selectors.
   function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
-    const isZero = () =>
-      (state.percentages[0] ?? 0) === 0 || (state.values[0] ?? props.min ?? 0) === 0
+    const isEmpty = () => (state.percentages[0] ?? 0) === 0
 
     createEffect(
       on(
@@ -135,9 +134,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     )
 
     // Fill edge on the root: the minimum fill plus the value's share of the remaining width,
-    // matching the range inside the inset track. When value is 0, fill collapses to 0.
+    // matching the range inside the inset track. At `min`, the fill collapses to 0.
     const fillEdge = () =>
-      isZero()
+      isEmpty()
         ? '0%'
         : `calc(var(--bs-inset) + (100% - var(--bs-inset)) * ${state.percentages[0] ?? 0})`
     const fromLeft = () => state.startEdge !== 'right'
@@ -152,9 +151,9 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     // gradient switches from the fill color to the track color at the fill edge.
     const indicatorStyle = (): { style: JSX.CSSProperties } => {
       const block = 'calc(50% - var(--bs-indicator-height) / 2)'
-      // At value=0 the fill is hidden, but dock the indicator at the minimum-fill position
+      // At `min` the fill is hidden, but dock the indicator at the minimum-fill position
       // so the user has a visual anchor for the leftmost draggable position.
-      const edge = isZero() ? 'var(--bs-inset)' : fillEdge()
+      const edge = isEmpty() ? 'var(--bs-inset)' : fillEdge()
       const start = `calc(${edge} - var(--bs-indicator-gap) - var(--bs-indicator-width))`
       const end = `calc(${edge} - var(--bs-indicator-gap))`
       return {

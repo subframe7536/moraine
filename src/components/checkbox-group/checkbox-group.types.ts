@@ -95,13 +95,6 @@ export namespace CheckboxGroupT {
      */
     items?: (string | Item)[]
 
-    /**
-     * Where the checkbox control sits relative to the label for every item (`'leading'`,
-     * `'trailing'`, or `'hidden'` to visually hide the control, as in selectable cards).
-     * @default 'leading'
-     */
-    indicatorPosition?: CheckboxProps['indicatorPosition']
-
     /** Checked icon for all items; an item's own `checkedIcon` takes precedence. */
     checkedIcon?: CheckboxProps['checkedIcon']
 
@@ -117,15 +110,17 @@ export namespace CheckboxGroupT {
 
     /**
      * Focus event when focus enters the checkbox group from outside, called before the `Field`
-     * focus notification. Moving focus between items does not fire it.
+     * focus notification. Moving focus between items does not fire it; `currentTarget` is the
+     * group `<fieldset>`.
      */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>
 
     /**
      * Focus event when focus leaves the checkbox group entirely, called before the `Field` blur
-     * notification. Moving focus between items does not fire it.
+     * notification. Moving focus between items does not fire it; `currentTarget` is the
+     * group `<fieldset>`.
      */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLFieldSetElement, FocusEvent>
   }
 
   /** Props for the CheckboxGroup component. */

@@ -49,6 +49,12 @@ export interface CheckboxGroupStyleVariants {
    * @default 'list'
    */
   variant?: 'card' | 'table' | 'list'
+  /**
+   * Where each item's checkbox control sits relative to its label: `'leading'`, `'trailing'`, or
+   * `'hidden'` to visually hide the control, as in selectable cards.
+   * @default 'leading'
+   */
+  indicatorPosition?: 'leading' | 'trailing' | 'hidden'
 }
 
 export type CheckboxGroupStyleConfig = ComponentStyleConfig<

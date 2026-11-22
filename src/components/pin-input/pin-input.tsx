@@ -99,6 +99,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
   const field = useFormField(local, {
     bind: false,
     focus: true,
+    labelFor: true,
     get defaultId() {
       return generatedId()
     },
@@ -226,9 +227,6 @@ export function PinInput(props: PinInputProps): JSX.Element {
   )
 
   onCleanup(() => {
-    if (local.inputsRef) {
-      callRef(local.inputsRef, [])
-    }
     inputEls.length = 0
   })
 
@@ -569,7 +567,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
               <input
                 data-slot="pin-input-input"
                 {...itemSlot}
-                id={`${field.id()}-${idx}`}
+                id={idx === 0 ? field.id() : `${field.id()}-${idx}`}
                 ref={(element) => {
                   inputEls[idx] = element
                 }}

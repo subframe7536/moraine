@@ -27,6 +27,17 @@ describe('Switch', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
+  test('applies tabIndex to the focusable track instead of the root', () => {
+    const screen = render(() => <Switch tabIndex={-1} label="Skipped" />)
+
+    expect(
+      screen.container.querySelector('[data-slot="switch-track"]')?.getAttribute('tabindex'),
+    ).toBe('-1')
+    expect(screen.container.querySelector('[data-slot="switch"]')?.hasAttribute('tabindex')).toBe(
+      false,
+    )
+  })
+
   test('fires a root onPointerDown handler when the track is pressed', () => {
     const onPointerDown = vi.fn()
     const screen = render(() => <Switch onPointerDown={onPointerDown} label="Press me" />)

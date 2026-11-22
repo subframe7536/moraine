@@ -41,6 +41,12 @@ export namespace TextareaT {
     placeholder?: string
 
     /**
+     * The native `autocomplete` attribute, such as `'off'` or `'street-address'`. The browser
+     * default applies when omitted.
+     */
+    autoComplete?: JSX.TextareaHTMLAttributes<HTMLTextAreaElement>['autocomplete']
+
+    /**
      * Whether the textarea is focused after mounting, by script rather than the native `autofocus`
      * attribute. Focus is skipped when the textarea is disabled, and `autoFocusDelay` postpones it.
      * @default false
@@ -144,7 +150,10 @@ export namespace TextareaT {
    * Props for the Textarea component.
    */
   export type Props<TModifiers extends InputModifiers | undefined = InputModifiers | undefined> =
-    Omit<BaseProps<'textarea', Base<TModifiers>, Variants, Classes, Styles>, 'autofocus'>
+    Omit<
+      BaseProps<'textarea', Base<TModifiers>, Variants, Classes, Styles>,
+      'autofocus' | 'autocomplete'
+    >
 }
 
 /**

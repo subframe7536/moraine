@@ -23,6 +23,7 @@ export namespace BoldSliderT {
     SliderT.Base<number>,
     | 'minStepsBetweenThumbs'
     | 'allowThumbCrossing'
+    | 'thumbAlignment'
     | 'children'
     | 'formatOptions'
     | 'onFocus'
