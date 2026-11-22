@@ -93,11 +93,10 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     if (custom === false || custom === null) {
       return undefined
     }
-    if (typeof custom === 'string' || typeof custom === 'object') {
-      return custom
+    if (custom === undefined || custom === true) {
+      return ALERT_TONE_ICONS[resolvedTone()]
     }
-    const t = resolvedTone()
-    return ALERT_TONE_ICONS[t]
+    return custom
   })
 
   const hasIcon = () => resolvedIcon() !== undefined
@@ -158,7 +157,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
                   when={typeof resolvedIcon() === 'string'}
                   fallback={resolvedIcon() as JSX.Element}
                 >
-                  <Icon name={resolvedIcon() as IconT.Name} />
+                  <Icon name={resolvedIcon()} />
                 </Show>
               </div>
             </Show>
