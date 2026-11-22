@@ -60,7 +60,8 @@ describe('CopyButton', () => {
         <span>Copy clone url</span>
       </CopyButton>
     ))
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+    const button = screen.getByRole('button', { name: 'Copy clone url' })
+    expect(button.hasAttribute('aria-label')).toBe(false)
     const label = button.querySelector('[data-slot="copy-button-label"]')!
     expect(label.textContent).toBe('Copy clone url')
   })
@@ -71,7 +72,7 @@ describe('CopyButton', () => {
         {(state) => <span>{state.copied ? 'Copied URL' : 'Copy URL'}</span>}
       </CopyButton>
     ))
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+    const button = screen.getByRole('button', { name: 'Copy URL' })
     const label = button.querySelector('[data-slot="copy-button-label"]')!
     expect(label.textContent).toBe('Copy URL')
 
@@ -89,7 +90,7 @@ describe('CopyButton', () => {
         <span>Trailing icon</span>
       </CopyButton>
     ))
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+    const button = screen.getByRole('button', { name: 'Trailing icon' })
     const children = Array.from(button.children)
     const labelIdx = children.findIndex(
       (el) => el.getAttribute('data-slot') === 'copy-button-label',
@@ -154,8 +155,42 @@ describe('CopyButton', () => {
         <span>Text only</span>
       </CopyButton>
     ))
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
+    const button = screen.getByRole('button', { name: 'Text only' })
     expect(button.querySelector('[data-slot="copy-button-icon"]')).toBeNull()
     expect(button.querySelector('[data-slot="copy-button-label"]')).not.toBeNull()
+  })
+
+  test('resolves square sizes from the label even when size is explicit', () => {
+    const screen = render(() => (
+      <>
+        <CopyButton value="a" size="sm" />
+        <CopyButton value="b" size="icon-sm">
+          Labeled
+        </CopyButton>
+      </>
+    ))
+    const [iconOnly, labeled] = screen.getAllByRole('button')
+
+    expect(iconOnly!.className).toContain('size-7')
+    expect(labeled!.className).not.toContain('size-7')
+  })
+
+  test('reports a synchronous value error through onCopyError', async () => {
+    const error = new Error('no value')
+    const onCopyError = vi.fn()
+    const screen = render(() => (
+      <CopyButton
+        value={() => {
+          throw error
+        }}
+        onCopyError={onCopyError}
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('button'))
+    await flushMicrotasks()
+
+    expect(onCopyError).toHaveBeenCalledWith(error)
+    expect(screen.getByRole('button').getAttribute('aria-invalid')).toBe('true')
   })
 })

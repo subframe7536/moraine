@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -108,10 +108,20 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   })
 
   const hasIcon = () => local.icon !== false && local.icon !== null
+  const hasLabel = () => hasContent(resolvedChildren())
+  const size = (): CopyButtonStyleVariants['size'] => {
+    const base = String(local.size ?? group?.size ?? 'md').replace(/^icon-/, '')
+    return (hasIcon() && !hasLabel() ? `icon-${base}` : base) as CopyButtonStyleVariants['size']
+  }
 
+  const recipeProps = mergeProps(local, {
+    get size() {
+      return size()
+    },
+  })
   const {
     slots: { root: rootSlot, icon: iconSlot, label: labelSlot },
-  } = useRecipe(copyButtonRecipe, local, {
+  } = useRecipe(copyButtonRecipe, recipeProps, {
     data: {
       root: copyButtonDataAttributes.root(() => ({
         copied: clipboard.isCopied,
@@ -121,36 +131,18 @@ export function CopyButton<T extends ValidComponent = 'button'>(
         copied: clipboard.isCopied,
       })),
     },
-    context: () => {
-      const s = String(local.size ?? group?.size ?? 'md')
-      const resolvedSize =
-        hasIcon() && !hasContent(resolvedChildren())
-          ? s.startsWith('icon-')
-            ? s
-            : `icon-${s}`
-          : s.replace(/^icon-/, '')
-
-      return {
-        variants: {
-          get size() {
-            return resolvedSize as CopyButtonStyleVariants['size']
-          },
-          get variant() {
-            return group?.variant !== 'link' ? group?.variant : undefined
-          },
-          get tone() {
-            return group?.tone
-          },
-        },
-      }
-    },
+    context: () => ({
+      variants: {
+        variant: group?.variant !== 'link' ? group?.variant : undefined,
+        tone: group?.tone,
+      },
+    }),
   })
 
   async function handleClick(event: MouseEvent & { currentTarget: HTMLElement }): Promise<unknown> {
     const { defaultPrevented, result } = callHandler(event, local.onClick)
     if (!defaultPrevented && !local.disabled) {
-      const data = typeof local.value === 'function' ? local.value() : local.value
-      await clipboard.copy(data)
+      await clipboard.copy()
     }
     return result
   }
@@ -188,14 +180,15 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       {...binding}
       aria-invalid={clipboard.isError() ? true : undefined}
       aria-label={
-        local['aria-label'] ?? (clipboard.isCopied() ? messages().copied : messages().copy)
+        local['aria-label'] ??
+        (hasLabel() ? undefined : clipboard.isCopied() ? messages().copied : messages().copy)
       }
     >
       <Show when={hasIcon() && local.iconPosition !== 'trailing'}>
         <Indicator />
       </Show>
 
-      <Show when={hasContent(resolvedChildren())}>
+      <Show when={hasLabel()}>
         <span data-slot="copy-button-label" {...labelSlot}>
           {resolvedChildren()}
         </span>
