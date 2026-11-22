@@ -427,12 +427,12 @@ describe('PinInput', () => {
     expect(separators).toHaveLength(2)
   })
 
-  test('renders custom separatorRender', () => {
+  test('renders custom separator', () => {
     const screen = render(() => (
       <PinInput
         length={6}
         groupSize={3}
-        separatorRender={(props) => <span class="custom-sep">#{props.index}</span>}
+        separator={(props) => <span class="custom-sep">#{props.index}</span>}
       />
     ))
     const customSep = screen.container.querySelector('.custom-sep')

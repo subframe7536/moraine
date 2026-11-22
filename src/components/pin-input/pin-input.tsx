@@ -64,7 +64,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'otp',
     'placeholder',
     'groupSize',
-    'separatorRender',
+    'separator',
     'value',
     'defaultValue',
     'onValueChange',
@@ -696,8 +696,8 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   {...separatorSlot}
                 >
                   <Show
-                    when={typeof local.separatorRender === 'function' && local.separatorRender}
-                    fallback="•"
+                    when={typeof local.separator === 'function' && local.separator}
+                    fallback={(local.separator as JSX.Element) ?? '•'}
                     keyed
                   >
                     {(Separator) => <Separator index={idx} />}

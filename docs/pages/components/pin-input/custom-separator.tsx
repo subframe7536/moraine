@@ -9,7 +9,7 @@ export function CustomSeparator() {
       <PinInput
         length={6}
         groupSize={3}
-        separatorRender={() => <span class="text-muted-foreground font-semibold px-1">-</span>}
+        separator={() => <span class="text-muted-foreground font-semibold px-1">-</span>}
         onComplete={(val) => setValue(val)}
       />
       <Show when={value()}>

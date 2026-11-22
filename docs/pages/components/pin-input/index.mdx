@@ -108,7 +108,7 @@ Use `placeholder` to show a character hint in empty slots that are not focused:
 ### Separators
 
 Use `groupSize` to insert separators between groups of slots: a number for fixed-size groups, or
-an array of consecutive group sizes. Use `separatorRender` to replace the default `•` separator.
+an array of consecutive group sizes. Use `separator` to replace the default `•` separator.
 
 ```tsx
 <PinInput length={6} groupSize={3} />
@@ -159,6 +159,6 @@ Use `validationType="alphanumeric"` to accept letters and digits in backup keys 
 
 ### Custom separator
 
-Pass `separatorRender` to replace the divider between slot groups. It receives the `index` of the slot it follows.
+Pass `separator` to replace the divider between slot groups. It receives the `index` of the slot it follows.
 
 <Preview path="./custom-separator" />

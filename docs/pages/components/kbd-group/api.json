@@ -40,7 +40,7 @@
         {
           "name": "separator",
           "optional": true,
-          "type": "string | number | Component<SeparatorRenderProps>",
+          "type": "string | Component<SeparatorRenderProps>",
           "description": "Text between keys, or a component rendered between each pair of keys. The component receives the\n`index` of the key it follows.",
           "default": {
             "kind": "literal",

@@ -218,7 +218,7 @@ describe('KbdGroup', () => {
     expect(cleanups).toBe(2)
     setSeparator(() => SeparatorRender)
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
-    setSeparator(0)
+    setSeparator('0')
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧0Ctrl')
     expect(cleanups).toBe(3)
     setSeparator(undefined)

@@ -99,16 +99,17 @@ export namespace PinInputT {
     groupSize?: number | readonly number[]
 
     /**
-     * Component that renders the separator content between groups, replacing the default `•`.
-     * It receives the `index` of the input it follows and only appears when `groupSize` creates groups.
+     * Text or component rendered between groups, replacing the default `•`. The component
+     * receives the `index` of the input it follows and only appears when `groupSize` creates groups.
      * @example
      * ```tsx
      * import { PinInput } from 'moraine'
      *
-     * <PinInput length={6} groupSize={3} separatorRender={() => <span>–</span>} />
+     * <PinInput length={6} groupSize={3} separator="–" />
+     * <PinInput length={6} groupSize={3} separator={() => <span>–</span>} />
      * ```
      */
-    separatorRender?: Component<SeparatorRenderProps>
+    separator?: string | Component<SeparatorRenderProps>
 
     /**
      * Controlled value as the joined string (`'123456'`). `undefined` leaves the input

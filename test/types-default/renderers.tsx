@@ -83,7 +83,7 @@ import {
 ;<ContextMenu.Content footerRender={<span />} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator="/" />
-;<KbdGroup items={['Ctrl', 'K']} separator={1} />
+;<KbdGroup items={['Ctrl', 'K']} separator="1" />
 ;<Toast itemRender={(props) => <span>{props.options.title}</span>} />
 ;<List items={['a', 'b']} itemRender={(props) => <span>{props.item}</span>} />
 ;<NavigationMenu.Link href="/test" linkRender={(props) => <a {...props}>{props.children}</a>} />

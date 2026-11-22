@@ -65,7 +65,7 @@ export namespace KbdGroupT {
      * />
      * ```
      */
-    separator?: string | number | Component<SeparatorRenderProps>
+    separator?: string | Component<SeparatorRenderProps>
   }
 
   /** Props for the KbdGroup component. */

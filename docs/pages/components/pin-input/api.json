@@ -226,12 +226,12 @@
           }
         },
         {
-          "name": "separatorRender",
+          "name": "separator",
           "optional": true,
-          "type": "Component<SeparatorRenderProps>",
-          "description": "Component that renders the separator content between groups, replacing the default `•`.\nIt receives the `index` of the input it follows and only appears when `groupSize` creates groups.",
+          "type": "string | Component<SeparatorRenderProps>",
+          "description": "Text or component rendered between groups, replacing the default `•`. The component\nreceives the `index` of the input it follows and only appears when `groupSize` creates groups.",
           "examples": [
-            "import { PinInput } from 'moraine'\n\n<PinInput length={6} groupSize={3} separatorRender={() => <span>–</span>} />"
+            "import { PinInput } from 'moraine'\n\n<PinInput length={6} groupSize={3} separator=\"–\" />\n<PinInput length={6} groupSize={3} separator={() => <span>–</span>} />"
           ]
         },
         {
