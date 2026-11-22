@@ -71,7 +71,7 @@ import {
   items={[
     {
       type: 'group',
-      items: [{ value: 'save', leadingRender: <span />, trailingRender: <span /> }],
+      children: [{ value: 'save', leadingRender: <span />, trailingRender: <span /> }],
     },
   ]}
   itemRender={(props) => <span>{props.item.value}</span>}

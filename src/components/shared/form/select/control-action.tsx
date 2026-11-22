@@ -108,7 +108,7 @@ export function ToggleTrigger(props: ToggleTriggerProps): JSX.Element {
       aria-expanded={props.expanded ? 'true' : 'false'}
       aria-busy={props.loading ? 'true' : undefined}
       {...props.slot}
-      disabled={props.disabled || Boolean(props.loading)}
+      disabled={props.disabled}
       onPointerDown={(event) => {
         event.preventDefault()
         event.stopPropagation()

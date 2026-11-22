@@ -28,12 +28,6 @@ export namespace SwitchT {
     form?: string
 
     /**
-     * Pointer down handler for the switch track (the `role="switch"` button). It runs before the
-     * switch's own handling; call `event.preventDefault()` to skip that.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
      * Native value of the hidden checkbox, submitted under `name` when the switch is checked. Nothing
      * is submitted while it is unchecked. Defaults to a string or number `trueValue`, otherwise
      * `'on'`.
@@ -125,6 +119,18 @@ export namespace SwitchT {
      * changes to `checked`, or while the switch is `disabled`, `readOnly`, or `loading`.
      */
     onCheckedChange?: (value: TTrue | TFalse) => void
+
+    /**
+     * Called when the switch control button gains focus, before the `Field` focus
+     * notification.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
+
+    /**
+     * Called when the switch control button loses focus, before the `Field` blur
+     * notification.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
   }
 
   /**

@@ -1101,7 +1101,7 @@ describe('ContextMenu', () => {
             {
               type: 'group',
               label: 'Account',
-              items: [
+              children: [
                 { type: 'separator' },
                 {
                   label: 'Profile',
@@ -1579,7 +1579,7 @@ describe('ContextMenu', () => {
               type: 'radio-group',
               defaultValue: 'name',
               onValueChange,
-              items: [
+              children: [
                 { type: 'radio', value: 'name', label: 'Name' },
                 { type: 'radio', value: 'date', label: 'Date' },
                 {

@@ -453,6 +453,29 @@ describe('DataTable', () => {
     expect(screen.getByText('Diana')).toBeDefined()
   })
 
+  it('follows data and columns passed as accessors', () => {
+    const [data, setData] = createSignal(TEST_DATA)
+    const [columns, setColumns] = createSignal(TEST_COLUMNS.slice(0, 2))
+
+    render(() => {
+      const table = createPersonTable({
+        data: () => data(),
+        columns: () => columns(),
+      })
+      return <table.DataTable />
+    })
+
+    expect(screen.getAllByRole('row').length).toBe(4)
+    expect(screen.queryByText('Role')).toBeNull()
+
+    setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }])
+    setColumns(TEST_COLUMNS)
+
+    expect(screen.getAllByRole('row').length).toBe(5)
+    expect(screen.getByText('Diana')).toBeDefined()
+    expect(screen.getByText('Role')).toBeDefined()
+  })
+
   it('renders every row when pagination is omitted', () => {
     const twentyRows = Array.from({ length: 20 }, (_, i) => ({
       id: String(i + 1),
@@ -698,7 +721,7 @@ describe('DataTable', () => {
     render(() => {
       const table = createPersonTable({
         selectionMode: 'single',
-        canSelectRow: (row) => row.original.role !== 'Intern',
+        isRowSelectable: (row) => row.original.role !== 'Intern',
       })
       return <table.DataTable />
     })
@@ -707,11 +730,11 @@ describe('DataTable', () => {
     expect(radios.map((radio) => radio.disabled)).toEqual([false, false, true])
   })
 
-  it('does not select a row that canSelectRow rejects', () => {
+  it('does not select a row that isRowSelectable rejects', () => {
     render(() => {
       const table = createPersonTable({
         selectionMode: 'multiple',
-        canSelectRow: (row) => row.original.role !== 'Intern',
+        isRowSelectable: (row) => row.original.role !== 'Intern',
       })
       return <table.DataTable />
     })

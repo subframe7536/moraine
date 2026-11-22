@@ -31,7 +31,7 @@ import type { SidebarT } from './sidebar.types'
  * import { Sidebar } from 'moraine'
  *
  * <Sidebar>
- *   <Sidebar.Panel ariaLabel="Main navigation">
+ *   <Sidebar.Panel aria-label="Main navigation">
  *     <Sidebar.Content>Navigation</Sidebar.Content>
  *   </Sidebar.Panel>
  *   <Sidebar.Inset>Content</Sidebar.Inset>
@@ -42,9 +42,9 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as SidebarT.PanelProps, [
     'as',
-    'ariaLabel',
+    'aria-label',
     'children',
     'class',
     'id',
@@ -59,7 +59,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
   const mobileAriaLabel = () =>
-    local.ariaLabel ?? (rest as { title?: string }).title ?? messages().label
+    local['aria-label'] ?? (rest as { title?: string }).title ?? messages().label
 
   // The mobile Drawer owns presence, so only the inline desktop panel reflects the closed state.
   const PanelContent = (contentProps: { mobile: boolean }) => {
@@ -89,7 +89,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         }}
         aria-hidden={closed() ? true : undefined}
         inert={closed() ? true : undefined}
-        aria-label={local.ariaLabel}
+        aria-label={local['aria-label']}
         {...(rest as object)}
         id={context.panelId()}
       >

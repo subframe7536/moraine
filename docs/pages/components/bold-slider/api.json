@@ -80,7 +80,7 @@
           "name": "markers",
           "optional": true,
           "type": "boolean | number",
-          "description": "Visual markers on the track. `true` marks every `step` and needs a `step` greater than 0.\nA number marks every that many units without affecting snapping.",
+          "description": "Visual markers on the track. `true` marks every `step` and shows none when `step` is `0`.\nA number marks every that many units without affecting snapping.",
           "default": {
             "kind": "literal",
             "value": false
@@ -111,6 +111,18 @@
           "optional": true,
           "type": "string",
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus leaves the slider, called before the `Field` blur notification."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus enters the slider, called before the `Field` focus notification."
         },
         {
           "name": "onValueChange",
@@ -171,7 +183,11 @@
           "name": "step",
           "optional": true,
           "type": "number",
-          "description": "Step increment between values; pointer and keyboard values snap to multiples of it from `min`.\nWhen omitted (or not above `0`), pointer movement is continuous and arrow keys move by 1% of\nthe range. `PageUp`/`PageDown` and `Shift` + arrow move by about 10% of the range."
+          "description": "Step increment between values; pointer and keyboard values snap to multiples of it from `min`.\nA value of `0` (or not above `0`) keeps the slider continuous: pointer movement is smooth\nand arrow keys move by 1% of the range. `PageUp`/`PageDown` and `Shift` + arrow move by\nabout 10% of the range.",
+          "default": {
+            "kind": "literal",
+            "value": 1
+          }
         },
         {
           "name": "style",
@@ -214,7 +230,7 @@
           "name": "valueLabel",
           "optional": true,
           "type": "boolean | ((props: { percent: number; value: number; max: number }) => string)",
-          "description": "Controls the value text shown at the end of the track. `false` hides it, `true` shows the\nnumber, and a function returns the text to show. The function receives the current `value`,\nthe `max` (100 when not set), and `percent`, the filled share of the track from 0 to 100.\nWith `true`, the value is formatted with `formatOptions` when set; otherwise it is rounded to\nthe decimal places of `step` (2 places without `step`) with no digit grouping.",
+          "description": "Controls the value text shown at the end of the track. `false` hides it, `true` shows the\nnumber, and a function returns the text to show. The function receives the current `value`,\nthe `max` (100 when not set), and `percent`, the filled share of the track from 0 to 100.\nWith `true`, the value is formatted with `formatOptions` when set; otherwise it is rounded to\nthe decimal places of `step` (2 places when `step` is `0`) with no digit grouping.",
           "default": {
             "kind": "literal",
             "value": true

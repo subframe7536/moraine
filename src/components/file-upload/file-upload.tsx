@@ -58,6 +58,7 @@ export function FileUpload<TMultiple extends boolean = false>(
   const [local, rest] = splitProps(props, [
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'required',
@@ -66,6 +67,8 @@ export function FileUpload<TMultiple extends boolean = false>(
     'inputRef',
     'onClick',
     'onKeyDown',
+    'onFocus',
+    'onBlur',
     'onDragOver',
     'onDragLeave',
     'onDrop',
@@ -315,8 +318,14 @@ export function FileUpload<TMultiple extends boolean = false>(
         {...controlSlot}
         ref={setControlElement}
         disabled={field.disabled()}
-        onFocus={(event) => field.emit('focus', event)}
-        onBlur={(event) => field.emit('blur', event)}
+        onFocus={(event) => {
+          callHandler(event, local.onFocus)
+          field.emit('focus', event)
+        }}
+        onBlur={(event) => {
+          callHandler(event, local.onBlur)
+          field.emit('blur', event)
+        }}
         onClick={onControlClick}
         onKeyDown={onControlKeyDown}
         onDragOver={onDropzoneDragOver}
@@ -347,6 +356,7 @@ export function FileUpload<TMultiple extends boolean = false>(
           setHiddenInput(element)
           callRef(local.inputRef, element)
         }}
+        form={local.form}
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}

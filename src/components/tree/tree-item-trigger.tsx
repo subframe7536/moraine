@@ -49,39 +49,37 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   })
 
   return (
-    <Show when={context.options.trigger !== false}>
-      <Dynamic
-        component={local.as ?? 'span'}
-        data-slot="tree-trigger"
-        aria-hidden={true}
-        {...triggerSlot}
-        {...rest}
-        {...ownedHostAttributes()}
-        onClick={(event: MouseEvent) => {
-          const custom = callHandler(event, local.onClick)
-          event.preventDefault()
-          if (!custom.defaultPrevented) {
-            item.toggle()
-          }
-        }}
+    <Dynamic
+      component={local.as ?? 'span'}
+      data-slot="tree-trigger"
+      aria-hidden={true}
+      {...triggerSlot}
+      {...rest}
+      {...ownedHostAttributes()}
+      onClick={(event: MouseEvent) => {
+        const custom = callHandler(event, local.onClick)
+        event.preventDefault()
+        if (!custom.defaultPrevented) {
+          item.toggle()
+        }
+      }}
+    >
+      <Show
+        when={local.children}
+        fallback={
+          <Icon
+            name={
+              item.isLoading
+                ? (context.props.loadingIcon ?? 'icon-loading')
+                : (local.icon ?? context.props.expandIcon ?? 'icon-chevron-right')
+            }
+            data-slot="tree-trigger-icon"
+            class={TREE_TRIGGER_ICON_CLASS}
+          />
+        }
       >
-        <Show
-          when={local.children}
-          fallback={
-            <Icon
-              name={
-                item.isLoading
-                  ? (context.props.loadingIcon ?? 'icon-loading')
-                  : (local.icon ?? context.props.expandIcon ?? 'icon-chevron-right')
-              }
-              data-slot="tree-trigger-icon"
-              class={TREE_TRIGGER_ICON_CLASS}
-            />
-          }
-        >
-          {local.children}
-        </Show>
-      </Dynamic>
-    </Show>
+        {local.children}
+      </Show>
+    </Dynamic>
   )
 }

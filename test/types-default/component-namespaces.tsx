@@ -380,7 +380,7 @@ const form = createForm({ schema: Schema })
 const tree = createTree({
   items: () => [{ id: 'root', name: 'Root' }],
   getKey: (node: { id: string; name: string }) => node.id,
-  getLabel: (node: { id: string; name: string }) => node.name,
+  getItemLabel: (node: { id: string; name: string }) => node.name,
 })
 ;<tree.Tree classes={{ root: 'w-full' }} styles={{ root: { color: 'red' } }} />
 

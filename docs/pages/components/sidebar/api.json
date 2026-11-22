@@ -167,13 +167,8 @@
           "default": "'aside'"
         }
       ],
+      "defaultElement": "aside",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name of the panel, rendered as `aria-label`: set on the desktop panel element\nand on the mobile drawer content. In the mobile drawer, falls back to the `title`\nattribute, then to the localized `label` message (English default `Sidebar navigation`)."
-        },
         {
           "name": "as",
           "optional": true,
@@ -224,12 +219,24 @@
         "root": "Sidebar",
         "member": "Rail"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
       "props": [
         {
-          "name": "ariaLabel",
+          "name": "as",
           "optional": true,
-          "type": "string",
-          "description": "Accessible name for the resize separator, rendered as `aria-label`.\nLocalized via MoraineProvider messages when omitted. English default is `Resize sidebar`."
+          "type": "T",
+          "description": "Element or component to render as. A tag name (`'div'`) renders that element and narrows the\nother props to its attributes; a Solid component receives the props the rail would put on\nits element, so it should spread them onto its root and forward `ref`. `type=\"button\"` and\nthe native `disabled` attribute are emitted only for a `'button'` host.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
         },
         {
           "name": "class",
@@ -242,6 +249,12 @@
           "optional": true,
           "type": "boolean",
           "description": "Disables pointer, keyboard, and click resizing."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>",
+          "description": "Ref forwarded to the rendered element."
         },
         {
           "name": "style",
@@ -741,7 +754,11 @@
           "name": "closeOnSelect",
           "optional": true,
           "type": "boolean",
-          "description": "Whether activating this button on mobile closes the drawer. Has no effect on desktop, when\nthe button is disabled, or when the click handler calls `preventDefault()`; modified and\nnon-primary clicks never close it. When omitted, buttons with `href` close the drawer and\nothers stay open."
+          "description": "Whether activating this button on mobile closes the drawer. Has no effect on desktop, when\nthe button is disabled, or when the click handler calls `preventDefault()`; modified and\nnon-primary clicks never close it. When omitted, buttons with `href` close the drawer and\nothers stay open.",
+          "default": {
+            "kind": "expression",
+            "text": "Boolean(href)"
+          }
         },
         {
           "name": "disabled",
@@ -905,7 +922,7 @@
           "description": "Whether to animate the content height.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": true
           }
         }
       ]

@@ -48,7 +48,7 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertRec
           ...TONE_CLASS.warning,
           icon: 'text-warning',
         },
-        error: {
+        danger: {
           ...TONE_CLASS.danger,
           icon: 'text-danger',
         },

@@ -101,7 +101,7 @@ export function Files(props: { files: FileNode[] }) {
     items: () => props.files,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
   })
 
   return <tree.Tree aria-label="Project files" />
@@ -117,7 +117,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 
 | Concern    | `createTree` options                                                                                                              |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Data       | `items` (accessor), `getKey`, `getChildren`, `getLabel`, `isDisabled`, `isLeaf`                                                   |
+| Data       | `items` (accessor), `getKey`, `getChildren`, `getItemLabel`, `isItemDisabled`, `isLeaf`                                           |
 | Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedKeysChange`, `expandOnClick` (`true`), `trigger` (`true`)                       |
 | Selection  | `selectionMode` (`'single'` by default, `'multiple'`, or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectedKeysChange` |
 | Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedKeysChange`                        |
@@ -134,7 +134,7 @@ API reference below lists `tree.Tree` and part props. `createTree` options are l
 `get selectedKeys() { return selected() }`; a plain value is read once.
 
 Keys are strings returned by `getKey` and must be unique across the whole tree. If a key repeats,
-the first occurrence wins. `getLabel` provides the accessible name and the typeahead text; it
+the first occurrence wins. `getItemLabel` provides the accessible name and the typeahead text; it
 defaults to the item itself for strings and to the key otherwise.
 
 ### Instance
@@ -189,8 +189,8 @@ const tree = createTree({
 ```
 
 Clicking a branch row toggles it, and the trigger chevron always toggles. Set `expandOnClick: false`
-so row clicks only select. Set `trigger: false` to render no chevron; rows then always toggle,
-whatever `expandOnClick` says.
+so row clicks only select. Set `trigger: false` so the default item renders no chevron; an
+explicitly rendered `tree.ItemTrigger` still shows and toggles.
 
 Branch height animates by default; set `transition={false}` on `tree.Tree` to turn it off.
 Collapsed branches unmount their children unless `forceMount`. Neither prop applies

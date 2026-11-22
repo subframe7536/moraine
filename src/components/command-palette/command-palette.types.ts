@@ -4,6 +4,7 @@ import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
+import type { KbdT } from '../kbd/kbd.types'
 import type { ListT } from '../list'
 
 import type { defaultCommandPaletteMessages } from './command-palette.messages'
@@ -51,6 +52,16 @@ export namespace CommandPaletteT {
      */
     keywords?: string[]
     /**
+     * Icon rendered before the label in the default item content. Ignored when `leadingRender`
+     * is set.
+     */
+    icon?: IconT.Name
+    /**
+     * Keyboard shortcut keys shown after the label in the default item content. Ignored when
+     * `trailingRender` is set.
+     */
+    kbds?: KbdT.Key[]
+    /**
      * Content or render function shown before the label, such as an icon. Receives the row state.
      * Ignored when the palette sets `itemRender`.
      */
@@ -68,6 +79,7 @@ export namespace CommandPaletteT {
     /**
      * Keeps the item visible while the search text filters the list, even when it does not
      * match, for entries like "Search the docs for...".
+     * @default false
      */
     alwaysShow?: boolean
     /**
@@ -84,8 +96,8 @@ export namespace CommandPaletteT {
      * Header shown above the group's items. Without it the items render with no header.
      */
     label?: string
-    /** Items in this group. While searching, a group with no matching items is hidden. */
-    items?: TItem[]
+    /** Child items in this group. While searching, a group with no matching items is hidden. */
+    children?: TItem[]
   }
 
   /** An entry of `items`: a command, or a group of commands. */
@@ -157,7 +169,7 @@ export namespace CommandPaletteT {
     /** Ref forwarded to the inner search `<input>` element. */
     inputRef?: Ref<HTMLInputElement>
     /**
-     * Commands to display, in order: command objects and `{ type: 'group', label, items }` groups.
+     * Commands to display, in order: command objects and `{ type: 'group', label, children }` groups.
      * Consecutive commands outside a group render together without a header. The search text
      * filters them according to `filterMethod`; the list is reactive to changes of this prop.
      * @default []
@@ -171,7 +183,7 @@ export namespace CommandPaletteT {
      *     {
      *       type: 'group',
      *       label: 'File',
-     *       items: [
+     *       children: [
      *         { value: 'new', label: 'New file', keywords: ['create'], onSelect: () => {} },
      *         { value: 'save', label: 'Save', description: 'Write to disk', disabled: true },
      *       ],

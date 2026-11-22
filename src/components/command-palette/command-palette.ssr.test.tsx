@@ -30,7 +30,7 @@ describe('CommandPalette SSR Hydration', () => {
           items={[
             {
               type: 'group',
-              items: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
+              children: [{ value: 'archive', label: 'Archive', description: 'Move to archive' }],
             },
           ]}
         />

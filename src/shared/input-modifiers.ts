@@ -1,4 +1,4 @@
-export type EmptyValueMode = 'preserve' | 'null' | 'undefined'
+export type EmptyValueMode = 'preserve' | 'null'
 
 export interface InputModifiers {
   trim?: boolean
@@ -9,19 +9,19 @@ export interface InputModifiers {
 
 /**
  * Resolves the output value type based on modifiers config.
- * - `number: true`       → base type is `number`, otherwise `string`
- * - `empty: 'null'`      → adds `null` to the union
- * - `empty: 'undefined'` → adds `undefined` to the union
+ * - `number: true`  → `number | null`; empty and non-numeric text give `null`
+ * - `empty: 'null'` → adds `null` to the union, otherwise `string`
  */
-export type ModifierValue<TModifiers extends InputModifiers | undefined> =
-  | (TModifiers extends { number: true }
-      ? number | (TModifiers extends { empty: 'null' } ? null : undefined)
-      : string)
-  | (TModifiers extends { empty: 'null' } ? null : never)
-  | (TModifiers extends { empty: 'undefined' } ? undefined : never)
+export type ModifierValue<TModifiers extends InputModifiers | undefined> = TModifiers extends {
+  number: true
+}
+  ? number | null
+  : TModifiers extends { empty: 'null' }
+    ? string | null
+    : string
 
 export function applyInputModifiers<T>(value: string, modifiers?: InputModifiers): T {
-  let nextValue: string | number | null | undefined = value
+  let nextValue: string | number | null = value
 
   if (modifiers?.trim) {
     nextValue = nextValue.trim()
@@ -32,27 +32,19 @@ export function applyInputModifiers<T>(value: string, modifiers?: InputModifiers
 
   if (modifiers?.number) {
     if (isEmpty) {
-      if (modifiers.empty === 'null') {
-        return null as T
-      }
-      return undefined as T
+      return null as T
     }
 
     const num = Number(trimmed)
     if (Number.isNaN(num)) {
-      return undefined as T
+      return null as T
     }
 
     return num as T
   }
 
-  if (isEmpty) {
-    if (modifiers?.empty === 'null') {
-      return null as T
-    }
-    if (modifiers?.empty === 'undefined') {
-      return undefined as T
-    }
+  if (isEmpty && modifiers?.empty === 'null') {
+    return null as T
   }
 
   return nextValue as T

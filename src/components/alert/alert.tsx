@@ -21,13 +21,13 @@ const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
   info: 'icon-info',
   success: 'icon-success',
   warning: 'icon-warning',
-  error: 'icon-error',
+  danger: 'icon-error',
 }
 
 /**
  * Non-floating contextual feedback and status banner that stays in the page flow. Use `Toast` for
  * transient notifications and `BaseDialog` for feedback that must block the page. It renders a `div`
- * (change it with `as`) with `role="alert"` for the `warning` and `error` tones and
+ * (change it with `as`) with `role="alert"` for the `warning` and `danger` tones and
  * `role="status"` for the rest.
  *
  * @example
@@ -130,7 +130,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     }),
   })
 
-  const isUrgent = () => resolvedTone() === 'error' || resolvedTone() === 'warning'
+  const isUrgent = () => resolvedTone() === 'danger' || resolvedTone() === 'warning'
   const defaultRole = () => (isUrgent() ? 'alert' : 'status')
   const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
 

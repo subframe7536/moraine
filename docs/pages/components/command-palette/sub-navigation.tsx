@@ -7,7 +7,7 @@ export function SubNavigation() {
     {
       type: 'group',
       label: 'Commands',
-      items: [
+      children: [
         {
           value: 'create',
           label: 'Create',
@@ -32,7 +32,7 @@ export function SubNavigation() {
     {
       type: 'group',
       label: 'Create',
-      items: [
+      children: [
         {
           value: 'create-new-file',
           label: 'New File',
@@ -55,7 +55,7 @@ export function SubNavigation() {
     {
       type: 'group',
       label: 'Share',
-      items: [
+      children: [
         {
           value: 'share-copy-link',
           label: 'Copy Link',

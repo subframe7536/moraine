@@ -7,7 +7,7 @@ const GROUPS = [
   {
     type: 'group',
     label: 'Workspace Actions',
-    items: [
+    children: [
       {
         value: 'new-issue',
         label: 'Create New Issue',
@@ -31,7 +31,7 @@ const GROUPS = [
   {
     type: 'group',
     label: 'Navigation',
-    items: [
+    children: [
       {
         value: 'go-dashboard',
         label: 'Dashboard Overview',

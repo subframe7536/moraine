@@ -14,13 +14,7 @@ export function NonModal() {
         <Button variant="outline" size="sm" onClick={() => setCount((value) => value + 1)}>
           Page action
         </Button>
-        <Drawer
-          modal={false}
-          overlay={false}
-          preventScroll={false}
-          closeOnOutsideClick={false}
-          closable
-        >
+        <Drawer modal={false} overlay={false} closeOnOutsideClick={false} closable>
           <Drawer.Trigger as={Button} size="sm">
             Open Panel
           </Drawer.Trigger>

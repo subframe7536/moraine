@@ -69,7 +69,7 @@
           "name": "items",
           "optional": true,
           "type": "(string | Item)[]",
-          "typeDetails": "(string | {\n  /** Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to\nthe item's index as a string when omitted, so set it explicitly for stable values. */\n  value?: string;\n  /** Label for the radio item. It names the radio input for assistive technology. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. It cannot be selected or focused with the keyboard, and the\nother items stay interactive. */\n  disabled?: boolean;\n})[]",
+          "typeDetails": "(string | {\n  /** Value of the radio item, submitted with the form and passed to `onValueChange`. Must be\nunique within the group. */\n  value: string;\n  /** Label for the radio item. It names the radio input for assistive technology. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether this item is disabled. It cannot be selected or focused with the keyboard, and the\nother items stay interactive. */\n  disabled?: boolean;\n})[]",
           "description": "Items to render, either plain strings (used as both `value` and `label`) or `Item` objects.",
           "examples": [
             "import { RadioGroup } from 'moraine'\n\n<RadioGroup\n  items={[\n    'Free',\n    { value: 'pro', label: 'Pro', description: 'Billed monthly' },\n    { value: 'team', label: 'Team', disabled: true },\n  ]}\n/>"
@@ -96,6 +96,18 @@
           "optional": true,
           "type": "string",
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus leaves the radio group entirely, called before the `Field` blur\nnotification. Moving focus between items does not fire it."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>",
+          "description": "Focus event when focus enters the radio group from outside, called before the `Field`\nfocus notification. Moving focus between items does not fire it."
         },
         {
           "name": "onValueChange",
@@ -197,9 +209,9 @@
       },
       {
         "name": "value",
-        "optional": true,
+        "optional": false,
         "type": "string",
-        "description": "Value of the radio item, submitted with the form and passed to `onValueChange`. Falls back to\nthe item's index as a string when omitted, so set it explicitly for stable values."
+        "description": "Value of the radio item, submitted with the form and passed to `onValueChange`. Must be\nunique within the group."
       }
     ]
   },

@@ -11,7 +11,7 @@ export function FileActions() {
     {
       type: 'group',
       label: 'Project brief.pdf',
-      items: [
+      children: [
         {
           label: 'Open preview',
           icon: 'i-lucide:eye',
@@ -28,7 +28,6 @@ export function FileActions() {
         },
       ],
     },
-    { type: 'separator' },
     {
       label: 'Move to',
       icon: 'i-lucide:folder-input',

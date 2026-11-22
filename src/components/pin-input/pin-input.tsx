@@ -37,7 +37,7 @@ import type { PinInputProps } from './pin-input.types'
  * Row of single-character inputs for verification codes, OTPs, and numeric PINs. `validationType`
  * restricts the accepted characters, and `onComplete` fires once every slot is filled. The value is
  * uncontrolled with `defaultValue` or controlled through `value` and `onValueChange`, which
- * receives the slot characters as an array. Wrap it in `Field` for a label and validation message.
+ * receives the joined string. Wrap it in `Field` for a label and validation message.
  *
  * @example
  * ```tsx

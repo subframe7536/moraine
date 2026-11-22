@@ -277,7 +277,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.prevText)}
-              aria-label={getPrevLabel()}
+              aria-label={merged.prevText ? undefined : getPrevLabel()}
               {...prevSlot}
               {...(merged.prevText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() - 1, event)}
@@ -352,7 +352,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={variants.controlVariant}
               tone={variants.tone}
               size={getSize(variants.size, merged.nextText)}
-              aria-label={getNextLabel()}
+              aria-label={merged.nextText ? undefined : getNextLabel()}
               {...nextSlot}
               {...(merged.nextText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() + 1, event)}

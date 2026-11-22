@@ -133,28 +133,19 @@ describe('PinInput', () => {
     expect(inputs[3]?.selectionEnd).toBe(1)
   })
 
-  test('renders default value from string or array', () => {
-    const arrayScreen = render(() => <PinInput defaultValue={['1', '2', '3']} length={5} />)
-    const arrayInputs = arrayScreen.container.querySelectorAll<HTMLInputElement>(
+  test('renders the default value across slots', () => {
+    const screen = render(() => <PinInput defaultValue="987" length={4} />)
+    const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
-    expect(arrayInputs[0]?.value).toBe('1')
-    expect(arrayInputs[1]?.value).toBe('2')
-    expect(arrayInputs[2]?.value).toBe('3')
-    expect(arrayInputs[3]?.value).toBe('')
-
-    const stringScreen = render(() => <PinInput defaultValue="987" length={4} />)
-    const stringInputs = stringScreen.container.querySelectorAll<HTMLInputElement>(
-      '[data-slot="pin-input-input"]',
-    )
-    expect(stringInputs[0]?.value).toBe('9')
-    expect(stringInputs[1]?.value).toBe('8')
-    expect(stringInputs[2]?.value).toBe('7')
-    expect(stringInputs[3]?.value).toBe('')
+    expect(inputs[0]?.value).toBe('9')
+    expect(inputs[1]?.value).toBe('8')
+    expect(inputs[2]?.value).toBe('7')
+    expect(inputs[3]?.value).toBe('')
   })
 
   test('supports controlled value updates', () => {
-    const [value, setValue] = createSignal(['a', 'b'])
+    const [value, setValue] = createSignal('ab')
     const screen = render(() => <PinInput value={value()} length={4} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
@@ -164,7 +155,7 @@ describe('PinInput', () => {
     expect(inputs[1]?.value).toBe('b')
     expect(inputs[2]?.value).toBe('')
 
-    setValue(['x', 'y', 'z'])
+    setValue('xyz')
     expect(inputs[0]?.value).toBe('x')
     expect(inputs[1]?.value).toBe('y')
     expect(inputs[2]?.value).toBe('z')
@@ -199,14 +190,14 @@ describe('PinInput', () => {
 
     fireEvent.input(inputs[0]!, { target: { value: 'A' } })
     expect(onComplete).not.toHaveBeenCalled()
-    expect(onValueChange).toHaveBeenCalledWith(['A', '', ''])
+    expect(onValueChange).toHaveBeenCalledWith('A')
 
     fireEvent.input(inputs[1]!, { target: { value: 'B' } })
     expect(onComplete).not.toHaveBeenCalled()
 
     fireEvent.input(inputs[2]!, { target: { value: 'C' } })
     expect(onComplete).toHaveBeenCalledWith('ABC')
-    expect(onValueChange).toHaveBeenCalledWith(['A', 'B', 'C'])
+    expect(onValueChange).toHaveBeenCalledWith('ABC')
   })
 
   test('validationType="number" only accepts digits', () => {
@@ -241,7 +232,7 @@ describe('PinInput', () => {
   })
 
   test('handles backspace on non-empty and empty inputs', () => {
-    const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
+    const screen = render(() => <PinInput defaultValue="123" length={3} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
@@ -259,7 +250,7 @@ describe('PinInput', () => {
   })
 
   test('Cmd/Ctrl+Backspace clears all slots and focuses first input', () => {
-    const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
+    const screen = render(() => <PinInput defaultValue="123" length={3} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
@@ -274,7 +265,7 @@ describe('PinInput', () => {
   })
 
   test('Delete key clears current slot without moving focus', () => {
-    const screen = render(() => <PinInput defaultValue={['1', '2', '3']} length={3} />)
+    const screen = render(() => <PinInput defaultValue="123" length={3} />)
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
     )
@@ -288,10 +279,10 @@ describe('PinInput', () => {
     expect(inputs[2]?.value).toBe('3')
   })
 
-  test('keeps a hole in a middle slot for a controlled array value', () => {
-    const [value, setValue] = createSignal<string[]>(['1', '2', '3'])
+  test('keeps a hole in a middle slot when the controlled value echoes back', () => {
+    const [value, setValue] = createSignal('123')
     const screen = render(() => (
-      <PinInput length={3} value={value()} onValueChange={(next) => setValue([...next])} />
+      <PinInput length={3} value={value()} onValueChange={(next) => setValue(next)} />
     ))
     const inputs = screen.container.querySelectorAll<HTMLInputElement>(
       '[data-slot="pin-input-input"]',
@@ -495,9 +486,7 @@ describe('PinInput', () => {
   })
 
   test('renders hidden input with form name', () => {
-    const screen = render(() => (
-      <PinInput name="verification_code" defaultValue={['1', '2', '3']} length={4} />
-    ))
+    const screen = render(() => <PinInput name="verification_code" defaultValue="123" length={4} />)
     const hidden = screen.container.querySelector<HTMLInputElement>(
       'input[name="verification_code"]',
     )
@@ -690,7 +679,7 @@ describe('PinInput', () => {
     expect(inputs[0]?.value).toBe('1')
   })
 
-  test('controlled array value keeps a string form store in sync with the prop', async () => {
+  test('controlled value keeps the form store in sync with the prop', async () => {
     let submitted = ''
     const { screen } = renderWithOwner(
       () =>
@@ -706,7 +695,7 @@ describe('PinInput', () => {
           }}
         >
           <form.Field name="code" label="Code">
-            <PinInput length={4} value={['1', '2', '3', '4']} />
+            <PinInput length={4} value="1234" />
           </form.Field>
           <button type="submit">Submit</button>
         </form.Form>
@@ -757,7 +746,7 @@ describe('PinInput', () => {
     fireEvent.compositionEnd(inputs[0]!, { target: { value: 'ddd' } })
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(onValueChange).toHaveBeenLastCalledWith(['d', 'd', 'd', ''])
+    expect(onValueChange).toHaveBeenLastCalledWith('ddd')
     expect([...inputs].map((input) => input.value)).toEqual(['d', 'd', 'd', ''])
     expect(document.activeElement).toBe(inputs[3])
   })
@@ -843,7 +832,7 @@ describe('PinInput', () => {
     expect([...inputs].map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6'])
     expect(hidden.value).toBe('123456')
     expect(document.activeElement).toBe(inputs[5])
-    expect(onValueChange).toHaveBeenCalledWith(['1', '2', '3', '4', '5', '6'])
+    expect(onValueChange).toHaveBeenCalledWith('123456')
     expect(onValueInvalid).toHaveBeenCalledWith({ value: 'ab', reason: 'patternMismatch' })
     expect(onComplete).toHaveBeenCalledWith('123456')
   })
@@ -993,7 +982,7 @@ describe('PinInput', () => {
     const screen = render(() => (
       <PinInput
         value={value()}
-        onValueChange={(next) => setValue(next.join(''))}
+        onValueChange={(next) => setValue(next)}
         length={4}
         validationType="number"
         onComplete={onComplete}

@@ -26,7 +26,7 @@ export function TreeHydrationFixture(props: { checkable?: boolean }) {
     items: () => DATA,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
     defaultSelectedKeys: ['readme'],
     get checkable() {

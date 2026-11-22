@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -34,6 +34,7 @@ export namespace HoverCardT {
     | 'shift'
     | 'flip'
     | 'slide'
+    | 'overflowPadding'
     | 'forceMount'
   > {
     /**
@@ -41,12 +42,6 @@ export namespace HoverCardT {
      * @default 4
      */
     gutter?: number
-
-    /**
-     * Minimum padding in pixels between the content and the viewport edge.
-     * @default 4
-     */
-    overflowPadding?: number
 
     /**
      * Delay in milliseconds between a mouse pointer entering the trigger and opening. Keyboard
@@ -85,8 +80,8 @@ export namespace HoverCardT {
     'a'
   >
 
-  /** Render context passed to `Content` function children. */
-  export interface ContentContext {
+  /** Props passed to `Content` function children. */
+  export interface ContentRenderProps {
     /** `value` of the trigger that opened or most recently anchored the card. */
     value: Accessor<string | undefined>
   }
@@ -107,7 +102,7 @@ export namespace HoverCardT {
      * </HoverCard>
      * ```
      */
-    children?: JSX.Element | ((context: ContentContext) => JSX.Element)
+    children?: JSX.Element | Component<ContentRenderProps>
   }
 
   /**

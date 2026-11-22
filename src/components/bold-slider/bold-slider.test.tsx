@@ -109,7 +109,7 @@ describe('BoldSlider', () => {
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
     expect(query(custom, '[data-slot="bold-slider-value"]').textContent).toBe('40/80 50%')
 
-    setStep(undefined)
+    setStep(0)
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
   })
 
@@ -228,6 +228,22 @@ describe('BoldSlider', () => {
     expect(thumb.hasAttribute('data-focus-visible')).toBe(true)
     thumb.blur()
     expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
+  })
+
+  test('calls user onFocus and onBlur when the thumb gains and loses focus', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => (
+      <BoldSlider label="Opacity" defaultValue={50} onFocus={onFocus} onBlur={onBlur} />
+    ))
+    const thumb = query(screen.container, '[data-slot="slider-thumb"]')
+    const outside = document.createElement('button')
+
+    fireEvent.focus(thumb, { relatedTarget: outside })
+    expect(onFocus).toHaveBeenCalledTimes(1)
+
+    fireEvent.blur(thumb, { relatedTarget: outside })
+    expect(onBlur).toHaveBeenCalledTimes(1)
   })
 
   test('submits its value with a native form', () => {

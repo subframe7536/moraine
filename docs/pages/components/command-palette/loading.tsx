@@ -6,7 +6,7 @@ export function Loading() {
     {
       type: 'group',
       label: 'Workspace',
-      items: [
+      children: [
         {
           value: 'new-issue',
           label: 'New Issue',

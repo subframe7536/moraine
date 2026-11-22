@@ -71,7 +71,6 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     'form',
     'checkedIcon',
     'indeterminateIcon',
-    'onPointerDown',
     'inputRef',
     'size',
     'variant',
@@ -81,6 +80,8 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
     'class',
     'style',
     'onClick',
+    'onFocus',
+    'onBlur',
     'tabIndex',
   ])
   const themeField = useFieldContext()
@@ -346,6 +347,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   }
 
   function onControlFocus(event: FocusEvent): void {
+    callHandler(event, local.onFocus)
     if (local.bound) {
       field.emit('focus', event)
     }
@@ -353,17 +355,14 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
 
   function onControlBlur(event: FocusEvent): void {
     enterPressed = false
+    callHandler(event, local.onBlur)
     if (local.bound) {
       field.emit('blur', event)
     }
   }
 
+  // Keeps focus on the hidden input when it is already focused, so the press does not blur it.
   const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onPointerDown)
-    if (defaultPrevented) {
-      return
-    }
-
     if (inputEl !== undefined && inputEl.ownerDocument.activeElement === inputEl) {
       event.preventDefault()
     }

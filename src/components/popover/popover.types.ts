@@ -33,6 +33,7 @@ export namespace PopoverT {
     | 'shift'
     | 'flip'
     | 'slide'
+    | 'overflowPadding'
     | 'forceMount'
     | 'preventScroll'
     | 'closeOnEscape'
@@ -45,12 +46,6 @@ export namespace PopoverT {
      * @default 4
      */
     gutter?: number
-
-    /**
-     * Minimum padding in pixels between the content and the viewport edge.
-     * @default 4
-     */
-    overflowPadding?: number
 
     /**
      * Opens the popover when a mouse pointer enters the trigger or the trigger receives keyboard

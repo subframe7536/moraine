@@ -112,6 +112,18 @@ export namespace CheckboxGroupT {
      * is `disabled` or `readOnly`.
      */
     onValueChange?: (value: string[]) => void
+
+    /**
+     * Focus event when focus enters the checkbox group from outside, called before the `Field`
+     * focus notification. Moving focus between items does not fire it.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
+     * Focus event when focus leaves the checkbox group entirely, called before the `Field` blur
+     * notification. Moving focus between items does not fire it.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
   }
 
   /** Props for the CheckboxGroup component. */

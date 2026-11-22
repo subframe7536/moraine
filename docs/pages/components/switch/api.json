@@ -136,16 +136,22 @@
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
         },
         {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the switch control button loses focus, before the `Field` blur\nnotification."
+        },
+        {
           "name": "onCheckedChange",
           "optional": true,
           "type": "(value: TTrue | TFalse) => void",
           "description": "Called when the user toggles the switch, with `trueValue` (checked) or `falseValue`\n(unchecked), which are `true` and `false` by default. It does not fire for programmatic\nchanges to `checked`, or while the switch is `disabled`, `readOnly`, or `loading`."
         },
         {
-          "name": "onPointerDown",
+          "name": "onFocus",
           "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>",
-          "description": "Pointer down handler for the switch track (the `role=\"switch\"` button). It runs before the\nswitch's own handling; call `event.preventDefault()` to skip that."
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the switch control button gains focus, before the `Field` focus\nnotification."
         },
         {
           "name": "readOnly",

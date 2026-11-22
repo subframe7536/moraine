@@ -67,7 +67,7 @@
           "name": "defaultValue",
           "optional": true,
           "type": "Value",
-          "description": "Initial value for uncontrolled usage. Also the value restored when the owning form is reset."
+          "description": "Initial value for uncontrolled usage; `null` starts empty. Also the value restored when the\nowning form is reset."
         },
         {
           "name": "disabled",
@@ -95,7 +95,7 @@
           "name": "modifiers",
           "optional": true,
           "type": "TModifiers",
-          "description": "Transforms the text before it reaches `onValueChange` and form state, and sets the callback's\nvalue type.\n\n- `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur or Enter).\n- `lazy`: updates the value on `change` instead of on every keystroke.\n- `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.\n- `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.",
+          "description": "Transforms the text before it reaches `onValueChange` and form state, and sets the callback's\nvalue type.\n\n- `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur or Enter).\n- `lazy`: updates the value on `change` instead of on every keystroke.\n- `number`: parses the text to a `number`; empty or non-numeric text gives `null`.\n- `empty`: `'null'` turns an empty (whitespace-only) string into `null`; `'preserve'` keeps the string.",
           "examples": [
             "import { Input } from 'moraine'\n\n<Input\n  modifiers={{ number: true, empty: 'null' }}\n  onValueChange={(value) => console.log(value)} // number | null\n/>"
           ]
@@ -134,7 +134,7 @@
           "name": "onValueChange",
           "optional": true,
           "type": "(value: ModifierValue<TModifiers>) => void",
-          "description": "Called with the new value, after `modifiers` are applied, as the user edits. It fires on\nevery keystroke, or on `change` (blur or Enter) with `modifiers.lazy`. Its argument type\nfollows `modifiers`: `string` by default, `number` with `number`, and may include `null`\nor `undefined` through `empty`."
+          "description": "Called with the new value, after `modifiers` are applied, as the user edits. It fires on\nevery keystroke, or on `change` (blur or Enter) with `modifiers.lazy`. Its argument type\nfollows `modifiers`: `string` by default, `number | null` with `number`, and `string | null`\nwith `empty: 'null'`."
         },
         {
           "name": "placeholder",
@@ -204,7 +204,7 @@
           "name": "value",
           "optional": true,
           "type": "Value",
-          "description": "The current value (controlled). `undefined` leaves the input uncontrolled; the displayed\ntext is restored to this value after every edit, so update it from `onValueChange`."
+          "description": "The current value (controlled). `undefined` leaves the input uncontrolled and `null` is a\ncontrolled empty value; the displayed text is restored to this value after every edit, so\nupdate it from `onValueChange`."
         },
         {
           "name": "variant",

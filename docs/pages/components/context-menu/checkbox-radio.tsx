@@ -12,7 +12,7 @@ export function CheckboxRadio() {
       type: 'radio-group',
       value: priority(),
       onValueChange: setPriority,
-      items: [
+      children: [
         { type: 'radio', label: 'Low priority', value: 'low' },
         { type: 'radio', label: 'Normal priority', value: 'normal' },
         { type: 'radio', label: 'High priority', value: 'high' },

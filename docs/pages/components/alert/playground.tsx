@@ -16,7 +16,7 @@ export default function AlertPlayground() {
             { label: 'Info', value: 'info' },
             { label: 'Success', value: 'success' },
             { label: 'Warning', value: 'warning' },
-            { label: 'Error', value: 'error' },
+            { label: 'Danger', value: 'danger' },
           ],
         },
         {

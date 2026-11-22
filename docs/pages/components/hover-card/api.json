@@ -144,7 +144,7 @@
           "name": "overflowPadding",
           "optional": true,
           "type": "number",
-          "description": "Minimum padding in pixels between the content and the viewport edge.",
+          "description": "Padding in pixels between positioned content and the viewport boundary.",
           "default": {
             "kind": "literal",
             "value": 4
@@ -261,7 +261,7 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((context: ContentContext) => JSX.Element)",
+          "type": "JSX.Element | Component<ContentRenderProps>",
           "description": "Card content shown while the card is open. A function receives `{ value }`, an accessor for\nthe `value` of the `HoverCard.Trigger` that anchored the card (`undefined` when that trigger\nhas no `value`).",
           "examples": [
             "import { HoverCard } from 'moraine'\n\n<HoverCard>\n  <HoverCard.Trigger href=\"/u/alex\" value=\"alex\">@alex</HoverCard.Trigger>\n  <HoverCard.Trigger href=\"/u/sam\" value=\"sam\">@sam</HoverCard.Trigger>\n  <HoverCard.Content>{({ value }) => <span>Profile of {value()}</span>}</HoverCard.Content>\n</HoverCard>"

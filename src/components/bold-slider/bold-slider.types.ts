@@ -21,7 +21,12 @@ export namespace BoldSliderT {
    */
   export type Base = Omit<
     SliderT.Base<number>,
-    'minStepsBetweenThumbs' | 'allowThumbCrossing' | 'children' | 'formatOptions'
+    | 'minStepsBetweenThumbs'
+    | 'allowThumbCrossing'
+    | 'children'
+    | 'formatOptions'
+    | 'onFocus'
+    | 'onBlur'
   > & {
     /**
      * `Intl.NumberFormat` options used to format the raw value (not its share of the `min`-`max`
@@ -56,7 +61,7 @@ export namespace BoldSliderT {
      * number, and a function returns the text to show. The function receives the current `value`,
      * the `max` (100 when not set), and `percent`, the filled share of the track from 0 to 100.
      * With `true`, the value is formatted with `formatOptions` when set; otherwise it is rounded to
-     * the decimal places of `step` (2 places without `step`) with no digit grouping.
+     * the decimal places of `step` (2 places when `step` is `0`) with no digit grouping.
      * @default true
      * @example
      * ```tsx
@@ -70,6 +75,16 @@ export namespace BoldSliderT {
      * ```
      */
     valueLabel?: boolean | ((props: { percent: number; value: number; max: number }) => string)
+
+    /**
+     * Focus event when focus enters the slider, called before the `Field` focus notification.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
+     * Focus event when focus leaves the slider, called before the `Field` blur notification.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
   }
 
   /**

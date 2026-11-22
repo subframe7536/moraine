@@ -31,18 +31,6 @@ export namespace BaseDialogT {
     id?: string
 
     /**
-     * Controlled open state. Pair it with `onOpenChange`; leave it `undefined` to let the component
-     * manage its own state (see `defaultOpen`).
-     */
-    open?: boolean
-
-    /**
-     * Initial open state when uncontrolled. Ignored while `open` is set.
-     * @default false
-     */
-    defaultOpen?: boolean
-
-    /**
      * Called with the next open state when the trigger, a close part, Escape or an outside press
      * requests a change. It is not called when `open` is changed from outside, and it does not
      * apply the change itself when `open` is controlled: update `open` in the handler.
@@ -77,28 +65,8 @@ export namespace BaseDialogT {
     transition?: boolean
 
     /**
-     * Whether a pointer press outside the content, such as on the backdrop, dismisses the shell.
-     * `false` blocks the press and reports it through `onClosePrevented`.
-     * @default true
-     */
-    closeOnOutsideClick?: boolean
-
-    /**
-     * Whether Escape dismisses the shell.
-     * `false` blocks Escape and reports it through `onClosePrevented`.
-     * @default true
-     */
-    closeOnEscape?: boolean
-
-    /**
-     * Called with no arguments when Escape (`closeOnEscape` is `false`) or an outside press
-     * (`closeOnOutsideClick` is `false`) tried to close the shell and was blocked.
-     */
-    onClosePrevented?: () => void
-
-    /**
-     * Whether body scroll should be locked while the shell is present.
-     * @default true
+     * Whether body scroll should be locked while the shell is present. Defaults to the value of
+     * `modal`: modal shells lock scroll, non-modal shells do not unless set.
      */
     preventScroll?: boolean
 
@@ -199,6 +167,7 @@ export namespace BaseDialogT {
      * Whether the overlay element itself scrolls, so content taller than the viewport scrolls
      * inside the backdrop (with padding) while `preventScroll` keeps the page itself from
      * scrolling.
+     * @default false
      */
     scrollable?: boolean
 

@@ -9,7 +9,7 @@ export function DropdownAction() {
     {
       type: 'group',
       label: 'Export report',
-      items: [
+      children: [
         {
           label: 'PDF document',
           description: 'Best for sharing and printing',

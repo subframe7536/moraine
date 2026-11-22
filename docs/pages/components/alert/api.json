@@ -106,7 +106,7 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to the semantic icon of the `tone` (`info`,\n  `success`, `warning`, `error`), or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to the semantic icon of the `tone` (`info`,\n  `success`, `warning`, `danger`), or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays the specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
         },
         {
           "name": "onExitComplete",
@@ -147,7 +147,7 @@
         {
           "name": "tone",
           "optional": true,
-          "type": "'default' | 'info' | 'success' | 'warning' | 'error'",
+          "type": "'default' | 'info' | 'success' | 'warning' | 'danger'",
           "description": "Semantic intent of the alert.",
           "default": {
             "kind": "literal",

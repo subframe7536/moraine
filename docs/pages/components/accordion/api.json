@@ -145,6 +145,16 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to animate the content height when items expand or collapse. Respects\n`prefers-reduced-motion`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "value",
           "optional": true,
           "type": "string[]",

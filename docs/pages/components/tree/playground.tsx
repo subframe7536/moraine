@@ -73,8 +73,8 @@ export default function TreePlayground() {
           items: () => FILES,
           getKey: (node) => node.id,
           getChildren: (node) => node.children,
-          getLabel: (node) => node.name,
-          isDisabled: (node) => Boolean(node.disabled),
+          getItemLabel: (node) => node.name,
+          isItemDisabled: (node) => Boolean(node.disabled),
           defaultExpandedKeys: ['src', 'components'],
           defaultSelectedKeys: ['tree'],
           get checkable() {

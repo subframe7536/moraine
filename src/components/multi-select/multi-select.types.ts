@@ -281,8 +281,8 @@ export namespace MultiSelectT {
      */
     placeholder?: string
     /**
-     * Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it
-     * `aria-busy`. Typing and the clear button keep working in the editable input.
+     * Replaces the toggle icon with `loadingIcon`, marks the trigger `aria-busy`, and hides the
+     * clear button. It does not disable the control or editable input.
      */
     loading?: boolean
     /**
@@ -312,6 +312,7 @@ export namespace MultiSelectT {
      * Whether a pointer click on the control (outside its buttons) opens the popup. Defaults
      * to `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing
      * non-blank text, `ArrowDown`, and the toggle button open it regardless.
+     * @default !(searchable || createItem)
      */
     openOnControlClick?: boolean
     /**

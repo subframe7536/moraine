@@ -97,6 +97,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The `id` of a `<form>` the hidden file input belongs to, for a control rendered outside that form."
+        },
+        {
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
@@ -166,6 +172,18 @@
           "optional": true,
           "type": "string",
           "description": "The name of the control, used for native form submission. When omitted, the control uses\nthe name of its form binding or a string `name` set on the surrounding `Field`."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the file upload control loses focus, before the `Field` blur notification."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>",
+          "description": "Called when the file upload control gains focus, before the `Field` focus notification."
         },
         {
           "name": "onValueChange",

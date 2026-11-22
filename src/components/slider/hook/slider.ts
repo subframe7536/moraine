@@ -118,9 +118,10 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   })
 
   const [dragging, setDragging] = createSignal(false)
-  const definedStep = createMemo(() =>
-    typeof merged.step === 'number' && merged.step > 0 ? merged.step : undefined,
-  )
+  const definedStep = createMemo(() => {
+    const step = merged.step
+    return step === undefined ? 1 : step > 0 ? step : undefined
+  })
   const keyboardStep = createMemo(() => {
     const range = merged.max - merged.min
     return definedStep() ?? (range > 0 ? range / 100 : 1)

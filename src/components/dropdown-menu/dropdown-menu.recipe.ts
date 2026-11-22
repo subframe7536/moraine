@@ -1,10 +1,14 @@
 import { defineRecipe } from '../../theme/recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
+  overlayMenuBase,
   overlayMenuDataAttributes,
   overlayMenuRecipeOptions,
 } from '../shared/overlay/menu/menu.recipe'
-import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
+import {
+  overlayTriggerDataAttributes,
+  OVERLAY_TRIGGER_CLASS,
+} from '../shared/overlay/trigger.recipe'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
@@ -19,4 +23,8 @@ export const dropdownMenuRecipe = /* @__PURE__ */ defineRecipe<
   DropdownMenuStyleVariants
 >('dropdownMenu', {
   ...overlayMenuRecipeOptions,
+  base: {
+    ...overlayMenuBase,
+    trigger: OVERLAY_TRIGGER_CLASS,
+  },
 })

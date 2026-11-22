@@ -99,7 +99,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       return generatedId()
     },
     get initialValue() {
-      return merged.defaultValue ?? ''
+      return merged.defaultValue === undefined ? '' : merged.defaultValue
     },
   })
 
@@ -177,7 +177,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
 
   onMount(() => {
     if (inputEl && textControl.initialDefaultValue !== undefined && merged.type !== 'file') {
-      inputEl.defaultValue = String(textControl.initialDefaultValue)
+      inputEl.defaultValue = String(textControl.initialDefaultValue ?? '')
       restoreControlledValue()
     }
 

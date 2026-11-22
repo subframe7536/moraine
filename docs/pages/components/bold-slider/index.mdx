@@ -57,7 +57,7 @@ accepts `sm`, `md` (default), or `lg`.
 
 `label` is drawn at the start of the track; a string label is also the default `aria-label`. The
 value is drawn at the end; set `valueLabel={false}` to hide it. By default the value is rounded to
-the decimal places of `step` (two places without `step`) and has no digit grouping. Set
+the decimal places of `step` (two places when `step` is `0`) and has no digit grouping. Set
 `formatOptions` to format the raw value with `Intl.NumberFormat` instead; a `percent` style
 multiplies by 100, so pair it with a `0`–`1` range. Pass a function to `valueLabel` to add
 units or other formatting. It receives `{ percent, value, max }`, the same shape as Progress
@@ -80,10 +80,10 @@ The label, value, and indicator keep the same colors over the fill and the track
 
 ### Step and markers
 
-Set `step` to snap pointer and keyboard input to increments. Without `step`, pointer movement is
-continuous and arrow keys move by 1% of the range. Set `markers` to `true` to draw a tick at each
-step (this requires a `step` greater than 0), or to a number to draw a tick every that many units
-without changing how the value snaps. Ticks use `muted-foreground`, so they stay visible in light
+`step` (default `1`) snaps pointer and keyboard input to increments; `step={0}` keeps pointer
+movement continuous and moves arrow keys by 1% of the range. Set `markers` to `true` to draw a tick
+at each step, or to a number to draw a tick every that many units without changing how the value
+snaps. Ticks use `muted-foreground`, so they stay visible in light
 and dark themes.
 
 ### Indicator

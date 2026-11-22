@@ -113,21 +113,23 @@ export namespace SliderT {
 
     /**
      * Step increment between values; pointer and keyboard values snap to multiples of it from `min`.
-     * When omitted (or not above `0`), pointer movement is continuous and arrow keys move by 1% of
-     * the range. `PageUp`/`PageDown` and `Shift` + arrow move by about 10% of the range.
+     * A value of `0` (or not above `0`) keeps the slider continuous: pointer movement is smooth
+     * and arrow keys move by 1% of the range. `PageUp`/`PageDown` and `Shift` + arrow move by
+     * about 10% of the range.
+     * @default 1
      */
     step?: number
 
     /**
      * Minimum distance between neighboring thumbs in a multi-thumb slider, counted in `step` units
-     * (1% of the range when `step` is not set). A value above `0` also stops thumbs from crossing,
+     * (1% of the range when `step` is `0`). A value above `0` also stops thumbs from crossing,
      * regardless of `allowThumbCrossing`.
      * @default 0
      */
     minStepsBetweenThumbs?: number
 
     /**
-     * Visual markers on the track. `true` marks every `step` and needs a `step` greater than 0.
+     * Visual markers on the track. `true` marks every `step` and shows none when `step` is `0`.
      * A number marks every that many units without affecting snapping.
      * @default false
      */
@@ -176,6 +178,18 @@ export namespace SliderT {
      * ```
      */
     onValueCommit?: (value: TValue) => void
+
+    /**
+     * Focus event when focus enters the slider from outside, called before the `Field` focus
+     * notification. Moving focus between thumbs of a range slider does not fire it.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
+
+    /**
+     * Focus event when focus leaves the slider entirely, called before the `Field` blur
+     * notification. Moving focus between thumbs of a range slider does not fire it.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
      * Content rendered inside the root after the thumbs, or a render function receiving the live slider state.

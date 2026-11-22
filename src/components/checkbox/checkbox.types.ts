@@ -32,13 +32,6 @@ export namespace CheckboxT {
     form?: string
 
     /**
-     * Handler for `pointerdown` on the checkbox control button. Call `event.preventDefault()` to
-     * skip the built-in handling, which keeps focus on the hidden input when it is already
-     * focused.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
      * Native value submitted when the checkbox is checked. Defaults to a string or number
      * `trueValue`, otherwise `'on'`.
      */
@@ -100,6 +93,18 @@ export namespace CheckboxT {
      * `readOnly`, nor when `checked` changes from outside.
      */
     onCheckedChange?: (value: TTrue | TFalse) => void
+
+    /**
+     * Called when the checkbox control button gains focus, before the `Field` focus
+     * notification.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
+
+    /**
+     * Called when the checkbox control button loses focus, before the `Field` blur
+     * notification.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
 
     /**
      * Icon to show when checked.

@@ -321,7 +321,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           }}
         </For>
 
-        <For each={groupProps.group.radioGroup?.items}>
+        <For each={groupProps.group.radioGroup?.children}>
           {(item) => <RadioMenuItem item={item} radioGroup={radioGroup} />}
         </For>
       </div>

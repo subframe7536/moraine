@@ -36,15 +36,15 @@ export function Example() {
 
 ### Values and completion
 
-`length` sets the number of slots (default `5`). `value` and `defaultValue` accept a joined string
-(`'123456'`) or an array with one character per slot, and are filtered by `validationType` and
-truncated to `length`. `onValueChange` always receives an array of `length` entries with `''` for
-empty slots; use `.join('')` for the string. `onComplete` receives the joined string once every slot
-is filled. Set `name` to submit the joined value through a hidden input, and `form` to associate
+`length` sets the number of slots (default `5`). `value` and `defaultValue` are the joined string
+(`'123456'`), filtered by `validationType` and truncated to `length`. `onValueChange` receives the
+joined string; cleared slots are dropped from it, and `onComplete` receives the joined string once
+every slot is filled. Set `name` to submit the joined value through a hidden input, and `form` to
+associate
 the control with a `<form>` outside its ancestors. A native form reset restores `defaultValue`.
 
 ```tsx
-<PinInput length={4} value={code()} onValueChange={(chars) => setCode(chars.join(''))} />
+<PinInput length={4} value={code()} onValueChange={setCode} />
 ```
 
 ### Validation and mask

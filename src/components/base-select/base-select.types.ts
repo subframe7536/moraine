@@ -170,6 +170,7 @@ export interface BaseSelectCloseOnSelectOption {
    * Whether choosing an item closes the popup and returns focus to the control. Defaults to
    * `true` for single selection and `false` when `multiple` is set on `BaseSelect`; `MultiSelect`
    * always keeps the popup open.
+   * @default !multiple
    */
   closeOnSelect?: boolean
 }
@@ -186,6 +187,11 @@ export interface BaseSelectResetProps {
    * at `value`, so use this callback to reset your own state.
    */
   onReset?: () => void
+
+  /**
+   * The `id` of a `<form>` the hidden inputs belong to, for a control rendered outside that form.
+   */
+  form?: string
 }
 
 /**

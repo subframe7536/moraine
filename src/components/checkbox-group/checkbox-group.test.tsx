@@ -156,6 +156,33 @@ describe('CheckboxGroup', () => {
     expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
   })
 
+  test('calls user onFocus once when focus enters the group and onBlur when it leaves', () => {
+    const onFocus = vi.fn()
+    const onBlur = vi.fn()
+    const screen = render(() => (
+      <CheckboxGroup items={['A', 'B']} onFocus={onFocus} onBlur={onBlur} />
+    ))
+    const controls = screen.getAllByRole('checkbox')
+    const first = controls[0]!
+    const second = controls[1]!
+    const hidden = getHiddenCheckbox(screen.container, 'A')
+    const outside = document.createElement('button')
+
+    fireEvent.focusIn(hidden, { relatedTarget: outside })
+    expect(onFocus).not.toHaveBeenCalled()
+
+    fireEvent.focusIn(first, { relatedTarget: outside })
+    expect(onFocus).toHaveBeenCalledTimes(1)
+
+    fireEvent.focusOut(first, { relatedTarget: second })
+    fireEvent.focusIn(second, { relatedTarget: first })
+    expect(onFocus).toHaveBeenCalledTimes(1)
+    expect(onBlur).not.toHaveBeenCalled()
+
+    fireEvent.focusOut(second, { relatedTarget: outside })
+    expect(onBlur).toHaveBeenCalledTimes(1)
+  })
+
   test('keeps Formisch validation dormant while focus moves within a group', async () => {
     const schema = v.object({
       choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),

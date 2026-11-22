@@ -546,7 +546,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     if (
       !modifier &&
       !event.shiftKey &&
-      (options.expandOnClick !== false || options.trigger === false) &&
+      options.expandOnClick !== false &&
       registry().nodes.get(key)?.hasChildren
     ) {
       toggle(key)

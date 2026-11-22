@@ -501,6 +501,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           disabled={field.disabled()}
           required={field.required() && !hasSelection()}
           tabIndex={-1}
+          form={props.form}
           name={serialized().length > 0 ? field.name() : undefined}
           value={primarySerializedValue()}
           onChange={(event) => {
@@ -522,6 +523,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
             <HiddenInput
               type="hidden"
               visuallyHidden={false}
+              form={props.form}
               name={field.name()}
               value={value()}
               disabled={field.disabled()}

@@ -376,7 +376,7 @@ describe('Dialog', () => {
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
     expect(document.activeElement).toBe(outside)
     screen.unmount()
   })
@@ -571,7 +571,7 @@ describe('Dialog', () => {
         <Dialog.Content>
           <Dialog.Body>
             <CommandPalette
-              items={[{ type: 'group', items: [{ value: 'settings', label: 'Settings' }] }]}
+              items={[{ type: 'group', children: [{ value: 'settings', label: 'Settings' }] }]}
               searchValue={searchValue()}
               onSearchValueChange={setSearchValue}
             />

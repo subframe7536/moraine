@@ -204,7 +204,7 @@ describe('DropdownMenu', () => {
               type: 'radio-group',
               value: value(),
               onValueChange: setValue,
-              items: [
+              children: [
                 {
                   type: 'radio',
                   label: 'Show bookmarks bar',
@@ -894,7 +894,7 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'Account',
-              items: [
+              children: [
                 { type: 'separator' },
                 {
                   label: 'Profile',
@@ -1377,7 +1377,7 @@ describe('DropdownMenu', () => {
               type: 'radio-group',
               defaultValue: 'compact',
               onValueChange: onDensityChange,
-              items: [
+              children: [
                 { type: 'radio', value: 'compact', label: 'Compact', onSelect: onCompactSelect },
                 { type: 'radio', value: 'comfortable', label: 'Comfortable' },
                 {
@@ -1445,14 +1445,14 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'Account',
-              items: [
+              children: [
                 { label: 'Profile' },
                 {
                   type: 'radio-group',
                   label: 'Density',
                   defaultValue: 'compact',
                   onValueChange: onDensityChange,
-                  items: [
+                  children: [
                     { type: 'radio', value: 'compact', label: 'Compact' },
                     { type: 'radio', value: 'comfortable', label: 'Comfortable' },
                   ],
@@ -1529,7 +1529,7 @@ describe('DropdownMenu', () => {
             {
               type: 'radio-group',
               defaultValue: 'radio',
-              items: [{ label: 'Radio', type: 'radio', value: 'radio', danger: true }],
+              children: [{ label: 'Radio', type: 'radio', value: 'radio', danger: true }],
             },
             {
               label: 'Submenu',
@@ -2132,7 +2132,7 @@ describe('DropdownMenu', () => {
               type: 'radio-group',
               value: value(),
               onValueChange,
-              items: [
+              children: [
                 { type: 'radio', value: 'compact', label: 'Compact' },
                 { type: 'radio', value: 'comfortable', label: 'Comfortable' },
               ],
@@ -2173,7 +2173,7 @@ describe('DropdownMenu', () => {
               type: 'radio-group',
               defaultValue: 'grid',
               onValueChange: onLayoutChange,
-              items: [
+              children: [
                 { type: 'radio', value: 'grid', label: 'Grid' },
                 { type: 'radio', value: 'list', label: 'List' },
               ],
@@ -2182,7 +2182,7 @@ describe('DropdownMenu', () => {
               type: 'radio-group',
               defaultValue: 'name',
               onValueChange: onSortChange,
-              items: [
+              children: [
                 { type: 'radio', value: 'name', label: 'Name' },
                 { type: 'radio', value: 'date', label: 'Date' },
               ],
@@ -2231,7 +2231,7 @@ describe('DropdownMenu', () => {
                 type: 'radio-group',
                 defaultValue: 'grid',
                 onValueChange,
-                items: [
+                children: [
                   { type: 'radio', value: 'grid', label: 'Grid' },
                   { type: 'radio', value: 'list', label: 'List' },
                 ],
@@ -2266,13 +2266,13 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'Density',
-              items: [
+              children: [
                 { label: 'Reset' },
                 {
                   type: 'radio-group',
                   defaultValue: 'compact',
                   onValueChange,
-                  items: [
+                  children: [
                     { type: 'radio', value: 'compact', label: 'Compact' },
                     { type: 'radio', value: 'comfortable', label: 'Comfortable' },
                   ],
@@ -2312,7 +2312,7 @@ describe('DropdownMenu', () => {
                 type: 'radio-group',
                 label: 'Layout',
                 defaultValue: 'grid',
-                items: [
+                children: [
                   { type: 'radio', value: 'grid', label: 'Grid' },
                   { type: 'radio', value: 'list', label: 'List' },
                 ],
@@ -2321,7 +2321,7 @@ describe('DropdownMenu', () => {
                 type: 'radio-group',
                 label: 'Sort',
                 defaultValue: 'name',
-                items: [
+                children: [
                   { type: 'radio', value: 'name', label: 'Name' },
                   { type: 'radio', value: 'date', label: 'Date' },
                 ],
@@ -2360,7 +2360,7 @@ describe('DropdownMenu', () => {
                   type: 'radio-group',
                   defaultValue: 'system',
                   onValueChange: onThemeChange,
-                  items: [
+                  children: [
                     { type: 'radio', value: 'light', label: 'Light' },
                     { type: 'radio', value: 'system', label: 'System' },
                   ],
@@ -2403,7 +2403,7 @@ describe('DropdownMenu', () => {
             {
               type: 'group',
               label: 'File actions',
-              items: [{ label: 'Archive' }],
+              children: [{ label: 'Archive' }],
             },
           ]}
         />
@@ -2428,7 +2428,7 @@ describe('DropdownMenu', () => {
       get label() {
         return 'File actions'
       },
-      items: [{ label: 'Archive' }],
+      children: [{ label: 'Archive' }],
     }
 
     render(() => (

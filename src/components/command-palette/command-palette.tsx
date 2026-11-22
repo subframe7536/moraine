@@ -23,6 +23,7 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
 import { Icon } from '../icon'
+import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
 import type { ListT } from '../list'
 import { createCompositionState } from '../shared/overlay/composition'
@@ -89,7 +90,7 @@ function toGroups<TItem extends CommandPaletteT.Item>(
 
     if (!loose) {
       loose = []
-      groups.push({ type: 'group', items: loose })
+      groups.push({ type: 'group', children: loose })
     }
     loose.push(entry)
   }
@@ -120,7 +121,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
     id: `group-${groupIndex}`,
     source: group,
     label: group.label ?? '',
-    items: (group.items ?? []).map((item, index) => {
+    items: (group.children ?? []).map((item, index) => {
       if (seenValues.has(item.value)) {
         warnDuplicateValue(item.value)
       }
@@ -158,7 +159,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
  *     {
  *       type: 'group',
  *       label: 'Pages',
- *       items: [
+ *       children: [
  *         { value: 'settings', label: 'Settings' },
  *         { value: 'billing', label: 'Billing' },
  *       ],
@@ -496,7 +497,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         return visibleGroups().map((group) =>
           Object.assign({}, group.source, {
             label: group.source.label ?? group.label,
-            items: group.items.map((item) => item.item),
+            children: group.items.map((item) => item.item),
           }),
         )
       },
@@ -543,9 +544,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         keyed
         fallback={
           <>
-            <Show when={itemProps.item.item.leadingRender !== undefined}>
+            <Show
+              when={
+                itemProps.item.item.leadingRender !== undefined ||
+                itemProps.item.item.icon !== undefined
+              }
+            >
               <span data-slot="command-palette-item-leading" {...itemLeadingSlot}>
-                {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
+                <Show
+                  when={itemProps.item.item.leadingRender !== undefined}
+                  fallback={
+                    <Show when={itemProps.item.item.icon}>{(icon) => <Icon name={icon()} />}</Show>
+                  }
+                >
+                  {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
+                </Show>
               </span>
             </Show>
 
@@ -567,9 +580,23 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               </Show>
             </span>
 
-            <Show when={itemProps.item.item.trailingRender !== undefined}>
+            <Show
+              when={
+                itemProps.item.item.trailingRender !== undefined ||
+                (itemProps.item.item.kbds?.length ?? 0) > 0
+              }
+            >
               <span data-slot="command-palette-item-trailing" {...itemTrailingSlot}>
-                {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
+                <Show
+                  when={itemProps.item.item.trailingRender !== undefined}
+                  fallback={
+                    <Show when={itemProps.item.item.kbds}>
+                      {(kbds) => <KbdGroup size="sm" items={kbds()} />}
+                    </Show>
+                  }
+                >
+                  {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
+                </Show>
               </span>
             </Show>
           </>

@@ -67,13 +67,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'label',
     'description',
     'onCheckedChange',
-    'onPointerDown',
     'size',
     'classes',
     'styles',
     'class',
     'style',
     'onClick',
+    'onFocus',
+    'onBlur',
   ])
   const themeField = useFieldContext()
   const {
@@ -285,24 +286,20 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     },
   )
 
-  function onPointerDown(
-    event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
-  ): void {
-    const { defaultPrevented } = callHandler(event, merged.onPointerDown)
-    if (defaultPrevented) {
-      return
-    }
-
+  // Keeps focus on the hidden input when it is already focused, so the press does not blur it.
+  function onPointerDown(event: PointerEvent): void {
     if (inputEl !== undefined && inputEl.ownerDocument.activeElement === inputEl) {
       event.preventDefault()
     }
   }
 
   function onTrackFocus(event: FocusEvent): void {
+    callHandler(event, local.onFocus)
     field.emit('focus', event)
   }
 
   function onTrackBlur(event: FocusEvent): void {
+    callHandler(event, local.onBlur)
     field.emit('blur', event)
   }
 

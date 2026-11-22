@@ -265,7 +265,7 @@ describe('Sheet', () => {
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
     expect(document.activeElement).toBe(outside)
     screen.unmount()
   })

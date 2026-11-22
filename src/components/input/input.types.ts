@@ -15,7 +15,7 @@ export namespace InputT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Value = string | number | undefined
+  export type Value = string | number | null
 
   /**
    * Base props for the Input component.
@@ -23,11 +23,15 @@ export namespace InputT {
   export interface Base<TModifiers extends InputModifiers | undefined = InputModifiers | undefined>
     extends FieldT.ControlBase {
     /**
-     * The current value (controlled). `undefined` leaves the input uncontrolled; the displayed
-     * text is restored to this value after every edit, so update it from `onValueChange`.
+     * The current value (controlled). `undefined` leaves the input uncontrolled and `null` is a
+     * controlled empty value; the displayed text is restored to this value after every edit, so
+     * update it from `onValueChange`.
      */
     value?: Value
-    /** Initial value for uncontrolled usage. Also the value restored when the owning form is reset. */
+    /**
+     * Initial value for uncontrolled usage; `null` starts empty. Also the value restored when the
+     * owning form is reset.
+     */
     defaultValue?: Value
 
     /**
@@ -72,8 +76,8 @@ export namespace InputT {
      *
      * - `trim`: strips surrounding whitespace, also from the displayed text on `change` (blur or Enter).
      * - `lazy`: updates the value on `change` instead of on every keystroke.
-     * - `number`: parses the text to a `number`; non-numeric text gives `undefined`, and empty text follows `empty`.
-     * - `empty`: `'null'` or `'undefined'` turns an empty (whitespace-only) string into that value; `'preserve'` keeps the string.
+     * - `number`: parses the text to a `number`; empty or non-numeric text gives `null`.
+     * - `empty`: `'null'` turns an empty (whitespace-only) string into `null`; `'preserve'` keeps the string.
      * @example
      * ```tsx
      * import { Input } from 'moraine'
@@ -94,8 +98,8 @@ export namespace InputT {
     /**
      * Called with the new value, after `modifiers` are applied, as the user edits. It fires on
      * every keystroke, or on `change` (blur or Enter) with `modifiers.lazy`. Its argument type
-     * follows `modifiers`: `string` by default, `number` with `number`, and may include `null`
-     * or `undefined` through `empty`.
+     * follows `modifiers`: `string` by default, `number | null` with `number`, and `string | null`
+     * with `empty: 'null'`.
      */
     onValueChange?: (value: ModifierValue<TModifiers>) => void
 

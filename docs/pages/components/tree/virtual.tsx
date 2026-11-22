@@ -22,7 +22,7 @@ export function Virtual() {
     items: () => GROUPS,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['group-0'],
   })
   const virtualizer = createListVirtualizer<TreeT.ItemInstance<Row>>({

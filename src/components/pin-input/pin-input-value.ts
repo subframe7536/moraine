@@ -128,51 +128,24 @@ export function filterTypedChars(
   return [normalized, droppedChars(nonWhitespace, normalized)]
 }
 
-export function extractValidChars(
-  val: string[] | string,
-  type: PinInputT.ValidationType,
-): string[] {
+export function extractValidChars(val: string, type: PinInputT.ValidationType): string[] {
   const result: string[] = []
-  if (typeof val === 'string') {
-    for (const char of val) {
-      if (isValidChar(char, type)) {
-        result.push(char)
-      }
-    }
-  } else {
-    for (const s of val) {
-      for (const char of s) {
-        if (isValidChar(char, type)) {
-          result.push(char)
-        }
-      }
+  for (const char of val) {
+    if (isValidChar(char, type)) {
+      result.push(char)
     }
   }
   return result
 }
 
 export function normalizeChars(
-  val: string[] | string | undefined | null,
+  val: string | undefined | null,
   length: number,
   type: PinInputT.ValidationType,
   normalizeValue?: (value: string) => string,
 ): string[] {
   const result = createEmptyChars(length)
   if (val === undefined || val === null) {
-    return result
-  }
-  if (Array.isArray(val)) {
-    // Array elements map to slots positionally: an empty element keeps a hole
-    // in the middle instead of packing the following characters left.
-    const limit = Math.min(val.length, length)
-    for (let i = 0; i < limit; i++) {
-      const element = val[i]
-      if (!element) {
-        continue
-      }
-      const valid = applyNormalizeValue(extractValidChars(element, type), type, normalizeValue)
-      result[i] = valid[0] ?? ''
-    }
     return result
   }
   const valid = applyNormalizeValue(extractValidChars(val, type), type, normalizeValue)

@@ -13,7 +13,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -65,6 +65,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'thumbAlignment',
     'onValueChange',
     'onValueCommit',
+    'onFocus',
+    'onBlur',
     'orientation',
     'reversed',
     'size',
@@ -156,9 +158,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       field.emit('change')
     },
     onFocus(event) {
+      callHandler(event, local.onFocus)
       field.emit('focus', event)
     },
     onBlur(event) {
+      callHandler(event, local.onBlur)
       field.emit('blur', event)
     },
   })

@@ -122,6 +122,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'onValueChange',
     'items',
     'disabled',
+    'transition',
     'forceMount',
     'expandIcon',
     'headingLevel',
@@ -315,6 +316,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const disclosure = createDisclosureState({
             open: expanded,
             disabled,
+            transition: () => merged.transition !== false,
             forceMount: () => merged.forceMount,
             onBeforeMatch: () => {
               if (!disabled() && !expanded()) {

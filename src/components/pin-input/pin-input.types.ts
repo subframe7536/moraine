@@ -111,23 +111,24 @@ export namespace PinInputT {
     separatorRender?: Component<SeparatorRenderProps>
 
     /**
-     * Controlled value as a joined string (`'123456'`) or an array with one character per slot
-     * (an empty string `''` leaves that slot empty). `undefined` leaves the input uncontrolled. The
-     * value is filtered by `validationType` and truncated to `length`; update it from `onValueChange`.
+     * Controlled value as the joined string (`'123456'`). `undefined` leaves the input
+     * uncontrolled. The value is filtered by `validationType` and truncated to `length`; update it
+     * from `onValueChange`.
      */
-    value?: string[] | string
+    value?: string
 
     /**
-     * Initial value for uncontrolled usage, as a joined string or one character per slot. Also
-     * the value restored when the owning form is reset.
+     * Initial value for uncontrolled usage, as the joined string. Also the value restored when the
+     * owning form is reset.
      */
-    defaultValue?: string[] | string
+    defaultValue?: string
 
     /**
-     * Called whenever the entered characters change, with an array of `length` entries holding
-     * one character per slot and `''` for empty slots. Use `.join('')` for the string.
+     * Called whenever the entered characters change, with the joined string of at most `length`
+     * characters. A cleared middle slot keeps its position in the UI but is dropped from the
+     * string: clearing the middle of `'123'` reports `'13'`.
      */
-    onValueChange?: (value: string[]) => void
+    onValueChange?: (value: string) => void
 
     /**
      * Called with the joined string when every slot is filled. For controlled values it fires once
@@ -178,26 +179,26 @@ export namespace PinInputT {
     normalizeValue?: (value: string) => string
 
     /**
-     * Native focus event when focus enters the pin input group from outside. Calling
-     * `preventDefault` skips the `Field` focus notification.
+     * Native focus event when focus enters the pin input group from outside, called before the
+     * `Field` focus notification.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
-     * Native blur event when focus leaves the pin input group. Calling `preventDefault` skips the
-     * `Field` blur notification.
+     * Native blur event when focus leaves the pin input group, called before the `Field` blur
+     * notification.
      */
     onBlur?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
-     * Native focusin event for every slot focus, including moves between slots.
-     * Calling `preventDefault` skips `onFocus`.
+     * Native focusin event for every slot focus, including moves between slots. Called before
+     * `onFocus`.
      */
     onFocusIn?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 
     /**
-     * Native focusout event for every slot blur, including moves between slots.
-     * Calling `preventDefault` skips `onBlur`.
+     * Native focusout event for every slot blur, including moves between slots. Called before
+     * `onBlur`.
      */
     onFocusOut?: JSX.FocusEventHandlerUnion<HTMLDivElement, FocusEvent>
 

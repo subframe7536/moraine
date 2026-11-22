@@ -15,12 +15,6 @@
       "description": "Props for the NumberInput component.",
       "props": [
         {
-          "name": "align",
-          "optional": true,
-          "type": "'start' | 'center' | 'end'",
-          "description": "Text alignment of the input. When omitted, the text is start-aligned in a `horizontal` input\nwithout a decrement button (`decrement={false}`) and centered otherwise."
-        },
-        {
           "name": "autoFocus",
           "optional": true,
           "type": "boolean",
@@ -66,7 +60,11 @@
           "name": "decrementDisabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the decrement button is disabled. Keyboard and wheel stepping stay available."
+          "description": "Whether the decrement button is disabled. Keyboard and wheel stepping stay available.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "decrementIcon",
@@ -129,7 +127,11 @@
           "name": "incrementDisabled",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the increment button is disabled. Keyboard and wheel stepping stay available."
+          "description": "Whether the increment button is disabled. Keyboard and wheel stepping stay available.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "incrementIcon",
@@ -185,13 +187,13 @@
           "name": "onBlur",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Called when the input loses focus, before the typed text is committed. Calling\n`preventDefault` skips that commit and the `Field` blur notification."
+          "description": "Called when the input loses focus, before the typed text is committed and the `Field` blur\nnotification."
         },
         {
           "name": "onFocus",
           "optional": true,
           "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
-          "description": "Called when the input gains focus. Calling `preventDefault` skips the `Field` focus notification."
+          "description": "Called when the input gains focus, before the `Field` focus notification."
         },
         {
           "name": "onStep",
@@ -295,6 +297,12 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "textAlign",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Text alignment of the input. When omitted, the text is start-aligned in a `horizontal` input\nwithout a decrement button (`decrement={false}`) and centered otherwise."
         },
         {
           "name": "translations",

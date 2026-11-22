@@ -108,7 +108,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       return local.valueLabel({ percent: fraction * 100, value, max: props.max ?? 100 })
     }
     const step = props.step
-    const decimals = typeof step === 'number' && step > 0 ? countDecimals(step) : 2
+    const effectiveStep = step === undefined ? 1 : step > 0 ? step : undefined
+    const decimals = effectiveStep !== undefined ? countDecimals(effectiveStep) : 2
     return formatLocaleNumber(
       value,
       locale(),

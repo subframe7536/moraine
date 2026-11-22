@@ -133,11 +133,23 @@ async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
 export const FACTORY_COMPONENTS: Readonly<
   Record<
     string,
-    { factory: string; rootMember: string; fixedParts?: readonly FrontmatterApiPart[] }
+    {
+      factory: string
+      rootMember: string
+      instanceName?: string
+      propsTypeName?: string
+      fixedParts?: readonly FrontmatterApiPart[]
+    }
   >
 > = {
   form: { factory: 'createForm', rootMember: 'Form', fixedParts: [{ name: 'Field' }] },
   tree: { factory: 'createTree', rootMember: 'Tree' },
+  'data-table': {
+    factory: 'createDataTable',
+    rootMember: 'DataTable',
+    instanceName: 'table',
+    propsTypeName: 'BoundProps',
+  },
 }
 
 function categoryFromPath(sourcePath: string): string {
@@ -209,14 +221,17 @@ export async function loadApiRegistry(
           member: factoryComponent.rootMember,
         }
       : { kind: 'export', name: header.componentName }
+    const factoryInstance = factoryComponent?.instanceName ?? key
     const parts: RegisteredPart[] = [
       {
         id: factoryComponent ? `${key}-${toKebabCase(factoryComponent.rootMember)}` : key,
-        name: factoryComponent ? `${key}.${factoryComponent.rootMember}` : header.componentName,
+        name: factoryComponent
+          ? `${factoryInstance}.${factoryComponent.rootMember}`
+          : header.componentName,
         access: rootAccess,
         typesPath,
         namespaceName: header.namespaceName,
-        propsTypeName: 'Props',
+        propsTypeName: factoryComponent?.propsTypeName ?? 'Props',
         isRoot: true,
       },
     ]
@@ -243,7 +258,9 @@ export async function loadApiRegistry(
       }
       parts.push({
         id: `${key}-${toKebabCase(part.name)}`,
-        name: factoryComponent ? `${key}.${part.name}` : `${header.componentName}.${part.name}`,
+        name: factoryComponent
+          ? `${factoryInstance}.${part.name}`
+          : `${header.componentName}.${part.name}`,
         access: factoryComponent
           ? { kind: 'factory-member', factory: factoryComponent.factory, member: part.name }
           : { kind: 'attached', root: header.componentName, member: part.name },

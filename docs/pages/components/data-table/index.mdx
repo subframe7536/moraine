@@ -165,7 +165,7 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | ----------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
 | Data        | `data`, `columns`, `getRowId`                                                     | Row ids are indexes (`'0'`, nested `'0.1'`).    |
 | Sorting     | `columnSortable`                                                                  | `true`                                          |
-| Selection   | `selectionMode` (`'multiple'` or `'single'`), `canSelectRow`                      | No selection column.                            |
+| Selection   | `selectionMode` (`'multiple'` or `'single'`), `isRowSelectable`                   | No selection column.                            |
 | Expansion   | `expandable` (`true` or a row predicate)                                          | Only rows with sub-rows expand.                 |
 | Pagination  | `paginated` (`true` or `{ pageSize, pageSizes }`)                                 | Off. When on: 10 rows, sizes `[5, 10, 20, 50]`. |
 | Resizing    | `resizable`                                                                       | `false`                                         |
@@ -185,14 +185,13 @@ Other native `table` attributes, such as `aria-label`, are forwarded to the `tab
 
 ### Reactive options
 
-Options are read reactively through the options object. Declare a getter for any value that
-changes, on the options object or inside `state`. A plain value is read once.
+Options are read reactively through the options object. `data` and `columns` also accept an
+accessor (`data: () => rows()`), or declare a getter for any value that changes, on the options
+object or inside `state`. A plain value is read once.
 
 ```tsx
 const table = createDataTable({
-  get data() {
-    return rows()
-  },
+  data: () => rows(),
   columns,
 })
 ```
@@ -300,7 +299,7 @@ filter functions are registered.
 Select-all toggles the rows on the current page, and is then named with the `selectPage` message.
 With tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed
 when some are. `selectionMode: 'single'` adds radio buttons; selecting a row clears the others.
-`canSelectRow` disables the control of every row it rejects.
+`isRowSelectable` disables the control of every row it rejects.
 
 ```tsx
 const table = createDataTable({
@@ -308,7 +307,7 @@ const table = createDataTable({
   columns,
   getRowId: (node) => node.id,
   selectionMode: 'single',
-  canSelectRow: (row) => row.original.status !== 'terminated',
+  isRowSelectable: (row) => row.original.status !== 'terminated',
 })
 ```
 
@@ -625,7 +624,7 @@ pagination. Shift-click headers to add secondary sorts.
 
 ### Selection modes
 
-Switch `selectionMode` dynamically and control `state.rowSelection`. Use `canSelectRow` to disable
+Switch `selectionMode` dynamically and control `state.rowSelection`. Use `isRowSelectable` to disable
 selection on specific rows and `rowProps` to style them.
 
 <Preview path="./selection-modes" />

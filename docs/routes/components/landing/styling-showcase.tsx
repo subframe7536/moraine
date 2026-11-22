@@ -241,7 +241,7 @@ export function StylingShowcase() {
     items: () => WORKSPACE_FILES,
     getKey: (node) => node.id,
     getChildren: (node) => node.children,
-    getLabel: (node) => node.name,
+    getItemLabel: (node) => node.name,
     defaultExpandedKeys: ['src'],
     defaultSelectedKeys: ['theme'],
     getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file-code'),

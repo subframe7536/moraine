@@ -219,7 +219,7 @@ void separatorWithLabel
 const radioGroupMenuItem: DropdownMenuT.Item = {
   type: 'radio-group',
   value: 'list',
-  items: [{ type: 'radio', label: 'List', value: 'list' }],
+  children: [{ type: 'radio', label: 'List', value: 'list' }],
 }
 void radioGroupMenuItem
 
@@ -598,7 +598,7 @@ const dataTableInstance = createDataTable({
 ;<dataTableInstance.DataTable expandedRowRender={(props) => <div>{props.row.original.name}</div>} />
 // @ts-expect-error DataTable has no striped variant.
 ;<dataTableInstance.DataTable striped />
-// @ts-expect-error Accessor-style options are not accepted; use getters.
+// Accessor-style options are accepted alongside plain values and getters.
 createDataTable({ data: () => dataTableRows, columns: dataTableCols })
 // @ts-expect-error DataTable requires a table instance.
 ;<DataTable />
@@ -846,12 +846,12 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<Sidebar width={280} defaultWidth={240} minWidth={200} maxWidth={400}>
   <Sidebar.Panel />
-  <Sidebar.Rail ariaLabel="Resize sidebar" />
+  <Sidebar.Rail aria-label="Resize sidebar" />
   <Sidebar.Inset />
 </Sidebar>
 
 ;<Sidebar mobile={false}>
-  <Sidebar.Panel ariaLabel="Sidebar navigation">
+  <Sidebar.Panel aria-label="Sidebar navigation">
     <Sidebar.Header>Header</Sidebar.Header>
     <Sidebar.Content>
       <Sidebar.Group>
@@ -1057,6 +1057,11 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
   onChange={(event) => event.currentTarget.select()}
   onPaste={(event) => event.currentTarget.checkValidity()}
 />
+
+const [numberControl, setNumberControl] = createSignal<number | null>(null)
+;<Input value={numberControl()} onValueChange={setNumberControl} modifiers={{ number: true }} />
+const [nullableText, setNullableText] = createSignal<string | null>(null)
+;<Input value={nullableText()} onValueChange={setNullableText} modifiers={{ empty: 'null' }} />
 // @ts-expect-error Unknown native props are rejected.
 ;<Input unknownNativeProp="invalid" />
 // @ts-expect-error Input only has a root slot.

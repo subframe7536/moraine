@@ -100,7 +100,7 @@
           "description": "Whether to animate the content height when opening and closing. The content is measured in\npixels and exposed as the `--mo-collapsible-content-height` CSS variable on the root, and\non close it stays mounted until the animation ends. Animations are skipped with\n`prefers-reduced-motion`.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": true
           }
         }
       ]

@@ -170,6 +170,12 @@
           }
         },
         {
+          "name": "form",
+          "optional": true,
+          "type": "string",
+          "description": "The `id` of a `<form>` the hidden inputs belong to, for a control rendered outside that form."
+        },
+        {
           "name": "getItemLabel",
           "optional": true,
           "type": "(item: NormalizedItem<TItem>) => string",
@@ -253,7 +259,7 @@
           "name": "loading",
           "optional": true,
           "type": "boolean",
-          "description": "Replaces the toggle icon with `loadingIcon`, and disables the toggle button and marks it\n`aria-busy`. Typing and the clear button keep working in the editable input."
+          "description": "Replaces the toggle icon with `loadingIcon`, marks the trigger `aria-busy`, and hides the\nclear button. It does not disable the control or editable input."
         },
         {
           "name": "loadingIcon",
@@ -341,7 +347,11 @@
           "name": "openOnControlClick",
           "optional": true,
           "type": "boolean",
-          "description": "Whether a pointer click on the control (outside its buttons) opens the popup. Defaults\nto `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing\nnon-blank text, `ArrowDown`, and the toggle button open it regardless."
+          "description": "Whether a pointer click on the control (outside its buttons) opens the popup. Defaults\nto `false` when editable (`searchable` or `createItem` set) and `true` otherwise. Typing\nnon-blank text, `ArrowDown`, and the toggle button open it regardless.",
+          "default": {
+            "kind": "expression",
+            "text": "!(searchable || createItem)"
+          }
         },
         {
           "name": "overflowPadding",

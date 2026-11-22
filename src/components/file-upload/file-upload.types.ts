@@ -88,6 +88,8 @@ export namespace FileUploadT {
      * ```
      */
     translations?: Translations
+    /** The `id` of a `<form>` the hidden file input belongs to, for a control rendered outside that form. */
+    form?: string
     /** Ref to the hidden native `<input type="file">` that backs the control. */
     inputRef?: Ref<HTMLInputElement>
 
@@ -113,6 +115,16 @@ export namespace FileUploadT {
      * called for files rejected by validation or while the control is disabled or read-only.
      */
     onValueChange?: (value: Value<TMultiple>) => void
+
+    /**
+     * Called when the file upload control gains focus, before the `Field` focus notification.
+     */
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
+
+    /**
+     * Called when the file upload control loses focus, before the `Field` blur notification.
+     */
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLButtonElement, FocusEvent>
 
     /**
      * Whether files can be dragged and dropped onto the control. When `false`, drag events are
