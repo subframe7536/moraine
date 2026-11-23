@@ -668,7 +668,10 @@ export function createDrawerSwipe(
     // stack pins it to the frontmost height), so measurements are skipped and
     // the last unforced size is kept as its own.
     function measureSize(): void {
-      if (drawer.nested.openCount() === 0) {
+      // `popupHeight() === 0` covers a mount into an already-open stack: the
+      // first report can land before this attach runs, so the unmeasured
+      // popup must still capture a size instead of staying pinned at 0.
+      if (drawer.nested.openCount() === 0 || popupHeight() === 0) {
         drawer.nested.setPopupHeight(content.offsetHeight)
         setPopupWidth(content.offsetWidth)
       }

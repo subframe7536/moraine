@@ -32,6 +32,7 @@ function firePointer(target: EventTarget, type: string, init: PointerEventInit):
   const event = new PointerEvent(type, { bubbles: true, cancelable: true, ...init })
   Object.defineProperty(event, 'timeStamp', { value: now })
   target.dispatchEvent(event)
+  flush()
 }
 
 interface TouchPoint {
@@ -62,6 +63,7 @@ function fireTouch(
   })
   Object.defineProperty(event, 'timeStamp', { value: now })
   target.dispatchEvent(event)
+  flush()
 }
 
 function content(): HTMLElement {
@@ -1956,6 +1958,7 @@ describe('Drawer', () => {
     // The visible viewport shrank (e.g. on-screen keyboard): the limit follows.
     Object.defineProperty(stub, 'height', { value: 300, configurable: true })
     stub.dispatchEvent(new Event('resize'))
+    flush()
     expect(movementValue()).toContain('-256.32')
 
     fireTouch(el, 'touchend', {
@@ -2224,7 +2227,7 @@ describe('Drawer', () => {
 
       fireEvent.keyDown(document, { key: 'Escape' })
       expect(onChildChange).toHaveBeenCalledWith(false)
-
+      flush()
       // The exiting child stops counting immediately so the ancestor settles
       // toward its own height concurrently with the exit animation; the mounted
       // marker keeps the forced-height class until the child unmounts.
