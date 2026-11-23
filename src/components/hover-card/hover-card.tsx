@@ -2,7 +2,7 @@ import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { createEffect, createSignal, merge } from 'solid-js'
 
-import { createEventListener } from '../../shared/event-listener'
+import { attachEventListener } from '../../shared/event-listener'
 import { createId } from '../../shared/utils'
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
@@ -138,7 +138,7 @@ export function HoverCard(props: HoverCardProps): JSX.Element {
     if (!ownerWindow) {
       return
     }
-    createEventListener(ownerWindow, 'blur', () => {
+    return attachEventListener(ownerWindow, 'blur', () => {
       ignoreNextFocusAfterWindowBlur = true
       hoverDelay.invalidate()
     })

@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, onCleanup } from 'solid-js'
+import { createEffect } from 'solid-js'
 
-import { createEventListenerMap } from '../../../shared/event-listener'
+import { attachEventListenerMap } from '../../../shared/event-listener'
 import { createKeyDownHandler } from '../../../shared/keyboard'
 
 import { createCompositionState } from './composition'
@@ -255,7 +255,7 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         options.onPointerOutside?.(event, context)
       }
 
-      createEventListenerMap(ownerDocument, {
+      const detach = attachEventListenerMap(ownerDocument, {
         pointerdown: onDocumentPointerDown,
         pointermove: outsidePress.pointermove,
         pointerup: onDocumentPointerUp,
@@ -267,13 +267,14 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         compositionend: composition.onCompositionEnd,
       })
 
-      onCleanup(() => {
+      return () => {
+        detach()
         clearPointerDownInside()
         outsidePress.dispose()
         composition.dispose()
         options.onDeactivate?.(context)
         release()
-      })
+      }
     },
   )
 }

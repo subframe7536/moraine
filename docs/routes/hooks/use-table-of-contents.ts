@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 export const DOCS_HEADER_OFFSET = 24
 
 export interface OnThisPageEntry {
@@ -105,11 +105,11 @@ export function useTableOfContents(
         })
       }
       root.addEventListener('scroll', onScroll, { passive: true })
-      onCleanup(() => {
+      return () => {
         observer.disconnect()
         root.removeEventListener('scroll', onScroll)
         cancelAnimationFrame(fallbackFrame)
-      })
+      }
     },
   )
 

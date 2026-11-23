@@ -5,7 +5,9 @@ import {
   createRenderEffect,
   createRoot,
   createSignal,
+  getOwner,
   onCleanup,
+  runWithOwner,
   untrack,
 } from 'solid-js'
 
@@ -82,6 +84,7 @@ export interface DisclosureState {
 }
 
 export function createDisclosureState(options: CreateDisclosureStateOptions): DisclosureState {
+  const stateOwner = getOwner()
   const disabled = createMemo(() => Boolean(options.disabled?.()))
   const transition = createMemo(() =>
     typeof options.transition === 'function' ? options.transition() : (options.transition ?? true),
@@ -261,19 +264,21 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       })
       // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
       // attribute so `until-found` survives jsdom and hydrated SSR markup.
-      stopHiddenSync = createRoot((dispose) => {
-        createRenderEffect(
-          () => hiddenAttr(),
-          (value) => {
-            if (value === undefined) {
-              element.removeAttribute('hidden')
-            } else {
-              element.setAttribute('hidden', value)
-            }
-          },
-        )
-        return dispose
-      })
+      stopHiddenSync = runWithOwner(stateOwner, () =>
+        createRoot((dispose) => {
+          createRenderEffect(
+            () => hiddenAttr(),
+            (value) => {
+              if (value === undefined) {
+                element.removeAttribute('hidden')
+              } else {
+                element.setAttribute('hidden', value)
+              }
+            },
+          )
+          return dispose
+        }),
+      )
     }
 
     return () => {

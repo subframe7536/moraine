@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web'
 import { createEffect, createSignal, merge, onCleanup } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
-import { createEventListener } from '../../shared/event-listener'
+import { attachEventListener } from '../../shared/event-listener'
 import { createId } from '../../shared/utils'
 import { createPopper } from '../shared/overlay/popper'
 
@@ -306,7 +306,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     if (!ownerWindow) {
       return
     }
-    createEventListener(ownerWindow, 'blur', () => {
+    return attachEventListener(ownerWindow, 'blur', () => {
       ignoreNextFocusAfterWindowBlur = true
       clearOpenTimer()
     })

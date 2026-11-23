@@ -1,7 +1,7 @@
 import { createEffect, createMemo, createSignal, merge, onCleanup, untrack } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListenerMap } from '../../shared/event-listener'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../shared/overlay/dom'
@@ -230,7 +230,7 @@ export function createContextMenu(props: ContextMenuProps) {
     if (!currentDocument) {
       return
     }
-    createEventListenerMap(
+    const detach = attachEventListenerMap(
       currentDocument,
       {
         pointerdown: (event) => {
@@ -275,13 +275,14 @@ export function createContextMenu(props: ContextMenuProps) {
       },
       true,
     )
-    onCleanup(() => {
+    return () => {
+      detach()
       clearLongPressTimeout()
       pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
       suppressionWindow?.clearTimeout(suppressionTimeoutId)
       pointerEventGuard = undefined
       suppressedContextMenu = undefined
-    })
+    }
   })
 
   const onContextMenu = (event: MouseEvent): void => {

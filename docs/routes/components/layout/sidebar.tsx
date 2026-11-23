@@ -1,6 +1,6 @@
 import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
-import { For, Show, createEffect, createMemo, onCleanup } from 'solid-js'
+import { For, Show, createEffect, createMemo } from 'solid-js'
 
 import { Badge, Icon, Sidebar, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
@@ -63,7 +63,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
           ?.querySelector<HTMLElement>('[aria-current="page"]')
           ?.scrollIntoView({ block: 'nearest' })
       })
-      onCleanup(() => cancelAnimationFrame(request))
+      return () => cancelAnimationFrame(request)
     },
   )
 

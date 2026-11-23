@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { Portal, isServer } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, Show, omit } from 'solid-js'
+import { createEffect, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
@@ -88,7 +88,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
       return
     }
     if (state.props.preventScroll ?? true) {
-      onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
+      return acquireBodyScrollLock(state.anchor() ?? state.focusOwner())
     }
   })
   useOverlayInteraction({

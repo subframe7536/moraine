@@ -1,7 +1,7 @@
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import { createEventListener } from './event-listener'
+import { attachEventListener } from './event-listener'
 export function createMediaQuery(
   query: string | Accessor<string>,
   defaultValue = false,
@@ -28,18 +28,15 @@ export function createMediaQuery(
       setMatches(event.matches)
     }
 
-    if (typeof media.addEventListener === 'function') {
-      createEventListener(media, 'change', onChange)
-    } else {
-      media.addListener(onChange)
-      onCleanup(() => {
-        media.removeListener(onChange)
-      })
-    }
+    const detach =
+      typeof media.addEventListener === 'function'
+        ? attachEventListener(media, 'change', onChange)
+        : (media.addListener(onChange), () => media.removeListener(onChange))
 
-    onCleanup(() => {
+    return () => {
       active = false
-    })
+      detach()
+    }
   })
   return matches
 }

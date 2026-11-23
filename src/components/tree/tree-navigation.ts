@@ -70,7 +70,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
     return keys.find((key) => selected.has(key)) ?? keys[0]
   })
 
-  const [hasFocusWithin, setHasFocusWithin] = createSignal(false)
+  const [hasFocusWithin, setHasFocusWithin] = createSignal(false, { ownedWrite: true })
   const focusedKey = createMemo<string | undefined>(() => {
     const key = deps.getFocusedKey()
     if (key === undefined) {

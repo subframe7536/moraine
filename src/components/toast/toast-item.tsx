@@ -371,7 +371,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       data-slot="toast-item"
       role={options().type === 'error' ? 'alert' : 'status'}
       tabindex={0}
-      inert={!isVisible() ? true : undefined}
+      {...{ "prop:inert": !isVisible() ? true : undefined }}
       {...itemSlot}
       onPointerDown={swipe.handlePointerDown}
       onPointerMove={swipe.handlePointerMove}

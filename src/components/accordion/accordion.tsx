@@ -77,7 +77,7 @@ function AccordionItemPanel(props: {
       aria-labelledby={props.triggerId}
       aria-hidden={props.disclosure.ariaHidden()}
       hidden={props.disclosure.hidden()}
-      inert={props.disclosure.inert()}
+      {...{ "prop:inert": props.disclosure.inert() }}
       data-slot="accordion-content"
       {...contentSlot}
     >
@@ -435,18 +435,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
 
           const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement>()
-          bindElement(triggerEl, (element) => {
+          bindElement(triggerEl, (element, scope) => {
             disclosure.setTriggerElement(element)
             let key = untrack(itemValue)
             triggerRefs.set(key, element)
-            createEffect(
-              itemValue,
-              (nextKey) => {
-                triggerRefs.delete(key)
-                key = nextKey
-                triggerRefs.set(key, element)
-              },
-              { defer: true },
+            scope(() =>
+              createEffect(
+                itemValue,
+                (nextKey) => {
+                  triggerRefs.delete(key)
+                  key = nextKey
+                  triggerRefs.set(key, element)
+                },
+                { defer: true },
+              ),
             )
             return () => {
               triggerRefs.delete(key)

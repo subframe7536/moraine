@@ -47,7 +47,9 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
   const value = createId(() => local.value, 'navigation-menu-item')
-  const [trigger, setTrigger] = createSignal<HTMLButtonElement>()
+  const [trigger, setTrigger] = createSignal<HTMLButtonElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [contentTrees, setContentTrees] = createSignal<JSX.Element[]>([], {
     ownedWrite: true,

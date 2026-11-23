@@ -102,6 +102,8 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  onSettled(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
+  onSettled(() =>
+    queueMicrotask(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu')),
+  )
   return <Dynamic component={tag()} type={undefined} {...(binding as any)} />
 }

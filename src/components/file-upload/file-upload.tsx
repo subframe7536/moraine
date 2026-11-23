@@ -232,8 +232,12 @@ export function FileUpload<TMultiple extends boolean = false>(
     isEqual: isSameFileValue,
   })
 
-  const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement>()
-  const [controlElement, setControlElement] = createSignal<HTMLElement>()
+  const [hiddenInput, setHiddenInput] = createSignal<HTMLInputElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
+  const [controlElement, setControlElement] = createSignal<HTMLElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
 
   bindElement(controlElement, (element) => {
     field.setControlRef(element)

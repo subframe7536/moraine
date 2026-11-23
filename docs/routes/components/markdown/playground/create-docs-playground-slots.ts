@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onCleanup, onSettled, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onSettled, untrack } from 'solid-js'
 
 import { getDomSlotName } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
@@ -338,14 +338,14 @@ export function createDocsPlaygroundSlots(props: {
       view.addEventListener('resize', schedule)
       view.addEventListener('scroll', schedule, true)
       schedule()
-      onCleanup(() => {
+      return () => {
         if (frame) {
           view.cancelAnimationFrame(frame)
         }
         resizeObserver?.disconnect()
         view.removeEventListener('resize', schedule)
         view.removeEventListener('scroll', schedule, true)
-      })
+      }
     },
   )
 

@@ -124,13 +124,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
   createEffect(source, (currentSource) => {
     let cancelled = false
 
-    onCleanup(() => {
+    const cancel = () => {
       cancelled = true
-    })
+    }
 
     if (!currentSource) {
       setStatus('error')
-      return
+      return cancel
     }
 
     setStatus('loading')
@@ -140,6 +140,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       }
       setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
     })
+    return cancel
   })
 
   return (

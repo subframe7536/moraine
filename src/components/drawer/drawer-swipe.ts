@@ -301,14 +301,14 @@ export function createDrawerSwipe(
   modal: BaseDialogContext,
   side: Accessor<NonNullable<DrawerT.Variants['side']>>,
 ): DrawerSwipeController {
-  const [swiping, setSwiping] = createSignal(false)
-  const [displacement, setDisplacement] = createSignal(0)
+  const [swiping, setSwiping] = createSignal(false, { ownedWrite: true })
+  const [displacement, setDisplacement] = createSignal(0, { ownedWrite: true })
   // The rendered translate captured when the gesture claimed the drag, so a
   // swipe mid enter/snap transition continues from the visual position.
-  const [baseline, setBaseline] = createSignal(0)
-  const [popupWidth, setPopupWidth] = createSignal(0)
-  const [viewportHeight, setViewportHeight] = createSignal(0)
-  const [rootFontSize, setRootFontSize] = createSignal(16)
+  const [baseline, setBaseline] = createSignal(0, { ownedWrite: true })
+  const [popupWidth, setPopupWidth] = createSignal(0, { ownedWrite: true })
+  const [viewportHeight, setViewportHeight] = createSignal(0, { ownedWrite: true })
+  const [rootFontSize, setRootFontSize] = createSignal(16, { ownedWrite: true })
 
   // The content element the gesture is bound to, for transform reads at claim.
   let swipeElement: HTMLElement | null = null

@@ -183,7 +183,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
             role={rest.role ?? 'region'}
             aria-labelledby={item.trigger()?.id}
             aria-hidden={!expanded() ? 'true' : undefined}
-            inert={!expanded() ? true : undefined}
+            {...{ "prop:inert": !expanded() ? true : undefined }}
             tabindex={-1}
           />
         )

@@ -465,22 +465,22 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         pendingHandles.delete(id)
         handleRef(pending)
       }
-      onCleanup(() => {
+      return () => {
         if (handleSetters.get(id) === handleRef) {
           handleSetters.delete(id)
         }
-      })
+      }
     })
     let element: HTMLElement | undefined
     createRenderEffect(input.id, (id) => {
       if (element) {
         elements.set(id, element)
       }
-      onCleanup(() => {
+      return () => {
         if (elements.get(id) === element) {
           elements.delete(id)
         }
-      })
+      }
     })
     return {
       ref: (next) => {

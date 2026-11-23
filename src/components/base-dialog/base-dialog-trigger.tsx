@@ -60,7 +60,7 @@ export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
   const binding = root.bind(interactionProps)
 
   onSettled(() => {
-    validateOverlayTrigger(context.triggerElement(), 'BaseDialog')
+    queueMicrotask(() => validateOverlayTrigger(context.triggerElement(), 'BaseDialog'))
   })
 
   return (

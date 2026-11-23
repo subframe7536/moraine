@@ -9,12 +9,11 @@ import {
   createMemo,
   createSignal,
   merge,
-  onCleanup,
-} from 'solid-js'
+  } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'
-import { createEventListener } from '../../../../shared/event-listener'
+import { attachEventListener } from '../../../../shared/event-listener'
 import { callHandler, callRef, createId } from '../../../../shared/utils'
 import { dataSlotName } from '../../../../theme/data-slot'
 import type { DataAttributeBag } from '../../../../theme/style-contract'
@@ -67,7 +66,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
   )
-  const [isPositioned, setIsPositioned] = createSignal(false)
+  const [isPositioned, setIsPositioned] = createSignal(false, { ownedWrite: true })
   const groups = createMemo(() => resolveMenuGroups(props.items))
 
   /**
@@ -134,15 +133,15 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     (refState) => {
       refState?.(layer)
 
-      onCleanup(() => {
+      return () => {
         props.refState?.(undefined)
-      })
+      }
     },
   )
 
   bindElement(layer.contentElement, (content) => {
     const release = props.registerPresenceElement(content)
-    createEventListener(
+    const detach = attachEventListener(
       content,
       'keydown',
       (event) => {
@@ -152,7 +151,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       },
       true,
     )
-    return release
+    return () => {
+      detach()
+      release()
+    }
   })
 
   createEffect(
@@ -185,11 +187,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         runAutoFocus()
       })
 
-      onCleanup(() => {
+      return () => {
         if (frameId !== 0) {
           ownerWindow.cancelAnimationFrame(frameId)
         }
-      })
+      }
     },
   )
 

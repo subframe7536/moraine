@@ -1,5 +1,5 @@
 import { KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
-import { createEffect, createMemo, merge, onCleanup } from 'solid-js'
+import { createEffect, createMemo, merge } from 'solid-js'
 
 import type { TreeT } from '../components/tree/tree.types'
 
@@ -193,7 +193,7 @@ export function createTreeSortable<T>(
           return
         }
         const timer = setTimeout(() => tree.expand(item.key), expandDelay)
-        onCleanup(() => clearTimeout(timer))
+        return () => clearTimeout(timer)
       },
     )
   }

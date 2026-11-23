@@ -110,6 +110,8 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     interaction,
   )
   const binding = root.bind(triggerProps)
-  onSettled(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
+  onSettled(() =>
+    queueMicrotask(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu')),
+  )
   return <Dynamic component={tag()} {...binding} />
 }

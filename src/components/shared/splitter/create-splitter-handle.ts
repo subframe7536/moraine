@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal } from 'solid-js'
 
 import {
   SPLITTER_END_TARGET_ATTRIBUTE,
@@ -106,10 +106,10 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
       }
 
       const unregister = registerSplitterHandle(registration)
-      onCleanup(() => {
+      return () => {
         unregister()
         registration = null
-      })
+      }
     },
   )
 

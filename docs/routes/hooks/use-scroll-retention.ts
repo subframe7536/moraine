@@ -142,7 +142,7 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
     el.addEventListener('wheel', stopRestoring, { passive: true })
     el.addEventListener('touchstart', stopRestoring, { passive: true })
 
-    onCleanup(() => {
+    return () => {
       if (saveTimer !== undefined) {
         clearTimeout(saveTimer)
       }
@@ -151,7 +151,7 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
       el.removeEventListener('scroll', handleScroll)
       el.removeEventListener('wheel', stopRestoring)
       el.removeEventListener('touchstart', stopRestoring)
-    })
+    }
   })
 
   window.addEventListener('beforeunload', saveScroll)

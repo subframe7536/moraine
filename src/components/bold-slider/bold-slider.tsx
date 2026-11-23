@@ -77,6 +77,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
 
   const [internalValue, setInternalValue] = createSignal(
     untrack(() => props.value ?? props.defaultValue ?? props.min ?? 0),
+    { ownedWrite: true },
   )
 
   createEffect(

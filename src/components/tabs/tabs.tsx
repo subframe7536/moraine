@@ -364,9 +364,9 @@ export function Tabs(props: TabsProps): JSX.Element {
         resizeObserver.observe(listRef)
       }
 
-      onCleanup(() => {
+      return () => {
         resizeObserver.disconnect()
-      })
+      }
     },
   )
 

@@ -99,7 +99,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
           callRef(local.ref, node)
         }}
         aria-hidden={closed() ? true : undefined}
-        inert={closed() ? true : undefined}
+        {...{ "prop:inert": closed() ? true : undefined }}
         aria-label={local['aria-label']}
         {...(rest as object)}
         id={context.panelId()}

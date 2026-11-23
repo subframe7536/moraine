@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
-import { createEventListener, createEventListenerMap } from '../../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../../shared/event-listener'
 
 import { getActiveElement } from './dom'
 /**
@@ -46,14 +46,16 @@ export function createKeyboardInset(
       }
 
       update()
-      createEventListenerMap(keyboardViewport, {
+      const detachViewport = attachEventListenerMap(keyboardViewport, {
         resize: update,
         scroll: update,
       })
-      createEventListener(view, 'resize', update)
-      onCleanup(() => {
+      const detachView = attachEventListener(view, 'resize', update)
+      return () => {
+        detachViewport()
+        detachView()
         setKeyboardInset(0)
-      })
+      }
     },
   )
 

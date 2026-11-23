@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web'
 import { For, createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
-import { createEventListener } from '../../shared/event-listener'
+import { attachEventListener } from '../../shared/event-listener'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
 import type { PopperProps } from '../shared/overlay/popper.types'
@@ -25,27 +25,36 @@ export function NavigationMenuPanel(): JSX.Element {
       if (!positioner || !reference || !reference.isConnected) {
         return
       }
-      createEventListener(positioner, 'pointerenter', (event) => {
-        if (isMousePointer(event)) {
-          context.keepOpen()
-        }
-      })
-      createEventListener(positioner, 'pointerleave', (event) => {
-        if (isMousePointer(event)) {
-          context.scheduleClose(event)
-        }
-      })
+      const detaches: VoidFunction[] = [
+        attachEventListener(positioner, 'pointerenter', (event) => {
+          if (isMousePointer(event)) {
+            context.keepOpen()
+          }
+        }),
+        attachEventListener(positioner, 'pointerleave', (event) => {
+          if (isMousePointer(event)) {
+            context.scheduleClose(event)
+          }
+        }),
+      ]
       positioner.style.removeProperty('transition-property')
       // Scroll tracking must be immediate; trigger changes restore the movement transition.
       for (const ancestor of getOverflowAncestors(reference)) {
-        createEventListener<EventTarget, 'scroll'>(
-          ancestor,
-          'scroll',
-          () => {
-            positioner.style.transitionProperty = 'none'
-          },
-          { passive: true },
+        detaches.push(
+          attachEventListener<EventTarget, 'scroll'>(
+            ancestor,
+            'scroll',
+            () => {
+              positioner.style.transitionProperty = 'none'
+            },
+            { passive: true },
+          ),
         )
+      }
+      return () => {
+        for (const detach of detaches) {
+          detach()
+        }
       }
     },
   )
@@ -80,12 +89,16 @@ export function NavigationMenuPanel(): JSX.Element {
       }
       measure()
       const Observer = panel.ownerDocument.defaultView?.ResizeObserver
+      let observer: ResizeObserver | undefined
       if (Observer) {
-        const observer = new Observer(measure)
+        observer = new Observer(measure)
         observer.observe(content)
-        onCleanup(() => observer.disconnect())
       }
-      createEventListener(panel.ownerDocument.defaultView, 'resize', measure)
+      const detach = attachEventListener(panel.ownerDocument.defaultView, 'resize', measure)
+      return () => {
+        detach()
+        observer?.disconnect()
+      }
     },
   )
 
@@ -132,7 +145,7 @@ export function NavigationMenuPanel(): JSX.Element {
         return (
           <div
             {...floating.contentProps}
-            inert={!context.open() ? true : undefined}
+            {...{ "prop:inert": !context.open() ? true : undefined }}
             aria-hidden={!context.open() ? 'true' : undefined}
             class={NAVIGATION_MENU_PANEL_CLASS}
             style={size()}

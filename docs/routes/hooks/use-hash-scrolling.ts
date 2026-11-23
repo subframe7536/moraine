@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup, onSettled } from 'solid-js'
+import { createEffect, createSignal, onSettled } from 'solid-js'
 
 import { DOCS_HEADER_OFFSET, decodeHashAnchor } from './use-table-of-contents'
 /** Correct a hash jump if the sticky header still covers its target. */
@@ -63,10 +63,10 @@ export function useHashScrolling(options: HashScrollingOptions) {
         observer = new MutationObserver(scroll)
         observer.observe(root, { childList: true, subtree: true })
       })
-      onCleanup(() => {
+      return () => {
         cancelAnimationFrame(frame)
         observer?.disconnect()
-      })
+      }
     },
   )
 }

@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { DEV, For, Show, createEffect, createMemo, merge, onCleanup, untrack, omit } from 'solid-js'
+import { DEV, For, Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { callHandler, createId, pick } from '../../shared/utils'
@@ -226,9 +226,9 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
         )
       })
 
-      onCleanup(() => {
+      return () => {
         cancelled = true
-      })
+      }
     },
   )
 

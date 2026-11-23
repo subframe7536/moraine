@@ -5,7 +5,6 @@ import {
   createMemo,
   createEffect,
   createSignal,
-  onCleanup,
   untrack,
   omit,
 } from 'solid-js'
@@ -158,7 +157,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }}
       aria-hidden={disclosure.ariaHidden()}
       hidden={disclosure.hidden() && !allowHeightMotion()}
-      inert={disclosure.inert()}
+      {...{ "prop:inert": disclosure.inert() }}
       data-slot="tree-content"
       {...contentSlot}
       onAnimationEnd={settle}
@@ -244,7 +243,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     () => [itemElement(), (() => local.item.key)()],
     ([element, key]) => {
       if (element) {
-        onCleanup(context.state.navigation.registerElement(key, element))
+        return context.state.navigation.registerElement(key, element)
       }
     },
   )

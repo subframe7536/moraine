@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 import { Portal, isServer } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, onCleanup, omit } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, omit } from 'solid-js'
 import { createStore } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -117,10 +117,10 @@ function ToastRoot(props: ToastProps): JSX.Element {
     () => local.id,
     (id) => {
       const unregister = store.registry.register(controller)
-      onCleanup(() => {
+      return () => {
         unregister()
         store.abandonHost(id)
-      })
+      }
     },
   )
 

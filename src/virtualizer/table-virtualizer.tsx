@@ -175,7 +175,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
   // effect, keeps rows that mount during a scroll on the current window.
   const [windowSource, setWindowSource] = createSignal<
     Accessor<TableVirtualColumnWindow> | undefined
-  >()
+  >(undefined, { ownedWrite: true })
   const columnWindow = (): TableVirtualColumnWindow | undefined => windowSource()?.()
 
   const VirtualRender: Component<TableVirtualRenderProps<TItem, TColumn>> = (props) => {
@@ -387,10 +387,10 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
         observeSections(mutationObserver)
         measureSections(table)
 
-        onCleanup(() => {
+        return () => {
           mutationObserver.disconnect()
           resizeObserver?.disconnect()
-        })
+        }
       },
     )
 

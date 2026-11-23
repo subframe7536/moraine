@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createSignal, untrack } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -137,7 +137,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
 
   createEffect(
     () => [isPresent(), (() => props.preventScroll ?? isModal())(), overlayScroll()],
-    ([present, preventScroll]) => {
+    ([present, preventScroll, scrollableOverlay]) => {
       if (!present || !preventScroll) {
         return
       }
@@ -147,9 +147,9 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
       }
       const scrollContainer = currentContent.parentElement
       const releaseScrollLock = acquireBodyScrollLock(
-        scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
+        scrollableOverlay && scrollContainer ? scrollContainer : currentContent,
       )
-      onCleanup(releaseScrollLock)
+      return releaseScrollLock
     },
   )
 
@@ -185,10 +185,10 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
         }
       })
 
-      onCleanup(() => {
+      return () => {
         active = false
         release?.()
-      })
+      }
     },
   )
 

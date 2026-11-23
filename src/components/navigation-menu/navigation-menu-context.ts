@@ -6,7 +6,7 @@ import { createEffect, createMemo, createSignal, onCleanup, onSettled, merge } f
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListenerMap } from '../../shared/event-listener'
 import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
@@ -315,9 +315,9 @@ export function createNavigationMenuState(
         focusPanel()
         setFocusRequest(undefined)
       })
-      onCleanup(() => {
+      return () => {
         cancelled = true
-      })
+      }
     },
   )
   createEffect(
@@ -326,7 +326,7 @@ export function createNavigationMenuState(
       if (!isOpen || !root) {
         return
       }
-      createEventListenerMap(root.ownerDocument, {
+      const detach = attachEventListenerMap(root.ownerDocument, {
         keydown: (event) => {
           if (event.key === 'Tab') {
             backwardsTab = event.shiftKey
@@ -342,7 +342,10 @@ export function createNavigationMenuState(
           scheduleClose()
         },
       })
-      onCleanup(cancelTimers)
+      return () => {
+        detach()
+        cancelTimers()
+      }
     },
   )
 

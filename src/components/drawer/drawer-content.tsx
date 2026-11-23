@@ -15,7 +15,7 @@ import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { bindElement } from '../../shared/element-binding'
-import { createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -167,7 +167,9 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
     // The gesture binds in this owner and releases with the content.
-    bindElement(family.contentElement, (element) => swipe.attach(element))
+    bindElement(family.contentElement, (element, scope) => {
+      scope(() => swipe.attach(element))
+    })
 
     // While mounted (open or exiting) this drawer reports its state to the
     // ambient parent drawer so ancestors recede into the stack visual. The
@@ -222,7 +224,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         }
 
         const watcher = new CloseWatcherCtor()
-        createEventListenerMap(watcher, {
+        const detach = attachEventListenerMap(watcher, {
           cancel: (event) => {
             if (drawer.closeOnEscape === false && event.cancelable) {
               // Keeps the watcher active for the next close request.
@@ -234,7 +236,10 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
             family.updateOpen(false)
           },
         })
-        onCleanup(() => watcher.destroy())
+        return () => {
+          detach()
+          watcher.destroy()
+        }
       },
     )
     const contentShorthand = createShorthandContent(local)

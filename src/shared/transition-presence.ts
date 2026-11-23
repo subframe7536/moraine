@@ -340,13 +340,13 @@ export function createTransitionPresence(
         }
       })
 
-      onCleanup(() => {
+      return () => {
         cancelled = true
         if (exitTimeout !== undefined) {
           clearTimeout(exitTimeout)
           exitTimeout = undefined
         }
-      })
+      }
     },
   )
 
