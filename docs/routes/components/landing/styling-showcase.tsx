@@ -21,7 +21,6 @@ import {
   NumberInput,
   Popover,
   Progress,
-  RadioGroup,
   ScrollArea,
   Select,
   Switch,
@@ -101,21 +100,21 @@ const ACCENTS = [
 ] as const
 
 const RADIUS_ITEMS = [
-  { label: '0', value: '0px' },
-  { label: 'sm', value: '0.375rem' },
-  { label: 'md', value: '0.625rem' },
-  { label: 'lg', value: '0.875rem' },
-]
+  { label: 'None', value: '0px', icon: 'i-lucide:square' },
+  { label: 'Small', value: '0.375rem', icon: 'i-lucide:square-round-corner' },
+  { label: 'Medium', value: '0.625rem', icon: 'i-lucide:squircle' },
+  { label: 'Large', value: '0.875rem', icon: 'i-lucide:circle' },
+] as const
 
 const INPUT_VARIANT_ITEMS = [
-  { label: 'outline', value: 'outline' },
-  { label: 'subtle', value: 'subtle' },
-]
+  { label: 'Outline', value: 'outline', icon: 'i-lucide:rectangle-horizontal' },
+  { label: 'Subtle', value: 'subtle', icon: 'i-lucide:blend' },
+] as const
 
 const DENSITY_ITEMS = [
-  { label: 'sm', value: 'sm' },
-  { label: 'md', value: 'md' },
-]
+  { label: 'Small', value: 'sm', icon: 'i-lucide:rows-3' },
+  { label: 'Medium', value: 'md', icon: 'i-lucide:rows-2' },
+] as const
 
 interface FileNode {
   id: string
@@ -280,9 +279,9 @@ export function StylingShowcase() {
 
   function CustomizerFields() {
     return (
-      <div class="space-y-5">
+      <div class="space-y-4">
         <div>
-          <p class="text-xs text-muted-foreground font-medium mb-2.5">Accent</p>
+          <p class="text-xs text-muted-foreground font-medium mb-2">Accent</p>
           <div role="group" aria-label="Accent" class="flex flex-wrap gap-1.5">
             <For each={ACCENTS}>
               {(accent) => (
@@ -315,73 +314,87 @@ export function StylingShowcase() {
           </div>
         </div>
 
-        <div class="gap-4 grid grid-cols-2">
-          <div>
-            <p class="text-xs text-muted-foreground font-medium mb-2">Radius</p>
-            <RadioGroup
-              size="sm"
-              variant="card"
-              indicatorPosition="hidden"
-              orientation="horizontal"
-              aria-label="Radius"
-              value={radius()}
-              onValueChange={(value) => {
-                setActivePresetId('custom')
-                setRadius(value)
-              }}
-              items={RADIUS_ITEMS}
-              classes={{
-                root: 'gap-1.5 grid grid-cols-2',
-                item: 'px-2 py-1.5 cursor-pointer justify-center',
-                label: 'text-xs font-mono text-center',
-              }}
-            />
+        <div>
+          <p class="text-xs text-muted-foreground font-medium mb-2">Radius</p>
+          <div role="group" aria-label="Radius" class="flex flex-wrap gap-1.5">
+            <For each={RADIUS_ITEMS}>
+              {(item) => (
+                <ToggleButton
+                  size="sm"
+                  variant="outline"
+                  activeVariant="soft"
+                  tone="neutral"
+                  activeTone="primary"
+                  leading={item.icon}
+                  aria-label={`Radius ${item.label}`}
+                  pressed={radius() === item.value}
+                  onPressedChange={(pressed) => {
+                    if (pressed) {
+                      setActivePresetId('custom')
+                      setRadius(item.value)
+                    }
+                  }}
+                >
+                  {item.label}
+                </ToggleButton>
+              )}
+            </For>
           </div>
+        </div>
 
-          <div class="space-y-3">
-            <div>
-              <p class="text-xs text-muted-foreground font-medium mb-2">Input variant</p>
-              <RadioGroup
-                size="sm"
-                variant="card"
-                indicatorPosition="hidden"
-                orientation="horizontal"
-                aria-label="Input variant"
-                value={inputVariant()}
-                onValueChange={(value) => {
-                  setActivePresetId('custom')
-                  setInputVariant(value as 'outline' | 'subtle')
-                }}
-                items={INPUT_VARIANT_ITEMS}
-                classes={{
-                  root: 'gap-1.5 grid grid-cols-2',
-                  item: 'px-2 py-1.5 cursor-pointer justify-center',
-                  label: 'text-xs text-center',
-                }}
-              />
-            </div>
+        <div>
+          <p class="text-xs text-muted-foreground font-medium mb-2">Input variant</p>
+          <div role="group" aria-label="Input variant" class="flex flex-wrap gap-1.5">
+            <For each={INPUT_VARIANT_ITEMS}>
+              {(item) => (
+                <ToggleButton
+                  size="sm"
+                  variant="outline"
+                  activeVariant="soft"
+                  tone="neutral"
+                  activeTone="primary"
+                  leading={item.icon}
+                  aria-label={`Input variant ${item.label}`}
+                  pressed={inputVariant() === item.value}
+                  onPressedChange={(pressed) => {
+                    if (pressed) {
+                      setActivePresetId('custom')
+                      setInputVariant(item.value)
+                    }
+                  }}
+                >
+                  {item.label}
+                </ToggleButton>
+              )}
+            </For>
+          </div>
+        </div>
 
-            <div>
-              <p class="text-xs text-muted-foreground font-medium mb-2">Density</p>
-              <RadioGroup
-                size="sm"
-                variant="card"
-                indicatorPosition="hidden"
-                orientation="horizontal"
-                aria-label="Density"
-                value={density()}
-                onValueChange={(value) => {
-                  setActivePresetId('custom')
-                  setDensity(value as 'sm' | 'md')
-                }}
-                items={DENSITY_ITEMS}
-                classes={{
-                  root: 'gap-1.5 grid grid-cols-2',
-                  item: 'px-2 py-1.5 cursor-pointer justify-center',
-                  label: 'text-xs font-mono text-center',
-                }}
-              />
-            </div>
+        <div>
+          <p class="text-xs text-muted-foreground font-medium mb-2">Density</p>
+          <div role="group" aria-label="Density" class="flex flex-wrap gap-1.5">
+            <For each={DENSITY_ITEMS}>
+              {(item) => (
+                <ToggleButton
+                  size="sm"
+                  variant="outline"
+                  activeVariant="soft"
+                  tone="neutral"
+                  activeTone="primary"
+                  leading={item.icon}
+                  aria-label={`Density ${item.label}`}
+                  pressed={density() === item.value}
+                  onPressedChange={(pressed) => {
+                    if (pressed) {
+                      setActivePresetId('custom')
+                      setDensity(item.value)
+                    }
+                  }}
+                >
+                  {item.label}
+                </ToggleButton>
+              )}
+            </For>
           </div>
         </div>
 
@@ -818,7 +831,7 @@ export function StylingShowcase() {
                 <Drawer
                   open={customizeOpen()}
                   onOpenChange={setCustomizeOpen}
-                  snapPoints={[0.52, 0.88]}
+                  snapPoints={[0.65, 0.9]}
                 >
                   <Drawer.Trigger
                     as={Button}
