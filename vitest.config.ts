@@ -92,7 +92,7 @@ export default defineConfig({
     ],
     server: {
       deps: {
-        inline: ['@solidjs/router', 'satteri'],
+        inline: ['@solidjs/router', 'satteri', 'solid-file-router'],
       },
     },
   },

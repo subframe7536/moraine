@@ -39,6 +39,7 @@ export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}):
   const packageDir = join(root, 'node_modules', 'moraine')
   mkdirSync(packageDir, { recursive: true })
   mkdirSync(join(root, 'node_modules', '@subf'), { recursive: true })
+  mkdirSync(join(root, 'node_modules', '@solidjs'), { recursive: true })
   mkdirSync(join(root, 'node_modules', '@tanstack'), { recursive: true })
   for (const name of ['@formisch/solid/v2', '@floating-ui/dom']) {
     const destination = join(root, 'node_modules', name)
@@ -58,6 +59,11 @@ export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}):
   symlinkSync(
     join(PROJECT_ROOT, 'node_modules', 'solid-js'),
     join(root, 'node_modules', 'solid-js'),
+    'junction',
+  )
+  symlinkSync(
+    join(PROJECT_ROOT, 'node_modules', '@solidjs', 'web'),
+    join(root, 'node_modules', '@solidjs', 'web'),
     'junction',
   )
   symlinkSync(
