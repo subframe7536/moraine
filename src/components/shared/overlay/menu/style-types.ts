@@ -22,14 +22,8 @@ export interface OverlayMenuStyleSlot<T = unknown> {
   /** Leading icon or visual shown for a menu item. */
   itemLeading?: T
 
-  /** Text column that groups menu item label and description. */
-  itemWrapper?: T
-
   /** Primary text for a menu item. */
   itemLabel?: T
-
-  /** Supporting text for a menu item. */
-  itemDescription?: T
 
   /** Trailing region for shortcuts, submenu arrows, or selection indicators. */
   itemTrailing?: T

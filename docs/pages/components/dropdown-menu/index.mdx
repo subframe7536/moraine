@@ -40,10 +40,7 @@ import Playground from './playground'
                 slot: 'item',
                 children: [
                   { slot: 'itemLeading' },
-                  {
-                    slot: 'itemWrapper',
-                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                  },
+                  { slot: 'itemLabel' },
                   {
                     slot: 'itemTrailing',
                     children: [
@@ -94,7 +91,7 @@ a `button`; pass `as` to render another component such as `Button`, and `disable
 opening.
 
 Describe each action in `items`. An entry that is an array of items forms its own group, and the
-menu draws a separator between groups. An item accepts `icon`, `description`, `kbds`, `disabled`,
+menu draws a separator between groups. An item accepts `icon`, `kbds`, `disabled`,
 and `danger`, and runs `onSelect` before the menu closes. A `{ type: 'separator' }` entry draws a
 divider and takes no other options.
 

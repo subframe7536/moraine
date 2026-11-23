@@ -43,7 +43,6 @@ export function FileActions() {
     },
     {
       label: 'Manage access',
-      description: 'Only the owner can change permissions',
       icon: 'i-lucide:lock',
       disabled: true,
     },

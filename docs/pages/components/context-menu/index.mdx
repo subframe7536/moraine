@@ -40,10 +40,7 @@ import Playground from './playground'
                 slot: 'item',
                 children: [
                   { slot: 'itemLeading' },
-                  {
-                    slot: 'itemWrapper',
-                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                  },
+                  { slot: 'itemLabel' },
                   {
                     slot: 'itemTrailing',
                     children: [
@@ -116,7 +113,7 @@ The `items` array describes the whole menu. An item has `type` `'item'` (the def
 `'radio-group'`, `'group'`, or `'separator'`; an item with `children` opens a submenu. An entry that
 is an array of items forms its own group, and the menu draws a separator between groups.
 
-Items accept `icon`, `description`, `kbds`, `disabled`, and `danger`; a separator takes no other
+Items accept `icon`, `kbds`, `disabled`, and `danger`; a separator takes no other
 options. `kbds` only displays keycaps and does not register a shortcut.
 
 Checkbox and radio state is controlled with `checked` / `onCheckedChange` and with `value` /

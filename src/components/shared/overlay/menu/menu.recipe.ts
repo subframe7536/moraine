@@ -22,9 +22,7 @@ export const overlayMenuBase = {
   group: '',
   item: 'text-sm px-1.5 py-1 text-foreground outline-none rounded-sm flex gap-1.5 w-full cursor-default select-none items-center relative data-highlighted:[&:not([aria-haspopup])]:bg-accent-hover data-highlighted:[&[aria-haspopup=menu]]:bg-accent data-highlighted:text-accent-foreground data-disabled:opacity-50 data-expanded:bg-accent data-expanded:text-accent-foreground hover:data-danger:bg-danger-soft data-danger:text-danger-ink data-danger:data-highlighted:text-danger-ink',
   itemLeading: 'inline-flex shrink-0 size-4 items-center justify-center',
-  itemWrapper: 'flex flex-1 flex-col gap-0.5 min-w-0',
-  itemLabel: 'truncate',
-  itemDescription: 'text-xs truncate',
+  itemLabel: 'flex-1 min-w-0 truncate',
   itemTrailing:
     'text-sm ms-auto inline-flex shrink-0 gap-2 pointer-events-none items-center justify-end',
   itemKbds: 'text-inherit',

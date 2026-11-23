@@ -1105,7 +1105,6 @@ describe('ContextMenu', () => {
                 { type: 'separator' },
                 {
                   label: 'Profile',
-                  description: 'View profile',
                   icon: 'icon-user',
                   kbds: ['meta', 'p'],
                 },
@@ -1142,7 +1141,7 @@ describe('ContextMenu', () => {
 
     expect(document.body.textContent).toContain('Account')
     expect(document.body.querySelector('[data-slot="context-menu-separator"]')).not.toBeNull()
-    expect(document.body.textContent).toContain('View profile')
+    expect(document.body.textContent).toContain('Profile')
     expect(
       document.body.querySelectorAll('[data-slot="context-menu-item"]').length,
     ).toBeGreaterThanOrEqual(2)

@@ -94,7 +94,7 @@ export namespace DropdownMenuT {
      */
     items?: (Item | Item[])[]
     /**
-     * Replaces the inner content of every item row (icon, label, description, shortcut keys, submenu
+     * Replaces the inner content of every item row (icon, label, shortcut keys, submenu
      * indicator and checkmark); the row keeps its role, keyboard handling and selection. It is
      * mounted as a component and receives `item`, `depth` (`0` in the root menu, `1` and up in
      * submenus) and `hasChildren`. Read `item.type` to tell checkbox and radio items apart.

@@ -37,7 +37,6 @@ export default function ContextMenuPlayground() {
                   { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
                   {
                     label: 'Copy',
-                    description: 'Copy to the clipboard',
                     icon: 'i-lucide:copy',
                     kbds: ['⌘', 'C'],
                   },

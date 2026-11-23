@@ -33,7 +33,6 @@ export default function DropdownMenuPlayground() {
                 children: [
                   {
                     label: 'Profile',
-                    description: 'Manage your public profile',
                     icon: 'i-lucide:user',
                   },
                   { label: 'Billing', icon: 'i-lucide:credit-card' },

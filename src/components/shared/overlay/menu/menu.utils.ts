@@ -10,19 +10,8 @@ import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
 
-export function getOverlayMenuTextValue(item: {
-  label?: JSX.Element
-  description?: JSX.Element
-}): string | undefined {
-  if (typeof item.label === 'string') {
-    return item.label
-  }
-
-  if ((item.label === undefined || item.label === null) && typeof item.description === 'string') {
-    return item.description
-  }
-
-  return undefined
+export function getOverlayMenuTextValue(item: { label?: JSX.Element }): string | undefined {
+  return typeof item.label === 'string' ? item.label : undefined
 }
 
 /** Whether an item opens a submenu: an untyped (or `'item'`) entry with at least one non-empty child. */

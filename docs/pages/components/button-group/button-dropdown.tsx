@@ -12,19 +12,16 @@ export function DropdownAction() {
       children: [
         {
           label: 'PDF document',
-          description: 'Best for sharing and printing',
           icon: 'i-lucide:file-text',
           onSelect: () => setExportedFormat('PDF'),
         },
         {
           label: 'CSV spreadsheet',
-          description: 'Best for analysis and imports',
           icon: 'i-lucide:table-2',
           onSelect: () => setExportedFormat('CSV'),
         },
         {
           label: 'JSON data',
-          description: 'Best for integrations',
           icon: 'i-lucide:braces',
           onSelect: () => setExportedFormat('JSON'),
         },

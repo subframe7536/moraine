@@ -169,7 +169,6 @@ describe('DropdownMenu', () => {
             {
               type: 'checkbox',
               label: 'Show bookmarks bar',
-              description: 'Keep important links visible',
               checked: checked(),
               kbds: ['Ctrl', 'B'],
             },
@@ -208,7 +207,6 @@ describe('DropdownMenu', () => {
                 {
                   type: 'radio',
                   label: 'Show bookmarks bar',
-                  description: 'Keep important links visible',
                   value: 'bookmarks',
                   kbds: ['Ctrl', 'B'],
                 },
@@ -898,7 +896,6 @@ describe('DropdownMenu', () => {
                 { type: 'separator' },
                 {
                   label: 'Profile',
-                  description: 'View profile',
                   icon: 'icon-user',
                   kbds: ['meta', 'p'],
                 },
@@ -931,7 +928,7 @@ describe('DropdownMenu', () => {
 
     expect(document.body.textContent).toContain('Account')
     expect(document.body.querySelector('[data-slot="dropdown-menu-separator"]')).not.toBeNull()
-    expect(document.body.textContent).toContain('View profile')
+    expect(document.body.textContent).toContain('Profile')
     expect(
       document.body.querySelectorAll('[data-slot="dropdown-menu-item"]').length,
     ).toBeGreaterThanOrEqual(2)
@@ -2201,15 +2198,13 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
-  test('uses rendered label text before a string description for typeahead', async () => {
+  test('uses rendered label text for typeahead when label is a JSX element', async () => {
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          items={[{ label: <span>Archive</span>, description: 'Stored item' }]}
-        />
+        <DropdownMenu.Content items={[{ label: <span>Archive</span> }]} />
       </DropdownMenu>
     ))
 

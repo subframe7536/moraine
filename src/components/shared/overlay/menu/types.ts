@@ -33,14 +33,9 @@ export interface OverlayMenuBaseItem {
   /**
    * Text or element shown as the item's primary text. A string `label` is also what typeahead
    * matches; otherwise the item's rendered text is used. When the menu content has an `itemRender`,
-   * it replaces the default rendering of `label`, `description`, `icon` and `kbds`.
+   * it replaces the default rendering of `label`, `icon` and `kbds`.
    */
   label?: JSX.Element
-
-  /**
-   * Secondary text shown below the label.
-   */
-  description?: JSX.Element
 
   /**
    * Name of the icon shown at the start of the item.

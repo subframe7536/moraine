@@ -65,7 +65,6 @@ export function WorkspaceView() {
     },
     {
       label: 'Save for everyone',
-      description: 'Workspace administrator permission required',
       disabled: true,
       icon: 'i-lucide:lock',
     },

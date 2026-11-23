@@ -222,7 +222,6 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
   }): JSX.Element {
     const itemRender = createLazyMemo(() => props.itemRender)
     const label = createLazyMemo(() => contentProps.item.label)
-    const description = createLazyMemo(() => contentProps.item.description)
     const kbds = createLazyMemo(() =>
       'kbds' in contentProps.item ? contentProps.item.kbds : undefined,
     )
@@ -248,19 +247,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
           />
         </Show>
 
-        <Show when={label() || description()}>
-          <span data-slot={slotName('itemWrapper')} {...resolveSlot('itemWrapper')}>
-            <Show when={label()}>
-              <span data-slot={slotName('itemLabel')} {...resolveSlot('itemLabel')}>
-                {label()}
-              </span>
-            </Show>
-
-            <Show when={description()}>
-              <span data-slot={slotName('itemDescription')} {...resolveSlot('itemDescription')}>
-                {description()}
-              </span>
-            </Show>
+        <Show when={label()}>
+          <span data-slot={slotName('itemLabel')} {...resolveSlot('itemLabel')}>
+            {label()}
           </span>
         </Show>
 
