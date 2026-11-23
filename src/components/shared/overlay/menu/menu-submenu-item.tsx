@@ -37,6 +37,29 @@ const OPPOSITE_PLACEMENT_SIDE: Record<OverlayPlacement, Placement> = {
   top: 'bottom',
 }
 
+function isExitingAwayFromSubmenu(
+  placement: Placement,
+  point: [number, number],
+  triggerElement: Element,
+): boolean {
+  const rect = triggerElement.getBoundingClientRect()
+  if (rect.width === 0 && rect.height === 0) {
+    return false
+  }
+
+  const side = parseFloatingPlacement(placement).side
+  switch (side) {
+    case 'right':
+      return point[0] < rect.left
+    case 'left':
+      return point[0] > rect.right
+    case 'bottom':
+      return point[1] < rect.top
+    case 'top':
+      return point[1] > rect.bottom
+  }
+}
+
 export interface CreateSubmenuItemOptions<TItem extends OverlayMenuItem = OverlayMenuItem> {
   layer: OverlayMenuLayerState
   layerProps: OverlayMenuLayerProps<TItem>
@@ -107,6 +130,20 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       setAutoFocusStrategy('none')
     }
 
+    const dismissSubmenuOnPointerExit = (point?: [number, number]): void => {
+      const ownerDocument = triggerElement()?.ownerDocument
+      const hadSubmenuFocus =
+        isNode(ownerDocument?.activeElement) &&
+        (submenuLayerState?.containsTarget(ownerDocument.activeElement) ?? false)
+
+      layer.setPointerGraceIntent(null, point)
+      dismissSubmenu()
+
+      if (layer.highlightedItemId() === submenuId() || hadSubmenuFocus) {
+        layer.focusContent()
+      }
+    }
+
     /**
      * Closes the submenu once the pointer leaves the trigger, the submenu subtree,
      * and the grace area between them (see Base UI's `safePolygon` close).
@@ -132,12 +169,15 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
           return
         }
 
-        if (intent && isPointInPointerGraceIntent([event.clientX, event.clientY], intent)) {
+        if (
+          event.type !== 'pointerleave' &&
+          intent &&
+          isPointInPointerGraceIntent([event.clientX, event.clientY], intent)
+        ) {
           return
         }
 
-        layer.setPointerGraceIntent(null)
-        dismissSubmenu()
+        dismissSubmenuOnPointerExit()
       }
 
       removePointerExitListener = attachEventListenerMap(ownerDocument, {
@@ -205,6 +245,29 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       setOpenState(true)
     }
 
+    const scheduleOpenSubmenu = (): void => {
+      if (isOpen() || openTimeoutId !== 0) {
+        return
+      }
+
+      const ownerWindow = triggerElement()?.ownerDocument.defaultView
+      if (!ownerWindow) {
+        return
+      }
+      openTimeoutWindow = ownerWindow
+      openTimeoutId = ownerWindow.setTimeout(() => {
+        openTimeoutId = 0
+        openTimeoutWindow = undefined
+        untrack(() => {
+          if (!layerProps.open || itemProps.item.disabled) {
+            return
+          }
+
+          openSubmenu('content')
+        })
+      }, 100)
+    }
+
     const onPointerMove = (): void => {
       if (itemProps.item.disabled) {
         layer.focusContent()
@@ -212,6 +275,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       }
 
       if (layer.highlightedItemId() === submenuId()) {
+        scheduleOpenSubmenu()
         return
       }
 
@@ -222,24 +286,7 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       submenuLayerState?.setHighlightedItemId(undefined)
       focusWithoutScrolling(triggerElement())
 
-      if (!isOpen()) {
-        const ownerWindow = triggerElement()?.ownerDocument.defaultView
-        if (!ownerWindow) {
-          return
-        }
-        openTimeoutWindow = ownerWindow
-        openTimeoutId = ownerWindow.setTimeout(() => {
-          openTimeoutId = 0
-          openTimeoutWindow = undefined
-          untrack(() => {
-            if (!layerProps.open || itemProps.item.disabled) {
-              return
-            }
-
-            openSubmenu('content')
-          })
-        }, 100)
-      }
+      scheduleOpenSubmenu()
     }
 
     const handlers = createSelectableItemHandlers(layer, {
@@ -261,9 +308,22 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
         const contentElement = submenuLayerState?.contentElement()
         const submenuPlacement = submenuLayerState?.currentPlacement() ?? 'right-start'
 
-        if (!contentElement) {
+        if (!isOpen() || !contentElement) {
           layer.setPointerGraceIntent(null, [event.clientX, event.clientY])
           layer.focusContent()
+          return
+        }
+
+        if (
+          isExitingAwayFromSubmenu(
+            submenuPlacement,
+            [event.clientX, event.clientY],
+            event.currentTarget,
+          ) &&
+          (!isNode(event.relatedTarget) ||
+            !(submenuLayerState?.containsTarget(event.relatedTarget) ?? false))
+        ) {
+          dismissSubmenuOnPointerExit([event.clientX, event.clientY])
           return
         }
 

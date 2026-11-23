@@ -1694,6 +1694,216 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).not.toContain('Nested action')
   })
 
+  test('clears data-highlighted and reopens consistently across repeated submenu trigger hover-leave cycles', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      const subTrigger = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+      ).find((item) => item.textContent?.includes('More')) as HTMLElement
+
+      for (let cycle = 0; cycle < 4; cycle++) {
+        fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+        expect(subTrigger.getAttribute('data-highlighted')).toBe('')
+
+        await vi.advanceTimersByTimeAsync(100)
+        await vi.advanceTimersByTimeAsync(16)
+
+        expect(subTrigger.getAttribute('data-expanded')).toBe('')
+
+        const subContent = Array.from(
+          document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+        ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+        subContent.getBoundingClientRect = () => ({
+          bottom: 120,
+          height: 80,
+          left: 60,
+          right: 140,
+          top: 40,
+          width: 80,
+          x: 60,
+          y: 40,
+          toJSON: () => ({}),
+        })
+
+        fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+        fireEvent.pointerMove(document.body, { clientX: 300, clientY: 300, pointerType: 'mouse' })
+
+        expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+        expect(subTrigger.hasAttribute('data-highlighted')).toBe(false)
+
+        await finishMenuExitMotion()
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('immediately dismisses submenu and clears data-highlighted when exiting away from the submenu side', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      const subTrigger = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+      ).find((item) => item.textContent?.includes('More')) as HTMLElement
+
+      subTrigger.getBoundingClientRect = () => ({
+        bottom: 120,
+        height: 40,
+        left: 100,
+        right: 200,
+        top: 80,
+        width: 100,
+        x: 100,
+        y: 80,
+        toJSON: () => ({}),
+      })
+
+      fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(100)
+      await vi.advanceTimersByTimeAsync(16)
+
+      expect(subTrigger.getAttribute('data-expanded')).toBe('')
+      expect(subTrigger.getAttribute('data-highlighted')).toBe('')
+
+      const subContent = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+      const exitX = subContent.getAttribute('data-side') === 'left' ? 202 : 98
+
+      fireEvent.pointerLeave(subTrigger, {
+        clientX: exitX,
+        clientY: 100,
+        pointerType: 'mouse',
+        relatedTarget: document.body,
+      })
+
+      expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+      expect(subTrigger.hasAttribute('data-highlighted')).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('opens a keyboard-highlighted closed submenu when hovered with the mouse', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      const rootContent = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
+      const subTrigger = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+      ).find((item) => item.textContent?.includes('More')) as HTMLElement
+
+      fireEvent.keyDown(rootContent, { key: 'ArrowDown' })
+      expect(subTrigger.getAttribute('data-highlighted')).toBe('')
+      expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+
+      fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(100)
+      await vi.advanceTimersByTimeAsync(16)
+
+      expect(subTrigger.getAttribute('data-expanded')).toBe('')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('clears data-highlighted when leaving a submenu trigger during submenu exit motion', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      const subTrigger = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+      ).find((item) => item.textContent?.includes('More')) as HTMLElement
+
+      fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(100)
+      await vi.advanceTimersByTimeAsync(16)
+      expect(subTrigger.getAttribute('data-expanded')).toBe('')
+
+      fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+      fireEvent.pointerMove(document.body, { clientX: 300, clientY: 300, pointerType: 'mouse' })
+      expect(subTrigger.hasAttribute('data-expanded')).toBe(false)
+      expect(subTrigger.hasAttribute('data-highlighted')).toBe(false)
+
+      // Submenu content is still mounted during exit motion; hovering and leaving before 100ms
+      // should still clear data-highlighted immediately.
+      fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      expect(subTrigger.getAttribute('data-highlighted')).toBe('')
+
+      fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+      expect(subTrigger.hasAttribute('data-highlighted')).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   test('closes the submenu when the pointer leaves the submenu content to outside the menu', async () => {
     render(() => (
       <DropdownMenu defaultOpen>

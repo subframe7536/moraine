@@ -148,7 +148,10 @@ describe('presetMoraine', () => {
       const css = await generate(tokens, false, wind)
 
       expect(css).toContain('[data-highlighted]')
+      expect(css).toContain(':not([aria-haspopup])')
+      expect(css).toContain('[aria-haspopup=menu]')
       expect(css).toContain('var(--accent-hover')
+      expect(css).toContain('var(--accent)')
       expect(css).toContain('--accent-foreground')
       expect(css).toContain('[data-danger]')
       expect(css).toContain('--danger')

@@ -85,7 +85,7 @@ export function createSelectableItemHandlers(
       return
     }
 
-    if (layer.highlightedItemId() === options.itemId()) {
+    if (!options.onHighlight && layer.highlightedItemId() === options.itemId()) {
       return
     }
 

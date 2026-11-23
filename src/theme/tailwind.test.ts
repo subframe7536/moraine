@@ -492,6 +492,18 @@ describe('attribute variants', () => {
     expect(css).toMatch(/:active:not\(\[aria-haspopup\]\)\s*\{\s*--tw-translate-y: 1px;/)
   })
 
+  test('menu item highlight differentiates regular items and submenu triggers', async () => {
+    const css = await compileCSS([
+      'data-highlighted:[&:not([aria-haspopup])]:bg-accent-hover',
+      'data-highlighted:[&[aria-haspopup=menu]]:bg-accent',
+    ])
+
+    expect(css).toContain(':not([aria-haspopup])')
+    expect(css).toContain('[aria-haspopup=menu]')
+    expect(css).toContain('var(--accent-hover')
+    expect(css).toContain('var(--accent);')
+  })
+
   test('data variants compose with hover inside a hover media query', async () => {
     const css = await compileCSS(['hover:data-active:bg-primary'])
     expect(css).toContain('@media (hover: hover)')
