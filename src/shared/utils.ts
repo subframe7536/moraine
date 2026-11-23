@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createUniqueId, untrack } from 'solid-js'
+import { createMemo, createUniqueId, getOwner, runWithOwner, untrack } from 'solid-js'
 /**
  * Generates a unique identifier for accessibility and form association.
  *
@@ -143,10 +143,15 @@ export function createSelector<S, K>(
   fn: (key: K, source: S) => boolean = (key, src) => key === (src as unknown as K),
 ): (key: K) => boolean {
   const memos = new Map<K, Accessor<boolean>>()
+  // Memos must outlive the scope that first reads a key: a memo created inside
+  // a binding is disposed when that binding re-runs and would stay stale in the
+  // map, so they attach to the selector's own owner instead.
+  const owner = getOwner()
   return (key) => {
     let memo = memos.get(key)
     if (!memo) {
-      memo = createMemo(() => fn(key, source()))
+      const create = () => createMemo(() => fn(key, source()))
+      memo = owner ? runWithOwner(owner, create) : create()
       memos.set(key, memo)
     }
     return memo()

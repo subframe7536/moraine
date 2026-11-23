@@ -357,7 +357,7 @@ describe('createTree', () => {
       expect(onExpandedKeysChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
-      item(container, 'guide.md').focus()
+      flush(() => item(container, 'guide.md').focus())
       expect(document.activeElement).toBe(item(container, 'guide.md'))
 
       flush(() => setKeys([]))
@@ -369,7 +369,7 @@ describe('createTree', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
 
-      tree.focus('button')
+      flush(() => tree.focus('button'))
       expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
       await waitFor(() => expect(document.activeElement).toBe(item(container, 'button.tsx')))
       expect(tree.focusedKey).toBe('button')
@@ -379,14 +379,14 @@ describe('createTree', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
 
-      tree.expandTo('button')
+      flush(() => tree.expandTo('button'))
       expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
       expect(labels(container)).toContain('button.tsx')
 
-      tree.collapseAll()
+      flush(() => tree.collapseAll())
       expect(tree.expandedKeys).toEqual([])
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       expect(labels(container)).toEqual([
         'src',
         'components',
@@ -586,19 +586,19 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
 
-      tree.collapseAll()
+      flush(() => tree.collapseAll())
       expect(tree.expandedKeys).toEqual(['disabled-branch'])
 
       const eb = item(container, 'enabled-branch')
-      eb.focus()
+      flush(() => eb.focus())
       press(eb, '*')
       expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
 
-      tree.collapseAll()
-      tree.expandTo('d1')
+      flush(() => tree.collapseAll())
+      flush(() => tree.expandTo('d1'))
       expect(tree.expandedKeys).toEqual(['disabled-branch'])
     })
 
@@ -640,7 +640,7 @@ describe('createTree', () => {
       )
       expect(tabbable.map((element) => element.getAttribute('aria-label'))).toEqual(['src'])
 
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
       expect(item(container, 'button.tsx').getAttribute('tabindex')).toBe('0')
       expect(item(container, 'src').getAttribute('tabindex')).toBe('-1')
     })
@@ -648,7 +648,7 @@ describe('createTree', () => {
     test('moves focus with arrow keys, Home, and End while skipping disabled items', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowDown')
       expect(document.activeElement).toBe(item(container, 'components'))
@@ -669,7 +669,7 @@ describe('createTree', () => {
     test('expands with ArrowRight, enters children, and collapses with ArrowLeft', () => {
       const { container } = render(() => <Harness />)
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowRight')
       expect(src.getAttribute('aria-expanded')).toBe('true')
@@ -692,7 +692,7 @@ describe('createTree', () => {
         </MoraineProvider>
       ))
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'ArrowRight')
       expect(src.getAttribute('aria-expanded')).toBe('false')
@@ -702,7 +702,7 @@ describe('createTree', () => {
 
     test('keeps focus on the nearest visible ancestor when its subtree collapses', () => {
       const { container } = setup()
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
 
       clickTrigger(item(container, 'src'))
       expect(document.activeElement).toBe(item(container, 'src'))
@@ -712,7 +712,7 @@ describe('createTree', () => {
     test('expands every sibling with *', () => {
       const { container } = render(() => <Harness />)
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, '*')
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
@@ -722,7 +722,7 @@ describe('createTree', () => {
     test('moves to the next match while typing', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'r')
       expect(document.activeElement).toBe(item(container, 'README.md'))
@@ -731,7 +731,7 @@ describe('createTree', () => {
     test('does not run typeahead when disabled', () => {
       const { container } = setup({ typeahead: false })
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       press(src, 'r')
       expect(document.activeElement).toBe(src)
@@ -741,14 +741,14 @@ describe('createTree', () => {
       const onAction = vi.fn()
       const { container, unmount } = setup()
       const readme = item(container, 'README.md')
-      readme.focus()
+      flush(() => readme.focus())
       press(readme, 'Enter')
       expect(item(container, 'README.md').getAttribute('aria-selected')).toBe('true')
       unmount()
 
       const second = setup({ onAction })
       const index = item(second.container, 'index.ts')
-      index.focus()
+      flush(() => index.focus())
       press(index, 'Enter')
       expect(onAction).toHaveBeenCalledTimes(1)
       expect(onAction.mock.calls[0]?.[0].key).toBe('index')
@@ -757,7 +757,7 @@ describe('createTree', () => {
 
     test('ignores keys from nested items and interactive descendants', () => {
       const { container } = setup()
-      item(container, 'button.tsx').focus()
+      flush(() => item(container, 'button.tsx').focus())
 
       press(item(container, 'button.tsx'), 'ArrowLeft')
       expect(document.activeElement).toBe(item(container, 'components'))
@@ -767,7 +767,7 @@ describe('createTree', () => {
     test('ignores keyboard navigation during IME composition and keyCode 229', () => {
       const { container } = setup()
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
 
       fireEvent.keyDown(src, { key: 'ArrowDown', isComposing: true })
       expect(document.activeElement).toBe(src)
@@ -795,7 +795,7 @@ describe('createTree', () => {
         <Harness items={() => nodes} options={{ defaultExpandedKeys: ['root', 'parent'] }} />
       ))
       const child = item(container, 'child')
-      child.focus()
+      flush(() => child.focus())
 
       press(child, 'ArrowLeft')
       expect(document.activeElement).toBe(item(container, 'root'))
@@ -843,12 +843,12 @@ describe('createTree', () => {
         </>
       ))
       const src = item(container, 'src')
-      src.focus()
+      flush(() => src.focus())
       expect(tree.focusedKey).toBe('src')
       expect(tree.getItem('src')?.focused).toBe(true)
 
       const outside = container.querySelector('button')!
-      outside.focus()
+      flush(() => outside.focus())
       fireEvent.focusOut(src, { relatedTarget: outside })
       expect(tree.focusedKey).toBeUndefined()
       expect(tree.getItem('src')?.focused).toBe(false)
@@ -902,12 +902,12 @@ describe('createTree', () => {
       fireEvent.click(item(container, 'README.md'), { shiftKey: true })
       expect(tree.selectedKeys).toEqual(['docs', 'guide', 'readme'])
 
-      item(container, 'README.md').focus()
+      flush(() => item(container, 'README.md').focus())
       press(item(container, 'README.md'), 'a', { ctrlKey: true })
       expect(tree.selectedKeys).toHaveLength(8)
       expect(tree.selectedKeys).not.toContain('license')
 
-      tree.clearSelection()
+      flush(() => tree.clearSelection())
       expect(tree.selectedKeys).toEqual([])
     })
 
@@ -1040,22 +1040,22 @@ describe('createTree', () => {
       const { container } = render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
       expect(container.querySelectorAll('[data-slot="tree-checkbox"]').length).toBeGreaterThan(0)
 
-      tree.check('button')
+      flush(() => tree.check('button'))
       expect(tree.getItem('button')?.checkedState).toBe('checked')
       expect(tree.getItem('components')?.checkedState).toBe('indeterminate')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
 
-      tree.check('checkbox')
+      flush(() => tree.check('checkbox'))
       expect(tree.getItem('components')?.checkedState).toBe('checked')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
 
-      tree.check('index')
+      flush(() => tree.check('index'))
       expect(tree.getItem('src')?.checkedState).toBe('checked')
       expect(tree.checkedKeys).toEqual(
         expect.arrayContaining(['src', 'components', 'button', 'checkbox', 'index']),
       )
 
-      tree.uncheck('components')
+      flush(() => tree.uncheck('components'))
       expect(tree.getItem('button')?.checkedState).toBe('unchecked')
       expect(tree.getItem('src')?.checkedState).toBe('indeterminate')
       expect(tree.checkedKeys).toEqual(['index'])
@@ -1065,10 +1065,10 @@ describe('createTree', () => {
       let tree!: TreeT.Instance<Node>
       render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
 
-      tree.check('button')
-      tree.toggleCheck('components')
+      flush(() => tree.check('button'))
+      flush(() => tree.toggleCheck('components'))
       expect(tree.getItem('components')?.checkedState).toBe('checked')
-      tree.toggleCheck('components')
+      flush(() => tree.toggleCheck('components'))
       expect(tree.getItem('components')?.checkedState).toBe('unchecked')
     })
 
@@ -1136,7 +1136,7 @@ describe('createTree', () => {
       ))
 
       expect(tree.checkedKeys).toContain('not-loaded')
-      tree.check('readme')
+      flush(() => tree.check('readme'))
       expect(onCheckedKeysChange).toHaveBeenLastCalledWith(tree.checkedKeys)
       expect(tree.checkedKeys).toEqual(expect.arrayContaining(['readme', 'not-loaded']))
     })
@@ -1146,7 +1146,7 @@ describe('createTree', () => {
         <Harness options={{ checkable: true, defaultExpandedKeys: ['docs'] }} />
       ))
       const docs = item(container, 'docs')
-      docs.focus()
+      flush(() => docs.focus())
 
       expect(docs.getAttribute('aria-checked')).toBe('false')
       press(docs, ' ')
@@ -1169,7 +1169,7 @@ describe('createTree', () => {
         />
       ))
 
-      tree.check('docs')
+      flush(() => tree.check('docs'))
       expect(tree.getItem('docs')?.checkedState).toBe('checked')
       expect(tree.getItem('guide')?.checkedState).toBe('unchecked')
     })
@@ -1197,16 +1197,16 @@ describe('createTree', () => {
         />
       ))
 
-      tree.check('license')
+      flush(() => tree.check('license'))
       expect(tree.checkedKeys).toEqual([])
       expect(onCheckedKeysChange).not.toHaveBeenCalled()
 
-      tree.check('folder')
+      flush(() => tree.check('folder'))
       expect(tree.checkedKeys).toEqual(['folder', 'active'])
       expect(tree.getItem('locked')?.checkedState).toBe('unchecked')
       expect(tree.getItem('folder')?.checkedState).toBe('checked')
 
-      tree.check('readme')
+      flush(() => tree.check('readme'))
       expect(onCheckedKeysChange).toHaveBeenLastCalledWith(['folder', 'active', 'readme'])
     })
   })
@@ -1311,7 +1311,7 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expand('remote')
+      flush(() => tree.expand('remote'))
       await waitFor(() => expect(item(container, 'child.txt')).toBeTruthy())
       expect(tree.getItem('child')?.checkedState).toBe('checked')
     })
@@ -1327,7 +1327,7 @@ describe('createTree', () => {
         />
       ))
 
-      tree.expandAll()
+      flush(() => tree.expandAll())
       await waitFor(() => expect(onLoadChildrenError).toHaveBeenCalledTimes(1))
       await waitFor(() =>
         expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false'),
@@ -1717,7 +1717,7 @@ describe('createTree', () => {
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
       const first = item(container, 'file-0')
-      first.focus()
+      flush(() => first.focus())
       press(first, 'ArrowDown')
       await waitFor(() => expect(document.activeElement).toBe(item(container, 'file-1')))
 
@@ -1733,7 +1733,7 @@ describe('createTree', () => {
       ))
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
-      tree.focus('file-150')
+      flush(() => tree.focus('file-150'))
       expect(tree.focusedKey).toBe('file-150')
       expect(item(container, 'file-0').getAttribute('tabindex')).toBe('-1')
     })
