@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { mergeProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createKeyDownHandler } from '../../shared/keyboard'
@@ -12,7 +12,6 @@ import type { PopperTriggerProps } from '../shared/overlay/popper.types'
 import { usePopoverContext } from './popover-context'
 import { popoverRecipe } from './popover.recipe'
 import type { PopoverT } from './popover.types'
-
 /**
  * Element that toggles the surrounding `Popover` and anchors its content. It must be placed
  * inside `Popover`. Renders a `button`; pass `as` to render another component such as `Button`.
@@ -38,7 +37,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
   const popper = context.popper
   // Hover and focus open the popover outside the button interaction, so they check `disabled` here.
   const disabled = () => Boolean(props.disabled)
-  const triggerProps = mergeProps(
+  const triggerProps = merge(
     mergePopperElementProps<HTMLElement>(
       {
         onClick: () => {

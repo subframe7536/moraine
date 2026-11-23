@@ -2,7 +2,6 @@ import { createRoot } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useHiddenInputValidation } from './use-hidden-input-validation'
-
 describe('useHiddenInputValidation', () => {
   test('initializes with nativeInvalid false', () => {
     createRoot((dispose) => {

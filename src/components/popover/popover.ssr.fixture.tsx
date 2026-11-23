@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Popover } from './popover'
-
 export function renderPopoverFixture(): string {
   return renderToString(() => (
     <Popover openOnHover openDelay={50}>

@@ -2,7 +2,6 @@ import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const TOPICS: MultiSelectT.Entry[] = [
   {
     type: 'group',

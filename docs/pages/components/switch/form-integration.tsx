@@ -1,7 +1,6 @@
 import { Button, createForm, Switch } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 export function FormIntegration() {
   const [submittedAutoRenew, setSubmittedAutoRenew] = createSignal(true)
   const form = createForm({

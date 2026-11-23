@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from 'vitest'
 import type { TestProject } from 'vitest/node'
 
 import { renderFixtures } from './ssr-global-setup'
-
 describe('SSR global setup', () => {
   test('closes the Vite server when a fixture import fails', async () => {
     const close = vi.fn(async () => undefined)

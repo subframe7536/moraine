@@ -1,6 +1,5 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-
 const ROLES: SelectT.Item[] = [
   {
     label: 'Owner',

@@ -1,9 +1,9 @@
-import type { JSX } from 'solid-js'
-import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, merge, onCleanup, onSettled, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { InputModifiers } from '../../shared/input-modifiers'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
 import { mergeFieldAriaAttributes } from '../shared/form/field-aria'
@@ -12,7 +12,6 @@ import { useTextControlValue } from '../shared/form/use-text-control-value'
 
 import { textareaDataAttributes, textareaRecipe } from './textarea.recipe'
 import type { TextareaProps, TextareaT } from './textarea.types'
-
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
   const paddingTop = Number.parseInt(styles.paddingTop, 10) || 0
@@ -37,7 +36,7 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Field, Textarea } from 'moraine'
  *
  * const [message, setMessage] = createSignal('')
@@ -57,7 +56,8 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 export function Textarea<
   TModifiers extends InputModifiers | undefined = InputModifiers | undefined,
 >(props: TextareaProps<TModifiers>): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'id',
     'name',
@@ -87,7 +87,39 @@ export function Textarea<
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'readOnly',
+    'disabled',
+    'size',
+    'variant',
+    'autoComplete',
+    'autoFocus',
+    'autoFocusDelay',
+    'autoResize',
+    'autoResizeDelay',
+    'rows',
+    'maxRows',
+    'modifiers',
+    'onValueChange',
+    'onChange',
+    'onInput',
+    'onBlur',
+    'onFocus',
+    'onCompositionStart',
+    'onCompositionEnd',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
   const themeField = useFieldContext()
   const group = useInputGroupContext()
   const {
@@ -111,7 +143,7 @@ export function Textarea<
     }),
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       rows: 3,
       maxRows: 0,
@@ -256,17 +288,15 @@ export function Textarea<
   }
 
   createEffect(
-    on(
-      [
-        () => merged.autoResize,
-        () => merged.rows,
-        () => merged.maxRows,
-        () => merged.autoResizeDelay,
-        () => merged.value,
-        field.value,
-      ],
-      () => scheduleAutoResize(),
-    ),
+    () => [
+      (() => merged.autoResize)(),
+      (() => merged.rows)(),
+      (() => merged.maxRows)(),
+      (() => merged.autoResizeDelay)(),
+      (() => merged.value)(),
+      field.value(),
+    ],
+    () => scheduleAutoResize(),
   )
 
   let autoFocusTimer: ReturnType<typeof setTimeout> | undefined
@@ -287,7 +317,7 @@ export function Textarea<
     },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (textareaEl) {
       initialOverflow = textareaEl.style.overflow
       if (textControl.initialDefaultValue !== undefined) {

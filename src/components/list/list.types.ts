@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { ListVirtualizer, VirtualRowProps } from '../../virtualizer/virtualizer.types'
 
 import type { ListStyleSlot, ListStyleVariants } from './list.style-types'
-
 export namespace ListT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ListStyleSlot<T>

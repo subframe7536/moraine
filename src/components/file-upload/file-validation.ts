@@ -1,5 +1,4 @@
 import type { FileUploadT } from './file-upload.types'
-
 interface FileSelection {
   accepted: File[]
   rejected: FileUploadT.Rejection[]

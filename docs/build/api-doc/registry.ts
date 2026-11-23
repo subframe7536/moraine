@@ -10,7 +10,6 @@ import type { DocsPageSource } from '../routes.ts'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'
 import type { AccessApi } from './types.ts'
-
 export interface RegisteredPart {
   id: string
   name: string

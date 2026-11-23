@@ -1,10 +1,10 @@
-import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, onSettled } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ComponentSize } from '../../theme/style-types'
-
 export type FieldPath = readonly (string | number)[]
 export type FieldName = string | FieldPath
 export type FieldBindingEvent = 'blur' | 'change' | 'focus' | 'input'
@@ -127,19 +127,17 @@ export function useFormField(
   const invalid = createMemo(() => hasContent(fieldContext?.error))
 
   createEffect(
-    on(
-      [path, focus, controlElement, () => fieldContext?.binding?.controlRef],
-      ([, shouldRegister, element, ref]) => {
-        if (!shouldRegister || !element || !ref) {
-          return
-        }
-        ref(element)
-        onCleanup(() => ref(undefined))
-      },
-    ),
+    () => [path(), focus(), controlElement(), (() => fieldContext?.binding?.controlRef)()],
+    ([, shouldRegister, element, ref]) => {
+      if (!shouldRegister || !element || !ref) {
+        return
+      }
+      ref(element)
+      return () => ref(undefined)
+    },
   )
 
-  onMount(() => {
+  onSettled(() => {
     const binding = fieldContext?.binding
     const initialValue = options.initialValue
     if (binding && binding.value === undefined && initialValue !== undefined) {

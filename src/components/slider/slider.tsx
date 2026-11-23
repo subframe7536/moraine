@@ -1,19 +1,19 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   children as resolveChildren,
   createMemo,
   For,
-  mergeProps,
-  onMount,
+  merge,
+  onSettled,
   Show,
-  splitProps,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -22,7 +22,6 @@ import { createSlider } from './hook'
 import { defaultSliderMessages } from './slider.messages'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
-
 /**
  * Range slider for choosing a number or range by moving one or more thumbs; a number `value` gives
  * one thumb and an array gives a range. Use `NumberInput` when the value is typed and stepped
@@ -32,7 +31,7 @@ import type { SliderProps, SliderT } from './slider.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Field, Slider } from 'moraine'
  *
  * const [volume, setVolume] = createSignal(50)
@@ -45,7 +44,8 @@ import type { SliderProps, SliderT } from './slider.types'
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'inputRef',
     'id',
@@ -78,7 +78,42 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'translations',
     'formatOptions',
     'children',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'inputRef',
+    'id',
+    'name',
+    'form',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'min',
+    'max',
+    'step',
+    'minStepsBetweenThumbs',
+    'markers',
+    'allowThumbCrossing',
+    'thumbAlignment',
+    'onValueChange',
+    'onValueCommit',
+    'onFocus',
+    'onBlur',
+    'orientation',
+    'reversed',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'translations',
+    'formatOptions',
+    'children',
+  )
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
   let slider!: ReturnType<typeof createSlider<TValue>>
@@ -116,7 +151,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     context: () => ({ variants: { size: themeField?.size } }),
     enforced: { range: () => ({ style: slider.rangeStyle() }) },
   })
-  const merged = mergeProps(
+  const merged = merge(
     {
       min: 0,
       max: 100,
@@ -140,7 +175,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   })
   const inputEls: HTMLInputElement[] = []
 
-  const sliderProps = mergeProps(merged, {
+  const sliderProps = merge(merged, {
     get readOnly() {
       return field.readOnly()
     },
@@ -182,7 +217,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (field.value() === undefined) {
       field.setFormValue(slider.getPublicValue(slider.currentValues()))
     }
@@ -294,7 +329,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               data-slot="slider-thumb"
               {...thumbSlot}
               role="slider"
-              tabIndex={field.disabled() ? undefined : 0}
+              tabindex={field.disabled() ? undefined : 0}
               aria-valuemin={slider.getThumbMinValue(thumbIndex)}
               aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
               aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
@@ -343,7 +378,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 required={field.required()}
                 disabled={field.disabled()}
                 readonly={field.readOnly()}
-                tabIndex={field.disabled() ? undefined : -1}
+                tabindex={field.disabled() ? undefined : -1}
                 aria-valuetext={slider.getThumbValueText(thumbIndex)}
                 aria-orientation={merged.orientation ?? undefined}
                 {...field.ariaAttrs()}

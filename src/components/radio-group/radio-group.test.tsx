@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -11,7 +11,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { RadioGroup } from './radio-group'
-
 describe('RadioGroup', () => {
   test('forwards root ref', () => {
     let rootEl: HTMLDivElement | undefined
@@ -475,11 +474,11 @@ describe('RadioGroup', () => {
     expect(radioB.checked).toBe(false)
     expect(getInput(form)).toEqual({ plan: 'A' })
 
-    setValue('B')
+    flush(() => setValue('B'))
     expect(radioB.checked).toBe(true)
     expect(getInput(form)).toEqual({ plan: 'B' })
 
-    setInput(form, { path: ['plan'], input: 'A' })
+    flush(() => setInput(form, { path: ['plan'], input: 'A' }))
     expect(radioB.checked).toBe(true)
     expect(getInput(form)).toEqual({ plan: 'B' })
   })
@@ -501,7 +500,7 @@ describe('RadioGroup', () => {
       ),
     )
 
-    setInput(form, { path: ['plan'], input: 'B' })
+    flush(() => setInput(form, { path: ['plan'], input: 'B' }))
 
     expect(screen.getByRole<HTMLInputElement>('radio', { name: 'B' }).checked).toBe(true)
     expect(onChange).not.toHaveBeenCalled()
@@ -574,7 +573,7 @@ describe('RadioGroup', () => {
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     radioB.focus()
-    setItems((current) => current.filter((item) => item !== 'B'))
+    flush(() => setItems((current) => current.filter((item) => item !== 'B')))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
@@ -595,7 +594,7 @@ describe('RadioGroup', () => {
       const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
       radioB.focus()
-      setItems((current) => current.filter((item) => item !== 'B'))
+      flush(() => setItems((current) => current.filter((item) => item !== 'B')))
       await Promise.resolve()
 
       expect(shadow.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
@@ -624,7 +623,7 @@ describe('RadioGroup', () => {
       const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
       radioB.focus()
-      setItems((current) => current.filter((item) => item !== 'B'))
+      flush(() => setItems((current) => current.filter((item) => item !== 'B')))
       await Promise.resolve()
 
       expect(frameDocument.activeElement).toBe(
@@ -717,7 +716,7 @@ describe('RadioGroup', () => {
 
     expect(form.checkValidity()).toBe(true)
     expect(new FormData(form).getAll('plan')).toEqual(['A'])
-    setDefaultValue('B')
+    flush(() => setDefaultValue('B'))
     fireEvent.click(radioB)
     expect(new FormData(form).getAll('plan')).toEqual(['B'])
 

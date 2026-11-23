@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../../provider'
@@ -7,7 +7,6 @@ import { finishExitMotion } from '../../../test-util/overlay-test'
 import { defineTheme } from '../../../theme'
 import { Dialog } from '../../dialog/dialog'
 import { Sheet } from '../../sheet/sheet'
-
 describe.each([
   { name: 'Dialog', Root: Dialog },
   { name: 'Sheet', Root: Sheet },
@@ -45,9 +44,9 @@ describe.each([
     expect(bodyRef).toBe(body)
     expect(body.hasAttribute('data-header')).toBe(false)
 
-    setShowHeader(true)
+    flush(() => setShowHeader(true))
     expect(body.hasAttribute('data-header')).toBe(true)
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(body.hasAttribute('data-header')).toBe(false)
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
   })
@@ -79,16 +78,16 @@ describe.each([
     ))
 
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)).toBeNull()
-    setOpen(true)
+    flush(() => setOpen(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'TitleDescription',
     )
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     expect(cleanups).toBe(1)
 
-    setOpen(true)
+    flush(() => setOpen(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'TitleDescription',
     )
@@ -126,14 +125,14 @@ describe.each([
       'Explicit header',
     )
 
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Fallback titleFallback description',
     )
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
     expect(body.hasAttribute('data-header')).toBe(true)
 
-    setShowHeader(true)
+    flush(() => setShowHeader(true))
     expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
       'Explicit header',
     )
@@ -212,7 +211,7 @@ describe.each([
     ))
     const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)!
     content.focus()
-    setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } }))
+    flush(() => setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } })))
     expect(document.body.querySelector(`[data-slot="${owner}-content"]`)).toBe(content)
     expect(content.className).toContain('next-content')
     expect(content.className).not.toContain('first-content')
@@ -236,14 +235,14 @@ describe.each([
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
 
-    setModal(true)
+    flush(() => setModal(true))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBe('true')
       expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setModal(false)
+    flush(() => setModal(false))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()

@@ -1,5 +1,5 @@
 import { render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { defineTheme } from '../../theme'
 import { AvatarGroup } from '../avatar-group/avatar-group'
 
 import { Avatar } from './avatar'
-
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
 const originalSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src')!
@@ -261,7 +260,7 @@ describe('Avatar', () => {
     })
     expect(mockImages).toHaveLength(1)
 
-    setSource('  /same.png  ')
+    flush(() => setSource('  /same.png  '))
     await Promise.resolve()
 
     expect(mockImages).toHaveLength(1)
@@ -278,7 +277,7 @@ describe('Avatar', () => {
     const image = screen.container.querySelector('img')!
     expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
 
-    setCallback(() => secondCallback)
+    flush(() => setCallback(() => secondCallback))
     image.dispatchEvent(new Event('load'))
 
     expect(image.getAttribute('src')).toBe('/pending.png')
@@ -303,7 +302,7 @@ describe('Avatar', () => {
     const screen = render(() => <Avatar src={source()} onStatusChange={onStatusChange} />)
     const image = screen.container.querySelector('img')!
 
-    setSource('/second.png')
+    flush(() => setSource('/second.png'))
     expect(image.getAttribute('src')).toBe('/second.png')
     expect(
       screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),

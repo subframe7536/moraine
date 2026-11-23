@@ -1,7 +1,6 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
-import { isServer } from 'solid-js/web'
-
 export type CopyData = string | ClipboardItem | ClipboardItem[]
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)

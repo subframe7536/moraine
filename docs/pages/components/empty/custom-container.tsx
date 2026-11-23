@@ -1,5 +1,4 @@
 import { Button, Empty, Icon } from '@src'
-
 export function CustomContainer() {
   return (
     <Empty

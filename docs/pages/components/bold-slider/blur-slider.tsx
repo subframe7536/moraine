@@ -1,6 +1,5 @@
 import { BoldSlider } from '@src'
 import { createSignal } from 'solid-js'
-
 export function BlurSlider() {
   const [value, setValue] = createSignal(32)
 

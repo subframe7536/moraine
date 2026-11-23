@@ -4,7 +4,6 @@ import { readFileSync, readdirSync } from 'node:fs'
 
 import path from 'pathe'
 import { describe, expect, test } from 'vitest'
-
 const projectRoot = path.resolve(__dirname, '../../..')
 
 function collectFiles(root: string): string[] {

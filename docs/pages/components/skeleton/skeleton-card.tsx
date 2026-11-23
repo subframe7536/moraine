@@ -1,5 +1,4 @@
 import { Card, Skeleton } from '@src'
-
 export function SkeletonCard() {
   return (
     <Card class="max-w-xs w-full">

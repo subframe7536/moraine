@@ -3,7 +3,6 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'pathe'
 
 import type { ComponentApi, IndexDoc } from './types.ts'
-
 export function loadApiDocIndex(projectRoot: string): IndexDoc | null {
   const jsonPath = path.join(projectRoot, 'docs/pages/_api-index.json')
   if (!existsSync(jsonPath)) {

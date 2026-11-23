@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { getJsDoc, parseTypeScript } from './ast.ts'
-
 describe('API documentation AST helpers', () => {
   test('associates JSDoc descriptions and defaults with declarations and properties', async () => {
     const source = await parseTypeScript(

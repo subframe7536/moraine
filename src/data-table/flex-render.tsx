@@ -1,7 +1,6 @@
+import type { JSX } from '@solidjs/web'
 import type { Cell, CellData, Header, RowData, TableFeatures } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import { Match, Show, Switch, createComponent } from 'solid-js'
-
 /**
  * Renders a table template value (component, render function, or static JSX element)
  * with the provided props.

@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CardHydrationFixture } from './card.ssr.fixture'
-
 test.each([true, false])(
   'hydrates compound parts and updates conditional body (initially present=%s)',
   (initialBody) => {
@@ -19,8 +18,8 @@ test.each([true, false])(
     const label = container.querySelector('[data-slot="card-title"] span')!
     expect(container.querySelector('[data-slot="card-body"]') !== null).toBe(initialBody)
     expect(container.querySelector('[data-slot="card-action"] button')?.textContent).toBe('Edit')
-    setTitle('Updated')
-    setBody(!initialBody)
+    flush(() => setTitle('Updated'))
+    flush(() => setBody(!initialBody))
     expect(container.firstElementChild).toBe(root)
     expect(container.querySelector('[data-slot="card-title"] span')).toBe(label)
     expect(label.textContent).toBe('Updated')

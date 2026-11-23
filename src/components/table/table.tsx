@@ -1,7 +1,8 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { TableBody } from './table-body'
 import { TableCaption } from './table-caption'
@@ -13,7 +14,6 @@ import { TableHeader } from './table-header'
 import { TableRow } from './table-row'
 import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
-
 /**
  * Styled native table for data you lay out yourself, such as invoices or comparison grids with a
  * known set of columns. Compose `Table.Caption`, `Table.Header`, `Table.Body`, `Table.Footer`,
@@ -45,7 +45,8 @@ import type { TableT } from './table.types'
  * ```
  */
 export function Table(props: TableT.Props): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'size',
     'striped',
     'highlightOnHover',
@@ -57,7 +58,21 @@ export function Table(props: TableT.Props): JSX.Element {
     'style',
     'ref',
     'children',
-  ])
+  )
+  const rest = omit(
+    props,
+    'size',
+    'striped',
+    'highlightOnHover',
+    'border',
+    'containerRef',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+    'children',
+  )
   const {
     slots: { container: containerSlot, root: rootSlot },
     variants,

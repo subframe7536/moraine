@@ -1,6 +1,5 @@
 import { Badge, Button, Dialog } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StructureLifecycle() {
   const [exits, setExits] = createSignal(0)
   const [status, setStatus] = createSignal('Idle')

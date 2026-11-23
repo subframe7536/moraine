@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -11,7 +11,6 @@ import { createForm } from '../form'
 
 import { createSlider } from './hook'
 import { Slider } from './slider'
-
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
@@ -181,9 +180,9 @@ describe('Slider', () => {
     ) as HTMLElement
 
     expect(negativeRange.hasAttribute('data-empty')).toBe(false)
-    setNegativeValue(-10)
+    flush(() => setNegativeValue(-10))
     expect(negativeRange.hasAttribute('data-empty')).toBe(true)
-    setNegativeValue(10)
+    flush(() => setNegativeValue(10))
     expect(negativeRange.hasAttribute('data-empty')).toBe(false)
     negative.unmount()
 
@@ -917,7 +916,7 @@ describe('Slider', () => {
           value={value()}
           onValueChange={(nextValue) => {
             if (!Array.isArray(nextValue)) {
-              setValue(nextValue)
+              flush(() => setValue(nextValue))
             }
           }}
         />
@@ -946,7 +945,7 @@ describe('Slider', () => {
           styles={{ thumb: { width: '20px' } }}
           onValueChange={(nextValue) => {
             if (Array.isArray(nextValue)) {
-              setValue(nextValue)
+              flush(() => setValue(nextValue))
             }
           }}
         />
@@ -1011,21 +1010,21 @@ describe('Slider', () => {
     let markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
     expect(markers).toHaveLength(4)
 
-    setStep(5)
+    flush(() => setStep(5))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(1)
       expect((markers[0] as HTMLElement).style.left).toBe('50%')
     })
 
-    setMax(20)
+    flush(() => setMax(20))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(3)
       expect((markers[0] as HTMLElement).style.left).toBe('25%')
     })
 
-    setMarker(false)
+    flush(() => setMarker(false))
     await waitFor(() => {
       markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
       expect(markers).toHaveLength(0)
@@ -1053,17 +1052,17 @@ describe('Slider', () => {
 
     expect(sliderResult.markerIndexes()).toEqual([])
 
-    setStep(25)
+    flush(() => setStep(25))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1, 2, 3])
     })
 
-    setStep(50)
+    flush(() => setStep(50))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1])
     })
 
-    setStep(10)
+    flush(() => setStep(10))
     await waitFor(() => {
       expect(sliderResult.markerIndexes()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
     })
@@ -1532,7 +1531,7 @@ describe('Slider', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowRight' })
     expect(onValueChange).toHaveBeenCalledWith(21)
 
-    setValue(60)
+    flush(() => setValue(60))
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
     fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
@@ -1550,7 +1549,7 @@ describe('Slider', () => {
 
     fireEvent.pointerDown(thumb, { button: 0, clientX: 20, pointerId: 1 })
     fireEvent.pointerMove(thumb, { clientX: 40, pointerId: 1 })
-    setValue(60)
+    flush(() => setValue(60))
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
     fireEvent.pointerUp(thumb, { clientX: 40, pointerId: 1 })
 
@@ -1672,14 +1671,14 @@ test('updates thumb dimensions with size and accepts an independent override', (
   ))
   const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('12px')
-  setSize('md')
+  flush(() => setSize('md'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('15px')
-  setSize('lg')
+  flush(() => setSize('lg'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
-  setThumbSize('22px')
+  flush(() => setThumbSize('22px'))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('22px')
   expect(root.style.getPropertyValue('--s-size')).toBe('8px')
-  setThumbSize(undefined)
+  flush(() => setThumbSize(undefined))
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
 })
 
@@ -1740,7 +1739,7 @@ test('marks step markers inside the selected range as active', () => {
   expect(activeOf('single')).toEqual([true, true, true, true, true, true, false, false, false])
   expect(activeOf('range')).toEqual([true, true, true, false])
 
-  setValue(0.15)
+  flush(() => setValue(0.15))
   expect(activeOf('single')).toEqual([true, false, false, false, false, false, false, false, false])
 })
 

@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { DisclosureState } from '../../shared/disclosure-state'
 
 import type { CollapsibleT } from './collapsible.types'
-
 export interface CollapsibleContext {
   slotOverrides: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }
   triggerId: Accessor<string>

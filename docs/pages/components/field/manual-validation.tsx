@@ -1,6 +1,5 @@
 import { Field, Input } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ManualValidation() {
   const [error, setError] = createSignal<string | false>()
   return (

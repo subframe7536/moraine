@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createCardPart } from './card-part'
 import type { CardT } from './card.types'
-
 /**
  * Footer region at the bottom of a `Card` for secondary content or actions, placed as a direct
  * child of `Card`. It renders a `div` by default and accepts `as`; the `Card` `variant` controls

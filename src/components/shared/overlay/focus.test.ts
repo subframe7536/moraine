@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { getFocusableElements } from './focus'
-
 describe('getFocusableElements', () => {
   test('uses native disabled, details, and radio-group tab rules', () => {
     const container = document.createElement('div')

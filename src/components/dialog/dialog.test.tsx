@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -11,7 +11,6 @@ import { CommandPalette } from '../command-palette'
 import { Sheet } from '../sheet/sheet'
 
 import { Dialog } from './dialog'
-
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)
@@ -50,7 +49,7 @@ describe('Dialog', () => {
       document.body.querySelector('[data-slot="sheet-title"]')?.id,
     )
 
-    setShowSheet(false)
+    flush(() => setShowSheet(false))
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     expect(outer.getAttribute('aria-labelledby')).toBe(
       document.body.querySelector('[data-slot="dialog-title"]')?.id,
@@ -80,19 +79,19 @@ describe('Dialog', () => {
     ))
 
     expect(mounts).toBe(0)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(1)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
       expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(2)
     })
@@ -115,7 +114,7 @@ describe('Dialog', () => {
       document.body.querySelector('[data-slot="dialog-overlay"]')?.hasAttribute('data-transition'),
     ).toBe(false)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
@@ -137,7 +136,7 @@ describe('Dialog', () => {
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.hasAttribute('data-transition')).toBe(true)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
 
@@ -255,7 +254,7 @@ describe('Dialog', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
@@ -500,16 +499,16 @@ describe('Dialog', () => {
     expect(header.style.color).toBe('red')
     expect(body.className).toContain('family-body')
     expect(body.className).toContain('local-body')
-    setTitleId('renamed-title')
+    flush(() => setTitleId('renamed-title'))
     expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
-    setShowTitle(false)
-    setShowDescription(false)
+    flush(() => setShowTitle(false))
+    flush(() => setShowDescription(false))
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(body.hasAttribute('data-header')).toBe(true)
     expect(content.textContent).toContain('Fallback')
-    setShowFooter(false)
+    flush(() => setShowFooter(false))
     expect(body.hasAttribute('data-footer')).toBe(false)
   })
 
@@ -560,7 +559,7 @@ describe('Dialog', () => {
         open={open()}
         onOpenChange={setOpen}
         onExitComplete={() => {
-          setSearchValue('')
+          flush(() => setSearchValue(''))
           onExitComplete()
         }}
         closable={false}
@@ -739,15 +738,15 @@ describe('Dialog', () => {
     const originalContent = content()
     expect(overlay()?.contains(content())).toBe(true)
 
-    setScrollable(true)
+    flush(() => setScrollable(true))
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
 
-    setFullscreen(true)
+    flush(() => setFullscreen(true))
     expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
 
-    setOverlayVisible(false)
+    flush(() => setOverlayVisible(false))
     expect(overlay()).toBeNull()
     expect(content()).toBe(originalContent)
   })
@@ -769,9 +768,9 @@ describe('Dialog', () => {
     input.focus()
     input.value = 'edited'
 
-    setScrollable(true)
-    setFullscreen(true)
-    setOverlay(false)
+    flush(() => setScrollable(true))
+    flush(() => setFullscreen(true))
+    flush(() => setOverlay(false))
     expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
     expect(document.body.querySelector('[data-testid="stable-input"]')).toBe(input)
     expect(document.activeElement).toBe(input)
@@ -787,7 +786,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
     expect(document.body.style.overflow).toBe('hidden')
-    setScrollable(true)
+    flush(() => setScrollable(true))
     expect(document.body.style.overflow).toBe('hidden')
     expect(
       document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')?.style.overflowY,
@@ -811,8 +810,8 @@ describe('Dialog', () => {
     const title = document.body.querySelector('[data-testid="shorthand-title"]')
     const description = document.body.querySelector('[data-testid="shorthand-description"]')
 
-    setScrollable(true)
-    setScrollable(false)
+    flush(() => setScrollable(true))
+    flush(() => setScrollable(false))
 
     expect(document.body.querySelectorAll('[data-testid="shorthand-title"]')).toHaveLength(1)
     expect(document.body.querySelector('[data-testid="shorthand-title"]')).toBe(title)
@@ -1332,7 +1331,7 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-testid="visible"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).toBeNull()
 
-    setVisible(false)
+    flush(() => setVisible(false))
 
     expect(document.body.querySelector('[data-testid="visible"]')).toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).not.toBeNull()

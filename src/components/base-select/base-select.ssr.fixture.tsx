@@ -1,5 +1,5 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { BaseSelect } from './base-select'
 export function renderBaseSelectFixture(): string {

@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import {
   SPLITTER_END_TARGET_ATTRIBUTE,
@@ -67,21 +67,20 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
   const registrationId = Symbol('splitter-handle')
   let registration: SplitterHandleRegistration | null = null
 
-  createEffect(
-    on(disabled, (isDisabled) => {
-      if (isDisabled) {
-        setHovered(false)
-        setFocused(false)
-        setDragging(false)
-        setCrossHovered(false)
-        setStartIntersection(null)
-        setEndIntersection(null)
-      }
-    }),
-  )
+  createEffect(disabled, (isDisabled) => {
+    if (isDisabled) {
+      setHovered(false)
+      setFocused(false)
+      setDragging(false)
+      setCrossHovered(false)
+      setStartIntersection(null)
+      setEndIntersection(null)
+    }
+  })
 
   createEffect(
-    on([element, disabled], ([currentElement, isDisabled]) => {
+    () => [element(), disabled()],
+    ([currentElement, isDisabled]) => {
       if (!currentElement || isDisabled) {
         return
       }
@@ -111,13 +110,14 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
         unregister()
         registration = null
       })
-    }),
+    },
   )
 
   createEffect(
-    on([options.orientation, options.intersection], () => {
+    () => [options.orientation(), options.intersection()],
+    () => {
       scheduleSplitterIntersectionsRefresh()
-    }),
+    },
   )
 
   function onMouseEnter(): void {

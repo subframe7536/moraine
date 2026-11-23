@@ -1,7 +1,6 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, on, onCleanup } from 'solid-js'
-import { isServer } from 'solid-js/web'
-
+import { createEffect, onCleanup } from 'solid-js'
 const STORAGE_PREFIX = 'mo-docs-scroll:'
 
 export interface UseScrollRetentionOptions {
@@ -122,40 +121,38 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
     }
   }
 
-  createEffect(
-    on(options.element, (el) => {
-      if (!el) {
+  createEffect(options.element, (el) => {
+    if (!el) {
+      return
+    }
+
+    restoreScroll()
+
+    const handleScroll = () => {
+      if (restoring) {
         return
       }
-
-      restoreScroll()
-
-      const handleScroll = () => {
-        if (restoring) {
-          return
-        }
-        if (saveTimer !== undefined) {
-          clearTimeout(saveTimer)
-        }
-        saveTimer = setTimeout(saveScroll, 100)
+      if (saveTimer !== undefined) {
+        clearTimeout(saveTimer)
       }
+      saveTimer = setTimeout(saveScroll, 100)
+    }
 
-      el.addEventListener('scroll', handleScroll, { passive: true })
-      el.addEventListener('wheel', stopRestoring, { passive: true })
-      el.addEventListener('touchstart', stopRestoring, { passive: true })
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    el.addEventListener('wheel', stopRestoring, { passive: true })
+    el.addEventListener('touchstart', stopRestoring, { passive: true })
 
-      onCleanup(() => {
-        if (saveTimer !== undefined) {
-          clearTimeout(saveTimer)
-        }
-        saveScroll()
-        stopRestoring()
-        el.removeEventListener('scroll', handleScroll)
-        el.removeEventListener('wheel', stopRestoring)
-        el.removeEventListener('touchstart', stopRestoring)
-      })
-    }),
-  )
+    onCleanup(() => {
+      if (saveTimer !== undefined) {
+        clearTimeout(saveTimer)
+      }
+      saveScroll()
+      stopRestoring()
+      el.removeEventListener('scroll', handleScroll)
+      el.removeEventListener('wheel', stopRestoring)
+      el.removeEventListener('touchstart', stopRestoring)
+    })
+  })
 
   window.addEventListener('beforeunload', saveScroll)
   const handleHotUpdate = () => {

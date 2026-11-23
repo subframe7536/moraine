@@ -1,6 +1,5 @@
 import { ContextMenu } from '@src'
 import type { ContextMenuT } from '@src'
-
 const MENU_ITEMS = [
   { label: 'Back', icon: 'i-lucide:arrow-left' },
   { label: 'Forward', icon: 'i-lucide:arrow-right', disabled: true },

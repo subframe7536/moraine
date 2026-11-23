@@ -1,4 +1,5 @@
-import type { Accessor, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type {
@@ -11,7 +12,6 @@ import type { IconT } from '../icon'
 
 import type { defaultSidebarMessages } from './sidebar.messages'
 import type { SidebarStyleSlot, SidebarStyleVariants } from './sidebar.style-types'
-
 export namespace SidebarT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = SidebarStyleSlot<T>

@@ -1,19 +1,20 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types'
-
 export function createInputGroupPart(part: 'leading' | 'trailing') {
   return function InputGroupPart<T extends ValidComponent = 'div'>(
     props: InputGroupT.LeadingProps<T> | InputGroupT.TrailingProps<T>,
   ): JSX.Element {
-    const [local, rest] = splitProps(props, ['as', 'compact', 'class', 'style'])
+    const local = pick(props, 'as', 'compact', 'class', 'style')
+    const rest = omit(props, 'as', 'compact', 'class', 'style')
     const group = useInputGroupContext()
     if (!group.grouped) {
       const name = part === 'leading' ? 'Leading' : 'Trailing'
@@ -44,7 +45,7 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
         component={local.as ?? 'div'}
         data-slot={`input-group-${part}`}
         {...partSlot}
-        {...rest}
+        {...(rest as any)}
       />
     )
   }

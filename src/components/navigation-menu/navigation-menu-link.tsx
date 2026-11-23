@@ -1,9 +1,10 @@
-import type { JSX } from 'solid-js'
-import { Show, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
+import { pick } from '../../shared/utils'
 import { mergePopperElementProps } from '../shared/overlay/popper'
 
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
@@ -13,7 +14,6 @@ import {
   navigationMenuRecipe,
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * Navigation destination, rendered as an `a`. Place it inside `NavigationMenu.Content` or
  * directly inside a `NavigationMenu.Item`. `active` marks the current page with
@@ -38,7 +38,8 @@ import type { NavigationMenuT } from './navigation-menu.types'
 export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Element {
   const context = useNavigationMenuContext()
   const item = useNavigationMenuItemContext()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'active',
     'disabled',
@@ -47,7 +48,18 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'href',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'active',
+    'disabled',
+    'closeOnSelect',
+    'linkRender',
+    'href',
+    'class',
+    'style',
+  )
   const {
     slots: { link: linkSlot },
   } = useRecipe(navigationMenuRecipe, local, {
@@ -58,7 +70,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     context: () => ({ classes: context.options.classes, styles: context.options.styles }),
   })
   const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
-  const attributes = mergeProps(
+  const attributes = merge(
     mergePopperElementProps<HTMLAnchorElement>(
       {
         onClick: (event) => {
@@ -80,11 +92,11 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         return disabled() ? undefined : local.href
       },
       get tabIndex() {
-        return disabled() ? -1 : rest.tabIndex
+        return disabled() ? -1 : rest.tabindex
       },
     },
   )
-  const linkProps = mergeProps(
+  const linkProps = merge(
     attributes,
     {
       get id() {
@@ -94,7 +106,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
         return disabled() ? 'link' : rest.role
       },
       get 'aria-disabled'() {
-        return disabled() ? true : undefined
+        return disabled() ? 'true' : undefined
       },
       get 'aria-current'() {
         return local.active ? 'page' : rest['aria-current']
@@ -106,7 +118,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
   )
   return (
     <Show when={local.linkRender} keyed fallback={<a {...linkProps} />}>
-      {(linkRender) => renderWithProps(linkRender, linkProps)}
+      {(linkRender) => renderWithProps(linkRender, linkProps as NavigationMenuT.LinkRenderProps)}
     </Show>
   )
 }

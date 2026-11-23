@@ -1,4 +1,5 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Ref } from 'solid-js'
 
 import type { InputModifiers, ModifierValue } from '../../shared/input-modifiers'
 import type { BaseProps } from '../../shared/types'
@@ -6,7 +7,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { FieldT } from '../field'
 
 import type { InputStyleSlot, InputStyleVariants } from './input.style-types'
-
 export namespace InputT {
   export type Kind = 'single'
   export type Slot<T = unknown> = InputStyleSlot<T>

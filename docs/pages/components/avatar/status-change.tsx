@@ -1,7 +1,6 @@
 import { Avatar } from '@src'
 import type { AvatarT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StatusChange() {
   const [status, setStatus] = createSignal<AvatarT.Status>('loading')
 

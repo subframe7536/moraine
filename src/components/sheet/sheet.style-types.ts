@@ -1,6 +1,5 @@
 import type { OverlayPlacement } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface SheetStyleSlot<T = unknown> {
   /** Element that opens the sheet. */
   trigger?: T

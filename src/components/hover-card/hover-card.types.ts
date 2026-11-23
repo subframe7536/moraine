@@ -1,4 +1,5 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -6,7 +7,6 @@ import type { PopperContentOptions, PopperProps } from '../shared/overlay/popper
 import type { OverlayTriggerBase } from '../shared/overlay/trigger'
 
 import type { HoverCardStyleSlot, HoverCardStyleVariants } from './hover-card.style-types'
-
 export namespace HoverCardT {
   export type Kind = 'composite'
 

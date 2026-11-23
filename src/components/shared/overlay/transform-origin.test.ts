@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { getTransformOrigin } from './transform-origin'
-
 describe('getTransformOrigin', () => {
   const geometry = {
     gutter: 8,

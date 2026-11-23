@@ -5,7 +5,6 @@ import { useMoraineContext } from '../moraine-context'
 import { FALLBACK_LOCALE } from './default-locale'
 import { mergeMessagesInput } from './merge-messages'
 import type { MoraineMessages, MoraineMessagesInput } from './messages.types'
-
 export interface ResolvedLocale {
   locale: string
   dir?: 'ltr' | 'rtl'

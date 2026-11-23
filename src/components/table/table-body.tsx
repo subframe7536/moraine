@@ -2,7 +2,6 @@ import type { FlowComponent } from 'solid-js'
 
 import { createTablePart } from './table-part'
 import type { TableT } from './table.types'
-
 /**
  * Body section of the surrounding `Table`; renders a `tbody`. Place `Table.Row` elements with
  * `Table.Cell` children inside it, after `Table.Header`. Native `tbody` attributes are forwarded.

@@ -1,12 +1,11 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { createRoot, createSignal, Show } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createRoot, createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { bindElement } from './element-binding'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
-
 /** Renders a div registered with the presence for its mounted lifetime. */
 function PresenceElement(props: {
   presence: TransitionPresenceState
@@ -19,7 +18,7 @@ function PresenceElement(props: {
     <div
       {...props.attrs}
       ref={(node) => {
-        setElement(node)
+        flush(() => setElement(node))
         props.onElement?.(node)
       }}
     />
@@ -298,7 +297,7 @@ describe('createTransitionPresence', () => {
       throw new Error('Multi-element fixture did not mount')
     }
 
-    setOpen(false)
+    flush(() => setOpen?.(false))
     closed = true
     await flushExitDetection()
     dispatchAnimationEvent(first, 'animationend', 'first-exit')
@@ -354,7 +353,7 @@ describe('createTransitionPresence', () => {
       throw new Error('Removable fixture did not mount')
     }
 
-    setOpen(false)
+    flush(() => setOpen?.(false))
     closed = true
     await flushExitDetection()
     unregisterSecond()
@@ -457,7 +456,7 @@ describe('createTransitionPresence', () => {
     })
 
     closed = true
-    setOpen(false)
+    flush(() => setOpen(false))
     await flushExitDetection()
     expect(element.isConnected).toBe(true)
 
@@ -489,7 +488,7 @@ describe('createTransitionPresence', () => {
     })
 
     closed = true
-    setOpen(false)
+    flush(() => setOpen(false))
     screen.unmount()
     await flushExitDetection()
 
@@ -516,7 +515,7 @@ describe('createTransitionPresence', () => {
     })
 
     closed = true
-    setOpen(false)
+    flush(() => setOpen(false))
     await flushExitDetection()
     screen.unmount()
     await flushExitDetection()
@@ -549,11 +548,11 @@ describe('createTransitionPresence', () => {
     })
 
     closed = true
-    setOpen(false)
+    flush(() => setOpen(false))
     await flushExitDetection()
     expect(exit).not.toHaveBeenCalled()
 
-    setMounted(false)
+    flush(() => setMounted(false))
     await flushExitDetection()
 
     expect(exit).toHaveBeenCalledOnce()
@@ -595,11 +594,11 @@ test('notifies completed exits without animations and never initial absence or d
     )
   })
   expect(exit).not.toHaveBeenCalled()
-  setOpen(true)
-  setOpen(false)
+  flush(() => setOpen(true))
+  flush(() => setOpen(false))
   await flushExitDetection()
   expect(exit).toHaveBeenCalledOnce()
-  setOpen(true)
+  flush(() => setOpen(true))
   screen.unmount()
   expect(exit).toHaveBeenCalledOnce()
 })

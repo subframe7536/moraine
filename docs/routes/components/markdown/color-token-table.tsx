@@ -11,7 +11,6 @@ import {
 } from '../../../build/markdown/shared.recipe'
 import { listDocsColorTokens } from '../../../shared/color-tokens'
 import type { DocsColorTokenDefault } from '../../../shared/color-tokens'
-
 const COLOR_TOKENS = listDocsColorTokens()
 
 function DefaultValue(props: { value: DocsColorTokenDefault }) {

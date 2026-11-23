@@ -2,7 +2,6 @@ import { CommandPalette, Combobox, List, MultiSelect, Select, createTree } from 
 import type { CommandPaletteT, ComboboxT, ListT, MultiSelectT, SelectT, TreeT } from 'moraine'
 import type { DataTableT, createDataTable } from 'moraine/data-table'
 import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualizer'
-
 // Every virtualizing component takes the whole virtualizer through one `virtualizer` prop. Only the entry type is passed; row and scroll element types never need to
 // match a host by hand.
 

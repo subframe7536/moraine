@@ -1,6 +1,7 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
+import type { Component } from 'solid-js'
 import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
-import { isServer } from 'solid-js/web'
 
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
@@ -10,7 +11,6 @@ import { AlertDialogEntry } from './alert-dialog-entry'
 import { createAlertDialogRecord } from './alert-dialog-record'
 import type { AlertDialogHostDefaults, AlertDialogRecord } from './alert-dialog-record'
 import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
-
 interface AlertDialogController extends FeedbackHost {
   defaults: () => AlertDialogHostDefaults
   dialogRender: () => Component<AlertDialogT.DialogRenderProps> | undefined
@@ -25,7 +25,6 @@ interface AlertDialogController extends FeedbackHost {
 
 const registry = createHostRegistry<AlertDialogController>('AlertDialog')
 
-/* oxlint-disable subf/solid-reactivity -- Host defaults are read when a dialog renders so later prop changes stay live. */
 function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
   return {
     closable: props.closable,
@@ -41,8 +40,6 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
     translations: props.translations,
   }
 }
-/* oxlint-enable subf/solid-reactivity */
-
 function openAlertDialog(
   mode: 'confirm' | 'standard',
   options: AlertDialogT.Options,
@@ -91,7 +88,9 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
  */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
-  const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
+  const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([], {
+    ownedWrite: true,
+  })
   const removeDialog = (record: AlertDialogRecord): void => {
     setDialogs((current) => current.filter((item) => item !== record))
   }
@@ -116,7 +115,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
         created.remove = () => removeDialog(created)
         setDialogs((current) => [...current, created])
         return created.handle
-      })!
+      })
     },
     update(id, options) {
       const match = findOpen(id)

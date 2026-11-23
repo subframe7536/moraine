@@ -1,7 +1,7 @@
+import type { JSX } from '@solidjs/web'
 import { functionalUpdate, stateSlicesEqual } from '@tanstack/table-core'
 import type { Row, RowData, TableOptions, Updater } from '@tanstack/table-core'
-import { DEV, createMemo, mergeProps, untrack } from 'solid-js'
-import type { JSX } from 'solid-js'
+import { DEV, createMemo, merge, untrack } from 'solid-js'
 
 import { DataTable } from './data-table'
 import {
@@ -15,7 +15,6 @@ import type { DataTableFeatures } from './data-table-features'
 import { DEFAULT_DATA_TABLE_PAGE_SIZES } from './data-table-pagination'
 import type { DataTableT } from './data-table.types'
 import { createTable } from './solid-table'
-
 /** `maxSize` in px given to columns of a resizable table that set none. */
 export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
 
@@ -173,15 +172,15 @@ export function createDataTable<TData extends RowData = RowData>(
   })
 
   const features = getDataTableFeatures()
-  // `mergeProps` treats `undefined` as "fall back to a previous source". The
+  // `merge` treats `undefined` as "fall back to a previous source". The
   // initial options snapshot is captured once by `constructTable`, so a getter
   // returning `undefined` would keep resurrecting stale values on later
   // merges. Volatile options return `false`/`null` — `null` stays defined for
-  // mergeProps but nullish for TanStack `??` defaults.
+  // merge but nullish for TanStack `??` defaults.
   //
   // Top-level options own every TanStack option they configure, so they merge after
   // `tableOptions`. Only options without a top-level counterpart stay overridable.
-  const resolvedTableOptions = mergeProps(
+  const resolvedTableOptions = merge(
     {
       get autoResetPageIndex() {
         return options.manual ? false : null

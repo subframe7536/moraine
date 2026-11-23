@@ -1,11 +1,10 @@
-import { createSignal, Show } from 'solid-js'
+import { Show, createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 import { Input } from '../input'
 
 import { Field } from './field'
-
 test('hydrates standalone Field semantics', () => {
   const { container } = hydrateFixture(
     '/src/components/field/field.ssr.fixture.tsx',
@@ -40,7 +39,7 @@ test('hydrates conditional Field children and updates them after hydration', () 
   expect(child?.textContent).toBe('Visible')
   expect(child?.parentElement?.getAttribute('data-slot')).toBe('field-container')
 
-  setVisible(false)
+  flush(() => setVisible(false))
   expect(container.querySelector('[data-testid="conditional-child"]')).toBeNull()
 })
 
@@ -58,7 +57,7 @@ test('hydrates Field render props and keeps them reactive', () => {
   const child = container.querySelector('[data-testid="field-error-child"]')
   expect(child?.textContent).toBe('Missing')
 
-  setError('Still missing')
+  flush(() => setError('Still missing'))
   expect(container.querySelector('[data-testid="field-error-child"]')?.textContent).toBe(
     'Still missing',
   )

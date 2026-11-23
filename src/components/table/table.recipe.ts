@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { TableStyleSlot, TableStyleVariants } from './table.style-types'
-
 export const tableDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('selected'),
 } satisfies DataAttributeContract<keyof TableStyleSlot>

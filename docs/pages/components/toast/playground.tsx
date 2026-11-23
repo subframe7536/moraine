@@ -1,7 +1,6 @@
 import { Button, Toast } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function ToastPlayground() {
   return (
     <DocsPlayground

@@ -1,6 +1,5 @@
 import { Badge, Pagination } from '@src'
 import { createMemo, createSignal, For } from 'solid-js'
-
 export function Controlled() {
   const [page, setPage] = createSignal(1)
   const pageSize = 3

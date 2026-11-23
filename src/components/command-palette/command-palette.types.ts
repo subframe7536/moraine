@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'

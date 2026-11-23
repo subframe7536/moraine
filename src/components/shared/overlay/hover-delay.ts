@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
 import { onCleanup } from 'solid-js'
-
 export interface HoverDelayOptions {
   openDelay: Accessor<number>
   closeDelay: Accessor<number>

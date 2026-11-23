@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -20,7 +21,6 @@ import type {
 
 import type { defaultSelectMessages } from './select.messages'
 import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
-
 export namespace SelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SelectStyleSlot<T>

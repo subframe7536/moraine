@@ -5,7 +5,6 @@ import { expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { MultiSelect } from './multi-select'
-
 test('hydrates MultiSelect with one input and stable secondary trigger', () => {
   const onChange = vi.fn()
   const { container } = hydrateFixture(

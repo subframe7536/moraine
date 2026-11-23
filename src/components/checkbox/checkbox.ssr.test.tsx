@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Checkbox } from './checkbox'
-
 describe('Checkbox SSR Hydration', () => {
   test('hydrates indeterminate content and preserves branch order through state updates', () => {
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
@@ -30,11 +29,11 @@ describe('Checkbox SSR Hydration', () => {
     expect(control.getAttribute('aria-checked')).toBe('mixed')
     expect(container.querySelector('[data-testid="mixed-icon"]')?.textContent).toBe('Mixed')
 
-    setChecked(true)
+    flush(() => setChecked(true))
     expect(control.getAttribute('aria-checked')).toBe('true')
     expect(container.querySelector('[data-testid="checked-icon"]')?.textContent).toBe('Checked')
 
-    setChecked(false)
+    flush(() => setChecked(false))
     expect(control.getAttribute('aria-checked')).toBe('false')
     expect(container.querySelector('[data-slot="checkbox-indicator"]')).toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([

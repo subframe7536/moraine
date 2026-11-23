@@ -6,7 +6,6 @@ import type { FieldBinding } from '../../field/field-context'
 import { FieldProvider } from '../../field/field-context'
 import { Input } from '../../input/input'
 import { Textarea } from '../../textarea/textarea'
-
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   test('owns native attributes, handlers and refs on the editable element', () => {
     let input: HTMLInputElement | HTMLTextAreaElement | undefined
@@ -57,8 +56,8 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
           required={false}
           disabled={false}
           readOnly={false}
-          aria-required={false}
-          aria-invalid={false}
+          aria-required={'false'}
+          aria-invalid={'false'}
           aria-describedby=" caller caller "
           aria-labelledby=" label label "
         />

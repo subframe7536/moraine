@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import morainePlugin from './oxlint-plugin-moraine.ts'
-
 function createMockContext(filename: string) {
   const reports: Array<{ node: any; messageId?: string; message?: string; data?: any }> = []
   return {

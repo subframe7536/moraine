@@ -1,9 +1,14 @@
-import type { FieldElement, FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
-import { useField } from '@formisch/solid'
+import type {
+  FieldElement,
+  FieldStore,
+  FormSchema,
+  FormStore,
+  RequiredPath,
+} from '@formisch/solid/v2'
+import { useField } from '@formisch/solid/v2'
 import type { Accessor } from 'solid-js'
 
 import type { FieldBinding } from '../field/field-context'
-
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
 /**
@@ -55,10 +60,12 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
       } else if (type === 'focus') {
         field.props.onFocus()
       } else if (type === 'change') {
-        field.props.onChange(event as Parameters<typeof field.props.onChange>[0])
+        field.props.onChange(event as Event & { currentTarget: FieldElement; target: Element })
       } else if (type === 'input') {
         if (event && 'currentTarget' in event) {
-          field.props.onInput(event as Parameters<typeof field.props.onInput>[0])
+          field.props.onInput(
+            event as InputEvent & { currentTarget: FieldElement; target: Element },
+          )
         }
       }
     },

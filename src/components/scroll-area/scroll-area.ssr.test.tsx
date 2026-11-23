@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ScrollArea } from './scroll-area'
-
 describe('ScrollArea SSR hydration', () => {
   test('retains server nodes and reactive children, and measures after hydration', async () => {
     const [fade, setFade] = createSignal(true)
@@ -33,8 +32,8 @@ describe('ScrollArea SSR hydration', () => {
     expect(root.hasAttribute('data-overflow-y-end')).toBe(true)
     expect(scrollbars[0]!.hasAttribute('data-visible')).toBe(true)
 
-    setText('Updated content')
-    setFade(false)
+    flush(() => setText('Updated content'))
+    flush(() => setFade(false))
     expect(root.querySelector('span')).toBe(child)
     expect(child.textContent).toBe('Updated content')
     expect(container.firstElementChild).toBe(root)

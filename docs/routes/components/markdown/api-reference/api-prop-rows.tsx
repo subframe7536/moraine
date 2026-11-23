@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { For, Show } from 'solid-js'
 
 import { Collapsible, Icon, cn } from '../../../../../src'
 import type { PresentationPropItem } from '../../../../build/api-doc/presentation'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
-
 export type PropDoc = PresentationPropItem
 
 export const REFERENCE_ROOT_CLASS =

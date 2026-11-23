@@ -8,7 +8,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { Switch } from './switch'
-
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
@@ -28,7 +27,7 @@ describe('Switch', () => {
   })
 
   test('applies tabIndex to the focusable track instead of the root', () => {
-    const screen = render(() => <Switch tabIndex={-1} label="Skipped" />)
+    const screen = render(() => <Switch tabindex={-1} label="Skipped" />)
 
     expect(
       screen.container.querySelector('[data-slot="switch-track"]')?.getAttribute('tabindex'),

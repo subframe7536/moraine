@@ -1,16 +1,14 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import {
   DEV,
-  Index,
-  batch,
   createEffect,
   createMemo,
-  createSelector,
   createSignal,
-  on,
   onCleanup,
-  onMount,
+  onSettled,
   untrack,
+  For,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -20,7 +18,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
-import { createId } from '../../shared/utils'
+import { createId, createSelector } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
 import { useFormField } from '../field/field-context'
 import {
@@ -35,7 +33,6 @@ import { useHiddenInputValidation } from '../shared/form/use-hidden-input-valida
 
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-select.types'
-
 /** Projects the selection onto the native form value: an array, or a scalar (`null` when empty). */
 function toFormValue<T extends BaseSelectValue>(
   values: readonly T[],
@@ -89,7 +86,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
     },
   })
   const [mounted, setMounted] = createSignal(false)
-  onMount(() => setMounted(true))
+  onSettled(() => {
+    setMounted(true)
+  })
   const items = () => props.items ?? []
   const itemByValue = createMemo(() => {
     const byValue = new Map<T['value'], T>()
@@ -100,7 +99,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
     return byValue
   })
-  createEffect(on(items, diagnoseDuplicateItems))
+  createEffect(items, diagnoseDuplicateItems)
   /**
    * Resolves a selection value to its canonical item representation.
    * Uses caller-provided `getItemByValue` if supplied (e.g. Combobox),
@@ -149,11 +148,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
   const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
-  createEffect(
-    on(focusOwner, (element) => {
-      field.setControlRef(element)
-    }),
-  )
+  createEffect(focusOwner, (element) => {
+    field.setControlRef(element)
+  })
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
@@ -208,21 +205,18 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
     discardComposition()
     const shouldClose = props.closeOnSelect ?? !props.multiple
-    batch(() => {
-      if (shouldClose) {
-        setOpen(false)
-      }
-      change(
-        props.multiple
-          ? selectedValues().has(item.value)
-            ? value().filter((value) => !sameValue(value, item.value))
-            : [...value(), item.value]
-          : [item.value],
-      )
-    })
+    if (shouldClose) {
+      setOpen(false)
+    }
+    change(
+      props.multiple
+        ? selectedValues().has(item.value)
+          ? value().filter((value) => !sameValue(value, item.value))
+          : [...value(), item.value]
+        : [item.value],
+    )
     if (shouldClose) {
       const target = focusOwner()
-      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
       queueMicrotask(() => {
         if (!open() && target === focusOwner() && target?.isConnected) {
           target.focus()
@@ -254,13 +248,14 @@ export function createSelectState<T extends BaseSelectT.Item>(
     (item, selected) => selected.has(item),
   )
   createEffect(
-    on([open, navigation, highlightedValue, selectedValues], ([isOpen, nav, current, selected]) => {
+    () => [open(), navigation(), highlightedValue(), selectedValues()],
+    ([isOpen, nav, current, selected]) => {
       if (!isOpen || (current !== undefined && nav.indexByValue.has(current))) {
         return
       }
       const next = nav.items.find((item) => selected.has(item.value)) ?? nav.items[0]
       setHighlightedValue(next?.value)
-    }),
+    },
   )
   const typeahead = createTypeahead({
     getItems: items,
@@ -383,18 +378,16 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
 
   createEffect(
-    on(
-      [value, field.value, () => props.value !== undefined],
-      ([current, formValue, controlled]) => {
-        if (!controlled) {
-          return
-        }
-        const multiple = props.multiple === true
-        if (!formValueMatches(current, formValue, multiple)) {
-          field.setFormValue(toFormValue(current, multiple))
-        }
-      },
-    ),
+    () => [value(), field.value(), (() => props.value !== undefined)()],
+    ([current, formValue, controlled]) => {
+      if (!controlled) {
+        return
+      }
+      const multiple = props.multiple === true
+      if (!formValueMatches(current, formValue, multiple)) {
+        field.setFormValue(toFormValue(current, multiple))
+      }
+    },
   )
   let compositionDiscarder: (() => void) | undefined
   function registerCompositionDiscarder(discard: () => void) {
@@ -413,13 +406,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
   function discardComposition() {
     compositionDiscarder?.()
   }
-  createEffect(
-    on(value, (current, previous) => {
-      if (previous !== undefined && !selectionEqual(current, previous)) {
-        discardComposition()
-      }
-    }),
-  )
+  createEffect(value, (current, previous) => {
+    if (previous !== undefined && !selectionEqual(current, previous)) {
+      discardComposition()
+    }
+  })
   /** Form string of a value; `undefined` omits it from the submission. */
   function serialize(selected: T['value']): string | undefined {
     if (props.serializeValue) {
@@ -500,7 +491,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           aria-hidden="true"
           disabled={field.disabled()}
           required={field.required() && !hasSelection()}
-          tabIndex={-1}
+          tabindex={-1}
           form={props.form}
           name={serialized().length > 0 ? field.name() : undefined}
           value={primarySerializedValue()}
@@ -518,7 +509,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
           }}
           onInvalid={onInvalid}
         />
-        <Index each={secondarySerializedValues()}>
+        <For each={secondarySerializedValues()} keyed={false}>
           {(value) => (
             <HiddenInput
               type="hidden"
@@ -529,7 +520,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
               disabled={field.disabled()}
             />
           )}
-        </Index>
+        </For>
       </>
     ),
   }

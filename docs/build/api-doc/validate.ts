@@ -1,6 +1,5 @@
 import { FACTORY_COMPONENTS } from './registry.ts'
 import type { ComponentApi } from './types.ts'
-
 function validateComponentApi(component: ComponentApi): string[] {
   const issues: string[] = []
   const addError = (message: string, partId?: string) =>

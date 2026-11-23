@@ -1,6 +1,5 @@
 import { Button, Empty, Icon, Input } from '@src'
 import { createSignal } from 'solid-js'
-
 export function NoResults() {
   const [search, setSearch] = createSignal('design systems')
   return (

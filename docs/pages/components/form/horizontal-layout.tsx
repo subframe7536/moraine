@@ -1,6 +1,5 @@
 import { createForm, Input, Select } from '@src'
 import * as v from 'valibot'
-
 export function HorizontalLayout() {
   const form = createForm({
     schema: v.object({

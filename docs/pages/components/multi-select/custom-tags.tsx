@@ -1,6 +1,5 @@
 import { Icon, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
-
 interface LabelItem extends MultiSelectT.Item {
   color: string
 }

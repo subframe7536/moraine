@@ -1,6 +1,5 @@
 import { Alert, Button } from '@src'
 import { createSignal } from 'solid-js'
-
 export function CloseExample() {
   const [open, setOpen] = createSignal(true)
 

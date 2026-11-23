@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal, onCleanup, Show } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Portal } from '@solidjs/web'
+import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
@@ -14,7 +14,6 @@ import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
 import type { InputGroupT } from './input-group.types'
-
 describe('InputGroup', () => {
   test('keeps Leading and Trailing scoped to InputGroup', () => {
     expect(() => render(() => <InputGroup.Leading>Prefix</InputGroup.Leading>)).toThrow(
@@ -85,7 +84,7 @@ describe('InputGroup', () => {
         (el) => `${el.getAttribute('data-slot')}:${el.getAttribute('data-orientation')}`,
       ),
     ).toEqual(['input-group-leading:horizontal', 'input-group-trailing:horizontal'])
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
     expect(group.getAttribute('data-orientation')).toBe('vertical')
     expect(screen.getByText('Suffix').getAttribute('data-orientation')).toBe('vertical')
     expect(screen.getByRole('textbox')).toBe(input)
@@ -112,13 +111,13 @@ describe('InputGroup', () => {
 
     expect(leading.hasAttribute('data-compact')).toBe(false)
     expect(trailing.hasAttribute('data-compact')).toBe(false)
-    setCompact(true)
+    flush(() => setCompact(true))
     expect(leading.hasAttribute('data-compact')).toBe(true)
     expect(trailing.hasAttribute('data-compact')).toBe(true)
     expect(screen.getByRole('textbox')).toBe(control)
     expect(screen.getByTestId('leading')).toBe(leading)
     expect(screen.getByTestId('trailing')).toBe(trailing)
-    setCompact(false)
+    flush(() => setCompact(false))
     expect(leading.hasAttribute('data-compact')).toBe(false)
     expect(trailing.hasAttribute('data-compact')).toBe(false)
   })
@@ -143,7 +142,7 @@ describe('InputGroup', () => {
 
     expect(inherited.hasAttribute('data-compact')).toBe(true)
     expect(explicit.hasAttribute('data-compact')).toBe(false)
-    setTheme(defineTheme({ inputGroup: { defaultVariants: { compact: false } } }))
+    flush(() => setTheme(defineTheme({ inputGroup: { defaultVariants: { compact: false } } })))
     expect(inherited.hasAttribute('data-compact')).toBe(false)
     expect(explicit.hasAttribute('data-compact')).toBe(false)
   })
@@ -190,7 +189,7 @@ describe('InputGroup', () => {
           <span>Prefix</span>
           <button type="button">Action</button>
           <a href="#target">Link</a>
-          <span tabIndex={0}>Focusable</span>
+          <span tabindex={0}>Focusable</span>
           <span onPointerDown={(event) => event.preventDefault()}>Cancelled</span>
         </InputGroup.Leading>
         <Control aria-label="Message" />
@@ -281,8 +280,8 @@ describe('InputGroup', () => {
     fireEvent.pointerDown(group, { button: 0 })
     expect(document.activeElement).not.toBe(control)
 
-    setCancel(false)
-    setDisabled(true)
+    flush(() => setCancel(false))
+    flush(() => setDisabled(true))
     expect(control.disabled).toBe(true)
     fireEvent.pointerDown(group, { button: 0 })
     expect(document.activeElement).not.toBe(control)
@@ -290,7 +289,7 @@ describe('InputGroup', () => {
     fireEvent.click(screen.getByRole('button'))
     expect(action).toHaveBeenCalledOnce()
 
-    setDisabled(false)
+    flush(() => setDisabled(false))
     fireEvent.pointerDown(group, { button: 0 })
     expect(document.activeElement).toBe(control)
   })
@@ -319,7 +318,7 @@ describe('InputGroup', () => {
     expect(frame.className).toContain('theme-frame')
     expect(frame.style.color).toBe('green')
 
-    setLeadingClass('next-leading')
+    flush(() => setLeadingClass('next-leading'))
     expect(screen.getByRole('textbox')).toBe(input)
     expect(leading.className).toContain('next-leading')
     expect(leading.className).not.toContain('first-leading')
@@ -350,7 +349,7 @@ describe('InputGroup', () => {
     expect(inherited.getAttribute('data-orientation')).toBe('horizontal')
     expect(inherited.className).not.toContain('custom-header')
     expect(explicit.getAttribute('data-orientation')).toBe('horizontal')
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
     expect(inherited.getAttribute('data-orientation')).toBe('vertical')
     expect(inherited.className).toContain('custom-header')
     expect(explicit.getAttribute('data-orientation')).toBe('vertical')
@@ -362,7 +361,7 @@ describe('InputGroup', () => {
     expect(inherited.getAttribute('data-orientation')).toBe('vertical')
     expect(inherited.className).not.toContain('custom-header')
     expect(explicit.getAttribute('data-orientation')).toBe('vertical')
-    setOrientation(undefined)
+    flush(() => setOrientation(undefined))
     expect(explicit.getAttribute('data-orientation')).toBe('horizontal')
   })
 
@@ -387,7 +386,7 @@ describe('InputGroup', () => {
     const control = screen.getByRole<HTMLInputElement>('textbox')
     control.focus()
     control.setSelectionRange(1, 3)
-    setText('Next')
+    flush(() => setText('Next'))
     expect(screen.getByText('Next')).toBeTruthy()
     expect(screen.getByRole('textbox')).toBe(control)
     expect(control.value).toBe('Draft')
@@ -395,7 +394,7 @@ describe('InputGroup', () => {
     expect(control.selectionEnd).toBe(3)
     expect(document.activeElement).toBe(control)
 
-    setShow(false)
+    flush(() => setShow(false))
     expect(cleanup).toHaveBeenCalledOnce()
     expect(screen.getByRole('textbox')).toBe(control)
     screen.unmount()
@@ -422,7 +421,7 @@ describe('InputGroup', () => {
     form.reset()
     await Promise.resolve()
     expect(control.value).toBe('Initial')
-    setError(undefined)
+    flush(() => setError(undefined))
     expect(control.getAttribute('aria-invalid')).not.toBe('true')
     expect(screen.getByRole('group').hasAttribute('aria-invalid')).toBe(false)
   })

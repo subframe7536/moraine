@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 /** Creates reactive test state inside the same Solid owner that renders its consumer. */
 export function renderWithOwner<T>(

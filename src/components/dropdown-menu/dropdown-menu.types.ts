@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, OverlayAlign } from '../../theme/style-types'
@@ -17,7 +18,6 @@ import type {
 } from '../shared/overlay/types'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
-
 export namespace DropdownMenuT {
   export type Kind = 'composite'
 

@@ -1,14 +1,13 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { children as resolveChildren, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Selectable option (`role="option"`) of `BaseSelect`. Pass the collection entry through `item`;
  * clicking it selects the item. Without children it renders `item.label`; children can instead
@@ -35,7 +34,8 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
   props: BaseSelectT.ItemProps<T>,
 ): JSX.Element {
   const state = useSelectContext<T>()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'item',
     'children',
     'class',
@@ -45,7 +45,19 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     'onPointerMove',
     'onPointerDown',
     'onMouseDown',
-  ])
+  )
+  const rest = omit(
+    props,
+    'item',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onClick',
+    'onPointerMove',
+    'onPointerDown',
+    'onMouseDown',
+  )
   const {
     slots: { item: itemSlot },
   } = useRecipe(baseSelectRecipe, local, {
@@ -93,9 +105,9 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={state.itemId(item().value)}
-      tabIndex={-1}
+      tabindex={-1}
       aria-selected={selected() ? 'true' : 'false'}
-      aria-disabled={disabled() || undefined}
+      aria-disabled={disabled() ? 'true' : undefined}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (

@@ -1,17 +1,16 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
-import { createId } from '../../shared/utils'
+import { createId, pick } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
 import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
-
 /**
  * Layout and accessibility wrapper that associates a control with its label, description, help,
  * and error text. It registers the nested Moraine control, inherits `size` and disabled state
@@ -30,7 +29,8 @@ import type { FieldProps } from './field.types'
 export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'binding',
     'as',
     'id',
@@ -51,7 +51,30 @@ export function Field<T extends ValidComponent = 'div'>(
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'binding',
+    'as',
+    'id',
+    'name',
+    'label',
+    'hiddenLabel',
+    'description',
+    'help',
+    'error',
+    'hint',
+    'required',
+    'disabled',
+    'readOnly',
+    'children',
+    'orientation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
   const isRequired = () => Boolean(local.required)
   const labelHidden = () => !hasContent(local.label) && Boolean(local.hiddenLabel)
   const label = createMemo(() => (hasContent(local.label) ? local.label : local.hiddenLabel))
@@ -95,7 +118,7 @@ export function Field<T extends ValidComponent = 'div'>(
   const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
     { id: () => string; labelFor: () => boolean; key: symbol }[]
-  >([])
+  >([], { ownedWrite: true })
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
     const name = local.name
@@ -208,7 +231,7 @@ export function Field<T extends ValidComponent = 'div'>(
     })
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...rest}>
+      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rootSlot} {...(rest as any)}>
         <div data-slot="field-wrapper" {...wrapperSlot}>
           <Show when={showLabel()}>
             <div data-slot="field-label-wrapper" {...labelWrapperSlot}>

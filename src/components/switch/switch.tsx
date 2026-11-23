@@ -1,12 +1,13 @@
-import type { JSX, Ref } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Ref } from 'solid-js'
+import { Show, createEffect, createMemo, merge, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasContent } from '../../shared/jsx-content'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
@@ -16,7 +17,6 @@ import { useFormReset } from '../shared/form/use-form-reset'
 
 import { switchDataAttributes, switchRecipe } from './switch.recipe'
 import type { SwitchProps } from './switch.types'
-
 /**
  * On/off toggle with switch semantics, an optional `label` and `description`, and icon and loading
  * states. Use it for a setting whose state takes effect immediately, `Checkbox` for an independent
@@ -26,7 +26,7 @@ import type { SwitchProps } from './switch.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Switch } from 'moraine'
  *
  * const [enabled, setEnabled] = createSignal(false)
@@ -46,7 +46,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
     ref?: Ref<HTMLDivElement>
   }
-  const [local, rest] = splitProps(props as RootProps, [
+  const local = pick(
+    props as RootProps,
     'ref',
     'inputRef',
     'id',
@@ -75,8 +76,40 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
     'onFocus',
     'onBlur',
-    'tabIndex',
-  ])
+    'tabindex',
+  )
+  const rest = omit(
+    props as RootProps,
+    'ref',
+    'inputRef',
+    'id',
+    'name',
+    'form',
+    'disabled',
+    'required',
+    'readOnly',
+    'value',
+    'checked',
+    'defaultChecked',
+    'trueValue',
+    'falseValue',
+    'loading',
+    'loadingIcon',
+    'checkedIcon',
+    'uncheckedIcon',
+    'label',
+    'description',
+    'onCheckedChange',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onClick',
+    'onFocus',
+    'onBlur',
+    'tabindex',
+  )
   const themeField = useFieldContext()
   const {
     slots: {
@@ -121,7 +154,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       loading: false,
       loadingIcon: 'icon-loading' as const,
@@ -141,7 +174,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const showDescription = () => hasContent(description())
 
   const generatedId = createId(() => merged.id, 'switch')
-  const fieldProps = mergeProps(merged, {
+  const fieldProps = merge(merged, {
     get disabled() {
       return merged.loading ? true : merged.disabled
     },
@@ -213,14 +246,17 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   })
 
   createEffect(
-    on(
-      [field.path, () => merged.checked, () => merged.trueValue, () => merged.falseValue],
-      ([, value, trueValue, falseValue]) => {
-        if (value !== undefined) {
-          field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
-        }
-      },
-    ),
+    () => [
+      field.path(),
+      (() => merged.checked)(),
+      (() => merged.trueValue)(),
+      (() => merged.falseValue)(),
+    ],
+    ([, value, trueValue, falseValue]) => {
+      if (value !== undefined) {
+        field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
+      }
+    },
   )
 
   function handleCheckedChange(nextChecked: boolean): void {
@@ -252,13 +288,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     return attrs
   }
 
-  createEffect(
-    on(checked, (isChecked) => {
-      if (inputEl) {
-        inputEl.checked = isChecked
-      }
-    }),
-  )
+  createEffect(checked, (isChecked) => {
+    if (inputEl) {
+      inputEl.checked = isChecked
+    }
+  })
 
   function toggle(): void {
     if (field.disabled() || field.readOnly()) {
@@ -354,7 +388,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         required={field.required()}
         disabled={field.disabled()}
         readonly={field.readOnly()}
-        tabIndex={-1}
+        tabindex={-1}
         aria-hidden="true"
         class={PEER_CLASS}
         data-slot="switch-input"
@@ -379,9 +413,9 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         {...trackSlot}
         ref={field.setControlRef}
         id={field.id()}
-        tabIndex={local.tabIndex}
+        tabindex={local.tabindex}
         disabled={field.disabled()}
-        aria-checked={checked()}
+        aria-checked={checked() ? 'true' : 'false'}
         onPointerDown={onPointerDown}
         onKeyDown={onTrackKeyDown}
         onFocus={onTrackFocus}

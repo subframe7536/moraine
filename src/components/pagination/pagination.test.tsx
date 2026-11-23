@@ -1,10 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Pagination } from './pagination'
-
 function ItemLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a data-custom-item="" {...props} />
 }
@@ -97,9 +96,9 @@ describe('Pagination', () => {
         .trim()
 
     expect(status()).toBe('Page 8 of 10')
-    setTotal(20)
+    flush(() => setTotal(20))
     expect(status()).toBe('Page 2 of 2')
-    setTotal(100)
+    flush(() => setTotal(100))
     expect(status()).toBe('Page 8 of 10')
     expect(onPageChange).not.toHaveBeenCalled()
   })
@@ -117,7 +116,7 @@ describe('Pagination', () => {
         .trim()
 
     expect(status()).toBe('Page 2 of 2')
-    setTotal(100)
+    flush(() => setTotal(100))
     expect(status()).toBe('Page 8 of 10')
     expect(onPageChange).not.toHaveBeenCalled()
   })
@@ -145,7 +144,9 @@ describe('Pagination', () => {
       <Pagination
         defaultPage={2}
         onPageChange={onPageChange}
-        {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
+        ref={(el: HTMLElement) =>
+          el.addEventListener('click', (event) => event.preventDefault(), true)
+        }
         total={50}
         pageSize={10}
         controls={false}
@@ -335,7 +336,9 @@ describe('Pagination', () => {
         pageSize={10}
         getPageHref={href}
         onPageChange={onPageChange}
-        {...{ 'oncapture:click': (event: MouseEvent) => event.preventDefault() }}
+        ref={(el: HTMLElement) =>
+          el.addEventListener('click', (event) => event.preventDefault(), true)
+        }
       />
     ))
 
@@ -384,7 +387,7 @@ describe('Pagination', () => {
 
     first.focus()
     expect(document.activeElement).toBe(first)
-    setPage(6)
+    flush(() => setPage(6))
     expect(screen.getByLabelText('Go to page 1 of 10')).toBe(first)
     expect(document.activeElement).toBe(first)
   })
@@ -404,7 +407,7 @@ describe('Pagination', () => {
     nextLink.focus()
     expect(document.activeElement).toBe(nextLink)
     expect(nextLink.tagName).toBe('A')
-    setPage(3)
+    flush(() => setPage(3))
     const nextButton = screen.container.querySelector(
       '[data-slot="pagination-next"]',
     ) as HTMLElement

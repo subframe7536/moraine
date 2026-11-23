@@ -2,7 +2,6 @@ import { render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
 import { createContextProvider } from './create-context-provider'
-
 describe('createContextProvider', () => {
   test('creates a required context that throws when missing', () => {
     interface TestContext {

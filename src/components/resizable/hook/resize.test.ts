@@ -11,7 +11,6 @@ import {
   toggleHandleNearestPanel,
 } from './resize'
 import type { ResizableResolvedPanel } from './types'
-
 function panel(
   input: Pick<ResizableResolvedPanel, 'panelId'> & Partial<ResizableResolvedPanel>,
 ): ResizableResolvedPanel {

@@ -1,11 +1,10 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CopyButton } from './copy-button'
-
 const writeText = vi.fn<(text: string) => Promise<void>>()
 
 beforeEach(() => {
@@ -63,7 +62,7 @@ describe('CopyButton SSR hydration', () => {
 
     const labelChild = withChildren.querySelector('span[data-slot="copy-button-label"] > span')!
     expect(labelChild.textContent).toBe('Copy server text')
-    setText('Updated client text')
+    flush(() => setText('Updated client text'))
     expect(labelChild.textContent).toBe('Updated client text')
 
     fireEvent.click(iconOnly)

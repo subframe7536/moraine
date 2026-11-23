@@ -1,13 +1,6 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createMemo,
-  createSignal,
-  mergeProps,
-  splitProps,
-} from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, children as resolveChildren, createMemo, createSignal, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -16,6 +9,7 @@ import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -32,7 +26,6 @@ import { SheetTitle } from './sheet-title'
 import { defaultSheetMessages } from './sheet.messages'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 /**
  * Portaled surface of the surrounding `Sheet`, rendered with `role="dialog"` together with its
  * overlay. Pass `title` and `description` for the default header, or compose `Sheet.Header`,
@@ -54,7 +47,8 @@ import type { SheetT } from './sheet.types'
 export function SheetContent<T extends ValidComponent = 'div'>(
   props: SheetT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as SheetT.ContentProps<T> & { ref?: unknown }, [
+  const local = pick(
+    props as SheetT.ContentProps<T> & { ref?: unknown },
     'as',
     'ref',
     'title',
@@ -62,15 +56,22 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props as SheetT.ContentProps<T> & { ref?: unknown },
+    'as',
+    'ref',
+    'title',
+    'description',
+    'children',
+    'class',
+    'style',
+  )
   const sheet = useSheetContext()
   const messages = useMessages('sheet', defaultSheetMessages, () => sheet.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = mergeProps(
-    { overlay: true, closable: true, closeIcon: 'icon-close' as const },
-    sheet,
-  )
+  const merged = merge({ overlay: true, closable: true, closeIcon: 'icon-close' as const }, sheet)
   const isOverlay = () => merged.overlay !== false
   const keyboardInset = createKeyboardInset(family.open, family.contentElement)
   const {
@@ -119,7 +120,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   function RenderSheetContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
     const binding = createBaseDialogContentBinding(family, {
-      ref: () => local.ref,
+      ref: () => local.ref as ((element: HTMLDivElement) => void) | HTMLDivElement | undefined,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
@@ -140,7 +141,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
         role="dialog"
         dir={direction()}
         id={family.contentId()}
-        tabIndex={binding.tabIndex}
+        tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}

@@ -1,19 +1,18 @@
 import { DragDropManager, Feedback, resolveCustomizable } from '@dnd-kit/dom'
 import type { DragDropManagerInput, DragEndEvent } from '@dnd-kit/dom'
 import { isSortable, Sortable as DndSortable } from '@dnd-kit/dom/sortable'
+import { isServer } from '@solidjs/web'
 import type { FlowComponent } from 'solid-js'
 import {
   createContext,
   createEffect,
   createRenderEffect,
   createSignal,
-  on,
   onCleanup,
-  onMount,
+  onSettled,
   untrack,
   useContext,
 } from 'solid-js'
-import { isServer } from 'solid-js/web'
 
 import { createDataAttributes } from '../theme/style-contract'
 
@@ -363,7 +362,7 @@ export function createSortable(options: SortableOptions = {}): Sortable {
       current.destroy()
     })
 
-    return <SortableContext.Provider value={current}>{props.children}</SortableContext.Provider>
+    return <SortableContext value={current}>{props.children}</SortableContext>
   }
 
   // Handles rendered apart from their item attach by id, in either mount order.
@@ -422,15 +421,13 @@ export function createSortable(options: SortableOptions = {}): Sortable {
     const [itemElement, setItemElement] = createSignal<HTMLElement>()
     const [itemHandle, setItemHandle] = createSignal<HTMLElement>()
     const [itemTarget, setItemTarget] = createSignal<HTMLElement>()
-    onMount(() => {
-      const unregister = sortable.register()
-      onCleanup(unregister)
-    })
+    onSettled(() => sortable.register())
     onCleanup(() => {
       sortable.destroy()
     })
     createEffect(
-      on([itemElement, itemHandle, itemTarget], ([element, handle, target]) => {
+      () => [itemElement(), itemHandle(), itemTarget()],
+      ([element, handle, target]) => {
         if (element) {
           sortable.element = element
         }
@@ -440,57 +437,51 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         if (target) {
           sortable.target = target
         }
-      }),
+      },
     )
     createEffect(
-      on(
-        [input.id, input.index, () => input.disabled?.() ?? false],
-        ([id, index, disabled], prev) => {
-          sortable.id = id
-          sortable.disabled = disabled
-          sortable.index = index
-          if (
-            prev?.[1] !== undefined &&
-            index !== prev[1] &&
-            manager.dragOperation.status.idle &&
-            sortable.transition?.idle
-          ) {
-            sortable.refreshShape()
-          }
-        },
-      ),
+      () => [input.id(), input.index(), (() => input.disabled?.() ?? false)()],
+      ([id, index, disabled], prev) => {
+        sortable.id = id
+        sortable.disabled = disabled
+        sortable.index = index
+        if (
+          prev?.[1] !== undefined &&
+          index !== prev[1] &&
+          manager.dragOperation.status.idle &&
+          sortable.transition?.idle
+        ) {
+          sortable.refreshShape()
+        }
+      },
     )
     const handleRef = (element: HTMLElement): void => {
       setItemHandle(element)
     }
-    createRenderEffect(
-      on(input.id, (id) => {
-        handleSetters.set(id, handleRef)
-        const pending = pendingHandles.get(id)
-        if (pending) {
-          pendingHandles.delete(id)
-          handleRef(pending)
+    createRenderEffect(input.id, (id) => {
+      handleSetters.set(id, handleRef)
+      const pending = pendingHandles.get(id)
+      if (pending) {
+        pendingHandles.delete(id)
+        handleRef(pending)
+      }
+      onCleanup(() => {
+        if (handleSetters.get(id) === handleRef) {
+          handleSetters.delete(id)
         }
-        onCleanup(() => {
-          if (handleSetters.get(id) === handleRef) {
-            handleSetters.delete(id)
-          }
-        })
-      }),
-    )
+      })
+    })
     let element: HTMLElement | undefined
-    createRenderEffect(
-      on(input.id, (id) => {
-        if (element) {
-          elements.set(id, element)
+    createRenderEffect(input.id, (id) => {
+      if (element) {
+        elements.set(id, element)
+      }
+      onCleanup(() => {
+        if (elements.get(id) === element) {
+          elements.delete(id)
         }
-        onCleanup(() => {
-          if (elements.get(id) === element) {
-            elements.delete(id)
-          }
-        })
-      }),
-    )
+      })
+    })
     return {
       ref: (next) => {
         element = next

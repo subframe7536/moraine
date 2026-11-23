@@ -1,19 +1,8 @@
-import type { JSX } from 'solid-js'
-import {
-  DEV,
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { DEV, For, Show, createEffect, createMemo, merge, onCleanup, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callHandler, createId } from '../../shared/utils'
+import { callHandler, createId, pick } from '../../shared/utils'
 import { CheckboxCore } from '../checkbox/checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -22,7 +11,6 @@ import { useFormValue } from '../shared/form/use-form-value'
 
 import { checkboxGroupDataAttributes, checkboxGroupRecipe } from './checkbox-group.recipe'
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
-
 interface NormalizedCheckboxGroupItem {
   value: string
   label?: JSX.Element
@@ -73,7 +61,7 @@ function normalizeCheckboxGroupItem(
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { CheckboxGroup } from 'moraine'
  *
  * const [channels, setChannels] = createSignal<string[]>(['email'])
@@ -90,7 +78,8 @@ function normalizeCheckboxGroupItem(
  * ```
  */
 export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'name',
     'form',
@@ -114,7 +103,33 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     'style',
     'onFocus',
     'onBlur',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'name',
+    'form',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'legend',
+    'items',
+    'indicatorPosition',
+    'checkedIcon',
+    'indeterminateIcon',
+    'onValueChange',
+    'variant',
+    'orientation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onFocus',
+    'onBlur',
+  )
   const themeField = useFieldContext()
   const {
     slots: { root: rootSlot, fieldset: fieldsetSlot, legend: legendSlot },
@@ -133,7 +148,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       defaultValue: [] as string[],
     },
@@ -197,7 +212,8 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
   let fieldsetEl: HTMLFieldSetElement | undefined
 
   createEffect(
-    on([items, field.disabled], () => {
+    () => [items(), field.disabled()],
+    () => {
       let cancelled = false
 
       queueMicrotask(() => {
@@ -213,7 +229,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
       onCleanup(() => {
         cancelled = true
       })
-    }),
+    },
   )
 
   const legendId = () => `${groupId()}-legend`

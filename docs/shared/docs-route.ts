@@ -38,3 +38,7 @@ export const DOCS_SECTION_ORDER = new Map<string, number>(
     'hooks:hooks',
   ].map((t, i) => [t, i]),
 )
+
+declare module 'solid-file-router' {
+  interface RouteInfo extends DocsRouteInfo {}
+}

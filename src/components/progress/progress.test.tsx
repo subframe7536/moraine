@@ -1,11 +1,10 @@
 import { render } from '@solidjs/testing-library'
-import { ErrorBoundary, createSignal } from 'solid-js'
+import { Errored, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Progress } from './progress'
-
 describe('Progress', () => {
   test('accepts a style override for thickness', () => {
     const screen = render(() => (
@@ -99,12 +98,12 @@ describe('Progress', () => {
     ))
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
-    setValue(50)
+    flush(() => setValue(50))
     expect(screen.getByText('Done 50%')).not.toBeNull()
 
     const shown = render(() => <Progress value={value()} valueLabel />)
     expect(shown.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('50%')
-    setValue(80)
+    flush(() => setValue(80))
     expect(shown.container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('80%')
   })
 
@@ -192,11 +191,11 @@ describe('Progress', () => {
       expect(part.hasAttribute('data-indeterminate')).toBe(false)
     }
 
-    setValue(100)
+    flush(() => setValue(100))
     expect(root.getAttribute('data-progress')).toBe('complete')
     expect(indicator.getAttribute('data-progress')).toBe('complete')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(root.getAttribute('data-indeterminate')).toBe('')
     expect(indicator.getAttribute('data-indeterminate')).toBe('')
     expect(root.hasAttribute('data-progress')).toBe(false)
@@ -210,27 +209,29 @@ describe('Progress', () => {
 
     expect(valueSlot()).toBeNull()
 
-    setValue(25)
+    flush(() => setValue(25))
     expect(valueSlot()?.textContent).toBe('25%')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(valueSlot()).toBeNull()
 
-    setValue(1)
+    flush(() => setValue(1))
     expect(valueSlot()?.textContent).toBe('1%')
   })
 
   test('updates to the latest valueLabel formatter and contains thrown label errors', () => {
-    const [formatter, setFormatter] = createSignal<(value: number) => string>((value) => `${value}`)
+    const [formatter, setFormatter] = createSignal<(value: number) => string>(
+      () => (value: number) => `${value}`,
+    )
     const screen = render(() => (
-      <ErrorBoundary fallback={(error) => <span data-testid="error">{String(error)}</span>}>
+      <Errored fallback={(error) => <span data-testid="error">{String(error)}</span>}>
         <Progress value={2} max={4} valueLabel={({ value }) => formatter()(value)} />
-      </ErrorBoundary>
+      </Errored>
     ))
     const progress = screen.getByRole('progressbar')
 
     expect(progress.getAttribute('aria-valuetext')).toBe('2')
-    setFormatter(() => (value: number) => `${value} items`)
+    flush(() => setFormatter(() => (value: number) => `${value} items`))
     expect(progress.getAttribute('aria-valuetext')).toBe('2 items')
 
     setFormatter(() => () => {

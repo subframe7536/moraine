@@ -9,18 +9,11 @@ export default subfLint({
         // Lazy accessors (useRecipe `data`, `own`, `enforced`) may reference later declarations;
         // same-scope reads before the declaration are still reported.
         'no-use-before-define': ['error', { classes: false, functions: false, variables: false }],
-        // Element bindings and Solid 1.4+ mergeProps take accessors and track them reactively.
-        'subf/solid-reactivity': [
-          'warn',
-          {
-            customReactiveFunctions: [
-              'bindElement',
-              'publishElement',
-              'bindSelectableItemHandlers',
-              'mergeProps',
-            ],
-          },
-        ],
+        // Disabled: @subf/oxlint-plugin models the Solid 1 tracked-scope API (its createEffect /
+        // createSelector branches only mark the first argument), so the Solid 2
+        // createEffect(compute, apply) signature is always misreported. Re-enable once the plugin
+        // understands Solid 2 signatures.
+        'subf/solid-reactivity': 'off',
       },
     },
     {

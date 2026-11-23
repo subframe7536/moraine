@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface SidebarStyleSlot<T = unknown> {
   /** Frame that contains the panel and inset regions. */
   root?: T

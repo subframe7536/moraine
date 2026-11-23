@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -9,7 +10,6 @@ import { resolveToastOptions } from './toast-store'
 import type { ToastHostDefaults, ToastRecord, ToastStore } from './toast-store'
 import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import type { ToastT } from './toast.types'
-
 const TOAST_FALLBACK_HEIGHT = 58
 
 export interface ToastListProps {
@@ -131,7 +131,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     <Show when={groupToasts().length > 0}>
       <ul
         data-slot="toast-list"
-        tabIndex={-1}
+        tabindex={-1}
         {...listSlot}
         onMouseEnter={() => setIsHovered(true)}
         onMouseMove={() => setIsHovered(true)}

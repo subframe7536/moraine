@@ -1,11 +1,10 @@
 import { waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { NumberInput } from './number-input'
-
 describe('NumberInput SSR Hydration', () => {
   test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
     const [value, setValue] = createSignal(12.5)
@@ -26,7 +25,7 @@ describe('NumberInput SSR Hydration', () => {
       Array.from(horizontalRoot.children).map((child) => child.getAttribute('data-slot')),
     ).toEqual(['number-input-decrement', 'number-input-input', 'number-input-increment'])
 
-    setValue(13.5)
+    flush(() => setValue(13.5))
     await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
   })
 

@@ -1,6 +1,5 @@
 import { Textarea } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Autoresize() {
   const [post, setPost] = createSignal(
     'Just deployed the new Moraine component library docs! Smooth animations, fully typed SolidJS components, and accessible primitives out of the box 🚀',

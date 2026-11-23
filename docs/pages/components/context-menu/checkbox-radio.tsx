@@ -1,7 +1,6 @@
 import { ContextMenu } from '@src'
 import type { ContextMenuT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
-
 export function CheckboxRadio() {
   const [pinned, setPinned] = createSignal(false)
   const [priority, setPriority] = createSignal('normal')

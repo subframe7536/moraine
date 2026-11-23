@@ -1,6 +1,5 @@
 import { Breadcrumb, Switch } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Wrapping() {
   const [wrap, setWrap] = createSignal(true)
 
@@ -9,8 +8,10 @@ export function Wrapping() {
       <Switch checked={wrap()} onCheckedChange={setWrap} label="Wrap items" />
 
       <div
-        class="p-4 border border-border rounded-lg"
-        classList={{ 'w-full max-w-sm': wrap(), 'w-max': !wrap() }}
+        class={[
+          'p-4 border border-border rounded-lg',
+          { 'w-full max-w-sm': wrap(), 'w-max': !wrap() },
+        ]}
       >
         <Breadcrumb
           wrap={wrap()}

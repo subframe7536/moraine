@@ -1,6 +1,5 @@
 import { NumberInput } from '@src'
 import { Show, createSignal } from 'solid-js'
-
 export function KeyboardStepping() {
   const [value, setValue] = createSignal<number | null>(4)
 

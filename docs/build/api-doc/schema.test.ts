@@ -8,7 +8,6 @@ import { describe, expect, test } from 'vitest'
 import { collectFiles } from '../core/paths.ts'
 
 import { COMPONENT_API_SCHEMA_URL } from './write.ts'
-
 const projectRoot = path.resolve(__dirname, '../../..')
 const schemaPath = path.join(projectRoot, 'docs/public/component-api.schema.json')
 const pagesRoot = path.join(projectRoot, 'docs/pages')

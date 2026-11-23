@@ -1,6 +1,5 @@
 import { Button, Icon, Resizable } from '@src'
 import { For, createSignal, Show } from 'solid-js'
-
 const FOLDERS = [
   { icon: 'i-lucide:inbox', label: 'Inbox', count: '12', active: true },
   { icon: 'i-lucide:send', label: 'Sent' },

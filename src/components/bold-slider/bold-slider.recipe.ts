@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import { MORAINE_COLORS } from '../../theme/tokens'
 
 import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider.style-types'
-
 /*
  * State selectors use `peer-*` only. Slider renders the track, then the thumb, then BoldSlider's
  * overlay parts as root children, so every part that reacts to hover (track), keyboard focus,

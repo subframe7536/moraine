@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { pick } from '../../shared/utils'
 
 import { defaultKbdMessages } from './kbd.messages'
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps } from './kbd.types'
-
 /**
  * Keycap that displays one keyboard key as shortcut notation in a `kbd` element. Known aliases
  * such as `meta`, `ctrl`, `shift`, and `escape` resolve to symbols unless `symbol={false}`, and
@@ -26,7 +26,8 @@ import type { KbdProps } from './kbd.types'
  * ```
  */
 export function Kbd(props: KbdProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'value',
     'symbol',
     'size',
@@ -37,7 +38,20 @@ export function Kbd(props: KbdProps): JSX.Element {
     'styles',
     'aria-label',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'value',
+    'symbol',
+    'size',
+    'variant',
+    'class',
+    'style',
+    'classes',
+    'styles',
+    'aria-label',
+    'translations',
+  )
   const {
     slots: { root: rootSlot },
   } = useRecipe(kbdRecipe, local)

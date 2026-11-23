@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { CopyButton } from './copy-button'
-
 export function renderCopyButtonFixture(): string {
   return renderToString(() => (
     <>

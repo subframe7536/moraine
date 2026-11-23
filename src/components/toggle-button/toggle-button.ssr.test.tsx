@@ -1,11 +1,10 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { ToggleButton } from './toggle-button'
-
 describe('ToggleButton SSR hydration', () => {
   test('preserves roots, icons, JSX children and reactive render functions while toggling', () => {
     const [text, setText] = createSignal('Server content')
@@ -35,13 +34,13 @@ describe('ToggleButton SSR hydration', () => {
     const stateChild = renderProp.querySelector('span[data-slot="button-label"] > span')!
     expect(plain.getAttribute('aria-pressed')).toBe('true')
     fireEvent.click(plain)
-    setText('Updated content')
+    flush(() => setText('Updated content'))
     expect(plain.getAttribute('aria-pressed')).toBe('false')
     expect(plainChild.textContent).toBe('Updated content')
     expect(plain.contains(plainChild)).toBe(true)
     fireEvent.click(renderProp)
     expect(stateChild.textContent).toBe('Saved / Ready')
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(stateChild.textContent).toBe('Saved / Pending')
     expect(renderProp.contains(stateChild)).toBe(true)
     expect(container.querySelectorAll('[data-slot="toggle-button"]')).toHaveLength(2)

@@ -1,7 +1,6 @@
 import { Resizable } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function ResizablePlayground() {
   return (
     <DocsPlayground

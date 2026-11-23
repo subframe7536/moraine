@@ -1,6 +1,5 @@
 import { AlertDialog, Badge, Button } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function AlertConfirm() {
   const [revoked, setRevoked] = createSignal(false)
 

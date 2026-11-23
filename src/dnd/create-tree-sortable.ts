@@ -1,5 +1,5 @@
 import { KeyboardSensor, PointerSensor } from '@dnd-kit/dom'
-import { createEffect, createMemo, mergeProps, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, merge, onCleanup } from 'solid-js'
 
 import type { TreeT } from '../components/tree/tree.types'
 
@@ -183,20 +183,18 @@ export function createTreeSortable<T>(
   const expandDelay = options.expandDelay ?? 600
   if (expandDelay !== false) {
     createEffect(
-      on(
-        () => {
-          const state = sortable.state()
-          return state?.position === 'inside' ? String(state.targetId) : undefined
-        },
-        (key) => {
-          const item = key === undefined ? undefined : tree.getItem(key)
-          if (!item || item.expanded || !item.hasChildren) {
-            return
-          }
-          const timer = setTimeout(() => tree.expand(item.key), expandDelay)
-          onCleanup(() => clearTimeout(timer))
-        },
-      ),
+      () => {
+        const state = sortable.state()
+        return state?.position === 'inside' ? String(state.targetId) : undefined
+      },
+      (key) => {
+        const item = key === undefined ? undefined : tree.getItem(key)
+        if (!item || item.expanded || !item.hasChildren) {
+          return
+        }
+        const timer = setTimeout(() => tree.expand(item.key), expandDelay)
+        onCleanup(() => clearTimeout(timer))
+      },
     )
   }
 
@@ -208,7 +206,7 @@ export function createTreeSortable<T>(
       positions: () =>
         (options.canNest?.(item) ?? true) ? ['before', 'inside', 'after'] : ['before', 'after'],
     })
-    const props = mergeProps(
+    const props = merge(
       {
         ref: (element: HTMLElement) => {
           node.ref(element)

@@ -1,11 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { Resizable } from './resizable'
 import type { ResizableT } from './resizable.types'
-
 function createRect(input: { top: number; right: number; bottom: number; left: number }): DOMRect {
   const { top, right, bottom, left } = input
 
@@ -107,7 +106,7 @@ function TwoPanels(props: TwoPanelProps): JSX.Element {
 function setPanelSizes(container: HTMLElement, sizePx: number): void {
   const rect = createRect({ top: 0, right: sizePx, bottom: sizePx, left: 0 })
   for (const panel of panelsOf(container)) {
-    setRect(panel, rect)
+    flush(() => setRect(panel, rect))
   }
 }
 
@@ -154,8 +153,8 @@ async function renderNestedGroups() {
     </Resizable>
   ))
   const [outerHandle, innerHandle] = handlesOf(screen.container)
-  setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
-  setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
+  flush(() => setRect(outerHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 })))
+  flush(() => setRect(innerHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 })))
   setRect(
     screen.container.querySelector<HTMLElement>('#outer-a')!,
     createRect({ top: 0, right: 100, bottom: 600, left: 0 }),
@@ -213,7 +212,7 @@ describe('Resizable', () => {
       </Resizable>
     ))
 
-    setShowB(true)
+    flush(() => setShowB(true))
     await waitForLayout()
 
     const panels = panelsOf(screen.container)
@@ -245,11 +244,11 @@ describe('Resizable', () => {
     expect(onCollapse).not.toHaveBeenCalled()
     expect(onExpand).not.toHaveBeenCalled()
 
-    setShowB(false)
-    setLayout({ a: 50, b: 50 })
+    flush(() => setShowB(false))
+    flush(() => setLayout({ a: 50, b: 50 }))
     await waitForLayout()
 
-    setShowB(true)
+    flush(() => setShowB(true))
     await waitForLayout()
 
     // The remounted panel reports its fresh collapsed state, not a transition
@@ -268,7 +267,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -294,7 +293,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     fireEvent.pointerDown(handle!, { pointerId: 1, button: 0, clientX: 500, clientY: 0 })
@@ -309,7 +308,7 @@ describe('Resizable', () => {
     const screen = render(() => (
       <TwoPanels value={{ a: 50, b: 50 }} onValueChange={onValueChange} />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -330,7 +329,7 @@ describe('Resizable', () => {
         a={{ min: 20, collapsible: true, onCollapse, onExpand }}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
@@ -422,7 +421,7 @@ describe('Resizable', () => {
         <TwoPanels defaultValue={{ a: 50, b: 50 }} />
       </div>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [handle] = handlesOf(screen.container)
     const [a, b] = panelsOf(screen.container)
 
@@ -566,11 +565,11 @@ describe('Resizable', () => {
         </Resizable>
       </>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [leftHandle, rightHandle] = handlesOf(screen.container)
     // The vertical group's horizontal bar crosses the horizontal group's vertical bar.
-    setRect(leftHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
-    setRect(rightHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
+    flush(() => setRect(leftHandle!, createRect({ top: 0, right: 101, bottom: 200, left: 100 })))
+    flush(() => setRect(rightHandle!, createRect({ top: 80, right: 220, bottom: 81, left: 101 })))
 
     const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
     refreshSplitterIntersections()
@@ -598,7 +597,7 @@ describe('Resizable', () => {
         <Resizable.Panel id="b">B</Resizable.Panel>
       </Resizable>
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     const [a] = panelsOf(screen.container)
@@ -628,7 +627,7 @@ describe('Resizable', () => {
         <Resizable.Panel id="c">C</Resizable.Panel>
       </Resizable>
     ))
-    setPanelSizes(screen.container, 400)
+    flush(() => setPanelSizes(screen.container, 400))
 
     const [first] = handlesOf(screen.container)
     const [a, b, c] = panelsOf(screen.container)
@@ -653,7 +652,7 @@ describe('Resizable', () => {
 
     const [handle] = handlesOf(screen.container)
     expect(handle!.getAttribute('aria-disabled')).toBe('true')
-    expect(handle!.getAttribute('tabIndex')).toBe('-1')
+    expect(handle!.getAttribute('tabindex')).toBe('-1')
   })
 
   test('root disabled locks all handles', () => {
@@ -670,7 +669,7 @@ describe('Resizable', () => {
 
   test('marks the handle active on hover and dragging during a drag', () => {
     const screen = render(() => <TwoPanels defaultValue={{ a: 50, b: 50 }} />)
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
     const [handle] = handlesOf(screen.container)
 
     fireEvent.mouseEnter(handle!)
@@ -696,7 +695,7 @@ describe('Resizable', () => {
         onValueCommit={onValueCommit}
       />
     ))
-    setPanelSizes(screen.container, 500)
+    flush(() => setPanelSizes(screen.container, 500))
 
     const [handle] = handlesOf(screen.container)
     fireEvent.pointerDown(handle!, { pointerId: 1, button: 0, clientX: 500, clientY: 0 })
@@ -734,6 +733,6 @@ describe('Resizable', () => {
     ))
     const [handle] = handlesOf(screen.container)
     expect(handle!.getAttribute('aria-disabled')).toBe('true')
-    expect(handle!.getAttribute('tabIndex')).toBe('-1')
+    expect(handle!.getAttribute('tabindex')).toBe('-1')
   })
 })

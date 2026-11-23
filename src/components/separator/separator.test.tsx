@@ -1,12 +1,11 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Separator } from './separator'
-
 describe('Separator', () => {
   test('renders a single root element with default semantics and horizontal orientation', () => {
     const screen = render(() => <Separator />)
@@ -31,7 +30,7 @@ describe('Separator', () => {
 
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
 
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.getAttribute('data-orientation')).toBe('vertical')
@@ -45,7 +44,7 @@ describe('Separator', () => {
         title="Section break"
         orientation="horizontal"
         role="presentation"
-        aria-hidden={false}
+        aria-hidden={'false'}
         aria-orientation="vertical"
         data-orientation="custom"
       />
@@ -98,7 +97,7 @@ describe('Separator', () => {
 
     expect(root.className).toContain('theme-separator-a')
 
-    setDesign(defineTheme({ separator: { base: { root: 'theme-separator-b' } } }))
+    flush(() => setDesign(defineTheme({ separator: { base: { root: 'theme-separator-b' } } })))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('theme-separator-b')

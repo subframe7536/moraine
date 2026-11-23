@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createEmptyPart } from './empty-part'
 import type { EmptyT } from './empty.types'
-
 /**
  * Headline of an `Empty` state; place it inside `Empty`. It renders a `div` by default, so pass
  * `as="h2"` (or another heading) when the surrounding page needs a heading. No role or ARIA

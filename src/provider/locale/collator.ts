@@ -1,5 +1,4 @@
 import { FALLBACK_LOCALE } from './default-locale'
-
 const cache = new Map<string, Intl.Collator>()
 
 function createCollator(locale: string, options: Intl.CollatorOptions): Intl.Collator {

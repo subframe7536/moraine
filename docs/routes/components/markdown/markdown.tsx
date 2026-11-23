@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createMemo, onMount, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, onSettled, untrack } from 'solid-js'
 
 import { getApiReferenceTocEntries } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
@@ -11,7 +11,6 @@ import { ComponentDocContext } from './component-doc.context'
 import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
 import { CompactOnThisPage, OnThisPage } from './toc'
-
 export type ExamplePageApiDoc = ComponentApi
 
 export interface DocsMdxCodeTabItem {
@@ -62,7 +61,7 @@ function updateCanonical(href: string): void {
 }
 
 export function useDocsPage(metadata?: DocsRouteMetadata): void {
-  onMount(() => {
+  onSettled(() => {
     if (!metadata) {
       return
     }
@@ -103,14 +102,14 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         <CompactOnThisPage entries={onThisPageEntries()} />
 
         <div class="mb-24 mt-8 min-w-0 w-full">
-          <ComponentDocContext.Provider
+          <ComponentDocContext
             value={{
               name: input.apiDoc?.parts[0]?.name ?? input.frontmatter.title,
               api: input.apiDoc,
             }}
           >
             {input.children}
-          </ComponentDocContext.Provider>
+          </ComponentDocContext>
           <DocsApiReference apiDoc={input.apiDoc} />
           <DocsPageNavigation currentPagePath={input.routePath} />
         </div>

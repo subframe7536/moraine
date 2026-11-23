@@ -1,6 +1,5 @@
 import { parsePreviewCode as defaultParsePreviewCode } from './ast.ts'
 import type { ParsePreviewCode, ProgramNode } from './ast.ts'
-
 interface NodeRange {
   start: number
   end: number

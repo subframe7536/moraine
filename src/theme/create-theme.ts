@@ -1,6 +1,5 @@
 import type { RecipeLayerConfig } from './recipe'
 import type { DefineThemeOptions, MoraineTheme } from './types'
-
 // Public subpath bundles may contain separate copies of this module. Use the
 // global symbol registry so a theme created from `moraine/theme` remains
 // readable by the resolver bundled into the main `moraine` entry.

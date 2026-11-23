@@ -3,7 +3,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
 import type { AvatarStyleSlot, AvatarStyleVariants } from './avatar.style-types'
-
 export namespace AvatarT {
   export type Kind = 'single'
 

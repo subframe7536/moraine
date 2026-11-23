@@ -1,6 +1,5 @@
 import { Icon, Resizable } from '@src'
 import { For } from 'solid-js'
-
 const FILES = [
   { name: 'src/app.tsx', active: true, icon: 'i-lucide:file-code', color: 'text-blue-500' },
   { name: 'src/theme.ts', icon: 'i-lucide:file-code', color: 'text-blue-500' },

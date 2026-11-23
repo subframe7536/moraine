@@ -1,6 +1,5 @@
 import { Card, Collapsible, Icon, Switch } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Uncontrolled() {
   const [transition, setTransition] = createSignal(true)
 

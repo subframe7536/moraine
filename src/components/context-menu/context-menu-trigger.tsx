@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, onMount, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import {
   getContextMenuTriggerAccessibility,
   validateOverlayTrigger,
@@ -18,7 +18,6 @@ import {
   contextMenuRecipe,
 } from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
-
 /**
  * Surface that opens the surrounding `ContextMenu` from a context-menu gesture, the keyboard
  * context-menu keys, or a touch or pen long press. Place it inside `ContextMenu`; it renders a
@@ -39,7 +38,8 @@ import type { ContextMenuT } from './context-menu.types'
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled'])
+  const local = pick(props, 'as', 'class', 'style', 'disabled')
+  const rest = omit(props, 'as', 'class', 'style', 'disabled')
   const context = useContextMenuContext()
 
   const {
@@ -75,7 +75,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     'onPointerUp',
     'onPointerCancel',
   ] as const) {
-    // oxlint-disable-next-line subf/solid-reactivity -- Event handler reads reactive disabled state.
     events[key] = function onEvent(event) {
       callHandler(event, userEvents[key])
       if (disabled()) {
@@ -84,7 +83,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       callHandler(event, context.triggerProps[key])
     }
   }
-  const triggerProps = mergeProps(
+  const triggerProps = merge(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
     triggerSlot,
@@ -103,6 +102,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
-  return <Dynamic component={tag()} type={undefined} {...binding} />
+  onSettled(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
+  return <Dynamic component={tag()} type={undefined} {...(binding as any)} />
 }

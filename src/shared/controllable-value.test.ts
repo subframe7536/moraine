@@ -1,10 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createControllableValue } from './controllable-value'
 import type { CreateControllableValueOptions } from './controllable-value'
-
 type ConcreteOptions = CreateControllableValueOptions<string>
 const invalidDefault: ConcreteOptions = {
   value: () => undefined,
@@ -16,8 +15,8 @@ void invalidDefault
 describe('createControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string>()
-      const [defaultValue, setDefaultValue] = createSignal('initial')
+      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, { ownedWrite: true })
+      const [defaultValue, setDefaultValue] = createSignal('initial', { ownedWrite: true })
       const [value] = createControllableValue({
         value: controlledValue,
         defaultValue,
@@ -25,12 +24,12 @@ describe('createControllableValue', () => {
 
       expect(value()).toBe('initial')
 
-      setDefaultValue('changed')
-      setControlledValue('controlled')
+      flush(() => setDefaultValue('changed'))
+      flush(() => setControlledValue('controlled'))
 
       expect(value()).toBe('controlled')
 
-      setControlledValue(undefined)
+      flush(() => setControlledValue(undefined))
 
       expect(value()).toBe('initial')
       dispose()
@@ -44,8 +43,8 @@ describe('createControllableValue', () => {
         defaultValue: () => 1,
       })
 
-      setValue((previous) => previous + 1)
-      setValue((previous) => previous + 1)
+      flush(() => setValue((previous) => previous + 1))
+      flush(() => setValue((previous) => previous + 1))
 
       expect(value()).toBe(3)
       dispose()
@@ -69,7 +68,7 @@ describe('createControllableValue', () => {
       expect(previousValue).toBe(10)
       expect(value()).toBe(10)
 
-      setControlledValue(undefined)
+      flush(() => setControlledValue(undefined))
 
       expect(value()).toBe(1)
       dispose()
@@ -86,15 +85,15 @@ describe('createControllableValue', () => {
         onChange,
       })
 
-      setValue('next')
+      flush(() => setValue('next'))
       expect(value()).toBe('next')
       expect(onChange).toHaveBeenCalledExactlyOnceWith('next')
 
-      setValue('next')
+      flush(() => setValue('next'))
       expect(onChange).toHaveBeenCalledOnce()
 
-      setControlledValue('controlled')
-      setValue('proposed')
+      flush(() => setControlledValue('controlled'))
+      flush(() => setValue('proposed'))
       expect(value()).toBe('controlled')
       expect(onChange).toHaveBeenLastCalledWith('proposed')
       expect(onChange).toHaveBeenCalledTimes(2)
@@ -113,7 +112,7 @@ describe('createControllableValue', () => {
       const setter: (update: string | ((previous: string) => string)) => void = setValue
 
       expect(accessor()).toBe('default')
-      setter((previous) => `${previous}-next`)
+      flush(() => setter((previous) => `${previous}-next`))
       expect(value()).toBe('default-next')
       dispose()
     })

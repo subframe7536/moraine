@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { NavigationMenu } from './navigation-menu'
-
 export function NavigationMenuFixture(props: { initiallyOpen?: boolean }) {
   return (
     <NavigationMenu

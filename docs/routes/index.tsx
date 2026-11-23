@@ -1,13 +1,10 @@
-import { createRoute } from 'solid-file-router'
-
 import { LandingPage } from './components/landing'
-
 const title = 'Moraine — Styled & Composable Component Library for SolidJS'
 const description =
   '60 accessible SolidJS components with semantic tokens, single and composite primitives, and first-class UnoCSS and Tailwind CSS v4 integrations.'
 const canonical = 'https://moraine.subf.dev/'
 
-export default createRoute({
+export const route = {
   metadata: {
     title,
     description,
@@ -20,5 +17,6 @@ export default createRoute({
       { name: 'twitter:description', content: description },
     ],
   },
-  component: LandingPage,
-})
+}
+
+export default LandingPage

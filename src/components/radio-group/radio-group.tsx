@@ -1,23 +1,22 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import {
   For,
   Show,
   createEffect,
   createMemo,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  onMount,
-  splitProps,
+  onSettled,
   untrack,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler, createKeyUpHandler, normalizeKey } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -27,7 +26,6 @@ import { containsComposed, getActiveElement, isNode } from '../shared/overlay/do
 
 import { radioGroupDataAttributes, radioGroupRecipe } from './radio-group.recipe'
 import type { RadioGroupProps } from './radio-group.types'
-
 interface NormalizedRadioGroupItem {
   id: string
   inputId: string
@@ -49,7 +47,7 @@ interface NormalizedRadioGroupItem {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Field, RadioGroup } from 'moraine'
  *
  * const [visibility, setVisibility] = createSignal('public')
@@ -67,7 +65,8 @@ interface NormalizedRadioGroupItem {
  * ```
  */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'name',
     'form',
@@ -93,7 +92,35 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'onBlur',
     'onFocusIn',
     'onFocusOut',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'name',
+    'form',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'orientation',
+    'items',
+    'legend',
+    'loop',
+    'onValueChange',
+    'variant',
+    'indicatorPosition',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+    'onFocus',
+    'onBlur',
+    'onFocusIn',
+    'onFocusOut',
+  )
   const themeField = useFieldContext()
   const {
     slots: {
@@ -125,7 +152,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
     context: () => ({ variants: { size: themeField?.size } }),
   })
-  const merged = mergeProps(
+  const merged = merge(
     {
       loop: true,
     },
@@ -212,11 +239,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     return normalizedItems().find((item) => !item.disabled && !field.disabled())?.id
   })
 
-  createEffect(
-    on(tabbableItemId, (itemId) => {
-      field.setControlRef(itemId ? inputRefs.get(itemId) : undefined)
-    }),
-  )
+  createEffect(tabbableItemId, (itemId) => {
+    field.setControlRef(itemId ? inputRefs.get(itemId) : undefined)
+  })
   function isSelected(item: NormalizedRadioGroupItem): boolean {
     return item.id === selectedItemId()
   }
@@ -304,7 +329,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     dispatchItemKeyUp(event, item)
   }
 
-  onMount(() => {
+  onSettled(() => {
     for (const item of normalizedItems()) {
       const input = inputRefs.get(item.id)
       if (input) {
@@ -412,7 +437,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               inputRefs.delete(item.id)
 
               if (shouldRestoreFocus) {
-                // oxlint-disable-next-line subf/solid-reactivity -- The replacement tab stop exists after For reconciles.
                 queueMicrotask(() => inputRefs.get(tabbableItemId() ?? '')?.focus())
               }
             })
@@ -438,16 +462,16 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     required={field.required()}
                     disabled={disabled()}
                     readonly={field.readOnly()}
-                    aria-required={field.required() || undefined}
-                    aria-disabled={disabled() || undefined}
-                    aria-readonly={field.readOnly() || undefined}
+                    aria-required={field.required() ? 'true' : undefined}
+                    aria-disabled={disabled() ? 'true' : undefined}
+                    aria-readonly={field.readOnly() ? 'true' : undefined}
                     aria-labelledby={item.label ? item.labelId : undefined}
                     aria-describedby={
                       [item.descriptionId, field.ariaAttrs()['aria-describedby']]
                         .filter(Boolean)
                         .join(' ') || undefined
                     }
-                    tabIndex={item.id === tabbableItemId() ? 0 : -1}
+                    tabindex={item.id === tabbableItemId() ? 0 : -1}
                     class={PEER_CLASS}
                     data-slot="radio-group-input"
                     onChange={(event) => {

@@ -4,7 +4,6 @@ import type { Orientation } from '../theme/style-types'
 
 import type { KeyBindingOptions } from './keyboard'
 import { createKeyDownHandler } from './keyboard'
-
 type ActivationMode = 'automatic' | 'manual'
 
 /**

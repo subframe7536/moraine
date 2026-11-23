@@ -2,7 +2,6 @@ import { RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const PLAN_OPTIONS = [
   { label: 'Hobby', value: 'hobby', description: 'Free forever for personal projects' },
   { label: 'Pro', value: 'pro', description: '$20/month for growing teams' },

@@ -1,5 +1,4 @@
 import { Button, DropdownMenu } from '@src'
-
 export function ContentHeaderFooter() {
   return (
     <DropdownMenu>

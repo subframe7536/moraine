@@ -1,7 +1,8 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
@@ -16,7 +17,6 @@ import { SheetHeader } from './sheet-header'
 import { SheetTitle } from './sheet-title'
 import { SheetTrigger } from './sheet-trigger'
 import type { SheetProps } from './sheet.types'
-
 /**
  * Focused panel that slides in from a viewport edge, such as mobile navigation or an inspector. Use
  * `Drawer` when the surface needs swipe-to-dismiss gestures or snap points, `Dialog` for a centered
@@ -40,8 +40,9 @@ import type { SheetProps } from './sheet.types'
  * ```
  */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [modalProps, sheetProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
-  const context: SheetContextValue = mergeProps(sheetProps, {
+  const modalProps = pick(props, ...BASE_DIALOG_ROOT_KEYS)
+  const sheetProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
+  const context: SheetContextValue = merge(sheetProps, {
     get slotOverrides() {
       return pickSlotOverrides(props)
     },

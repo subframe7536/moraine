@@ -1,6 +1,7 @@
+import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, Component, JSX } from 'solid-js'
-import { Show, createSignal, onCleanup, onMount } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
+import { Show, createSignal, onSettled } from 'solid-js'
 
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { createLazyMemo } from '../../../../shared/create-lazy-memo'
@@ -297,17 +298,15 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     element: Accessor<HTMLDivElement | undefined>,
     itemId: Accessor<string>,
   ): void {
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(item().disabled),
-          element,
-          hasSubmenu: false,
-          id: itemId(),
-          textValue: () => getOverlayMenuTextValue(item()) ?? element()?.textContent,
-        }),
-      )
-    })
+    onSettled(() =>
+      layer.registerItem({
+        disabled: () => Boolean(item().disabled),
+        element,
+        hasSubmenu: false,
+        id: itemId(),
+        textValue: () => getOverlayMenuTextValue(item()) ?? element()?.textContent,
+      }),
+    )
   }
 
   function LeafItem(itemProps: { item: OverlayMenuEntry<TItem> }): JSX.Element {
@@ -356,7 +355,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitem"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
         ref={setElement}
@@ -426,7 +425,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemcheckbox"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}
@@ -485,7 +484,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemradio"
-        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
+        tabindex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...itemSlot}

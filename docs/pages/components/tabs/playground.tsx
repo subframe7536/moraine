@@ -2,7 +2,6 @@ import { Tabs } from '@src'
 import type { TabsT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const ITEMS: TabsT.Item[] = [
   {
     label: 'Overview',

@@ -1,10 +1,9 @@
-import { createSignal, Show } from 'solid-js'
+import { Show, createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Resizable } from './resizable'
-
 test('renders record-driven panel sizes on the server without measurement', () => {
   const { container } = hydrateFixture(
     '/src/components/resizable/resizable.ssr.fixture.tsx',
@@ -89,6 +88,6 @@ test('hydrates a conditional handle child and updates it', () => {
 
   const grip = container.querySelector('[data-slot="resizable-grip"]')!
   expect(grip.textContent).toBe('Resize')
-  setVisible(false)
+  flush(() => setVisible(false))
   expect(grip.textContent).toBe('')
 })

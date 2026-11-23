@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { createMemo, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -40,7 +40,7 @@ import type { ComboboxProps, ComboboxT } from './combobox.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { Combobox, Field } from 'moraine'
  *
  * const [fruit, setFruit] = createSignal<string | null>(null)
@@ -61,10 +61,12 @@ import type { ComboboxProps, ComboboxT } from './combobox.types'
 export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.Item>(
   props: ComboboxProps<T>,
 ): JSX.Element {
-  const [local, baseSelectProps, rootProps] = splitProps(
+  const local = pick(props, ...COMBOBOX_LOCAL_PROP_KEYS)
+  const baseSelectProps = pick(props, ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS)
+  const rootProps = omit(
     props,
-    COMBOBOX_LOCAL_PROP_KEYS,
-    SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
+    ...COMBOBOX_LOCAL_PROP_KEYS,
+    ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
   const messages = useMessages('combobox', defaultComboboxMessages, () => local.translations)

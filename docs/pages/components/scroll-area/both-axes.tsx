@@ -1,6 +1,5 @@
 import { ScrollArea } from '@src'
 import { For } from 'solid-js'
-
 const columns = Array.from({ length: 12 }, (_, index) => `Week ${index + 1}`)
 const rows = ['Design', 'Engineering', 'Marketing', 'Support', 'Sales', 'Finance', 'Legal']
 

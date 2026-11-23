@@ -1,16 +1,15 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -20,7 +19,7 @@ import { createEventListenerMap } from '../../shared/event-listener'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { isAndroidUserAgent } from '../../shared/utils'
+import { isAndroidUserAgent, pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -41,7 +40,6 @@ import { DrawerTitle } from './drawer-title'
 import { defaultDrawerMessages } from './drawer.messages'
 import { DRAWER_MOTION, drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
-
 /**
  * Portaled surface of the surrounding `Drawer`, rendered with `role="dialog"` together with its
  * overlay and, for `top` and `bottom` sides, a grab handle. Pass `title` and `description` for the
@@ -64,7 +62,8 @@ import type { DrawerT } from './drawer.types'
 export function DrawerContent<T extends ValidComponent = 'div'>(
   props: DrawerT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as DrawerT.ContentProps<T> & { ref?: unknown }, [
+  const local = pick(
+    props as DrawerT.ContentProps<T> & { ref?: unknown },
     'as',
     'ref',
     'title',
@@ -72,12 +71,22 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props as DrawerT.ContentProps<T> & { ref?: unknown },
+    'as',
+    'ref',
+    'title',
+    'description',
+    'children',
+    'class',
+    'style',
+  )
   const drawer = useDrawerContext()
   const messages = useMessages('drawer', defaultDrawerMessages, () => drawer.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = mergeProps(
+  const merged = merge(
     { overlay: true, closable: true, closeIcon: 'icon-close' as const, handle: true },
     drawer,
   )
@@ -153,7 +162,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   function RenderDrawerContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
     const binding = createBaseDialogContentBinding(family, {
-      ref: () => local.ref,
+      ref: () => local.ref as ((element: HTMLDivElement) => void) | HTMLDivElement | undefined,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
@@ -168,29 +177,28 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     const parent = drawer.nested.parent
     if (parent) {
       createEffect(
-        on(
-          [
-            drawer.nested.openCount,
-            drawer.nested.activeCount,
-            drawer.nested.frontmostHeight,
-            family.open,
-          ],
-          ([openCount, activeCount, frontmostHeight, isOpen]) => {
-            parent.report(
-              {
-                open: openCount + 1,
-                active: isOpen ? activeCount + 1 : 0,
-                frontmostHeight: isOpen ? frontmostHeight : 0,
-              },
-              drawer.nested,
-            )
-          },
-        ),
+        () => [
+          drawer.nested.openCount(),
+          drawer.nested.activeCount(),
+          drawer.nested.frontmostHeight(),
+          family.open(),
+        ],
+        ([openCount, activeCount, frontmostHeight, isOpen]) => {
+          parent.report(
+            {
+              open: openCount + 1,
+              active: isOpen ? activeCount + 1 : 0,
+              frontmostHeight: isOpen ? frontmostHeight : 0,
+            },
+            drawer.nested,
+          )
+        },
       )
       createEffect(
-        on([family.open, swipe.swiping, swipe.progress], ([isOpen, swiping, progress]) => {
+        () => [family.open(), swipe.swiping(), swipe.progress()],
+        ([isOpen, swiping, progress]) => {
           parent.reportSwipe(isOpen && swiping, isOpen ? progress : 0)
-        }),
+        },
       )
       onCleanup(() => {
         parent.release(drawer.nested)
@@ -201,7 +209,8 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     // Android back gesture: CloseWatcher mirrors native <dialog> dismissal. Each open
     // drawer owns a watcher, so the browser's stack hands the gesture to the topmost one.
     createEffect(
-      on([family.open, family.contentElement], ([isOpen, element]) => {
+      () => [family.open(), family.contentElement()],
+      ([isOpen, element]) => {
         const ownerWindow = element?.ownerDocument.defaultView
         const CloseWatcherCtor = (
           ownerWindow as
@@ -226,7 +235,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
           },
         })
         onCleanup(() => watcher.destroy())
-      }),
+      },
     )
     const contentShorthand = createShorthandContent(local)
     const child = resolveChildren(() => local.children)
@@ -245,7 +254,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         role="dialog"
         dir={direction()}
         id={family.contentId()}
-        tabIndex={binding.tabIndex}
+        tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}

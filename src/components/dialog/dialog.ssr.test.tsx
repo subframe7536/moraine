@@ -8,7 +8,6 @@ import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
 import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
-
 test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
     '/src/components/dialog/dialog.ssr.fixture.tsx',

@@ -1,5 +1,4 @@
 import { Icon } from '@src'
-
 export function Sources() {
   return (
     <div class="text-sm flex flex-wrap gap-4 items-center">

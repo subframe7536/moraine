@@ -1,7 +1,6 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { ButtonT } from '../button'
 import type { ButtonStyleSlot } from '../button/button.style-types'
-
 export interface ToggleButtonStyleSlot<T = unknown> extends ButtonStyleSlot<T> {}
 
 export interface ToggleButtonStyleVariants {

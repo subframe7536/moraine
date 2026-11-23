@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
 import type { AccordionStyleSlot, AccordionStyleVariants } from './accordion.style-types'
-
 export namespace AccordionT {
   export type Kind = 'single'
 

@@ -8,7 +8,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
-
 export const inputGroupDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('input-group', 'orientation'),
   leading: /* @__PURE__ */ createDataAttributes('compact', 'orientation'),

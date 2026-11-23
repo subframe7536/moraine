@@ -1,5 +1,6 @@
 import type { Coords, Placement } from '@floating-ui/dom'
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 
 import type { ValidComponent } from '../../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'

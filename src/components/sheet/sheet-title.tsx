@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 /**
  * Accessible title of the surrounding `Sheet.Content`; its `id` is wired to the surface's
  * `aria-labelledby` unless `Content` has its own `aria-label`. Place it inside `Sheet.Content`,
@@ -32,7 +32,8 @@ import type { SheetT } from './sheet.types'
 export function SheetTitle<T extends ValidComponent = 'h2'>(
   props: SheetT.TitleProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
+  const local = pick(props, 'as', 'class', 'style', 'id')
+  const rest = omit(props, 'as', 'class', 'style', 'id')
   const sheet = useSheetContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
@@ -47,7 +48,7 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
       component={local.as ?? 'h2'}
       data-slot="sheet-title"
       {...titleSlot}
-      {...rest}
+      {...(rest as any)}
       id={id()}
     />
   )

@@ -1,5 +1,4 @@
 import { Table } from '@src'
-
 export function CustomColumns() {
   return (
     <Table>

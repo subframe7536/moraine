@@ -8,7 +8,6 @@ import {
   collatorStartsWith,
   createSearchCollator,
 } from './collator'
-
 describe('search collator', () => {
   test('matches case, accents, and fullwidth letters', () => {
     const collator = createSearchCollator('en-US')

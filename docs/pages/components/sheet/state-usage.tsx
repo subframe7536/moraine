@@ -1,6 +1,5 @@
 import { Button, Sheet } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StateUsage() {
   const [open, setOpen] = createSignal(false)
 

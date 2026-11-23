@@ -7,7 +7,6 @@ import {
   THEME_COLOR_ROLES,
   createGatedColorDeclarations,
 } from './tokens.ts'
-
 function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): MorainePresetTheme {
   const colors = { ...base.colors } as Record<string, unknown>
   for (const [name, value] of Object.entries(override?.colors ?? {})) {

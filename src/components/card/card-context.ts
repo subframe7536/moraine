@@ -1,7 +1,6 @@
 import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { CardT } from './card.types'
-
 interface CardContext {
   readonly variant: CardT.Variants['variant']
   readonly size: CardT.Variants['size']

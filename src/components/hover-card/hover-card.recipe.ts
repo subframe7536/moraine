@@ -5,7 +5,6 @@ import { POPPER_CONTENT_MAX_WIDTH_CLASS, POPPER_SIDE_CLASS } from '../shared/ove
 import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 
 import type { HoverCardStyleSlot } from './hover-card.style-types'
-
 export const hoverCardDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   content: /* @__PURE__ */ createDataAttributes(

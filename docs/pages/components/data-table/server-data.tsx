@@ -2,8 +2,7 @@ import { Input } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import type { PaginationState, SortingState } from '@tanstack/table-core'
-import { createMemo, createResource, createSignal, onCleanup } from 'solid-js'
-
+import { createMemo, createSignal, isPending, latest, onCleanup } from 'solid-js'
 interface Order {
   id: string
   customer: string
@@ -94,10 +93,10 @@ export default function ServerDataExample() {
     sorting: sorting(),
     search: search(),
   }))
-  const [page] = createResource(query, fetchOrders)
+  const page = createMemo(() => fetchOrders(query()))
   // Keep the previous page on screen while the next one loads.
-  const rows = createMemo<Order[]>((previous) => page.latest?.rows ?? previous, [])
-  const total = createMemo<number>((previous) => page.latest?.total ?? previous, 0)
+  const rows = createMemo<Order[]>(() => latest(() => page()?.rows) ?? [])
+  const total = createMemo<number>(() => latest(() => page()?.total) ?? 0)
 
   const table = createDataTable({
     get data() {
@@ -134,7 +133,7 @@ export default function ServerDataExample() {
         onValueChange={onSearchInput}
         class="max-w-xs"
       />
-      <table.DataTable aria-label="Orders" loading={page.loading} />
+      <table.DataTable aria-label="Orders" loading={isPending(page)} />
     </div>
   )
 }

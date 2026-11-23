@@ -1,13 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { Resizable } from '../resizable'
 
 import { Sidebar } from './sidebar'
-
 const originalMatchMedia = window.matchMedia
 
 test.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
@@ -33,7 +32,7 @@ test.each(['Header', 'Content', 'Footer', 'Inset', 'Group', 'Menu'] as const)(
       </Sidebar>
     ))
     const child = screen.getByTestId('persistent-child')
-    setValue('After')
+    flush(() => setValue('After'))
     expect(screen.getByTestId('persistent-child')).toBe(child)
     expect(child.textContent).toBe('After')
     expect([mounts, cleanups]).toEqual([1, 0])
@@ -107,7 +106,7 @@ describe('Sidebar', () => {
       expect(document.querySelectorAll('[data-slot="sidebar-panel"]')).toHaveLength(1)
     }
     assertUnique()
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() =>
       expect(
         screen.container
@@ -118,7 +117,7 @@ describe('Sidebar', () => {
     fireEvent.click(screen.container.querySelector('[data-slot="sidebar-trigger"]')!)
     await waitFor(assertUnique)
     expect(document.querySelector('[data-testid="sidebar-child"]')).toBe(child)
-    setMobile(false)
+    flush(() => setMobile(false))
     await finishExitMotion()
     await waitFor(assertUnique)
     expect(document.querySelector('[data-testid="sidebar-child"]')).toBe(child)
@@ -164,9 +163,9 @@ describe('Sidebar', () => {
     ))
     const initialInput = screen.getByLabelText('Persistent input')
 
-    setMobile(true)
+    flush(() => setMobile(true))
     expect(screen.getByLabelText('Persistent input')).toBe(initialInput)
-    setMobile(false)
+    flush(() => setMobile(false))
     expect(screen.getByLabelText('Persistent input')).toBe(initialInput)
     expect(input).toBe(initialInput)
   })
@@ -260,7 +259,7 @@ describe('Sidebar', () => {
       </Sidebar>
     ))
 
-    setMobile(true)
+    flush(() => setMobile(true))
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
     await waitFor(() =>
       expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
@@ -268,7 +267,7 @@ describe('Sidebar', () => {
       ),
     )
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await finishExitMotion()
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
@@ -965,14 +964,14 @@ describe('Sidebar open state', () => {
       screen.container.querySelector('[data-slot="sidebar-panel"]')?.getAttribute('data-closed'),
     ).toBe('')
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-expanded')).toBe(
         'false',
       ),
     )
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(
@@ -1079,7 +1078,7 @@ describe('Sidebar open state', () => {
         ?.getAttribute('aria-expanded'),
     ).toBe('false')
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await waitFor(() =>
       expect(
         screen.container
@@ -1154,7 +1153,7 @@ describe('Sidebar open state', () => {
       screen.container.querySelector('[data-slot="sidebar-panel"]')?.hasAttribute('data-closed'),
     ).toBe(false)
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() =>
       expect(
         screen.container
@@ -1169,7 +1168,7 @@ describe('Sidebar open state', () => {
     expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await waitFor(() =>
       expect(
         screen.container.querySelector('[data-slot="sidebar-panel"]')?.hasAttribute('data-closed'),
@@ -1190,13 +1189,13 @@ describe('Sidebar open state', () => {
     ))
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await finishExitMotion()
     expect(
       screen.container.querySelector('[data-slot="sidebar-panel"]')?.hasAttribute('data-closed'),
     ).toBe(false)
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
     expect(onMobileOpenChange).not.toHaveBeenCalled()
   })
@@ -1219,7 +1218,7 @@ describe('Sidebar open state', () => {
     ))
     const trigger = screen.getByRole('button', { name: 'Toggle' })
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
 
@@ -1227,14 +1226,14 @@ describe('Sidebar open state', () => {
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
     expect(onMobileOpenChange).toHaveBeenCalledExactlyOnceWith(true)
 
-    setMobile(false)
+    flush(() => setMobile(false))
     await finishExitMotion()
     await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(onMobileOpenChange).toHaveBeenCalledOnce()
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
@@ -1250,7 +1249,7 @@ describe('Sidebar open state', () => {
       </Sidebar>
     ))
 
-    setMobile(true)
+    flush(() => setMobile(true))
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-expanded')).toBe(
         'false',
@@ -1522,12 +1521,20 @@ function mockRailRects(
 ): void {
   const width = options?.panelWidth ?? 240
   if (options?.side === 'end') {
-    setRect(railOf(container), createRect({ top: 0, right: 559, bottom: 600, left: 559 }))
-    setRect(panelOf(container), createRect({ top: 0, right: 800, bottom: 600, left: 560 }))
+    flush(() =>
+      setRect(railOf(container), createRect({ top: 0, right: 559, bottom: 600, left: 559 })),
+    )
+    flush(() =>
+      setRect(panelOf(container), createRect({ top: 0, right: 800, bottom: 600, left: 560 })),
+    )
     return
   }
-  setRect(railOf(container), createRect({ top: 0, right: width, bottom: 600, left: width }))
-  setRect(panelOf(container), createRect({ top: 0, right: width, bottom: 600, left: 0 }))
+  flush(() =>
+    setRect(railOf(container), createRect({ top: 0, right: width, bottom: 600, left: width })),
+  )
+  flush(() =>
+    setRect(panelOf(container), createRect({ top: 0, right: width, bottom: 600, left: 0 })),
+  )
 }
 
 describe('Sidebar.Rail', () => {
@@ -1764,9 +1771,9 @@ describe('Sidebar.Rail', () => {
     const topPanel = screen.container.querySelector<HTMLElement>('#top')!
     const bottomPanel = screen.container.querySelector<HTMLElement>('#bottom')!
     // inner vertical-layout handle: a horizontal line whose LEFT edge touches the rail
-    setRect(innerHandle, createRect({ top: 80, right: 800, bottom: 81, left: 240 }))
-    setRect(topPanel, createRect({ top: 0, right: 560, bottom: 80, left: 240 }))
-    setRect(bottomPanel, createRect({ top: 81, right: 560, bottom: 600, left: 240 }))
+    flush(() => setRect(innerHandle, createRect({ top: 80, right: 800, bottom: 81, left: 240 })))
+    flush(() => setRect(topPanel, createRect({ top: 0, right: 560, bottom: 80, left: 240 })))
+    flush(() => setRect(bottomPanel, createRect({ top: 81, right: 560, bottom: 600, left: 240 })))
 
     const { refreshSplitterIntersections } = await import('../shared/splitter/manager')
     refreshSplitterIntersections()

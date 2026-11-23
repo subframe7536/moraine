@@ -1,13 +1,12 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Stepper } from './stepper'
 import type { StepperT } from './stepper.types'
-
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
     // oxlint-disable-next-line class-methods-use-this
@@ -61,7 +60,7 @@ describe('Stepper', () => {
         ]}
       />
     ))
-    setDisabled(true)
+    flush(() => setDisabled(true))
     const address = screen.getByRole('tab', { name: 'Address' })
     const shipping = screen.getByRole('tab', { name: 'Shipping' })
     expect(address.getAttribute('aria-selected')).toBe('true')
@@ -83,7 +82,7 @@ describe('Stepper', () => {
       />
     ))
     expect(screen.getByRole('tabpanel').textContent).toBe('Shipping panel')
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
   })
 
@@ -116,7 +115,7 @@ describe('Stepper', () => {
     ))
     expect(view.getByText('Second')).not.toBeNull()
     expect(view.queryByRole('tabpanel')).toBeNull()
-    setValue('second')
+    flush(() => setValue('second'))
     expect(view.getByRole('tabpanel').textContent).toBe('Panel')
   })
 
@@ -212,14 +211,14 @@ describe('Stepper', () => {
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
-    setContent('Dynamic content')
+    flush(() => setContent('Dynamic content'))
 
     const panel = screen.getByRole('tabpanel')
     expect(screen.getByRole('tab', { name: 'Dynamic' }).getAttribute('aria-controls')).toBe(
       panel.id,
     )
 
-    setContent(undefined)
+    flush(() => setContent(undefined))
 
     expect(screen.queryByRole('tabpanel')).toBeNull()
     expect(screen.getByRole('tab', { name: 'Dynamic' }).hasAttribute('aria-controls')).toBe(false)
@@ -491,7 +490,7 @@ describe('Stepper', () => {
     )!
 
     expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('horizontal')
-    setOrientation('vertical')
+    flush(() => setOrientation('vertical'))
     expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(screen.container.querySelector('[data-slot="stepper-indicator"]')).toBe(indicator)
   })
@@ -578,7 +577,7 @@ describe('Stepper', () => {
 
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
 
-    setItems([{ ...ITEMS[0] }, { ...ITEMS[1] }, { ...ITEMS[2] }])
+    flush(() => setItems([{ ...ITEMS[0] }, { ...ITEMS[1] }, { ...ITEMS[2] }]))
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
@@ -598,10 +597,10 @@ describe('Stepper', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue('address')
+    flush(() => setValue('address'))
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
   })
 

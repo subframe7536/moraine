@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { onCleanup, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
-
 /**
  * Main region of `Drawer.Content`, placed between the header and footer. Scrolls once the content
  * height is bounded, and a mouse press inside it does not start a swipe, so text stays selectable.
@@ -29,7 +29,8 @@ import type { DrawerT } from './drawer.types'
 export function DrawerBody<T extends ValidComponent = 'div'>(
   props: DrawerT.BodyProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+  const local = pick(props, 'as', 'class', 'style')
+  const rest = omit(props, 'as', 'class', 'style')
   const drawer = useDrawerContext()
   const content = useDrawerContent()
   const unregister = content.registerBody()
@@ -46,5 +47,12 @@ export function DrawerBody<T extends ValidComponent = 'div'>(
     },
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
-  return <Dynamic component={local.as ?? 'div'} data-slot="drawer-body" {...bodySlot} {...rest} />
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="drawer-body"
+      {...bodySlot}
+      {...(rest as any)}
+    />
+  )
 }

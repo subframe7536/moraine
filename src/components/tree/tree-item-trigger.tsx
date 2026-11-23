@@ -1,16 +1,15 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useTreeContext, useTreeItemContext } from './tree-context'
 import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Expand chevron of the surrounding `tree.Item`; clicking it toggles the branch. It is hidden from
  * assistive technology and out of the tab order because the `treeitem` owns expansion, invisible
@@ -37,14 +36,24 @@ import type { TreeT } from './tree.types'
 export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   props: TreeT.ItemTriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemTriggerProps, [
+  const local = pick(
+    props as TreeT.ItemTriggerProps,
     'as',
     'icon',
     'children',
     'class',
     'style',
     'onClick',
-  ])
+  )
+  const rest = omit(
+    props as TreeT.ItemTriggerProps,
+    'as',
+    'icon',
+    'children',
+    'class',
+    'style',
+    'onClick',
+  )
   const context = useTreeContext()
   const item = useTreeItemContext()!.item
   // The treeitem is the only tab stop. Keep custom hosts out of the tab order, and stop a button
@@ -74,7 +83,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     <Dynamic
       component={local.as ?? 'span'}
       data-slot="tree-trigger"
-      aria-hidden={true}
+      aria-hidden={'true'}
       {...triggerSlot}
       {...rest}
       {...ownedHostAttributes()}

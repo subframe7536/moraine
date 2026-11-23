@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, splitProps, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, createSignal, flush, omit, untrack } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../components/button'
@@ -10,8 +10,7 @@ import type { ButtonProps } from '../components/button'
 import { createPolymorphicRoot } from './create-polymorphic-root'
 import type { ValidComponent } from './types'
 import { useButtonInteraction } from './use-button-interaction'
-import { callHandler } from './utils'
-
+import { callHandler, pick } from './utils'
 const NativeButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
 const NativeLink = (props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
 const NativeSpan = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
@@ -37,14 +36,24 @@ function Root(
     bridgeClick?: boolean
   },
 ) {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'as',
     'disabled',
     'focusableWhenDisabled',
     'ref',
     'onPress',
     'bridgeClick',
-  ])
+  )
+  const rest = omit(
+    props,
+    'as',
+    'disabled',
+    'focusableWhenDisabled',
+    'ref',
+    'onPress',
+    'bridgeClick',
+  )
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
@@ -95,7 +104,7 @@ describe('polymorphic root', () => {
   })
 
   test('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
-    const [as, setAs] = createSignal<ValidComponent>(NativeButton)
+    const [as, setAs] = createSignal<ValidComponent>(() => NativeButton)
     const ref = vi.fn()
     const screen = render(() => (
       <Root as={as()} ref={ref}>
@@ -103,7 +112,7 @@ describe('polymorphic root', () => {
       </Root>
     ))
     const initial = screen.container.firstElementChild
-    setAs(() => NativeLink)
+    flush(() => setAs(() => NativeLink))
     const replacement = screen.container.firstElementChild
     expect(replacement).not.toBe(initial)
     expect(ref.mock.calls.map(([element]) => element)).toEqual([initial, replacement])
@@ -121,7 +130,7 @@ describe('polymorphic root', () => {
     const element = screen.getByRole<HTMLButtonElement>('button')
     expect(element.disabled).toBe(true)
     expect(element.hasAttribute('role')).toBe(false)
-    setDisabled(false)
+    flush(() => setDisabled(false))
     expect(element.disabled).toBe(false)
     expect(screen.getByRole('button')).toBe(element)
   })
@@ -135,7 +144,7 @@ describe('polymorphic root', () => {
         focusableWhenDisabled
         type="submit"
         role="menuitem"
-        tabIndex={3}
+        tabindex={3}
         onPress={press}
       >
         Action
@@ -233,12 +242,12 @@ describe('polymorphic root', () => {
       </Root>
     ))
     const element = screen.getByRole('button')
-    setVisible(false)
+    flush(() => setVisible(false))
     expect(element.isConnected).toBe(false)
     fireEvent.click(element)
     expect(press).not.toHaveBeenCalled()
 
-    setVisible(true)
+    flush(() => setVisible(true))
     fireEvent.click(screen.getByRole('button'))
     expect(press).toHaveBeenCalledOnce()
   })

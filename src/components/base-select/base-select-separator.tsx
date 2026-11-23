@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Decorative divider between options of `BaseSelect`, hidden from assistive technology. Place it
  * inside `BaseSelect.Listbox` between items or groups. Renders a `div`.
@@ -34,7 +34,8 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectSeparator(props: BaseSelectT.SeparatorProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const {
     slots: { separator: separatorSlot },
   } = useRecipe(baseSelectRecipe, local, {

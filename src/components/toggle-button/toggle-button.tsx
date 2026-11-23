@@ -1,17 +1,16 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { children as resolveChildren, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import { Button } from '../button'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 
 import { toggleButtonDataAttributes, toggleButtonRecipe } from './toggle-button.recipe'
 import type { ToggleButtonProps, ToggleButtonT } from './toggle-button.types'
-
 /**
  * Toggle button with independently configurable off and on variants (`variant` and
  * `activeVariant`). Use it for persistent on/off actions such as bold formatting or bookmarking,
@@ -22,7 +21,7 @@ import type { ToggleButtonProps, ToggleButtonT } from './toggle-button.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { ToggleButton } from 'moraine'
  *
  * const [pinned, setPinned] = createSignal(false)
@@ -42,28 +41,47 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
   props: ToggleButtonProps<T>,
 ): JSX.Element {
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(
+  const local = pick(
     props as ToggleButtonProps<T> & {
       ref?: unknown
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
     },
-    [
-      'as',
-      'pressed',
-      'defaultPressed',
-      'onPressedChange',
-      'variant',
-      'activeVariant',
-      'tone',
-      'activeTone',
-      'size',
-      'classes',
-      'styles',
-      'class',
-      'style',
-      'onClick',
-      'children',
-    ],
+    'as',
+    'pressed',
+    'defaultPressed',
+    'onPressedChange',
+    'variant',
+    'activeVariant',
+    'tone',
+    'activeTone',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onClick',
+    'children',
+  )
+  const rest = omit(
+    props as ToggleButtonProps<T> & {
+      ref?: unknown
+      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    },
+    'as',
+    'pressed',
+    'defaultPressed',
+    'onPressedChange',
+    'variant',
+    'activeVariant',
+    'tone',
+    'activeTone',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onClick',
+    'children',
   )
   const { variants, overrides } = useRecipe(toggleButtonRecipe, local, {
     context: () =>
@@ -121,9 +139,9 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       data-slot="toggle-button"
       // oxlint-disable-next-line moraine/data-attributes-in-slot-binding -- Button renders the host; presentation is forwarded through overrides, so there is no slot binding to carry data.
       {...toggleButtonDataAttributes.root({ pressed })}
-      {...rest}
+      {...(rest as any)}
       as={local.as}
-      aria-pressed={pressed()}
+      aria-pressed={pressed() ? 'true' : 'false'}
       variant={pressed() ? variants.activeVariant : variants.variant}
       tone={pressed() ? variants.activeTone : variants.tone}
       size={variants.size}

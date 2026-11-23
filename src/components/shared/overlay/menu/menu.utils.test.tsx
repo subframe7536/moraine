@@ -9,7 +9,6 @@ import {
   resolveMenuGroups,
   useOverlayMenuLayerState,
 } from './menu.utils'
-
 function createRectElement(rect: {
   bottom: number
   left: number

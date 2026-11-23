@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, OverlayPlacement } from '../../theme/style-types'
@@ -8,7 +8,6 @@ import type { PopperContentOptions, PopperProps } from '../shared/overlay/popper
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../shared/overlay/trigger'
 
 import type { TooltipStyleSlot, TooltipStyleVariants } from './tooltip.style-types'
-
 export namespace TooltipT {
   export type Kind = 'composite'
 

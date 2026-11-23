@@ -1,5 +1,5 @@
 import { render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { defaultAlertMessages } from '../../components/alert/alert.messages'
@@ -31,7 +31,6 @@ import { MoraineProvider } from '../moraine-provider'
 
 import { useLocale, useMessages } from './locale-context'
 import type { MoraineMessagesInput, MoraineMessages } from './messages.types'
-
 const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   alert: defaultAlertMessages,
   dialog: defaultDialogMessages,
@@ -271,7 +270,7 @@ describe('Moraine locale', () => {
       '[data-slot="dialog-content-close"]',
     ) as HTMLButtonElement
     expect(button.getAttribute('aria-label')).toBe('Close')
-    setClose('Fermer')
+    flush(() => setClose('Fermer'))
     expect(button.getAttribute('aria-label')).toBe('Fermer')
   })
 

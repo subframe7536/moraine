@@ -1,15 +1,16 @@
 import type { Placement, VirtualElement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
-import { createSelector, createSignal, onCleanup, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createSignal, onCleanup, untrack } from 'solid-js'
 
 import type { KeyBindingOptions } from '../../../../shared/keyboard'
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
+import { createSelector } from '../../../../shared/utils'
 import { focusWithoutScrolling } from '../focus'
 
 import type { OverlayMenuItem, OverlayMenuRadioGroupItem } from './types'
-
 export function getOverlayMenuTextValue(item: { label?: JSX.Element }): string | undefined {
   return typeof item.label === 'string' ? item.label : undefined
 }
@@ -349,12 +350,20 @@ export function focusElement(element: HTMLElement | undefined): void {
 export function useOverlayMenuLayerState(
   subtreeBranches?: Set<HTMLElement>,
 ): OverlayMenuLayerState {
-  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
+  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
-  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
+  const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const isHighlighted = createSelector<string | undefined, string>(highlightedItemId)
-  const [items, setItems] = createSignal<OverlayMenuRegisteredItem[]>([])
-  const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
+  const [items, setItems] = createSignal<OverlayMenuRegisteredItem[]>([], {
+    ownedWrite: true,
+  })
+  const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([], {
+    ownedWrite: true,
+  })
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
   let pointerGraceWindow: Window | undefined

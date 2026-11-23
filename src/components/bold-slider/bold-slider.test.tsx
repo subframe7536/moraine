@@ -1,11 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MORAINE_COLORS } from '../../theme/tokens'
 
 import { BoldSlider } from './bold-slider'
-
 function query<T extends HTMLElement = HTMLElement>(container: HTMLElement, selector: string): T {
   return container.querySelector<T>(selector)!
 }
@@ -82,12 +81,12 @@ describe('BoldSlider', () => {
     expect(range.style.right).toBe('75%')
     expect(range.hasAttribute('data-empty')).toBe(false)
 
-    setValue(0)
+    flush(() => setValue(0))
     expect(range.style.display).toBe('none')
     expect(range.hasAttribute('data-empty')).toBe(true)
     expect(indicator.style.display).not.toBe('none')
 
-    setValue(50)
+    flush(() => setValue(50))
     expect(range.style.display).not.toBe('none')
     expect(range.hasAttribute('data-empty')).toBe(false)
   })
@@ -121,7 +120,7 @@ describe('BoldSlider', () => {
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
     expect(query(custom, '[data-slot="bold-slider-value"]').textContent).toBe('40/80 50%')
 
-    setStep(0)
+    flush(() => setStep(0))
     expect(query(stepped, '[data-slot="bold-slider-value"]').textContent).toBe('1.5')
   })
 
@@ -189,7 +188,7 @@ describe('BoldSlider', () => {
     ).toBe(true)
     expect(root.style.getPropertyValue('--bs-pad')).toBe('13px')
 
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(root.style.getPropertyValue('--bs-pad')).toBe('17px')
   })
 
@@ -283,7 +282,7 @@ describe('BoldSlider', () => {
     expect(root.style.getPropertyValue('--bs-indicator-fill')).toBe(MORAINE_COLORS.primary.ink)
     expect(root.style.getPropertyValue('--bs-indicator-track')).toBe(MORAINE_COLORS.primary.ink)
 
-    setVariant('solid')
+    flush(() => setVariant('solid'))
     expect(range.classList.contains('bg-primary')).toBe(true)
     expect(range.classList.contains('bg-primary-soft')).toBe(false)
     expect(fillLabel.classList.contains('data-fill:text-primary-foreground/80')).toBe(true)

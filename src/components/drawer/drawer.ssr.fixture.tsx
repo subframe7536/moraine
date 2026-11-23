@@ -1,8 +1,7 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Drawer } from './drawer'
 import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
-
 export function renderDrawerFixture(): string {
   return renderToString(() => (
     <>

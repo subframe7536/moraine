@@ -1,8 +1,6 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
-import { batch } from 'solid-js'
 
 import { attachEventListenerMap } from '../shared/event-listener'
-
 type OffsetCallback = (offset: number, isScrolling: boolean) => void
 
 // Same check as `@tanstack/virtual-core`; servers report support so no fallback timer starts.
@@ -48,12 +46,11 @@ export function createSharedElementOffsetObserver(): <
     first: Subscriber['instance'],
   ): Listener => {
     const subscribers = new Set<Subscriber>()
-    const notify = (isScrolling: boolean) =>
-      batch(() => {
-        for (const subscriber of subscribers) {
-          subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
-        }
-      })
+    const notify = (isScrolling: boolean) => {
+      for (const subscriber of subscribers) {
+        subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
+      }
+    }
     const useScrollend = first.options.useScrollendEvent && SUPPORTS_SCROLLEND
     const resetDelay = first.options.isScrollingResetDelay
     let resetTimer: number | undefined

@@ -1,6 +1,5 @@
 import { AlertDialog, Button, Input } from '@src'
 import { createSignal } from 'solid-js'
-
 export function AlertCustom() {
   const remove = () => {
     void AlertDialog.custom(

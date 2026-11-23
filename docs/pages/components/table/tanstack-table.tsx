@@ -24,7 +24,6 @@ import type {
   SortingState,
 } from '@tanstack/table-core'
 import { createMemo, createSignal, For, Show } from 'solid-js'
-
 export interface Payment {
   id: string
   amount: number
@@ -341,7 +340,7 @@ export function TanStackTable() {
                     <For each={headerGroup.headers}>
                       {(header) => (
                         <Table.Head
-                          colSpan={header.colSpan}
+                          colspan={header.colSpan}
                           class={header.column.id === 'select' && 'w-5'}
                         >
                           <FlexRender header={header} />
@@ -358,7 +357,7 @@ export function TanStackTable() {
                 fallback={
                   <Table.Row>
                     <Table.Cell
-                      colSpan={columns.length}
+                      colspan={columns.length}
                       class="text-muted-foreground text-center h-24"
                     >
                       No results.

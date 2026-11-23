@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { children as resolveChildren, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
 
 import { useHoverCardContext } from './hover-card-context'
 import { hoverCardContentDataAttributes, hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
-
 /**
  * Floating `div` shown next to the trigger while a `HoverCard` is open; place it inside
  * `HoverCard`. It stays open while the pointer moves from the trigger into it. Children may be a
@@ -31,7 +31,8 @@ import type { HoverCardT } from './hover-card.types'
  * ```
  */
 export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const local = pick(props, 'children', 'class', 'style')
+  const rest = omit(props, 'children', 'class', 'style')
 
   const behavior = useHoverCardContext()!
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -68,7 +69,7 @@ export function HoverCardContent(props: HoverCardT.ContentProps): JSX.Element {
       onPointerDownOutside={behavior.markInstantClose}
     >
       {(context) => {
-        const contentProps = mergeProps(context.contentProps, contentEvents)
+        const contentProps = merge(context.contentProps, contentEvents)
         const content = resolveChildren(() =>
           typeof local.children === 'function'
             ? local.children({ value: behavior.activeValue })

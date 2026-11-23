@@ -1,5 +1,4 @@
 import { Progress } from '@src'
-
 export function Orientation() {
   return (
     <div class="flex gap-8 items-end">

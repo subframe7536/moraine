@@ -10,7 +10,6 @@ import { collectMarkdownFiles, resolveDocsPageContext } from './core/paths.ts'
 import type { DocsPageContext } from './core/paths.ts'
 import { readFrontmatterData } from './markdown/frontmatter.ts'
 import type { FrontmatterData } from './markdown/types.ts'
-
 export interface DocsRouteEntry {
   info: DocsRouteInfo
   sourcePath: string

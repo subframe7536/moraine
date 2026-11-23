@@ -2,7 +2,6 @@ import { Button, CheckboxGroup, createForm } from '@src'
 import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const ROLE_OPTIONS = [
   { label: 'Read repository', value: 'read' },
   { label: 'Write changes', value: 'write' },

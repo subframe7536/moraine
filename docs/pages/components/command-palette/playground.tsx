@@ -2,7 +2,6 @@ import { CommandPalette, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',

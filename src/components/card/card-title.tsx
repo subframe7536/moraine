@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createCardPart } from './card-part'
 import type { CardT } from './card.types'
-
 /**
  * Title of a `Card`, normally placed inside `Card.Header`. It renders a `div` by default; pass
  * `as` (for example `as="h3"`) when the page needs a real heading element.

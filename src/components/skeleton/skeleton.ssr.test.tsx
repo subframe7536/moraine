@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { Skeleton } from '../../index'
 import type { SkeletonT } from '../../index'
 import { hydrateFixture } from '../../test-util/ssr-test'
-
 test('hydrates a styled placeholder and updates forwarded props and children in place', () => {
   const [label, setLabel] = createSignal('Loading')
   const [rounded, setRounded] = createSignal('rounded-full')
@@ -30,10 +29,10 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   expect(root.style.width).toBe('100px')
   expect(root.className).toContain('rounded-full')
 
-  setLabel('Still loading')
-  setRounded('rounded-none')
-  setWidth('200px')
-  setAnimation('shimmer')
+  flush(() => setLabel('Still loading'))
+  flush(() => setRounded('rounded-none'))
+  flush(() => setWidth('200px'))
+  flush(() => setAnimation('shimmer'))
 
   expect(container.querySelector('#loading-placeholder')).toBe(root)
   expect(root.firstElementChild).toBe(content)

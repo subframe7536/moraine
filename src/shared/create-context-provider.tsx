@@ -1,6 +1,5 @@
 import type { FlowComponent } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
-
 /**
  * Creates a typed context provider and hook.
  *
@@ -11,7 +10,7 @@ export function createContextProvider<T>(
   name: string,
   defaultValue?: T,
 ): readonly [FlowComponent<{ value: T }>, () => T] {
-  const context = createContext<T>(defaultValue as T, { name })
+  const context = createContext<T>(defaultValue, { name })
 
   const useContextHook =
     defaultValue !== undefined
@@ -24,5 +23,5 @@ export function createContextProvider<T>(
           return ctx
         }
 
-  return [context.Provider, useContextHook] as const
+  return [context, useContextHook] as const
 }

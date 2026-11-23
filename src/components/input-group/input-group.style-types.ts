@@ -1,7 +1,6 @@
 import type { Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { InputStyleVariants } from '../input/input.style-types'
-
 export interface InputGroupStyleSlot<T = unknown> {
   /** Shared frame around one Input or Textarea and its supporting content. */
   root?: T

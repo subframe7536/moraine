@@ -1,10 +1,10 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Ref } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { TableStyleSlot, TableStyleVariants } from './table.style-types'
-
 export namespace TableT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = TableStyleSlot<T>

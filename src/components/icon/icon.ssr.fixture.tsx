@@ -1,8 +1,7 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Icon } from './icon'
-
 function Glyph() {
   return (
     <svg data-testid="component-icon">

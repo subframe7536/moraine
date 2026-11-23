@@ -1,14 +1,13 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Table } from '../components/table/table'
 import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 
 import { createTableVirtualizer } from './table-virtualizer'
-
 type TableVirtualizer = ReturnType<typeof createTableVirtualizer<string>>
 
 function renderInTbody(
@@ -109,7 +108,7 @@ describe('createTableVirtualizer', () => {
     await Promise.resolve()
     expect(screen.container.querySelector('tr[data-index="0"]')?.textContent).toBe('Alpha')
 
-    setEntries(['Beta updated', 'Alpha updated'])
+    flush(() => setEntries(['Beta updated', 'Alpha updated']))
     await Promise.resolve()
     expect(screen.container.querySelector('tr[data-index="0"]')?.textContent).toBe('Beta updated')
     expect(screen.container.querySelector('tr[data-index="1"]')?.textContent).toBe('Alpha updated')
@@ -353,10 +352,10 @@ describe('createTableVirtualizer', () => {
     const table = screen.container.querySelector('table')!
     expect(table.getAttribute('aria-rowcount')).toBe('3')
 
-    setEntries(['a'])
+    flush(() => setEntries(['a']))
     expect(table.getAttribute('aria-rowcount')).toBe('1')
 
-    setEntries([])
+    flush(() => setEntries([]))
     expect(table.hasAttribute('aria-rowcount')).toBe(false)
     screen.unmount()
   })
@@ -409,7 +408,7 @@ describe('createTableVirtualizer', () => {
     expect(table.getAttribute('aria-rowcount')).toBe('4')
     expect(bodyIndexes()).toEqual(['2', '3'])
 
-    setGrouped(true)
+    flush(() => setGrouped(true))
     await Promise.resolve()
     expect(table.getAttribute('aria-rowcount')).toBe('5')
     expect(bodyIndexes()).toEqual(['3', '4'])
@@ -418,7 +417,7 @@ describe('createTableVirtualizer', () => {
       '2',
     ])
 
-    setWithFooter(true)
+    flush(() => setWithFooter(true))
     await Promise.resolve()
     expect(table.getAttribute('aria-rowcount')).toBe('6')
     expect(table.tFoot!.rows[0]!.getAttribute('aria-rowindex')).toBe('6')
@@ -487,11 +486,11 @@ describe('createTableVirtualizer', () => {
     const table = screen.container.querySelector('table')!
     expect(table.getAttribute('aria-rowcount')).toBe('2')
 
-    setRowCount('500')
-    setEntries(['a', 'b', 'c'])
+    flush(() => setRowCount('500'))
+    flush(() => setEntries(['a', 'b', 'c']))
     expect(table.getAttribute('aria-rowcount')).toBe('500')
 
-    setMounted(false)
+    flush(() => setMounted(false))
     expect(table.getAttribute('aria-rowcount')).toBe('500')
     screen.unmount()
   })
@@ -857,7 +856,7 @@ describe('createTableVirtualizer', () => {
       await Promise.resolve()
       expect(indexes(virtualizer)).toEqual([0, 1, 2])
 
-      setWidth(50)
+      flush(() => setWidth(50))
       await Promise.resolve()
       expect(indexes(virtualizer)).toEqual([0, 1, 2, 3, 4, 5])
       expect(virtualizer.columnWindow()?.items[1]).toMatchObject({ start: 50, size: 50 })
@@ -879,7 +878,7 @@ describe('createTableVirtualizer', () => {
       const { cleanup } = renderColumns(virtualizer, { columns })
       await Promise.resolve()
 
-      setColumns(['only'])
+      flush(() => setColumns(['only']))
       await Promise.resolve()
       expect(indexes(virtualizer)).toEqual([0])
       expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 0, skippedAfter: 0 })

@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
@@ -10,7 +10,6 @@ import { createForm } from '../form'
 
 import { NumberInput } from './number-input'
 import type { NumberInputT } from './number-input.types'
-
 describe('NumberInput', () => {
   test('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
@@ -720,7 +719,7 @@ describe('NumberInput', () => {
 
     expect(onValueChange).toHaveBeenCalledExactlyOnceWith(14)
 
-    setValue(2.25)
+    flush(() => setValue(2.25))
     expect(spinbutton.value).toBe('2,25')
   })
 
@@ -732,7 +731,7 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '1.' } })
     expect(spinbutton.value).toBe('1.')
 
-    setValue(1)
+    flush(() => setValue(1))
     expect(spinbutton.value).toBe('1.')
   })
 
@@ -742,10 +741,10 @@ describe('NumberInput', () => {
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     fireEvent.input(spinbutton, { target: { value: '7' } })
-    setValue(5)
+    flush(() => setValue(5))
     expect(spinbutton.value).toBe('5')
 
-    setValue(null)
+    flush(() => setValue(null))
 
     expect(spinbutton.value).toBe('')
     expect(spinbutton.getAttribute('aria-valuenow')).toBeNull()
@@ -778,7 +777,7 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '-' } })
     expect(spinbutton.value).toBe('-')
 
-    setValue(8)
+    flush(() => setValue(8))
     expect(spinbutton.value).toBe('8')
   })
 
@@ -805,11 +804,11 @@ describe('NumberInput', () => {
     expect(onValueChange).toHaveBeenCalledWith(7)
     expect(getInput(form)).toEqual({ quantity: 5 })
 
-    setValue(8)
+    flush(() => setValue(8))
     expect(spinbutton.value).toBe('8')
     expect(getInput(form)).toEqual({ quantity: 8 })
 
-    setInput(form, { path: ['quantity'], input: 9 })
+    flush(() => setInput(form, { path: ['quantity'], input: 9 }))
     expect(spinbutton.value).toBe('8')
     expect(getInput(form)).toEqual({ quantity: 8 })
   })
@@ -856,7 +855,7 @@ describe('NumberInput', () => {
     )
     const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
 
-    setInput(form, { path: ['quantity'], input: 6 })
+    flush(() => setInput(form, { path: ['quantity'], input: 6 }))
 
     expect(spinbutton.value).toBe('6')
     expect(onValueChange).not.toHaveBeenCalled()
@@ -873,7 +872,7 @@ describe('NumberInput', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    setDefaultValue(9)
+    flush(() => setDefaultValue(9))
     fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
@@ -899,7 +898,7 @@ describe('NumberInput', () => {
     fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
-    setValue(6)
+    flush(() => setValue(6))
     expect(spinbutton.value).toBe('6')
     const callCount = onValueChange.mock.calls.length
 
@@ -1013,7 +1012,7 @@ describe('NumberInput', () => {
         expect(increment.getAttribute('data-active')).toBe('')
         expect(document.body.style.getPropertyValue('user-select')).toBe('none')
 
-        setInactive(true)
+        flush(() => setInactive(true))
 
         expect(increment.getAttribute('data-active')).toBeNull()
         expect(document.body.style.getPropertyValue('user-select')).toBe(previousUserSelect)
@@ -1330,7 +1329,7 @@ describe('NumberInput', () => {
       ))
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       await vi.advanceTimersByTimeAsync(100)
       expect(document.activeElement).not.toBe(spinbutton)
 
@@ -1375,9 +1374,9 @@ describe('NumberInput', () => {
     expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="number-input-controls"]')).not.toBeNull()
-    setOrientation('horizontal')
+    flush(() => setOrientation('horizontal'))
     expect(screen.container.querySelector('[data-slot="number-input-controls"]')).toBeNull()
-    setControls(false)
+    flush(() => setControls(false))
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
     expect(screen.getByRole('spinbutton')).toBe(input)

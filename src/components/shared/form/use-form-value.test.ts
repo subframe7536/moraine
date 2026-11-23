@@ -1,12 +1,11 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { UseFormFieldReturn } from '../../field/field-context'
 
 import { useFormValue } from './use-form-value'
-
 function createMockField(): UseFormFieldReturn {
-  const [value, setValue] = createSignal<unknown>(undefined)
+  const [value, setValue] = createSignal<unknown>(undefined, { ownedWrite: true })
   return {
     id: () => 'test-id',
     name: () => 'test-name',
@@ -46,7 +45,7 @@ describe('useFormValue', () => {
 
       expect(value()).toBe('initial')
 
-      setValue('updated')
+      flush(() => setValue('updated'))
       expect(value()).toBe('updated')
       expect(onValueChange).toHaveBeenCalledWith('updated')
       expect(field.setFormValue).toHaveBeenCalledWith('updated')
@@ -76,12 +75,12 @@ describe('useFormValue', () => {
 
     expect(valueAccessor()).toBe('first')
 
-    setValueFn('second')
+    flush(() => setValueFn('second'))
     expect(onValueChange).toHaveBeenCalledWith('second')
     expect(valueAccessor()).toBe('first')
     expect(field.setFormValue).toHaveBeenCalledWith('first')
 
-    setControlled('second')
+    flush(() => setControlled('second'))
     expect(valueAccessor()).toBe('second')
     expect(field.setFormValue).toHaveBeenCalledWith('second')
 
@@ -99,7 +98,7 @@ describe('useFormValue', () => {
         field,
       })
 
-      setValue('same')
+      flush(() => setValue('same'))
       expect(onValueChange).not.toHaveBeenCalled()
 
       dispose()
@@ -117,7 +116,7 @@ describe('useFormValue', () => {
         field,
       })
 
-      setValue('dirty')
+      flush(() => setValue('dirty'))
       expect(value()).toBe('dirty')
       onValueChange.mockClear()
 
@@ -142,10 +141,10 @@ describe('useFormValue', () => {
         isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
       })
 
-      setValue(['a', 'b'])
+      flush(() => setValue(['a', 'b']))
       expect(onValueChange).not.toHaveBeenCalled()
 
-      setValue(['a', 'b', 'c'])
+      flush(() => setValue(['a', 'b', 'c']))
       expect(onValueChange).toHaveBeenCalledWith(['a', 'b', 'c'])
       expect(value()).toEqual(['a', 'b', 'c'])
 

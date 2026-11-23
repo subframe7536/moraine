@@ -7,7 +7,6 @@ import {
 import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 
 import type { ContextMenuStyleSlot, ContextMenuStyleVariants } from './context-menu.style-types'
-
 export const CONTEXT_MENU_TRIGGER_CLASS = '[-webkit-touch-callout:none]'
 
 export const contextMenuDataAttributes = {

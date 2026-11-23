@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
-
 /**
  * Renders an icon from a UnoCSS icon class, JSX element, or Solid component inside a `span` host.
  * Use it for decoration or a named symbol next to text; an icon is hidden from assistive
@@ -27,15 +27,8 @@ import type { IconProps } from './icon.types'
  * ```
  */
 export function Icon(props: IconProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'name',
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'aria-hidden',
-    'role',
-  ])
+  const local = pick(props, 'name', 'class', 'style', 'classes', 'styles', 'aria-hidden', 'role')
+  const rest = omit(props, 'name', 'class', 'style', 'classes', 'styles', 'aria-hidden', 'role')
   const name = createMemo(() => local.name)
   const isString = createMemo(() => typeof name() === 'string')
 
@@ -50,7 +43,7 @@ export function Icon(props: IconProps): JSX.Element {
     const labelled = Boolean(rest['aria-label'] || rest['aria-labelledby'])
 
     return {
-      'aria-hidden': local['aria-hidden'] ?? (labelled ? undefined : true),
+      'aria-hidden': local['aria-hidden'] ?? (labelled ? undefined : 'true'),
       role: local.role ?? (labelled ? 'img' : undefined),
     }
   }

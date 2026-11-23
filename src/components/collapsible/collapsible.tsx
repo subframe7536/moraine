@@ -1,10 +1,10 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { createId } from '../../shared/utils'
+import { createId, pick } from '../../shared/utils'
 
 import { CollapsibleContent } from './collapsible-content'
 import type { CollapsibleContext } from './collapsible-context'
@@ -12,7 +12,6 @@ import { CollapsibleProvider } from './collapsible-context'
 import { CollapsibleTrigger } from './collapsible-trigger'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleProps } from './collapsible.types'
-
 /**
  * Single disclosure whose `Collapsible.Trigger` and `Collapsible.Content` belong to the surrounding
  * layout, with optional height transitions. Use `Accordion` when several disclosures share
@@ -21,7 +20,7 @@ import type { CollapsibleProps } from './collapsible.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { Collapsible } from 'moraine'
  *
  * const [open, setOpen] = createSignal(false)
@@ -33,7 +32,8 @@ import type { CollapsibleProps } from './collapsible.types'
  * ```
  */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'open',
     'defaultOpen',
@@ -45,7 +45,21 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'transition',
+    'forceMount',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
   const rootId = createId(() => local.id, 'collapsible')
   const contentId = () => `${rootId()}-content`
   const triggerId = () => `${rootId()}-trigger`

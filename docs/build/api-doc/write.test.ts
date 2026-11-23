@@ -9,7 +9,6 @@ import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import type { ComponentApi, GenerationResult } from './types.ts'
 import { writeJsonFiles } from './write.ts'
-
 const validComponent: ComponentApi = {
   key: 'demo',
   name: 'Demo',

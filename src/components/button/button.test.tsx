@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createComponent, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +8,6 @@ import { defineTheme } from '../../theme'
 import { ButtonGroup } from '../button-group/button-group'
 
 import { Button } from './button'
-
 function createDeferred() {
   let resolve: (() => void) | undefined
   const promise = new Promise<void>((r) => {
@@ -149,8 +148,8 @@ describe('Button', () => {
   test('preserves explicit tabIndex on native button and link roots', () => {
     const screen = render(() => (
       <>
-        <Button tabIndex={-1}>Native button</Button>
-        <Button as="a" href="/docs" tabIndex={-1}>
+        <Button tabindex={-1}>Native button</Button>
+        <Button as="a" href="/docs" tabindex={-1}>
           Native link
         </Button>
       </>
@@ -368,7 +367,7 @@ describe('Button', () => {
 
     expect(screen.getByRole('button', { name: 'Reactive label' })).not.toBeNull()
 
-    setVisible(false)
+    flush(() => setVisible(false))
 
     await waitFor(() => {
       expect(screen.getByRole('button').querySelector('[data-slot="button-label"]')).toBeNull()
@@ -610,7 +609,7 @@ describe('Button', () => {
       const button = screen.getByRole('button', { name: 'Click me' })
       expect(button.tagName).toBe('DIV')
       expect(button.getAttribute('role')).toBe('button')
-      expect(button.getAttribute('tabIndex')).toBe('0')
+      expect(button.getAttribute('tabindex')).toBe('0')
 
       fireEvent.keyDown(button, { key: 'Enter' })
 
@@ -709,7 +708,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Disabled' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
-      expect(button.getAttribute('tabIndex')).toBe('-1')
+      expect(button.getAttribute('tabindex')).toBe('-1')
 
       fireEvent.keyDown(button, { key: 'Enter' })
       fireEvent.click(button)
@@ -866,7 +865,7 @@ describe('Button', () => {
 
     expect(screen.getByRole('button', { name: 'Reactive root' }).tagName).toBe('BUTTON')
 
-    setTag('div')
+    flush(() => setTag('div'))
     const root = screen.getByRole('button', { name: 'Reactive root' })
     expect(root.tagName).toBe('DIV')
     expect(root.getAttribute('tabindex')).toBe('0')
@@ -875,7 +874,7 @@ describe('Button', () => {
 
   test('preserves caller role and tab order on an enabled non-native root', () => {
     const screen = render(() => (
-      <Button as="div" role="menuitem" tabIndex={-1}>
+      <Button as="div" role="menuitem" tabindex={-1}>
         Menu action
       </Button>
     ))
@@ -921,7 +920,7 @@ describe('Button', () => {
       const anchor = screen.getByRole('link', { name: 'Link' })
       expect(anchor.hasAttribute('type')).toBe(false)
       expect(anchor.hasAttribute('role')).toBe(false)
-      expect(anchor.hasAttribute('tabIndex')).toBe(false)
+      expect(anchor.hasAttribute('tabindex')).toBe(false)
     })
 
     test('does not emit disabled attribute on anchor', () => {
@@ -947,7 +946,7 @@ describe('Button', () => {
       const button = screen.getByRole('button', { name: 'Button-like anchor' })
       expect(button.tagName).toBe('A')
       expect(button.getAttribute('role')).toBe('button')
-      expect(button.getAttribute('tabIndex')).toBe('0')
+      expect(button.getAttribute('tabindex')).toBe('0')
 
       fireEvent.keyDown(button, { key: 'Enter' })
 

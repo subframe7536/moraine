@@ -1,5 +1,4 @@
 import { FALLBACK_LOCALE } from './default-locale'
-
 interface LocaleNumberSymbols {
   decimal: string
   group: string

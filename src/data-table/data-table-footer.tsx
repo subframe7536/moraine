@@ -1,5 +1,5 @@
+import type { JSX } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import { For, Show } from 'solid-js'
 
 import { useDataTableContext } from './data-table-context'
@@ -7,7 +7,6 @@ import { DATA_TABLE_PIN_SIDES, createHeaderPin, pinnedHeaderGroups } from './dat
 import { dataTableDataAttributes } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 import { FlexRender } from './flex-render'
-
 /**
  * Footer rows, rendered only when at least one column defines a footer. Like the header, each
  * row renders the start, center, and end pinned regions in turn.
@@ -55,7 +54,7 @@ export function DataTableFooter<TData extends RowData>(props: {
                         },
                       )
                       return (
-                        <td data-slot="data-table-cell" colSpan={header.colSpan} {...cellSlot}>
+                        <td data-slot="data-table-cell" colspan={header.colSpan} {...cellSlot}>
                           <Show when={!header.isPlaceholder}>
                             <FlexRender footer={header} />
                           </Show>

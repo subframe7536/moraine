@@ -5,7 +5,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { KbdT } from '../kbd/kbd.types'
 
 import type { KbdGroupStyleSlot, KbdGroupStyleVariants } from './kbd-group.style-types'
-
 export namespace KbdGroupT {
   export type Kind = 'single'
 

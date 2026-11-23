@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { createSignal } from 'solid-js'
 
 import { bindElement, publishElement } from '../../shared/element-binding'
@@ -7,7 +7,6 @@ import { callRef } from '../../shared/utils'
 import { containFocusInContainer } from '../shared/overlay/focus'
 
 import type { BaseDialogContext } from './base-dialog-context'
-
 export interface BaseDialogContentBindingOptions {
   ref?: () => ((element: HTMLDivElement) => void) | HTMLDivElement | undefined
   onKeyDown?: () => JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent> | undefined

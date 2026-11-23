@@ -1,15 +1,14 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { sameValue } from '../shared/form/select/collection'
 import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Scrollable `role="listbox"` container for the options of `BaseSelect`. Place it inside
  * `BaseSelect.Content`; it holds `BaseSelect.Item`, `BaseSelect.Group`, and
@@ -31,7 +30,8 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
+  const local = pick(props, 'class', 'style', 'ref')
+  const rest = omit(props, 'class', 'style', 'ref')
   const {
     slots: { listbox: listboxSlot },
   } = useRecipe(baseSelectRecipe, local, {
@@ -40,11 +40,11 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
   })
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
-    on([state.highlightedValue, state.open, listbox], ([key, open, element]) => {
+    () => [state.highlightedValue(), state.open(), listbox()],
+    ([key, open, element]) => {
       if (key === undefined || !open || !element) {
         return
       }
-      // oxlint-disable-next-line subf/solid-reactivity -- Scroll only if the same node and highlight remain active in this microtask.
       queueMicrotask(() => {
         if (listbox() !== element || !state.open() || !sameValue(state.highlightedValue(), key)) {
           return
@@ -54,18 +54,18 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
           scrollIntoViewWithin(item, element)
         }
       })
-    }),
+    },
   )
   return (
     <div
       role="listbox"
       data-slot={state.slotName('listbox')}
-      aria-readonly={state.readOnly() || undefined}
+      aria-readonly={state.readOnly() ? 'true' : undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       {...listboxSlot}
       {...rest}
       id={state.listboxId()}
-      tabIndex={-1}
+      tabindex={-1}
       ref={(element) => {
         setListbox(element)
         callRef(local.ref, element)

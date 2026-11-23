@@ -2,7 +2,6 @@ import { List } from '@src'
 import { Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const TASKS = [
   { id: 'design', title: 'Review onboarding designs', owner: 'Elena' },
   { id: 'billing', title: 'Fix invoice rounding', owner: 'Marcus' },

@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -8,7 +9,6 @@ import type { IconT } from '../icon'
 
 import type { defaultFileUploadMessages } from './file-upload.messages'
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
-
 type FileRejectionReason =
   | 'tooLong'
   | 'typeMismatch'

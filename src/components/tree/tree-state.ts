@@ -1,15 +1,8 @@
 import type { Accessor } from 'solid-js'
-import {
-  batch,
-  createEffect,
-  createMemo,
-  createSelector,
-  createSignal,
-  on,
-  untrack,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
+import { createSelector } from '../../shared/utils'
 
 import { createTreeNavigation } from './tree-navigation'
 import type { TreeNavigation } from './tree-navigation'
@@ -24,7 +17,6 @@ import {
 } from './tree-registry'
 import type { LoadedChildren, TreeNode, TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
-
 /**
  * Stable per-key item handle. Kept as a class instance so Solid stores never wrap it in a proxy.
  */
@@ -182,10 +174,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     } finally {
       inFlight.delete(key)
     }
-    batch(() => {
-      setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
-      setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
-    })
+    setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
+    setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
     options.onLoadChildrenSuccess?.({ item, children })
     return true
   }
@@ -284,7 +274,6 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       const expanded = expandedSet()
       return flattenKeys(registry(), (key) => expanded.has(key))
     },
-    undefined,
     { equals: sameKeys },
   )
 
@@ -419,7 +408,6 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   }
   const checkedKeys = createMemo(
     () => [...collectCheckedKeys(checkedStates()), ...unknownCheckedKeys()],
-    undefined,
     { equals: sameKeys },
   )
   const getCheckedState = (key: string): TreeT.CheckedState =>
@@ -499,24 +487,23 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
 
   // Moves focus off the current item once it is hidden or becomes disabled.
   createEffect(
-    on(
-      [flattenedKeys, registry],
-      ([visible, { nodes }]) => {
-        const current = untrack(focusedKey)
-        if (current === undefined || (visible.includes(current) && !nodes.get(current)?.disabled)) {
-          return
-        }
-        const fallback = untrack(navigation.tabStopKey)
-        if (fallback !== undefined && fallback !== current) {
-          navigation.focus(fallback, { dom: untrack(navigation.isFocusWithin) })
-        }
-      },
-      { defer: true },
-    ),
+    () => [flattenedKeys(), registry()],
+    ([visible, { nodes }]) => {
+      const current = untrack(focusedKey)
+      if (current === undefined || (visible.includes(current) && !nodes.get(current)?.disabled)) {
+        return
+      }
+      const fallback = untrack(navigation.tabStopKey)
+      if (fallback !== undefined && fallback !== current) {
+        navigation.focus(fallback, { dom: untrack(navigation.isFocusWithin) })
+      }
+    },
+    { defer: true },
   )
 
   createEffect(
-    on([registry, expandedKeys], ([current, keys]) => {
+    () => [registry(), expandedKeys()],
+    ([current, keys]) => {
       for (const key of keys) {
         const node = current.nodes.get(key)
         if (node?.needsLoad) {
@@ -528,7 +515,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
           })
         }
       }
-    }),
+    },
   )
 
   function handleClick(event: MouseEvent, key: string): void {

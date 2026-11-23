@@ -1,9 +1,9 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
+import solid from '@solidjs/vite-plugin'
 import { presetIcons } from '@subf/unocss'
 import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import type { ExportsOptions } from 'tsdown'
-import solid from 'vite-plugin-solid'
 
 import { variantGroupPlugin } from './build/vite-plugin-variant-group.ts'
 import { DEFAULT_ICON_SHORTCUTS } from './src/theme/icons.ts'

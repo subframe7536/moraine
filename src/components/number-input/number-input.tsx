@@ -1,24 +1,23 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  onMount,
-  splitProps,
+  onSettled,
   Show,
   untrack,
+  omit,
 } from 'solid-js'
-import { delegateEvents } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -33,7 +32,6 @@ import { clamp, createNumberInput } from './number-input-state'
 import { defaultNumberInputMessages } from './number-input.messages'
 import { numberInputDataAttributes, numberInputRecipe } from './number-input.recipe'
 import type { NumberInputProps, NumberInputT } from './number-input.types'
-
 /** iPhone/iPad, including iPadOS that reports as MacIntel. */
 function isIOSUserAgent(): boolean {
   const userAgent = globalThis.navigator?.userAgent ?? ''
@@ -59,7 +57,7 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, omit } from 'solid-js'
  * import { Field, NumberInput } from 'moraine'
  *
  * const [quantity, setQuantity] = createSignal<number | null>(1)
@@ -70,7 +68,8 @@ type NumberInputControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
  * ```
  */
 export function NumberInput(props: NumberInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'inputRef',
     'id',
@@ -118,7 +117,57 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     'class',
     'style',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'inputRef',
+    'id',
+    'name',
+    'form',
+    'value',
+    'defaultValue',
+    'min',
+    'max',
+    'step',
+    'largeStep',
+    'locale',
+    'formatOptions',
+    'stepSnapping',
+    'onValueChange',
+    'orientation',
+    'placeholder',
+    'increment',
+    'incrementIcon',
+    'incrementDisabled',
+    'decrement',
+    'decrementIcon',
+    'decrementDisabled',
+    'autoFocus',
+    'wheel',
+    'autoFocusDelay',
+    'onBlur',
+    'onFocus',
+    'onStep',
+    'repeat',
+    'disabled',
+    'required',
+    'readOnly',
+    'aria-label',
+    'aria-labelledby',
+    'aria-describedby',
+    'aria-invalid',
+    'aria-required',
+    'aria-disabled',
+    'aria-readonly',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'translations',
+  )
   const themeField = useFieldContext()
   const messages = useMessages('numberInput', defaultNumberInputMessages, () => local.translations)
   const providerLocale = useLocale().locale
@@ -147,7 +196,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       stepSnapping: true,
     },
@@ -211,34 +260,32 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
-    on(
-      [explicitControlledValue, min, max, field.value, locale],
-      ([value, min, max, formValue, localeTag]) => {
-        if (value === undefined) {
-          return
+    () => [explicitControlledValue(), min(), max(), field.value(), locale()],
+    ([value, min, max, formValue, localeTag]) => {
+      if (value === undefined) {
+        return
+      }
+      if (value === null) {
+        if (formValue !== undefined) {
+          field.setFormValue(undefined)
         }
-        if (value === null) {
-          if (formValue !== undefined) {
-            field.setFormValue(undefined)
-          }
-          return
-        }
-        const boundedValue = clamp(value, min, max)
-        if (
-          !Object.is(
-            toNumber(
-              formValue as string | number | undefined,
-              Number.NaN,
-              localeTag,
-              formatOptions(),
-            ),
-            boundedValue,
-          )
-        ) {
-          field.setFormValue(boundedValue)
-        }
-      },
-    ),
+        return
+      }
+      const boundedValue = clamp(value, min, max)
+      if (
+        !Object.is(
+          toNumber(
+            formValue as string | number | undefined,
+            Number.NaN,
+            localeTag,
+            formatOptions(),
+          ),
+          boundedValue,
+        )
+      ) {
+        field.setFormValue(boundedValue)
+      }
+    },
   )
 
   const incrementIcon = (): IconT.Name => {
@@ -339,7 +386,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   function resolveControlProps(kind: ControlKind): NumberInputControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
-    const controlProps = mergeProps(slots[kind], {
+    const controlProps = merge(slots[kind], {
       'data-slot': `number-input-${kind}`,
       type: 'button',
       tabIndex: -1,
@@ -426,17 +473,15 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     },
   )
 
-  onMount(() => {
+  onSettled(() => {
     if (isIOSUserAgent()) {
       setIsIOS(true)
     }
 
     if (inputEl && inputEl.ownerDocument !== document) {
       // Solid delegates these events on the global document by default.
-      delegateEvents(
-        ['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'],
-        inputEl.ownerDocument,
-      )
+      delegateEvents(['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'])
+      registerDelegatedContainer(inputEl.ownerDocument)
     }
 
     if (!merged.autoFocus) {
@@ -498,14 +543,14 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       <Show when={field.name()}>
         <HiddenInput
           type="text"
-          tabIndex={-1}
+          tabindex={-1}
           aria-hidden="true"
           name={field.name()}
           form={merged.form}
           value={state.currentValue() !== null ? String(state.currentValue()) : ''}
           required={field.required()}
           disabled={field.disabled()}
-          readOnly={readOnly()}
+          readonly={readOnly()}
           onInvalid={onInvalid}
         />
       </Show>
@@ -513,7 +558,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       <input
         data-slot="number-input-input"
         type="text"
-        inputMode={isIOS() && min() < 0 ? 'text' : 'decimal'}
+        inputmode={isIOS() && min() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         placeholder={merged.placeholder}
         {...inputSlot}

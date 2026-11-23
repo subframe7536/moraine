@@ -1,6 +1,5 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { ButtonStyleVariants } from '../button/button.style-types'
-
 export interface CopyButtonStyleSlot<T = unknown> {
   /**
    * Interactive button element, or the polymorphic element provided through `as`.

@@ -9,7 +9,6 @@ import { parsePreviewCode } from './previews/ast.ts'
 import { transformPreviewModule } from './previews/module.ts'
 import { transformPreviewSourceModule } from './previews/source.ts'
 import { scanDocsPages } from './routes.ts'
-
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
 

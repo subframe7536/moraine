@@ -5,7 +5,6 @@ import {
   getComposedElementDescendants,
   isHTMLElement,
 } from './dom'
-
 const FOCUSABLE_SELECTOR_PARTS = [
   'a[href]',
   'area[href]',

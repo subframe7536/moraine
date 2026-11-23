@@ -1,20 +1,17 @@
-/* oxlint-disable subf/solid-reactivity -- Adapts TanStack table-core reactivity to Solid signals and reactive props proxies. */
 import { constructTable } from '@tanstack/table-core'
 import type { RowData, Table, TableFeatures, TableOptions } from '@tanstack/table-core'
 import type { TableAtomOptions, TableReactivityBindings } from '@tanstack/table-core/reactivity'
 import {
-  batch,
   createEffect,
   createMemo,
   createRoot,
   createSignal,
+  flush,
   getOwner,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
   untrack,
 } from 'solid-js'
-
 /**
  * Lightweight Solid-native signal subscription without relying on `observable`.
  * `defer: true` aligns with `@tanstack/store` subscription semantics, notifying
@@ -43,15 +40,13 @@ function subscribeToSignal<T>(
   createRoot((d) => {
     dispose = d
     createEffect(
-      on(
-        signal,
-        (val) => {
-          if (!disposed) {
-            cb(val)
-          }
-        },
-        { defer: true },
-      ),
+      signal,
+      (val) => {
+        if (!disposed) {
+          cb(val)
+        }
+      },
+      { defer: true },
     )
   })
   return { unsubscribe }
@@ -74,10 +69,10 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
     createOptionsStore: true,
     wrapExternalAtoms: false,
     schedule: (fn: () => void) => queueMicrotask(fn),
-    batch,
+    batch: flush,
     untrack,
     createReadonlyAtom: <T>(fn: () => T, options?: TableAtomOptions<T>): any => {
-      const memo = createMemo(fn, undefined, {
+      const memo = createMemo(fn, {
         equals: options?.compare,
         name: options?.debugName,
       })
@@ -88,17 +83,25 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
       })
     },
     createWritableAtom: <T>(initialValue: T, options?: TableAtomOptions<T>): any => {
-      const [signal, setSignal] = createSignal(initialValue, {
-        equals: options?.compare,
-        name: options?.debugName,
-      })
+      const [signal, setSignal] = createSignal<Exclude<T, (...args: never[]) => unknown>>(
+        () => initialValue as Exclude<T, (...args: never[]) => unknown>,
+        {
+          equals: options?.compare,
+          name: options?.debugName,
+          ownedWrite: true,
+        },
+      )
       return Object.assign(() => signal(), {
         get: () => signal(),
         set: (updater: T | ((prev: T) => T)) => {
           if (typeof updater === 'function') {
-            setSignal(updater as (prev: T) => T)
+            setSignal(
+              updater as (
+                prev: Exclude<T, (...args: never[]) => unknown>,
+              ) => Exclude<T, (...args: never[]) => unknown>,
+            )
           } else {
-            setSignal(() => updater)
+            setSignal(() => updater as Exclude<T, (...args: never[]) => unknown>)
           }
         },
         subscribe: (observerOrFn: Observer<T>) =>
@@ -113,7 +116,7 @@ export function createSolidReactivity(): TableReactivityBindings & { dispose: ()
 /**
  * Creates a reactive Solid table instance from table-core.
  * Avoids `createComputed` and `observable` entirely by delegating reactivity
- * directly to Solid's signals and `mergeProps` getters.
+ * directly to Solid's signals and `merge` getters.
  */
 export function createTable<TFeatures extends TableFeatures, TData extends RowData>(
   tableOptions: TableOptions<TFeatures, TData>,
@@ -122,15 +125,15 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
   if (getOwner()) {
     onCleanup(reactivity.dispose)
   }
-  const mergedOptions = mergeProps(tableOptions, {
+  const mergedOptions = merge(tableOptions, {
     features: {
       coreReactivityFeature: reactivity,
       ...tableOptions.features,
     },
   })
-  const resolvedOptions = mergeProps(
+  const resolvedOptions = merge(
     {
-      mergeOptions: (defaultOptions: any, options: any) => mergeProps(defaultOptions, options),
+      mergeOptions: (defaultOptions: any, options: any) => merge(defaultOptions, options),
     },
     mergedOptions,
   )
@@ -147,7 +150,7 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
     return Object.assign(obj, feature.getDefaultTableOptions?.(table))
   }, {} as any)
 
-  ;(table as any).options = mergeProps(defaultOptions, resolvedOptions)
+  ;(table as any).options = merge(defaultOptions, resolvedOptions)
 
   return table
 }

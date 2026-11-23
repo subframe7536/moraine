@@ -1,14 +1,7 @@
 import type { Coords } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-  mergeProps,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, onSettled, merge } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -35,7 +28,6 @@ import {
   NAVIGATION_MENU_FOCUS_GUARD_ATTR,
 } from './navigation-menu.recipe'
 import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
-
 export interface NavigationMenuItemContextValue {
   value: Accessor<string>
   disabled: Accessor<boolean>
@@ -59,7 +51,7 @@ export function createNavigationMenuState(
   orientation: Accessor<Orientation>,
 ) {
   const direction = useLocale().dir
-  const options = mergeProps(
+  const options = merge(
     {
       openDelay: 50,
       closeDelay: 50,
@@ -73,19 +65,20 @@ export function createNavigationMenuState(
     },
     props,
   )
-  const id = createId(() => options.id, 'navigation-menu')
+  const id = createId(() => options.id as string | undefined, 'navigation-menu')
   const [value, setValue] = createControllableValue<string | null>({
     value: () => options.value,
     defaultValue: () => options.defaultValue ?? null,
     onChange: (next) => options.onValueChange?.(next),
   })
-  const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([])
+  const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([], {
+    ownedWrite: true,
+  })
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
   const [panelElement, setPanelElement] = createSignal<HTMLDivElement>()
-  const [floating, setFloating] =
-    createSignal<
-      Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'>
-    >()
+  const [floating, setFloating] = createSignal<
+    Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'> | undefined
+  >(undefined, { ownedWrite: true })
   const positionerElement = () => floating()?.positionerElement()
   const [mounted, setMounted] = createSignal(false)
   const positioned = () => floating()?.positioned() ?? false
@@ -255,7 +248,7 @@ export function createNavigationMenuState(
     return true
   }
 
-  onMount(() =>
+  onSettled(() =>
     queueMicrotask(() => {
       if (alive) {
         setMounted(true)
@@ -267,27 +260,25 @@ export function createNavigationMenuState(
     cancelTimers()
   })
 
-  createEffect(
-    on(activeTrigger, (trigger, previous) => {
-      if (!trigger) {
-        return
-      }
-      const positioner = positionerElement()
-      const previousTrigger = previous ?? reference()
-      if (
-        positioner?.style.visibility === 'visible' &&
-        presence.present() &&
-        previousTrigger &&
-        previousTrigger !== trigger
-      ) {
-        const position = positioner.getBoundingClientRect()
-        setInitialPosition({ x: position.left, y: position.top })
-      } else {
-        setInitialPosition(undefined)
-      }
-      setReference(trigger)
-    }),
-  )
+  createEffect(activeTrigger, (trigger, previous) => {
+    if (!trigger) {
+      return
+    }
+    const positioner = positionerElement()
+    const previousTrigger = previous ?? reference()
+    if (
+      positioner?.style.visibility === 'visible' &&
+      presence.present() &&
+      previousTrigger &&
+      previousTrigger !== trigger
+    ) {
+      const position = positioner.getBoundingClientRect()
+      setInitialPosition({ x: position.left, y: position.top })
+    } else {
+      setInitialPosition(undefined)
+    }
+    setReference(trigger)
+  })
 
   const itemSnapshot = () =>
     items().map((item) => ({
@@ -297,7 +288,8 @@ export function createNavigationMenuState(
     }))
   // Item changes can invalidate a controlled value; value updates alone do not request a change.
   createEffect(
-    on([mounted, () => options.disabled, itemSnapshot], ([ready, disabled]) => {
+    () => [mounted(), (() => options.disabled)(), itemSnapshot()],
+    ([ready, disabled]) => {
       if (!ready) {
         return
       }
@@ -307,15 +299,15 @@ export function createNavigationMenuState(
       if (disabled) {
         cancelTimers()
       }
-    }),
+    },
   )
   createEffect(
-    on([focusRequest, activeContent, positioned], ([requested, content, ready]) => {
+    () => [focusRequest(), activeContent(), positioned()],
+    ([requested, content, ready]) => {
       if (requested === undefined || !content || !ready) {
         return
       }
       let cancelled = false
-      // oxlint-disable-next-line subf/solid-reactivity -- Check the latest item after content is committed.
       queueMicrotask(() => {
         if (cancelled || activeItem()?.value() !== requested) {
           return
@@ -326,10 +318,11 @@ export function createNavigationMenuState(
       onCleanup(() => {
         cancelled = true
       })
-    }),
+    },
   )
   createEffect(
-    on([open, rootElement], ([isOpen, root]) => {
+    () => [open(), rootElement()],
+    ([isOpen, root]) => {
       if (!isOpen || !root) {
         return
       }
@@ -350,7 +343,7 @@ export function createNavigationMenuState(
         },
       })
       onCleanup(cancelTimers)
-    }),
+    },
   )
 
   return {

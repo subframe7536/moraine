@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface DialogStyleSlot<T = unknown> {
   /** Element that opens the dialog. */
   trigger?: T

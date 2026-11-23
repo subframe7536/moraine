@@ -1,16 +1,16 @@
-import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid'
+import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid/v2'
 import {
   createForm as createFormischForm,
   Form as FormischForm,
   reset as resetForm,
-} from '@formisch/solid'
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+} from '@formisch/solid/v2'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form/form-reset-scheduler'
 
@@ -18,7 +18,6 @@ import { useFormischFieldBinding } from './form-field-binding'
 import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
-
 interface InternalFormProps<TSchema extends Schema> extends FormProps<TSchema> {
   of: FormT.Store<TSchema>
 }
@@ -34,7 +33,8 @@ function hasErrorMessage(error: unknown): boolean {
  * focuses the first invalid field, tracks `isSubmitting`, and records handler errors on the store.
  */
 function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const [local, formProps] = splitProps(props, [
+  const local = pick(
+    props,
     'class',
     'style',
     'classes',
@@ -43,7 +43,18 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'onSubmit',
     'onReset',
     'translations',
-  ])
+  )
+  const formProps = omit(
+    props,
+    'class',
+    'style',
+    'classes',
+    'styles',
+    'of',
+    'onSubmit',
+    'onReset',
+    'translations',
+  )
   const {
     slots: { root: rootSlot },
   } = useRecipe(formRecipe, local, {
@@ -122,7 +133,7 @@ export function createForm<TSchema extends Schema>(
       store as FormStore,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
     )
-    return <FieldInternal {...props} binding={binding} />
+    return <FieldInternal {...(props as any)} binding={binding} />
   }
 
   return Object.assign(store, {

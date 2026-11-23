@@ -1,9 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { CheckControl } from './check-control'
-
 describe('CheckControl', () => {
   test('exposes the check state through aria-checked and data attributes', () => {
     const [checked, setChecked] = createSignal<boolean | 'indeterminate'>(false)
@@ -21,12 +20,12 @@ describe('CheckControl', () => {
     expect(control.hasAttribute('data-unchecked')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).toBeNull()
 
-    setChecked('indeterminate')
+    flush(() => setChecked('indeterminate'))
     expect(control.getAttribute('aria-checked')).toBe('mixed')
     expect(control.hasAttribute('data-indeterminate')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).not.toBeNull()
 
-    setChecked(true)
+    flush(() => setChecked(true))
     expect(control.getAttribute('aria-checked')).toBe('true')
     expect(control.hasAttribute('data-checked')).toBe(true)
     expect(control.querySelector('[data-slot="test-check-icon"]')).not.toBeNull()
@@ -42,7 +41,7 @@ describe('CheckControl', () => {
     fireEvent.click(getByRole('checkbox'))
     expect(onCheckedChange).toHaveBeenLastCalledWith(true)
 
-    setChecked(true)
+    flush(() => setChecked(true))
     fireEvent.click(getByRole('checkbox'))
     expect(onCheckedChange).toHaveBeenLastCalledWith(false)
   })

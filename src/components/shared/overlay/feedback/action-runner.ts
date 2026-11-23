@@ -1,7 +1,6 @@
 import { createSignal } from 'solid-js'
 
 import type { FeedbackPending } from './feedback.types'
-
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&

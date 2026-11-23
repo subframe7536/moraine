@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { mergeProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
@@ -10,7 +10,6 @@ import type { PopperTriggerProps } from '../shared/overlay/popper.types'
 import { useTooltipContext } from './tooltip-context'
 import { tooltipRecipe } from './tooltip.recipe'
 import type { TooltipT } from './tooltip.types'
-
 /**
  * Element that the surrounding `Tooltip` is anchored to; it opens the tooltip on pointer hover
  * and keyboard focus, and pressing it dismisses the tooltip. Renders a `button`; pass `as` to
@@ -40,7 +39,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
   const popper = context.popper
   // Hover and focus open the tooltip outside the button interaction, so they check `disabled` here.
   const disabled = () => Boolean(props.disabled)
-  const triggerProps = mergeProps(
+  const triggerProps = merge(
     mergePopperElementProps<HTMLElement>(
       {
         onPointerDown: context.dismiss,

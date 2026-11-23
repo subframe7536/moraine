@@ -1,6 +1,5 @@
 import { Badge, Checkbox } from '@src'
 import { createSignal } from 'solid-js'
-
 export function CustomTrueFalseValues() {
   const [telemetry, setTelemetry] = createSignal<'opted-in' | 'opted-out'>('opted-in')
 

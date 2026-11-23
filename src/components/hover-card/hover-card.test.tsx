@@ -4,7 +4,6 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { HoverCard } from './hover-card'
-
 const floatingMocks = vi.hoisted(() => ({
   middlewareNames: [] as string[],
 }))

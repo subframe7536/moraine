@@ -4,7 +4,6 @@ import { Badge } from '../../../../src'
 import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 import { getDocsPages } from '../../docs-route'
-
 export function ComponentsIndex() {
   const sections = createMemo(() => {
     const pages = getDocsPages().filter(

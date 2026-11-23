@@ -1,9 +1,10 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, Show, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createMemo, createSignal, Show, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../provider/locale/number'
+import { pick } from '../../shared/utils'
 import { useFieldContext } from '../field/field-context'
 import { Slider } from '../slider'
 import type { SliderT } from '../slider'
@@ -14,7 +15,6 @@ import {
   boldSliderRecipe,
 } from './bold-slider.recipe'
 import type { BoldSliderProps } from './bold-slider.types'
-
 function countDecimals(value: number): number {
   const text = String(value)
   const exponent = text.indexOf('e-')
@@ -34,7 +34,7 @@ function countDecimals(value: number): number {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { BoldSlider } from 'moraine'
  *
  * const [opacity, setOpacity] = createSignal(80)
@@ -48,7 +48,8 @@ function countDecimals(value: number): number {
  * ```
  */
 export function BoldSlider(props: BoldSliderProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'label',
     'valueLabel',
     'size',
@@ -58,7 +59,19 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     'class',
     'style',
     'aria-label',
-  ])
+  )
+  const rest = omit(
+    props,
+    'label',
+    'valueLabel',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+  )
   const themeField = useFieldContext()
   const { locale } = useLocale()
 
@@ -67,14 +80,12 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   )
 
   createEffect(
-    on(
-      () => props.value,
-      (val) => {
-        if (val !== undefined) {
-          setInternalValue(val)
-        }
-      },
-    ),
+    () => props.value,
+    (val) => {
+      if (val !== undefined) {
+        setInternalValue(val)
+      }
+    },
   )
 
   // The fill is empty only at `min`, which is not necessarily 0.
@@ -123,14 +134,12 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     const isEmpty = () => (state.percentages[0] ?? 0) === 0
 
     createEffect(
-      on(
-        () => state.values[0],
-        (val) => {
-          if (val !== undefined && val !== internalValue()) {
-            setInternalValue(val)
-          }
-        },
-      ),
+      () => state.values[0],
+      (val) => {
+        if (val !== undefined && val !== internalValue()) {
+          setInternalValue(val)
+        }
+      },
     )
 
     // Fill edge on the root: the minimum fill plus the value's share of the remaining width,

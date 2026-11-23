@@ -2,7 +2,6 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
-
 const DIST = resolve(__dirname, '../dist')
 const IMPORT_PATTERN =
   /(?:(?:import|export)\s*(?:[^'"]*?\bfrom\s*)?|\bimport\s*\(\s*)['"]([^'"]+)['"]/g

@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -8,7 +9,6 @@ import type { IconT } from '../icon'
 import type { defaultCopyButtonMessages } from './copy-button.messages'
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyData, CopySource, CopyStatus } from './create-copy'
-
 export namespace CopyButtonT {
   export type Kind = 'single'
 

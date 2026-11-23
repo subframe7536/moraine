@@ -1,4 +1,5 @@
-import type { Component, FlowComponent, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, FlowComponent } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -6,7 +7,6 @@ import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
 import type { TreeStyleSlot, TreeStyleVariants } from './tree.style-types'
-
 export namespace TreeT {
   export type Kind = 'composite'
 

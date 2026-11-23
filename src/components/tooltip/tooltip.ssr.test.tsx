@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Tooltip } from './tooltip'
-
 describe('Tooltip SSR Hydration', () => {
   test('hydrates closed JSX and opens it from keyboard focus', async () => {
     vi.useFakeTimers()

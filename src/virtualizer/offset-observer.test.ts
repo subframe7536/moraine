@@ -1,9 +1,8 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
-import { createComputed, createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, createRenderEffect } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createSharedElementOffsetObserver } from './offset-observer'
-
 function scrollableElement() {
   const element = document.createElement('div')
   const position = { top: 0, left: 0 }
@@ -74,7 +73,12 @@ describe('createSharedElementOffsetObserver', () => {
 
     const seen: string[] = []
     const dispose = createRoot((dispose) => {
-      createComputed(() => seen.push(`${top()},${left()}`))
+      createRenderEffect(
+        () => `${top()},${left()}`,
+        (position) => {
+          seen.push(position)
+        },
+      )
       return dispose
     })
 

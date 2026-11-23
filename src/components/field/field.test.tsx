@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createRoot, createSignal } from 'solid-js'
+import { Show, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -15,7 +15,6 @@ import { Field } from './field'
 import type { FieldBinding } from './field-context'
 import { FieldProvider, useFormField } from './field-context'
 import type { FieldT } from './field.types'
-
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
     <FieldProvider value={{ binding: props.binding, error: props.binding?.error }}>
@@ -113,15 +112,15 @@ describe('Field', () => {
     const input = screen.getByRole('textbox', { name: 'Filter' })
     const container = screen.container.querySelector('[data-slot="field-container"]')!
     expect(container.hasAttribute('data-has-text')).toBe(false)
-    setHiddenLabel('Search')
+    flush(() => setHiddenLabel('Search'))
     expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
-    setLabel('Visible')
+    flush(() => setLabel('Visible'))
     expect(screen.getByRole('textbox', { name: 'Visible' })).toBe(input)
     expect(container.hasAttribute('data-has-text')).toBe(true)
-    setLabel('')
+    flush(() => setLabel(''))
     expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
     expect(container.hasAttribute('data-has-text')).toBe(false)
-    setHiddenLabel('')
+    flush(() => setHiddenLabel(''))
     expect(screen.container.querySelector('[data-slot="field-label"]')).toBeNull()
     expect(input.hasAttribute('aria-labelledby')).toBe(false)
     expect(screen.getByRole('textbox')).toBe(input)
@@ -155,11 +154,11 @@ describe('Field', () => {
         ?.hasAttribute('data-has-text'),
     ).toBe(true)
     expect(describedBy()).toEqual(['Optional', 'Find commands', 'Search by name'])
-    setError('No matching commands')
+    flush(() => setError('No matching commands'))
     expect(screen.queryByText('Search by name')).toBeNull()
     expect(describedBy()).toEqual(['Optional', 'Find commands', 'No matching commands'])
     expect(input.getAttribute('aria-invalid')).toBe('true')
-    setDisabled(false)
+    flush(() => setDisabled(false))
     expect(input.disabled).toBe(false)
   })
 
@@ -190,7 +189,7 @@ describe('Field', () => {
     ))
     expect(screen.getAllByText('Broken')).toHaveLength(2)
     expect(screen.getByTestId('state').textContent).toBe('Broken')
-    setError(false)
+    flush(() => setError(false))
     expect(screen.queryAllByText('Broken')).toHaveLength(0)
   })
 
@@ -257,7 +256,7 @@ describe('Field', () => {
     expect(item.getAttribute('aria-checked')).toBe('false')
   })
 
-  test('lets an explicit control readOnly={false} override the Field readOnly', () => {
+  test('lets an explicit control readonly={false} override the Field readOnly', () => {
     const screen = render(() => (
       <>
         <Field readOnly label="Accept">
@@ -467,8 +466,8 @@ describe('Field', () => {
     expect(screen.getByText('Visible')).toBeTruthy()
     expect(screen.getByTestId('rendered-error').textContent).toBe('Missing')
 
-    setVisible(false)
-    setError('Updated')
+    flush(() => setVisible(false))
+    flush(() => setError('Updated'))
 
     expect(screen.queryByText('Visible')).toBeNull()
     expect(screen.getByTestId('rendered-error').textContent).toBe('Updated')
@@ -482,7 +481,7 @@ describe('Field', () => {
 
     expect(screen.getByTestId('accessor-child').textContent).toBe('first')
 
-    setLabel('second')
+    flush(() => setLabel('second'))
 
     expect(screen.getByTestId('accessor-child').textContent).toBe('second')
   })
@@ -499,7 +498,7 @@ describe('Field', () => {
 
     expect(screen.getByTestId('render-child').textContent).toBe('Missing')
 
-    setError('Updated')
+    flush(() => setError('Updated'))
 
     expect(screen.getByTestId('render-child').textContent).toBe('Updated')
   })
@@ -507,7 +506,7 @@ describe('Field', () => {
 
 describe('useFormField', () => {
   test('reads the control id and disabled state reactively', () => {
-    const [id, setId] = createSignal('first')
+    const [id, setId] = createSignal('first', { ownedWrite: true })
     const [disabled, setDisabled] = createSignal(false)
 
     createRoot((dispose) => {
@@ -526,10 +525,10 @@ describe('useFormField', () => {
       expect(field.id()).toBe('first')
       expect(field.disabled()).toBe(false)
 
-      setId('second')
+      flush(() => setId('second'))
       expect(field.id()).toBe('second')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       expect(field.disabled()).toBe(true)
 
       dispose()

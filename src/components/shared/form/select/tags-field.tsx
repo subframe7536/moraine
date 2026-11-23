@@ -1,4 +1,5 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import { createMemo } from 'solid-js'
 
 import { useMessages } from '../../../../provider/locale/locale-context'
@@ -9,7 +10,6 @@ import { Icon } from '../../../icon/index'
 import type { IconT } from '../../../icon/index'
 
 import { defaultTagsFieldMessages } from './tags-field.messages'
-
 export interface TagsFieldEntry<TValue> {
   value: TValue
   label: JSX.Element
@@ -151,7 +151,6 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function removeTag(index: number, direction: -1 | 1): void {
     if (remove(index, false)) {
-      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus reads the post-removal tag list.
       queueMicrotask(() => focusNearest(index - (direction === 1 ? 1 : 0), direction))
     }
   }
@@ -243,7 +242,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
           type="button"
           data-slot={options.slotName('tagRemove')}
           aria-label={messages().remove({ title: tagProps.tag.title })}
-          tabIndex={-1}
+          tabindex={-1}
           disabled={!tagProps.tag.removable}
           {...options.slot('tagRemove')}
           ref={(element) => {

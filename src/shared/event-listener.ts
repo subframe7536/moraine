@@ -1,5 +1,4 @@
 import { onCleanup } from 'solid-js'
-
 type EventMapForTarget<TTarget extends EventTarget> = TTarget extends Window
   ? WindowEventMap
   : TTarget extends Document

@@ -1,7 +1,6 @@
 import { defineRecipe } from '../../theme/recipe'
 
 import type { CardStyleSlot, CardStyleVariants } from './card.style-types'
-
 /** Outer border and elevation of the `outline` and `subtle` variants. */
 const CARD_SURFACE_CLASS = 'border border-border shadow-surface'
 

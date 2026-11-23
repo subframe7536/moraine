@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { FileUpload } from './file-upload'
-
 describe('FileUpload SSR Hydration', () => {
   test('hydrates the empty dropzone and preserves root identity across branch changes', () => {
     const [dropzone, setDropzone] = createSignal(true)
@@ -27,7 +26,7 @@ describe('FileUpload SSR Hydration', () => {
     expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('BUTTON')
     expect(container.querySelector('[data-slot="file-upload-files"]')).toBeNull()
 
-    setDropzone(false)
+    flush(() => setDropzone(false))
     expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('BUTTON')
     expect(container.querySelector('[data-slot="file-upload"]')).toBe(root)
   })

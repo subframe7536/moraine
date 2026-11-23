@@ -1,7 +1,8 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 import { KbdGroup } from '../kbd-group'
 import { parseFloatingPlacement } from '../shared/overlay/placement'
 import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
@@ -14,7 +15,6 @@ import {
   tooltipRecipe,
 } from './tooltip.recipe'
 import type { TooltipT } from './tooltip.types'
-
 /**
  * Floating panel of the surrounding `Tooltip`; renders a `div` with `role="tooltip"` in a
  * portaled positioner. Place it inside `Tooltip`, next to `Tooltip.Trigger`. String children
@@ -32,7 +32,8 @@ import type { TooltipT } from './tooltip.types'
  * ```
  */
 export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['kbds', 'children', 'class', 'style'])
+  const local = pick(props, 'kbds', 'children', 'class', 'style')
+  const rest = omit(props, 'kbds', 'children', 'class', 'style')
 
   const behavior = useTooltipContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -74,7 +75,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       }
     >
       {(context) => {
-        const contentProps = mergeProps(context.contentProps, contentEvents)
+        const contentProps = merge(context.contentProps, contentEvents)
         const text = resolveChildren(() => local.children)
         const kbds = createMemo(() => local.kbds)
         const contentSlot = slotWith('content', {

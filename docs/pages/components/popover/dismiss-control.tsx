@@ -1,6 +1,5 @@
 import { Button, Popover } from '@src'
 import { createSignal } from 'solid-js'
-
 export function DismissControl() {
   const [preventedCloseCount, setPreventedCloseCount] = createSignal(0)
 

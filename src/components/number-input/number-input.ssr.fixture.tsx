@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { NumberInput } from './number-input'
-
 export function renderNumberInputFixture(): string {
   return renderToString(() => <NumberInput id="horizontal-number" value={12.5} locale="de-DE" />)
 }

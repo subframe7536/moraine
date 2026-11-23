@@ -1,5 +1,4 @@
 import { AlertDialog, Button } from '@src'
-
 export function AlertTypes() {
   return (
     <div class="flex flex-wrap gap-3 items-center">

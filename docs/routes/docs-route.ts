@@ -1,8 +1,7 @@
-import { routeInfo } from 'virtual:routes'
-
 import { DOCS_SECTION_ORDER } from '../shared/docs-route'
 import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route'
 
+import { Router } from './router'
 export interface DocsPageEntry {
   key: string
   label: string
@@ -62,7 +61,7 @@ function normalizeSections(value: unknown): DocsRouteSection[] {
 }
 
 export function getDocsPages(): DocsPageEntry[] {
-  return Object.entries(routeInfo)
+  return Object.entries(Router.routeInfo)
     .map(([, info]) => {
       if (!isDocsRouteInfo(info)) {
         return null

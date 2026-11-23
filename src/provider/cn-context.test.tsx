@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Portal } from '@solidjs/web'
+import { createComponent, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { BaseDialog } from '../components/base-dialog/base-dialog'
@@ -14,7 +14,6 @@ import type { MoraineTheme } from '../theme/types'
 
 import { useCn } from './cn-context'
 import { MoraineProvider } from './moraine-provider'
-
 const densityConfig: CnConfig = {
   extend: { classGroups: { density: ['density-roomy', 'density-compact'] } },
 }
@@ -51,13 +50,13 @@ describe('scoped cn', () => {
     const nested = screen.getByTestId('nested')
     expect(screen.getByTestId('default').className).toBe(cnModule.cn(classes))
     expect(nested.className).toBe('p-4 density-compact')
-    setInner(keepPadding)
+    flush(() => setInner(keepPadding))
     expect(nested.className).toBe(classes)
-    setOuter({})
+    flush(() => setOuter({}))
     expect(nested.className).toBe(classes)
-    setInner(undefined)
+    flush(() => setInner(undefined))
     expect(nested.className).toBe(cnModule.cn(classes))
-    setOuter(densityConfig)
+    flush(() => setOuter(densityConfig))
     expect(nested.className).toBe('p-4 density-compact')
     expect(screen.getByTestId('reset').className).toBe(cnModule.cn(classes))
     expect(screen.getByTestId('sibling').className).toBe(classes)
@@ -93,7 +92,7 @@ describe('scoped cn', () => {
     ))
     const original = handle
     screen.getByRole('button').click()
-    setConfig(densityConfig)
+    flush(() => setConfig(densityConfig))
     await pending
     expect(handle).toBe(original)
     expect(result).toBe('p-4 density-compact')
@@ -127,11 +126,11 @@ describe('scoped cn', () => {
     const sibling = screen.getByRole('button', { name: 'Sibling' })
     expect(live.className).toContain('density-roomy density-compact p-6')
     expect(sibling.className).toContain('p-2 density-roomy p-4 density-compact p-6')
-    setConfig({ ...keepPadding, ...densityConfig })
+    flush(() => setConfig({ ...keepPadding, ...densityConfig }))
     expect(live.className).toContain('p-2 p-4 density-compact p-6')
-    setTheme(null)
+    flush(() => setTheme(null))
     expect(live.className).not.toContain('p-6')
-    setTheme(theme)
+    flush(() => setTheme(theme))
     expect(live.className).toContain('p-2 p-4 density-compact p-6')
     expect(screen.getByRole('button', { name: 'Live' })).toBe(live)
   })
@@ -172,7 +171,7 @@ describe('scoped cn', () => {
     input.focus()
     input.value = 'draft'
     input.setSelectionRange(1, 3)
-    setConfig({ ...keepPadding, ...densityConfig })
+    flush(() => setConfig({ ...keepPadding, ...densityConfig }))
     expect(screen.getByRole('textbox')).toBe(input)
     expect(document.querySelector<HTMLElement>('[role=dialog]')!).toBe(surface)
     expect(surface.className).toContain('p-2 p-4')

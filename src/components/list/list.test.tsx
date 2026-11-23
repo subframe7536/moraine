@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { For, createEffect, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { measuredRows, scrollViewport } from '../../test-util/virtualizer-layout'
@@ -7,7 +7,6 @@ import { createListVirtualizer } from '../../virtualizer'
 import type { VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { List } from './list'
-
 describe('List', () => {
   test('renders fixed content from an item component', () => {
     const screen = render(() => (
@@ -36,13 +35,13 @@ describe('List', () => {
     const list = screen.getByRole('list')
     const rows = Array.from(list.children)
 
-    setItems(['Beta', 'Alpha'])
+    flush(() => setItems(['Beta', 'Alpha']))
     expect(list.children[0]).toBe(rows[1])
     expect(list.children[1]).toBe(rows[0])
     expect(list.children[0]?.textContent).toBe('0: Beta')
     expect(list.children[1]?.textContent).toBe('1: Alpha')
 
-    setItems(['Beta'])
+    flush(() => setItems(['Beta']))
     expect(disposed).toEqual(['Alpha'])
     expect(list.children).toHaveLength(1)
   })
@@ -134,12 +133,10 @@ describe('List', () => {
     let virtualScrollElement: HTMLElement | undefined
     const VirtualRender = vi.fn((props: VirtualRenderProps<string>) => {
       createEffect(
-        on(
-          () => props.scrollElement,
-          (scrollElement) => {
-            virtualScrollElement = scrollElement
-          },
-        ),
+        () => props.scrollElement,
+        (scrollElement) => {
+          virtualScrollElement = scrollElement
+        },
       )
 
       return (

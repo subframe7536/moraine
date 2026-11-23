@@ -1,21 +1,12 @@
-import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createEffect, createMemo, createSignal, onCleanup, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
 import type { AvatarProps, AvatarT } from './avatar.types'
-
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
   if (preferredText) {
@@ -55,7 +46,8 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
  * ```
  */
 export function Avatar(props: AvatarProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'src',
     'alt',
     'badge',
@@ -68,7 +60,22 @@ export function Avatar(props: AvatarProps): JSX.Element {
     'classes',
     'styles',
     'size',
-  ])
+  )
+  const rest = omit(
+    props,
+    'src',
+    'alt',
+    'badge',
+    'badgePosition',
+    'text',
+    'icon',
+    'onStatusChange',
+    'class',
+    'style',
+    'classes',
+    'styles',
+    'size',
+  )
   const {
     slots: {
       root: rootSlot,
@@ -114,28 +121,26 @@ export function Avatar(props: AvatarProps): JSX.Element {
     untrack(() => local.onStatusChange)?.(nextStatus)
   }
 
-  createEffect(
-    on(source, (currentSource) => {
-      let cancelled = false
+  createEffect(source, (currentSource) => {
+    let cancelled = false
 
-      onCleanup(() => {
-        cancelled = true
-      })
+    onCleanup(() => {
+      cancelled = true
+    })
 
-      if (!currentSource) {
-        setStatus('error')
+    if (!currentSource) {
+      setStatus('error')
+      return
+    }
+
+    setStatus('loading')
+    queueMicrotask(() => {
+      if (cancelled || !imageElement?.complete) {
         return
       }
-
-      setStatus('loading')
-      queueMicrotask(() => {
-        if (cancelled || !imageElement?.complete) {
-          return
-        }
-        setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
-      })
-    }),
-  )
+      setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
+    })
+  })
 
   return (
     <span

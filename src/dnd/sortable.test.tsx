@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, createSignal, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { createTree } from '../components/tree/tree'
@@ -9,7 +9,6 @@ import { createListSortable } from './create-list-sortable'
 import type { ListReorderEvent } from './create-list-sortable'
 import { createTreeSortable, moveTreeNode } from './create-tree-sortable'
 import type { TreeMoveEvent } from './create-tree-sortable'
-
 const POINTER = { isPrimary: true, pointerId: 1 } as const
 
 const POINTER_DOWN = { ...POINTER, button: 0 }
@@ -214,7 +213,7 @@ describe('createListSortable', () => {
       renderedItems: rendered,
       onReorder,
     })
-    setItems(['a'])
+    flush(() => setItems(['a']))
 
     fireEvent.pointerDown(handles[0]!, { ...POINTER_DOWN, clientX: 10, clientY: 50 })
     fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 60 })
@@ -238,7 +237,7 @@ describe('createListSortable', () => {
       renderedItems: rendered,
       onReorder,
     })
-    setItems(['a'])
+    flush(() => setItems(['a']))
 
     fireEvent.pointerDown(handles[2]!, { ...POINTER_DOWN, clientX: 10, clientY: 250 })
     fireEvent.pointerMove(document, { ...POINTER, clientX: 10, clientY: 260 })
@@ -277,7 +276,7 @@ describe('createListSortable', () => {
     const onReorder = vi.fn((event: ListReorderEvent<string>) => setItems(event.items))
     const { rows, handles, labels } = renderList({ items, onReorder })
 
-    setItems(['a', 'c'])
+    flush(() => setItems(['a', 'c']))
     await waitFor(() => expect(labels()).toEqual(['a', 'c']))
 
     fireEvent.pointerDown(handles[2]!, { ...POINTER_DOWN, clientX: 10, clientY: 250 })
@@ -326,7 +325,6 @@ describe('createTreeSortable', () => {
       const sortable = createTreeSortable(tree, { onMove, expandDelay: false })
 
       function TreeRow(props: { item: (typeof tree.flattenedItems)[number] }): JSX.Element {
-        // oxlint-disable-next-line subf/solid-reactivity -- useNode registers the item.
         const node = sortable.useNode(props.item)
         return (
           <li {...node.props}>

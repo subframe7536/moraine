@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { TableHydrationFixture } from './table.ssr.fixture'
-
 test.each([true, false])(
   'hydrates compound table parts and updates conditional rows (initially present=%s)',
   (initialExtraRow) => {
@@ -23,8 +22,8 @@ test.each([true, false])(
     expect(rows().length).toBe(initialExtraRow ? 2 : 1)
     expect(head.textContent).toBe('Header')
 
-    setTitle('Updated Header')
-    setExtraRow(!initialExtraRow)
+    flush(() => setTitle('Updated Header'))
+    flush(() => setExtraRow(!initialExtraRow))
 
     expect(container.firstElementChild).toBe(root)
     expect(head.textContent).toBe('Updated Header')

@@ -4,7 +4,6 @@ import { describe, expect, test } from 'vitest'
 
 import { highlightApiTypes, renderDescriptionHtml } from './highlight.ts'
 import type { ComponentApi } from './types.ts'
-
 // The highlighter loads Shiki's WASM through `Blob.stream()`, which jsdom's global `Blob` lacks, so
 // this file runs in the Node environment and builds its own document for markup assertions.
 const { document } = new JSDOM('').window

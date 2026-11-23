@@ -1,7 +1,6 @@
 import { List } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
 import { For } from 'solid-js'
-
 export function DynamicHeight() {
   const ITEMS = Array.from({ length: 1_000 }, (_, index) => ({
     id: index + 1,

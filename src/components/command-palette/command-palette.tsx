@@ -1,16 +1,14 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   DEV,
   For,
   Show,
   createEffect,
   createMemo,
-  createSelector,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -20,7 +18,14 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import {
+  callHandler,
+  callRef,
+  createId,
+  isAndroidUserAgent,
+  pick,
+  createSelector,
+} from '../../shared/utils'
 import { Icon } from '../icon'
 import { KbdGroup } from '../kbd-group'
 import { List } from '../list'
@@ -32,7 +37,6 @@ import { resolveDirection } from '../shared/overlay/direction'
 import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
-
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string
@@ -173,7 +177,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const { locale, dir: direction } = useLocale()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'inputRef',
     'items',
@@ -206,7 +211,42 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'class',
     'style',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'inputRef',
+    'items',
+    'placeholder',
+    'searchValue',
+    'defaultSearchValue',
+    'onSearchValueChange',
+    'onSelect',
+    'searchMaxLength',
+    'autoFocus',
+    'leading',
+    'loadingIcon',
+    'closeIcon',
+    'closable',
+    'onCloseRequest',
+    'closeOnSelect',
+    'loading',
+    'getItemSearchText',
+    'filterMethod',
+    'descriptionPosition',
+    'emptyRender',
+    'footerRender',
+    'itemRender',
+    'virtualizer',
+    'listboxProps',
+    'itemProps',
+    'inputProps',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'translations',
+  )
   const messages = useMessages(
     'commandPalette',
     defaultCommandPaletteMessages,
@@ -236,7 +276,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       get placeholder() {
         return messages().placeholder
@@ -323,7 +363,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   createEffect(
-    on([inputElement, () => merged.autoFocus], ([input, autoFocus]) => {
+    () => [inputElement(), (() => merged.autoFocus)()],
+    ([input, autoFocus]) => {
       if (!autoFocus || !input) {
         return
       }
@@ -333,7 +374,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           input.focus({ preventScroll: true })
         }
       })
-    }),
+    },
   )
 
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => toGroups(merged.items ?? []))
@@ -399,12 +440,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   )
 
   createEffect(
-    on([enabledKeys, activeKey], ([keys, highlighted]) => {
+    () => [enabledKeys(), activeKey()],
+    ([keys, highlighted]) => {
       if (highlighted && keys.has(highlighted)) {
         return
       }
       setActiveKey(keys.values().next().value)
-    }),
+    },
   )
 
   const virtualEntryIndexByKey = createLazyMemo(() => {
@@ -418,7 +460,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   createEffect(
-    on([activeKey, visibleItemByKey, () => merged.virtualizer], ([key, items, virtualizer]) => {
+    () => [activeKey(), visibleItemByKey(), (() => merged.virtualizer)()],
+    ([key, items, virtualizer]) => {
       if (!key) {
         return
       }
@@ -439,7 +482,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           element.scrollIntoView?.({ block: 'nearest' })
         }
       })
-    }),
+    },
   )
 
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<
@@ -676,10 +719,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         {...itemProps.virtualProps}
         id={`${listboxId()}-${encodeURIComponent(itemProps.item.key)}`}
         role="option"
-        tabIndex={-1}
+        tabindex={-1}
         data-slot="command-palette-item"
-        aria-selected={isActive(itemProps.item.key)}
-        aria-disabled={itemProps.item.disabled || undefined}
+        aria-selected={isActive(itemProps.item.key) ? 'true' : 'false'}
+        aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         aria-posinset={
           merged.virtualizer ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
         }
@@ -808,7 +851,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leading}
           data-slot="command-palette-input-leading"
-          aria-busy={merged.loading || undefined}
+          aria-busy={merged.loading ? 'true' : undefined}
           {...inputLeadingSlot}
         />
 
@@ -832,7 +875,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           aria-autocomplete="list"
           aria-activedescendant={activeDescendantId()}
           placeholder={merged.placeholder}
-          maxLength={merged.searchMaxLength}
+          maxlength={merged.searchMaxLength}
           value={compositionQuery() ?? currentSearchValue()}
           onInput={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput)

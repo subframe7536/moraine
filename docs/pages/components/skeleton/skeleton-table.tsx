@@ -1,6 +1,5 @@
 import { Skeleton } from '@src'
 import { For } from 'solid-js'
-
 export function SkeletonTable() {
   return (
     <div class="flex flex-col gap-2 max-w-sm w-full">

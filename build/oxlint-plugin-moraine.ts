@@ -372,7 +372,7 @@ function functionReturnsJsx(fnNode: any): boolean {
 }
 
 const REF_LIFECYCLE_CALL =
-  /^(?:onCleanup|onMount|createEffect|createRenderEffect|createComputed|createEventListener(?:Map)?|attachEventListener(?:Map)?|register[A-Z]\w*)$/
+  /^(?:onCleanup|onSettled|createEffect|createRenderEffect|createComputed|createEventListener(?:Map)?|attachEventListener(?:Map)?|register[A-Z]\w*)$/
 
 function calleeName(callee: any): string | undefined {
   if (callee?.type === 'Identifier') {
@@ -571,11 +571,11 @@ export default {
       meta: {
         type: 'problem',
         docs: {
-          description: "Enforce wrapping createEffect callbacks with Solid's on().",
+          description: 'Enforce the Solid 2 createEffect(compute, apply) two-argument signature.',
         },
         messages: {
           requireOn:
-            'Always wrap "createEffect" callbacks with Solid\'s "on()". Use "on([], () => ...)" for effects with no reactive dependencies.',
+            'Use the Solid 2 "createEffect(compute, apply)" signature: reactive reads go in the first argument, imperative work in the second.',
         },
       },
       create(context: any): Record<string, any> {
@@ -586,25 +586,9 @@ export default {
           CallExpression(node: any) {
             if (node.callee.type === 'Identifier' && node.callee.name === 'createEffect') {
               const firstArg = node.arguments[0]
-              if (!firstArg) {
-                return
-              }
-
-              if (
-                firstArg.type === 'ArrowFunctionExpression' ||
-                firstArg.type === 'FunctionExpression'
-              ) {
+              if (!firstArg || node.arguments.length < 2) {
                 context.report({
-                  node: firstArg,
-                  messageId: 'requireOn',
-                })
-              } else if (
-                firstArg.type === 'CallExpression' &&
-                firstArg.callee.type === 'Identifier' &&
-                firstArg.callee.name !== 'on'
-              ) {
-                context.report({
-                  node: firstArg,
+                  node: firstArg ?? node,
                   messageId: 'requireOn',
                 })
               }

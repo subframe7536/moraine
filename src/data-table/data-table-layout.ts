@@ -1,5 +1,6 @@
+import type { JSX } from '@solidjs/web'
 import type { Column, Header, HeaderGroup, RowData } from '@tanstack/table-core'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
 import { createMemo } from 'solid-js'
 
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
@@ -8,7 +9,6 @@ import type { SlotValue } from '../provider'
 import type { DataTableFeatures } from './data-table-features'
 import { DATA_TABLE_RESIZABLE_CELL_CLASS } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 export type DataTableSection = 'header' | 'body' | 'footer'
 
 export type DataTablePinSide = 'start' | 'end' | false

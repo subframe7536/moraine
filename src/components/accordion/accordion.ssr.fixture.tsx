@@ -1,9 +1,11 @@
+import { renderToString } from '@solidjs/web'
 import { onCleanup } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Accordion } from './accordion'
-
-export function AccordionHydrationFixture(props: { onMount?: () => void; onCleanup?: () => void }) {
+export function AccordionHydrationFixture(props: {
+  onSettled?: () => void
+  onCleanup?: () => void
+}) {
   return (
     <Accordion
       id="ssr-accordion"
@@ -19,7 +21,7 @@ export function AccordionHydrationFixture(props: { onMount?: () => void; onClean
           value: 'second',
           label: <span>Second</span>,
           get content() {
-            props.onMount?.()
+            props.onSettled?.()
             onCleanup(() => props.onCleanup?.())
             return <p>Second panel</p>
           },

@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal, mergeProps } from 'solid-js'
+import { For, createSignal, flush, merge } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { createListVirtualizer } from '../../virtualizer'
 
 import { createTree } from './tree'
 import type { TreeT } from './tree.types'
-
 interface Node {
   id: string
   name: string
@@ -44,8 +43,7 @@ interface HarnessProps {
 }
 
 function Harness(props: HarnessProps) {
-  /* oxlint-disable subf/solid-reactivity -- Fixture options are fixed; controlled keys are getter-backed. */
-  const options = mergeProps(
+  const options = merge(
     {
       items: () => props.items?.() ?? DATA,
       getKey: (node: Node) => node.id,
@@ -57,7 +55,6 @@ function Harness(props: HarnessProps) {
   )
   const tree = createTree<Node>(options)
   props.onTree?.(tree)
-  /* oxlint-enable subf/solid-reactivity */
   return <tree.Tree aria-label="Files" {...props.treeProps} />
 }
 
@@ -172,7 +169,7 @@ describe('createTree', () => {
       const [items, setItems] = createSignal<readonly Node[]>(DATA)
       const { container } = render(() => <Harness items={items} />)
 
-      setItems([{ id: 'only', name: 'only.md' }])
+      flush(() => setItems([{ id: 'only', name: 'only.md' }]))
       expect(labels(container)).toEqual(['only.md'])
     })
   })
@@ -363,7 +360,7 @@ describe('createTree', () => {
       item(container, 'guide.md').focus()
       expect(document.activeElement).toBe(item(container, 'guide.md'))
 
-      setKeys([])
+      flush(() => setKeys([]))
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('false')
       expect(document.activeElement).toBe(item(container, 'docs'))
     })
@@ -943,7 +940,6 @@ describe('createTree', () => {
 
       expect(item(container, 'docs').getAttribute('aria-selected')).toBe('true')
       fireEvent.click(item(container, 'README.md'))
-      // oxlint-disable-next-line subf/solid-reactivity -- Assert the controlled signal after the click.
       expect(keys()).toEqual(['readme'])
     })
 
@@ -1228,8 +1224,7 @@ describe('createTree', () => {
       onTree?: (tree: TreeT.Instance<LazyNode>) => void
       options?: Partial<TreeT.Options<LazyNode>>
     }) {
-      /* oxlint-disable subf/solid-reactivity -- Fixture options are fixed; loadChildren is supplied per test. */
-      const options = mergeProps(
+      const options = merge(
         {
           items: () => [
             { id: 'remote', name: 'remote', lazy: true },
@@ -1245,7 +1240,6 @@ describe('createTree', () => {
       )
       const tree = createTree<LazyNode>(options)
       props.onTree?.(tree)
-      /* oxlint-enable subf/solid-reactivity */
       return <tree.Tree aria-label="Remote" />
     }
 
@@ -1356,7 +1350,7 @@ describe('createTree', () => {
       ))
 
       await waitFor(() => expect(labels(container)).toEqual(['remote', 'remote.txt']))
-      setItems([{ id: 'remote', name: 'replaced', lazy: true }])
+      flush(() => setItems([{ id: 'remote', name: 'replaced', lazy: true }]))
       await waitFor(() => expect(labels(container)).toEqual(['replaced', 'replaced.txt']))
       expect(loadChildren).toHaveBeenCalledTimes(2)
     })
@@ -1374,7 +1368,11 @@ describe('createTree', () => {
       ))
 
       await waitFor(() => expect(labels(container)).toEqual(['remote', 'loaded.txt']))
-      setItems([{ id: 'remote', name: 'remote', children: [{ id: 'fresh', name: 'fresh.txt' }] }])
+      flush(() =>
+        setItems([
+          { id: 'remote', name: 'remote', children: [{ id: 'fresh', name: 'fresh.txt' }] },
+        ]),
+      )
       expect(labels(container)).toEqual(['remote', 'fresh.txt'])
     })
   })
@@ -1575,10 +1573,10 @@ describe('createTree', () => {
 
       expect(guides(item(container, 'guide.md'))).toHaveLength(1)
 
-      setIndentGuide(false)
+      flush(() => setIndentGuide(false))
       expect(container.querySelector('[data-slot="tree-guides"]')).toBeNull()
 
-      setIndentGuide(true)
+      flush(() => setIndentGuide(true))
       expect(guides(item(container, 'guide.md'))).toHaveLength(1)
     })
 
@@ -1611,7 +1609,7 @@ describe('createTree', () => {
       render(() => <Harness items={items} onTree={(value) => (tree = value)} />)
 
       const before = tree.getItem('docs')
-      setItems([...DATA])
+      flush(() => setItems([...DATA]))
       expect(tree.getItem('docs')).toBe(before)
     })
 
@@ -1805,8 +1803,8 @@ describe('createTree', () => {
               <tree.Item
                 item={context}
                 data-testid={`custom-${context.key}`}
-                tabIndex={99}
-                aria-checked={false}
+                tabindex={99}
+                aria-checked={'false'}
               >
                 <tree.ItemTrigger data-testid={`trigger-${context.key}`} />
                 <tree.ItemLabel />

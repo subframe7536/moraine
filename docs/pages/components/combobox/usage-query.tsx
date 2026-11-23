@@ -1,7 +1,6 @@
 import { Button, Combobox } from '@src'
 import type { ComboboxT } from '@src'
 import { createSignal } from 'solid-js'
-
 const FRAMEWORKS: ComboboxT.Item[] = [
   { label: 'SolidJS', value: 'solid' },
   { label: 'Vue.js', value: 'vue' },

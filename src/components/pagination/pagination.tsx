@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
@@ -14,7 +14,6 @@ import { Icon } from '../icon'
 import { defaultPaginationMessages } from './pagination.messages'
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
-
 interface InteractiveProps {
   as?: ValidComponent
   href?: string
@@ -88,7 +87,7 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Pagination } from 'moraine'
  *
  * const [page, setPage] = createSignal(1)
@@ -97,7 +96,8 @@ function getSize(size: string | null | undefined, text?: string): ButtonProps['s
  * ```
  */
 export function Pagination(props: PaginationProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'page',
     'defaultPage',
@@ -126,7 +126,38 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'style',
     'aria-label',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'page',
+    'defaultPage',
+    'onPageChange',
+    'pageSize',
+    'total',
+    'siblingCount',
+    'controls',
+    'disabled',
+    'size',
+    'variant',
+    'activeVariant',
+    'controlVariant',
+    'tone',
+    'prevIcon',
+    'prevText',
+    'nextIcon',
+    'nextText',
+    'ellipsisIcon',
+    'getPageHref',
+    'itemRender',
+    'controlRender',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'translations',
+  )
   const {
     slots: {
       root: rootSlot,
@@ -155,7 +186,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   })
   const messages = useMessages('pagination', defaultPaginationMessages, () => local.translations)
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       role: 'navigation' as const,
       pageSize: 10,
@@ -303,7 +334,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="pagination-list-item"
-                aria-hidden={typeof item === 'number' ? undefined : true}
+                aria-hidden={typeof item === 'number' ? undefined : 'true'}
                 {...itemListItemSlot}
               >
                 <Show

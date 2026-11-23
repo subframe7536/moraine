@@ -5,14 +5,13 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { AccordionHydrationFixture } from './accordion.ssr.fixture'
-
 test('hydrates expanded JSX and mounts and releases an initially closed panel', async () => {
   const mounted = vi.fn()
   const cleaned = vi.fn()
   const { container } = hydrateFixture(
     '/src/components/accordion/accordion.ssr.fixture.tsx',
     'renderAccordionFixture',
-    () => <AccordionHydrationFixture onMount={mounted} onCleanup={cleaned} />,
+    () => <AccordionHydrationFixture onSettled={mounted} onCleanup={cleaned} />,
   )
   const triggers = container.querySelectorAll('button')
   expect(container.querySelectorAll('button svg')).toHaveLength(2)

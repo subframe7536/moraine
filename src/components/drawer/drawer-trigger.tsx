@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDrawerContext } from './drawer-context'
 import { drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
-
 /**
  * Element that opens the surrounding `Drawer`. Renders a `button`; pass `as` to render another
  * component such as `Button`.
@@ -27,7 +27,8 @@ export function DrawerTrigger<T extends ValidComponent = 'button'>(
   props: DrawerT.TriggerProps<T>,
 ): JSX.Element {
   const drawer = useDrawerContext()
-  const [local, rest] = splitProps(props as DrawerT.TriggerProps, ['class', 'style'])
+  const local = pick(props as DrawerT.TriggerProps, 'class', 'style')
+  const rest = omit(props as DrawerT.TriggerProps, 'class', 'style')
   const {
     slots: { trigger: triggerSlot },
   } = useRecipe(drawerRecipe, local, {

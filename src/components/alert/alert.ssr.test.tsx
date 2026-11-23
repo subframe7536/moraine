@@ -1,11 +1,10 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { AlertHydrationFixture } from './alert.ssr.fixture'
 import type { AlertT } from './alert.types'
-
 test('hydrates alert fixture and updates reactive props', () => {
   const [tone, setTone] = createSignal<AlertT.Variants['tone']>('info')
   const [title, setTitle] = createSignal('Alert title')
@@ -26,8 +25,8 @@ test('hydrates alert fixture and updates reactive props', () => {
   )
   expect(container.querySelector('[data-slot="alert-close"]')).not.toBeNull()
 
-  setTitle('Updated title')
-  setTone('success')
+  flush(() => setTitle('Updated title'))
+  flush(() => setTone('success'))
   expect(container.firstElementChild).toBe(root)
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated title')
   expect(root?.getAttribute('data-tone')).toBe('success')
@@ -46,6 +45,6 @@ test('hydrates minimal alert fixture without description or close', () => {
   expect(container.querySelector('[data-slot="alert-icon"]')).toBeNull()
   expect(container.querySelector('[data-slot="alert-close"]')).toBeNull()
 
-  setTitle('Updated minimal')
+  flush(() => setTitle('Updated minimal'))
   expect(container.querySelector('[data-slot="alert-title"]')?.textContent).toBe('Updated minimal')
 })

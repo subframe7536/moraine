@@ -1,6 +1,5 @@
 import { BoldSlider, Button, createForm } from '@src'
 import * as v from 'valibot'
-
 export function FormIntegration() {
   const form = createForm({
     schema: v.object({

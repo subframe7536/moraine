@@ -1,7 +1,6 @@
 import { Accordion } from '@src'
 import type { AccordionT } from '@src'
 import { createSignal } from 'solid-js'
-
 const FAQ_ITEMS = [
   {
     value: 'q1',

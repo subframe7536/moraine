@@ -1,5 +1,4 @@
 import { isNode } from './dom'
-
 export interface OutsidePressOptions {
   isInside: (target: Node) => boolean
   isEnabled: () => boolean

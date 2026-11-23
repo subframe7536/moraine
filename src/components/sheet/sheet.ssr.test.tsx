@@ -7,7 +7,6 @@ import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import { Sheet } from './sheet'
 import { SheetContentProvider } from './sheet-context'
-
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)

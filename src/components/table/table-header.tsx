@@ -2,7 +2,6 @@ import type { FlowComponent } from 'solid-js'
 
 import { createTablePart } from './table-part'
 import type { TableT } from './table.types'
-
 /**
  * Header section of the surrounding `Table`; renders a `thead`. Place a `Table.Row` of
  * `Table.Head` cells inside it, before `Table.Body`.

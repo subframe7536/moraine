@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createMemo, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { callRef, createId } from '../../shared/utils'
+import { callRef, createId, pick } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { SidebarContent } from './sidebar-content'
@@ -27,7 +27,6 @@ import { SidebarRail } from './sidebar-rail'
 import { SidebarTrigger } from './sidebar-trigger'
 import { sidebarDataAttributes, sidebarRecipe } from './sidebar.recipe'
 import type { SidebarProps, SidebarT } from './sidebar.types'
-
 const SIDEBAR_DEFAULT_BREAKPOINT = 768
 
 /**
@@ -66,7 +65,8 @@ const SIDEBAR_DEFAULT_BREAKPOINT = 768
  * ```
  */
 export function Sidebar(props: SidebarProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'breakpoint',
     'children',
     'classes',
@@ -90,7 +90,33 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     'onWidthCommit',
     'minWidth',
     'maxWidth',
-  ])
+  )
+  const rest = omit(
+    props,
+    'breakpoint',
+    'children',
+    'classes',
+    'class',
+    'defaultOpen',
+    'defaultMobileOpen',
+    'mobile',
+    'mobileOpen',
+    'onOpenChange',
+    'onMobileOpenChange',
+    'open',
+    'ref',
+    'side',
+    'styles',
+    'style',
+    'variant',
+    'translations',
+    'width',
+    'defaultWidth',
+    'onWidthChange',
+    'onWidthCommit',
+    'minWidth',
+    'maxWidth',
+  )
   const {
     slots: { root: rootSlot },
     variants,
@@ -112,7 +138,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     },
   })
 
-  const [panelIdProp, setPanelId] = createSignal<string>()
+  const [panelIdProp, setPanelId] = createSignal<string | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const panelId = createId(panelIdProp, 'sidebar-panel')
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
   const localeDirection = useLocale().dir
@@ -158,13 +186,11 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const [panelElement, setPanelElement] = createSignal<HTMLElement>()
 
   // Leaving mobile closes an uncontrolled drawer without reporting it.
-  createEffect(
-    on(mobile, (isMobileLayout, previous) => {
-      if (previous === true && isMobileLayout === false) {
-        setUncontrolledMobileOpen(false)
-      }
-    }),
-  )
+  createEffect(mobile, (isMobileLayout, previous) => {
+    if (previous === true && isMobileLayout === false) {
+      setUncontrolledMobileOpen(false)
+    }
+  })
 
   const open = createMemo(() => (mobile() ? mobileOpen() : desktopOpen()))
 

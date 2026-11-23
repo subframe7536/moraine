@@ -1,7 +1,6 @@
 import { Icon } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function IconPlayground() {
   return (
     <DocsPlayground

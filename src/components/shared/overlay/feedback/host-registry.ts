@@ -1,6 +1,5 @@
+import { isServer } from '@solidjs/web'
 import { DEV } from 'solid-js'
-import { isServer } from 'solid-js/web'
-
 export interface FeedbackHost {
   id: () => string | undefined
 }

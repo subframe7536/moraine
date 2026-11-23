@@ -1,5 +1,6 @@
 import { useLocation } from '@solidjs/router'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
@@ -10,7 +11,6 @@ import type { ThemeMode } from '../../hooks/use-theme'
 
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import { PageActions } from './page-actions'
-
 export interface DocsHeaderProps {
   pages: DocsPageEntry[]
   paletteOpen: Accessor<boolean>

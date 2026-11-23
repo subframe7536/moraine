@@ -2,7 +2,6 @@ import { createRoot } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { createCopy } from './create-copy'
-
 const writeText = vi.fn<(text: string) => Promise<void>>()
 const write = vi.fn<(items: ClipboardItem[]) => Promise<void>>()
 let dispose: () => void

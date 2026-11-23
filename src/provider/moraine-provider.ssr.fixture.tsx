@@ -1,4 +1,4 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Button } from '../components/button/button'
 import { Dialog } from '../components/dialog/dialog'
@@ -12,7 +12,6 @@ import type { MoraineTheme } from '../theme/types'
 import { useLocale } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineProvider } from './moraine-provider'
-
 export const fixtureTheme = defineTheme({
   button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-none' } },
 })

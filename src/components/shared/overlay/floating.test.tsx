@@ -1,12 +1,11 @@
 import type { ComputePositionConfig, Platform } from '@floating-ui/dom'
 import { cleanup, render, waitFor } from '@solidjs/testing-library'
-import { batch, createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { isElement } from './dom'
 import { useFloatingPosition } from './floating'
 import type { FloatingPositionOptions } from './floating'
-
 const floatingMocks = vi.hoisted(() => ({
   computePosition: vi.fn(),
   cleanup: vi.fn(),
@@ -53,7 +52,6 @@ function FloatingFixture(props: {
     open: () => props.open(),
     overflowPadding: () => 0,
     placement: () => 'bottom',
-    // oxlint-disable-next-line subf/solid-reactivity -- Fixture options are fixed; reactive settings are passed as accessors.
     ...props.options,
   })
 
@@ -142,7 +140,7 @@ describe('useFloatingPosition', () => {
     let middleware = floatingMocks.computePosition.mock.calls.at(-1)?.[2]?.middleware
     expect(middleware?.map((entry: { name: string }) => entry.name)).not.toContain('inline')
 
-    setPoint({ x: 10, y: 20 })
+    flush(() => setPoint({ x: 10, y: 20 }))
     await waitFor(() => expect(floatingMocks.computePosition.mock.calls.length).toBeGreaterThan(1))
     middleware = floatingMocks.computePosition.mock.calls.at(-1)?.[2]?.middleware
     const names = middleware?.map((entry: { name: string }) => entry.name) ?? []
@@ -170,14 +168,12 @@ describe('useFloatingPosition', () => {
       />
     ))
     await waitFor(() => expect(ready.mock.calls).toEqual([[false], [true]]))
-    batch(() => {
-      setGutter(8)
-      setPadding(4)
-    })
+    flush(() => setGutter(8))
+    flush(() => setPadding(4))
     await Promise.resolve()
     expect(ready.mock.calls).toEqual([[false], [true]])
-    setOpen(false)
-    setOpen(true)
+    flush(() => setOpen(false))
+    flush(() => setOpen(true))
     await waitFor(() => expect(ready.mock.calls).toEqual([[false], [true], [false], [true]]))
   })
 
@@ -221,8 +217,8 @@ describe('useFloatingPosition', () => {
     await Promise.resolve()
     await vi.advanceTimersByTimeAsync(16)
     expect(ready.mock.calls).toEqual([[false], [true]])
-    setOpen(false)
-    setOpen(true)
+    flush(() => setOpen(false))
+    flush(() => setOpen(true))
     await Promise.resolve()
     screen.unmount()
     await vi.runAllTimersAsync()
@@ -254,7 +250,7 @@ describe('useFloatingPosition', () => {
     ))
     const floating = screen.getByTestId('floating')
     vi.spyOn(floating, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 20, 0, 0))
-    setReference(screen.getByRole('button'))
+    flush(() => setReference(screen.getByRole('button')))
     await vi.advanceTimersByTimeAsync(0)
     expect(floating.style.transform).toBe('translate3d(40px, 40px, 0px)')
     expect(floating.style.visibility).toBe('visible')
@@ -273,7 +269,7 @@ describe('useFloatingPosition', () => {
 
     const replacement = document.createElement('button')
     floating.parentElement!.append(replacement)
-    setReference(replacement)
+    flush(() => setReference(replacement))
     await vi.advanceTimersByTimeAsync(0)
     expect(floating.style.transform).toBe('translate3d(120px, 220px, 0px)')
     await vi.advanceTimersByTimeAsync(16)
@@ -305,7 +301,7 @@ describe('useFloatingPosition', () => {
     await vi.advanceTimersByTimeAsync(0)
     expect(floating.style.transform).toBe('translate3d(50px, 60px, 0px)')
     if (action === 'close') {
-      setOpen(false)
+      flush(() => setOpen(false))
     } else {
       screen.unmount()
     }
@@ -330,13 +326,11 @@ describe('useFloatingPosition', () => {
       />
     ))
     const first = screen.getByTestId('floating')
-    batch(() => {
-      setFloating(first)
-      setReference(screen.getByRole('button'))
-    })
+    flush(() => setFloating(first))
+    flush(() => setReference(screen.getByRole('button')))
     const second = document.createElement('div')
     document.body.append(second)
-    setFloating(second)
+    flush(() => setFloating(second))
     pending[0]!({
       middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
       placement: 'bottom',
@@ -352,7 +346,7 @@ describe('useFloatingPosition', () => {
     await Promise.resolve()
     expect(first.style.transform).toBe('')
     expect(second.style.transform).toBe('translate3d(3px, 4px, 0px)')
-    setReference(undefined)
+    flush(() => setReference(undefined))
     expect(second.style.visibility).toBe('hidden')
     screen.unmount()
     second.remove()
@@ -513,7 +507,7 @@ describe('floating geometry and style ownership', () => {
       />
     ))
     await waitFor(() => expect(releases).toHaveLength(1))
-    setConstraints(false)
+    flush(() => setConstraints(false))
     await waitFor(() => expect(releases).toHaveLength(2))
     const floating = screen.getByTestId('floating')
     releases[0]!()
@@ -539,7 +533,7 @@ describe('floating geometry and style ownership', () => {
     first.style.maxWidth = '19px'
     first.style.maxHeight = '23px'
     const second = document.createElement('div')
-    setTarget(first)
+    flush(() => setTarget(first))
     const screen = render(() => (
       <FloatingFixture
         open={() => true}
@@ -548,18 +542,18 @@ describe('floating geometry and style ownership', () => {
       />
     ))
     await waitFor(() => expect(first.style.width).toBe('40px'))
-    setTarget(second)
+    flush(() => setTarget(second))
     expect(first.style.width).toBe('13px')
     expect(first.style.getPropertyPriority('width')).toBe('important')
     expect(first.style.maxWidth).toBe('19px')
     expect(first.style.maxHeight).toBe('23px')
     await waitFor(() => expect(second.style.width).toBe('40px'))
     second.style.maxHeight = '77px'
-    setEnabled(false)
+    flush(() => setEnabled(false))
     expect(second.style.width).toBe('')
     expect(second.style.maxWidth).toBe('')
     expect(second.style.maxHeight).toBe('77px')
-    setEnabled(true)
+    flush(() => setEnabled(true))
     await waitFor(() => expect(second.style.width).toBe('40px'))
     screen.unmount()
     expect(second.style.width).toBe('')
@@ -612,7 +606,7 @@ describe('floating geometry and style ownership', () => {
       />
     ))
     const floating = screen.getByTestId('floating')
-    setGutter(8)
+    flush(() => setGutter(8))
     await waitFor(() => expect(floating.style.visibility).toBe('visible'))
     const transform = floating.style.transform
     release()
@@ -642,10 +636,10 @@ describe('floating geometry and style ownership', () => {
     const floating = screen.getByTestId('floating')
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 44px, 0px)'))
 
-    setPadding(0)
+    flush(() => setPadding(0))
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 44px, 0px)'))
 
-    setGutter(12)
+    flush(() => setGutter(12))
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(-10px, 52px, 0px)'))
     screen.unmount()
   })
@@ -670,10 +664,10 @@ describe('floating geometry and style ownership', () => {
     const floating = screen.getByTestId('floating')
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(24px, 44px, 0px)'))
 
-    setGutter(12)
+    flush(() => setGutter(12))
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(24px, 52px, 0px)'))
 
-    setPadding(0)
+    flush(() => setPadding(0))
     await waitFor(() => expect(floating.style.transform).toBe('translate3d(10px, 52px, 0px)'))
     screen.unmount()
   })

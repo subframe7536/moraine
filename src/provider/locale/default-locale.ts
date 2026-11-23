@@ -1,8 +1,7 @@
-import { createEffect, createSignal, on, onMount } from 'solid-js'
+import { createEffect, createSignal, onSettled } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { createEventListener } from '../../shared/event-listener'
-
 /** Default locale when nothing else is set. SSR and the first client render use this tag. */
 export const FALLBACK_LOCALE = 'en-US'
 
@@ -21,21 +20,22 @@ function readBrowserLocale(): string {
 }
 
 /**
- * Starts at `en-US` through SSR and hydration. After `onMount` + `queueMicrotask`,
+ * Starts at `en-US` through SSR and hydration. After `onSettled` + `queueMicrotask`,
  * follows `navigator.language` and `languagechange` while `enabled` is true.
  */
 export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<string> {
   const [detected, setDetected] = createSignal(FALLBACK_LOCALE)
   const [ready, setReady] = createSignal(false)
 
-  onMount(() => {
+  onSettled(() => {
     queueMicrotask(() => {
       setReady(true)
     })
   })
 
   createEffect(
-    on([enabled, ready], ([isEnabled, isReady]) => {
+    () => [enabled(), ready()],
+    ([isEnabled, isReady]) => {
       if (!isEnabled) {
         setDetected(FALLBACK_LOCALE)
         return
@@ -49,7 +49,7 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
       }
       apply()
       createEventListener(window, 'languagechange', apply)
-    }),
+    },
   )
 
   return detected

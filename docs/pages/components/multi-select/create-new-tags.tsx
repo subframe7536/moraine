@@ -1,7 +1,6 @@
 import { Button, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
-
 const INITIAL_TOPICS: MultiSelectT.Item[] = [
   { label: 'React', value: 'react' },
   { label: 'SolidJS', value: 'solid' },

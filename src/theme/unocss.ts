@@ -21,7 +21,6 @@ import {
   resolveMoraineColor,
 } from './tokens.ts'
 import { createThemeCSS, resolveThemes } from './unocss-theme.ts'
-
 type UtilityTheme = PresetWind3Theme & PresetWind4Theme
 
 export type {

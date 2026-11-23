@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface CardStyleSlot<T = unknown> {
   /** Card surface. */
   root?: T

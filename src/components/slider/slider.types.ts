@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -7,7 +8,6 @@ import type { FieldT } from '../field'
 
 import type { defaultSliderMessages } from './slider.messages'
 import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
-
 export namespace SliderT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SliderStyleSlot<T>

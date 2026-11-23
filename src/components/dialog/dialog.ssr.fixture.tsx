@@ -1,11 +1,10 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Button } from '../button/button'
 import { Icon } from '../icon/icon'
 
 import { Dialog } from './dialog'
 import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
-
 export function renderButtonTriggerFixture(): string {
   return renderToString(() => (
     <Dialog>

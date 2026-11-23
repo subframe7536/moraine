@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { applyInputModifiers } from './input-modifiers'
-
 describe('applyInputModifiers', () => {
   test('trims value when trim is true', () => {
     expect(applyInputModifiers('  hello  ', { trim: true })).toBe('hello')

@@ -1,13 +1,14 @@
 import { fileURLToPath } from 'node:url'
 
+import solid from '@solidjs/vite-plugin'
 import uno from '@subf/unocss/vite'
 import path from 'pathe'
-import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
+import { fileRouter, DefaultFileSystemRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
-import solid from 'vite-plugin-solid'
 
 import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 
+import { DocsFileSystemRouter } from './build/docs-router.ts'
 import {
   createDocsMdxOptions,
   DOCS_SITE,
@@ -16,7 +17,6 @@ import {
   siteMetaPlugin,
 } from './build/index.ts'
 import unocfg from './unocss.config.ts'
-
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
 const sourceRoot = path.resolve(projectRoot, 'src')
@@ -28,33 +28,25 @@ export default defineConfig({
     uno(unocfg),
     solid({ ssr: true, extensions: ['.mdx'] }),
     fileRouter({
-      pagesDir: 'routes',
-      // MDX pages live under pages/components; ignore only route UI source files.
-      ignore: [
-        ...DEFAULT_IGNORES.filter((pattern) => pattern !== '**/components/**'),
-        '**/components/**/*.{ts,tsx}',
-        'routes/hooks/**',
-        '**/*.test.tsx',
-      ],
+      // The docs site routes two trees: app route modules under routes/ and
+      // Markdown/MDX content pages under pages/.
+      router: new DocsFileSystemRouter([
+        new DefaultFileSystemRouter({
+          dir: path.join(docsRoot, 'routes'),
+          extensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+          ignore: ['components/**', 'hooks/**', 'docs-route.ts', 'router.ts', '**/*.test.tsx'],
+        }),
+        new DefaultFileSystemRouter({
+          dir: path.join(docsRoot, 'pages'),
+          extensions: ['md', 'mdx'],
+          ignore: ['**/*.test.tsx'],
+        }),
+      ]),
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
-        id: 'app',
         concurrency: 4,
-      },
-      infoDts: {
-        key: 'string',
-        title: 'string',
-        description: 'string',
-        order: 'number',
-        tags: 'string[]',
-        surface: "'docs' | 'components' | 'hooks'",
-        section: 'string',
-        routePath: 'string',
-        markdownPath: 'string',
-        badge: 'string',
-        api: 'string',
-        sections: '{ id: string; label: string; level: number }[]',
+        serverEntry: 'entry-server.tsx',
       },
     }),
     siteMetaPlugin({
@@ -73,7 +65,7 @@ export default defineConfig({
       '@src': sourceRoot,
       moraine: sourceRoot,
     },
-    dedupe: ['solid-js', 'solid-js/store', '@solidjs/router'],
+    dedupe: ['solid-js', 'solid-js', '@solidjs/router'],
   },
   optimizeDeps: {
     entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],

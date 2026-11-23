@@ -2,7 +2,6 @@ import { Badge, Button, ButtonGroup, ToggleButton } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { Show, createSignal } from 'solid-js'
-
 interface ServerNode {
   id: string
   name: string

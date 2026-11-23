@@ -1,6 +1,5 @@
 import { Button, BaseDialog } from '@src'
 import { createSignal } from 'solid-js'
-
 export function BaseDialogLifecycle() {
   const [open, setOpen] = createSignal(false)
   const [log, setLog] = createSignal('Idle')

@@ -1,18 +1,17 @@
 import type { Placement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic, Portal } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
-  splitProps,
-  onCleanup,
+  merge,
   untrack,
+  omit,
 } from 'solid-js'
-import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
@@ -24,7 +23,7 @@ import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
 import { useButtonInteraction } from '../../../shared/use-button-interaction'
-import { callHandler, callRef, createId } from '../../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
 import { useFloatingPosition, usePositionerZIndex } from './floating'
@@ -64,7 +63,7 @@ export function mergePopperElementProps<T extends HTMLElement>(
       }
     }
   }
-  const contentProps = mergeProps(
+  const contentProps = merge(
     internal,
     user,
     handlers,
@@ -145,14 +144,24 @@ export function createPopper(
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'context',
     'as',
     'disabled',
     'ariaRelation',
     'toggleOnClick',
     'ref' as any,
-  ])
+  )
+  const rest = omit(
+    props,
+    'context',
+    'as',
+    'disabled',
+    'ariaRelation',
+    'toggleOnClick',
+    'ref' as any,
+  )
   const context = untrack(() => props.context)
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
@@ -189,7 +198,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       component={tag()}
       data-slot={context.slotName('trigger')}
       {...triggerData}
-      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? true : undefined}
+      aria-haspopup={(local.ariaRelation ?? 'popup') === 'popup' ? 'true' : undefined}
       aria-controls={
         (local.ariaRelation ?? 'popup') === 'popup' && context.contentPresence.present()
           ? context.contentId()
@@ -218,7 +227,7 @@ export function PopperContent(
   const cn = useCn()
   const direction = useLocale().dir
   const context = untrack(() => props.context)
-  const options = mergeProps(
+  const options = merge(
     {
       closeOnOutsideFocus: true,
       detachedPadding: 0,
@@ -247,23 +256,24 @@ export function PopperContent(
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom')
   const [mount, setPortalMount] = createSignal<HTMLElement>()
   // Resolve after mounting, when the trigger may have been adopted into another document.
-  createEffect(on(triggerElement, (trigger) => setPortalMount(trigger?.ownerDocument.body)))
+  createEffect(triggerElement, (trigger) => {
+    setPortalMount(trigger?.ownerDocument.body)
+  })
   const contentMounted = () =>
     contentPresence.present() || (options.forceMount && !context.options.disabled)
   let restoreFocusAfterClose = true
 
-  createEffect(
-    on(context.isOpen, (open) => {
-      if (open) {
-        restoreFocusAfterClose = true
-      }
-    }),
-  )
+  createEffect(context.isOpen, (open) => {
+    if (open) {
+      restoreFocusAfterClose = true
+    }
+  })
 
   createEffect(
-    on([() => options.placement, () => options.align], ([placement, align]) => {
+    () => [(() => options.placement)(), (() => options.align)()],
+    ([placement, align]) => {
       setCurrentPlacement(resolveFloatingPlacement(placement, align))
-    }),
+    },
   )
 
   const [content, setContent] = createSignal<HTMLDivElement>()
@@ -276,15 +286,13 @@ export function PopperContent(
     }
   })
 
-  createEffect(
-    on(contentMounted, (mounted) => {
-      if (!mounted) {
-        setContent(undefined)
-        setPositionerElement(undefined)
-        setPositionerPositioned(false)
-      }
-    }),
-  )
+  createEffect(contentMounted, (mounted) => {
+    if (!mounted) {
+      setContent(undefined)
+      setPositionerElement(undefined)
+      setPositionerPositioned(false)
+    }
+  })
 
   useFloatingPosition({
     detachedPadding: () => options.detachedPadding,
@@ -314,27 +322,17 @@ export function PopperContent(
   usePositionerZIndex(positionerElement, contentElement)
 
   createEffect(
-    on(contentPresence.present, (present) => {
-      if (!present) {
-        return
-      }
+    () => [contentPresence.present(), contentElement(), positionerElement()],
+    ([present, currentContent, currentPositioner]) => {
       const preventScroll = options.preventScroll
-      if (!preventScroll) {
+      if (!present || !preventScroll || !currentContent || !currentPositioner) {
         return
       }
-
-      createEffect(
-        on([contentElement, positionerElement], ([currentContent, currentPositioner]) => {
-          if (!currentContent || !currentPositioner) {
-            return
-          }
-          const releaseScrollLock = acquireBodyScrollLock(currentContent)
-          onCleanup(() => {
-            releaseScrollLock?.()
-          })
-        }),
-      )
-    }),
+      const releaseScrollLock = acquireBodyScrollLock(currentContent)
+      return () => {
+        releaseScrollLock?.()
+      }
+    },
   )
 
   useOverlayInteraction({
@@ -463,7 +461,7 @@ export function PopperContent(
           }),
         )
         return (
-          <Portal mount={options.mount ?? mount()}>
+          <Portal mount={(options.mount ?? mount()) as Element}>
             <div
               ref={setPositionerElement}
               dir={props.dir ?? direction()}

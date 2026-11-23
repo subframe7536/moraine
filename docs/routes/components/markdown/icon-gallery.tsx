@@ -4,7 +4,6 @@ import { Icon } from '../../../../src/index'
 import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/icons'
 import { createCopy } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
-
 export function IconGallery() {
   return (
     <div class="gap-2 grid grid-cols-3 lg:grid-cols-6 sm:grid-cols-4">

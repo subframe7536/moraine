@@ -1,4 +1,5 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import {
   DEV,
   For,
@@ -6,13 +7,11 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  splitProps,
   untrack,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
@@ -22,13 +21,12 @@ import { createDisclosureState } from '../../shared/disclosure-state'
 import { bindElement } from '../../shared/element-binding'
 import { createKeyDownHandler, createKeyUpHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef, createId } from '../../shared/utils'
+import { callRef, createId, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
 import type { AccordionStyleSlot } from './accordion.style-types'
 import type { AccordionProps } from './accordion.types'
-
 function AccordionItemPanel(props: {
   disclosure: DisclosureState
   contentId: string
@@ -96,7 +94,7 @@ function AccordionItemPanel(props: {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Accordion } from 'moraine'
  *
  * const [open, setOpen] = createSignal<string[]>(['shipping'])
@@ -112,7 +110,8 @@ function AccordionItemPanel(props: {
  * ```
  */
 export function Accordion(props: AccordionProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -131,7 +130,28 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'class',
     'style',
     'ref',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'value',
+    'defaultValue',
+    'multiple',
+    'collapsible',
+    'loop',
+    'onValueChange',
+    'items',
+    'disabled',
+    'transition',
+    'forceMount',
+    'expandIcon',
+    'headingLevel',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+  )
   const {
     slots: {
       root: rootSlot,
@@ -145,7 +165,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     data: { root: accordionDataAttributes.root(() => ({ disabled: () => merged.disabled })) },
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       multiple: false,
       collapsible: true,
@@ -255,7 +275,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const itemDisabledSnapshot = () => items().map((item) => item.disabled)
 
   createEffect(
-    on([itemDisabledSnapshot, () => merged.disabled], ([disabledItems, disabled]) => {
+    () => [itemDisabledSnapshot(), (() => merged.disabled)()],
+    ([disabledItems, disabled]) => {
       const enabledItemCount = disabledItems.filter(
         (itemDisabled) => !disabled && !itemDisabled,
       ).length
@@ -287,7 +308,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           }
         })
       })
-    }),
+    },
   )
 
   onCleanup(() => {
@@ -419,15 +440,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
             let key = untrack(itemValue)
             triggerRefs.set(key, element)
             createEffect(
-              on(
-                itemValue,
-                (nextKey) => {
-                  triggerRefs.delete(key)
-                  key = nextKey
-                  triggerRefs.set(key, element)
-                },
-                { defer: true },
-              ),
+              itemValue,
+              (nextKey) => {
+                triggerRefs.delete(key)
+                key = nextKey
+                triggerRefs.set(key, element)
+              },
+              { defer: true },
             )
             return () => {
               triggerRefs.delete(key)
@@ -442,7 +461,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   id={triggerId()}
                   type="button"
                   aria-controls={contentId()}
-                  aria-expanded={expanded()}
+                  aria-expanded={expanded() ? 'true' : 'false'}
                   aria-label={item.ariaLabel ?? (label() === undefined ? item.value : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"

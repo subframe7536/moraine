@@ -1,28 +1,37 @@
 import type { Accessor } from 'solid-js'
-import { createRenderEffect, on, onCleanup, untrack } from 'solid-js'
-
+import { createRenderEffect, createRoot, getOwner, runWithOwner, untrack } from 'solid-js'
 /**
  * Runs `bind` for each element the accessor yields, in the calling owner.
  *
  * Ref callbacks only store the element; registration, listeners, and cleanup live here.
  * The returned cleanup runs when the element changes, becomes `undefined`, or the owner disposes.
- * Bindings run as render effects, so registrations exist before user effects such as `onMount`.
+ * Bindings run as render effects, so registrations exist before user effects such as `onSettled`.
  */
 export function bindElement<T>(
   element: Accessor<T | undefined | null | false>,
   bind: (element: T) => VoidFunction | void,
 ): void {
-  createRenderEffect(
-    on(element, (current) => {
-      if (!current) {
-        return
-      }
-      const cleanup = untrack(() => bind(current))
-      if (cleanup) {
-        onCleanup(cleanup)
-      }
-    }),
-  )
+  const owner = getOwner()
+  createRenderEffect(element, (current) => {
+    if (!current) {
+      return
+    }
+    if (!owner) {
+      return untrack(() => bind(current))
+    }
+    return runWithOwner(owner, () =>
+      createRoot((dispose) => {
+        const cleanup = untrack(() => bind(current))
+        return () => {
+          try {
+            cleanup?.()
+          } finally {
+            dispose()
+          }
+        }
+      }),
+    )
+  })
 }
 
 /**

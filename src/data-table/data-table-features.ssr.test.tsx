@@ -1,6 +1,6 @@
 import { waitFor } from '@solidjs/testing-library'
 import type { SortingState } from '@tanstack/table-core'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, expect, test, vi } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../test-util/ssr-test'
@@ -10,7 +10,6 @@ import {
   VirtualColumnsDataTableFixture,
   VirtualRowsDataTableFixture,
 } from './data-table-features.ssr.fixture'
-
 const FIXTURE = '/src/data-table/data-table-features.ssr.fixture.tsx'
 
 afterEach(() => {
@@ -76,7 +75,7 @@ test('hydrates the new table features and keeps them reactive', () => {
   expect(summary(container)).toBe('4 rows')
 
   // Hydrated nodes stay in place and keep reacting.
-  setSorting([{ id: 'size', desc: true }])
+  flush(() => setSorting([{ id: 'size', desc: true }]))
   expect(priorities(container)).toEqual([])
   expect(bodyRow(container, 'components').querySelector('td[data-tree]')).toBe(treeCell)
 

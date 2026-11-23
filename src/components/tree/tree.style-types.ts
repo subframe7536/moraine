@@ -1,6 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface TreeStyleSlot<T = unknown> {
   /** Tree container that owns the `tree` role: a `ul`. */
   root?: T

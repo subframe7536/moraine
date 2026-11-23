@@ -1,7 +1,6 @@
 import { Field, Pagination, Select } from '@src'
 import type { SelectT } from '@src'
 import { createMemo, createSignal, For } from 'solid-js'
-
 const RESULTS = [
   'Account settings',
   'Billing history',

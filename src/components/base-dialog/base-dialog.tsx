@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -25,7 +25,6 @@ import { BaseDialogOverlay } from './base-dialog-overlay'
 import { BaseDialogPortal } from './base-dialog-portal'
 import { BaseDialogTrigger } from './base-dialog-trigger'
 import type { BaseDialogProps } from './base-dialog.types'
-
 /**
  * Low-level modal primitive that renders no element and shares open state, focus containment, and
  * dismissal between its parts. Use `BaseDialog` when you compose the trigger, backdrop, and content
@@ -59,7 +58,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
-  const [overlayScroll, setOverlayScroll] = createSignal(false)
+  const [overlayScroll, setOverlayScroll] = createSignal(false, { ownedWrite: true })
   let hadOpenContent = false
   const presence = createTransitionPresence({
     open,
@@ -128,51 +127,49 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   }
 
   createEffect(
-    on([open, isPresent], ([isOpen, present]) => {
+    () => [open(), isPresent()],
+    ([isOpen, present]) => {
       if (isOpen && present) {
         hadOpenContent = true
       }
-    }),
+    },
   )
 
   createEffect(
-    on(
-      [isPresent, () => props.preventScroll ?? isModal(), overlayScroll],
-      ([present, preventScroll]) => {
-        if (!present || !preventScroll) {
-          return
-        }
-        const currentContent = contentElement()
-        if (!currentContent) {
-          return
-        }
-        const scrollContainer = currentContent.parentElement
-        const releaseScrollLock = acquireBodyScrollLock(
-          scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
-        )
-        onCleanup(releaseScrollLock)
-      },
-    ),
-  )
-
-  createEffect(
-    on(triggerElement, (trigger) => {
-      if (!trigger) {
+    () => [isPresent(), (() => props.preventScroll ?? isModal())(), overlayScroll()],
+    ([present, preventScroll]) => {
+      if (!present || !preventScroll) {
         return
       }
-      createEventListenerMap(trigger, {
-        pointerdown: (event) => {
-          pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
-        },
-        keydown: () => {
-          pendingOpenInteraction = null
-        },
-      })
-    }),
+      const currentContent = contentElement()
+      if (!currentContent) {
+        return
+      }
+      const scrollContainer = currentContent.parentElement
+      const releaseScrollLock = acquireBodyScrollLock(
+        scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
+      )
+      onCleanup(releaseScrollLock)
+    },
   )
 
+  createEffect(triggerElement, (trigger) => {
+    if (!trigger) {
+      return
+    }
+    createEventListenerMap(trigger, {
+      pointerdown: (event) => {
+        pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
+      },
+      keydown: () => {
+        pendingOpenInteraction = null
+      },
+    })
+  })
+
   createEffect(
-    on([isPresent, isModal], ([present, modal]) => {
+    () => [isPresent(), isModal()],
+    ([present, modal]) => {
       const currentContent = contentElement()
       if (!present || !modal || !currentContent) {
         return
@@ -192,7 +189,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
         active = false
         release?.()
       })
-    }),
+    },
   )
 
   function syncModalRestoreFocus(modal: boolean, ownerDocument: Document) {
@@ -207,15 +204,13 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   }
 
   // Handles dynamic changes to the `modal` prop while the overlay is already present.
-  createEffect(
-    on(isModal, (modal) => {
-      const currentContent = contentElement()
-      if (!isPresent() || !currentContent) {
-        return
-      }
-      syncModalRestoreFocus(modal, currentContent.ownerDocument)
-    }),
-  )
+  createEffect(isModal, (modal) => {
+    const currentContent = contentElement()
+    if (!isPresent() || !currentContent) {
+      return
+    }
+    syncModalRestoreFocus(modal, currentContent.ownerDocument)
+  })
 
   useOverlayInteraction({
     enabled: isPresent,

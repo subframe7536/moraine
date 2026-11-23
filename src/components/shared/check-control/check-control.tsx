@@ -1,15 +1,14 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { createKeyDownHandler } from '../../../shared/keyboard'
-import { callHandler } from '../../../shared/utils'
+import { callHandler, pick } from '../../../shared/utils'
 import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
 import type { IconT } from '../../icon'
 import { submitFormDefault } from '../form/submit-form-default'
 
 import { checkControlDataAttributes } from './check-control.recipe'
-
 export interface CheckControlProps extends Omit<
   JSX.ButtonHTMLAttributes<HTMLButtonElement>,
   'type' | 'role' | 'children' | 'disabled' | 'style' | 'aria-checked'
@@ -32,10 +31,11 @@ export interface CheckControlProps extends Omit<
 /**
  * Lightweight checkbox for rows of composite components: a `role="checkbox"` button without
  * form integration or labels. Owners that announce the check state themselves (such as a
- * `treeitem` with `aria-checked`) hide it with `aria-hidden` and `tabIndex={-1}`.
+ * `treeitem` with `aria-checked`) hide it with `aria-hidden` and `tabindex={-1}`.
  */
 export function CheckControl(props: CheckControlProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'checked',
     'disabled',
     'slotName',
@@ -46,7 +46,20 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
     'onCheckedChange',
     'onClick',
     'onKeyDown',
-  ])
+  )
+  const rest = omit(
+    props,
+    'checked',
+    'disabled',
+    'slotName',
+    'checkedIcon',
+    'indeterminateIcon',
+    'class',
+    'style',
+    'onCheckedChange',
+    'onClick',
+    'onKeyDown',
+  )
   // Checkboxes toggle with Space only; Enter implicitly submits the form instead of
   // activating the button, matching a native checkbox.
   const onKeyDown = createKeyDownHandler<HTMLButtonElement>({
@@ -69,7 +82,7 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
       class={local.class}
       style={local.style}
       disabled={disabled()}
-      aria-checked={indeterminate() ? 'mixed' : checked()}
+      aria-checked={indeterminate() ? 'mixed' : checked() ? 'true' : 'false'}
       onClick={(event) => {
         if (callHandler(event, local.onClick).defaultPrevented || disabled()) {
           return

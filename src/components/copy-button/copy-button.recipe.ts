@@ -5,7 +5,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { BUTTON_ACTION_VARIANT, BUTTON_BASE_ROOT_CLASS, BUTTON_SIZE } from '../button/button.recipe'
 
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
-
 export const copyButtonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('copied', 'disabled'),
   icon: /* @__PURE__ */ createDataAttributes('copied'),

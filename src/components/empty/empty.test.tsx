@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { defineTheme } from '../../theme/create-theme'
 
 import { Empty } from './empty'
 import type { EmptyT } from './empty.types'
-
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="empty${name ? `-${name}` : ''}"]`)
 
@@ -66,8 +65,8 @@ describe('Empty', () => {
     expect(slot(container, 'media')?.style.color).toBe('blue')
     expect(slot(container, 'title')?.className).toContain('title-red')
     expect(slot(container, 'description')?.style.color).toBe('red')
-    setClasses({ title: 'title-green' })
-    setStyles({ description: { color: 'green' } })
+    flush(() => setClasses({ title: 'title-green' }))
+    flush(() => setStyles({ description: { color: 'green' } }))
     for (const [index, name] of ['', 'media', 'title', 'description', 'actions'].entries()) {
       expect(slot(container, name)).toBe(nodes[index])
     }
@@ -96,7 +95,7 @@ describe('Empty', () => {
     const title = slot(container, 'title')
     expect(slot(container, '')?.className).toContain('theme-root')
     expect(title?.className).toContain('theme-title')
-    setTheme(defineTheme({ empty: { base: { title: 'updated-theme' } } }))
+    flush(() => setTheme(defineTheme({ empty: { base: { title: 'updated-theme' } } })))
     expect(slot(container, 'title')).toBe(title)
     expect(title?.className).toContain('updated-theme')
     expect(title?.className).not.toContain('theme-title')

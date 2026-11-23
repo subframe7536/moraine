@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { ContextMenu } from './context-menu'
-
 export function renderContextMenuFixture(): string {
   return renderToString(() => (
     <ContextMenu id="ssr-context">

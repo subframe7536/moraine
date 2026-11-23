@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Badge } from './badge'
-
 describe('Badge SSR Hydration', () => {
   test('hydrates stable slot order', () => {
     const { container } = hydrateFixture(
@@ -31,7 +30,7 @@ describe('Badge SSR Hydration', () => {
       '/src/components/badge/badge.ssr.fixture.tsx',
       'renderButtonBadgeFixture',
       () => (
-        <Badge as="button" type="button" aria-pressed={false} onClick={onClick}>
+        <Badge as="button" type="button" aria-pressed={'false'} onClick={onClick}>
           Slot
         </Badge>
       ),

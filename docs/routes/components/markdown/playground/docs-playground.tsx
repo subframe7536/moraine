@@ -1,6 +1,6 @@
+import { Portal } from '@solidjs/web'
 import { For, Show, createMemo, untrack, useContext } from 'solid-js'
-import { createStore } from 'solid-js/store'
-import { Portal } from 'solid-js/web'
+import { createStore } from 'solid-js'
 
 import { Badge, Button, Icon, Switch, cn } from '../../../../../src'
 import { createId } from '../../../../../src/utils'
@@ -72,7 +72,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                     size="sm"
                     leading="i-lucide:rotate-ccw"
                     class="text-[0.7rem] text-muted-foreground px-1.5 h-6 hover:text-foreground"
-                    onClick={() => setValues(getDocsPlaygroundControlDefaults(controls))}
+                    onClick={() => setValues(() => getDocsPlaygroundControlDefaults(controls))}
                   >
                     Reset
                   </Button>
@@ -86,7 +86,11 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                         control={control}
                         controlId={getControlId(control)}
                         value={values[control.prop]!}
-                        onChange={(val) => setValues(control.prop, val)}
+                        onChange={(val) =>
+                          setValues((values) => {
+                            values[control.prop] = val
+                          })
+                        }
                       />
                     )}
                   </For>
@@ -100,7 +104,11 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                         control={control}
                         controlId={getControlId(control)}
                         value={values[control.prop]!}
-                        onChange={(val) => setValues(control.prop, val)}
+                        onChange={(val) =>
+                          setValues((values) => {
+                            values[control.prop] = val
+                          })
+                        }
                       />
                     )}
                   </For>
@@ -145,7 +153,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                                 : 'enabled:hover:(border-primary/60 bg-primary/8)',
                             ]}
                             disabled={!slots.nodes().has(slot.name)}
-                            aria-pressed={slots.locked() === slot.name}
+                            aria-pressed={slots.locked() === slot.name ? 'true' : 'false'}
                             onPointerEnter={() => slots.setListHovered(slot.name)}
                             onPointerLeave={() => slots.setListHovered(undefined)}
                             onFocus={() => slots.setListHovered(slot.name)}

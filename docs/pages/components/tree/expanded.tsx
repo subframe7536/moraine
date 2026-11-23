@@ -1,6 +1,5 @@
 import { Button, createTree } from '@src'
 import { createSignal } from 'solid-js'
-
 interface Section {
   id: string
   title: string

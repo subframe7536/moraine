@@ -1,8 +1,9 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
 import type { createPopper } from '../shared/overlay/popper'
 import type { PopperTriggerProps } from '../shared/overlay/popper.types'
@@ -10,7 +11,6 @@ import type { PopperTriggerProps } from '../shared/overlay/popper.types'
 import { useHoverCardContext } from './hover-card-context'
 import { hoverCardRecipe } from './hover-card.recipe'
 import type { HoverCardT } from './hover-card.types'
-
 /**
  * Element that opens its `HoverCard` on pointer hover or keyboard focus and anchors the card to
  * itself; place it inside `HoverCard`. It renders an `a` by default, so give it an `href` and
@@ -33,7 +33,8 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   props: HoverCardT.TriggerProps<T>,
 ): JSX.Element {
   const context = useHoverCardContext()!
-  const [local, rest] = splitProps(props, ['value'])
+  const local = pick(props, 'value')
+  const rest = omit(props, 'value')
   const { slots } = useRecipe(hoverCardRecipe, props, {
     slot: 'trigger',
     context: () => context.slotOverrides,
@@ -41,7 +42,7 @@ export function HoverCardTrigger<T extends ValidComponent = 'a'>(
   const popper = context.popper
   // Hover and focus open the card outside the button interaction, so they check `disabled` here.
   const disabled = () => Boolean(props.disabled)
-  const triggerProps = mergeProps(
+  const triggerProps = merge(
     { as: 'a' as const },
     mergePopperElementProps<HTMLElement>(
       {

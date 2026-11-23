@@ -1,5 +1,4 @@
 import { Button, Tooltip } from '@src'
-
 export function HintsUsage() {
   return (
     <div class="flex gap-4 items-center">

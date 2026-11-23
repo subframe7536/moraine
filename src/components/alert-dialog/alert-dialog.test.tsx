@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createRoot, createSignal } from 'solid-js'
+import { Show, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +8,6 @@ import { Button } from '../button'
 
 import { AlertDialog } from './alert-dialog'
 import type { AlertDialogT } from './alert-dialog.types'
-
 function setup(): void {
   render(() => (
     <>
@@ -61,7 +60,7 @@ describe('AlertDialog', () => {
   })
 
   test('resolves action from OK and cancel from the cancel button', async () => {
-    setup()
+    flush(() => setup())
     const onAction = vi.fn()
     const onCancel = vi.fn()
     const confirmed = AlertDialog.confirm({
@@ -97,7 +96,7 @@ describe('AlertDialog', () => {
   })
 
   test('shows the type icon and offers cancel only for confirm by default', async () => {
-    setup()
+    flush(() => setup())
     const cases = [
       ['info', 'icon-info'],
       ['warning', 'icon-warning'],
@@ -136,7 +135,7 @@ describe('AlertDialog', () => {
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
-    setup()
+    flush(() => setup())
     const onClose = vi.fn()
     const result = AlertDialog.confirm({ title: 'Stay', onClose })
     await waitForTitle('Stay')
@@ -155,7 +154,7 @@ describe('AlertDialog', () => {
   })
 
   test('closes from the overlay when closeOnOutsideClick is set and can block Escape', async () => {
-    setup()
+    flush(() => setup())
     const onClose = vi.fn()
     const blocked = AlertDialog.info({
       title: 'Info',
@@ -180,7 +179,7 @@ describe('AlertDialog', () => {
   })
 
   test('shows loading while an async action is pending and stays open when it rejects', async () => {
-    setup()
+    flush(() => setup())
     let rejectAction: (reason?: unknown) => void = () => undefined
     let resolveAction: () => void = () => undefined
     const result = AlertDialog.confirm({
@@ -216,7 +215,7 @@ describe('AlertDialog', () => {
   })
 
   test('keeps the dialog open when a cancel action rejects or calls preventDefault', async () => {
-    setup()
+    flush(() => setup())
     const rejected = AlertDialog.confirm({
       title: 'Reject cancel',
       cancel: {
@@ -249,7 +248,7 @@ describe('AlertDialog', () => {
   })
 
   test('updates options, closes one dialog, and closes the rest', async () => {
-    setup()
+    flush(() => setup())
     const first = AlertDialog.confirm({ title: 'First', maxWidth: 280, class: 'custom-alert' })
     await waitForTitle('First')
     expect(dialog().style.maxWidth).toBe('280px')
@@ -288,7 +287,7 @@ describe('AlertDialog', () => {
   })
 
   test('corner close dismisses without running cancel, and close settles before exit finishes', async () => {
-    setup()
+    flush(() => setup())
     const onCancel = vi.fn()
     const onClose = vi.fn()
     const closed = AlertDialog.info({
@@ -378,7 +377,7 @@ describe('AlertDialog', () => {
   })
 
   test('hides cancel for confirm and shows it for other methods when requested', async () => {
-    setup()
+    flush(() => setup())
     void AlertDialog.confirm({ title: 'No cancel', cancel: false })
     await waitForTitle('No cancel')
     expect(
@@ -395,7 +394,7 @@ describe('AlertDialog', () => {
   })
 
   test('Escape closes only the top alert dialog', async () => {
-    setup()
+    flush(() => setup())
     const first = AlertDialog.confirm({ title: 'Bottom' })
     const second = AlertDialog.info({ title: 'Top' })
     let firstSettled = false
@@ -429,7 +428,7 @@ describe('AlertDialog', () => {
     expect(dialog().style.maxWidth).toBe('420px')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
-    setMaxWidth(240)
+    flush(() => setMaxWidth(240))
     await waitFor(() => {
       expect(dialog().style.maxWidth).toBe('240px')
     })
@@ -453,7 +452,7 @@ describe('AlertDialog', () => {
   })
 
   test('renders custom action labels with centered and subtle layouts', async () => {
-    setup()
+    flush(() => setup())
     void AlertDialog.confirm({
       title: 'Allow accessory to connect?',
       description: 'Connect this device?',
@@ -500,7 +499,7 @@ describe('AlertDialog', () => {
   })
 
   test('reports a synchronous throw and keeps the dialog open', async () => {
-    setup()
+    flush(() => setup())
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const result = AlertDialog.confirm({
       title: 'Throws',
@@ -521,7 +520,7 @@ describe('AlertDialog', () => {
   })
 
   test('reports a rejected action and keeps the dialog open', async () => {
-    setup()
+    flush(() => setup())
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     AlertDialog.confirm({
       title: 'Rejects',
@@ -537,7 +536,7 @@ describe('AlertDialog', () => {
   })
 
   test('disables the other action and Escape while a handler is pending', async () => {
-    setup()
+    flush(() => setup())
     let resolveAction: () => void = () => undefined
     AlertDialog.confirm({
       title: 'Busy',
@@ -565,7 +564,7 @@ describe('AlertDialog', () => {
   })
 
   test('close settles api while an action is pending', async () => {
-    setup()
+    flush(() => setup())
     let resolveAction: () => void = () => undefined
     const result = AlertDialog.confirm({
       title: 'Busy close',
@@ -588,7 +587,7 @@ describe('AlertDialog', () => {
   })
 
   test('ignores a second OK click while the first action is pending', async () => {
-    setup()
+    flush(() => setup())
     const onAction = vi.fn(
       () =>
         new Promise<void>(() => {
@@ -605,7 +604,7 @@ describe('AlertDialog', () => {
   })
 
   test('update after close does not reopen the dialog', async () => {
-    setup()
+    flush(() => setup())
     const result = AlertDialog.info({ title: 'Gone' })
     await waitForTitle('Gone')
     result.close()
@@ -651,13 +650,13 @@ describe('AlertDialog', () => {
     ))
     const result = AlertDialog.confirm({ title: 'Unmount' })
     await waitForTitle('Unmount')
-    setMounted(false)
+    flush(() => setMounted(false))
     await expect(result.result()).resolves.toBe('api')
     expect(dialogs()).toHaveLength(0)
   })
 
   test('warns in development when title and ariaLabel are both absent', async () => {
-    setup()
+    flush(() => setup())
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     AlertDialog.info({ title: undefined })
     await waitFor(() => {
@@ -683,7 +682,7 @@ describe('AlertDialog', () => {
   })
 
   test('preserves reactivity and lifecycle when opened inside a disposed effect owner', async () => {
-    setup()
+    flush(() => setup())
     let opened: AlertDialogT.Handle | undefined
     createRoot((dispose) => {
       dispose()
@@ -746,7 +745,7 @@ describe('AlertDialog', () => {
   })
 
   test('reopening an id during the exit keeps the new dialog and routes updates to it', async () => {
-    setup()
+    flush(() => setup())
     const first = AlertDialog.show({ id: 'reuse', title: 'Old' })
     await waitForTitle('Old')
     first.close()
@@ -767,7 +766,7 @@ describe('AlertDialog', () => {
   })
 
   test('reusing an open id with another method replaces the dialog', async () => {
-    setup()
+    flush(() => setup())
     const shown = AlertDialog.show({ id: 'swap', title: 'Shown' })
     await waitForTitle('Shown')
     const same = AlertDialog.show({ id: 'swap', title: 'Same method' })
@@ -791,7 +790,7 @@ describe('AlertDialog', () => {
     const onClose = vi.fn()
     const result = AlertDialog.show({ title: 'Gone', onClose })
     await waitForTitle('Gone')
-    setMounted(false)
+    flush(() => setMounted(false))
     await expect(result.result()).resolves.toBe('api')
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledWith('api')
@@ -822,7 +821,7 @@ describe('AlertDialog', () => {
   })
 
   test('safely handles null target in close without throwing or closing dialogs', async () => {
-    setup()
+    flush(() => setup())
     const alert = AlertDialog.show({ title: 'Keep open' })
     await waitForTitle('Keep open')
     expect(() => AlertDialog.close(null as unknown as undefined)).not.toThrow()
@@ -832,7 +831,7 @@ describe('AlertDialog', () => {
   })
 
   test('gives the cancel and action buttons distinct slots', async () => {
-    setup()
+    flush(() => setup())
     const result = AlertDialog.confirm({
       title: 'Slots',
       cancel: { class: 'cancel-extra' },

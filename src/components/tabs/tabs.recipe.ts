@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
-
 export const tabsDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled'),
   trigger: /* @__PURE__ */ createDataAttributes('disabled', 'highlighted', 'selected'),

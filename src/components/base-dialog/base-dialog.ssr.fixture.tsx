@@ -1,9 +1,8 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Button } from '../button'
 
 import { BaseDialog } from './base-dialog'
-
 export function renderModalFixture(): string {
   return renderToString(() => (
     <BaseDialog>

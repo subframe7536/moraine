@@ -2,7 +2,6 @@ import { Icon, NavigationMenu } from '@src'
 import { For } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function NavigationMenuPlayground() {
   return (
     <DocsPlayground

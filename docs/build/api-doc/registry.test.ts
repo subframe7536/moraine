@@ -6,7 +6,6 @@ import { scanDocsPages } from '../routes.ts'
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { loadApiRegistry } from './registry.ts'
-
 function page(path: string, parts?: string) {
   return `---
 title: Demo

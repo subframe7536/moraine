@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { constrainFileCount, filterAcceptedFiles, formatFileSize } from './file-validation'
-
 function createFile(
   name: string,
   {

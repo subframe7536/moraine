@@ -2,7 +2,6 @@ import { Badge } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { For } from 'solid-js'
-
 interface OrderItem {
   sku: string
   name: string

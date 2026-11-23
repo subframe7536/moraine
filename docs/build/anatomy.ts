@@ -14,7 +14,6 @@ import { asObjectRecord, extractMdxNodeText } from './markdown/mdx.ts'
 import type { MdxNode } from './markdown/mdx.ts'
 import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
 import { parsePreviewCode } from './previews/ast.ts'
-
 function fail(sourcePath: string, reason: string): never {
   throw new Error(`[docs-anatomy] ${sourcePath}: ${reason}`)
 }

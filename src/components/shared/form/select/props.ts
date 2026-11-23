@@ -2,7 +2,6 @@ import { createMemo } from 'solid-js'
 
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import type { BaseSelectT } from '../../../base-select/base-select.types'
-
 type SharedBaseSelectForwardProp = keyof Pick<
   BaseSelectT.Base,
   | 'getItemLabel'

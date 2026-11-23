@@ -1,13 +1,12 @@
-import { A, useSearchParams } from '@solidjs/router'
+import { useSearchParams } from '@solidjs/router'
 import { Pagination } from '@src'
 import type { PaginationT } from '@src'
 import { Show, createMemo } from 'solid-js'
-
 // The current page has no destination, so it keeps a plain anchor instead of a router link.
 function RouterLink(props: PaginationT.ItemRenderProps) {
   return (
     <Show when={props.href} fallback={<a {...props} />}>
-      {(href) => <A {...props} href={href()} />}
+      {(href) => <a {...props} href={href()} />}
     </Show>
   )
 }

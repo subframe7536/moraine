@@ -1,7 +1,6 @@
 import { Button, createForm, PinInput } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 export function FormIntegration() {
   const [submittedCode, setSubmittedCode] = createSignal('')
   const form = createForm({

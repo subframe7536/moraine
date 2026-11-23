@@ -1,7 +1,6 @@
 import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlledDisabledItems() {
   const ROLES = [
     { value: 'viewer', label: 'Viewer', description: 'Read-only access to repositories' },

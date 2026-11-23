@@ -8,7 +8,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'
 import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
-
 vi.mock('virtual:routes', () => ({
   routeInfo: {
     '/': {},

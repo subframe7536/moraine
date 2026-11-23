@@ -1,5 +1,4 @@
 import { createTree } from '@src'
-
 interface Directory {
   id: string
   name: string

@@ -27,7 +27,6 @@ import {
 } from '@tanstack/table-core'
 
 import type { DataTableT } from './data-table.types'
-
 const columnMeta: DataTableT.ColumnMeta = {}
 
 function createDataTableFeatureSet() {

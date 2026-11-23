@@ -1,7 +1,6 @@
 import { Switch } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function SwitchPlayground() {
   return (
     <DocsPlayground

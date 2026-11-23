@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon/icon.types'
 
 import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
-
 export namespace TabsT {
   export type Kind = 'single'
 

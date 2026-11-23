@@ -1,7 +1,6 @@
 import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { EmptyT } from './empty.types'
-
 interface EmptyContext {
   readonly size: EmptyT.Variants['size']
   readonly slotOverrides: {

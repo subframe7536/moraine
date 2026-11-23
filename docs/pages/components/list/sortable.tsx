@@ -1,7 +1,6 @@
 import { Icon, List } from '@src'
 import { createListSortable } from '@src/dnd'
 import { createSignal } from 'solid-js'
-
 const TASKS = [
   { id: 'design', label: 'Review the release notes draft' },
   { id: 'qa', label: 'Run the regression suite' },

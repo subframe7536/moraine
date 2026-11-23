@@ -1,6 +1,5 @@
 import { ScrollArea } from '@src'
 import { For } from 'solid-js'
-
 const milestones = ['Planning', 'Design', 'Prototype', 'Implementation', 'Review', 'Release']
 
 export function Horizontal() {

@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 import { createMemo, createSignal, createUniqueId } from 'solid-js'
 
 import { createActionRunner } from '../shared/overlay/feedback/action-runner'
@@ -7,7 +8,6 @@ import { createCloseResult } from '../shared/overlay/feedback/handle'
 import { mergeDefined, pickDefined } from '../shared/overlay/feedback/merge-defined'
 
 import type { AlertDialogT } from './alert-dialog.types'
-
 export interface AlertDialogHostDefaults {
   closable?: boolean
   transition?: boolean

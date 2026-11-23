@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import { ContextMenuContent } from './context-menu-content'
 import { ContextMenuProvider, createContextMenu } from './context-menu-context'
 import { ContextMenuTrigger } from './context-menu-trigger'
 import type { ContextMenuProps } from './context-menu.types'
-
 /**
  * Menu state and interaction context for actions tied to a specific surface or item at the
  * pointer location; it renders no DOM element of its own. Compose it from `ContextMenu.Trigger`

@@ -1,6 +1,5 @@
 import { clamp, fixToPrecision, nearlyEqual, normalizeSizeVector } from './size'
 import type { ResizableResolvedPanel } from './types'
-
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value)
 }

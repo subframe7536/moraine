@@ -1,5 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal, Show } from 'solid-js'
+import { Show, createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
@@ -56,7 +56,7 @@ test('hydrates a conditional Trigger child without replacing it', () => {
   )
   const trigger = container.querySelector('button')!
   expect(trigger.textContent).toBe('One')
-  setVisible(false)
+  flush(() => setVisible(false))
   expect(trigger.textContent).toBe('')
 })
 
@@ -89,7 +89,7 @@ test('hydrates Item item prop and preserves its JSX label on updates', () => {
   const label = option.querySelector('span')!
   expect(option.getAttribute('aria-selected')).toBe('true')
   expect(label.textContent).toBe('One')
-  setDisabled(true)
+  flush(() => setDisabled(true))
   expect(option.getAttribute('aria-disabled')).toBe('true')
   expect(option.querySelector('span')).toBe(label)
 })

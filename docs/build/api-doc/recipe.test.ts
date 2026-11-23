@@ -3,7 +3,6 @@ import { describe, expect, test } from 'vitest'
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { RecipeExtractor } from './recipe.ts'
-
 async function fixture(files: Record<string, string>) {
   return new RecipeExtractor(await createFileFixture(files))
 }

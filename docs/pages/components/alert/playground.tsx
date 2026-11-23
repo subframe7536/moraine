@@ -1,7 +1,6 @@
 import { Alert, Button } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function AlertPlayground() {
   return (
     <DocsPlayground

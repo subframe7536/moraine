@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { BoldSlider } from './bold-slider'
-
 export function renderBoldSliderFixture(): string {
   return renderToString(() => (
     <div>

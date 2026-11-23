@@ -1,7 +1,6 @@
 import { Button, createForm, Input } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const schema = v.object({ title: v.pipe(v.string(), v.nonEmpty('A title is required.')) })
 
 function saveDraft(): Promise<void> {

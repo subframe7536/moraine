@@ -2,7 +2,6 @@ import type { ClassValue } from 'cn'
 
 import { getThemeRecipeLayers } from './create-theme'
 import type { MoraineTheme } from './types'
-
 export type RecipeSlot<S extends object> = Extract<keyof S, string>
 
 type ComponentVariantKey<T> = T extends boolean

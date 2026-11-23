@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { For, createSignal } from 'solid-js'
+import { For, createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -9,7 +9,6 @@ import { Dialog } from '../dialog'
 
 import { CommandPalette } from './command-palette'
 import type { CommandPaletteT } from './command-palette.types'
-
 const body = () => within(document.body)
 
 afterEach(() => {
@@ -137,7 +136,7 @@ describe('CommandPalette', () => {
     ))
 
     expect(body().getByRole('option').textContent).toBe('Run:enabled')
-    setItem(replacement)
+    flush(() => setItem(replacement))
     const disabledOption = body().getByRole('option')
     expect(disabledOption.textContent).toBe('Run again:disabled')
     expect(disabledOption.getAttribute('aria-disabled')).toBe('true')
@@ -145,7 +144,7 @@ describe('CommandPalette', () => {
     expect(onSelect).not.toHaveBeenCalled()
 
     const enabled = { ...replacement, disabled: false }
-    setItem(enabled)
+    flush(() => setItem(enabled))
     const enabledOption = body().getByRole('option')
     expect(enabledOption.textContent).toBe('Run again:enabled')
     fireEvent.click(enabledOption)
@@ -255,7 +254,7 @@ describe('CommandPalette', () => {
     const input = body().getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('settings')
-    setTerm('dashboard')
+    flush(() => setTerm('dashboard'))
     expect(input.value).toBe('dashboard')
     expect(
       body()
@@ -573,7 +572,7 @@ describe('CommandPalette', () => {
     expect(leading().hasAttribute('aria-busy')).toBe(false)
     expect(close.className).toContain('icon-minus')
 
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(leading().className).toContain('icon-reload')
     expect(leading().getAttribute('aria-busy')).toBe('true')
   })
@@ -892,7 +891,7 @@ describe('CommandPalette', () => {
 
     expect(description.parentElement).toBe(label)
 
-    setDescriptionPosition('bottom')
+    flush(() => setDescriptionPosition('bottom'))
 
     expect(
       item.querySelector('[data-slot="command-palette-item-description"]')?.parentElement,
@@ -1023,7 +1022,7 @@ describe('CommandPalette', () => {
         virtualizer={{
           scrollToIndex: (index) => {
             scrollToIndex(index)
-            setEntryIndex(index)
+            flush(() => setEntryIndex(index))
           },
           virtualRender: (context) => (
             <For each={[context.entries[entryIndex()]!]}>

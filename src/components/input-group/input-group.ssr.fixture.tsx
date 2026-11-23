@@ -1,12 +1,11 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Icon } from '../icon/index'
 import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
-
 export function renderInputGroupFixture(): string {
   return renderToString(() => (
     <InputGroup size="lg" classes={{ leading: 'leading-class' }}>

@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { ElementProps } from '../../../../shared/types'
 import type { ListVirtualizer } from '../../../../virtualizer/virtualizer.types'
@@ -6,7 +7,6 @@ import type { BaseSelectT, BaseSelectValue } from '../../../base-select/base-sel
 import type { IconT } from '../../../icon/index'
 
 import type { SelectControlStyleVariants, SelectItemStyleSlot } from './style-types'
-
 export interface SelectItem<
   V extends BaseSelectValue = BaseSelectValue,
 > extends BaseSelectT.Item<V> {

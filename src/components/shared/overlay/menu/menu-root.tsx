@@ -1,7 +1,7 @@
 import type { ReferenceElement } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal } from '@solidjs/web'
+import { Show, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { createTransitionPresence } from '../../../../shared/transition-presence'
 import { createId } from '../../../../shared/utils'
@@ -14,7 +14,6 @@ import { OverlayMenuLayer } from './menu-layer'
 import { createVirtualReference } from './menu.utils'
 import type { OverlayMenuCloseOptions, OverlayMenuLayerState } from './menu.utils'
 import type { OverlayMenuItem, OverlayMenuProps } from './types'
-
 export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
@@ -31,83 +30,66 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   )
 
   createEffect(
-    on(
-      [() => props.open, pendingFocusOnClose, () => props.triggerElement],
-      ([open, pendingFocus, triggerElement]) => {
-        if (open || !pendingFocus) {
-          return
-        }
+    () => [(() => props.open)(), pendingFocusOnClose(), (() => props.triggerElement)()],
+    ([open, pendingFocus, triggerElement]) => {
+      if (open || !pendingFocus) {
+        return
+      }
 
-        queueMicrotask(() => {
-          untrack(() => {
-            if (props.open || pendingFocusOnClose() !== pendingFocus) {
-              return
+      queueMicrotask(() => {
+        untrack(() => {
+          if (props.open || pendingFocusOnClose() !== pendingFocus) {
+            return
+          }
+
+          if (pendingFocus === 'trigger') {
+            focusTrigger(triggerElement)
+          } else if (triggerElement) {
+            const focusableElements = getFocusableElements(
+              triggerElement.ownerDocument.body,
+            ).filter(
+              (element) => ![...branches].some((branch) => containsComposed(branch, element)),
+            )
+            const triggerIndexes = focusableElements.flatMap((element, index) =>
+              element === triggerElement || containsComposed(triggerElement, element)
+                ? [index]
+                : [],
+            )
+            const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+            if (triggerIndex !== undefined) {
+              focusWithoutScrolling(focusableElements[triggerIndex + 1])
             }
+          }
 
-            if (pendingFocus === 'trigger') {
-              focusTrigger(triggerElement)
-            } else if (triggerElement) {
-              const focusableElements = getFocusableElements(
-                triggerElement.ownerDocument.body,
-              ).filter(
-                (element) => ![...branches].some((branch) => containsComposed(branch, element)),
-              )
-              const triggerIndexes = focusableElements.flatMap((element, index) =>
-                element === triggerElement || containsComposed(triggerElement, element)
-                  ? [index]
-                  : [],
-              )
-              const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
-              if (triggerIndex !== undefined) {
-                focusWithoutScrolling(focusableElements[triggerIndex + 1])
-              }
-            }
-
-            setPendingFocusOnClose(undefined)
-          })
+          setPendingFocusOnClose(undefined)
         })
-      },
-    ),
+      })
+    },
   )
 
   createEffect(
-    on(
-      [() => props.open, rootLayerState, () => rootLayerState()?.submenus()],
-      ([open, layer, submenus]) => {
-        if (!open && layer) {
-          layer.closeSubmenus(undefined, submenus)
-        }
-      },
-    ),
-  )
-
-  createEffect(
-    on(contentPresence.present, (present) => {
-      if (!present) {
-        return
+    () => [(() => props.open)(), rootLayerState(), (() => rootLayerState()?.submenus())()],
+    ([open, layer, submenus]) => {
+      if (!open && layer) {
+        layer.closeSubmenus(undefined, submenus)
       }
+    },
+  )
+
+  createEffect(
+    () => [contentPresence.present(), rootLayerState()?.contentElement()],
+    ([present, content]) => {
       const shouldPreventScroll = props.preventScroll ?? true
-      if (!shouldPreventScroll) {
+      if (!present || !shouldPreventScroll || !content) {
         return
       }
 
-      createEffect(
-        on(
-          () => rootLayerState()?.contentElement(),
-          (content) => {
-            if (!content) {
-              return
-            }
+      const releaseBodyScrollLock = acquireBodyScrollLock(content)
 
-            const releaseBodyScrollLock = acquireBodyScrollLock(content)
-
-            onCleanup(() => {
-              releaseBodyScrollLock?.()
-            })
-          },
-        ),
-      )
-    }),
+      return () => {
+        releaseBodyScrollLock?.()
+      }
+    },
   )
 
   const containsTarget = (node: Node): boolean => {
@@ -188,7 +170,7 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
 
   return (
     <Show when={contentPresence.present()}>
-      <Portal mount={props.mount ?? props.triggerElement?.ownerDocument.body}>
+      <Portal mount={(props.mount ?? props.triggerElement?.ownerDocument.body) as Element}>
         <OverlayMenuLayer<TItem>
           {...props}
           id={contentId()}

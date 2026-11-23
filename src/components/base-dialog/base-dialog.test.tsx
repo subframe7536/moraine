@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -13,7 +13,6 @@ import { pushOverlayLayer } from '../shared/overlay/overlay-stack'
 import { Sheet } from '../sheet/sheet'
 
 import { BaseDialog } from './base-dialog'
-
 describe('BaseDialog primitives', () => {
   test('passes each mounted content element to the ref once and dismisses reopened content', async () => {
     const ref = vi.fn()
@@ -40,11 +39,11 @@ describe('BaseDialog primitives', () => {
     const first = await findContent()
     expect(ref.mock.calls).toEqual([[first]])
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
 
-    setOpen(true)
+    flush(() => setOpen(true))
     const second = await findContent()
     expect(second).not.toBe(first)
     expect(ref.mock.calls).toEqual([[first], [second]])
@@ -132,7 +131,7 @@ describe('BaseDialog primitives', () => {
       const innerContent = shadowRoot.querySelectorAll<HTMLElement>(
         '[data-slot="base-dialog-content"]',
       )[1]!
-      setInnerOpen(false)
+      flush(() => setInnerOpen(false))
       await finishExitMotion(innerContent)
       await waitFor(() =>
         expect(shadowRoot.querySelectorAll('[aria-modal="true"]')).toHaveLength(1),
@@ -285,8 +284,8 @@ describe('BaseDialog primitives', () => {
       ))
       expect(screen.getByTestId('part-child').parentElement?.tagName).toBe('BUTTON')
       expect(screen.getByTestId('part-child').textContent).toBe('Before')
-      setTag('div')
-      setValue('After')
+      flush(() => setTag('div'))
+      flush(() => setValue('After'))
       expect(screen.getByTestId('part-child').parentElement?.tagName).toBe('DIV')
       expect(screen.getByTestId('part-child').textContent).toBe('After')
     },
@@ -320,14 +319,14 @@ describe('BaseDialog primitives', () => {
         ),
       )
       second.focus()
-      setPreventScroll(false)
+      flush(() => setPreventScroll(false))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('')
       expect(document.activeElement).toBe(second)
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
       await waitFor(() => expect(document.body.style.overflow).toBe(''))
-      setOpen(true)
+      flush(() => setOpen(true))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('')
     } finally {
@@ -366,7 +365,7 @@ describe('BaseDialog primitives', () => {
     ))
 
     expect(document.body.textContent).toContain('Visible content')
-    setVisible(false)
+    flush(() => setVisible(false))
     expect(document.body.textContent).not.toContain('Visible content')
   })
 
@@ -415,19 +414,19 @@ describe('BaseDialog primitives', () => {
     ))
 
     expect(mounts).toBe(0)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(1)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
       expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(2)
     })
@@ -487,7 +486,7 @@ describe('BaseDialog primitives', () => {
     expect(close.getAttribute('role')).toBe('button')
     fireEvent.click(close)
     expect(onOpenChange).not.toHaveBeenCalled()
-    setCanceled(false)
+    flush(() => setCanceled(false))
     fireEvent.keyDown(close, { key: 'Enter' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
@@ -1009,7 +1008,7 @@ describe('BaseDialog primitives', () => {
     expect(overlay.getAttribute('data-expanded')).toBe('')
     expect(content.getAttribute('data-expanded')).toBe('')
 
-    setOpen(false)
+    flush(() => setOpen(false))
     expect(overlay.getAttribute('data-closed')).toBe('')
     expect(content.getAttribute('data-closed')).toBe('')
 
@@ -1042,7 +1041,7 @@ describe('BaseDialog primitives', () => {
       </BaseDialog>
     ))
 
-    setShowContent(false)
+    flush(() => setShowContent(false))
     await Promise.resolve()
 
     expect(onExitComplete).not.toHaveBeenCalled()
@@ -1073,7 +1072,7 @@ describe('BaseDialog primitives', () => {
         ?.hasAttribute('data-transition'),
     ).toBe(false)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBeNull()
@@ -1096,7 +1095,7 @@ describe('BaseDialog primitives', () => {
     const content = document.body.querySelector('[data-slot="base-dialog-content"]')!
     expect(content.hasAttribute('data-transition')).toBe(true)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(document.body.querySelector('[data-slot="base-dialog-content"]')).toBe(content)
 
@@ -1241,7 +1240,7 @@ describe('BaseDialog primitives', () => {
 
     expect(overlay).not.toBeNull()
     expect(content?.textContent).toBe('Inline content')
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => expect(onExitComplete).toHaveBeenCalledOnce())
     expect(host.querySelector('[data-slot="base-dialog-overlay"]')).toBe(overlay)
@@ -1332,7 +1331,7 @@ describe('BaseDialog primitives', () => {
     await Promise.resolve()
     expect(lateSibling.getAttribute('aria-hidden')).toBe('true')
 
-    setShowInner(false)
+    flush(() => setShowInner(false))
     await Promise.resolve()
 
     expect(background.getAttribute('aria-hidden')).toBe('true')
@@ -1420,7 +1419,7 @@ describe('BaseDialog primitives', () => {
       expect(html.style.getPropertyValue('scrollbar-gutter')).toBe('stable')
       expect(document.body.style.paddingRight).toBe(lockedPadding)
 
-      setShowInner(false)
+      flush(() => setShowInner(false))
       expect(document.body.style.overflow).toBe('hidden')
       expect(document.body.style.paddingRight).toBe(lockedPadding)
 
@@ -1757,22 +1756,22 @@ describe('BaseDialog primitives', () => {
     ))
 
     buttonA.focus()
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() =>
       expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull(),
     )
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(document.activeElement).toBe(buttonA)
     })
 
     buttonB.focus()
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() =>
       expect(document.body.querySelector('[data-slot="base-dialog-content"]')).not.toBeNull(),
     )
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(document.activeElement).toBe(buttonB)
@@ -2066,9 +2065,9 @@ describe('BaseDialog primitives', () => {
     const inside = document.body.querySelector<HTMLButtonElement>(
       '[data-slot="base-dialog-content"] button',
     )!
-    setModal(true)
+    flush(() => setModal(true))
     await waitFor(() => expect(document.activeElement).toBe(inside))
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion(
       document.body.querySelector<HTMLElement>('[data-slot="base-dialog-content"]'),
     )
@@ -2095,14 +2094,14 @@ describe('BaseDialog primitives', () => {
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
 
-    setModal(true)
+    flush(() => setModal(true))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBe('true')
       expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setModal(false)
+    flush(() => setModal(false))
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()
@@ -2132,7 +2131,7 @@ describe('BaseDialog primitives', () => {
     const trigger = screen.getByTestId('trigger')
     fireEvent.click(trigger)
     await Promise.resolve()
-    setDisabled(true)
+    flush(() => setDisabled(true))
 
     fireEvent.click(document.body.querySelector('[data-testid="close-disabled"]')!)
     await Promise.resolve()
@@ -2166,7 +2165,7 @@ describe('BaseDialog primitives', () => {
     const trigger = screen.getByTestId('removable-trigger')
     fireEvent.click(trigger)
     await Promise.resolve()
-    setShowTrigger(false)
+    flush(() => setShowTrigger(false))
 
     fireEvent.click(document.body.querySelector('[data-testid="close-removed"]')!)
     await Promise.resolve()
@@ -2203,7 +2202,7 @@ describe('BaseDialog primitives', () => {
     await Promise.resolve()
     fireEvent.click(document.body.querySelector('[data-testid="rapid-close"]')!)
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await Promise.resolve()
 
     const reopenedContent = document.body.querySelector(
@@ -2213,7 +2212,7 @@ describe('BaseDialog primitives', () => {
     expect(onExitComplete).not.toHaveBeenCalled()
     expect(document.activeElement).not.toBe(trigger)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     fireEvent.animationEnd(reopenedContent)
     fireEvent.transitionEnd(reopenedContent)
@@ -2261,7 +2260,7 @@ describe('BaseDialog primitives', () => {
         ),
       )
       const before = document.body.querySelector('[data-slot="base-dialog-content"]')
-      setScroll(true)
+      flush(() => setScroll(true))
       await Promise.resolve()
       await Promise.resolve()
       const after = document.body.querySelector<HTMLButtonElement>(

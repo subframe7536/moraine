@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import {
   attachEventListenerMap,
@@ -20,7 +20,6 @@ import {
   snapPointHeightCss,
 } from './drawer-snap-points'
 import type { DrawerT } from './drawer.types'
-
 const AXIS_LOCK_SLOP = 6
 const AXIS_LOCK_BIAS = 2
 const MIN_SWIPE_THRESHOLD = 10
@@ -906,13 +905,11 @@ export function createDrawerSwipe(
     }
     // A nested stack pins the popup's measured size; once it fully unmounts,
     // re-measure so a height changed while pinned is picked up.
-    createEffect(
-      on(drawer.nested.openCount, (count) => {
-        if (count === 0) {
-          measureSize()
-        }
-      }),
-    )
+    createEffect(drawer.nested.openCount, (count) => {
+      if (count === 0) {
+        measureSize()
+      }
+    })
     createEventListenerMap(content, {
       pointerdown: onPointerDown,
       touchstart: onTouchStart,

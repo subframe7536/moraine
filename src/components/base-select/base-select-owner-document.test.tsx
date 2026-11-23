@@ -1,12 +1,11 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index'
 import { Combobox } from '../combobox/combobox'
 import { MultiSelect } from '../multi-select/multi-select'
 import { Select } from '../select/select'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },

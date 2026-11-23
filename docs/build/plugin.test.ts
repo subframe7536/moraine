@@ -11,7 +11,6 @@ import { describe, expect, test } from 'vitest'
 import { getDocsShikiCss } from './core/shiki.ts'
 import { docsBuildPlugin } from './plugin.ts'
 import { PREVIEW_PARSE_OPTIONS } from './previews/ast.ts'
-
 const TRANSFORM_CONTEXT = {
   parse(code: string) {
     return parseSync('example.tsx', code, PREVIEW_PARSE_OPTIONS).program

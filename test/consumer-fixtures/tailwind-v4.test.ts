@@ -16,7 +16,6 @@ import {
   verifyConsumerPackageExports,
 } from './helpers'
 import type { IsolatedConsumer } from './helpers'
-
 const CANDIDATES = [
   'data-disabled:opacity-64',
   'data-focused:opacity-64',

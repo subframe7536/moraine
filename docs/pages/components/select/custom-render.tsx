@@ -1,7 +1,6 @@
 import { Button, Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
-
 interface FrameworkItem extends SelectT.Item {
   badge: string
 }

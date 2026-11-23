@@ -12,7 +12,6 @@ import { validateAnatomy } from './anatomy.ts'
 import { loadComponentApiDoc } from './api-doc/load.ts'
 import { collectMarkdownFiles } from './core/paths.ts'
 import { resolvePreviewFile } from './markdown/previews.ts'
-
 const execFileAsync = promisify(execFile)
 
 const PAGES_ROOT = path.resolve(__dirname, '../pages/components')

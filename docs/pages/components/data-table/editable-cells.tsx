@@ -1,10 +1,9 @@
+import type { JSX } from '@solidjs/web'
 import { Input } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import type { CellContext } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
-
 interface Product {
   id: string
   name: string
@@ -87,7 +86,7 @@ export default function EditableCellsExample() {
         fallback={
           <div
             role="button"
-            tabIndex={0}
+            tabindex={0}
             aria-label={`Edit ${props.label}: ${initial()}`}
             class="px-1 py-0.5 rounded min-h-6 cursor-text -mx-1 focus-visible:(outline-none ring-2 ring-ring/50) hover:bg-accent/60"
             onDblClick={start}
@@ -105,10 +104,10 @@ export default function EditableCellsExample() {
         <div class="flex flex-col gap-1">
           <Input
             aria-label={props.label}
-            aria-invalid={error() ? true : undefined}
+            aria-invalid={error() ? 'true' : undefined}
             size="sm"
             autoFocus
-            inputMode={props.columnId === 'stock' ? 'numeric' : undefined}
+            inputmode={props.columnId === 'stock' ? 'numeric' : undefined}
             value={draft()}
             onValueChange={setDraft}
             onBlur={save}

@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -9,7 +9,6 @@ import { Field } from '../field/field'
 import { createForm } from '../form'
 
 import { PinInput } from './pin-input'
-
 describe('PinInput', () => {
   test('renders correct number of inputs and forwards refs', () => {
     let rootEl: HTMLDivElement | undefined
@@ -155,7 +154,7 @@ describe('PinInput', () => {
     expect(inputs[1]?.value).toBe('b')
     expect(inputs[2]?.value).toBe('')
 
-    setValue('xyz')
+    flush(() => setValue('xyz'))
     expect(inputs[0]?.value).toBe('x')
     expect(inputs[1]?.value).toBe('y')
     expect(inputs[2]?.value).toBe('z')
@@ -1022,7 +1021,7 @@ describe('PinInput', () => {
       <PinInput value={value()} length={4} validationType="number" onComplete={onComplete} />
     ))
 
-    setValue('1234')
+    flush(() => setValue('1234'))
     expect(onComplete).not.toHaveBeenCalled()
   })
 

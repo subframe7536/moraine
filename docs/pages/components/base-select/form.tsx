@@ -1,7 +1,6 @@
 import { BaseSelect, Button } from '@src'
 import type { BaseSelectT } from '@src'
 import { createSignal, For } from 'solid-js'
-
 const FRAMEWORKS = [
   { value: 'solid', label: 'Solid' },
   { value: 'react', label: 'React' },

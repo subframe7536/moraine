@@ -1,5 +1,5 @@
 import { render, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { BaseDialog } from '../components/base-dialog'
@@ -16,7 +16,6 @@ import { defineTheme } from '../theme'
 import type { CnConfig } from '../theme/cn'
 
 import { MoraineProvider } from './moraine-provider'
-
 const keepPadding: CnConfig = { override: { classGroups: { p: [] } } }
 
 describe('composite family presentation', () => {
@@ -79,8 +78,8 @@ describe('composite family presentation', () => {
         dialog: { base: { content: 'next-theme p-6', contentClose: 'next-close-theme' } },
       }),
     )
-    setInstanceClass('next-instance p-7')
-    setInstanceWidth('40px')
+    flush(() => setInstanceClass('next-instance p-7'))
+    flush(() => setInstanceWidth('40px'))
     expect(within(document.body).getByTestId('dialog-content')).toBe(content)
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBe(contentClose)
     expect(content.className).toContain('next-theme')
@@ -88,7 +87,7 @@ describe('composite family presentation', () => {
     expect(content.className).toContain('next-instance')
     expect(content.style.width).toBe('40px')
 
-    setConfig({})
+    flush(() => setConfig({}))
     expect(within(document.body).getByTestId('dialog-content')).toBe(content)
     expect(content.className).toContain('p-5')
     expect(content.className).not.toContain('p-7')

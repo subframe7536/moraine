@@ -1,16 +1,16 @@
-import type { JSX } from 'solid-js'
-import { onMount, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { onSettled, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { pick } from '../../shared/utils'
 import { validateOverlayTrigger } from '../shared/overlay/trigger'
 import { overlayTriggerDataAttributes } from '../shared/overlay/trigger.recipe'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import type { BaseDialogT } from './base-dialog.types'
-
 /**
  * Element that opens the surrounding `BaseDialog`; when `modal` is `false` it toggles the open state
  * instead. Renders a `button`; pass `as` to render another component such as `Button`.
@@ -30,7 +30,8 @@ import type { BaseDialogT } from './base-dialog.types'
 export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
   props: BaseDialogT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
+  const local = pick(props, 'as', 'disabled', 'ref' as any)
+  const rest = omit(props, 'as', 'disabled', 'ref' as any)
   const context = useBaseDialogContext()
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
@@ -58,7 +59,7 @@ export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
   )
   const binding = root.bind(interactionProps)
 
-  onMount(() => {
+  onSettled(() => {
     validateOverlayTrigger(context.triggerElement(), 'BaseDialog')
   })
 

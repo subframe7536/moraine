@@ -1,6 +1,5 @@
 import { Button, DropdownMenu } from '@src'
 import type { DropdownMenuT } from '@src'
-
 const ACTIONS = [
   { label: 'Edit profile', icon: 'i-lucide:user' },
   { label: 'Billing details', icon: 'i-lucide:credit-card' },

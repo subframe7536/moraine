@@ -1,6 +1,5 @@
 import { Button, createForm, Input } from '@src'
 import * as v from 'valibot'
-
 export function NestedPath() {
   const form = createForm({
     schema: v.object({

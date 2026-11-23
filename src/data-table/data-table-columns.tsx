@@ -1,5 +1,5 @@
+import type { JSX } from '@solidjs/web'
 import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
 import { Icon } from '../components/icon'
@@ -17,7 +17,6 @@ import {
   DATA_TABLE_UTILITY_COLUMN_CLASS,
   dataTableDataAttributes,
 } from './data-table.recipe'
-
 /** Reserved id of the generated selection column. */
 export const SELECT_COLUMN_ID = 'select'
 /** Reserved id of the generated expand column. */
@@ -144,7 +143,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
             type="button"
             data-slot="data-table-expand-button"
             aria-label={isExpanded() ? ctx.messages().collapseRow : ctx.messages().expandRow}
-            aria-expanded={isExpanded()}
+            aria-expanded={isExpanded() ? 'true' : 'false'}
             {...expandButtonSlot}
             onClick={(e) => {
               e.stopPropagation()

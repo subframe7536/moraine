@@ -8,7 +8,6 @@ import type { ESTree } from 'vite'
 import type { RecipeConfig } from '../../src/theme/recipe'
 
 import { ensureBuild, PROJECT_ROOT } from './helpers'
-
 export async function setup(): Promise<void> {
   ensureBuild()
   const distDir = join(PROJECT_ROOT, 'dist')

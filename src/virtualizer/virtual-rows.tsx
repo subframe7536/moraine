@@ -1,7 +1,7 @@
+import type { JSX } from '@solidjs/web'
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
 import { For, Show, createMemo, onCleanup } from 'solid-js'
-
 export interface VirtualRowEntry<TItem> {
   readonly index: number
   readonly item: TItem
@@ -21,9 +21,11 @@ export function createVirtualRow<TItem>(
       const index = virtualItem.index
       return index < current.length ? { index, item: current[index]! } : undefined
     },
-    undefined,
     {
-      equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
+      equals: (
+        prev: VirtualRowEntry<TItem> | undefined,
+        next: VirtualRowEntry<TItem> | undefined,
+      ) => prev?.index === next?.index && prev?.item === next?.item,
     },
   )
   return row

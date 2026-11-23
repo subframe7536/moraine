@@ -6,7 +6,6 @@ import { describe, expect, test } from 'vitest'
 
 import { TypeExtractor } from './extract-types.ts'
 import { RecipeExtractor } from './recipe.ts'
-
 describe('TypeExtractor', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
   const extractor = new TypeExtractor(projectRoot)

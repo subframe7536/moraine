@@ -5,7 +5,6 @@ import { RecipeExtractor } from './recipe.ts'
 import type { RecipeApi } from './recipe.ts'
 import { loadApiRegistry } from './registry.ts'
 import type { ComponentApi, ComponentIndexEntry, GenerationResult, PartApi } from './types.ts'
-
 const EMPTY_RECIPE: RecipeApi = {
   slots: [],
   variants: [],

@@ -12,7 +12,6 @@ import { TOOLTIP_INSTANT_POSITIONER_CLASS } from '../components/tooltip/tooltip.
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'
-
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
   'utf8',

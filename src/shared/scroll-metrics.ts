@@ -3,7 +3,6 @@ import { createSignal } from 'solid-js'
 
 import { bindElement } from './element-binding'
 import { createEventListener } from './event-listener'
-
 export interface AxisMetrics {
   /** Visible size in px. */
   readonly client: number

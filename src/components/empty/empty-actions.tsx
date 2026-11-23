@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createEmptyPart } from './empty-part'
 import type { EmptyT } from './empty.types'
-
 /**
  * Container for the next useful commands of an `Empty` state, usually `Button`s wired to
  * application handlers; place it inside `Empty`. It renders a `div` by default.

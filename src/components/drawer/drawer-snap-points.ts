@@ -1,5 +1,4 @@
 import type { DrawerT } from './drawer.types'
-
 export interface ResolvedDrawerSnapPoint {
   value: DrawerT.SnapPoint
   height: number

@@ -5,7 +5,6 @@ import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Sidebar } from './sidebar'
 import { useSidebarContext } from './sidebar-context'
-
 function FixtureContent() {
   const frame = useSidebarContext()
 

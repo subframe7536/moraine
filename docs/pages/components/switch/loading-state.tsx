@@ -1,6 +1,5 @@
 import { Switch } from '@src'
 import { createSignal } from 'solid-js'
-
 export function LoadingState() {
   const [loading, setLoading] = createSignal(false)
   const [checked, setChecked] = createSignal(false)

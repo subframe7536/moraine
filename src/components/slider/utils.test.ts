@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { snapValueToStep } from './utils'
-
 describe('snapValueToStep', () => {
   test('snaps to the nearest step anchored at min', () => {
     expect(snapValueToStep(0.4, 0, 10, 1)).toBe(0)

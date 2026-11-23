@@ -1,7 +1,6 @@
 import type { Accessor } from 'solid-js'
 
 import { containsComposed } from './dom'
-
 /**
  * Lightweight registry of currently present interactive overlays. The stack
  * preserves push order so that nested overlays (e.g. a popover opened from

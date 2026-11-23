@@ -7,7 +7,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { PREVIEW_PARSE_OPTIONS } from './ast.ts'
 import { transformPreviewModule } from './module.ts'
 import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source.ts'
-
 async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program
 }
@@ -59,8 +58,7 @@ describe('resolvePreviewComponentSource', () => {
   test('reads the whole code and converts @src imports to moraine', async () => {
     const source = `import { Button } from '@src'
 import type { ButtonT } from '@src'
-import { For, createSignal } from 'solid-js'
-
+import {For, createSignal} from 'solid-js'
 export function BasicExample() {
   const [count, setCount] = createSignal(0)
   return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>
@@ -70,7 +68,6 @@ export function BasicExample() {
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
-import { For, createSignal } from 'solid-js'
 
 export function BasicExample() {
   const [count, setCount] = createSignal(0)
@@ -85,7 +82,6 @@ import { DataTable } from '@src/data-table'
 import { presetMoraine } from '@src/theme/unocss'
 import { Button } from '@src/element/button/button.tsx'
 import '@src/icon.css'
-
 export const VirtualList = () => <div />
 `
 
@@ -95,7 +91,6 @@ import { DataTable } from 'moraine/data-table'
 import { presetMoraine } from 'moraine/unocss'
 import { Button } from 'moraine'
 import 'moraine/icon.css'
-
 export const VirtualList = () => <div />`,
     )
   })
@@ -103,7 +98,6 @@ export const VirtualList = () => <div />`,
   test('preserves double quotes when rewriting imports', async () => {
     const source = `import { Button } from "@src"
 import type { ButtonT } from "@src"
-
 export function Example() {
   return <Button />
 }
@@ -112,7 +106,6 @@ export function Example() {
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from "moraine"
 import type { ButtonT } from "moraine"
-
 export function Example() {
   return <Button />
 }`,
@@ -121,7 +114,7 @@ export function Example() {
 
   test('preserves top-level helper functions, types, and comments outside component', async () => {
     const source = `import { Button } from '@src'
-import { createSignal } from 'solid-js'
+
 
 // Helper function
 function wait(ms: number) {
@@ -137,7 +130,7 @@ export function LoadingExample() {
 
     expect(await resolvePreviewComponentSource(source, parsePreviewCode))
       .toBe(`import { Button } from 'moraine'
-import { createSignal } from 'solid-js'
+
 
 // Helper function
 function wait(ms: number) {

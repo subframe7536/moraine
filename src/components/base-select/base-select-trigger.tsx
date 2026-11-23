@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { children as resolveChildren, createMemo, merge, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -8,12 +8,11 @@ import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Primary focus owner and activator of the surrounding `BaseSelect`: it opens and closes the
  * popup and handles keyboard navigation, with `role="combobox"` and the related ARIA attributes.
@@ -44,7 +43,8 @@ export function BaseSelectTrigger<
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectContext<TItem>()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'as',
     'children',
     'class',
@@ -55,7 +55,20 @@ export function BaseSelectTrigger<
     'onFocus',
     'onBlur',
     'ref' as any,
-  ])
+  )
+  const rest = omit(
+    props,
+    'as',
+    'children',
+    'class',
+    'style',
+    'disabled',
+    'onPointerDown',
+    'onKeyDown',
+    'onFocus',
+    'onBlur',
+    'ref' as any,
+  )
   const {
     slots: { trigger: triggerSlot },
   } = useRecipe(baseSelectRecipe, local, {
@@ -95,7 +108,7 @@ export function BaseSelectTrigger<
       setElement: state.setFocusOwner,
     },
   })
-  const eventProps = mergeProps({ role: 'combobox' as const }, rest, {
+  const eventProps = merge({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
       callHandler(event, local.onPointerDown)
       if (

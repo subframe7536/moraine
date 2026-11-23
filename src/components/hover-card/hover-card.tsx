@@ -1,6 +1,6 @@
 import type { Coords } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, mergeProps, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, merge } from 'solid-js'
 
 import { createEventListener } from '../../shared/event-listener'
 import { createId } from '../../shared/utils'
@@ -12,7 +12,6 @@ import type { HoverCardContextValue } from './hover-card-context'
 import { HoverCardProvider, useHoverCardContext } from './hover-card-context'
 import { HoverCardTrigger } from './hover-card-trigger'
 import type { HoverCardProps } from './hover-card.types'
-
 /**
  * Headless root for a preview card that opens on hover or keyboard focus of a link trigger. Use it
  * to preview the destination of a link, `Tooltip` for a brief non-interactive hint, and `Popover`
@@ -32,7 +31,7 @@ import type { HoverCardProps } from './hover-card.types'
  * ```
  */
 export function HoverCard(props: HoverCardProps): JSX.Element {
-  const merged = mergeProps(
+  const merged = merge(
     {
       openDelay: 600,
       closeDelay: 300,
@@ -113,43 +112,37 @@ export function HoverCard(props: HoverCardProps): JSX.Element {
     hoverDelay.cancelClose()
   }
 
-  createEffect(
-    on(popper.isOpen, (open) => {
-      if (open) {
-        if (triggerOpenPending) {
-          setOpenedByTrigger(true)
-        }
-        triggerOpenPending = false
-        return
+  createEffect(popper.isOpen, (open) => {
+    if (open) {
+      if (triggerOpenPending) {
+        setOpenedByTrigger(true)
       }
-
       triggerOpenPending = false
-      setOpenedByTrigger(false)
-      setInlinePoint(undefined)
-    }),
-  )
+      return
+    }
+
+    triggerOpenPending = false
+    setOpenedByTrigger(false)
+    setInlinePoint(undefined)
+  })
 
   createEffect(
-    on(
-      () => Boolean(merged.disabled),
-      () => {
-        hoverDelay.invalidate()
-      },
-    ),
+    () => Boolean(merged.disabled),
+    () => {
+      hoverDelay.invalidate()
+    },
   )
 
-  createEffect(
-    on(ownerDocument, (currentDocument) => {
-      const ownerWindow = currentDocument?.defaultView
-      if (!ownerWindow) {
-        return
-      }
-      createEventListener(ownerWindow, 'blur', () => {
-        ignoreNextFocusAfterWindowBlur = true
-        hoverDelay.invalidate()
-      })
-    }),
-  )
+  createEffect(ownerDocument, (currentDocument) => {
+    const ownerWindow = currentDocument?.defaultView
+    if (!ownerWindow) {
+      return
+    }
+    createEventListener(ownerWindow, 'blur', () => {
+      ignoreNextFocusAfterWindowBlur = true
+      hoverDelay.invalidate()
+    })
+  })
 
   const behavior: HoverCardContextValue = {
     options: merged,

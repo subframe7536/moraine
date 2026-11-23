@@ -1,10 +1,10 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup, untrack, omit } from 'solid-js'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
@@ -19,9 +19,9 @@ import { createTreeState } from './tree-state'
 import type { TreeState } from './tree-state'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'state',
     'itemRender',
     'actionRender',
@@ -39,7 +39,27 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'class',
     'style',
     'ref',
-  ])
+  )
+  const rest = omit(
+    props,
+    'state',
+    'itemRender',
+    'actionRender',
+    'virtualizer',
+    'getItemIcon',
+    'expandIcon',
+    'loadingIcon',
+    'transition',
+    'forceMount',
+    'size',
+    'variant',
+    'indentGuide',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+  )
   const {
     slots: { root: rootSlot },
     variants,
@@ -48,22 +68,20 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   createEffect(
-    on(
-      () => local.virtualizer,
-      (virtualizer) => {
-        // Items outside the virtual window have no element to scroll into view.
-        state.navigation.registerScroller(
-          virtualizer
-            ? (key) => {
-                const index = state.flattenedKeys().indexOf(key)
-                if (index >= 0) {
-                  virtualizer.scrollToIndex(index)
-                }
+    () => local.virtualizer,
+    (virtualizer) => {
+      // Items outside the virtual window have no element to scroll into view.
+      state.navigation.registerScroller(
+        virtualizer
+          ? (key) => {
+              const index = state.flattenedKeys().indexOf(key)
+              if (index >= 0) {
+                virtualizer.scrollToIndex(index)
               }
-            : undefined,
-        )
-      },
-    ),
+            }
+          : undefined,
+      )
+    },
   )
   bindElement(scrollElement, (element) => state.navigation.registerRoot(element))
   onCleanup(() => {
@@ -102,7 +120,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
       <ul
         data-slot="tree"
         role="tree"
-        aria-multiselectable={state.selectionMode() === 'multiple' ? true : undefined}
+        aria-multiselectable={state.selectionMode() === 'multiple' ? 'true' : undefined}
         {...rootSlot}
         {...rest}
         ref={(element: HTMLElement) => {

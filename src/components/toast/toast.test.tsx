@@ -1,12 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { Toast } from './index'
 import type { ToastT } from './index'
-
 describe('Toast', () => {
   beforeEach(() => {
     Toast.close()
@@ -211,7 +210,7 @@ describe('Toast', () => {
     const [closable, setClosable] = createSignal(false)
     render(() => <Toast closable={closable()} />)
 
-    setClosable(true)
+    flush(() => setClosable(true))
     Toast.show({ title: 'Latest host default' })
 
     expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()

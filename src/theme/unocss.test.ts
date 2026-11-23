@@ -19,7 +19,6 @@ import { overlayMenuRecipeOptions } from '../components/shared/overlay/menu/menu
 import { cn } from './cn'
 import { presetMoraine } from './unocss'
 import type { PresetMoraineOptions } from './unocss'
-
 const TAILWIND_THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
   'utf8',

@@ -4,7 +4,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
 import type { AlertRecipeVariant, AlertStyleSlot } from './alert.style-types'
-
 export const alertDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'close',

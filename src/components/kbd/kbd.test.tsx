@@ -1,5 +1,5 @@
 import { render, screen } from '@solidjs/testing-library'
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +8,6 @@ import { KbdGroup } from '../kbd-group/kbd-group'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { Kbd } from './kbd'
-
 describe('Kbd', () => {
   test('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
@@ -119,7 +118,7 @@ describe('Kbd', () => {
 
     expect(root.className).toContain('theme-kbd-a')
 
-    setDesign(defineTheme({ kbd: { base: { root: 'theme-kbd-b' } } }))
+    flush(() => setDesign(defineTheme({ kbd: { base: { root: 'theme-kbd-b' } } })))
 
     expect(view.container.querySelector('[data-slot="kbd"]')).toBe(root)
     expect(root.className).toContain('theme-kbd-b')
@@ -197,31 +196,33 @@ describe('KbdGroup', () => {
       })
       return <span data-index={props.index}>{text()}</span>
     }
-    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(SeparatorRender)
+    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(
+      () => SeparatorRender,
+    )
     const view = render(() => <KbdGroup items={items()} separator={separator()} />)
     const separators = [...view.container.querySelectorAll('span')]
     expect(separators).toHaveLength(2)
     expect(separators[0]).not.toBe(separators[1])
-    setText('/')
+    flush(() => setText('/'))
     expect([...view.container.querySelectorAll('span')]).toEqual(separators)
     expect(separators.map((node) => node.textContent)).toEqual(['/', '/'])
-    setItems(['Shift', 'Ctrl', 'P'])
+    flush(() => setItems(['Shift', 'Ctrl', 'P']))
     expect([...view.container.querySelectorAll('span')]).toEqual([separators[1], separators[0]])
     expect(separators.map((node) => node.dataset.index)).toEqual(['1', '0'])
     expect(cleanups).toBe(0)
-    setItems(['Shift', 'Ctrl'])
+    flush(() => setItems(['Shift', 'Ctrl']))
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
     expect(cleanups).toBe(1)
-    setSeparator('/')
+    flush(() => setSeparator('/'))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧/Ctrl')
     expect(view.container.querySelectorAll('span')).toHaveLength(0)
     expect(cleanups).toBe(2)
-    setSeparator(() => SeparatorRender)
+    flush(() => setSeparator(() => SeparatorRender))
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
-    setSeparator('0')
+    flush(() => setSeparator('0'))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧0Ctrl')
     expect(cleanups).toBe(3)
-    setSeparator(undefined)
+    flush(() => setSeparator(undefined))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+Ctrl')
     view.unmount()
     expect(cleanups).toBe(3)
@@ -251,7 +252,7 @@ describe('KbdGroup', () => {
     const view = render(() => <KbdGroup items={items()} />)
 
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('Ctrl+K')
-    setItems(['Shift', 'P'])
+    flush(() => setItems(['Shift', 'P']))
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+P')
   })
 

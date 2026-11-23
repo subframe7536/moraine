@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { HoverCard } from './hover-card'
-
 describe('HoverCard SSR Hydration', () => {
   test('hydrates closed markup and opens it from hover', async () => {
     vi.useFakeTimers()

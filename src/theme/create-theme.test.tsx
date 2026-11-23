@@ -5,7 +5,6 @@ import { Button } from '../components/button/button'
 import { MoraineProvider } from '../provider/moraine-provider'
 
 import { defineTheme } from './create-theme'
-
 describe('defineTheme', () => {
   test('does not freeze or mutate caller input', () => {
     const base = { root: 'p-2' }

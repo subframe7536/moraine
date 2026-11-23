@@ -1,4 +1,4 @@
-import { mergeProps } from 'solid-js'
+import { merge } from 'solid-js'
 
 import { createSortable } from './create-sortable'
 import type { SortableOptions } from './create-sortable'
@@ -41,7 +41,7 @@ export interface ListSortableOptions<TItem> extends Omit<SortableOptions, 'canDr
    * ```tsx
    * import { List } from 'moraine'
    * import { createListSortable } from 'moraine/dnd'
-   * import { createSignal } from 'solid-js'
+   * import { createSignal, merge } from 'solid-js'
    *
    * const [tasks, setTasks] = createSignal([{ label: 'Write' }, { label: 'Review' }])
    * const sortable = createListSortable({ items: tasks, onReorder: (event) => setTasks(event.items) })
@@ -187,7 +187,7 @@ export function createListSortable<TItem>(
     })
     const hostRef = (): ((element: HTMLElement) => void) | undefined =>
       (context.rowProps as { ref?: (element: HTMLElement) => void } | undefined)?.ref
-    const props = mergeProps(
+    const props = merge(
       () => context.rowProps ?? {},
       {
         ref: (element: HTMLElement) => {

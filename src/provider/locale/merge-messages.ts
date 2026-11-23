@@ -1,5 +1,4 @@
 import type { MoraineMessagesInput } from './messages.types'
-
 const inputCache = new WeakMap<object, WeakMap<object, MoraineMessagesInput>>()
 
 /**

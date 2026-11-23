@@ -1,6 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
-
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 export type ControlKind = 'increment' | 'decrement'
 
 export interface RepeatConfig {
@@ -121,17 +120,18 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
 
   // Cancel hold immediately when callback or reactive state makes control non-interactive.
   createEffect(
-    on(
-      [() => options.isInteractive('increment'), () => options.isInteractive('decrement')],
-      ([increment, decrement]) => {
-        if (states.increment.activePointerId !== null && !increment) {
-          finishPress('increment')
-        }
-        if (states.decrement.activePointerId !== null && !decrement) {
-          finishPress('decrement')
-        }
-      },
-    ),
+    () => [
+      (() => options.isInteractive('increment'))(),
+      (() => options.isInteractive('decrement'))(),
+    ],
+    ([increment, decrement]) => {
+      if (states.increment.activePointerId !== null && !increment) {
+        finishPress('increment')
+      }
+      if (states.decrement.activePointerId !== null && !decrement) {
+        finishPress('decrement')
+      }
+    },
   )
 
   function triggerStep(kind: ControlKind): void {

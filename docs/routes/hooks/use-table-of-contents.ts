@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
-
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 export const DOCS_HEADER_OFFSET = 24
 
 export interface OnThisPageEntry {
@@ -34,7 +33,8 @@ export function useTableOfContents(
   }
 
   createEffect(
-    on([getEntries, getScrollRoot], ([entries, root]) => {
+    () => [getEntries(), getScrollRoot()],
+    ([entries, root]) => {
       const ids = new Set(entries.map((entry) => entry.id))
       setEntryIds(ids)
       update([])
@@ -110,7 +110,7 @@ export function useTableOfContents(
         root.removeEventListener('scroll', onScroll)
         cancelAnimationFrame(fallbackFrame)
       })
-    }),
+    },
   )
 
   return {

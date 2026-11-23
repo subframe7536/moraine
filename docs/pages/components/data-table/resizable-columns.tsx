@@ -1,7 +1,6 @@
 import { Badge } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface ServiceMetric {
   id: string
   service: string
@@ -118,11 +117,13 @@ const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
       const elevated = () => Number.parseFloat(props.row.original.errorRate) > 1
       return (
         <span
-          class="tabular-nums"
-          classList={{
-            'text-danger font-medium': elevated(),
-            'text-muted-foreground': !elevated(),
-          }}
+          class={[
+            'tabular-nums',
+            {
+              'text-danger font-medium': elevated(),
+              'text-muted-foreground': !elevated(),
+            },
+          ]}
         >
           {props.row.original.errorRate}
         </span>

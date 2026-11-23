@@ -1,11 +1,10 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { SlotClassValue, SlotStyleValue } from '../../../../theme/style-types'
 import { Button } from '../../../button'
 import type { ButtonT } from '../../../button'
 
 import type { FeedbackAction } from './feedback.types'
-
 export function FeedbackActionButton(props: {
   action?: FeedbackAction
   label?: JSX.Element

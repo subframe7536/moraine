@@ -1,6 +1,6 @@
+import type { JSX } from '@solidjs/web'
 import type { Cell, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
+import { For, Show, createMemo, merge, untrack, omit } from 'solid-js'
 
 import { callHandler, callRef } from '../shared/utils'
 import type { TableVirtualRowProps } from '../virtualizer/virtualizer.types'
@@ -16,7 +16,6 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 import { FlexRender } from './flex-render'
-
 export type DataTableRowProps<TData extends RowData> = Pick<
   DataTableT.Base<TData>,
   'rowProps' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
@@ -95,7 +94,7 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         <td
           aria-hidden="true"
           data-slot="data-table-cell-spacer"
-          colSpan={spacerProps.span}
+          colspan={spacerProps.span}
           {...spacerSlot}
         />
       </Show>
@@ -104,22 +103,18 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
 
   // `rowProps` runs once per row (and re-runs if `props.rowProps` changes), so it can call
   // row-level hooks without tracking `row` or `index`.
-  const extraProps = createMemo(
-    on(
-      () => props.rowProps,
-      (rowProps) =>
-        rowProps?.({
-          get row() {
-            return props.row
-          },
-          get index() {
-            return props.index
-          },
-        }),
-    ),
+  const extraProps = createMemo(() =>
+    props.rowProps?.({
+      get row() {
+        return props.row
+      },
+      get index() {
+        return props.index
+      },
+    }),
   )
-  const mergedExtra = mergeProps(() => extraProps() ?? {})
-  const [, extraRest] = splitProps(mergedExtra, ['ref', 'onClick', 'onDblClick', 'class'])
+  const mergedExtra = merge(() => extraProps() ?? {})
+  const extraRest = omit(mergedExtra, 'ref', 'onClick', 'onDblClick', 'class')
 
   const rowSlot = ctx.slotWith('row', {
     own: () => ({

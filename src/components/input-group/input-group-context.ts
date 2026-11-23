@@ -1,7 +1,6 @@
 import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { InputGroupT } from './input-group.types'
-
 export interface InputGroupContextValue {
   readonly grouped?: boolean
   readonly variant?: InputGroupT.Variants['variant']

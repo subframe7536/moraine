@@ -2,7 +2,6 @@ import { Accordion } from '@src'
 import type { AccordionT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const FAQ_ITEMS = [
   {
     value: 'install',

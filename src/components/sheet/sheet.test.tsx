@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 
 import { Sheet } from './sheet'
-
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)
@@ -65,19 +64,19 @@ describe('Sheet', () => {
     ))
 
     expect(mounts).toBe(0)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(1)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
       expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(mounts).toBe(2)
     })
@@ -102,7 +101,7 @@ describe('Sheet', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
@@ -148,7 +147,7 @@ describe('Sheet', () => {
     const content = document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')!
     expect(content.classList.contains('first-root')).toBe(true)
 
-    setRootClass('second-root')
+    flush(() => setRootClass('second-root'))
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(content.classList.contains('second-root')).toBe(true)
     expect(content.classList.contains('first-root')).toBe(false)
@@ -409,16 +408,16 @@ describe('Sheet', () => {
     expect(header.style.color).toBe('red')
     expect(body.classList.contains('family-body')).toBe(true)
     expect(body.classList.contains('local-body')).toBe(true)
-    setTitleId('renamed-title')
+    flush(() => setTitleId('renamed-title'))
     expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
-    setShowTitle(false)
-    setShowDescription(false)
+    flush(() => setShowTitle(false))
+    flush(() => setShowDescription(false))
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
-    setShowHeader(false)
+    flush(() => setShowHeader(false))
     expect(body.hasAttribute('data-header')).toBe(true)
     expect(content.textContent).toContain('Fallback')
-    setShowFooter(false)
+    flush(() => setShowFooter(false))
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
@@ -439,9 +438,9 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.hasAttribute('data-transition')).toBe(true)
 
-    setSide('right')
-    setInset(true)
-    setTransition(false)
+    flush(() => setSide('right'))
+    flush(() => setInset(true))
+    flush(() => setTransition(false))
 
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(content.hasAttribute('data-side')).toBe(false)
@@ -910,7 +909,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-testid="visible"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).toBeNull()
 
-    setVisible(false)
+    flush(() => setVisible(false))
 
     expect(document.body.querySelector('[data-testid="visible"]')).toBeNull()
     expect(document.body.querySelector('[data-testid="fallback"]')).not.toBeNull()
@@ -966,13 +965,13 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
 
-    setOverlay(false)
+    flush(() => setOverlay(false))
 
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(input.value).toBe('user typed text')
 
-    setOverlay(true)
+    flush(() => setOverlay(true))
 
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
@@ -1008,7 +1007,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-closed')).toBe(false)
     expect(content.hasAttribute('data-transition')).toBe(true)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
 
     expect(content.hasAttribute('data-expanded')).toBe(false)
@@ -1037,7 +1036,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-expanded')).toBe(true)
     expect(content.hasAttribute('data-closed')).toBe(false)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
@@ -1059,7 +1058,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-expanded')).toBe(true)
     expect(content.hasAttribute('data-closed')).toBe(false)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
 
     expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()

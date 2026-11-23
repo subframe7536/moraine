@@ -1,3 +1,4 @@
+import type { JSX } from '@solidjs/web'
 import type {
   CellData,
   ColumnDef,
@@ -17,7 +18,7 @@ import type {
   TableFeatures,
   TableOptions,
 } from '@tanstack/table-core'
-import type { Component, JSX, Ref } from 'solid-js'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../provider/locale/messages.types'
 import type { BaseProps } from '../shared/types'
@@ -27,7 +28,6 @@ import type { TableVirtualizer } from '../virtualizer/virtualizer.types'
 import type { DataTableFeatures } from './data-table-features'
 import type { defaultDataTableMessages } from './data-table.messages'
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
-
 declare module '@tanstack/table-core' {
   interface ColumnMeta<
     in out TFeatures extends TableFeatures,

@@ -1,6 +1,6 @@
-import { createRoute } from 'solid-file-router'
+export const route = {}
 
-function DocsNotFound() {
+export default function DocsNotFound() {
   return (
     <main class="text-muted-foreground px-6 py-12">
       <h1 class="text-2xl text-foreground font-semibold">Page not found</h1>
@@ -8,7 +8,3 @@ function DocsNotFound() {
     </main>
   )
 }
-
-export default createRoute({
-  component: () => <DocsNotFound />,
-})

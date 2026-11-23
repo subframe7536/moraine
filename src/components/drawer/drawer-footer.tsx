@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { onCleanup, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useDrawerContent, useDrawerContext } from './drawer-context'
 import { drawerDataAttributes, drawerRecipe } from './drawer.recipe'
 import type { DrawerT } from './drawer.types'
-
 /**
  * Action area at the end of `Drawer.Content`, below `Drawer.Body`, typically holding buttons such
  * as `Drawer.Close`. Renders a `div` by default; pass `as` to change the element.
@@ -31,7 +31,8 @@ import type { DrawerT } from './drawer.types'
 export function DrawerFooter<T extends ValidComponent = 'div'>(
   props: DrawerT.FooterProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+  const local = pick(props, 'as', 'class', 'style')
+  const rest = omit(props, 'as', 'class', 'style')
   const drawer = useDrawerContext()
   const content = useDrawerContent()
   const unregister = content.registerFooter()
@@ -44,6 +45,11 @@ export function DrawerFooter<T extends ValidComponent = 'div'>(
     context: () => ({ variants: content.variants, ...drawer.slotOverrides }),
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="drawer-footer" {...footerSlot} {...rest} />
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="drawer-footer"
+      {...footerSlot}
+      {...(rest as any)}
+    />
   )
 }

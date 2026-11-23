@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { normalizePanelSizes, normalizeSizeVector } from './size'
-
 describe('size', () => {
   test('normalizeSizeVector handles zero, negative and non-finite inputs', () => {
     expect(normalizeSizeVector([0, 0, 0])).toEqual([0.333333, 0.333333, 0.333334])

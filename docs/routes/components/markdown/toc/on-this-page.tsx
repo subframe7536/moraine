@@ -1,12 +1,11 @@
 import { useLocation } from '@solidjs/router'
-import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createEffect, createMemo, createSignal, onCleanup, onSettled } from 'solid-js'
 
 import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.recipe'
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
-
 function getOnThisPageIndentStyle(level: number) {
   const indentLevel = Math.max(0, level - 1)
   return { 'padding-inline-start': `${indentLevel * 0.75}rem` }
@@ -45,7 +44,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     setListHeight(element.offsetHeight)
   }
 
-  onMount(() => {
+  onSettled(() => {
     const element = list()
     if (!element) {
       return
@@ -53,10 +52,10 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     const resizeObserver = new ResizeObserver(measure)
     resizeObserver.observe(element)
     measure()
-    onCleanup(() => resizeObserver.disconnect())
+    return () => resizeObserver.disconnect()
   })
 
-  createEffect(on(() => props.entries, measure))
+  createEffect(() => props.entries, measure)
 
   const blockStyle = createMemo((): JSX.CSSProperties | undefined => {
     const ids = activeIds()
@@ -72,32 +71,28 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     }
   })
 
-  createEffect(
-    on(blockStyle, (style) => {
-      if (style && !loaded() && loadedFrame === undefined) {
-        loadedFrame = requestAnimationFrame(() => {
-          loadedFrame = undefined
-          setLoaded(true)
-        })
-      }
-    }),
-  )
+  createEffect(blockStyle, (style) => {
+    if (style && !loaded() && loadedFrame === undefined) {
+      loadedFrame = requestAnimationFrame(() => {
+        loadedFrame = undefined
+        setLoaded(true)
+      })
+    }
+  })
 
   // The nav is its own scroll container; keep the active entry inside it.
-  createEffect(
-    on(primaryActiveId, (id) => {
-      const element = list()
-      if (!id || !element) {
+  createEffect(primaryActiveId, (id) => {
+    const element = list()
+    if (!id || !element) {
+      return
+    }
+    for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
+      if (anchor.dataset.tocId === id) {
+        anchor.scrollIntoView({ block: 'nearest' })
         return
       }
-      for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
-        if (anchor.dataset.tocId === id) {
-          anchor.scrollIntoView({ block: 'nearest' })
-          return
-        }
-      }
-    }),
-  )
+    }
+  })
 
   return (
     <nav ref={setNav} aria-label="On This Page" class={props.class}>

@@ -1,7 +1,6 @@
 import { Icon, createTree } from '@src'
 import { createTreeSortable, moveTreeNode } from '@src/dnd'
 import { createSignal } from 'solid-js'
-
 interface FileNode {
   id: string
   name: string

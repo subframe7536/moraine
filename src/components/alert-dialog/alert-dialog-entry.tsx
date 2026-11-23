@@ -1,5 +1,6 @@
-import type { Component, JSX } from 'solid-js'
-import { DEV, Show, createEffect, createMemo, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { DEV, Show, createEffect, createMemo } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -20,7 +21,6 @@ import {
   alertDialogRecipe,
 } from './alert-dialog.recipe'
 import type { AlertDialogT } from './alert-dialog.types'
-
 function contentMaxWidth(width: string | number | undefined): string | undefined {
   if (width === undefined) {
     return undefined
@@ -95,7 +95,6 @@ function AlertDialogDefault(props: {
   record: AlertDialogRecord
   recipe: AlertDialogRecipe
 }): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- AlertDialogEntry creates the recipe once and never replaces it.
   const recipe = props.recipe
   const {
     slots: { header: headerSlot, icon: iconSlot, wrapper: wrapperSlot, footer: footerSlot },
@@ -190,15 +189,13 @@ export function AlertDialogEntry(props: {
   } = recipe
 
   createEffect(
-    on(
-      () => [options().title, options().ariaLabel] as const,
-      ([title, label]) => {
-        if (!DEV || hasContent(title) || label) {
-          return
-        }
-        console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
-      },
-    ),
+    () => [options().title, options().ariaLabel] as const,
+    ([title, label]) => {
+      if (!DEV || hasContent(title) || label) {
+        return
+      }
+      console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
+    },
   )
 
   const idle = () => props.record.pending() === undefined

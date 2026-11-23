@@ -1,11 +1,13 @@
-import type { Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
-import { createStore, produce } from 'solid-js/store'
-import { Portal, isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal, isServer } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, onCleanup, omit } from 'solid-js'
+import { createStore } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
+import { attachEventListener, attachEventListenerMap } from '../../shared/event-listener'
+import { pick } from '../../shared/utils'
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 
 import { ToastList } from './toast-list'
@@ -15,7 +17,6 @@ import { defaultToastMessages } from './toast.messages'
 import { toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastProps, ToastT } from './toast.types'
-
 function showToast(
   options: ToastT.Options,
   render?: JSX.Element | Component<ToastT.ItemRenderProps>,
@@ -35,7 +36,8 @@ function withType(type: ToastT.Variants['type'], options: ToastT.Options): Toast
  * methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'placement',
     'align',
@@ -56,7 +58,30 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'class',
     'style',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'placement',
+    'align',
+    'size',
+    'type',
+    'variant',
+    'itemRender',
+    'maxVisible',
+    'duration',
+    'closable',
+    'progress',
+    'expanded',
+    'preventDuplicate',
+    'gap',
+    'aria-label',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'translations',
+  )
   const messages = useMessages('toast', defaultToastMessages, () => local.translations)
   const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
@@ -89,39 +114,39 @@ function ToastRoot(props: ToastProps): JSX.Element {
   } = useRecipe(toastRecipe, local)
 
   createEffect(
-    on(
-      () => local.id,
-      (id) => {
-        const unregister = store.registry.register(controller)
-        onCleanup(() => {
-          unregister()
-          store.abandonHost(id)
-        })
-      },
-    ),
+    () => local.id,
+    (id) => {
+      const unregister = store.registry.register(controller)
+      onCleanup(() => {
+        unregister()
+        store.abandonHost(id)
+      })
+    },
   )
 
   const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === local.id))
   const hasToasts = () => filteredToasts().some((toast) => !toast.closed)
 
-  createEffect(
-    on(hasToasts, (active) => {
-      if (!active) {
-        return
-      }
-      setIsWindowFocused(document.hasFocus())
-      setIsDocumentHidden(document.hidden)
-      onCleanup(() => {
-        setIsWindowFocused(true)
-        setIsDocumentHidden(false)
-      })
-      createEventListenerMap(window, {
-        focus: () => setIsWindowFocused(true),
-        blur: () => setIsWindowFocused(false),
-      })
-      createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
-    }),
-  )
+  createEffect(hasToasts, (active) => {
+    if (!active) {
+      return
+    }
+    setIsWindowFocused(document.hasFocus())
+    setIsDocumentHidden(document.hidden)
+    const detachWindow = attachEventListenerMap(window, {
+      focus: () => setIsWindowFocused(true),
+      blur: () => setIsWindowFocused(false),
+    })
+    const detachVisibility = attachEventListener(document, 'visibilitychange', () =>
+      setIsDocumentHidden(document.hidden),
+    )
+    return () => {
+      setIsWindowFocused(true)
+      setIsDocumentHidden(false)
+      detachWindow()
+      detachVisibility()
+    }
+  })
 
   const possiblePositions = createMemo(() => {
     const defaultKey = `${local.placement ?? 'bottom'}-${local.align ?? 'end'}`
@@ -135,12 +160,16 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const updateHeight = (id: string | number, height: number) => {
     if (height <= 0) {
       if (heights[id] !== undefined) {
-        setHeights(produce((draft) => delete draft[id]))
+        setHeights((draft) => {
+          delete draft[id]
+        })
       }
       return
     }
     if (heights[id] !== height) {
-      setHeights(produce((draft) => (draft[id] = height)))
+      setHeights((draft) => {
+        draft[id] = height
+      })
     }
   }
 
@@ -149,7 +178,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
       <section
         data-slot="toast"
         role="region"
-        tabIndex={-1}
+        tabindex={-1}
         {...rootSlot}
         {...rest}
         aria-live="polite"

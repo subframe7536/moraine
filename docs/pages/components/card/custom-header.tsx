@@ -1,5 +1,4 @@
 import { Card } from '@src'
-
 export function CustomHeader() {
   return (
     <Card class="max-w-sm">

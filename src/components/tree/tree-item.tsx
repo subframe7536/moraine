@@ -1,22 +1,20 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   For,
-  Index,
   Show,
   createMemo,
   createEffect,
   createSignal,
-  on,
   onCleanup,
-  splitProps,
   untrack,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { bindElement } from '../../shared/element-binding'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, pick } from '../../shared/utils'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
 import { TreeItemAction } from './tree-item-action'
@@ -32,7 +30,6 @@ import {
   treeRecipe,
 } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 const ACTION_SELECTOR = '[data-slot="tree-action"]'
 const INTERACTIVE_SELECTOR = `a, button, input, select, textarea, label, [role="checkbox"], ${ACTION_SELECTOR}`
 const POINTER_FOCUS_SELECTOR =
@@ -83,41 +80,36 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   // progress, so the opposite animation takes over. Toggles while transitions are off do not count.
   // Every change after mount is a user toggle, so it reads `transition` rather than
   // `allowHeightMotion`, whose `initialOpen` input updates only after this first open.
-  const toggles = createMemo<number>(
-    on(visualExpanded, (_expanded, _previous, count?: number): number =>
-      count === undefined ? 0 : untrack(transition) ? count + 1 : count,
-    ),
-  )
+  const toggles = createMemo<number>((count?: number): number => {
+    visualExpanded()
+    return count === undefined ? 0 : untrack(transition) ? count + 1 : count
+  })
   const [settledToggles, setSettledToggles] = createSignal(untrack(toggles))
   const animating = () => allowHeightMotion() && toggles() !== settledToggles()
   const finish = () => setSettledToggles(untrack(toggles))
   let contentElement: HTMLElement | undefined
   createEffect(
-    on(
-      toggles,
-      () => {
-        // No animation runs under reduced motion, so `animationend` never fires.
-        requestAnimationFrame(() => {
-          if (contentElement?.getAnimations?.().length === 0) {
-            finish()
-          }
-        })
-      },
-      { defer: true },
-    ),
+    toggles,
+    () => {
+      // No animation runs under reduced motion, so `animationend` never fires.
+      requestAnimationFrame(() => {
+        if (contentElement?.getAnimations?.().length === 0) {
+          finish()
+        }
+      })
+    },
+    { defer: true },
   )
   const settle = (event: AnimationEvent) => {
     if (event.target === event.currentTarget) {
       finish()
     }
   }
-  createEffect(
-    on(disclosure.contentHeight, (height) => {
-      if (height > 0) {
-        setLastHeight(height)
-      }
-    }),
-  )
+  createEffect(disclosure.contentHeight, (height) => {
+    if (height > 0) {
+      setLastHeight(height)
+    }
+  })
   const {
     slots: { content: contentSlot },
   } = useRecipe(
@@ -219,7 +211,8 @@ export function TreeItemList(props: {
  * ```
  */
 export function TreeItem(props: TreeT.ItemProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'item',
     'children',
     'ref',
@@ -229,24 +222,38 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     'onKeyDown',
     'onFocusIn',
     'onMouseDown',
-  ])
+  )
+  const rest = omit(
+    props,
+    'item',
+    'children',
+    'ref',
+    'class',
+    'style',
+    'onClick',
+    'onKeyDown',
+    'onFocusIn',
+    'onMouseDown',
+  )
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
   const [itemElement, setItemElement] = createSignal<HTMLElement>()
   // Re-register when a reused row renders another item key.
   createEffect(
-    on([itemElement, () => local.item.key], ([element, key]) => {
+    () => [itemElement(), (() => local.item.key)()],
+    ([element, key]) => {
       if (element) {
         onCleanup(context.state.navigation.registerElement(key, element))
       }
-    }),
+    },
   )
   // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
   // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
-  const [, rowAttributes] = splitProps(
+  const rowAttributes = omit(
     untrack(() => row() ?? {}),
-    ['ref', 'style'],
+    'ref',
+    'style',
   )
   const {
     slots: { item: itemSlot, row: rowSlot, guide: guideSlot },
@@ -300,7 +307,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         {...itemSlot}
         {...rest}
         {...rowAttributes}
-        tabIndex={
+        tabindex={
           local.item.disabled
             ? undefined
             : context.state.navigation.tabStopKey() === local.item.key
@@ -310,17 +317,27 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-level={local.item.level}
         aria-posinset={local.item.posInSet}
         aria-setsize={local.item.setSize}
-        aria-expanded={local.item.hasChildren ? local.item.expanded : undefined}
-        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.selected}
+        aria-expanded={
+          local.item.hasChildren ? (local.item.expanded ? 'true' : 'false') : undefined
+        }
+        aria-selected={
+          context.state.selectionMode() === 'none'
+            ? undefined
+            : local.item.selected
+              ? 'true'
+              : 'false'
+        }
         aria-checked={
           context.options.checkable
             ? local.item.checkedState === 'indeterminate'
               ? 'mixed'
               : local.item.checkedState === 'checked'
+                ? 'true'
+                : 'false'
             : undefined
         }
-        aria-disabled={local.item.disabled ? true : undefined}
-        aria-busy={local.item.loading ? true : undefined}
+        aria-disabled={local.item.disabled ? 'true' : undefined}
+        aria-busy={local.item.loading ? 'true' : undefined}
         ref={(element: HTMLElement) => {
           setItemElement(element)
           callRef(row()?.ref, element)
@@ -365,9 +382,9 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         <div data-slot="tree-row" {...rowSlot}>
           <Show when={variants.indentGuide && local.item.level > 1}>
             <span data-slot="tree-guides" aria-hidden="true" class={TREE_GUIDES_CLASS}>
-              <Index each={Array.from({ length: local.item.level - 1 })}>
+              <For each={Array.from({ length: local.item.level - 1 })} keyed={false}>
                 {() => <span data-slot="tree-guide" {...guideSlot} />}
-              </Index>
+              </For>
             </span>
           </Show>
           {local.children}

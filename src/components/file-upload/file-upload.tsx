@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, Show, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -7,7 +7,7 @@ import { bindElement } from '../../shared/element-binding'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { Icon } from '../icon'
 import { useFormReset } from '../shared/form/use-form-reset'
@@ -21,7 +21,6 @@ import { FileUploadItem } from './file-upload-item'
 import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
-
 function isSameFileValue(a: unknown, b: unknown): boolean {
   if (Array.isArray(a) && Array.isArray(b)) {
     return a.length === b.length && a.every((file, i) => file === b[i])
@@ -55,7 +54,8 @@ function isSameFileValue(a: unknown, b: unknown): boolean {
 export function FileUpload<TMultiple extends boolean = false>(
   props: FileUploadProps<TMultiple>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'name',
     'form',
@@ -94,7 +94,48 @@ export function FileUpload<TMultiple extends boolean = false>(
     'style',
     'aria-label',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'name',
+    'form',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'inputRef',
+    'onClick',
+    'onKeyDown',
+    'onFocus',
+    'onBlur',
+    'onDragOver',
+    'onDragLeave',
+    'onDrop',
+    'accept',
+    'multiple',
+    'dropzone',
+    'fileList',
+    'label',
+    'description',
+    'icon',
+    'fileIcon',
+    'maxFiles',
+    'minSize',
+    'maxSize',
+    'onValueChange',
+    'onValueInvalid',
+    'itemRender',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'translations',
+  )
   const messages = useMessages('fileUpload', defaultFileUploadMessages, () => local.translations)
   const themeField = useFieldContext()
   const {
@@ -130,7 +171,7 @@ export function FileUpload<TMultiple extends boolean = false>(
     context: () => ({ variants: { size: themeField?.size } }),
   })
 
-  const merged = mergeProps(
+  const merged = merge(
     {
       accept: '*',
       multiple: false,
@@ -254,7 +295,7 @@ export function FileUpload<TMultiple extends boolean = false>(
 
     return labelledBy
       ? { 'aria-labelledby': labelledBy }
-      : { 'aria-label': local['aria-label'] ?? messages().label }
+      : { 'aria-label': local['aria-label'] || messages().label }
   })
   const controlAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
@@ -309,7 +350,7 @@ export function FileUpload<TMultiple extends boolean = false>(
       id={`${field.id()}-root`}
       aria-labelledby={labelling()['aria-labelledby']}
       aria-label={labelling()['aria-label']}
-      aria-disabled={field.disabled() ? true : undefined}
+      aria-disabled={field.disabled() ? 'true' : undefined}
     >
       <button
         type="button"
@@ -363,7 +404,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         required={field.required()}
         disabled={field.disabled()}
         readonly={field.readOnly()}
-        tabIndex={-1}
+        tabindex={-1}
         aria-hidden="true"
         onChange={(event) => {
           addFiles(Array.from(event.currentTarget.files ?? []))

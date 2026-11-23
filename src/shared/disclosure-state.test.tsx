@@ -1,8 +1,7 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createDisclosureState } from './disclosure-state'
-
 function setScrollHeight(element: HTMLElement, getValue: () => number): void {
   Object.defineProperty(element, 'scrollHeight', { configurable: true, get: getValue })
 }
@@ -38,14 +37,14 @@ describe('createDisclosureState', () => {
     }))
     const element = document.createElement('div')
     let scrollHeight = 10
-    setScrollHeight(element, () => scrollHeight)
+    flush(() => setScrollHeight(element, () => scrollHeight))
     document.body.append(element)
 
-    lifecycle.state.registerMeasureElement(element)
+    flush(() => lifecycle.state.registerMeasureElement(element))
     expect(lifecycle.state.contentHeight()).toBe(10)
 
     scrollHeight = 20
-    notifiers[0]?.()
+    flush(() => notifiers[0]?.())
     expect(lifecycle.state.contentHeight()).toBe(20)
 
     element.remove()
@@ -62,20 +61,20 @@ describe('createDisclosureState', () => {
     const second = document.createElement('div')
     let firstHeight = 10
     let secondHeight = 20
-    setScrollHeight(first, () => firstHeight)
-    setScrollHeight(second, () => secondHeight)
+    flush(() => setScrollHeight(first, () => firstHeight))
+    flush(() => setScrollHeight(second, () => secondHeight))
     document.body.append(first, second)
 
-    lifecycle.state.registerMeasureElement(first)
-    lifecycle.state.registerMeasureElement(second)
+    flush(() => lifecycle.state.registerMeasureElement(first))
+    flush(() => lifecycle.state.registerMeasureElement(second))
     expect(lifecycle.state.contentHeight()).toBe(20)
 
     firstHeight = 30
-    notifiers[0]?.()
+    flush(() => notifiers[0]?.())
     expect(lifecycle.state.contentHeight()).toBe(20)
 
     secondHeight = 25
-    notifiers[1]?.()
+    flush(() => notifiers[1]?.())
     expect(lifecycle.state.contentHeight()).toBe(25)
 
     first.remove()
@@ -85,16 +84,16 @@ describe('createDisclosureState', () => {
 
   test('exposes reactive data attribute getters', () => {
     createRoot((dispose) => {
-      const [open, setOpen] = createSignal(false)
-      const [disabled, setDisabled] = createSignal(false)
+      const [open, setOpen] = createSignal(false, { ownedWrite: true })
+      const [disabled, setDisabled] = createSignal(false, { ownedWrite: true })
       const state = createDisclosureState({ open, disabled })
 
       expect(state.dataAttrs['data-closed']).toBe('')
       expect(state.dataAttrs['data-disabled']).toBeUndefined()
       expect(state.dataAttrs['data-expanded']).toBeUndefined()
 
-      setOpen(true)
-      setDisabled(true)
+      flush(() => setOpen(true))
+      flush(() => setDisabled(true))
 
       expect(state.dataAttrs['data-closed']).toBeUndefined()
       expect(state.dataAttrs['data-disabled']).toBe('')
@@ -108,9 +107,9 @@ describe('createDisclosureState', () => {
 
     expect(() => {
       createRoot((dispose) => {
-        const [open, setOpen] = createSignal(false)
+        const [open, setOpen] = createSignal(false, { ownedWrite: true })
         createDisclosureState({ open })
-        setOpen(true)
+        flush(() => setOpen(true))
         dispose()
       })
     }).not.toThrow()
@@ -118,8 +117,8 @@ describe('createDisclosureState', () => {
 
   test('calculates shouldMount from the open state and forceMount', () => {
     createRoot((dispose) => {
-      const [open, setOpen] = createSignal(false)
-      const [forceMount, setForceMount] = createSignal(false)
+      const [open, setOpen] = createSignal(false, { ownedWrite: true })
+      const [forceMount, setForceMount] = createSignal(false, { ownedWrite: true })
       const state = createDisclosureState({
         open,
         forceMount,
@@ -128,11 +127,11 @@ describe('createDisclosureState', () => {
 
       expect(state.shouldMount()).toBe(false)
 
-      setForceMount(true)
+      flush(() => setForceMount(true))
       expect(state.shouldMount()).toBe(true)
 
-      setForceMount(false)
-      setOpen(true)
+      flush(() => setForceMount(false))
+      flush(() => setOpen(true))
       expect(state.shouldMount()).toBe(true)
 
       dispose()
@@ -147,7 +146,7 @@ describe('createDisclosureState', () => {
 
     createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true)
+      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
       setOpen = setControlledOpen
       const state = createDisclosureState({ open })
 
@@ -157,14 +156,14 @@ describe('createDisclosureState', () => {
       content.append(innerInput)
       document.body.append(trigger, content)
 
-      state.setTriggerElement(trigger)
-      state.registerContentElement(content)
+      flush(() => state.setTriggerElement(trigger))
+      flush(() => state.registerContentElement(content))
     })
 
     innerInput.focus()
     expect(document.activeElement).toBe(innerInput)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(trigger)
@@ -182,7 +181,7 @@ describe('createDisclosureState', () => {
 
     createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true)
+      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
       setOpen = setControlledOpen
       const state = createDisclosureState({ open })
 
@@ -191,14 +190,14 @@ describe('createDisclosureState', () => {
       const content = document.createElement('div')
       document.body.append(trigger, outside, content)
 
-      state.setTriggerElement(trigger)
-      state.registerContentElement(content)
+      flush(() => state.setTriggerElement(trigger))
+      flush(() => state.registerContentElement(content))
     })
 
     outside.focus()
     expect(document.activeElement).toBe(outside)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(outside)
@@ -220,7 +219,7 @@ describe('createDisclosureState', () => {
 
     createRoot((dispose) => {
       disposeRoot = dispose
-      const [open, setControlledOpen] = createSignal(true)
+      const [open, setControlledOpen] = createSignal(true, { ownedWrite: true })
       setOpen = setControlledOpen
       const state = createDisclosureState({ open })
 
@@ -230,14 +229,14 @@ describe('createDisclosureState', () => {
       content.append(input)
       doc.body.append(trigger, content)
 
-      state.setTriggerElement(trigger)
-      state.registerContentElement(content)
+      flush(() => state.setTriggerElement(trigger))
+      flush(() => state.registerContentElement(content))
     })
 
     input.focus()
     expect(doc.activeElement).toBe(input)
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
 
     expect(doc.activeElement).toBe(trigger)
@@ -253,18 +252,19 @@ describe('createDisclosureState', () => {
     }))
     const first = document.createElement('div')
     const second = document.createElement('div')
-    setScrollHeight(first, () => 10)
-    setScrollHeight(second, () => 20)
+    flush(() => setScrollHeight(first, () => 10))
+    flush(() => setScrollHeight(second, () => 20))
     document.body.append(first, second)
 
     const releaseFirst = lifecycle.state.registerMeasureElement(first)
     const releaseSecond = lifecycle.state.registerMeasureElement(second)
+    flush()
     expect(lifecycle.state.contentHeight()).toBe(20)
 
-    releaseSecond()
+    flush(() => releaseSecond())
     expect(lifecycle.state.contentHeight()).toBe(10)
 
-    releaseFirst()
+    flush(() => releaseFirst())
     expect(lifecycle.state.contentHeight()).toBe(0)
     first.remove()
     second.remove()
@@ -278,16 +278,16 @@ describe('createDisclosureState', () => {
     }))
     const shell = document.createElement('div')
     const body = document.createElement('div')
-    setScrollHeight(shell, () => 30)
-    setScrollHeight(body, () => 10)
+    flush(() => setScrollHeight(shell, () => 30))
+    flush(() => setScrollHeight(body, () => 10))
     document.body.append(shell, body)
 
     const releaseFirstShell = lifecycle.state.registerMeasureElement(shell)
-    lifecycle.state.registerMeasureElement(body)
-    lifecycle.state.registerMeasureElement(shell)
+    flush(() => lifecycle.state.registerMeasureElement(body))
+    flush(() => lifecycle.state.registerMeasureElement(shell))
     expect(lifecycle.state.contentHeight()).toBe(30)
 
-    releaseFirstShell()
+    flush(() => releaseFirstShell())
     expect(lifecycle.state.contentHeight()).toBe(30)
 
     shell.remove()
@@ -300,13 +300,12 @@ describe('createDisclosureState', () => {
       const state = createDisclosureState({ open: () => true })
       const first = document.createElement('div')
       const second = document.createElement('div')
-      setScrollHeight(first, () => 40)
+      flush(() => setScrollHeight(first, () => 40))
 
       const releaseFirst = state.registerContentElement(first)
       expect(state.contentHeight()).toBe(0)
-      state.registerContentElement(second)
-      releaseFirst()
-
+      flush(() => state.registerContentElement(second))
+      flush(() => releaseFirst())
       expect(state.contentElement()).toBe(second)
       dispose()
     })

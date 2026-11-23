@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Icon, Separator, Sidebar } from '@src'
 import { For } from 'solid-js'
-
 export function SideAndVariantUsage() {
   const reviewers = [
     { name: 'Sarah C.', approved: true },

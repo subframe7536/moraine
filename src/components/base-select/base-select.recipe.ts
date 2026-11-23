@@ -9,7 +9,6 @@ import {
 } from '../shared/overlay/popper.recipe'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
-
 export const BASE_SELECT_POSITIONER_CLASS = 'z-floating'
 
 const SELECT_CONTENT_CLASS = `text-popover-foreground p-0 outline-none border border-border rounded-md bg-popover flex flex-col ${POPPER_CONTENT_MAX_WIDTH_CLASS} min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) shadow-overlay origin-(--mo-popper-content-transform-origin) z-floating ${POPPER_SIDE_Y_CLASS} data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none`

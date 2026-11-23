@@ -1,12 +1,11 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Select } from './select'
 import type { SelectT } from './select.types'
-
 test('hydrates Select Control/Trigger/Value anatomy in place', () => {
   const { container } = hydrateFixture(
     '/src/components/select/select.ssr.fixture.tsx',
@@ -64,7 +63,7 @@ test('hydrates and updates custom itemRender content without replacing the serve
   const first = items[0]!
   expect(first.textContent).toBe('Apple')
 
-  setAppleLabel('Apricot')
+  flush(() => setAppleLabel('Apricot'))
   expect(first.textContent).toBe('Apricot')
   expect(document.body.querySelectorAll('[data-testid="custom-item"]')[0]).toBe(first)
 })

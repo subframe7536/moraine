@@ -1,7 +1,6 @@
 import { Button, Drawer } from '@src'
 import type { DrawerT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function SnapPoints() {
   const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px')
 

@@ -1,19 +1,20 @@
-import type { JSX } from 'solid-js'
-import { onCleanup, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
   return function SheetHeader<T extends ValidComponent = 'div'>(
     props: SheetT.HeaderProps<T>,
   ): JSX.Element {
-    const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+    const local = pick(props, 'as', 'class', 'style')
+    const rest = omit(props, 'as', 'class', 'style')
     const sheet = useSheetContext()
     const content = useSheetContent()
     const unregister = content.registerHeader(headerKind)
@@ -25,7 +26,12 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
       context: () => ({ variants: content.variants, ...sheet.slotOverrides }),
     })
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...headerSlot} {...rest} />
+      <Dynamic
+        component={local.as ?? 'div'}
+        data-slot="sheet-header"
+        {...headerSlot}
+        {...(rest as any)}
+      />
     )
   }
 }

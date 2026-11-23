@@ -1,6 +1,5 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-
 const TIMEZONE_GROUPS: SelectT.Entry[] = [
   {
     label: 'Americas',

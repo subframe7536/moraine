@@ -11,13 +11,12 @@ import {
 } from '@floating-ui/dom'
 import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, on, onCleanup } from 'solid-js'
+import { createEffect, createRoot, getOwner, onCleanup, runWithOwner } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
 
 import { resolveDirection } from './direction'
 import { getTransformOrigin } from './transform-origin'
-
 export interface FloatingPositionOptions {
   contentElement?: Accessor<HTMLElement | undefined>
   detachedPadding?: Accessor<number>
@@ -55,113 +54,123 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
     }
   }
 
+  const owner = getOwner()
   createEffect(
-    on(
-      [options.open, options.floatingElement, options.getReferenceElement, providerDirection],
-      ([open, floating, reference]) => {
-        publishPositioned(false)
-        if (!open || !floating || !reference) {
-          return
-        }
-        let active = true
-        let requestVersion = 0
-        let positionedFrame: number | undefined
-        let positionedTimeout: ReturnType<typeof setTimeout> | undefined
-        let cleanupAutoUpdate: (() => void) | undefined
-        let updatePosition: () => Promise<void>
-        let committed: (() => boolean) | undefined
-        let pendingTransform: string | undefined
-        const ownerWindow = floating.ownerDocument.defaultView
-        const ownedStyles = new Map<
-          string,
-          { element: HTMLElement; value: string; priority: string; applied: string }
-        >()
-        const restoreStyle = (property: string): void => {
-          const saved = ownedStyles.get(property)
-          if (!saved) {
-            return
+    () => [
+      options.open(),
+      options.floatingElement(),
+      options.getReferenceElement(),
+      providerDirection(),
+    ],
+    ([open, floating, reference]) => {
+      publishPositioned(false)
+      if (!open || !floating || !reference) {
+        return
+      }
+      return runWithOwner(owner, () =>
+        createRoot((dispose) => {
+          let active = true
+          let requestVersion = 0
+          let positionedFrame: number | undefined
+          let positionedTimeout: ReturnType<typeof setTimeout> | undefined
+          let cleanupAutoUpdate: (() => void) | undefined
+          let updatePosition: () => Promise<void>
+          let committed: (() => boolean) | undefined
+          let pendingTransform: string | undefined
+          const ownerWindow = floating.ownerDocument.defaultView
+          const ownedStyles = new Map<
+            string,
+            { element: HTMLElement; value: string; priority: string; applied: string }
+          >()
+          const restoreStyle = (property: string): void => {
+            const saved = ownedStyles.get(property)
+            if (!saved) {
+              return
+            }
+            if (
+              saved.element.style.getPropertyValue(property) === saved.applied &&
+              saved.element.style.getPropertyPriority(property) === ''
+            ) {
+              saved.element.style.setProperty(property, saved.value, saved.priority)
+            }
+            ownedStyles.delete(property)
           }
-          if (
-            saved.element.style.getPropertyValue(property) === saved.applied &&
-            saved.element.style.getPropertyPriority(property) === ''
-          ) {
-            saved.element.style.setProperty(property, saved.value, saved.priority)
-          }
-          ownedStyles.delete(property)
-        }
-        const setStyleProperty = (element: HTMLElement, property: string, value: string): void => {
-          if (element.style.getPropertyValue(property) !== value) {
-            element.style.setProperty(property, value)
-          }
-        }
-        const writeStyle = (element: HTMLElement, property: string, value: string): void => {
-          if (!ownedStyles.has(property)) {
-            ownedStyles.set(property, {
-              element,
-              value: element.style.getPropertyValue(property),
-              priority: element.style.getPropertyPriority(property),
-              applied: value,
-            })
-          }
-          if (element.style.getPropertyValue(property) !== value) {
-            element.style.setProperty(property, value)
-          }
-          ownedStyles.get(property)!.applied = element.style.getPropertyValue(property)
-        }
-        const cancelPositioned = (): void => {
-          if (positionedFrame !== undefined) {
-            ownerWindow?.cancelAnimationFrame(positionedFrame)
-          }
-          if (positionedTimeout !== undefined) {
-            clearTimeout(positionedTimeout)
-          }
-          positionedFrame = undefined
-          positionedTimeout = undefined
-        }
-        const markPositioned = (): void => {
-          cancelPositioned()
-          if (committed?.()) {
-            // Commit coordinates before enabling position transitions.
-            floating.getBoundingClientRect()
-            publishPositioned(true)
-            if (pendingTransform !== undefined && committed?.()) {
-              // Commit the starting position with transition styles before changing the transform.
-              floating.getBoundingClientRect()
-              floating.style.transform = pendingTransform
-              pendingTransform = undefined
+          const setStyleProperty = (
+            element: HTMLElement,
+            property: string,
+            value: string,
+          ): void => {
+            if (element.style.getPropertyValue(property) !== value) {
+              element.style.setProperty(property, value)
             }
           }
-        }
-
-        Object.assign(floating.style, { position: 'absolute', left: '0', top: '0' })
-        onCleanup(() => {
-          active = false
-          committed = undefined
-          cleanupAutoUpdate?.()
-          cancelPositioned()
-          for (const property of ownedStyles.keys()) {
-            restoreStyle(property)
+          const writeStyle = (element: HTMLElement, property: string, value: string): void => {
+            if (!ownedStyles.has(property)) {
+              ownedStyles.set(property, {
+                element,
+                value: element.style.getPropertyValue(property),
+                priority: element.style.getPropertyPriority(property),
+                applied: value,
+              })
+            }
+            if (element.style.getPropertyValue(property) !== value) {
+              element.style.setProperty(property, value)
+            }
+            ownedStyles.get(property)!.applied = element.style.getPropertyValue(property)
           }
-          floating.style.visibility = 'hidden'
-          publishPositioned(false)
-        })
+          const cancelPositioned = (): void => {
+            if (positionedFrame !== undefined) {
+              ownerWindow?.cancelAnimationFrame(positionedFrame)
+            }
+            if (positionedTimeout !== undefined) {
+              clearTimeout(positionedTimeout)
+            }
+            positionedFrame = undefined
+            positionedTimeout = undefined
+          }
+          const markPositioned = (): void => {
+            cancelPositioned()
+            if (committed?.()) {
+              // Commit coordinates before enabling position transitions.
+              floating.getBoundingClientRect()
+              publishPositioned(true)
+              if (pendingTransform !== undefined && committed?.()) {
+                // Commit the starting position with transition styles before changing the transform.
+                floating.getBoundingClientRect()
+                floating.style.transform = pendingTransform
+                pendingTransform = undefined
+              }
+            }
+          }
 
-        createEffect(
-          on(
-            [
-              () => options.contentElement?.(),
-              () => options.detachedPadding?.(),
-              () => options.fitViewport?.(),
-              () => options.flip?.(),
-              options.gutter,
-              () => options.hideWhenDetached?.(),
-              () => options.inline?.(),
-              options.overflowPadding,
-              () => options.overlap?.(),
-              options.placement,
-              () => options.sameWidth?.(),
-              () => options.shift?.(),
-              () => options.slide?.(),
+          Object.assign(floating.style, { position: 'absolute', left: '0', top: '0' })
+          onCleanup(() => {
+            active = false
+            committed = undefined
+            cleanupAutoUpdate?.()
+            cancelPositioned()
+            for (const property of ownedStyles.keys()) {
+              restoreStyle(property)
+            }
+            floating.style.visibility = 'hidden'
+            publishPositioned(false)
+          })
+
+          createEffect(
+            () => [
+              (() => options.contentElement?.())(),
+              (() => options.detachedPadding?.())(),
+              (() => options.fitViewport?.())(),
+              (() => options.flip?.())(),
+              options.gutter(),
+              (() => options.hideWhenDetached?.())(),
+              (() => options.inline?.())(),
+              options.overflowPadding(),
+              (() => options.overlap?.())(),
+              options.placement(),
+              (() => options.sameWidth?.())(),
+              (() => options.shift?.())(),
+              (() => options.slide?.())(),
             ],
             ([
               contentElement,
@@ -178,9 +187,6 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               shiftValue,
               slideValue,
             ]) => {
-              onCleanup(() => {
-                requestVersion += 1
-              })
               const flipOption = flipValue ?? true
               const overlap = overlapValue ?? true
               const crossAxisOffset = shiftValue ?? 0
@@ -371,7 +377,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
 
               if (cleanupAutoUpdate) {
                 void updatePosition()
-              } else {
+              } else if (floating.isConnected && (!('isConnected' in reference) || reference.isConnected)) {
                 cleanupAutoUpdate = autoUpdate(
                   reference,
                   floating,
@@ -381,11 +387,15 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   { elementResize: typeof ResizeObserver === 'function' },
                 )
               }
+              return () => {
+                requestVersion += 1
+              }
             },
-          ),
-        )
-      },
-    ),
+          )
+          return dispose
+        }),
+      )
+    },
   )
 }
 
@@ -395,7 +405,8 @@ export function usePositionerZIndex(
   contentElement: Accessor<HTMLElement | undefined>,
 ): void {
   createEffect(
-    on([positionerElement, contentElement], ([positioner, content]) => {
+    () => [positionerElement(), contentElement()],
+    ([positioner, content]) => {
       if (!positioner || !content) {
         return
       }
@@ -413,6 +424,6 @@ export function usePositionerZIndex(
           }
         }
       })
-    }),
+    },
   )
 }

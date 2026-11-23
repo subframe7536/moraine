@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +8,6 @@ import { defineTheme } from '../../theme'
 import { ButtonGroup } from '../button-group'
 
 import { ToggleButton } from './toggle-button'
-
 describe('ToggleButton', () => {
   test('shows conditional JSX children when their condition changes', () => {
     const [visible, setVisible] = createSignal(false)
@@ -22,9 +21,9 @@ describe('ToggleButton', () => {
     const button = screen.getByRole('button', { name: 'Conditional' })
 
     expect(screen.queryByText('Visible content')).toBeNull()
-    setVisible(true)
+    flush(() => setVisible(true))
     expect(button.textContent).toContain('Visible content')
-    setVisible(false)
+    flush(() => setVisible(false))
     expect(screen.queryByText('Visible content')).toBeNull()
   })
   test('toggles native button state after the caller click without submitting its form', () => {
@@ -75,7 +74,7 @@ describe('ToggleButton', () => {
     fireEvent.click(controlled)
     expect(onPressedChange).toHaveBeenCalledExactlyOnceWith(true)
     expect(controlled.getAttribute('aria-pressed')).toBe('false')
-    setPressed(true)
+    flush(() => setPressed(true))
     expect(controlled.getAttribute('aria-pressed')).toBe('true')
     fireEvent.click(controlled)
     expect(onPressedChange).toHaveBeenLastCalledWith(false)
@@ -214,7 +213,7 @@ describe('ToggleButton', () => {
     expect(label.classList.contains('toggle-label-theme')).toBe(true)
     expect(label.classList.contains('label-override')).toBe(true)
     expect(label.style.fontWeight).toBe('600')
-    setCustomClass('updated-class')
+    flush(() => setCustomClass('updated-class'))
     expect(button.classList.contains('updated-class')).toBe(true)
     expect(button.classList.contains('instance-class')).toBe(false)
   })
@@ -244,8 +243,8 @@ describe('ToggleButton', () => {
 
     expect(screen.getByText('Draft')).not.toBeNull()
     fireEvent.click(button)
-    setLoading(true)
-    setText('Updated')
+    flush(() => setLoading(true))
+    flush(() => setText('Updated'))
     expect(screen.getByText('Updated')).not.toBeNull()
     expect(button.getAttribute('aria-pressed')).toBe('true')
   })

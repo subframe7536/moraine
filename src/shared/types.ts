@@ -1,7 +1,7 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
-
 export type ElementProps<
   T extends HTMLElement = HTMLElement,
   A extends JSX.HTMLAttributes<T> = JSX.HTMLAttributes<T>,
@@ -38,11 +38,9 @@ export type Tags = MoraineTypeConfig extends { simpleHtmlTags: true }
 
 export type ValidComponent = Tags | Component<any> | (string & {})
 
-type CommonRootProps = { [x: string]: unknown }
+type CommonRootProps = { [x: string]: any }
 
-type LowerCaseEvents = Lowercase<
-  Extract<keyof JSX.CustomEventHandlersCamelCase<HTMLElement>, string>
->
+type LowerCaseEvents = Lowercase<Extract<keyof JSX.EventHandlersElement<HTMLElement>, string>>
 
 type StrictedAttributeKeys =
   | LowerCaseEvents

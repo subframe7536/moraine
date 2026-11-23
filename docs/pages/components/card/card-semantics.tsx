@@ -1,5 +1,4 @@
 import { Badge, Card } from '@src'
-
 export function CardSemantics() {
   return (
     <Card as="article" class="max-w-sm w-full">

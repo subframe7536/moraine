@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createOutsidePressHandlers } from './outside-press'
-
 function pointerEvent(pointerId: number, defaultPrevented = false): PointerEvent {
   return {
     button: 0,

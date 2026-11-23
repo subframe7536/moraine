@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 
 import { createRegion } from './sidebar-region'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * List of the navigation items of a `Sidebar.Group`. Renders a `ul` by default, so its children
  * should be `Sidebar.MenuItem` entries; pass `as` to render another element.

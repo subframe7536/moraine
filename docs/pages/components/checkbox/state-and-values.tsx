@@ -1,6 +1,5 @@
 import { Checkbox } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StateAndValues() {
   const [checked, setChecked] = createSignal(true)
 

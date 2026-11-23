@@ -1,6 +1,5 @@
 import { Badge, createTree } from '@src'
 import { Show } from 'solid-js'
-
 interface Workspace {
   id: string
   name: string

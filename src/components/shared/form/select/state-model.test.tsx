@@ -6,7 +6,6 @@ import { BaseSelect } from '../../../base-select/base-select'
 import { useSelectContext } from '../../../base-select/base-select-context'
 import { Combobox } from '../../../combobox/combobox'
 import { MultiSelect } from '../../../multi-select/multi-select'
-
 const items = [
   { value: 'US', label: 'United States' },
   { value: 'GB', label: 'United Kingdom' },

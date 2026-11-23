@@ -4,7 +4,6 @@ import { renderDocsCodeHtml } from '../core/shiki.ts'
 
 import { formatExpandedPropType } from './presentation.ts'
 import type { ComponentApi, PropApi } from './types.ts'
-
 const MARKDOWN_CODE_OR_ANGLE = /(```[\s\S]*?```|`[^`\n]*`)|</g
 
 /** Escape `<` outside code so JSDoc prose never becomes raw HTML. */

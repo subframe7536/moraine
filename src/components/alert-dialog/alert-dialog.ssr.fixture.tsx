@@ -1,8 +1,7 @@
-import type { JSX } from 'solid-js'
-import { renderToString } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { renderToString } from '@solidjs/web'
 
 import { AlertDialog } from './alert-dialog'
-
 export function AlertDialogFixture(): JSX.Element {
   return <AlertDialog />
 }

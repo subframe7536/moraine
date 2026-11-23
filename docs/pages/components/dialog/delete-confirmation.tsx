@@ -1,6 +1,5 @@
 import { Button, Dialog } from '@src'
 import { createSignal, Show } from 'solid-js'
-
 export function DeleteConfirmation() {
   const [exists, setExists] = createSignal(true)
   const [open, setOpen] = createSignal(false)

@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Popover } from './popover'
-
 describe('Popover SSR Hydration', () => {
   test('hydrates closed hover markup and opens it from keyboard focus', async () => {
     vi.useFakeTimers()

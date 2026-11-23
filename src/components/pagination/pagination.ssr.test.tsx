@@ -5,7 +5,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Pagination } from './pagination'
-
 describe('Pagination SSR Hydration', () => {
   test('renders deterministic single-page SSR markup', () => {
     const markup = renderSsrFixture(

@@ -1,6 +1,6 @@
-import { focus, getInput, setInput } from '@formisch/solid'
+import { focus, getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -19,7 +19,6 @@ import { Slider } from '../slider'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),
   enabled: v.boolean(),
@@ -203,7 +202,7 @@ describe('Form', () => {
     fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
 
-    setFirstDisabled(false)
+    flush(() => setFirstDisabled(false))
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('First')))
@@ -367,7 +366,7 @@ describe('Form', () => {
     expect(input.value).toBe('Initial')
     focus(form, { path: [0] })
     expect(document.activeElement).toBe(input)
-    setInput(form, { input: ['Updated'] })
+    flush(() => setInput(form, { input: ['Updated'] }))
     await waitFor(() => expect(input.value).toBe('Updated'))
     expect(getInput(form)).toEqual(['Updated'])
     fireEvent.input(input, { target: { value: 'Changed' } })
@@ -411,7 +410,7 @@ describe('Form', () => {
       (form) => (
         <form.Form>
           <form.Field name="code" label="Code">
-            <Input tabIndex={-1} />
+            <Input tabindex={-1} />
           </form.Field>
         </form.Form>
       ),
@@ -732,8 +731,12 @@ describe('Form', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <div onReset={cancelAt === 'ancestor' ? (event) => event.preventDefault() : undefined}>
-          <form.Form onReset={cancelAt === 'form' ? (event) => event.preventDefault() : undefined}>
+        <div
+          onReset={cancelAt === 'ancestor' ? (event: Event) => event.preventDefault() : undefined}
+        >
+          <form.Form
+            onReset={cancelAt === 'form' ? (event: Event) => event.preventDefault() : undefined}
+          >
             <form.Field name="value" label="Value">
               <Input />
             </form.Field>
@@ -869,7 +872,7 @@ describe('Form', () => {
 
     const input = screen.getByLabelText<HTMLInputElement>('Value')
     expect(input.value).toBe('First')
-    setName('second')
+    flush(() => setName('second'))
     expect(input.value).toBe('Second')
     fireEvent.input(input, { target: { value: 'Changed second' } })
     expect(getInput(form)).toEqual({ first: 'First', second: 'Changed second' })
@@ -899,7 +902,7 @@ describe('Form', () => {
     )
     const input = screen.getByLabelText<HTMLInputElement>('Current')
     expect(input.value).toBe('Valid')
-    setName('second')
+    flush(() => setName('second'))
     expect(input.value).toBe('')
 
     fireEvent.submit(screen.container.querySelector('form')!)
@@ -926,9 +929,9 @@ describe('Form', () => {
 
     fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(screen.getByText('Schema error')).not.toBeNull())
-    setError('Manual error')
+    flush(() => setError('Manual error'))
     expect(screen.getByText('Manual error')).not.toBeNull()
-    setError(false)
+    flush(() => setError(false))
     expect(screen.queryByText('Manual error')).toBeNull()
     expect(screen.queryByText('Schema error')).toBeNull()
   })

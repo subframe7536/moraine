@@ -1,6 +1,5 @@
 import { CommandPalette, Icon, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
-
 export function Loading() {
   const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {

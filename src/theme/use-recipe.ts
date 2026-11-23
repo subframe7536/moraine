@@ -1,7 +1,8 @@
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, JSX, Owner } from 'solid-js'
-import { getOwner, mergeProps } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import type { Accessor, Owner } from 'solid-js'
+import { getOwner, merge } from 'solid-js'
 
 import { useMoraineContext } from '../provider/moraine-context'
 import { createLazyMemo } from '../shared/create-lazy-memo'
@@ -17,7 +18,6 @@ import type {
 import { compileRecipe, matchEntries } from './recipe'
 import type { DataAttributeBag } from './style-contract'
 import type { SlotClassValue } from './style-types'
-
 export type SlotValue = {
   class?: SlotClassValue
   style?: JSX.CSSProperties
@@ -130,7 +130,7 @@ export function mergeSlotBindingData(
   extra?: { class?: ClassValue; style?: JSX.CSSProperties },
   cn?: Cn,
 ): SlotBinding {
-  const merged = mergeProps(
+  const merged = merge(
     {
       get class() {
         if (!extra?.class || !cn) {
@@ -203,7 +203,7 @@ function isEmptyStyle(style: JSX.CSSProperties): boolean {
 
 /**
  * Client: one object with fixed keys (`class`, `style`, then each `data-*`) as getters, so a
- * plain-object `mergeProps` keeps every key reactive.
+ * plain-object `merge` keeps every key reactive.
  * Server: a view whose keys are computed when the element renders and omit an empty `class` /
  * `style`, because `ssrElement` prints `style=""` for any present `style` key.
  */

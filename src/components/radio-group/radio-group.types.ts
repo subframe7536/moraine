@@ -1,11 +1,10 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { FieldT } from '../field'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
-
 export namespace RadioGroupT {
   export type Kind = 'single'
 

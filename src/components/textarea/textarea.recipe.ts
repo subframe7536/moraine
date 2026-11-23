@@ -9,7 +9,6 @@ import {
 } from '../shared/form/text-control.recipe'
 
 import type { TextareaRecipeVariant, TextareaStyleSlot } from './textarea.style-types'
-
 export const textareaDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'autoresize',

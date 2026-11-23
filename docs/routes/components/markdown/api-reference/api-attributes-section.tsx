@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { For, Show, createSignal } from 'solid-js'
 
 import { Badge, Icon, Select, cn } from '../../../../../src'
@@ -9,7 +9,6 @@ import type {
 
 import { REFERENCE_ROOT_CLASS } from './api-prop-rows'
 import { HeadingWithAnchor } from './heading-with-anchor'
-
 export const ATTRIBUTE_GRID_CLASS =
   'grid grid-cols-1 md:grid-cols-[minmax(8rem,4fr)_minmax(8rem,4fr)_minmax(0,8fr)]'
 

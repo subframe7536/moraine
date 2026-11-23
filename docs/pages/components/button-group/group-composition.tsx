@@ -1,5 +1,4 @@
 import { Button, ButtonGroup } from '@src'
-
 export function GroupComposition() {
   return (
     <ButtonGroup variant="outline" aria-label="Document actions">

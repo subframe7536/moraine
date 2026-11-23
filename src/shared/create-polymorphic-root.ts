@@ -1,12 +1,11 @@
+import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, mergeProps, splitProps, untrack } from 'solid-js'
-import { DelegatedEvents, delegateEvents } from 'solid-js/web'
+import { createSignal, merge, untrack, omit } from 'solid-js'
 
 import { bindElement, publishElement } from './element-binding'
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
 import { callHandler, callRef } from './utils'
-
 const DELEGATED_EVENTS = [
   'click',
   'keydown',
@@ -70,7 +69,8 @@ export function createPolymorphicRoot(options: {
       releaseDocument()
       bridgeDocument = root.ownerDocument
       // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
-      delegateEvents(DELEGATED_EVENTS, bridgeDocument)
+      delegateEvents(DELEGATED_EVENTS)
+      registerDelegatedContainer(bridgeDocument)
       releaseDocument = bridgeCustomClick
         ? attachEventListener(bridgeDocument, 'click', bridgeClick)
         : () => {}
@@ -90,8 +90,8 @@ export function createPolymorphicRoot(options: {
     props: T,
   ): Omit<T, 'ref'> & { ref: (element: HTMLElement) => void } {
     boundProps = props as Record<string, unknown>
-    const [, attributes] = splitProps(props, ['onClick' as keyof T])
-    const binding = mergeProps(attributes, {
+    const attributes = omit(props, 'onClick' as keyof T)
+    const binding = merge(attributes, {
       get onClick() {
         return options.bridgeClick && typeof options.tag() !== 'string'
           ? undefined

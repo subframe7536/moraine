@@ -1,8 +1,8 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import { createMemo, createSignal } from 'solid-js'
 
 import { callHandler } from './utils'
-
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&

@@ -1,11 +1,10 @@
 import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
-import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
+import { For, Show, createEffect, createMemo, onCleanup } from 'solid-js'
 
 import { Badge, Icon, Sidebar, cn } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
-
 export type SidebarPage = DocsPageEntry
 
 export interface DocsSidebarProps {
@@ -54,7 +53,8 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
   })
 
   createEffect(
-    on([frame.mobile, frame.open, () => props.activePage()], ([mobile, open]) => {
+    () => [frame.mobile(), frame.open(), (() => props.activePage())()],
+    ([mobile, open]) => {
       if (!mobile || !open) {
         return
       }
@@ -64,7 +64,7 @@ export const DocsSidebar = (props: DocsSidebarProps) => {
           ?.scrollIntoView({ block: 'nearest' })
       })
       onCleanup(() => cancelAnimationFrame(request))
-    }),
+    },
   )
 
   const renderSidebarItem = (page: SidebarPage) => (

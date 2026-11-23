@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { createKeyDownHandler, createKeyUpHandler, isComposingKeyboardEvent } from './keyboard'
-
 function createMockKeyboardEvent(key: string, init: Partial<KeyboardEvent> = {}): KeyboardEvent {
   return {
     key,

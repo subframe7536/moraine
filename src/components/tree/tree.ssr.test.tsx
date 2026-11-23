@@ -4,7 +4,6 @@ import { expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { TreeHydrationFixture } from './tree.ssr.fixture'
-
 const FIXTURE = '/src/components/tree/tree.ssr.fixture.tsx'
 
 function labels(container: HTMLElement): string[] {

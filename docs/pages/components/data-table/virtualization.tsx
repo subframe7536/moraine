@@ -1,7 +1,6 @@
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createTableVirtualizer } from '@src/virtualizer'
-
 interface MetricRow {
   id: number
   server: string

@@ -1,5 +1,5 @@
-import type { Accessor, Component, JSX } from 'solid-js'
-
+import type { JSX } from '@solidjs/web'
+import type { Accessor, Component } from 'solid-js'
 // Contract between virtualizers from `moraine/virtualizer` and the components that host them.
 // It must not import `@tanstack/virtual-core`: the main entry and `moraine/data-table` name these
 // types without depending on the optional peer.
@@ -55,8 +55,8 @@ export interface TableVirtualColumn {
 }
 
 /**
- * Columns to render in each body row. Render a placeholder cell with `colSpan={skippedBefore}`
- * before the columns and one with `colSpan={skippedAfter}` after them, each only when its count
+ * Columns to render in each body row. Render a placeholder cell with `colspan={skippedBefore}`
+ * before the columns and one with `colspan={skippedAfter}` after them, each only when its count
  * is above 0, so every row still spans every column of the header.
  */
 export interface TableVirtualColumnWindow {

@@ -1,5 +1,6 @@
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
 import { bindElement, publishElement } from '../../shared/element-binding'
 import { createKeyDownHandler } from '../../shared/keyboard'
@@ -7,7 +8,6 @@ import { isAndroidUserAgent } from '../../shared/utils'
 import { createCompositionState } from '../shared/overlay/composition'
 
 import type { BaseSelectT } from './base-select.types'
-
 export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
   state: Pick<
     BaseSelectT.Context<TItem>,
@@ -63,13 +63,11 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
   }
 
   state.registerCompositionDiscarder(discardComposition)
-  createEffect(
-    on(options.searchValue, (current, previous) => {
-      if (previous !== undefined && current !== previous) {
-        discardComposition()
-      }
-    }),
-  )
+  createEffect(options.searchValue, (current, previous) => {
+    if (previous !== undefined && current !== previous) {
+      discardComposition()
+    }
+  })
 
   const inputProps = {
     get id() {

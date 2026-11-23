@@ -1,12 +1,12 @@
+import type { JSX } from '@solidjs/web'
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
-import type { Accessor, Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
+import { createEffect, createMemo, createSignal } from 'solid-js'
 
 import { createVirtualizerController } from './controller'
 import type { VirtualizerAdapterOptions } from './controller'
 import { VirtualRows } from './virtual-rows'
 import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from './virtualizer.types'
-
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
   /**
    * Lays rows out side by side and scrolls horizontally. Sizes (`estimateSize`, `gap`, scroll padding) then apply to widths.
@@ -34,14 +34,12 @@ export function createListVirtualizer<TItem>(
     // from 0. The direction is read once the scroll element is mounted.
     const [rtl, setRtl] = createSignal(false)
     createEffect(
-      on(
-        () => props.scrollElement,
-        (element) => {
-          if (element) {
-            setRtl(getComputedStyle(element).direction === 'rtl')
-          }
-        },
-      ),
+      () => props.scrollElement,
+      (element) => {
+        if (element) {
+          setRtl(getComputedStyle(element).direction === 'rtl')
+        }
+      },
     )
     const layout = createMemo(() => ({ isRtl: rtl() }))
     const { virtualizer, virtualItems, totalSize } = controller.attach({

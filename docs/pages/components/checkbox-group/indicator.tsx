@@ -1,6 +1,5 @@
 import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
-
 const NOTIFICATIONS = [
   {
     value: 'mentions',

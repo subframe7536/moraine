@@ -1,6 +1,5 @@
 import { createTree } from '@src'
 import { createSignal } from 'solid-js'
-
 interface Permission {
   id: string
   label: string

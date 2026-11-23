@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type {
@@ -22,7 +23,6 @@ import type {
 } from '../shared/overlay/types'
 
 import type { ContextMenuStyleSlot, ContextMenuStyleVariants } from './context-menu.style-types'
-
 export namespace ContextMenuT {
   export type Kind = 'composite'
 

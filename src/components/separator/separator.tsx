@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { separatorDataAttributes, separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'
-
 /**
  * Visible line that divides related regions, rendered as a `div` with `role="separator"`. It is
  * horizontal by default; set `orientation="vertical"` between items in a row. Inside a
@@ -23,7 +23,8 @@ import type { SeparatorProps } from './separator.types'
  * ```
  */
 export function Separator(props: SeparatorProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['orientation', 'class', 'style', 'classes', 'styles'])
+  const local = pick(props, 'orientation', 'class', 'style', 'classes', 'styles')
+  const rest = omit(props, 'orientation', 'class', 'style', 'classes', 'styles')
   const {
     slots: { root: rootSlot },
     variants,

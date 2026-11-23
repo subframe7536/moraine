@@ -7,7 +7,6 @@ import {
   isGroup,
   labelString,
 } from './collection'
-
 describe('canonical select collection', () => {
   test('preserves raw items and flattens one-level groups', () => {
     const item = { value: 1, label: 'One', metadata: { name: 'custom' } }

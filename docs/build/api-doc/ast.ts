@@ -1,6 +1,5 @@
 import { parse } from 'vite'
 import type { ESTree, ParserOptions } from 'vite'
-
 export type AstNode = ESTree.Node
 export type ProgramNode = ESTree.Program
 

@@ -1,6 +1,5 @@
 import { Button, Toast } from '@src'
 import { createSignal, onCleanup } from 'solid-js'
-
 export function UploadProgress() {
   const upload = () => {
     Toast.custom(

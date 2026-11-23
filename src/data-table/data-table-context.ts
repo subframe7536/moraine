@@ -10,7 +10,6 @@ import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'
 import type { dataTableRecipe } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 type DataTableRecipe = UseRecipeResult<typeof dataTableRecipe>
 
 export interface DataTableContextValue {

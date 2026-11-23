@@ -1,6 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface PinInputStyleSlot<T = unknown> {
   /**
    * Root wrapper containing all pin input fields and separators.

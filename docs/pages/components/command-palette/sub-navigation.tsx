@@ -1,7 +1,6 @@
 import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
-
 export function SubNavigation() {
   const ROOT_GROUPS: CommandPaletteT.Group[] = [
     {

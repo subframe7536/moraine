@@ -1,10 +1,9 @@
-import { createRenderEffect, createRoot, createSignal } from 'solid-js'
+import { createRenderEffect, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { cn } from '../theme/cn'
 
 import { callRef, createId } from './utils'
-
 describe('callRef', () => {
   test('ignores element-valued refs', () => {
     const element = document.createElement('div')
@@ -24,21 +23,23 @@ describe('callRef', () => {
   })
 
   test('untracks reactive reads inside callback refs', () => {
-    const [count, setCount] = createSignal(0)
+    const [count, setCount] = createSignal(0, { ownedWrite: true })
     let runs = 0
     const element = document.createElement('div')
 
     createRoot((dispose) => {
-      createRenderEffect(() => {
-        runs++
-        // oxlint-disable-next-line subf/solid-reactivity
-        callRef((_el: HTMLDivElement) => {
-          count()
-        }, element)
-      })
+      createRenderEffect(
+        () => undefined,
+        () => {
+          runs++
+          callRef((_el: HTMLDivElement) => {
+            count()
+          }, element)
+        },
+      )
 
       expect(runs).toBe(1)
-      setCount(1)
+      flush(() => setCount(1))
       expect(runs).toBe(1)
       dispose()
     })
@@ -71,15 +72,15 @@ describe('createId', () => {
 
   test('keeps fallback id stable when deterministic id is cleared after being set', () => {
     createRoot((dispose) => {
-      const [customId, setCustomId] = createSignal<string | undefined>(undefined)
+      const [customId, setCustomId] = createSignal<string | undefined>(undefined, { ownedWrite: true })
       const id = createId(customId, 'field')
       const initialFallback = id()
       expect(initialFallback.startsWith('field-')).toBe(true)
 
-      setCustomId('custom-name')
+      flush(() => setCustomId('custom-name'))
       expect(id()).toBe('custom-name')
 
-      setCustomId(undefined)
+      flush(() => setCustomId(undefined))
       expect(id()).toBe(initialFallback)
       dispose()
     })

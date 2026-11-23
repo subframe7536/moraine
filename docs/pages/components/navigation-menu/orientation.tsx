@@ -1,5 +1,4 @@
 import { NavigationMenu } from '@src'
-
 export function Orientation() {
   return (
     <div class="min-h-56 w-full">

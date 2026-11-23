@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -9,7 +9,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { Checkbox } from './checkbox'
-
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
 }
@@ -38,7 +37,7 @@ describe('Checkbox', () => {
   })
 
   test('applies tabIndex to the focusable control instead of the root', () => {
-    const screen = render(() => <Checkbox tabIndex={-1} aria-hidden="true" label="Skipped" />)
+    const screen = render(() => <Checkbox tabindex={-1} aria-hidden="true" label="Skipped" />)
 
     expect(
       screen.container.querySelector('[data-slot="checkbox-control"]')?.getAttribute('tabindex'),
@@ -241,7 +240,7 @@ describe('Checkbox', () => {
     expect(control.hasAttribute('data-indeterminate')).toBe(true)
     expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
 
-    setChecked(true)
+    flush(() => setChecked(true))
 
     expectCheckboxChecked(checkbox, true)
     expect(control.hasAttribute('data-indeterminate')).toBe(false)
@@ -618,7 +617,7 @@ describe('Checkbox', () => {
     fireEvent.click(checkbox)
     expectCheckboxChecked(checkbox, true)
 
-    setDefaultChecked(true)
+    flush(() => setDefaultChecked(true))
     form.reset()
 
     await waitFor(() => {
@@ -692,7 +691,7 @@ describe('Checkbox', () => {
     expect(input.validity.valueMissing).toBe(false)
     expect(new FormData(form).get('terms')).toBe('accepted')
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(new FormData(form).has('terms')).toBe(false)
   })
 

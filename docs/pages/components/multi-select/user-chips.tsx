@@ -1,6 +1,5 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
-
 const TEAM_MEMBERS: MultiSelectT.Item[] = [
   {
     label: 'Sarah Connor',

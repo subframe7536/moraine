@@ -1,14 +1,13 @@
-import type { JSX } from 'solid-js'
-import { createEffect, on, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { createId } from '../../shared/utils'
+import { createId, pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { useGroupContext } from './base-select-group-context'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Visible heading for a `BaseSelect.Group`. Place it inside the group, before its items; it
  * registers its `id` as the group's accessible label. Renders a `div`.
@@ -33,20 +32,19 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectGroupLabel(props: BaseSelectT.GroupLabelProps): JSX.Element {
   const state = useSelectContext()
   const group = useGroupContext()
-  const id = createId(() => props.id, 'select-group-label')
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const id = createId(() => props.id as string | undefined, 'select-group-label')
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const {
     slots: { groupLabel: groupLabelSlot },
   } = useRecipe(baseSelectRecipe, local, {
     slot: 'groupLabel',
     context: state.recipeContext,
   })
-  createEffect(
-    on(id, (value) => {
-      group?.setLabelId(value)
-      onCleanup(() => group?.setLabelId(undefined))
-    }),
-  )
+  createEffect(id, (value) => {
+    group?.setLabelId(value)
+    return () => group?.setLabelId(undefined)
+  })
   return (
     <div data-slot={state.slotName('groupLabel')} {...groupLabelSlot} {...rest} id={id()}>
       {props.children}

@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -15,7 +16,6 @@ import type {
 } from '../shared/overlay/types'
 
 import type { BaseDialogStyleSlot, BaseDialogStyleVariants } from './base-dialog.style-types'
-
 export namespace BaseDialogT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = BaseDialogStyleSlot<T>
@@ -101,7 +101,7 @@ export namespace BaseDialogT {
      * </Dialog>
      * ```
      */
-    mount?: Node
+    mount?: Element | ShadowRoot
 
     /**
      * Element (or accessor resolving to one) that receives focus when the shell opens, or `false`
@@ -154,7 +154,7 @@ export namespace BaseDialogT {
      * DOM node the overlay and content render into. Takes precedence over `mount` on `BaseDialog`;
      * defaults to the `body` of the trigger's document.
      */
-    mount?: Node
+    mount?: Element | ShadowRoot
     /** Overlay and content parts rendered in the same portal. */
     children?: JSX.Element
   }

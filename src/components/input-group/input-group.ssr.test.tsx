@@ -1,5 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { createSignal, Show } from 'solid-js'
+import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
@@ -8,7 +8,6 @@ import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
-
 describe('InputGroup SSR hydration', () => {
   test('reuses group, control and part nodes through hydration and reactive replacement', () => {
     const [show, setShow] = createSignal(true)
@@ -42,19 +41,19 @@ describe('InputGroup SSR hydration', () => {
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
       ),
     ).toHaveLength(2)
-    setCompact(false)
+    flush(() => setCompact(false))
     expect(leading.hasAttribute('data-compact')).toBe(false)
     expect(container.querySelector('[data-slot="input-group-leading"]')).toBe(leading)
     input.focus()
     fireEvent.input(input, { target: { value: 'Client edit' } })
     expect(input.value).toBe('Client edit')
-    setShow(false)
+    flush(() => setShow(false))
     expect(
       group.querySelectorAll(
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
       ),
     ).toHaveLength(1)
-    setShow(true)
+    flush(() => setShow(true))
     expect(
       group.querySelectorAll(
         '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
@@ -96,9 +95,9 @@ describe('InputGroup SSR hydration', () => {
       container.querySelector('[data-slot="input-group-leading"][data-orientation="vertical"]')
         ?.textContent,
     ).toBe('0')
-    setReadOnly(true)
+    flush(() => setReadOnly(true))
     expect(textarea.readOnly).toBe(true)
-    setReadOnly(false)
+    flush(() => setReadOnly(false))
     expect(textarea.readOnly).toBe(false)
     fireEvent.input(textarea, { target: { value: 'Client edit' } })
     expect(textarea.value).toBe('Client edit')

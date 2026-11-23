@@ -1,7 +1,6 @@
 import { Button, Resizable } from '@src'
 import type { ResizableT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Controlled() {
   const [layout, setLayout] = createSignal<ResizableT.Layout>({ logs: 35, telemetry: 65 })
 

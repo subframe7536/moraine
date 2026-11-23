@@ -1,9 +1,8 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, expectTypeOf, test } from 'vitest'
 
 import { createDataAttributes } from './style-contract'
 import type { DataAttributeContract } from './style-contract'
-
 describe('style contract helpers', () => {
   test('normalizes static data attribute values and prefixes their names', () => {
     const attributes = createDataAttributes(
@@ -39,7 +38,7 @@ describe('style contract helpers', () => {
     state = { expanded: open }
 
     expect(attributes['data-expanded']).toBeUndefined()
-    setOpen(true)
+    flush(() => setOpen(true))
     expect(attributes['data-expanded']).toBe('')
   })
 

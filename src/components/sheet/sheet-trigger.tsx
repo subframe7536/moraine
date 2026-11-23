@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 /**
  * Element that opens the surrounding `Sheet`. Renders a `button`; pass `as` to render another
  * component such as `Button`.
@@ -27,7 +27,8 @@ export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
   const sheet = useSheetContext()
-  const [local, rest] = splitProps(props as SheetT.TriggerProps, ['class', 'style'])
+  const local = pick(props as SheetT.TriggerProps, 'class', 'style')
+  const rest = omit(props as SheetT.TriggerProps, 'class', 'style')
   const {
     slots: { trigger: triggerSlot },
   } = useRecipe(sheetRecipe, local, {

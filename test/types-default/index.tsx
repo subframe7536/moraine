@@ -3,7 +3,8 @@ import './children'
 import './composite-styling'
 import './component-namespaces'
 
-import { focus, getInput, setInput } from '@formisch/solid'
+import { focus, getInput, setInput } from '@formisch/solid/v2'
+import type { JSX } from '@solidjs/web'
 import {
   Avatar,
   AvatarGroup,
@@ -77,10 +78,9 @@ import { DataTable, createDataTable } from 'moraine/data-table'
 import type { DataTableProps, DataTableT } from 'moraine/data-table'
 import { defineTheme } from 'moraine/theme'
 import { createCopy, createSlider } from 'moraine/utils'
-import type { Component, JSX } from 'solid-js'
+import type { Component } from 'solid-js'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 type Assert<T extends true> = T
 export type UtilityExports = Assert<
   'createId' extends keyof typeof import('moraine') ? false : true
@@ -386,7 +386,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
   ref={(element) => acceptAnchor(element)}
 />
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
-;<Button as="a" formAction="/submit" />
+;<Button as="a" formaction="/submit" />
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as={TypedCustomRoot} type="special" />
 // @ts-expect-error Custom roots do not gain undeclared DOM event props.
@@ -432,7 +432,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Card
   id="card"
   role="region"
-  tabIndex={0}
+  tabindex={0}
   aria-label="Card"
   aria-describedby="details"
   data-testid="card"

@@ -1,5 +1,4 @@
 import { attachEventListenerMap } from '../../../shared/event-listener'
-
 export const SPLITTER_ROOT_ATTRIBUTE = 'splitter-root'
 export const SPLITTER_START_TARGET_ATTRIBUTE = 'splitter-start-target'
 export const SPLITTER_END_TARGET_ATTRIBUTE = 'splitter-end-target'

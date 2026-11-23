@@ -1,9 +1,9 @@
-import type { JSX } from 'solid-js'
-import { createMemo, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
 import { useFieldContext } from '../field/field-context'
@@ -25,7 +25,6 @@ import {
 import { defaultSelectMessages } from './select.messages'
 import { selectDataAttributes, selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types'
-
 /**
  * Single, non-editable collection selection from a popup list. Items may be strings or
  * `{ value, label }` objects, optionally grouped. Use `Combobox` when users need to type a query
@@ -35,7 +34,7 @@ import type { SelectProps, SelectT } from './select.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, omit } from 'solid-js'
  * import { Field, Select } from 'moraine'
  *
  * const [size, setSize] = createSignal<string | null>('md')
@@ -57,10 +56,12 @@ import type { SelectProps, SelectT } from './select.types'
 export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   props: SelectProps<T>,
 ): JSX.Element {
-  const [local, baseSelectProps, rootProps] = splitProps(
+  const local = pick(props, ...SINGLE_SELECT_LOCAL_PROP_KEYS)
+  const baseSelectProps = pick(props, ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS)
+  const rootProps = omit(
     props,
-    SINGLE_SELECT_LOCAL_PROP_KEYS,
-    SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
+    ...SINGLE_SELECT_LOCAL_PROP_KEYS,
+    ...SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
   const messages = useMessages('select', defaultSelectMessages, () => local.translations)

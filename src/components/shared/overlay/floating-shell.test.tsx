@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../../provider'
@@ -8,7 +8,6 @@ import { ContextMenu } from '../../context-menu/context-menu'
 import { DropdownMenu } from '../../dropdown-menu/dropdown-menu'
 import { Popover } from '../../popover/popover'
 import { Tooltip } from '../../tooltip/tooltip'
-
 describe.each([
   { name: 'Popover', Root: Popover },
   { name: 'Tooltip', Root: Tooltip },
@@ -25,7 +24,7 @@ describe.each([
     ))
     expect(view.container.children).toHaveLength(1)
     expect(document.body.querySelector(`[data-slot="${name.toLowerCase()}-content"]`)).toBeNull()
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => expect(within(document.body).getByText('Body')).toBeTruthy())
   })
 
@@ -72,11 +71,11 @@ describe.each([
       </MoraineProvider>
     ))
     expect(document.body.textContent).not.toContain('Menu header')
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => expect(within(document.body).getByRole('menu')).toBeTruthy())
     expect(within(document.body).getByText('Menu header')).toBeTruthy()
     const content = within(document.body).getByRole('menu')
-    setDesign(defineTheme({ [key]: { base: { content: 'design-menu-content' } } }))
+    flush(() => setDesign(defineTheme({ [key]: { base: { content: 'design-menu-content' } } })))
     expect(within(document.body).getByRole('menu')).toBe(content)
     expect(content.className).toContain('design-menu-content')
     expect(within(document.body).getByText('Menu header')).toBeTruthy()

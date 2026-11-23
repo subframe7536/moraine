@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { createRoot, createSignal, flush, merge, onCleanup } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { MoraineProvider } from '../provider'
@@ -12,7 +12,6 @@ import { DataTable } from './data-table'
 import { getDataTableFeatures } from './data-table-features'
 import type { DataTableT } from './data-table.types'
 import { createTable } from './solid-table'
-
 interface Person {
   id: string
   name: string
@@ -59,7 +58,7 @@ function headLabel(th: Element | null | undefined): string | null | undefined {
 }
 
 function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
-  const merged = mergeProps({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
+  const merged = merge({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
   return createDataTable<Person>(merged)
 }
 
@@ -276,7 +275,7 @@ describe('DataTable', () => {
           },
         },
         onPaginationChange: (next) => {
-          setPagination(next)
+          flush(() => setPagination(next))
           onPaginationChange(next)
         },
       })
@@ -291,7 +290,7 @@ describe('DataTable', () => {
     expect(onPaginationChange).toHaveBeenCalledWith({ pageIndex: 0, pageSize: 10 })
 
     onPaginationChange.mockClear()
-    setData([{ id: '99', name: 'Zoe', age: 28, role: 'Engineer' }])
+    flush(() => setData([{ id: '99', name: 'Zoe', age: 28, role: 'Engineer' }]))
     expect(onPaginationChange).not.toHaveBeenCalled()
   })
 
@@ -310,14 +309,14 @@ describe('DataTable', () => {
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
     expect(screen.getAllByRole('row').length).toBe(4)
 
-    setPaginated(true)
+    flush(() => setPaginated(true))
 
     await waitFor(() =>
       expect(container.querySelector('[data-slot="data-table-pagination"]')).not.toBeNull(),
     )
     expect(screen.getAllByRole('row').length).toBe(3)
 
-    setPaginated(false)
+    flush(() => setPaginated(false))
 
     await waitFor(() =>
       expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull(),
@@ -338,10 +337,10 @@ describe('DataTable', () => {
 
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
 
-    setMode('multiple')
+    flush(() => setMode('multiple'))
     expect(screen.getAllByRole('checkbox').length).toBe(4)
 
-    setMode(undefined)
+    flush(() => setMode(undefined))
     expect(screen.queryAllByRole('checkbox').length).toBe(0)
   })
 
@@ -444,13 +443,13 @@ describe('DataTable', () => {
     expect(headSetup).toHaveBeenCalledTimes(3)
 
     // Sorting reorders rows without re-invoking row hooks; lazy `index` getters still update.
-    setSorting([{ id: 'name', desc: true }])
+    flush(() => setSorting([{ id: 'name', desc: true }]))
     expect(getRow('Alice').getAttribute('data-row-tag')).toBe('1:2')
     expect(rowSetup).toHaveBeenCalledTimes(3)
     expect(headSetup).toHaveBeenCalledTimes(3)
 
     // Reordering columns rebuilds TanStack Header instances, cleaning up old head hooks.
-    setColumnOrder(['role', 'age', 'name'])
+    flush(() => setColumnOrder(['role', 'age', 'name']))
     expect(getHead('Name').getAttribute('title')).toBe('name:2')
     expect(headCleanup).toHaveBeenCalledTimes(3)
     expect(headSetup).toHaveBeenCalledTimes(6)
@@ -537,7 +536,7 @@ describe('DataTable', () => {
 
     expect(screen.getAllByRole('row').length).toBe(4)
 
-    setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }])
+    flush(() => setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }]))
 
     expect(screen.getAllByRole('row').length).toBe(5)
     expect(screen.getByText('Diana')).toBeDefined()
@@ -558,8 +557,8 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row').length).toBe(4)
     expect(screen.queryByText('Role')).toBeNull()
 
-    setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }])
-    setColumns(TEST_COLUMNS)
+    flush(() => setData([...TEST_DATA, { id: '4', name: 'Diana', age: 31, role: 'Manager' }]))
+    flush(() => setColumns(TEST_COLUMNS))
 
     expect(screen.getAllByRole('row').length).toBe(5)
     expect(screen.getByText('Diana')).toBeDefined()
@@ -1554,20 +1553,20 @@ describe('DataTable', () => {
     expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
 
     // The live region stays mounted and empties, so the next loading state is announced.
-    setLoading(false)
+    flush(() => setLoading(false))
     expect(table.hasAttribute('aria-busy')).toBe(false)
     expect(screen.getByRole('status')).toBe(status)
     expect(status.textContent).toBe('')
     expect(container.querySelector('[data-slot="data-table-loading"]')).toBeNull()
 
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(status.textContent).toBe('Loading')
   })
 
   it('lets callers override aria-busy', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <table.DataTable loading aria-busy={false} />
+      return <table.DataTable loading aria-busy={'false'} />
     })
 
     expect(container.querySelector('table')!.getAttribute('aria-busy')).toBe('false')
@@ -1707,7 +1706,7 @@ describe('DataTable', () => {
         )
 
       expect(edges()).toEqual([null, 'start', null])
-      setVisibility({ age: false })
+      flush(() => setVisibility({ age: false }))
       expect(edges()).toEqual(['start', null])
     })
 
@@ -1769,7 +1768,7 @@ describe('DataTable', () => {
       expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe(
         'Select all rows on this page',
       )
-      setPaginated(false)
+      flush(() => setPaginated(false))
       expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe('Select all rows')
     })
   })
@@ -1817,7 +1816,7 @@ describe('DataTable', () => {
     }
 
     function createWideTable(options: Partial<DataTableT.Options<Wide>> = {}) {
-      const merged = mergeProps(
+      const merged = merge(
         {
           data: WIDE_ROWS,
           columns: WIDE_COLUMNS,
@@ -1966,16 +1965,16 @@ describe('DataTable', () => {
       })
       await Promise.resolve()
 
-      setSizing({ c0: 300 })
+      flush(() => setSizing({ c0: 300 }))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container))).toEqual(['r0', 'r0c0', 'r0c1', '<18>', 'a0'])
 
-      setSizing({})
-      setOrder(['id', 'c5', 'c4'])
+      flush(() => setSizing({}))
+      flush(() => setOrder(['id', 'c5', 'c4']))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c5', 'r0c4'])
 
-      setVisibility({ c5: false })
+      flush(() => setVisibility({ c5: false }))
       await Promise.resolve()
       expect(cellTexts(firstBodyRow(container)).slice(0, 3)).toEqual(['r0', 'r0c4', 'r0c0'])
       expect(spanSum(firstBodyRow(container))).toBe(CENTER_COUNT + 1)
@@ -2168,7 +2167,7 @@ describe('DataTable', () => {
       ])
       expect(priorities(container)).toEqual({ Age: '1', Role: '2' })
 
-      setSorting([{ id: 'role', desc: false }])
+      flush(() => setSorting([{ id: 'role', desc: false }]))
       expect(priorities(container)).toEqual({})
     })
 
@@ -2222,7 +2221,7 @@ describe('DataTable', () => {
     ]
 
     function createTreeTable(options: Partial<DataTableT.Options<TreeNode>> = {}) {
-      const merged = mergeProps(
+      const merged = merge(
         {
           data: TREE,
           columns: TREE_COLUMNS,
@@ -2309,10 +2308,10 @@ describe('DataTable', () => {
 
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
 
-      setOrder(['kind', 'name'])
+      flush(() => setOrder(['kind', 'name']))
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['folder'])
 
-      setVisibility({ kind: false })
+      flush(() => setVisibility({ kind: false }))
       expect(treeCells(bodyRow(container, 'components'))).toEqual(['components'])
     })
 

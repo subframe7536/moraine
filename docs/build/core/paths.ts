@@ -3,7 +3,6 @@ import { existsSync, readdirSync } from 'node:fs'
 import path from 'pathe'
 
 import type { DocsSurface } from '../../shared/docs-route.ts'
-
 export interface DocsPageContext {
   absolutePath: string
   pagesRoot: string

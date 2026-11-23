@@ -1,4 +1,4 @@
-import { createSignal, mergeProps } from 'solid-js'
+import { createSignal, merge } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createId } from '../../shared/utils'
@@ -6,7 +6,6 @@ import { createOverlayMenuOpen } from '../shared/overlay/menu'
 
 import { dropdownMenuDataAttributes } from './dropdown-menu.recipe'
 import type { DropdownMenuProps } from './dropdown-menu.types'
-
 export function createDropdownMenu(props: DropdownMenuProps) {
   const resolvedId = createId(() => props.id, 'dropdownmenu')
   const contentId = () => `${resolvedId()}-content`
@@ -25,7 +24,7 @@ export function createDropdownMenu(props: DropdownMenuProps) {
     disabled: () => props.disabled,
     expanded: isOpen,
   })
-  const triggerProps = mergeProps(triggerDataAttrs, {
+  const triggerProps = merge(triggerDataAttrs, {
     id: resolvedId(),
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined

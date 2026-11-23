@@ -1,4 +1,5 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Ref } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -6,7 +7,6 @@ import type { FieldT } from '../field'
 import type { IconT } from '../icon'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariants } from './checkbox.style-types'
-
 export namespace CheckboxT {
   export type Kind = 'single'
 

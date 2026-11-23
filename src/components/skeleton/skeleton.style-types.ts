@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface SkeletonStyleSlot<T = unknown> {
   /** Placeholder surface. */
   root?: T

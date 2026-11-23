@@ -8,7 +8,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
 import type { AccordionStyleSlot } from './accordion.style-types'
-
 export const accordionDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled'),
   item: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),

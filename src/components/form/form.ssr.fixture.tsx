@@ -1,4 +1,4 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 import * as v from 'valibot'
 
 import { Button } from '../button'
@@ -6,7 +6,6 @@ import { Input } from '../input'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-
 export function renderFormFixture(): string {
   function ServerForm() {
     const form = createForm({

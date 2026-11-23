@@ -1,6 +1,5 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-
 const FRAMEWORKS: ComboboxT.Item[] = [
   { label: 'SolidJS', value: 'solid' },
   { label: 'React', value: 'react' },

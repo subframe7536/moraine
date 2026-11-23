@@ -1,5 +1,4 @@
 import { Button, Dialog, Popover } from '@src'
-
 export function NestedOverlays() {
   return (
     <Dialog>

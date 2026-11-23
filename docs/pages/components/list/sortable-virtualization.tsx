@@ -2,7 +2,6 @@ import { List } from '@src'
 import { createListSortable } from '@src/dnd'
 import { createListVirtualizer } from '@src/virtualizer'
 import { createSignal } from 'solid-js'
-
 export function SortableVirtualization() {
   const [items, setItems] = createSignal(
     Array.from({ length: 5_000 }, (_, index) => ({ id: index + 1, label: `Track ${index + 1}` })),

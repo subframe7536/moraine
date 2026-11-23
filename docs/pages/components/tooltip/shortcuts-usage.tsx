@@ -1,5 +1,4 @@
 import { Button, Tooltip } from '@src'
-
 export function ShortcutsUsage() {
   return (
     <div class="flex gap-4 items-center">

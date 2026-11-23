@@ -3,7 +3,6 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { avatarDataAttributes } from '../avatar/avatar.recipe'
 
 import type { AvatarGroupStyleSlot, AvatarGroupStyleVariants } from './avatar-group.style-types'
-
 export const avatarGroupDataAttributes = {
   item: avatarDataAttributes.root,
   image: avatarDataAttributes.image,

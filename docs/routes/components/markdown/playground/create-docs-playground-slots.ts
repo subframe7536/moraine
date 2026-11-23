@@ -1,8 +1,7 @@
-import { createEffect, createMemo, createSignal, on, onCleanup, onMount, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, onSettled, untrack } from 'solid-js'
 
 import { getDomSlotName } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
-
 interface SlotDescriptor {
   name: string
   domName: string
@@ -208,7 +207,7 @@ export function createDocsPlaygroundSlots(props: {
     setLocked(undefined)
   }
 
-  onMount(() => {
+  onSettled(() => {
     const preview = props.preview()
     if (!preview) {
       return
@@ -288,70 +287,66 @@ export function createDocsPlaygroundSlots(props: {
     doc.addEventListener('pointermove', onPointerMove)
     doc.addEventListener('keydown', onKeyDown)
     scan()
-    onCleanup(() => {
+    return () => {
       observer.disconnect()
       doc.removeEventListener('pointermove', onPointerMove)
       doc.removeEventListener('keydown', onKeyDown)
-    })
+    }
   })
 
   createEffect(
-    on(
-      [activeSlot, nodes, hoveredElement, autoHover, listHovered],
-      ([slot, currentNodes, currentHoveredElement, isAutoHover, currentListHovered]) => {
-        const isHoveringElement = Boolean(
-          isAutoHover && currentHoveredElement && !currentListHovered,
-        )
-        const elements: HTMLElement[] = slot
-          ? isHoveringElement && currentHoveredElement
-            ? [currentHoveredElement]
-            : (currentNodes.get(slot) ?? [])
-          : []
-        const view = props.preview()?.ownerDocument.defaultView
-        if (!view || elements.length === 0) {
-          setBoxes([])
-          return
-        }
+    () => [activeSlot(), nodes(), hoveredElement(), autoHover(), listHovered()],
+    ([slot, currentNodes, currentHoveredElement, isAutoHover, currentListHovered]) => {
+      const isHoveringElement = Boolean(isAutoHover && currentHoveredElement && !currentListHovered)
+      const elements: HTMLElement[] = slot
+        ? isHoveringElement && currentHoveredElement
+          ? [currentHoveredElement]
+          : (currentNodes.get(slot) ?? [])
+        : []
+      const view = props.preview()?.ownerDocument.defaultView
+      if (!view || elements.length === 0) {
+        setBoxes([])
+        return
+      }
 
-        let frame = 0
-        const update = () => {
-          frame = 0
-          const doc = props.preview()?.ownerDocument ?? document
-          const next = elements.flatMap((element) => {
-            const box = getVisibleHighlightBox(element, view, doc)
-            return box ? [box] : []
-          })
-          if (!sameBoxes(boxes(), next)) {
-            setBoxes(next)
-          }
-        }
-        const schedule = () => {
-          if (!frame) {
-            frame = view.requestAnimationFrame(update)
-          }
-        }
-        const resizeObserver =
-          typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
-        const preview = props.preview()
-        if (preview) {
-          resizeObserver?.observe(preview)
-        }
-        for (const element of elements) {
-          resizeObserver?.observe(element)
-        }
-        view.addEventListener('resize', schedule)
-        view.addEventListener('scroll', schedule, true)
-        schedule()
-        onCleanup(() => {
-          if (frame) {
-            view.cancelAnimationFrame(frame)
-          }
-          resizeObserver?.disconnect()
-          view.removeEventListener('resize', schedule)
-          view.removeEventListener('scroll', schedule, true)
+      let frame = 0
+      const update = () => {
+        frame = 0
+        const doc = props.preview()?.ownerDocument ?? document
+        const next = elements.flatMap((element) => {
+          const box = getVisibleHighlightBox(element, view, doc)
+          return box ? [box] : []
         })
-      },
-    ),
+        if (!sameBoxes(boxes(), next)) {
+          setBoxes(next)
+        }
+      }
+      const schedule = () => {
+        if (!frame) {
+          frame = view.requestAnimationFrame(update)
+        }
+      }
+      const resizeObserver =
+        typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
+      const preview = props.preview()
+      if (preview) {
+        resizeObserver?.observe(preview)
+      }
+      for (const element of elements) {
+        resizeObserver?.observe(element)
+      }
+      view.addEventListener('resize', schedule)
+      view.addEventListener('scroll', schedule, true)
+      schedule()
+      onCleanup(() => {
+        if (frame) {
+          view.cancelAnimationFrame(frame)
+        }
+        resizeObserver?.disconnect()
+        view.removeEventListener('resize', schedule)
+        view.removeEventListener('scroll', schedule, true)
+      })
+    },
   )
 
   function setAutoHover(value: boolean) {

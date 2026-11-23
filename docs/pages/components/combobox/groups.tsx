@@ -1,6 +1,5 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-
 const TECH_GROUPS: ComboboxT.Entry[] = [
   {
     type: 'group',

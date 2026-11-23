@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { SeparatorStyleSlot, SeparatorStyleVariants } from './separator.style-types'
-
 export const separatorDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('orientation'),
 } satisfies DataAttributeContract<keyof SeparatorStyleSlot>

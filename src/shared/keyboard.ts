@@ -1,9 +1,9 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 
 import type { Orientation } from '../theme/style-types'
 
 import { callHandler } from './utils'
-
 export type KeyboardModifier = 'alt' | 'ctrl' | 'meta' | 'shift'
 
 /** KeyboardEvent narrowed to the host element, matching Solid's JSX event contract. */

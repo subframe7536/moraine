@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { ToastStyleSlot, ToastStyleVariants } from './toast.style-types'
-
 export const TOAST_PROGRESS_CLASS =
   'bg-primary size-full origin-left animate-toast-progress motion-reduce:animate-none'
 

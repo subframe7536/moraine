@@ -1,10 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal, untrack } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useOverlayInteraction } from './interaction'
-
 function RebindableInteraction(props: {
   onEscape: () => void
   setContent: (setContent: (content: HTMLElement) => void) => void
@@ -40,7 +39,7 @@ describe('useOverlayInteraction', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onEscape).toHaveBeenCalledTimes(1)
 
-    setContent(foreignDocument.createElement('div'))
+    flush(() => setContent(foreignDocument.createElement('div')))
     await Promise.resolve()
 
     fireEvent.keyDown(document, { key: 'Escape' })

@@ -1,8 +1,7 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { Alert } from './alert'
 import type { AlertT } from './alert.types'
-
 export function AlertHydrationFixture(props: {
   tone?: AlertT.Variants['tone']
   variant?: AlertT.Variants['variant']

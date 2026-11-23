@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
-
 /**
  * Supporting text of the surrounding `Sheet.Content`; its `id` is wired to the surface's
  * `aria-describedby`. Place it inside `Sheet.Content`, usually within `Sheet.Header` below
@@ -33,7 +33,8 @@ import type { SheetT } from './sheet.types'
 export function SheetDescription<T extends ValidComponent = 'p'>(
   props: SheetT.DescriptionProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
+  const local = pick(props, 'as', 'class', 'style', 'id')
+  const rest = omit(props, 'as', 'class', 'style', 'id')
   const sheet = useSheetContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
@@ -48,7 +49,7 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
       component={local.as ?? 'p'}
       data-slot="sheet-description"
       {...descriptionSlot}
-      {...rest}
+      {...(rest as any)}
       id={id()}
     />
   )

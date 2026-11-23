@@ -1,19 +1,18 @@
-import type { JSX } from 'solid-js'
-import { Show, createSignal, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, createSignal, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import type { ValidComponent } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, pick } from '../../shared/utils'
 import { createSplitterHandle } from '../shared/splitter'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 const KEYBOARD_STEP = 16
 const KEYBOARD_STEP_SHIFT = 1
 
@@ -62,7 +61,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
   props: SidebarT.RailProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(
+  const local = pick(
     props as SidebarT.RailProps<T> & {
       'aria-label'?: string
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
@@ -73,21 +72,44 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
       onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
       onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
     },
-    [
-      'as',
-      'disabled',
-      'aria-label',
-      'class',
-      'style',
-      'ref',
-      'onClick',
-      'onKeyDown',
-      'onPointerDown',
-      'onMouseEnter',
-      'onMouseLeave',
-      'onFocus',
-      'onBlur',
-    ],
+    'as',
+    'disabled',
+    'aria-label',
+    'class',
+    'style',
+    'ref',
+    'onClick',
+    'onKeyDown',
+    'onPointerDown',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
+  )
+  const rest = omit(
+    props as SidebarT.RailProps<T> & {
+      'aria-label'?: string
+      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+      onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+      onMouseEnter?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onMouseLeave?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+      onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+      onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    },
+    'as',
+    'disabled',
+    'aria-label',
+    'class',
+    'style',
+    'ref',
+    'onClick',
+    'onKeyDown',
+    'onPointerDown',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
   )
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
@@ -251,7 +273,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
         aria-label={local['aria-label'] ?? messages().resize}
         disabled={isButton() ? disabled() : undefined}
         aria-disabled={disabled() ? 'true' : undefined}
-        tabIndex={disabled() ? -1 : 0}
+        tabindex={disabled() ? -1 : 0}
         ref={(node: HTMLElement) => {
           setElement(node)
           bindings.setElement(node)

@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { createEffect, mergeProps, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, merge } from 'solid-js'
 
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
@@ -10,7 +10,6 @@ import type { usePopoverContext } from './popover-context'
 import { PopoverProvider } from './popover-context'
 import { PopoverTrigger } from './popover-trigger'
 import type { PopoverProps } from './popover.types'
-
 /**
  * Floating panel of interactive content anchored to a trigger. Use it for anchored content that
  * does not need a labeled modal surface; use `Tooltip` for a brief non-interactive hint,
@@ -30,7 +29,7 @@ import type { PopoverProps } from './popover.types'
  * ```
  */
 export function Popover(props: PopoverProps): JSX.Element {
-  const merged = mergeProps(
+  const merged = merge(
     {
       openOnHover: false,
       openDelay: 100,
@@ -51,9 +50,10 @@ export function Popover(props: PopoverProps): JSX.Element {
   })
 
   createEffect(
-    on([() => merged.openOnHover, () => merged.disabled], () => {
+    () => [(() => merged.openOnHover)(), (() => merged.disabled)()],
+    () => {
       hoverDelay.invalidate()
-    }),
+    },
   )
 
   const behavior: ReturnType<typeof usePopoverContext> = {

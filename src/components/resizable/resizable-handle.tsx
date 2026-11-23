@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
   createMemo,
   createSignal,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
 
 import { renderWithProps } from '../../shared/render-with-props'
-import { callHandler, callRef } from '../../shared/utils'
+import { callHandler, callRef, pick } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 import { createSplitterHandle } from '../shared/splitter'
@@ -23,7 +23,6 @@ import type {
 } from './resizable-context'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableT } from './resizable.types'
-
 function callHandleEvent<E extends Event>(
   event: E,
   handler: unknown,
@@ -56,7 +55,8 @@ function callHandleEvent<E extends Event>(
  */
 export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
   const ctx = useResizableContext()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'intersection',
     'children',
     'class',
@@ -68,7 +68,21 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
     'onBlur',
     'onKeyDown',
     'onPointerDown',
-  ])
+  )
+  const rest = omit(
+    props,
+    'intersection',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
+    'onPointerDown',
+  )
 
   const [element, setElement] = createSignal<HTMLElement>()
   const content = resolveChildren(() => local.children as JSX.Element)
@@ -231,7 +245,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
       aria-valuemin={aria().valueMin}
       aria-valuemax={aria().valueMax}
       aria-disabled={handleDisabled() ? 'true' : undefined}
-      tabIndex={handleDisabled() ? -1 : 0}
+      tabindex={handleDisabled() ? -1 : 0}
       ref={(node) => {
         setElement(node)
         bindings.setElement(node)

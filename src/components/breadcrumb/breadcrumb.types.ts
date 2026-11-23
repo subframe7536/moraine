@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -7,7 +8,6 @@ import type { IconT } from '../icon'
 
 import type { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariants } from './breadcrumb.style-types'
-
 export namespace BreadcrumbT {
   export type Kind = 'single'
   export type Slot<T = unknown> = BreadcrumbStyleSlot<T>

@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -24,7 +25,6 @@ import type {
 
 import type { defaultMultiSelectMessages } from './multi-select.messages'
 import type { MultiSelectStyleSlot, MultiSelectStyleVariants } from './multi-select.style-types'
-
 export namespace MultiSelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = MultiSelectStyleSlot<T>

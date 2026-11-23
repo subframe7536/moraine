@@ -7,7 +7,6 @@ import type { ThemeMode } from '../../hooks/use-theme'
 
 import { DocsCommandPalette } from './docs-command-palette'
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
-
 export function PageActions(props: {
   pages: DocsPageEntry[]
   paletteOpen: Accessor<boolean>

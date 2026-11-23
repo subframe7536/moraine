@@ -1,10 +1,9 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import { Sheet } from './sheet'
 import { SheetContentProvider } from './sheet-context'
-
 export function renderSheetFixture(): string {
   return renderToString(() => (
     <>

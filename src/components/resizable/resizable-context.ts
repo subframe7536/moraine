@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { ResizableOrientation } from './hook'
 import type { ResizableT } from './resizable.types'
-
 /**
  * Registered panel. All accessors are read reactively by the root so prop
  * changes flow into layout resolution.

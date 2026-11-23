@@ -5,7 +5,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import type { DrawerT } from './drawer.types'
-
 /** Stack state a mounted content reports to its ambient parent drawer channel. */
 export interface DrawerNestedReport {
   /** Mounted contents in the reporting subtree, itself included. */
@@ -119,9 +118,9 @@ export interface DrawerContextValue {
   setSnapPoint: (snapPoint: DrawerT.SnapPoint | null) => void
 }
 
-const DrawerCtx = createContext<DrawerContextValue | undefined>(undefined, { name: 'Drawer' })
+const DrawerCtx = createContext<DrawerContextValue | null>(null, { name: 'Drawer' })
 
-export const DrawerProvider = DrawerCtx.Provider
+export const DrawerProvider = DrawerCtx
 
 export function useDrawerContext(): DrawerContextValue {
   const context = useContext(DrawerCtx)
@@ -132,7 +131,7 @@ export function useDrawerContext(): DrawerContextValue {
 }
 
 /** Reads the ambient drawer context when this drawer is nested inside one. */
-export function useOptionalDrawerContext(): DrawerContextValue | undefined {
+export function useOptionalDrawerContext(): DrawerContextValue | null {
   return useContext(DrawerCtx)
 }
 

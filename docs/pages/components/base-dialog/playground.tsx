@@ -2,7 +2,6 @@ import { Button, BaseDialog } from '@src'
 import { Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function BaseDialogPlayground() {
   return (
     <DocsPlayground

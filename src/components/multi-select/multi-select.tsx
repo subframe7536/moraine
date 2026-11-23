@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, createSignal, For, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
 import { useSelectContext } from '../base-select/base-select-context'
@@ -51,7 +51,7 @@ import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, For, omit } from 'solid-js'
  * import { Field, MultiSelect } from 'moraine'
  *
  * const [skills, setSkills] = createSignal<string[]>(['design'])
@@ -77,11 +77,9 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
 ): JSX.Element {
   type Item = MultiSelectT.NormalizedItem<T>
   type Value = Item['value']
-  const [local, baseSelectProps, rootProps] = splitProps(
-    props,
-    MULTI_SELECT_LOCAL_PROP_KEYS,
-    BASE_SELECT_FORWARD_PROP_KEYS,
-  )
+  const local = pick(props, ...MULTI_SELECT_LOCAL_PROP_KEYS)
+  const baseSelectProps = pick(props, ...BASE_SELECT_FORWARD_PROP_KEYS)
+  const rootProps = omit(props, ...MULTI_SELECT_LOCAL_PROP_KEYS, ...BASE_SELECT_FORWARD_PROP_KEYS)
   const field = useFieldContext()
   const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => local.translations)
   const locale = useLocale().locale

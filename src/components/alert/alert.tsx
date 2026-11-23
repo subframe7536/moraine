@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
-import { createMemo, createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { createMemo, createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -9,14 +9,13 @@ import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
 import { defaultAlertMessages } from './alert.messages'
 import { alertDataAttributes, alertRecipe } from './alert.recipe'
 import type { AlertT } from './alert.types'
-
 const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
   info: 'icon-info',
   success: 'icon-success',
@@ -43,7 +42,8 @@ const ALERT_TONE_ICONS: Record<string, IconT.Name> = {
  * ```
  */
 export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>): JSX.Element {
-  const [local, rest] = splitProps(props as AlertT.Props<T> & { ref?: unknown }, [
+  const local = pick(
+    props as AlertT.Props<T> & { ref?: unknown },
     'as',
     'title',
     'description',
@@ -65,7 +65,31 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'children',
     'ref',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props as AlertT.Props<T> & { ref?: unknown },
+    'as',
+    'title',
+    'description',
+    'actions',
+    'icon',
+    'closable',
+    'closeIcon',
+    'fullWidth',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'onExitComplete',
+    'tone',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'children',
+    'ref',
+    'translations',
+  )
 
   const messages = useMessages('alert', defaultAlertMessages, () => local.translations)
 
@@ -145,7 +169,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
             role={defaultRole()}
             aria-live={defaultAriaLive()}
             {...rootSlot}
-            {...rest}
+            {...(rest as any)}
             ref={(element: HTMLElement) => {
               setElement(element)
               callRef(local.ref, element)

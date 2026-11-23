@@ -4,7 +4,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Collapsible } from './collapsible'
-
 describe('Collapsible SSR Hydration', () => {
   test('hydrates public content state and retains it through animated toggles', async () => {
     const fixture = '/src/components/collapsible/collapsible.ssr.fixture.tsx'

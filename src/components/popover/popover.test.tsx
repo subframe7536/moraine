@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
@@ -9,7 +9,6 @@ import { Button } from '../button'
 import type { ButtonProps } from '../button'
 
 import { Popover } from './popover'
-
 describe('Popover', () => {
   test('ignores a detached custom trigger root and rebinds its replacement', async () => {
     let setVisible!: (value: boolean) => void
@@ -36,12 +35,12 @@ describe('Popover', () => {
     })
     try {
       const original = screen.getByRole('button', { name: 'Replaceable trigger' })
-      setVisible(false)
+      flush(() => setVisible(false))
       await waitFor(() => expect(original.isConnected).toBe(false))
       fireEvent.click(document.body)
       fireEvent.click(original)
       expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
-      setVisible(true)
+      flush(() => setVisible(true))
       const replacement = await screen.findByRole('button', { name: 'Replaceable trigger' })
       expect(replacement).not.toBe(original)
       fireEvent.click(replacement)
@@ -273,14 +272,14 @@ describe('Popover', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.hasAttribute('data-closed')).toBe(true)
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(trigger.getAttribute('aria-expanded')).toBe('true')
       expect(trigger.hasAttribute('data-expanded')).toBe(true)
       expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     await finishExitMotion()
@@ -558,14 +557,14 @@ describe('Popover', () => {
     const trigger = screen.getByRole('button')
 
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setOpenOnHover(false)
+    flush(() => setOpenOnHover(false))
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    setOpenOnHover(true)
+    flush(() => setOpenOnHover(true))
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setDisabled(true)
-    setDisabled(false)
+    flush(() => setDisabled(true))
+    flush(() => setDisabled(false))
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
   })
@@ -1221,7 +1220,7 @@ describe('Popover', () => {
     ) as HTMLElement
 
     secondContent.focus()
-    setFirstOpen(false)
+    flush(() => setFirstOpen(false))
     const closingContent = document.body.querySelector<HTMLElement>(
       '[data-slot="popover-content"][data-closed]',
     )
@@ -1253,8 +1252,8 @@ describe('Popover', () => {
     expect(initialContent?.getAttribute('data-side')).toBe('bottom')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setPlacement('right')
-    setAlign('end')
+    flush(() => setPlacement('right'))
+    flush(() => setAlign('end'))
 
     const updatedContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(updatedContent).toBe(initialContent)

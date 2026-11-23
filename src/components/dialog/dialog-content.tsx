@@ -1,16 +1,15 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
@@ -19,6 +18,7 @@ import { bindElement } from '../../shared/element-binding'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { createBaseDialogContentBinding } from '../base-dialog/base-dialog-content-binding'
 import { useBaseDialogContext } from '../base-dialog/base-dialog-context'
@@ -37,7 +37,6 @@ import { DialogTitle } from './dialog-title'
 import { defaultDialogMessages } from './dialog.messages'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
-
 /**
  * Portaled surface of a `Dialog` that renders the overlay, the dialog panel, and a corner close
  * button. Pass `title` and `description` for the default header, or compose `Dialog.Header`,
@@ -64,7 +63,8 @@ import type { DialogT } from './dialog.types'
 export function DialogContent<T extends ValidComponent = 'div'>(
   props: DialogT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as DialogT.ContentProps<T> & { ref?: unknown }, [
+  const local = pick(
+    props as DialogT.ContentProps<T> & { ref?: unknown },
     'as',
     'ref',
     'title',
@@ -72,15 +72,22 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props as DialogT.ContentProps<T> & { ref?: unknown },
+    'as',
+    'ref',
+    'title',
+    'description',
+    'children',
+    'class',
+    'style',
+  )
   const dialog = useDialogContext()
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useBaseDialogContext()
-  const merged = mergeProps(
-    { overlay: true, closable: true, closeIcon: 'icon-close' as const },
-    dialog,
-  )
+  const merged = merge({ overlay: true, closable: true, closeIcon: 'icon-close' as const }, dialog)
   const isOverlay = () => merged.overlay !== false
   const {
     slots: { content: contentSlot, contentClose: contentCloseSlot, overlay: overlaySlot },
@@ -108,7 +115,9 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   const registration = createDialogContentRegistration()
   const overlayScroll = () => variants.scrollable && isOverlay() && !variants.fullscreen
 
-  createEffect(on(overlayScroll, family.setOverlayScroll))
+  createEffect(overlayScroll, (scrollable) => {
+    family.setOverlayScroll(scrollable)
+  })
   onCleanup(() => family.setOverlayScroll(false))
 
   const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
@@ -134,7 +143,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   function RenderDialogContent(): JSX.Element {
     // The portal branch owns the content binding, so it releases when the content unmounts.
     const binding = createBaseDialogContentBinding(family, {
-      ref: () => local.ref,
+      ref: () => local.ref as ((element: HTMLDivElement) => void) | HTMLDivElement | undefined,
       onKeyDown: () =>
         rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
     })
@@ -155,7 +164,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         role="dialog"
         dir={direction()}
         id={family.contentId()}
-        tabIndex={binding.tabIndex}
+        tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}

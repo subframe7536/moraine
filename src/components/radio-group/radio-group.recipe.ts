@@ -12,7 +12,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
-
 export const radioGroupDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
   legend: /* @__PURE__ */ createDataAttributes('required'),

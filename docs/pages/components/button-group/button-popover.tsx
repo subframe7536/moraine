@@ -1,5 +1,4 @@
 import { Button, ButtonGroup, Icon, Popover } from '@src'
-
 export function ButtonPopover() {
   return (
     <ButtonGroup aria-label="Document actions">

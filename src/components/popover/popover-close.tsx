@@ -1,14 +1,15 @@
-import type { Accessor, JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { pick } from '../../shared/utils'
 
 import { usePopoverContext } from './popover-context'
 import type { PopoverT } from './popover.types'
-
 /**
  * Element that closes the surrounding `Popover` when pressed. Compose it inside
  * `Popover.Content`. Renders a `button`; pass `as` to render another component such as `Button`.
@@ -29,7 +30,8 @@ import type { PopoverT } from './popover.types'
 export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
+  const local = pick(props, 'as', 'disabled', 'ref' as any)
+  const rest = omit(props, 'as', 'disabled', 'ref' as any)
   const behavior = usePopoverContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })

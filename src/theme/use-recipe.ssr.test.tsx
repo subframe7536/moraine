@@ -3,7 +3,6 @@ import { expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../test-util/ssr-test'
 
 import { UseRecipeSsrFixture } from './use-recipe.ssr.fixture'
-
 function parse(markup: string) {
   const container = document.createElement('div')
   container.innerHTML = markup

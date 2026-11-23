@@ -1,5 +1,4 @@
 import { Badge } from '@src'
-
 export function StatusAndMetadata() {
   return (
     <div class="p-4 b-1 b-border rounded-xl max-w-xl space-y-4">

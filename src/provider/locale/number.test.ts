@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { formatLocaleNumber, isPartialNumber, parseLocaleNumber, toNumber } from './number'
-
 describe('locale number', () => {
   test('parses and formats Intl separators', () => {
     expect(parseLocaleNumber('12,5', 'de-DE')).toBe(12.5)

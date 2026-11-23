@@ -1,7 +1,6 @@
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createSignal } from 'solid-js'
-
 interface FileNode {
   path: string
   name: string

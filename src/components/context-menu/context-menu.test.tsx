@@ -1,12 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Portal } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 
 import { ContextMenu } from './context-menu'
-
 describe('ContextMenu', () => {
   test('keeps ordinary Enter and Space inert while supporting the ContextMenu key', () => {
     const onOpenChange = vi.fn()
@@ -81,7 +80,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
     try {
-      setSecond(true)
+      flush(() => setSecond(true))
       expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).toBeNull()
       const trigger = secondDocument.body.querySelector<HTMLElement>(
         '[data-slot="context-menu-trigger"]',
@@ -176,7 +175,7 @@ describe('ContextMenu', () => {
     })
     expect(initialContent.getAttribute('data-align')).toBe('start')
 
-    setPlacement('left')
+    flush(() => setPlacement('left'))
 
     await waitFor(() => {
       expect(initialContent.getAttribute('data-side')).toBe('left')
@@ -323,7 +322,7 @@ describe('ContextMenu', () => {
         <ContextMenu.Trigger
           as="div"
           aria-controls="caller-content"
-          aria-expanded={false}
+          aria-expanded={'false'}
           aria-haspopup="dialog"
         >
           Row Item
@@ -352,7 +351,7 @@ describe('ContextMenu', () => {
           <ContextMenu.Content items={[]} />
         </ContextMenu>
         <ContextMenu disabled>
-          <ContextMenu.Trigger as="div" aria-disabled="false" tabIndex={2}>
+          <ContextMenu.Trigger as="div" aria-disabled="false" tabindex={2}>
             Overridden div
           </ContextMenu.Trigger>
           <ContextMenu.Content items={[]} />
@@ -678,8 +677,8 @@ describe('ContextMenu', () => {
         clientX: 21,
         clientY: 34,
       })
-      setControlledOpen(false)
-      setOnOpenChange(() => secondHandler)
+      flush(() => setControlledOpen(false))
+      flush(() => setOnOpenChange(() => secondHandler))
       await vi.advanceTimersByTimeAsync(700)
 
       expect(firstHandler).not.toHaveBeenCalled()
@@ -841,7 +840,7 @@ describe('ContextMenu', () => {
         clientY: 34,
       })
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       await vi.advanceTimersByTimeAsync(700)
 
       expect(onOpenChange).not.toHaveBeenCalled()
@@ -1339,7 +1338,7 @@ describe('ContextMenu', () => {
       expect(document.body.querySelectorAll('[data-slot="context-menu-content"]')).toHaveLength(2)
     })
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     await waitFor(() => {
       expect(
@@ -1347,7 +1346,7 @@ describe('ContextMenu', () => {
       ).toHaveLength(2)
     })
 
-    setOpen(true)
+    flush(() => setOpen(true))
 
     await waitFor(() => {
       expect(

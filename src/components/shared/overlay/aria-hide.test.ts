@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { acquireAriaHideOutside } from './aria-hide'
-
 describe('acquireAriaHideOutside', () => {
   test('keeps a shadow host accessible and observes both light and shadow siblings', async () => {
     const outside = document.createElement('main')

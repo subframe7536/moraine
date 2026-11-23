@@ -1,7 +1,8 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
@@ -16,7 +17,6 @@ import { DialogHeader } from './dialog-header'
 import { DialogTitle } from './dialog-title'
 import { DialogTrigger } from './dialog-trigger'
 import type { DialogProps } from './dialog.types'
-
 /**
  * Labeled modal task with an optional title, description, body, and footer. Pass `title` and
  * `description` to `Dialog.Content` for the default header, or compose `Dialog.Header`, `Dialog.Title`,
@@ -39,8 +39,9 @@ import type { DialogProps } from './dialog.types'
  * ```
  */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [modalProps, dialogProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
-  const context: DialogContextValue = mergeProps(dialogProps, {
+  const modalProps = pick(props, ...BASE_DIALOG_ROOT_KEYS)
+  const dialogProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
+  const context: DialogContextValue = merge(dialogProps, {
     get slotOverrides() {
       return pickSlotOverrides(props)
     },

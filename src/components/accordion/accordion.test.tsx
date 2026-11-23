@@ -1,12 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Accordion } from './accordion'
 import type { AccordionT } from './accordion.types'
-
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
     value: 'one',
@@ -157,7 +156,7 @@ describe('Accordion', () => {
 
     expect(secondTrigger.getAttribute('aria-expanded')).toBe('true')
 
-    setItems([second, first])
+    flush(() => setItems([second, first]))
     await Promise.resolve()
 
     const reorderedSecondTrigger = screen.getByRole('button', { name: 'Second' })
@@ -189,15 +188,15 @@ describe('Accordion', () => {
     const thirdTrigger = screen.getByRole('button', { name: 'Third' })
     secondTrigger.focus()
 
-    setSecondDisabled(true)
+    flush(() => setSecondDisabled(true))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(thirdTrigger)
 
-    setSecondDisabled(false)
+    flush(() => setSecondDisabled(false))
     await Promise.resolve()
     screen.getByRole('button', { name: 'Second' }).focus()
-    setItems([first, third])
+    flush(() => setItems([first, third]))
     await Promise.resolve()
 
     expect(document.activeElement).toBe(thirdTrigger)
@@ -358,7 +357,7 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerTwo = screen.getByRole('button', { name: 'Two' })
 
-    setValueB('two-renamed')
+    flush(() => setValueB('two-renamed'))
 
     triggerOne.focus()
     fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
@@ -804,10 +803,10 @@ describe('Accordion', () => {
       }
 
       expect(screen.getByText('Resizable content')).toBe(body)
-      setVisible(false)
+      flush(() => setVisible(false))
       expect(screen.queryByText('Resizable content')).toBeNull()
       expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe('0px')
-      setVisible(true)
+      flush(() => setVisible(true))
       await Promise.resolve()
       expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe('24px')
       screen.unmount()

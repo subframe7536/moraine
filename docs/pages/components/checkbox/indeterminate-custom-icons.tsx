@@ -1,6 +1,5 @@
 import { Checkbox } from '@src'
 import { createMemo, createSignal, For } from 'solid-js'
-
 export function IndeterminateCustomIcons() {
   const [tasks, setTasks] = createSignal([
     { id: 'tests', label: 'Run unit and integration test suites', checked: true },

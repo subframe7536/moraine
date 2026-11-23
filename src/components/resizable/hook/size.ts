@@ -1,5 +1,4 @@
 import { EPSILON, PRECISION } from './types'
-
 export function clamp(
   value: number,
   min = Number.NEGATIVE_INFINITY,

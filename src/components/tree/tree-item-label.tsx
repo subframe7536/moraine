@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useTreeContext, useTreeItemContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Text of the surrounding `tree.Item`: its `label` from `getItemLabel`, or `children` instead.
  * Renders a `span`; pass `as` for another element.
@@ -32,12 +32,8 @@ import type { TreeT } from './tree.types'
 export function TreeItemLabel<T extends ValidComponent = 'span'>(
   props: TreeT.ItemLabelProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemLabelProps, [
-    'as',
-    'children',
-    'class',
-    'style',
-  ])
+  const local = pick(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
+  const rest = omit(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
   const item = useTreeItemContext()!.item
   const context = useTreeContext()
   const {

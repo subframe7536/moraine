@@ -1,5 +1,4 @@
 import type { ComponentSize, TextControlVariant } from '../../../../theme/style-types'
-
 /** Shared visual variants for Select-family field controls. */
 export interface SelectControlStyleVariants {
   /**

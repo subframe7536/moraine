@@ -12,7 +12,6 @@ import {
 } from '../shared/overlay/trigger.recipe'
 
 import type { PopoverStyleSlot } from './popover.style-types'
-
 export const popoverDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'side', 'align'),

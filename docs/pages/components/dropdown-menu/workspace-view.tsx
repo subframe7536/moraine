@@ -1,7 +1,6 @@
 import { Button, DropdownMenu } from '@src'
 import type { DropdownMenuT } from '@src'
 import { createMemo, createSignal, For, Show } from 'solid-js'
-
 const PROJECTS = [
   { name: 'Design system', owner: 'Alex', updated: 3, archived: false },
   { name: 'Customer portal', owner: 'Sam', updated: 2, archived: false },

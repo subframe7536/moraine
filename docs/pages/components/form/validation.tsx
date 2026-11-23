@@ -1,7 +1,6 @@
 import { Button, createForm, Input } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email address.')),
   name: v.pipe(v.string(), v.minLength(2, 'Enter at least two characters.')),

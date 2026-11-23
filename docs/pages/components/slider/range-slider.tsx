@@ -1,6 +1,5 @@
 import { Checkbox, Slider } from '@src'
 import { createSignal } from 'solid-js'
-
 export function RangeSlider() {
   const [rangeValue, setRangeValue] = createSignal<number[]>([20, 75])
   const [minStepsBetweenThumbs, setMinStepsBetweenThumbs] = createSignal(0)

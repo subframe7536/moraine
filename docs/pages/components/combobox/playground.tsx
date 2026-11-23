@@ -2,7 +2,6 @@ import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const FRAMEWORK_ITEMS: ComboboxT.Entry[] = [
   {
     type: 'group',

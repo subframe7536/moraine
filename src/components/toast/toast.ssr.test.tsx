@@ -3,7 +3,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Toast } from './toast'
-
 describe('Toast SSR Hydration', () => {
   test('server renders empty shell safely without portal leak', () => {
     const html = renderSsrFixture(

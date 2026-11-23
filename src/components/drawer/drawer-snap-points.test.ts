@@ -6,7 +6,6 @@ import {
   resolveSnapPoints,
   snapPointHeightCss,
 } from './drawer-snap-points'
-
 describe('resolveSnapPointValue', () => {
   test('resolves fraction numbers against the viewport height', () => {
     expect(resolveSnapPointValue(0.5, 800, 16)).toBe(400)

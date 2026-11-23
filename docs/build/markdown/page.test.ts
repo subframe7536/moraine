@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from 'vitest'
 import type { ComponentApi } from '../api-doc/types.ts'
 
 import { createDocsMdxOptions } from './page.ts'
-
 const BUTTON_API_DOC: ComponentApi = {
   key: 'button',
   name: 'Button',
@@ -55,7 +54,7 @@ describe('createDocsMdxOptions', () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
 
-    expect(options.transformPath).toBeUndefined()
+    expect('transformPath' in options).toBe(false)
   })
 
   test('extends the built-in MDX route with docs metadata and layout content', async () => {
@@ -72,9 +71,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/button/index.tsx',
-        routeId: '/components/button',
         sourcePath: 'pages/components/button/index.mdx',
-        moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
 
@@ -122,9 +119,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/(general)/button/index.tsx',
-        routeId: '/components/button',
         sourcePath: 'pages/components/(general)/button/index.mdx',
-        moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
 
@@ -150,9 +145,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'components/(form)/input/index.tsx',
-        routeId: '/components/input',
         sourcePath: 'pages/components/(form)/input/index.mdx',
-        moduleId: '/tmp/input.mdx.solid-file-router.tsx',
       },
     )
 
@@ -179,9 +172,7 @@ describe('createDocsMdxOptions', () => {
       },
       {
         path: 'docs/(overview)/getting-started.tsx',
-        routeId: '/docs/getting-started',
         sourcePath: 'pages/docs/(overview)/getting-started.mdx',
-        moduleId: '/tmp/start.mdx.solid-file-router.tsx',
       },
     )
 

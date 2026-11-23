@@ -8,7 +8,6 @@ import { Input } from '../input'
 import { Switch } from '../switch'
 
 import { createForm } from './'
-
 describe('Form SSR Hydration', () => {
   test('hydrates and resets the same controls before submitting the client-owned store', async () => {
     const onSubmit = vi.fn()

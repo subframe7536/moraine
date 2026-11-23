@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on } from 'solid-js'
+import { createEffect, createMemo, createSignal } from 'solid-js'
 
 import {
   formatLocaleNumber,
@@ -9,7 +9,6 @@ import {
 } from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
 import { snapValueToStep } from '../slider/utils'
-
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
@@ -103,7 +102,8 @@ export function createNumberInput(options: CreateNumberInputOptions) {
 
   // Sync external numeric or locale changes without clobbering accepted manual text.
   createEffect(
-    on([currentValue, options.locale], ([value, localeTag]) => {
+    () => [currentValue(), options.locale()],
+    ([value, localeTag]) => {
       const draft = draftText()
       if (draft !== undefined) {
         const parsed = parseLocaleNumber(draft, localeTag, options.formatOptions())
@@ -112,7 +112,7 @@ export function createNumberInput(options: CreateNumberInputOptions) {
         }
         setDraftText(undefined)
       }
-    }),
+    },
   )
 
   function commitValue(nextValue: number): boolean {

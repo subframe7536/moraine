@@ -1,4 +1,4 @@
-import { createEffect, createRoot, createSignal, on } from 'solid-js'
+import { createEffect, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -7,7 +7,6 @@ import {
   createEventListener,
   createEventListenerMap,
 } from './event-listener'
-
 function click(target: EventTarget) {
   target.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 }
@@ -114,11 +113,9 @@ describe('createEventListener', () => {
 
     const lifecycle = createRoot((dispose) => {
       const [target, setTarget] = createSignal<HTMLElement | undefined>(first)
-      createEffect(
-        on(target, (element) => {
-          createEventListener(element, 'click', listener)
-        }),
-      )
+      createEffect(target, (element) => {
+        createEventListener(element, 'click', listener)
+      })
       return { dispose, setTarget }
     })
 
@@ -140,12 +137,12 @@ describe('createEventListener', () => {
     const seen: string[] = []
 
     createRoot((dispose) => {
-      const [value, setValue] = createSignal('first')
+      const [value, setValue] = createSignal('first', { ownedWrite: true })
       createEventListener(target, 'click', () => {
         seen.push(value())
       })
       click(target)
-      setValue('second')
+      flush(() => setValue('second'))
       click(target)
       expect(seen).toEqual(['first', 'second'])
       dispose()

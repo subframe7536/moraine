@@ -1,3 +1,4 @@
+import type { JSX } from '@solidjs/web'
 import { Badge, Button, Card, List, Separator, Slider } from 'moraine'
 import type { BaseSelect, useCn, Tags, ValidComponent } from 'moraine'
 import type {
@@ -7,7 +8,6 @@ import type {
   createControllableValue,
 } from 'moraine/utils'
 import type { createListVirtualizer } from 'moraine/virtualizer'
-import type { JSX } from 'solid-js'
 
 declare module 'moraine' {
   interface MoraineTypeConfig {

@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { DEV, For, Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { DEV, For, Show, createMemo, merge, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider/index'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -8,13 +8,12 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment } from '../../shared/utils'
+import { createId, toIdSegment, pick } from '../../shared/utils'
 import { Icon } from '../icon/index'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { stepperDataAttributes, stepperRecipe } from './stepper.recipe'
 import type { StepperProps, StepperT } from './stepper.types'
-
 type StepperState = 'inactive' | 'active' | 'completed'
 
 interface NormalizedStepperItem {
@@ -33,7 +32,7 @@ interface NormalizedStepperItem {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Button, Stepper } from 'moraine'
  *
  * const [step, setStep] = createSignal('account')
@@ -54,7 +53,8 @@ interface NormalizedStepperItem {
  * ```
  */
 export function Stepper(props: StepperProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -72,7 +72,27 @@ export function Stepper(props: StepperProps): JSX.Element {
     'style',
     'aria-label',
     'aria-labelledby',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'value',
+    'defaultValue',
+    'onValueChange',
+    'orientation',
+    'activationMode',
+    'items',
+    'navigation',
+    'disabled',
+    'loop',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'aria-labelledby',
+  )
   const {
     slots: {
       root: rootSlot,
@@ -88,7 +108,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     data: { content: stepperDataAttributes.content({ selected: true }) },
   })
   const direction = useLocale().dir
-  const merged = mergeProps(
+  const merged = merge(
     {
       get orientation() {
         return variants.orientation
@@ -127,7 +147,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       const description = createLazyMemo(() => item.description)
       const icon = createLazyMemo(() => item.icon)
       const content = createLazyMemo(() => item.content)
-      const mergedItem = mergeProps(item, {
+      const mergedItem = merge(item, {
         get disabled() {
           return item.disabled || occurrence > 0
         },
@@ -297,9 +317,9 @@ export function Stepper(props: StepperProps): JSX.Element {
                   }}
                   type="button"
                   role="tab"
-                  tabIndex={selected() ? 0 : -1}
+                  tabindex={selected() ? 0 : -1}
                   aria-controls={panelMounted() ? contentId() : undefined}
-                  aria-selected={selected()}
+                  aria-selected={selected() ? 'true' : 'false'}
                   aria-current={selected() ? 'step' : undefined}
                   data-slot="stepper-trigger"
                   {...triggerSlot}
@@ -362,7 +382,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             <div
               id={getContentId(entry.instanceKey)}
               role="tabpanel"
-              tabIndex={0}
+              tabindex={0}
               aria-labelledby={getTriggerId(entry.instanceKey)}
               data-slot="stepper-content"
               {...contentSlot}

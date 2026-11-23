@@ -1,0 +1,31 @@
+/**
+ * Test-only `@solidjs/testing-library` wrapper, aliased in `vitest.config.ts`:
+ * re-exports the library and wraps `fireEvent` to flush Solid 2's microtask
+ * update queue after dispatch, so assertions see settled DOM.
+ * `#tl` aliases the real package entry — importing `@solidjs/testing-library`
+ * here would resolve back to this file.
+ */
+export * from '#tl'
+
+import { flush } from 'solid-js'
+
+import { fireEvent as domFireEvent } from '#tl'
+
+export const fireEvent = new Proxy(domFireEvent, {
+  apply(target, thisArg, args: unknown[]) {
+    const result: unknown = Reflect.apply(target, thisArg, args)
+    flush()
+    return result
+  },
+  get(target, prop, receiver) {
+    const value: unknown = Reflect.get(target, prop, receiver)
+    if (typeof value !== 'function') {
+      return value
+    }
+    return (...args: unknown[]) => {
+      const result: unknown = (value as (...args: unknown[]) => unknown).apply(target, args)
+      flush()
+      return result
+    }
+  },
+}) as typeof domFireEvent

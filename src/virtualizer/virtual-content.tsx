@@ -1,9 +1,8 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import type { ListVirtualizer, VirtualRowProps } from './virtualizer.types'
-
 // Imported by the main entry: it must not import `@tanstack/virtual-core` or a module that does.
 
 /**

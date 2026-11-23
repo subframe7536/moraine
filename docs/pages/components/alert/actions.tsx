@@ -1,5 +1,4 @@
 import { Alert, Button } from '@src'
-
 export function Actions() {
   return (
     <div class="flex flex-col gap-3 max-w-xl w-full">

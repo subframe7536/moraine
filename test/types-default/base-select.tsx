@@ -10,7 +10,6 @@ import type {
 } from 'moraine'
 import { createBaseSelectSearchInput } from 'moraine/utils'
 import { For, createSignal } from 'solid-js'
-
 type Assert<T extends true> = T
 type Equal<T, U> =
   (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U ? 1 : 2 ? true : false
@@ -105,7 +104,7 @@ export type SelectFamilyPropAliases = [
 ;<BaseSelect.Trigger as={Button} loading>
   Choose
 </BaseSelect.Trigger>
-const Custom = (props: { custom: string; children?: import('solid-js').JSX.Element }) => (
+const Custom = (props: { custom: string; children?: import('@solidjs/web').JSX.Element }) => (
   <button>
     {props.custom}
     {props.children}

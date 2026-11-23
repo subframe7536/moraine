@@ -1,5 +1,4 @@
 import type { FeedbackCloseReason, FeedbackHandle, FeedbackId } from './feedback.types'
-
 export interface CloseResult {
   result: () => Promise<FeedbackCloseReason>
   /** Resolves `result()` once. Later calls do nothing and return false. */

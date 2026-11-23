@@ -3,7 +3,6 @@ import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createListSortable } from '@src/dnd'
 import { createSignal } from 'solid-js'
-
 interface Release {
   id: string
   version: string

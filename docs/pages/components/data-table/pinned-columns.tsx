@@ -1,7 +1,6 @@
 import { Badge, Button, DropdownMenu } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
-
 interface Customer {
   id: string
   name: string

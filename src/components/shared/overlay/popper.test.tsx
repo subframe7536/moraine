@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createSignal, untrack } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { finishExitMotion } from '../../../test-util/overlay-test'
@@ -9,7 +9,6 @@ import { Tooltip } from '../../tooltip/tooltip'
 
 import { createPopper, PopperTrigger, PopperContent } from './popper'
 import type { PopperProps } from './popper.types'
-
 function PopperFixture(
   props: PopperProps & {
     contentRender: (context: ReturnType<typeof createPopper>) => JSX.Element
@@ -39,7 +38,7 @@ describe('Popper primitives', () => {
     await waitFor(() =>
       expect(document.querySelector('[data-testid="plain-content"]')?.textContent).toBe('First'),
     )
-    setLabel('Second')
+    flush(() => setLabel('Second'))
     expect(document.querySelector('[data-testid="plain-content"]')?.textContent).toBe('Second')
   })
 
@@ -249,7 +248,7 @@ describe('Popper primitives', () => {
       expect(positioner.hasAttribute('data-positioned')).toBe(true)
     })
 
-    setShowTrigger(false)
+    flush(() => setShowTrigger(false))
 
     await waitFor(() => {
       expect(positioner.hasAttribute('data-positioned')).toBe(false)
@@ -351,9 +350,9 @@ describe('Popper primitives', () => {
         <PopperFixture
           open={firstOpen()}
           onOpenChange={(open) => {
-            setFirstOpen(open)
+            flush(() => setFirstOpen(open))
             if (!open) {
-              setSecondOpen(true)
+              flush(() => setSecondOpen(true))
             }
           }}
           contentRender={(popper) => (
@@ -400,9 +399,9 @@ describe('Popper primitives', () => {
         <PopperFixture
           open={firstOpen()}
           onOpenChange={(open) => {
-            setFirstOpen(open)
+            flush(() => setFirstOpen(open))
             if (!open) {
-              setSecondOpen(true)
+              flush(() => setSecondOpen(true))
             }
           }}
           contentRender={(popper) => (
@@ -457,9 +456,9 @@ describe('Popper primitives', () => {
         <PopperFixture
           open={firstOpen()}
           onOpenChange={(open) => {
-            setFirstOpen(open)
+            flush(() => setFirstOpen(open))
             if (!open) {
-              setSecondOpen(true)
+              flush(() => setSecondOpen(true))
             }
           }}
           contentRender={(popper) => (
@@ -491,7 +490,7 @@ describe('Popper primitives', () => {
     expect(onSecondOpenChange).toHaveBeenCalledWith(false)
 
     onSecondOpenChange.mockClear()
-    setSecondOpen(true)
+    flush(() => setSecondOpen(true))
     fireEvent.click(firstOutside, { detail: 1 })
     expect(onSecondOpenChange).toHaveBeenCalledWith(false)
 
@@ -624,7 +623,7 @@ describe('Popper primitives', () => {
 
     expect(document.body.style.overflow).toBe('')
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
-    setShow(true)
+    flush(() => setShow(true))
     await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
     screen.unmount()
     expect(document.body.style.overflow).toBe('')
@@ -652,24 +651,24 @@ describe('Popper primitives', () => {
     ))
     try {
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
-      setPreventScroll(false)
+      flush(() => setPreventScroll(false))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('hidden')
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
       await waitFor(() => expect(document.body.style.overflow).toBe(''))
 
-      setOpen(true)
+      flush(() => setOpen(true))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('')
-      setPreventScroll(true)
+      flush(() => setPreventScroll(true))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('')
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
-      setOpen(true)
+      flush(() => setOpen(true))
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
     } finally {
       screen.unmount()
@@ -708,7 +707,7 @@ describe('Popper primitives', () => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe('top')
     })
 
-    setPlacement('right')
+    flush(() => setPlacement('right'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe(
@@ -744,9 +743,9 @@ describe('Popper primitives', () => {
       expect(element).not.toBeNull()
       return element!
     })
-    setOpen(false)
+    flush(() => setOpen(false))
     await Promise.resolve()
-    setOpen(true)
+    flush(() => setOpen(true))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="popover-content"]')).toBe(content)
@@ -816,7 +815,7 @@ describe('Popper primitives', () => {
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setShowContent(false)
+    flush(() => setShowContent(false))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
@@ -904,7 +903,7 @@ describe('Popper primitives', () => {
       expect(positioner.style.transform).toBe('translate3d(10px, 20px, 0px)')
     })
 
-    setUseFirstTrigger(false)
+    flush(() => setUseFirstTrigger(false))
 
     await waitFor(() => {
       expect(positioner.style.transform).toBe('translate3d(110px, 50px, 0px)')
@@ -960,7 +959,7 @@ describe('Popper native event composition', () => {
     const trigger = screen.getByRole('button')
     fireEvent.click(trigger)
     expect(changes).not.toHaveBeenCalled()
-    setCancel(false)
+    flush(() => setCancel(false))
     fireEvent.click(trigger)
     expect(changes).toHaveBeenCalledExactlyOnceWith(true)
     expect(events).toHaveLength(2)
@@ -1010,7 +1009,7 @@ describe('Popper native event composition', () => {
     expect(ref).toHaveBeenCalledExactlyOnceWith(trigger)
     fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(changes).toHaveBeenCalledExactlyOnceWith(true)
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(trigger.getAttribute('aria-disabled')).toBe('true')
     fireEvent.click(trigger)
     expect(changes).toHaveBeenCalledTimes(1)
@@ -1122,8 +1121,8 @@ describe('Floating component context isolation', () => {
     ))
     try {
       expect(document.body.style.overflow).toBe('')
-      setPreventScroll(false)
-      setShow(true)
+      flush(() => setPreventScroll(false))
+      flush(() => setShow(true))
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
     } finally {
       screen.unmount()

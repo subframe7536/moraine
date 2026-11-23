@@ -4,7 +4,6 @@ import { createSignal, Show } from 'solid-js'
 import * as v from 'valibot'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const ProfileSchema = v.object({
   username: v.pipe(v.string(), v.minLength(3, 'Username must be at least 3 characters.')),
   role: v.pipe(v.string(), v.nonEmpty('Please select a role.')),

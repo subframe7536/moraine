@@ -2,7 +2,6 @@ import { Button, createForm, FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 export function FormIntegration() {
   const [formState, setFormState] = createSignal({
     attachment: null as File | null,

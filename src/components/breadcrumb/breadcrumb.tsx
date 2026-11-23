@@ -1,18 +1,17 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { For, Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
 import type { BreadcrumbProps } from './breadcrumb.types'
-
 /**
  * Breadcrumb navigation trail with separator icons and optional wrapping, showing where a
  * resource sits in a navigation hierarchy. Keep ancestors as links with `href`; the last item is
@@ -33,7 +32,8 @@ import type { BreadcrumbProps } from './breadcrumb.types'
  * ```
  */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'ref',
     'items',
     'separator',
@@ -46,7 +46,22 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'style',
     'aria-label',
     'translations',
-  ])
+  )
+  const rest = omit(
+    props,
+    'ref',
+    'items',
+    'separator',
+    'size',
+    'itemRender',
+    'wrap',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'translations',
+  )
   const {
     slots: {
       root: rootSlot,

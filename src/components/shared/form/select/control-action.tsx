@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import { createKeyDownHandler } from '../../../../shared/keyboard'
 import { callHandler } from '../../../../shared/utils'
@@ -7,7 +7,6 @@ import { Icon } from '../../../icon'
 import type { IconT } from '../../../icon'
 
 import { SELECT_LOADING_ICON_CLASS, selectLoadingData } from './select-field.recipe'
-
 export interface UseControlPressOptions<TElement extends HTMLElement = HTMLDivElement> {
   focusOwner: () => HTMLElement | undefined
   focus: () => void
@@ -64,7 +63,7 @@ export function ClearButton(props: ClearButtonProps): JSX.Element {
       type="button"
       data-slot={props.dataSlot}
       aria-label={props.ariaLabel}
-      tabIndex={-1}
+      tabindex={-1}
       {...props.slot}
       disabled={props.disabled}
       onPointerDown={(event) => {
@@ -101,7 +100,7 @@ export function ToggleTrigger(props: ToggleTriggerProps): JSX.Element {
   return (
     <button
       type="button"
-      tabIndex={-1}
+      tabindex={-1}
       data-slot={props.dataSlot}
       aria-label={props.ariaLabel}
       aria-controls={props.ariaControls}

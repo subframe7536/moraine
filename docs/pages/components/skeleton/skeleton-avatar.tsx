@@ -1,5 +1,4 @@
 import { Skeleton } from '@src'
-
 export function SkeletonAvatar() {
   return (
     <div class="flex gap-4 w-fit items-center">

@@ -1,6 +1,5 @@
 import { Button, Stepper } from '@src'
 import { createSignal } from 'solid-js'
-
 export function ControlledNonLinear() {
   const RELEASE_STEPS = () => [
     {

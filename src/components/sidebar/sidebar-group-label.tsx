@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 
 import { useSidebarStyles } from './sidebar-context'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Section heading placed first inside a `Sidebar.Group`. Renders a `div` by default; pass
  * `as="h2"` or another tag when the page needs a real heading.
@@ -27,7 +27,8 @@ import type { SidebarT } from './sidebar.types'
 export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
   props: SidebarT.GroupLabelProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
+  const local = pick(props, 'as', 'class', 'style')
+  const rest = omit(props, 'as', 'class', 'style')
   const {
     slots: { groupLabel: groupLabelSlot },
   } = useSidebarStyles('groupLabel', local)
@@ -37,7 +38,7 @@ export function SidebarGroupLabel<T extends ValidComponent = 'div'>(
       component={local.as ?? 'div'}
       data-slot="sidebar-group-label"
       {...groupLabelSlot}
-      {...rest}
+      {...(rest as any)}
     />
   )
 }

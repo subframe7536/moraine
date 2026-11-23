@@ -1,12 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Collapsible } from './collapsible'
-
 function renderCollapsible(props?: {
   open?: boolean
   defaultOpen?: boolean
@@ -145,7 +144,7 @@ describe('Collapsible', () => {
     ))
     const trigger = screen.getByRole('button', { name: 'Toggle' })
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(trigger.hasAttribute('disabled')).toBe(true)
     fireEvent.click(trigger)
 
@@ -185,8 +184,8 @@ describe('Collapsible', () => {
     ))
     const wrapper = screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')!
 
-    setOpen(false)
-    setOpen(true)
+    flush(() => setOpen(false))
+    flush(() => setOpen(true))
     fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
 
     expect(screen.getByTestId('content')).not.toBeNull()
@@ -493,7 +492,7 @@ describe('Collapsible', () => {
     link.focus()
     expect(document.activeElement).toBe(link)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     expect(document.activeElement).toBe(trigger)
   })
@@ -516,7 +515,7 @@ describe('Collapsible', () => {
 
     link.focus()
     outside.focus()
-    setOpen(false)
+    flush(() => setOpen(false))
 
     expect(document.activeElement).toBe(outside)
   })
@@ -545,7 +544,7 @@ describe('Collapsible', () => {
     link.focus()
     expect(iframeDocument.activeElement).toBe(link)
 
-    setOpen(false)
+    flush(() => setOpen(false))
 
     expect(iframeDocument.activeElement).toBe(trigger)
     expect(document.activeElement).toBe(iframe)
@@ -646,7 +645,7 @@ describe('Collapsible', () => {
     expect(content.className).toContain('user-content-slot')
     expect(content.className).toContain('user-content-prop')
 
-    setPadding('user-trigger-b')
+    flush(() => setPadding('user-trigger-b'))
     expect(trigger.className).toContain('user-trigger-b')
     expect(trigger.className).not.toContain('user-trigger-a')
   })

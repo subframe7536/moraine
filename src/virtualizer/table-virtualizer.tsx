@@ -6,8 +6,7 @@ import {
   createMemo,
   createRenderEffect,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
 } from 'solid-js'
 
@@ -154,7 +153,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
 ): TableVirtualizerReturn<TItem, TColumn> {
   // One scroll listener feeds both axes, so a scroll event updates rows and columns in one batch.
   const observeElementOffset = createSharedElementOffsetObserver()
-  const rowOptions = mergeProps({ observeElementOffset }, options)
+  const rowOptions = merge({ observeElementOffset }, options)
   const controller = createVirtualizerController<TItem, HTMLElement, HTMLTableRowElement>(
     rowOptions,
   )
@@ -164,7 +163,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     | ReturnType<typeof createVirtualizerController<TColumn, HTMLElement, HTMLTableCellElement>>
     | undefined
   if (columnOptions) {
-    const horizontalOptions = mergeProps({ observeElementOffset }, columnOptions, {
+    const horizontalOptions = merge({ observeElementOffset }, columnOptions, {
       horizontal: true,
       estimateSize: columnOptions.estimateSize ?? (() => DEFAULT_COLUMN_SIZE),
     })
@@ -241,7 +240,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           isRtl: columnRtl(),
         }
       },
-      undefined,
       { equals: sameColumnLayout },
     )
     const columnState = columnController?.attach({
@@ -256,14 +254,12 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
 
     if (columnController && columnState) {
       // Columns flow right to left in an RTL table, and its `scrollLeft` counts down from 0.
-      createEffect(
-        on(columnController.instance, (instance) => {
-          const element = instance?.scrollElement
-          if (element) {
-            setColumnRtl(getComputedStyle(element).direction === 'rtl')
-          }
-        }),
-      )
+      createEffect(columnController.instance, (instance) => {
+        const element = instance?.scrollElement
+        if (element) {
+          setColumnRtl(getComputedStyle(element).direction === 'rtl')
+        }
+      })
 
       const currentWindow = createMemo(
         (): TableVirtualColumnWindow => {
@@ -285,7 +281,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
             skippedAfter: last ? count - last.index - 1 : count,
           }
         },
-        undefined,
         { equals: sameColumnWindow },
       )
       setWindowSource(() => currentWindow)
@@ -361,62 +356,53 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     // Header and footer rows can change without new entries (grouped columns, conditional
     // footers), so the table structure is observed directly.
     createEffect(
-      on(
-        () => [controller.instance(), props.scrollElement] as const,
-        ([instance]) => {
-          const table = instance ? resolveTable() : null
-          if (!table) {
-            return
-          }
-          const resizeObserver =
-            typeof ResizeObserver === 'undefined'
-              ? undefined
-              : new ResizeObserver(() => measureSections(table))
-          // Sections can be replaced, so re-observe them whenever the table's children change.
-          const observeSections = (mutationObserver: MutationObserver) => {
-            resizeObserver?.disconnect()
-            for (const element of [table.caption, table.tHead, table.tFoot]) {
-              if (element) {
-                resizeObserver?.observe(element)
-                mutationObserver.observe(element, { childList: true })
-              }
+      () => [controller.instance(), props.scrollElement] as const,
+      ([instance]) => {
+        const table = instance ? resolveTable() : null
+        if (!table) {
+          return
+        }
+        const resizeObserver =
+          typeof ResizeObserver === 'undefined'
+            ? undefined
+            : new ResizeObserver(() => measureSections(table))
+        // Sections can be replaced, so re-observe them whenever the table's children change.
+        const observeSections = (mutationObserver: MutationObserver) => {
+          resizeObserver?.disconnect()
+          for (const element of [table.caption, table.tHead, table.tFoot]) {
+            if (element) {
+              resizeObserver?.observe(element)
+              mutationObserver.observe(element, { childList: true })
             }
           }
-          const mutationObserver = new MutationObserver((records, observer) => {
-            if (records.some((record) => record.target === table)) {
-              observeSections(observer)
-            }
-            measureSections(table)
-            syncAria(table)
-          })
-          mutationObserver.observe(table, { childList: true })
-          observeSections(mutationObserver)
+        }
+        const mutationObserver = new MutationObserver((records, observer) => {
+          if (records.some((record) => record.target === table)) {
+            observeSections(observer)
+          }
           measureSections(table)
+          syncAria(table)
+        })
+        mutationObserver.observe(table, { childList: true })
+        observeSections(mutationObserver)
+        measureSections(table)
 
-          onCleanup(() => {
-            mutationObserver.disconnect()
-            resizeObserver?.disconnect()
-          })
-        },
-      ),
+        onCleanup(() => {
+          mutationObserver.disconnect()
+          resizeObserver?.disconnect()
+        })
+      },
     )
 
     createRenderEffect(
-      on(
-        () =>
-          [
-            controller.instance(),
-            props.entries.length,
-            sections(),
-            columnEntries().length,
-          ] as const,
-        ([instance]) => {
-          const table = instance ? resolveTable() : null
-          if (table) {
-            syncAria(table)
-          }
-        },
-      ),
+      () =>
+        [controller.instance(), props.entries.length, sections(), columnEntries().length] as const,
+      ([instance]) => {
+        const table = instance ? resolveTable() : null
+        if (table) {
+          syncAria(table)
+        }
+      },
     )
     onCleanup(() => {
       if (

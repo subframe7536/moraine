@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createMemo, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../provider/locale/number'
 import { hasContent } from '../../shared/jsx-content'
+import { pick } from '../../shared/utils'
 
 import { defaultProgressMessages } from './progress.messages'
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps } from './progress.types'
-
 function resolveMaxValue(max: number | undefined): number {
   if (typeof max === 'number' && Number.isFinite(max) && max >= 0) {
     return max
@@ -37,10 +37,32 @@ function clamp(value: number, min: number, max: number): number {
  * ```
  */
 export function Progress(props: ProgressProps): JSX.Element {
-  const [local, style, rest] = splitProps(
+  const local = pick(props, 'value', 'max', 'label', 'valueLabel', 'formatOptions', 'translations')
+  const style = pick(
     props,
-    ['value', 'max', 'label', 'valueLabel', 'formatOptions', 'translations'],
-    ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
+    'orientation',
+    'animation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
+  const rest = omit(
+    props,
+    'value',
+    'max',
+    'label',
+    'valueLabel',
+    'formatOptions',
+    'translations',
+    'orientation',
+    'animation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
   )
   const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
   const { locale } = useLocale()

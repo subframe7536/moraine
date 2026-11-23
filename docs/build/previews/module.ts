@@ -3,7 +3,6 @@ import path from 'pathe'
 import { toSingleQuoted } from '../core/strings.ts'
 
 import type { ParsePreviewCode, ProgramNode } from './ast.ts'
-
 interface PreviewExport {
   importedName: string
   sourceName: string

@@ -2,7 +2,6 @@ import { Button, createForm, Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const COUNTRIES = [
   { label: 'United States', value: 'us' },
   { label: 'Germany', value: 'de' },

@@ -2,7 +2,6 @@ import { Button, Input, Select } from '@src'
 import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 import { createSignal } from 'solid-js'
-
 interface Employee {
   id: string
   name: string

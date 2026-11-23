@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { createSignal, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
 import { GroupProvider } from './base-select-group-context'
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Labelled group (`role="group"`) of related `BaseSelect.Item` parts. Place it inside
  * `BaseSelect.Listbox` and add a `BaseSelect.GroupLabel` to name it; the group is linked to its
@@ -33,7 +33,8 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectGroup(props: BaseSelectT.GroupProps): JSX.Element {
   const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const {
     slots: { group: groupSlot },
   } = useRecipe(baseSelectRecipe, local, {

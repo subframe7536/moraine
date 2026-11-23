@@ -2,7 +2,6 @@ import { createDataTable } from '@src/data-table'
 import type { DataTableT } from '@src/data-table'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 interface Employee {
   id: string
   name: string

@@ -6,7 +6,6 @@ import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { DropdownMenu } from './dropdown-menu'
-
 describe('DropdownMenu SSR Hydration', () => {
   test('hydrates the trigger once and opens on the first keyboard action', async () => {
     let triggerReads = 0

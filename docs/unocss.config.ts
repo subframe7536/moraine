@@ -6,7 +6,6 @@ import { presetMoraine } from '../src/theme/unocss.ts'
 
 import { getDocsShikiCss } from './build/core/shiki.ts'
 import { DOCS_MOBILE_QUERY } from './shared/docs-layout.ts'
-
 const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':

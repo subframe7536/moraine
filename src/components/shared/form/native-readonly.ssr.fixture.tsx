@@ -1,4 +1,4 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { CheckboxGroup } from '../../checkbox-group/checkbox-group'
 import { Checkbox } from '../../checkbox/checkbox'
@@ -9,7 +9,6 @@ import { RadioGroup } from '../../radio-group/radio-group'
 import { Slider } from '../../slider/slider'
 import { Switch } from '../../switch/switch'
 import { Textarea } from '../../textarea/textarea'
-
 export function NativeReadonlyFixture(props: { readOnly: boolean }) {
   return (
     <section>

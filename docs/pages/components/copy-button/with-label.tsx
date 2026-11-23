@@ -1,5 +1,4 @@
 import { CopyButton } from '@src'
-
 export function WithLabel() {
   const curlCommand = 'curl -s https://moraine.subf.dev/install.sh | bash'
 

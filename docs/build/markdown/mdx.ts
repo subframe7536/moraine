@@ -1,5 +1,4 @@
 import { parseCodeBlockMeta } from '../core/shiki.ts'
-
 export interface MdxNode {
   type?: string
   name?: string

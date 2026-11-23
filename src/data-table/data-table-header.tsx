@@ -1,6 +1,6 @@
+import type { JSX } from '@solidjs/web'
 import type { Header, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createUniqueId, on } from 'solid-js'
+import { For, Show, createMemo, createUniqueId } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
@@ -19,7 +19,6 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 import { FlexRender } from './flex-render'
-
 const SORT_ICONS = {
   asc: 'icon-arrow-up',
   desc: 'icon-arrow-down',
@@ -137,19 +136,15 @@ function DataTableHeadCell<TData extends RowData>(props: {
   )
   // `headProps` runs once per head cell (and re-runs if `props.headProps` changes), so it can
   // call cell-level hooks without tracking `header` or `index`.
-  const extraProps = createMemo(
-    on(
-      () => props.headProps,
-      (headProps) =>
-        headProps?.({
-          get header() {
-            return props.header
-          },
-          get index() {
-            return props.index
-          },
-        }),
-    ),
+  const extraProps = createMemo(() =>
+    props.headProps?.({
+      get header() {
+        return props.header
+      },
+      get index() {
+        return props.index
+      },
+    }),
   )
   const sortIconSlot = ctx.slotWith('sortIcon', {
     data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
@@ -160,7 +155,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
       data-slot="data-table-head"
       {...headSlot}
       {...extraProps()}
-      colSpan={props.header.colSpan}
+      colspan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}
     >
@@ -284,7 +279,7 @@ function DataTableResizer<TData extends RowData>(props: {
       aria-valuenow={props.header.getSize()}
       aria-valuemin={minSize()}
       aria-valuemax={maxSize()}
-      tabIndex={0}
+      tabindex={0}
       {...resizerSlot}
       onMouseDown={(event) => props.header.getResizeHandler()(event)}
       onTouchStart={(event) => props.header.getResizeHandler()(event)}

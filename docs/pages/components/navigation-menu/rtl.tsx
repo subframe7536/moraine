@@ -1,5 +1,4 @@
 import { NavigationMenu } from '@src'
-
 export function Rtl() {
   return (
     <div dir="rtl" class="min-h-56 w-full">

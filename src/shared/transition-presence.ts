@@ -1,8 +1,7 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
-
 export interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
@@ -105,7 +104,7 @@ function getChangedAnimationEntries(
 export function createTransitionPresence(
   options: CreateTransitionPresenceOptions,
 ): TransitionPresenceState {
-  const [present, setPresent] = createSignal(options.open())
+  const [present, setPresent] = createSignal(options.open(), { ownedWrite: true })
   const dataAttrs = {
     get 'data-closed'() {
       return options.open() ? undefined : ''
@@ -115,7 +114,7 @@ export function createTransitionPresence(
     },
   }
   const registrations = new Map<number, HTMLElement>()
-  const [revision, setRevision] = createSignal(0)
+  const [revision, setRevision] = createSignal(0, { ownedWrite: true })
   const animationNames = new Map<HTMLElement, Array<string>>()
   const trackedElements = new Map<HTMLElement, TrackedElement>()
   const measuredElements = new Set<HTMLElement>()
@@ -234,7 +233,6 @@ export function createTransitionPresence(
     measuredElements.delete(element)
     animationNames.delete(element)
     pendingAnimations.delete(element)
-    // oxlint-disable-next-line subf/solid-reactivity -- Owner teardown releases before `disposed` is set, so settle after it.
     queueMicrotask(() => {
       if (!disposed) {
         finishHiding()
@@ -270,7 +268,8 @@ export function createTransitionPresence(
   })
 
   createEffect(
-    on([options.open, revision], ([open]) => {
+    () => [options.open(), revision()],
+    ([open]) => {
       const currentElements = Array.from(new Set(registrations.values()))
 
       if (open) {
@@ -290,7 +289,6 @@ export function createTransitionPresence(
 
       let cancelled = false
 
-      // oxlint-disable-next-line subf/solid-reactivity -- Measure committed exit styles after this effect, checking the latest open state before completing.
       queueMicrotask(() => {
         if (cancelled || disposed) {
           return
@@ -349,7 +347,7 @@ export function createTransitionPresence(
           exitTimeout = undefined
         }
       })
-    }),
+    },
   )
 
   return {

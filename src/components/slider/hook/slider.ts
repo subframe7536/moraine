@@ -1,13 +1,6 @@
-import type { JSX, Setter } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-} from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Setter } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge, onCleanup, onSettled } from 'solid-js'
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../../provider/locale/number'
@@ -29,7 +22,6 @@ import {
   snapValueToStep,
 } from '../utils'
 import type { SliderValue } from '../utils'
-
 // Pointer input focuses thumbs from script; `focusVisible: false` keeps the keyboard focus ring off.
 const POINTER_FOCUS_OPTIONS: FocusOptions = { focusVisible: false }
 
@@ -97,7 +89,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
   const { dir: providerDirection, locale } = useLocale()
-  const merged = mergeProps(
+  const merged = merge(
     {
       min: 0,
       max: 100,
@@ -197,14 +189,15 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     setDirection(resolveDirection(element))
   }
 
-  onMount(() => {
+  onSettled(() => {
     setDirection(resolveDirection())
   })
 
   createEffect(
-    on([providerDirection, trackElement], () => {
+    () => [providerDirection(), trackElement()],
+    () => {
       setDirection(resolveDirection())
-    }),
+    },
   )
 
   const getSliderEdges = createMemo(() =>
@@ -289,27 +282,26 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   createEffect(
-    on([controlledValueSnapshot, () => merged.min, () => merged.max], ([value, min, max]) => {
+    () => [controlledValueSnapshot(), (() => merged.min)(), (() => merged.max)()],
+    ([value, min, max]) => {
       const controlled = normalizeSliderValues(value, min, min, max)
       if (controlled !== undefined) {
         pendingValues = undefined
       }
-    }),
+    },
   )
 
   createEffect(
-    on(
-      [() => merged.value, currentValues, () => merged.min, () => merged.max],
-      ([value, displayed, min, max]) => {
-        if (value !== undefined) {
-          return
-        }
-        const normalized = normalizeSliderValues(displayed, min, min, max) ?? [min]
-        if (!areValuesEqual(displayed, normalized)) {
-          setCurrentValues(normalized)
-        }
-      },
-    ),
+    () => [(() => merged.value)(), currentValues(), (() => merged.min)(), (() => merged.max)()],
+    ([value, displayed, min, max]) => {
+      if (value !== undefined) {
+        return
+      }
+      const normalized = normalizeSliderValues(displayed, min, min, max) ?? [min]
+      if (!areValuesEqual(displayed, normalized)) {
+        setCurrentValues(normalized)
+      }
+    },
   )
 
   onCleanup(() => {

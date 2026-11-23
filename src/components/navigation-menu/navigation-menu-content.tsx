@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createMemo, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -8,6 +8,7 @@ import type { KeyBindingOptions } from '../../shared/keyboard'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
+import { pick } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 import { focusWithoutScrolling, getFocusableElements } from '../shared/overlay/focus'
 import { mergePopperElementProps } from '../shared/overlay/popper'
@@ -16,7 +17,6 @@ import { scrollIntoViewWithin } from '../shared/overlay/scroll-into-view'
 import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
-
 /**
  * Panel of links that opens when the sibling `NavigationMenu.Trigger` of the same
  * `NavigationMenu.Item` is active. It must be placed inside `NavigationMenu.Item`; its content is
@@ -51,7 +51,8 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   if (!item) {
     throw new Error('NavigationMenu.Content must be used within NavigationMenu.Item')
   }
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const {
     slots: { content: contentSlot },
   } = useRecipe(navigationMenuRecipe, local, {
@@ -181,9 +182,9 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
             id={`${context.id()}-${item.value()}-content`}
             role={rest.role ?? 'region'}
             aria-labelledby={item.trigger()?.id}
-            aria-hidden={!expanded() ? true : undefined}
+            aria-hidden={!expanded() ? 'true' : undefined}
             inert={!expanded() ? true : undefined}
-            tabIndex={-1}
+            tabindex={-1}
           />
         )
       }}

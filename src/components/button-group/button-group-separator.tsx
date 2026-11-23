@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 import { Separator } from '../separator'
 
 import { useButtonGroupContext } from './button-group-context'
 import { buttonGroupRecipe } from './button-group.recipe'
 import type { ButtonGroupT } from './button-group.types'
-
 /**
  * Explicit divider between adjacent buttons of a `ButtonGroup`. Place it between the group's
  * children where a visible boundary is useful. Its orientation is perpendicular to the group
@@ -25,7 +25,8 @@ import type { ButtonGroupT } from './button-group.types'
  * ```
  */
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const group = useButtonGroupContext()
   const {
     slots: { separator: separatorSlot },

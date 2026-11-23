@@ -1,7 +1,6 @@
 import { transformerStyleToClass } from '@shikijs/transformers'
 import type { Highlighter, ShikiTransformer } from 'shiki'
 import { createHighlighter } from 'shiki'
-
 const GLOBAL_SHIKI_KEY = Symbol.for('moraine.docs.shikiStyleToClass')
 const GLOBAL_ON_CLASS_CHANGE_KEY = Symbol.for('moraine.docs.shikiOnClassChange')
 
@@ -280,7 +279,7 @@ export async function highlightCodeBlock(
   transformers.push({
     name: 'moraine:no-tabindex',
     pre(node) {
-      node.properties.tabindex = -1
+      node.properties.tabIndex = -1
     },
   })
 

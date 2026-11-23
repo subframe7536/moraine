@@ -1,4 +1,5 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
@@ -7,7 +8,6 @@ import type { SlotClassValue } from '../../theme/style-types'
 import { sidebarRecipe } from './sidebar.recipe'
 import type { SidebarStyleSlot } from './sidebar.style-types'
 import type { SidebarT } from './sidebar.types'
-
 export interface SidebarContext extends SidebarT.Context {
   readonly slotOverrides: {
     classes?: SidebarT.Classes

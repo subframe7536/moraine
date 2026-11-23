@@ -2,7 +2,6 @@ import { BaseSelect, Button } from '@src'
 import { For, Show } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const GROUPS = [
   {
     label: 'Client frameworks',

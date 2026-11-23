@@ -1,13 +1,14 @@
 import { useNavigate } from '@solidjs/router'
-import type { Accessor, JSX } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { pick } from '@src/shared/utils'
+import type { Accessor } from 'solid-js'
+import { Show, createMemo, createSignal, onSettled, omit } from 'solid-js'
 
 import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
 import type { CommandPaletteT, DialogT } from '../../../../src'
 
 import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import type { SidebarPage } from './sidebar'
-
 export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
 
 export interface DocsCommandPaletteProps {
@@ -100,7 +101,7 @@ function createDocsCommandItem(
   return (
     <a
       href={context.item.href}
-      tabIndex={-1}
+      tabindex={-1}
       aria-label={`${context.item.description}: ${context.item.label}`}
       class="flex flex-1 gap-2.5 min-w-0 items-center"
       onClick={(event) => {
@@ -137,7 +138,8 @@ function createDocsCommandItem(
 export function DocsSearchTrigger(
   props: DialogT.TriggerProps & { variant?: DocsCommandPaletteVariant },
 ): JSX.Element {
-  const [local, triggerProps] = splitProps(props, ['variant'])
+  const local = pick(props, 'variant')
+  const triggerProps = omit(props, 'variant')
   const variant = () => local.variant ?? 'desktop'
 
   return (
@@ -181,7 +183,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
 
   const items = createMemo(() => buildDocsCommandItems(props.pages, Boolean(searchValue().trim())))
 
-  onMount(() => {
+  onSettled(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
       const isEditable =
@@ -202,7 +204,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       }
     }
     window.addEventListener('keydown', handleKeyDown, true)
-    onCleanup(() => window.removeEventListener('keydown', handleKeyDown, true))
+    return () => window.removeEventListener('keydown', handleKeyDown, true)
   })
 
   return (

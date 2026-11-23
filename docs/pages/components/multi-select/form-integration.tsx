@@ -2,7 +2,6 @@ import { Button, createForm, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
-
 const TOPICS = [
   { label: 'TypeScript', value: 'typescript' },
   { label: 'SolidJS', value: 'solidjs' },

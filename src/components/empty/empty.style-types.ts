@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface EmptyStyleSlot<T = unknown> {
   /** Empty-state container. */
   root?: T

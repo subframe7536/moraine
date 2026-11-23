@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, within } from '@solidjs/testing-library'
-import { createSignal, For, untrack } from 'solid-js'
+import { For, createSignal, flush, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -11,7 +11,6 @@ import { createForm } from '../index'
 
 import { MultiSelect } from './multi-select'
 import type { MultiSelectT } from './multi-select.types'
-
 const ITEMS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
@@ -318,10 +317,10 @@ describe('MultiSelect', () => {
     fireEvent.keyDown(input, { key: 'Backspace' })
     expect(untrack(values)).toEqual(['apple', 'banana'])
     expect(overflow()?.textContent).toBe('+1')
-    setMaxVisible(2)
+    flush(() => setMaxVisible(2))
     expect(overflow()).toBeNull()
     expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
-    setMaxVisible(1)
+    flush(() => setMaxVisible(1))
     expect(overflow()?.textContent).toBe('+1')
   })
 
@@ -362,9 +361,9 @@ describe('MultiSelect', () => {
     ])
     expect(overflow().textContent).toBe('2:Plantain/Plantain/banana;Cherry/Cherry/cherry;')
 
-    setMaxVisible(2)
+    flush(() => setMaxVisible(2))
     expect(overflow().textContent).toBe('1:Cherry/Cherry/cherry;')
-    setMaxVisible(3)
+    flush(() => setMaxVisible(3))
     expect(screen.queryByTestId('custom-overflow')).toBeNull()
   })
 
@@ -614,7 +613,7 @@ describe('MultiSelect', () => {
     expect(
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('missing')
-    setValue(['apple'])
+    flush(() => setValue(['apple']))
     expect(
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('Apple')
@@ -663,7 +662,7 @@ describe('MultiSelect', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith(['apple', 'banana'])
     expect(tagLabels()).toEqual(['Apple'])
-    setValue(['apple', 'banana'])
+    flush(() => setValue(['apple', 'banana']))
     expect(tagLabels()).toEqual(['Apple', 'Banana'])
   })
 
@@ -678,7 +677,7 @@ describe('MultiSelect', () => {
       )
 
     expect(tagLabels()).toEqual(['Apple'])
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(tagLabels()).toEqual(['Banana'])
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(tagLabels()).toEqual(['Banana', 'Apple'])
@@ -729,11 +728,11 @@ describe('MultiSelect', () => {
     const tags = () => screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
 
     expect(tags()).toHaveLength(1)
-    setInput(form, { path: ['choices'], input: null })
+    flush(() => setInput(form, { path: ['choices'], input: null }))
     expect(tags()).toHaveLength(0)
-    setInput(form, { path: ['choices'], input: ['banana'] })
+    flush(() => setInput(form, { path: ['choices'], input: ['banana'] }))
     expect(tags()).toHaveLength(1)
-    setInput(form, { path: ['choices'], input: undefined })
+    flush(() => setInput(form, { path: ['choices'], input: undefined }))
     expect(tags()).toHaveLength(0)
   })
 
@@ -894,7 +893,7 @@ describe('MultiSelect', () => {
     const firstTag = screen.container.querySelector('[data-slot="multi-select-tag"]')
     expect(firstTag).not.toBeNull()
 
-    setValue(['apple', 'banana'])
+    flush(() => setValue(['apple', 'banana']))
     const tags = screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
     expect(tags).toHaveLength(2)
     expect(tags[0]).toBe(firstTag)

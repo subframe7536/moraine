@@ -1,18 +1,17 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, mergeProps, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { children as resolveChildren, createMemo, merge, Show, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 function shouldCloseOnSelect(
   event: MouseEvent,
   options: {
@@ -64,7 +63,8 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
   props: SidebarT.MenuButtonProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props as SidebarT.MenuButtonProps<T> & { ref?: unknown }, [
+  const local = pick(
+    props as SidebarT.MenuButtonProps<T> & { ref?: unknown },
     'as',
     'children',
     'class',
@@ -76,7 +76,21 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     'ref',
     'style',
     'trailing',
-  ])
+  )
+  const rest = omit(
+    props as SidebarT.MenuButtonProps<T> & { ref?: unknown },
+    'as',
+    'children',
+    'class',
+    'closeOnSelect',
+    'disabled',
+    'href',
+    'active',
+    'leading',
+    'ref',
+    'style',
+    'trailing',
+  )
 
   const {
     slots: {
@@ -109,7 +123,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     ref: () => local.ref,
   })
 
-  const interactionRest = mergeProps(rest, {
+  const interactionRest = merge(rest, {
     get href() {
       return local.href
     },
@@ -142,7 +156,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
     interactionRest,
   )
 
-  const elementProps = mergeProps(interactionProps, {
+  const elementProps = merge(interactionProps, {
     get href() {
       return resolvedTag() === 'a' && disabled() ? null : local.href
     },
@@ -173,7 +187,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
             name={iconName()}
             data-slot="sidebar-menu-button-leading"
             {...menuButtonLeadingSlot}
-            aria-hidden={true}
+            aria-hidden={'true'}
           />
         )}
       </Show>
@@ -188,7 +202,7 @@ export function SidebarMenuButton<T extends ValidComponent = 'button'>(
             name={iconName()}
             data-slot="sidebar-menu-button-trailing"
             {...menuButtonTrailingSlot}
-            aria-hidden={true}
+            aria-hidden={'true'}
           />
         )}
       </Show>

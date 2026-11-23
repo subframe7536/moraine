@@ -1,10 +1,9 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ValidComponent } from '../../shared/types'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import type { DialogT } from './dialog.types'
-
 /**
  * Explicit control that closes the surrounding `Dialog`. Place it anywhere inside the `Dialog`
  * root, typically in `Dialog.Footer`; it is separate from the corner close button that

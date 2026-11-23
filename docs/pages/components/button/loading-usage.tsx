@@ -1,6 +1,5 @@
 import { Button } from '@src'
 import { createSignal } from 'solid-js'
-
 export function LoadingUsage() {
   const [loading, setLoading] = createSignal(false)
 

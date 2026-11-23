@@ -1,4 +1,5 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import {
   For,
   Match,
@@ -7,11 +8,9 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
 } from 'solid-js'
-import { isServer } from 'solid-js/web'
 
 import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'
@@ -38,7 +37,6 @@ import {
 } from './menu.utils'
 import type { OverlayMenuGroup } from './menu.utils'
 import type { OverlayMenuItem, OverlayMenuLayerProps, OverlayMenuSharedSlots } from './types'
-
 export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
@@ -51,7 +49,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     slot: keyof OverlayMenuSharedSlots,
     options: { data: DataAttributeBag },
   ): SlotBinding {
-    const binding = mergeProps(
+    const binding = merge(
       {
         get class() {
           return resolveSlot(slot).class
@@ -87,9 +85,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   }
 
   createEffect(
-    on([() => props.placement, () => props.align], () => {
+    () => [(() => props.placement)(), (() => props.align)()],
+    () => {
       layer.setCurrentPlacement(resolvedPlacement())
-    }),
+    },
   )
 
   useFloatingPosition({
@@ -109,16 +108,14 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   })
 
   createEffect(
-    on(
-      [positionerElement, () => props.open, () => props.present()],
-      ([positioner, open, present]) => {
-        if (!positioner || open || !present) {
-          return
-        }
+    () => [positionerElement(), (() => props.open)(), (() => props.present())()],
+    ([positioner, open, present]) => {
+      if (!positioner || open || !present) {
+        return
+      }
 
-        positioner.style.visibility = 'visible'
-      },
-    ),
+      positioner.style.visibility = 'visible'
+    },
   )
 
   bindElement(positionerElement, (positioner) => {
@@ -133,16 +130,14 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   usePositionerZIndex(positionerElement, layer.contentElement)
 
   createEffect(
-    on(
-      () => props.refState,
-      (refState) => {
-        refState?.(layer)
+    () => props.refState,
+    (refState) => {
+      refState?.(layer)
 
-        onCleanup(() => {
-          props.refState?.(undefined)
-        })
-      },
-    ),
+      onCleanup(() => {
+        props.refState?.(undefined)
+      })
+    },
   )
 
   bindElement(layer.contentElement, (content) => {
@@ -161,43 +156,41 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   })
 
   createEffect(
-    on(
-      [() => props.open, isPositioned, () => props.autoFocusStrategy],
-      ([open, positioned, focusStrategy]) => {
-        if (!open) {
-          layer.setHighlightedItemId(undefined)
-          layer.setPointerGraceIntent(null)
-          layer.resetTypeahead()
-          return
-        }
-        if (!positioned || !focusStrategy || focusStrategy === 'none') {
-          return
-        }
-        const onAutoFocusHandled = props.onAutoFocusHandled
-        let frameId = 0
-        const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
+    () => [(() => props.open)(), isPositioned(), (() => props.autoFocusStrategy)()],
+    ([open, positioned, focusStrategy]) => {
+      if (!open) {
+        layer.setHighlightedItemId(undefined)
+        layer.setPointerGraceIntent(null)
+        layer.resetTypeahead()
+        return
+      }
+      if (!positioned || !focusStrategy || focusStrategy === 'none') {
+        return
+      }
+      const onAutoFocusHandled = props.onAutoFocusHandled
+      let frameId = 0
+      const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
 
-        const runAutoFocus = () => {
-          focusLayerFromStrategy(layer, focusStrategy ?? 'none')
-          onAutoFocusHandled?.()
+      const runAutoFocus = () => {
+        focusLayerFromStrategy(layer, focusStrategy ?? 'none')
+        onAutoFocusHandled?.()
+      }
+
+      if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
+        queueMicrotask(runAutoFocus)
+        return
+      }
+
+      frameId = ownerWindow.requestAnimationFrame(() => {
+        runAutoFocus()
+      })
+
+      onCleanup(() => {
+        if (frameId !== 0) {
+          ownerWindow.cancelAnimationFrame(frameId)
         }
-
-        if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
-          queueMicrotask(runAutoFocus)
-          return
-        }
-
-        frameId = ownerWindow.requestAnimationFrame(() => {
-          runAutoFocus()
-        })
-
-        onCleanup(() => {
-          if (frameId !== 0) {
-            ownerWindow.cancelAnimationFrame(frameId)
-          }
-        })
-      },
-    ),
+      })
+    },
   )
 
   const { LeafItem, CheckboxMenuItem, RadioMenuItem, RenderItemContent, getItemSlot } =
@@ -340,7 +333,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         role="menu"
         id={props.id}
         aria-labelledby={props.ariaLabelledBy}
-        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
+        tabindex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...contentSlot}
         {...props.elementAttrs}
         {...contentPresentation}

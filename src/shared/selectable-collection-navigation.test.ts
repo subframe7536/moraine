@@ -1,8 +1,7 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { createSelectableCollectionNavigation } from './selectable-collection-navigation'
-
 interface TestItem {
   value: string
   disabled?: boolean
@@ -478,7 +477,7 @@ describe('createSelectableCollectionNavigation', () => {
         onSelect,
       })
 
-      setItems((current) => current.filter((item) => item.value !== 'a'))
+      flush(() => setItems((current) => current.filter((item) => item.value !== 'a')))
 
       onNavigationKeyDown(createMockKeyboardEvent('ArrowDown'), 'a', 'vertical')
       expect(onSelect).toHaveBeenLastCalledWith('b')

@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -8,7 +8,6 @@ import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
 
 import { Input } from './input'
-
 describe('Input', () => {
   test('forwards ref to its only native element', () => {
     let control: HTMLInputElement | undefined
@@ -119,7 +118,7 @@ describe('Input', () => {
 
     expect(input.value).toBe('5')
 
-    setValue(null)
+    flush(() => setValue(null))
     expect(input.value).toBe('')
   })
 
@@ -406,7 +405,7 @@ describe('Input', () => {
     await Promise.resolve()
     expect(controlledInput.value).toBe('草稿')
 
-    setValue('External')
+    flush(() => setValue('External'))
     expect(controlledInput.value).toBe('External')
     controlled.unmount()
 
@@ -432,7 +431,7 @@ describe('Input', () => {
     await Promise.resolve()
     expect(formInput.value).toBe('草稿')
 
-    setInput(form, { path: ['value'], input: 'External' })
+    flush(() => setInput(form, { path: ['value'], input: 'External' }))
     expect(formInput.value).toBe('External')
   })
 
@@ -478,7 +477,7 @@ describe('Input', () => {
       const delayedInput = delayed.getByRole<HTMLInputElement>('textbox')
       const delayedFocus = vi.spyOn(delayedInput, 'focus')
 
-      setDisabled(true)
+      flush(() => setDisabled(true))
       vi.advanceTimersByTime(20)
       expect(delayedFocus).not.toHaveBeenCalled()
 
@@ -519,7 +518,7 @@ describe('Input', () => {
     const input = screen.getByRole<HTMLInputElement>('textbox')
 
     expect(form.checkValidity()).toBe(true)
-    setDefaultValue('Changed default')
+    flush(() => setDefaultValue('Changed default'))
     fireEvent.input(input, {
       target: { value: '' },
       currentTarget: { value: '' },
@@ -552,7 +551,7 @@ describe('Input', () => {
     expect(input.value).toBe('Controlled')
     expect(onValueChange).not.toHaveBeenCalled()
 
-    setValue('Accepted')
+    flush(() => setValue('Accepted'))
     expect(input.value).toBe('Accepted')
   })
 
@@ -582,7 +581,7 @@ describe('Input', () => {
     expect(input.value).toBe('Locked')
     expect(getInput(form)).toEqual({ value: 'Locked' })
 
-    setValue('External')
+    flush(() => setValue('External'))
     expect(input.value).toBe('External')
     expect(getInput(form)).toEqual({ value: 'External' })
   })
@@ -605,7 +604,7 @@ describe('Input', () => {
     )
     const input = screen.getByLabelText<HTMLInputElement>('Value')
 
-    setInput(form, { path: ['value'], input: 'External' })
+    flush(() => setInput(form, { path: ['value'], input: 'External' }))
 
     expect(input.value).toBe('External')
     expect(onValueChange).not.toHaveBeenCalled()
@@ -625,7 +624,7 @@ describe('Input', () => {
     })
     expect(onValueChange).toHaveBeenLastCalledWith('12')
 
-    setNumber(true)
+    flush(() => setNumber(true))
     fireEvent.input(input, {
       target: { value: '12' },
       currentTarget: { value: '12' },

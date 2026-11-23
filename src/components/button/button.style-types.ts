@@ -1,6 +1,5 @@
 import type { Tone } from '../../theme/tokens'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface ButtonStyleSlot<T = unknown> {
   /**
    * Interactive button element, or the polymorphic element provided through `as`.

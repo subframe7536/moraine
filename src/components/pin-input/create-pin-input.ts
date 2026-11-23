@@ -1,9 +1,8 @@
 import type { Accessor } from 'solid-js'
-import { createComputed, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack, createRenderEffect } from 'solid-js'
 
 import { areCharArraysEqual, normalizeChars } from './pin-input-value'
 import type { PinInputT } from './pin-input.types'
-
 export interface CreatePinInputOptions {
   length: Accessor<number>
   validationType: Accessor<PinInputT.ValidationType>
@@ -54,7 +53,7 @@ export function createPinInput(options: CreatePinInputOptions) {
   let emittedChars: string[] | undefined
 
   const chars = createMemo<string[]>(
-    (prev) => {
+    (prev = []) => {
       const controlled = options.value?.()
       const emitted = emittedChars
       emittedChars = undefined
@@ -69,38 +68,33 @@ export function createPinInput(options: CreatePinInputOptions) {
       }
       return uncontrolledChars()
     },
-    initialChars,
     { equals: areCharArraysEqual },
   )
 
   // Field writes flow back into uncontrolled slots; hole positions survive round trip
-  createEffect(
-    on(options.fieldValue, (formVal) => {
-      if (formVal === undefined) {
-        return
-      }
-      const next = normalizeChars(
-        formVal as string,
-        options.length(),
-        options.validationType(),
-        normalize(),
-      )
-      if (next.join('') !== untrack(uncontrolledChars).join('')) {
-        setUncontrolledChars(() => next)
-      }
-    }),
-  )
+  createEffect(options.fieldValue, (formVal) => {
+    if (formVal === undefined) {
+      return
+    }
+    const next = normalizeChars(
+      formVal as string,
+      options.length(),
+      options.validationType(),
+      normalize(),
+    )
+    if (next.join('') !== untrack(uncontrolledChars).join('')) {
+      setUncontrolledChars(() => next)
+    }
+  })
 
   // Controlled prop updates mirror into Field
   createEffect(
-    on(
-      () => options.value?.(),
-      (val) => {
-        if (val !== undefined && options.fieldValue() !== val) {
-          options.setFormFieldValue(val)
-        }
-      },
-    ),
+    () => options.value?.(),
+    (val) => {
+      if (val !== undefined && options.fieldValue() !== val) {
+        options.setFormFieldValue(val)
+      }
+    },
   )
 
   const joinedValue = createMemo(() => chars().join(''))
@@ -146,23 +140,21 @@ export function createPinInput(options: CreatePinInputOptions) {
     }
   }
 
-  createComputed(
-    on(
-      joinedValue,
-      (joined) => {
-        const action = pendingAction
-        pendingAction = undefined
-        if (action && joined === action.joined) {
-          if (action.index !== undefined) {
-            focusInput(action.index)
-          }
-          if (action.complete !== undefined) {
-            options.completeValue(action.complete)
-          }
+  createRenderEffect(
+    joinedValue,
+    (joined) => {
+      const action = pendingAction
+      pendingAction = undefined
+      if (action && joined === action.joined) {
+        if (action.index !== undefined) {
+          focusInput(action.index)
         }
-      },
-      { defer: true },
-    ),
+        if (action.complete !== undefined) {
+          options.completeValue(action.complete)
+        }
+      }
+    },
+    { defer: true },
   )
 
   function setChars(

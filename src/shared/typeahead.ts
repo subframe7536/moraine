@@ -2,7 +2,6 @@ import { onCleanup } from 'solid-js'
 
 import { collatorStartsWith, createSearchCollator } from '../provider/locale/collator'
 import { useLocale } from '../provider/locale/locale-context'
-
 export interface CreateTypeaheadOptions<T> {
   getItems: () => readonly T[]
   getStartIndex: () => number

@@ -1,4 +1,5 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
 import { children, createMemo, createSignal } from 'solid-js'
 
 import { Tabs, cn } from '../../../../../src/index'
@@ -11,7 +12,6 @@ import {
 } from '../markdown.recipe'
 
 import { CodeBlock } from './code-block'
-
 export interface CodeTabItem {
   label?: string
   title?: string

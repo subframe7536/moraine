@@ -1,26 +1,24 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import {
   Show,
   children as resolveChildren,
   createRenderEffect,
   createSignal,
-  on,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
 import { defaultSidebarMessages } from './sidebar.messages'
 import { sidebarDataAttributes } from './sidebar.recipe'
 import type { SidebarT } from './sidebar.types'
-
 /**
  * Container for the sidebar's regions. Renders an `aside` inline on desktop and moves the same
  * content into a mobile `Drawer` on smaller viewports, so keep one navigation tree inside it. Place
@@ -42,7 +40,8 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
   props: SidebarT.PanelProps<T>,
 ): JSX.Element {
   const context = useSidebarContext()
-  const [local, rest] = splitProps(props as SidebarT.PanelProps, [
+  const local = pick(
+    props as SidebarT.PanelProps,
     'as',
     'aria-label',
     'children',
@@ -50,9 +49,21 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     'id',
     'style',
     'ref',
-  ])
+  )
+  const rest = omit(
+    props as SidebarT.PanelProps,
+    'as',
+    'aria-label',
+    'children',
+    'class',
+    'id',
+    'style',
+    'ref',
+  )
   // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
-  createRenderEffect(on(() => local.id, context.setPanelId))
+  createRenderEffect(() => local.id, (id) => {
+    context.setPanelId(id)
+  })
   onCleanup(() => context.setPanelId(undefined))
   const content = resolveChildren(() => local.children)
   const { slotWith } = useSidebarStyles('panel', local)

@@ -1,10 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, on } from 'solid-js'
+import { createEffect, createMemo } from 'solid-js'
 
 import { syncNativeInputFiles } from './file-input-sync'
 import type { FileUploadT } from './file-upload.types'
 import { constrainFileCount, filterAcceptedFiles } from './file-validation'
-
 export interface CreateFileSelectionOptions {
   value: Accessor<File | File[] | null>
   multiple: Accessor<boolean>
@@ -36,9 +35,10 @@ export function createFileSelection(options: CreateFileSelectionOptions): {
   const interactive = () => !options.disabled() && !options.readOnly()
 
   createEffect(
-    on([options.input, selectedFiles], ([input, files]) => {
+    () => [options.input(), selectedFiles()],
+    ([input, files]) => {
       syncNativeInputFiles(input, files)
-    }),
+    },
   )
 
   function commit(files: File[]): void {

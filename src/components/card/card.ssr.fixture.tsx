@@ -1,8 +1,7 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Card } from './card'
-
 export function CardHydrationFixture(props: { title?: string; body?: boolean }) {
   return (
     <Card>

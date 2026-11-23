@@ -1,4 +1,5 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -7,7 +8,6 @@ import type { FieldT } from '../field'
 
 import type { defaultPinInputMessages } from './pin-input.messages'
 import type { PinInputStyleSlot, PinInputStyleVariants } from './pin-input.style-types'
-
 export namespace PinInputT {
   export type Kind = 'single'
   export type Slot<T = unknown> = PinInputStyleSlot<T>
@@ -172,7 +172,7 @@ export namespace PinInputT {
      * The virtual keyboard hint applied to the inputs and hidden input.
      * Overrides the `inputMode` derived from `validationType`.
      */
-    inputMode?: JSX.HTMLAttributes<HTMLInputElement>['inputMode']
+    inputMode?: JSX.HTMLAttributes<HTMLInputElement>['inputmode']
 
     /**
      * Normalizes a proposed value after `validationType` filtering; the result is

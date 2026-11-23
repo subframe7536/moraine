@@ -1,6 +1,5 @@
 import { Icon, Sidebar } from '@src'
 import { For, createSignal } from 'solid-js'
-
 function FileExplorerContent() {
   const files = [
     { name: 'src', type: 'folder-open', level: 0 },

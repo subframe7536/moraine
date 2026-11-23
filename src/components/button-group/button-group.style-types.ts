@@ -1,7 +1,6 @@
 import type { Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { ButtonStyleVariants } from '../button/button.style-types'
-
 export interface ButtonGroupStyleSlot<T = unknown> {
   /** Container that joins the edges of its direct button children. */
   root?: T

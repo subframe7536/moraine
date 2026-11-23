@@ -1,13 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { createSignal, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, flush, untrack } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { Drawer } from './drawer'
 import type { DrawerT } from './drawer.types'
-
 let now = 0
 
 beforeEach(() => {
@@ -661,7 +660,7 @@ describe('Drawer', () => {
       )
 
       expect(snapOffsetValue()).toBe('max(0px, calc(100% - 148px), calc(100% - 100dvh))')
-      setSnapPoint(1)
+      flush(() => setSnapPoint(1))
       await waitFor(() =>
         expect(snapOffsetValue()).toBe('max(0px, calc(100% - 100dvh), calc(100% - 100dvh))'),
       )
@@ -815,7 +814,7 @@ describe('Drawer', () => {
       )
       expect(snapOffsetValue()).toBe('max(0px, calc(100% - 100dvh), calc(100% - 100dvh))')
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
       await waitFor(() =>
         expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
@@ -847,7 +846,7 @@ describe('Drawer', () => {
       dragPointer(content(), { x: 0, y: 100 }, { x: 0, y: 300 }, { steps: 4, stepMs: 100 })
       expect(onSnapPointChange).toHaveBeenLastCalledWith('148px')
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
       await waitFor(() =>
         expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
@@ -867,7 +866,7 @@ describe('Drawer', () => {
       </Drawer>
     ))
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() =>
       expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
     )
@@ -879,7 +878,7 @@ describe('Drawer', () => {
       expect(document.body.querySelector('[data-slot="drawer-content"]')).toBeNull(),
     )
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() =>
       expect(document.body.querySelector('[data-slot="drawer-content"]')).not.toBeNull(),
     )
@@ -2102,7 +2101,7 @@ describe('Drawer', () => {
       const parent = document.body.querySelector<HTMLElement>('[data-slot="drawer-content"]')!
       expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('2')
 
-      setSecondOpen(false)
+      flush(() => setSecondOpen(false))
       await finishExitMotion()
       await waitFor(() => {
         expect(parent.style.getPropertyValue('--drawer-nested-num')).toBe('1')
@@ -2302,7 +2301,7 @@ describe('Drawer', () => {
       )
       expect(watchers).toHaveLength(1)
 
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishExitMotion()
       await waitFor(() => expect(watchers[0]!.destroy).toHaveBeenCalled())
     })

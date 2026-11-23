@@ -6,7 +6,6 @@ import { CHECKBOX_CONTROL_CLASS, CHECKBOX_CONTROL_SIZE_CLASS } from '../checkbox
 import { checkControlDataAttributes } from '../shared/check-control/check-control.recipe'
 
 import type { TreeStyleSlot, TreeStyleVariants } from './tree.style-types'
-
 export const treeDataAttributes = {
   item: /* @__PURE__ */ createDataAttributes(
     'checked',

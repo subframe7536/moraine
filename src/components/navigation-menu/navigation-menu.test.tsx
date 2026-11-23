@@ -1,5 +1,13 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { Show, createComponent, createContext, createSignal, onCleanup, useContext } from 'solid-js'
+import {
+  Show,
+  createComponent,
+  createContext,
+  createSignal,
+  flush,
+  onCleanup,
+  useContext,
+} from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +16,6 @@ import { defineTheme } from '../../theme'
 import { NavigationMenu } from './navigation-menu'
 import { NAVIGATION_MENU_FOCUS_GUARD_ATTR } from './navigation-menu.recipe'
 import type { NavigationMenuProps, NavigationMenuT } from './navigation-menu.types'
-
 function TestMenu(props: NavigationMenuProps) {
   return (
     <>
@@ -254,21 +261,21 @@ describe('NavigationMenu', () => {
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
     expect(changes).toHaveBeenCalledWith('products')
     expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull()
-    setValue('products')
+    flush(() => setValue('products'))
     await page.findByRole('link', { name: 'Overview' })
     fireEvent.click(page.getByRole('button', { name: 'Guides' }))
     expect(changes).toHaveBeenLastCalledWith('guides')
     expect(page.getByRole('button', { name: 'Products' }).getAttribute('aria-expanded')).toBe(
       'true',
     )
-    setValue('guides')
+    flush(() => setValue('guides'))
     await page.findByRole('link', { name: 'Guide' })
-    setValue('missing')
+    flush(() => setValue('missing'))
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
     expect(changes.mock.calls).toEqual([['products'], ['guides']])
-    setValue(null)
+    flush(() => setValue(null))
   })
 
   test('stays controlled after a controlled close writes back null', async () => {
@@ -281,7 +288,7 @@ describe('NavigationMenu', () => {
           changes(next)
           // Accept only closes, so an uncontrolled fallback would be visible as an open panel.
           if (next === null) {
-            setValue(null)
+            flush(() => setValue(null))
           }
         }}
       />
@@ -515,7 +522,7 @@ describe('NavigationMenu', () => {
     const LabelContext = createContext<() => string>()
     const [label, setLabel] = createSignal('Owned content')
     const Body = () => {
-      const contextualLabel = useContext(LabelContext)!
+      const contextualLabel = useContext(LabelContext)
       onCleanup(() => (cleanups += 1))
       return <NavigationMenu.Link href="#owned">{contextualLabel()}</NavigationMenu.Link>
     }
@@ -524,13 +531,13 @@ describe('NavigationMenu', () => {
         <NavigationMenu.List>
           <NavigationMenu.Item>
             <NavigationMenu.Trigger>Owned</NavigationMenu.Trigger>
-            <LabelContext.Provider value={label}>
+            <LabelContext value={label}>
               {createComponent(NavigationMenu.Content, {
                 get children() {
                   return <Body />
                 },
               })}
-            </LabelContext.Provider>
+            </LabelContext>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
             <NavigationMenu.Trigger>Other</NavigationMenu.Trigger>
@@ -544,7 +551,7 @@ describe('NavigationMenu', () => {
     const link = await page.findByRole('link', { name: 'Owned content' })
     fireEvent.click(page.getByRole('button', { name: 'Other' }))
     await page.findByText('Other content')
-    setLabel('Updated content')
+    flush(() => setLabel('Updated content'))
     expect(link.textContent).toBe('Updated content')
     expect(link.isConnected).toBe(true)
     expect(cleanups).toBe(0)
@@ -587,7 +594,7 @@ describe('NavigationMenu', () => {
     fireEvent.click(page.getByRole('button', { name: 'Current' }))
     await page.findByText('Current content')
     expect(outgoing.isConnected).toBe(true)
-    setVisible(false)
+    flush(() => setVisible(false))
     await waitFor(() => expect(outgoing.isConnected).toBe(false))
     expect(cleanup).toHaveBeenCalledTimes(1)
     expect(page.getByRole('button', { name: 'Current' }).getAttribute('aria-expanded')).toBe('true')
@@ -618,23 +625,23 @@ describe('NavigationMenu', () => {
     const trigger = page.getByRole('button', { name: 'Dynamic' })
     fireEvent.click(trigger)
     await page.findByRole('link', { name: 'Dynamic link' })
-    setDisabled(true)
+    flush(() => setDisabled(true))
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
     expect(changes).toHaveBeenLastCalledWith(null)
-    setDisabled(false)
+    flush(() => setDisabled(false))
     expect((trigger as HTMLButtonElement).disabled).toBe(false)
     fireEvent.click(trigger)
     await page.findByRole('link', { name: 'Dynamic link' })
-    setHasContent(false)
+    flush(() => setHasContent(false))
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
-    setHasContent(true)
+    flush(() => setHasContent(true))
     fireEvent.click(trigger)
     await page.findByRole('link', { name: 'Dynamic link' })
-    setVisible(false)
+    flush(() => setVisible(false))
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
@@ -688,7 +695,7 @@ describe('NavigationMenu', () => {
     expect(cancelled).toBe(forwarded)
     expect(cancelled.getAttribute('data-router')).toBe('custom')
     expect(cancelled.getAttribute('target')).toBe('_blank')
-    setHref('#second')
+    flush(() => setHref('#second'))
     expect(cancelled.getAttribute('href')).toBe('#second')
     fireEvent.click(cancelled)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
@@ -767,9 +774,9 @@ describe('NavigationMenu', () => {
         ?.classList.contains('custom-content'),
     ).toBe(true)
     const content = link.closest<HTMLElement>('[data-slot="navigation-menu-content"]')!
-    setStyles({ content: { width: '180px' } })
+    flush(() => setStyles({ content: { width: '180px' } }))
     expect(content.style.width).toBe('180px')
-    setStyles({})
+    flush(() => setStyles({}))
     expect(content.style.width).toBe('')
   })
 

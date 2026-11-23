@@ -1,5 +1,4 @@
 import type { HtmlTagDescriptor, Plugin } from 'vite'
-
 export const DOCS_SITE = {
   siteName: 'Moraine',
   description: 'Composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',

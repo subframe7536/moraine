@@ -2,7 +2,6 @@ import { ICON_MASK_CLASS } from '../../theme/icons'
 import { defineRecipe } from '../../theme/recipe'
 
 import type { IconInternalVariants, IconStyleSlot } from './icon.style-types'
-
 export const iconRecipe = /* @__PURE__ */ defineRecipe<IconStyleSlot, IconInternalVariants>(
   'icon',
   {

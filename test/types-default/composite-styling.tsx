@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from 'moraine'
 import { defineTheme } from 'moraine/theme'
-
 ;<Dialog classes={{ trigger: 'trigger', body: 'body' }} styles={{ content: { width: '20rem' } }} />
 ;<Dialog
   overlay={false}

@@ -1,14 +1,13 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 
 import { useBaseDialogContext } from './base-dialog-context'
 import { baseDialogDataAttributes, baseDialogRecipe } from './base-dialog.recipe'
 import type { BaseDialogT } from './base-dialog.types'
-
 /**
  * Backdrop layer of a `BaseDialog`. Place it inside `BaseDialog.Portal` before `BaseDialog.Content`; omit it when
  * the host surface already provides context. Renders a `div`; set `scrollable` to let it scroll
@@ -28,7 +27,8 @@ import type { BaseDialogT } from './base-dialog.types'
  * ```
  */
 export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style', 'ref', 'children', 'scrollable'])
+  const local = pick(props, 'class', 'style', 'ref', 'children', 'scrollable')
+  const rest = omit(props, 'class', 'style', 'ref', 'children', 'scrollable')
 
   const context = useBaseDialogContext()
   const {
@@ -49,7 +49,9 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
   const [element, setElement] = createSignal<HTMLDivElement>()
   bindElement(element, context.presence.registerElement)
 
-  createEffect(on(() => Boolean(local.scrollable), context.setOverlayScroll))
+  createEffect(() => Boolean(local.scrollable), (scrollable) => {
+    context.setOverlayScroll(scrollable)
+  })
   onCleanup(() => context.setOverlayScroll(false))
 
   return (

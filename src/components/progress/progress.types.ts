@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -6,7 +6,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { defaultProgressMessages } from './progress.messages'
 import type { ProgressStyleSlot, ProgressStyleVariants } from './progress.style-types'
-
 export namespace ProgressT {
   export type Kind = 'single'
 

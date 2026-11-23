@@ -4,7 +4,6 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentAnatomy } from '../shared/overlay/content-anatomy'
 
 import type { DialogT } from './dialog.types'
-
 export interface DialogContextValue {
   readonly slotOverrides: { classes?: DialogT.Classes; styles?: DialogT.Styles }
   overlay?: boolean

@@ -4,7 +4,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { SidebarStyleSlot, SidebarStyleVariants } from './sidebar.style-types'
-
 type SidebarDataSlot = keyof SidebarStyleSlot | 'trigger'
 
 export const sidebarDataAttributes = {

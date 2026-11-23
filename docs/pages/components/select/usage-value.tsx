@@ -1,7 +1,6 @@
 import { Button, Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
-
 const COUNTRIES: SelectT.Item[] = [
   { label: 'United States', value: 'us' },
   { label: 'Germany', value: 'de' },

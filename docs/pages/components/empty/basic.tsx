@@ -1,5 +1,4 @@
 import { Empty, Icon } from '@src'
-
 export function Basic() {
   return (
     <Empty>

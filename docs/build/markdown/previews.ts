@@ -8,7 +8,6 @@ import type { MdastNode } from 'satteri'
 import { resolveDocsPageContext, toImportPath } from '../core/paths.ts'
 
 import { asObjectRecord, getStaticStringAttribute } from './mdx.ts'
-
 export interface ScannedMdxPreview {
   path: string
   importPath: string

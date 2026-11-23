@@ -1,7 +1,6 @@
 import { Badge, Table } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function TablePlayground() {
   return (
     <DocsPlayground
@@ -117,7 +116,7 @@ export default function TablePlayground() {
           </Table.Body>
           <Table.Footer>
             <Table.Row>
-              <Table.Cell colSpan={3}>Total</Table.Cell>
+              <Table.Cell colspan={3}>Total</Table.Cell>
               <Table.Cell align="end" class="font-semibold">
                 $1,950.00
               </Table.Cell>

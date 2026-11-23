@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { ButtonGroupProvider } from './button-group-context'
 import { ButtonGroupSeparator } from './button-group-separator'
 import { buttonGroupRecipe } from './button-group.recipe'
 import type { ButtonGroupProps } from './button-group.types'
-
 /**
  * Joins related buttons into one visual control set and provides shared `size`, `variant`,
  * `tone`, and `orientation` defaults that each child `Button` can override. Each child stays its
@@ -27,7 +27,8 @@ import type { ButtonGroupProps } from './button-group.types'
  * ```
  */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'orientation',
     'role',
     'size',
@@ -37,7 +38,19 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'orientation',
+    'role',
+    'size',
+    'variant',
+    'tone',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
   const {
     slots: { root: rootSlot },
     variants,

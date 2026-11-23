@@ -6,7 +6,6 @@ import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Drawer } from './drawer'
 import { createDrawerContentRegistration, DrawerContentProvider } from './drawer-context'
-
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
     const value = content.getAttribute(attribute)

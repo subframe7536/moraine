@@ -60,7 +60,6 @@ import type { TreeStyleConfig } from '../components/tree/tree.style-types'
 import type { DataTableStyleConfig } from '../data-table/data-table.style-types'
 
 import type { RecipeLayerConfig } from './recipe'
-
 export interface ComponentStyleConfig<Slots extends object, Variants = never> {
   readonly slots: Slots
   readonly variants: Variants

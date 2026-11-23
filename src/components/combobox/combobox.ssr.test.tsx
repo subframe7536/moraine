@@ -5,7 +5,6 @@ import { expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Combobox } from './combobox'
-
 test('hydrates Combobox with one input focus owner', () => {
   const { container } = hydrateFixture(
     '/src/components/combobox/combobox.ssr.fixture.tsx',

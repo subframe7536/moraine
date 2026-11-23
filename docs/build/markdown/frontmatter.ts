@@ -1,7 +1,6 @@
 import YAML from 'yaml'
 
 import type { FrontmatterData } from './types.ts'
-
 /**
  * Component sources live under `src/components`, or in a top-level directory for a component that
  * ships from its own package entry, such as `src/data-table` (`moraine/data-table`).

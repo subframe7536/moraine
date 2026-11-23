@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CheckboxGroup } from './checkbox-group'
-
 describe('CheckboxGroup SSR Hydration', () => {
   test('hydrates duplicate items with stable ids and DOM order before interaction', () => {
     const [value, setValue] = createSignal<string[]>(['same'])
@@ -36,7 +35,7 @@ describe('CheckboxGroup SSR Hydration', () => {
       'true',
     ])
 
-    setValue([])
+    flush(() => setValue([]))
     expect(controls.map((control) => control.getAttribute('aria-checked'))).toEqual([
       'false',
       'false',

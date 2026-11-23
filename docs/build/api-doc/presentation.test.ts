@@ -9,7 +9,6 @@ import {
   getDomSlotName,
 } from './presentation.ts'
 import type { ComponentApi } from './types.ts'
-
 const component: ComponentApi = {
   key: 'demo',
   name: 'Demo',

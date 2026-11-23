@@ -1,6 +1,6 @@
-import { getInput } from '@formisch/solid'
+import { getInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal, untrack } from 'solid-js'
+import { createSignal, flush, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 
@@ -13,7 +13,6 @@ import { createForm } from '../index'
 
 import { Combobox } from './combobox'
 import type { ComboboxT } from './combobox.types'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
@@ -226,7 +225,7 @@ describe('Combobox', () => {
     expect(untrack(query)).toBe('ap')
     expect(options().map((option) => option.textContent)).toEqual(['Apple'])
 
-    setQuery('ba')
+    flush(() => setQuery('ba'))
     expect(input.value).toBe('ba')
     expect(options().map((option) => option.textContent)).toEqual(['Banana'])
   })
@@ -315,11 +314,11 @@ describe('Combobox', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: 'apple' })
-    setControlled(0)
+    flush(() => setControlled(0))
     expect(getInput(form)).toEqual({ choice: 0 })
-    setControlled('')
+    flush(() => setControlled(''))
     expect(getInput(form)).toEqual({ choice: '' })
-    setControlled(undefined)
+    flush(() => setControlled(undefined))
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
@@ -350,7 +349,7 @@ describe('Combobox', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(input.value).toBe('Apple')
-    setValue('banana')
+    flush(() => setValue('banana'))
     expect(input.value).toBe('Banana')
   })
 
@@ -363,7 +362,7 @@ describe('Combobox', () => {
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('Banana')
-    setValue(null)
+    flush(() => setValue(null))
     expect(input.value).toBe('')
     fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
@@ -377,7 +376,7 @@ describe('Combobox', () => {
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
     expect(input.value).toBe('Apple')
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(input.value).toBe('Banana')
     fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
@@ -548,7 +547,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
       .getByRole('option', { name: 'Banana', hidden: true })
       .getAttribute('aria-disabled'),
   ).toBe('true')
-  setKeys(['Cherry'])
+  flush(() => setKeys(['Cherry']))
   expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
   expect(
     within(document.body)

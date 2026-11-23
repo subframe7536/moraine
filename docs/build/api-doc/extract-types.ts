@@ -7,7 +7,6 @@ import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScrip
 import type { ParsedSource } from './ast.ts'
 import type { RecipeVariantApi } from './recipe.ts'
 import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types.ts'
-
 export interface ParsedModule {
   filePath: string
   source: ParsedSource

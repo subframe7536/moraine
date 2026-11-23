@@ -3,7 +3,6 @@ import type { DropdownMenuT } from '@src'
 import { For, createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const teams = [
   { name: 'Acme Inc', logo: 'i-lucide:gallery-vertical-end', plan: 'Enterprise' },
   { name: 'Acme Corp.', logo: 'i-lucide:audio-waveform', plan: 'Startup' },

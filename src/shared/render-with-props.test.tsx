@@ -1,10 +1,9 @@
 import { render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithProps } from './render-with-props'
-
 describe('renderWithProps', () => {
   test('returns static JSX unchanged without props argument', () => {
     let element!: JSX.Element
@@ -29,7 +28,7 @@ describe('renderWithProps', () => {
 
     expect(screen.container.textContent).toBe('first')
 
-    setValue('second')
+    flush(() => setValue('second'))
 
     expect(screen.container.textContent).toBe('second')
   })
@@ -71,10 +70,10 @@ describe('renderWithProps', () => {
 
     expect(cleanup).not.toHaveBeenCalled()
 
-    setVisible(false)
+    flush(() => setVisible(false))
     expect(cleanup).toHaveBeenCalledOnce()
 
-    setVisible(true)
+    flush(() => setVisible(true))
     screen.unmount()
     expect(cleanup).toHaveBeenCalledTimes(2)
   })

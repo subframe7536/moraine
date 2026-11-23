@@ -1,9 +1,8 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Card } from './card'
-
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="card${name ? `-${name}` : ''}"]`)
 
@@ -61,7 +60,7 @@ describe('Card', () => {
       </Card>
     ))
     const title = slot(container, 'title')
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(slot(container, 'title')).toBe(title)
     expect(slot(container, 'body')?.textContent).toBe('Body')
   })

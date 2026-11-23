@@ -1,5 +1,4 @@
 import { Skeleton } from '@src'
-
 export function SkeletonForm() {
   return (
     <div class="flex flex-col gap-7 max-w-xs w-full">

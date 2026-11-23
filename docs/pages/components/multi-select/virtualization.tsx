@@ -1,7 +1,6 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
-
 const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index) => ({
   value: `option-${index}`,
   label: `Option ${index + 1}`,

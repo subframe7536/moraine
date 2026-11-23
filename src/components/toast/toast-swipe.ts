@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
 import { createSignal } from 'solid-js'
-
 const SWIPE_THRESHOLD = 45
 const SWIPE_VELOCITY = 0.11
 const SWIPE_MIN_DISTANCE = 12

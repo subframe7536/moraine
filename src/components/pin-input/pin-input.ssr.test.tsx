@@ -1,11 +1,10 @@
 import { waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { PinInput } from './pin-input'
-
 describe('PinInput SSR Hydration', () => {
   test('hydrates default value and slot nodes stably', async () => {
     const [value, setValue] = createSignal('123')
@@ -28,7 +27,7 @@ describe('PinInput SSR Hydration', () => {
     expect(inputs[4]?.value).toBe('')
 
     const first = inputs[0]
-    setValue('987')
+    flush(() => setValue('987'))
     await waitFor(() => expect(inputs[0]?.value).toBe('9'))
     expect(inputs[1]?.value).toBe('8')
     expect(inputs[2]?.value).toBe('7')

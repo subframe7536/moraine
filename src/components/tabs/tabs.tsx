@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   DEV,
   For,
@@ -6,10 +6,9 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
-  on,
+  merge,
   onCleanup,
-  splitProps,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -17,13 +16,12 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment } from '../../shared/utils'
+import { createId, toIdSegment, pick } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 
 import { tabsDataAttributes, tabsRecipe } from './tabs.recipe'
 import type { TabsProps, TabsT } from './tabs.types'
-
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
   rawItem: TabsT.Item
@@ -39,7 +37,7 @@ interface NormalizedTabItem extends TabsT.Item {
  *
  * @example
  * ```tsx
- * import { createSignal } from 'solid-js'
+ * import { createSignal, merge, For, omit } from 'solid-js'
  * import { Tabs } from 'moraine'
  *
  * const [tab, setTab] = createSignal('account')
@@ -56,7 +54,8 @@ interface NormalizedTabItem extends TabsT.Item {
  * ```
  */
 export function Tabs(props: TabsProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'value',
     'defaultValue',
@@ -74,7 +73,27 @@ export function Tabs(props: TabsProps): JSX.Element {
     'style',
     'aria-label',
     'aria-labelledby',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'value',
+    'defaultValue',
+    'orientation',
+    'activationMode',
+    'disabled',
+    'loop',
+    'onValueChange',
+    'items',
+    'variant',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'aria-labelledby',
+  )
   let indicatorStyle!: () => JSX.CSSProperties
   const {
     slots: {
@@ -97,7 +116,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     enforced: { indicator: () => ({ style: indicatorStyle() }) },
   })
   const direction = useLocale().dir
-  const merged = mergeProps(
+  const merged = merge(
     {
       get orientation() {
         return variants.orientation
@@ -294,13 +313,15 @@ export function Tabs(props: TabsProps): JSX.Element {
   }
 
   createEffect(
-    on([normalizedItems, selectedKey, () => merged.orientation], ([, key, orientation]) => {
+    () => [normalizedItems(), selectedKey(), (() => merged.orientation)()],
+    ([, key, orientation]) => {
       computeIndicatorStyle(key, orientation)
-    }),
+    },
   )
 
   createEffect(
-    on([focusRecoveryRequested, effectiveHighlighted], ([recovery, recoveryKey]) => {
+    () => [focusRecoveryRequested(), effectiveHighlighted()],
+    ([recovery, recoveryKey]) => {
       if (!recovery) {
         return
       }
@@ -316,11 +337,12 @@ export function Tabs(props: TabsProps): JSX.Element {
           setFocusRecoveryRequested(false)
         }
       })
-    }),
+    },
   )
 
   createEffect(
-    on([normalizedItems, selectedKey], ([items, currentKey]) => {
+    () => [normalizedItems(), selectedKey()],
+    ([items, currentKey]) => {
       const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
 
       if (
@@ -345,7 +367,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       onCleanup(() => {
         resizeObserver.disconnect()
       })
-    }),
+    },
   )
 
   return (
@@ -396,9 +418,9 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
                 type="button"
                 role="tab"
-                tabIndex={highlighted() ? 0 : -1}
+                tabindex={highlighted() ? 0 : -1}
                 aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
-                aria-selected={selected()}
+                aria-selected={selected() ? 'true' : 'false'}
                 aria-label={item.ariaLabel}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="tabs-trigger"
@@ -438,7 +460,7 @@ export function Tabs(props: TabsProps): JSX.Element {
               <div
                 id={getContentId(item.instanceKey)}
                 role="tabpanel"
-                tabIndex={0}
+                tabindex={0}
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-slot="tabs-content"
                 {...contentSlot}

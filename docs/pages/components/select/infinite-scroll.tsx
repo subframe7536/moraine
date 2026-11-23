@@ -1,7 +1,6 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function InfiniteScroll() {
   function makeOptions(count: number, offset = 0): SelectT.Item[] {
     return Array.from({ length: count }, (_, i) => ({

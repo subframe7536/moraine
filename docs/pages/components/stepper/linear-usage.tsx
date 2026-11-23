@@ -1,7 +1,6 @@
 import { Button, Stepper } from '@src'
 import type { StepperT } from '@src'
 import { createSignal } from 'solid-js'
-
 const STEPS = [
   { value: 'account', label: 'Account', description: 'User credentials' },
   { value: 'profile', label: 'Profile', description: 'Personal details' },

@@ -1,10 +1,10 @@
-import type { Accessor, JSX } from 'solid-js'
-import { mergeProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Accessor } from 'solid-js'
+import { merge } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types'
 import { callHandler } from './utils'
-
 export interface UseButtonInteractionOptions {
   disabled: Accessor<boolean>
   /** Resolved DOM root for polymorphic components when available. */
@@ -138,7 +138,7 @@ export function useButtonInteraction(
     dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
   }
 
-  const interactionProps = mergeProps(props, {
+  const interactionProps = merge(props, {
     get type() {
       if (isNativeButton()) {
         const element = options.element?.()
@@ -153,8 +153,8 @@ export function useButtonInteraction(
       return props.role ?? (needsButtonRole() ? 'button' : undefined)
     },
     get tabIndex() {
-      if (props.tabIndex !== undefined) {
-        return props.tabIndex
+      if (props.tabindex !== undefined) {
+        return props.tabindex
       }
 
       if (options.disabled() && !isNativeButton() && !isFocusableWhenDisabled()) {
@@ -173,7 +173,7 @@ export function useButtonInteraction(
       }
 
       if (!isNativeButton() || isFocusableWhenDisabled()) {
-        return props['aria-disabled'] ?? true
+        return props['aria-disabled'] ?? 'true'
       }
 
       return props['aria-disabled']

@@ -1,6 +1,5 @@
 import { AlertDialog, Badge, Button } from '@src'
 import { createSignal, onCleanup, Show } from 'solid-js'
-
 export function AlertPublish() {
   const [stage, setStage] = createSignal<'running' | 'passed' | 'published'>('running')
   const [publishedAt, setPublishedAt] = createSignal<string>()

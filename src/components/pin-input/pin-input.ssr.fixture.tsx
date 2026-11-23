@@ -1,7 +1,6 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { PinInput } from './pin-input'
-
 export function renderPinInputFixture(): string {
   return renderToString(() => <PinInput id="test-pin" defaultValue="123" length={5} />)
 }

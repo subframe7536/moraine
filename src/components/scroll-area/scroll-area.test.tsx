@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { defineTheme } from '../../theme'
 
 import { ScrollArea } from './scroll-area'
 import type { ScrollAreaT } from './scroll-area.types'
-
 type Dimension = 'clientHeight' | 'scrollHeight' | 'clientWidth' | 'scrollWidth'
 
 function define(element: HTMLElement, values: Record<string, unknown>): void {
@@ -101,7 +100,7 @@ describe('ScrollArea', () => {
     expect(scrollbar('vertical')?.getAttribute('aria-hidden')).toBe('true')
     expect(scrollbar('horizontal')).toBeNull()
 
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     viewport.scrollTop = 50
     fireEvent.scroll(viewport)
     expect(onScroll).toHaveBeenCalledTimes(1)
@@ -113,10 +112,10 @@ describe('ScrollArea', () => {
     const screen = render(() => <ScrollArea>Content</ScrollArea>)
     const { viewport } = parts(screen.container)
     expect(viewport.tabIndex).toBe(0)
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 100 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 100 }))
     await waitFor(() => expect(viewport.tabIndex).toBe(-1))
 
-    setDimensions(viewport, { scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { scrollHeight: 300 }))
     resize()
     expect(viewport.tabIndex).toBe(0)
   })
@@ -129,7 +128,7 @@ describe('ScrollArea', () => {
     document.body.append(element)
     onTestFinished(() => element.remove())
     const { root, viewport } = parts(document.body)
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     await waitFor(() => expect(edges(root, 'y')).toEqual([false, true]))
     viewport.scrollTop = 200
     fireEvent.scroll(viewport)
@@ -149,7 +148,7 @@ describe('ScrollArea', () => {
       />
     ))
     const { root, viewport } = parts(screen.container)
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     await waitFor(() => expect(edges(root, 'y')).toEqual([false, true]))
     expect(onOverflowChange).toHaveBeenLastCalledWith({
       x: { start: false, end: false },
@@ -178,7 +177,7 @@ describe('ScrollArea', () => {
     expect(onTopReached).toHaveBeenCalledTimes(1)
 
     // Content that stops overflowing does not count as reaching an edge.
-    setDimensions(viewport, { scrollHeight: 100 })
+    flush(() => setDimensions(viewport, { scrollHeight: 100 }))
     fireEvent.scroll(viewport)
     expect(edges(root, 'y')).toEqual([false, false])
     expect(root.hasAttribute('data-overflow-y')).toBe(false)
@@ -199,7 +198,7 @@ describe('ScrollArea', () => {
         />
       ))
       const { root, viewport } = parts(screen.container)
-      setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 })
+      flush(() => setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 }))
       await waitFor(() => expect(edges(root, 'x')).toEqual([false, true]))
       expect(root.style.getPropertyValue('--scroll-area-shadow-x-direction')).toBe(
         direction === 'rtl' ? 'to left' : 'to right',
@@ -241,7 +240,7 @@ describe('ScrollArea', () => {
     fireEvent.scroll(viewport)
     expect(thumb.style.top).toBe('calc(0.5 * (100% - max(20px, 25%)))')
 
-    setDimensions(viewport, { scrollWidth: 100 })
+    flush(() => setDimensions(viewport, { scrollWidth: 100 }))
     fireEvent.scroll(viewport)
     expect(corner.hasAttribute('data-visible')).toBe(false)
     expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(false)
@@ -256,7 +255,7 @@ describe('ScrollArea', () => {
       />
     ))
     const { viewport, scrollbar } = parts(screen.container)
-    setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 })
+    flush(() => setDimensions(viewport, { clientWidth: 100, scrollWidth: 300 }))
     await waitFor(() => expect(scrollbar('horizontal')?.hasAttribute('data-visible')).toBe(true))
     const thumb = scrollbar('horizontal')!.firstElementChild as HTMLElement
     expect(thumb.getAttribute('style')).toContain(
@@ -281,7 +280,7 @@ describe('ScrollArea', () => {
     const screen = render(() => <ScrollArea scrollbarMode={mode()} scrollHideDelay={300} />)
     const { root, viewport, scrollbar } = parts(screen.container)
     const visible = () => scrollbar('vertical')?.hasAttribute('data-visible')
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     await vi.advanceTimersByTimeAsync(0)
     expect(visible()).toBe(false)
 
@@ -293,7 +292,7 @@ describe('ScrollArea', () => {
     vi.advanceTimersByTime(300)
     expect(visible()).toBe(false)
 
-    setMode('scroll')
+    flush(() => setMode('scroll'))
     fireEvent.pointerEnter(root)
     expect(visible()).toBe(false)
     fireEvent.scroll(viewport)
@@ -302,23 +301,23 @@ describe('ScrollArea', () => {
     vi.advanceTimersByTime(300)
     expect(visible()).toBe(false)
 
-    setMode('always')
+    flush(() => setMode('always'))
     expect(visible()).toBe(true)
     // Scrollbars never show while the content fits, whatever the mode.
-    setDimensions(viewport, { scrollHeight: 100 })
+    flush(() => setDimensions(viewport, { scrollHeight: 100 }))
     fireEvent.scroll(viewport)
     expect(visible()).toBe(false)
 
-    setMode('native')
+    flush(() => setMode('native'))
     expect(scrollbar('vertical')).toBeNull()
-    setMode('hidden')
+    flush(() => setMode('hidden'))
     expect(scrollbar('vertical')).toBeNull()
   })
 
   test('drags the thumb and jumps to track presses', async () => {
     const screen = render(() => <ScrollArea scrollbarMode="always" />)
     const { viewport, scrollbar } = parts(screen.container)
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     const track = scrollbar('vertical')!
     const thumb = track.firstElementChild as HTMLElement
     define(track, {
@@ -408,13 +407,13 @@ describe('ScrollArea', () => {
     expect(observe).toHaveBeenCalledWith(viewport)
     expect(observe).toHaveBeenCalledWith(content)
 
-    setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 })
+    flush(() => setDimensions(viewport, { clientHeight: 100, scrollHeight: 300 }))
     resize()
     expect(edges(root, 'y')).toEqual([false, true])
 
     screen.unmount()
     onOverflowChange.mockClear()
-    setDimensions(viewport, { scrollHeight: 100 })
+    flush(() => setDimensions(viewport, { scrollHeight: 100 }))
     resize()
     fireEvent.scroll(viewport)
     expect(onOverflowChange).not.toHaveBeenCalled()
@@ -435,7 +434,7 @@ describe('ScrollArea', () => {
       <MoraineProvider theme={theme}>
         <ScrollArea
           fadeSize={fadeSize()}
-          tabIndex={-1}
+          tabindex={-1}
           class="custom-root"
           classes={{ viewport: 'custom-viewport' }}
           styles={styles()}
@@ -455,16 +454,16 @@ describe('ScrollArea', () => {
     expect(root.style.width).toBe('200px')
     expect(size()).toBe('18px')
 
-    setFadeSize(24)
+    flush(() => setFadeSize(24))
     expect(size()).toBe('24px')
-    setStyles({ root: { height: '100px', '--scroll-area-shadow-size': '30px' } })
+    flush(() => setStyles({ root: { height: '100px', '--scroll-area-shadow-size': '30px' } }))
     expect(size()).toBe('30px')
-    setStyle({ width: '200px', '--scroll-area-shadow-size': '36px' })
+    flush(() => setStyle({ width: '200px', '--scroll-area-shadow-size': '36px' }))
     expect(size()).toBe('36px')
-    setStyle({ width: '200px' })
-    setStyles({ root: { height: '100px' } })
+    flush(() => setStyle({ width: '200px' }))
+    flush(() => setStyles({ root: { height: '100px' } }))
     expect(size()).toBe('24px')
-    setFadeSize(undefined)
+    flush(() => setFadeSize(undefined))
     expect(size()).toBe('18px')
   })
 })

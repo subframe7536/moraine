@@ -7,7 +7,6 @@ import { Popover } from '../../components/popover/popover'
 import { Sheet } from '../../components/sheet/sheet'
 import { Slider } from '../../components/slider/slider'
 import { MoraineProvider } from '../moraine-provider'
-
 describe('Moraine direction', () => {
   test('flips slider arrow keys from html dir without a provider', () => {
     const previousDirection = document.documentElement.getAttribute('dir')

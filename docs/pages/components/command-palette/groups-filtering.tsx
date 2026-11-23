@@ -1,7 +1,6 @@
 import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
-
 const COMMAND_GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',

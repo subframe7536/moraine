@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface AccordionStyleSlot<T = unknown> {
   /**
    * Container that owns the accordion item collection and shared state attributes.

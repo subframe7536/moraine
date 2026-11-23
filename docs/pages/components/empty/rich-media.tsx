@@ -1,5 +1,4 @@
 import { AvatarGroup, Button, Empty } from '@src'
-
 export function RichMedia() {
   return (
     <Empty>

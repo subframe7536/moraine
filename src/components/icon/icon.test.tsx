@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal, flush, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { defineTheme } from '../../theme'
 
 import { Icon } from './icon'
 import type { IconProps } from './icon.types'
-
 describe('Icon', () => {
   test('renders a css icon class for string names', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
@@ -56,7 +55,7 @@ describe('Icon', () => {
     }
     const screen = render(() => <Icon name={Glyph} />)
     const glyph = screen.getByText('Before')
-    setLabel('After')
+    flush(() => setLabel('After'))
     expect(screen.getByText('After')).toBe(glyph)
     expect(cleanups).toBe(0)
     screen.unmount()
@@ -88,9 +87,9 @@ describe('Icon', () => {
     expect(host.getAttribute('class')).toContain('glyph')
     expect(host.getAttribute('title')).toBe('Status')
     expect(host.style.fontSize).toBe('18px')
-    setSize('24px')
+    flush(() => setSize('24px'))
     expect(host.style.fontSize).toBe('24px')
-    setLabel('After')
+    flush(() => setLabel('After'))
     expect(screen.getByRole('img', { name: 'After' })).toBe(host)
     expect(screen.getByTestId('glyph')).toBe(glyph)
   })
@@ -111,7 +110,7 @@ describe('Icon', () => {
     const host = screen.getByTestId('icon')
 
     expect(host.querySelector('svg')).toBeNull()
-    setName(<svg data-testid="graphic" />)
+    flush(() => setName(<svg data-testid="graphic" />))
     expect(screen.getByTestId('icon')).toBe(host)
     expect(host.querySelector('[data-testid="graphic"]')).not.toBeNull()
     expect(host.classList).not.toContain('i-lucide-search')
@@ -187,15 +186,15 @@ describe('Icon', () => {
 
     expect(icon.getAttribute('aria-hidden')).toBe('true')
 
-    setLabel('Search')
+    flush(() => setLabel('Search'))
     expect(icon.hasAttribute('aria-hidden')).toBe(false)
 
-    setLabel(undefined)
+    flush(() => setLabel(undefined))
     expect(icon.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('allows an explicit aria-hidden override', () => {
-    const screen = render(() => <Icon name="i-lucide-search" aria-hidden={false} />)
+    const screen = render(() => <Icon name="i-lucide-search" aria-hidden={'false'} />)
     const icon = screen.container.querySelector('.i-lucide-search')
 
     expect(icon?.getAttribute('aria-hidden')).toBe('false')
@@ -214,7 +213,7 @@ describe('Icon', () => {
             <path d="M0 0h1" />
           </svg>
         }
-        aria-hidden={false}
+        aria-hidden={'false'}
       />
     ))
     expect(svgScreen.getByRole('img', { name: 'Custom SVG label' })).not.toBeNull()
@@ -255,7 +254,7 @@ describe('Icon', () => {
 
     expect(icon.className).toContain('theme-icon-a')
 
-    setDesign(defineTheme({ icon: { base: { root: 'theme-icon-b' } } }))
+    flush(() => setDesign(defineTheme({ icon: { base: { root: 'theme-icon-b' } } })))
 
     expect(screen.container.querySelector('.i-lucide-search')).toBe(icon)
     expect(icon.className).toContain('theme-icon-b')

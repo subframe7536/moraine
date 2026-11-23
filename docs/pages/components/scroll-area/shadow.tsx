@@ -1,6 +1,5 @@
 import { ScrollArea } from '@src'
 import { For } from 'solid-js'
-
 const entries = [
   'Reviewed the project brief.',
   'Agreed on the navigation structure.',

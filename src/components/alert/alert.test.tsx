@@ -3,7 +3,6 @@ import { createSignal } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Alert } from './alert'
-
 describe('Alert', () => {
   it('renders default alert with title and no icon by default', () => {
     const screen = render(() => <Alert title="Default announcement" />)

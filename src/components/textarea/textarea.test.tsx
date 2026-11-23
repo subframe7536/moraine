@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
@@ -8,7 +8,6 @@ import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
 
 import { Textarea } from './textarea'
-
 afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
@@ -120,7 +119,7 @@ describe('Textarea', () => {
 
     expect(textarea.value).toBe('Filled')
 
-    setValue(null)
+    flush(() => setValue(null))
     expect(textarea.value).toBe('')
   })
 
@@ -259,7 +258,7 @@ describe('Textarea', () => {
     expect(textarea.value).toBe('Locked')
     expect(getInput(form)).toEqual({ value: 'Locked' })
 
-    setValue('Accepted')
+    flush(() => setValue('Accepted'))
     expect(textarea.value).toBe('Accepted')
     expect(getInput(form)).toEqual({ value: 'Accepted' })
   })
@@ -394,18 +393,18 @@ describe('Textarea', () => {
     expect(textarea.style.overflow).toBe('auto')
 
     scrollHeight = 40
-    setInput(form, { path: ['value'], input: 'External' })
+    flush(() => setInput(form, { path: ['value'], input: 'External' }))
     vi.runAllTimers()
     expect(textarea.rows).toBe(2)
     expect(textarea.style.overflow).toBe('hidden')
 
     scrollHeight = 120
-    setMaxRows(5)
+    flush(() => setMaxRows(5))
     vi.runAllTimers()
     expect(textarea.rows).toBe(5)
 
-    setRows(4)
-    setAutoResize(false)
+    flush(() => setRows(4))
+    flush(() => setAutoResize(false))
     vi.runAllTimers()
     expect(textarea.rows).toBe(4)
     expect(textarea.style.overflow).toBe('')

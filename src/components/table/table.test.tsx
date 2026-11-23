@@ -1,9 +1,8 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Table } from './table'
-
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector<HTMLElement>(`[data-slot="table${name ? `-${name}` : ''}"]`)
 
@@ -73,7 +72,7 @@ describe('Table', () => {
     expect(row.hasAttribute('data-selected')).toBe(false)
     expect(row.hasAttribute('aria-selected')).toBe(false)
 
-    setSelected(true)
+    flush(() => setSelected(true))
     expect(row.hasAttribute('data-selected')).toBe(true)
     expect(row.hasAttribute('aria-selected')).toBe(false)
   })
@@ -125,7 +124,7 @@ describe('Table', () => {
         </Table.Header>
         <Table.Body>
           <Table.Row>
-            <Table.Cell colSpan={2} rowSpan={1}>
+            <Table.Cell colspan={2} rowspan={1}>
               Merged
             </Table.Cell>
           </Table.Row>

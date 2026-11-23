@@ -1,9 +1,8 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import type { InputModifiers, ModifierValue } from '../../../shared/input-modifiers'
 import { applyInputModifiers } from '../../../shared/input-modifiers'
-
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
 type TextControlValue = string | number | null
 
@@ -35,11 +34,12 @@ export function useTextControlValue<
   let lazyCompositionExternalValue: TValue | undefined
 
   createEffect(
-    on([options.value, () => options.getFormPath?.()], ([value]) => {
+    () => [options.value(), (() => options.getFormPath?.())()],
+    ([value]) => {
       if (value !== undefined) {
         options.setFormValue(value)
       }
-    }),
+    },
   )
 
   function getExternalValue(): TValue | undefined {
@@ -128,24 +128,22 @@ export function useTextControlValue<
   }
 
   createEffect(
-    on(
-      [options.value, options.getFormValue, composing, isLazy],
-      ([controlledValue, formValue, isComposing, lazy]) => {
-        if (!isComposing) {
-          const externalValue =
-            controlledValue !== undefined ? controlledValue : (formValue as TValue | undefined)
-          const preserveDraft =
-            lazy &&
-            preserveLazyCompositionDraft &&
-            Object.is(externalValue, lazyCompositionExternalValue)
+    () => [options.value(), options.getFormValue(), composing(), isLazy()],
+    ([controlledValue, formValue, isComposing, lazy]) => {
+      if (!isComposing) {
+        const externalValue =
+          controlledValue !== undefined ? controlledValue : (formValue as TValue | undefined)
+        const preserveDraft =
+          lazy &&
+          preserveLazyCompositionDraft &&
+          Object.is(externalValue, lazyCompositionExternalValue)
 
-          if (!preserveDraft) {
-            preserveLazyCompositionDraft = false
-            restoreValue(externalValue)
-          }
+        if (!preserveDraft) {
+          preserveLazyCompositionDraft = false
+          restoreValue(externalValue)
         }
-      },
-    ),
+      }
+    },
   )
 
   return {

@@ -1,7 +1,6 @@
 import { Button, Stepper } from '@src'
 import type { StepperT } from '@src'
 import { For, createSignal } from 'solid-js'
-
 type Navigation = NonNullable<StepperT.Base['navigation']>
 
 const NAVIGATION_MODES: Navigation[] = ['none', 'linear', 'free']

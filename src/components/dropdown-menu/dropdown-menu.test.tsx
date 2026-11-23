@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { Show, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Show, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils'
@@ -8,7 +8,6 @@ import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { Button } from '../button'
 
 import { DropdownMenu } from './dropdown-menu'
-
 describe('DropdownMenu', () => {
   test.each([
     ['ArrowDown', 'First'],
@@ -183,7 +182,7 @@ describe('DropdownMenu', () => {
     })
     const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
     expect(indicator.childElementCount).toBe(0)
-    setChecked(true)
+    flush(() => setChecked(true))
     await waitFor(() => {
       expect(
         document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
@@ -242,13 +241,13 @@ describe('DropdownMenu', () => {
     ))
     try {
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
-      setPreventScroll(false)
+      flush(() => setPreventScroll(false))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('hidden')
-      setOpen(false)
+      flush(() => setOpen(false))
       await finishMenuExitMotion()
       await waitFor(() => expect(document.body.style.overflow).toBe(''))
-      setOpen(true)
+      flush(() => setOpen(true))
       await Promise.resolve()
       expect(document.body.style.overflow).toBe('')
     } finally {
@@ -605,7 +604,7 @@ describe('DropdownMenu', () => {
     })
     expect(document.body.textContent).not.toContain('Nested action')
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await waitFor(() => {
       expect(document.body.textContent).toContain('Nested action')
     })
@@ -620,7 +619,7 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
     expect(document.body.textContent).toContain('Nested action')
 
-    setOpen(false)
+    flush(() => setOpen(false))
     await waitFor(() => {
       expect(submenuContent.getAttribute('data-closed')).toBe('')
     })
@@ -1095,7 +1094,7 @@ describe('DropdownMenu', () => {
           <DropdownMenu.Content items={[]} />
         </DropdownMenu>
         <DropdownMenu disabled>
-          <DropdownMenu.Trigger as="a" aria-disabled="false" href="#override" tabIndex={3}>
+          <DropdownMenu.Trigger as="a" aria-disabled="false" href="#override" tabindex={3}>
             Overridden anchor
           </DropdownMenu.Trigger>
           <DropdownMenu.Content items={[]} />
@@ -1154,7 +1153,7 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
 
     await waitFor(() => {
       expect(
@@ -1180,7 +1179,7 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -1218,12 +1217,12 @@ describe('DropdownMenu', () => {
       expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    setTriggerKind(undefined)
+    flush(() => setTriggerKind(undefined))
     await waitFor(() => {
       expect(originalTrigger.isConnected).toBe(false)
     })
 
-    setTriggerKind('anchor')
+    flush(() => setTriggerKind('anchor'))
     const replacement = await screen.findByText('Anchor trigger')
 
     const content = document.body.querySelector(
@@ -1257,7 +1256,7 @@ describe('DropdownMenu', () => {
       return element!
     })
 
-    setShowTrigger(false)
+    flush(() => setShowTrigger(false))
     await waitFor(() => {
       expect(trigger.isConnected).toBe(false)
     })
@@ -2457,7 +2456,7 @@ describe('DropdownMenu', () => {
     expect(onValueChange).toHaveBeenCalledExactlyOnceWith('comfortable')
     expect(checkedStates()).toEqual(['true', 'false'])
 
-    setValue('comfortable')
+    flush(() => setValue('comfortable'))
 
     await waitFor(() => expect(checkedStates()).toEqual(['false', 'true']))
   })
@@ -2801,7 +2800,7 @@ describe('DropdownMenu', () => {
 
       const submenuTrigger = document.body.querySelector('[aria-haspopup="menu"][role="menuitem"]')!
       fireEvent.pointerMove(submenuTrigger, { pointerType: 'mouse' })
-      setDisabled(true)
+      flush(() => setDisabled(true))
       await vi.advanceTimersByTimeAsync(100)
 
       expect(document.body.textContent).not.toContain('Nested action')
@@ -2821,8 +2820,8 @@ describe('DropdownMenu', () => {
     try {
       const menu = document.body.querySelector('[role="menu"]')!
       await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
-      setOpen(false)
-      setOpen(true)
+      flush(() => setOpen(false))
+      flush(() => setOpen(true))
       fireEvent.scroll(window)
       await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
     } finally {

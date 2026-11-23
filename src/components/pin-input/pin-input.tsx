@@ -1,14 +1,13 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import {
   createEffect,
   createMemo,
   createSignal,
   For,
-  on,
   onCleanup,
-  onMount,
+  onSettled,
   Show,
-  splitProps,
+  omit,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -16,7 +15,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
-import { callHandler, callRef, createId, isAndroidUserAgent } from '../../shared/utils'
+import { callHandler, callRef, createId, isAndroidUserAgent, pick } from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
@@ -32,7 +31,6 @@ import {
 import { defaultPinInputMessages } from './pin-input.messages'
 import { pinInputDataAttributes, pinInputRecipe } from './pin-input.recipe'
 import type { PinInputProps } from './pin-input.types'
-
 /**
  * Row of single-character inputs for verification codes, OTPs, and numeric PINs. `validationType`
  * restricts the accepted characters, and `onComplete` fires once every slot is filled. The value is
@@ -54,7 +52,8 @@ import type { PinInputProps } from './pin-input.types'
  * ```
  */
 export function PinInput(props: PinInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'name',
     'form',
@@ -91,7 +90,46 @@ export function PinInput(props: PinInputProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'name',
+    'form',
+    'length',
+    'validationType',
+    'mask',
+    'otp',
+    'placeholder',
+    'groupSize',
+    'separator',
+    'value',
+    'defaultValue',
+    'onValueChange',
+    'onComplete',
+    'onValueInvalid',
+    'autoSubmit',
+    'inputMode',
+    'normalizeValue',
+    'onFocus',
+    'onBlur',
+    'onFocusIn',
+    'onFocusOut',
+    'autoFocus',
+    'autoFocusDelay',
+    'disabled',
+    'required',
+    'readOnly',
+    'translations',
+    'size',
+    'variant',
+    'ref',
+    'inputsRef',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
 
   const length = () => Math.max(1, local.length ?? 5)
   const validationType = () => local.validationType ?? 'text'
@@ -166,11 +204,9 @@ export function PinInput(props: PinInputProps): JSX.Element {
     resetChars,
   } = state
 
-  createEffect(
-    on(getTargetIndex, (index) => {
-      field.setControlRef(inputEls[index] ?? undefined)
-    }),
-  )
+  createEffect(getTargetIndex, (index) => {
+    field.setControlRef(inputEls[index] ?? undefined)
+  })
 
   const fieldDataState = {
     disabled: field.disabled,
@@ -211,19 +247,17 @@ export function PinInput(props: PinInputProps): JSX.Element {
     }
   }
 
-  onMount(() => {
+  onSettled(() => {
     updateInputsRef()
   })
 
   createEffect(
-    on(
-      length,
-      (len) => {
-        inputEls.length = len
-        updateInputsRef()
-      },
-      { defer: true },
-    ),
+    length,
+    (len) => {
+      inputEls.length = len
+      updateInputsRef()
+    },
+    { defer: true },
   )
 
   onCleanup(() => {
@@ -231,22 +265,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
   })
 
   createEffect(
-    on(
-      chars,
-      (currentChars) => {
-        const focused = focusedIndex()
-        if (focused !== null) {
-          const firstEmpty = currentChars.indexOf('')
-          const isSelectable =
-            focused < currentChars.length &&
-            (currentChars[focused] !== '' || focused === firstEmpty)
-          if (!isSelectable) {
-            focusInput(getTargetIndex())
-          }
+    chars,
+    (currentChars) => {
+      const focused = focusedIndex()
+      if (focused !== null) {
+        const firstEmpty = currentChars.indexOf('')
+        const isSelectable =
+          focused < currentChars.length && (currentChars[focused] !== '' || focused === firstEmpty)
+        if (!isSelectable) {
+          focusInput(getTargetIndex())
         }
-      },
-      { defer: true },
-    ),
+      }
+    },
+    { defer: true },
   )
 
   /**
@@ -345,7 +376,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
 
   let autoFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
 
-  onMount(() => {
+  onSettled(() => {
     if (local.autoFocus) {
       autoFocusTimeoutId = setTimeout(() => {
         if (!field.disabled()) {
@@ -506,14 +537,14 @@ export function PinInput(props: PinInputProps): JSX.Element {
           form={local.form}
           value={joinedValue()}
           autocomplete={local.otp ? 'one-time-code' : 'off'}
-          inputMode={inputMode()}
-          minLength={length()}
-          maxLength={length()}
+          inputmode={inputMode()}
+          minlength={length()}
+          maxlength={length()}
           pattern={validationConfig()?.getRootPattern(length())}
           disabled={field.disabled()}
-          readOnly={field.readOnly()}
+          readonly={field.readOnly()}
           required={field.required()}
-          tabIndex={-1}
+          tabindex={-1}
           aria-hidden="true"
           onInvalid={onInvalid}
           ref={(element) => {
@@ -572,19 +603,19 @@ export function PinInput(props: PinInputProps): JSX.Element {
                   inputEls[idx] = element
                 }}
                 type={local.mask ? 'password' : 'text'}
-                inputMode={inputMode()}
+                inputmode={inputMode()}
                 pattern={validationConfig()?.slotPattern}
                 autocomplete={idx === 0 && local.otp ? 'one-time-code' : 'off'}
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck={false}
                 enterkeyhint={idx === length() - 1 ? 'done' : 'next'}
-                maxLength={idx === 0 ? length() : undefined}
-                tabIndex={idx === tabbableIndex() ? 0 : -1}
+                maxlength={idx === 0 ? length() : undefined}
+                tabindex={idx === tabbableIndex() ? 0 : -1}
                 form={local.form}
                 placeholder={focusedIndex() === idx ? '' : (local.placeholder ?? '')}
                 disabled={field.disabled()}
-                readOnly={field.readOnly()}
+                readonly={field.readOnly()}
                 required={field.required()}
                 value={chars()[idx] ?? ''}
                 aria-label={messages().input({ index: idx + 1, length: length() })}

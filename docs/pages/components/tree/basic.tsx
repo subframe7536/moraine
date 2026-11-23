@@ -1,5 +1,4 @@
 import { createTree } from '@src'
-
 interface FileNode {
   id: string
   name: string

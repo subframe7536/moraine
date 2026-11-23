@@ -1,6 +1,5 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
-
 const STATUSES: ComboboxT.Item[] = [
   {
     label: 'Backlog',

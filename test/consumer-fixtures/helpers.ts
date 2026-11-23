@@ -11,7 +11,6 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-
 export const PROJECT_ROOT = resolve(import.meta.dirname, '../..')
 const CLASS_TOKENS_PATH = join(PROJECT_ROOT, 'node_modules/.cache/moraine/class-tokens.json')
 
@@ -41,7 +40,7 @@ export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}):
   mkdirSync(packageDir, { recursive: true })
   mkdirSync(join(root, 'node_modules', '@subf'), { recursive: true })
   mkdirSync(join(root, 'node_modules', '@tanstack'), { recursive: true })
-  for (const name of ['@formisch/solid', '@floating-ui/dom']) {
+  for (const name of ['@formisch/solid/v2', '@floating-ui/dom']) {
     const destination = join(root, 'node_modules', name)
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(join(PROJECT_ROOT, 'node_modules', name), destination, 'junction')

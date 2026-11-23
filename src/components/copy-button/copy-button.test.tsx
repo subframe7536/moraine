@@ -2,7 +2,6 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { CopyButton } from './copy-button'
-
 const writeText = vi.fn<(text: string) => Promise<void>>()
 
 beforeEach(() => {

@@ -1,11 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { DEFAULT_ICON_SHORTCUTS } from '../../theme/icons'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { IconStyleSlot, IconStyleVariants } from './icon.style-types'
-
 type BuiltinIconName = (typeof DEFAULT_ICON_SHORTCUTS)[number][0]
 type IconStringName = BuiltinIconName | (string & {})
 

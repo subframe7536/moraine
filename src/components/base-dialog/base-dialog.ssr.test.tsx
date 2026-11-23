@@ -5,7 +5,6 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 import { Button } from '../button'
 
 import { BaseDialog } from './base-dialog'
-
 describe('BaseDialog SSR Hydration', () => {
   test('hydrates the polymorphic trigger and defers closed content', () => {
     let mounts = 0

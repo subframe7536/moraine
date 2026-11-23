@@ -1,5 +1,4 @@
 import { Stepper } from '@src'
-
 export function PanelsUsage() {
   return (
     <div class="max-w-md w-full">

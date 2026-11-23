@@ -1,4 +1,3 @@
-/* oxlint-disable subf/solid-reactivity -- Tests assert lazy memo recomputation outside tracked scopes. */
 import { render } from '@solidjs/testing-library'
 import {
   createSortedRowModel,
@@ -7,12 +6,11 @@ import {
   tableFeatures,
 } from '@tanstack/table-core'
 import type { ColumnDef, SortingState } from '@tanstack/table-core'
-import { createMemo, createRoot, createSignal } from 'solid-js'
+import { createMemo, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { FlexRender } from './flex-render'
 import { createSolidReactivity, createTable } from './solid-table'
-
 interface TestRow {
   a: string
   b: string
@@ -70,7 +68,7 @@ describe('createTable', () => {
 
   it('controlled state from a getter that rebuilds the state object', () => {
     createRoot((dispose) => {
-      const [sorting, setSorting] = createSignal<SortingState>([])
+      const [sorting, setSorting] = createSignal<SortingState>([], { ownedWrite: true })
       const table = createTable({
         features,
         columns,
@@ -83,7 +81,7 @@ describe('createTable', () => {
       const firstA = createMemo(() => table.getRowModel().rows[0]?.getValue('a'))
 
       expect(firstA()).toBe('2')
-      setSorting([{ id: 'a', desc: false }])
+      flush(() => setSorting([{ id: 'a', desc: false }]))
       expect(firstA()).toBe('1')
 
       dispose()
@@ -100,7 +98,7 @@ describe('createTable', () => {
     const { container } = render(() => <FlexRender header={headers[index()]!} />)
 
     expect(container.textContent).toBe('A')
-    setIndex(1)
+    flush(() => setIndex(1))
     expect(container.textContent).toBe('B')
 
     dispose()

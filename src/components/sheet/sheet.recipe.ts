@@ -12,7 +12,6 @@ import {
 } from '../shared/overlay/trigger.recipe'
 
 import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
-
 export const sheetDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   overlay: baseDialogDataAttributes.overlay,

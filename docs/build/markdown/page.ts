@@ -20,7 +20,6 @@ import {
 import type { OnThisPageEntryLiteral } from './plugins.ts'
 import { createMdxPreviewsPlugin } from './previews.ts'
 import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
-
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
   return path.resolve(projectRoot, 'docs', sourcePath)
 }
@@ -79,7 +78,6 @@ function createMarkdownContent(
 /** Creates the docs-specific configuration layered on top of the built-in MDX provider. */
 export function createDocsMdxOptions(projectRoot: string): MdxOptions {
   return {
-    pagesDir: 'pages',
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
       () => createMdxPreviewsPlugin(),
@@ -90,9 +88,13 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     async extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
-      if (context.routeId !== page.routePath) {
+      const routeId = `/${context.path
+        .replace(/(^|\/)\([^)]*\)\//g, '$1')
+        .replace(/(^|\/)index$/, '$1')
+        .replace(/\/$/, '')}`
+      if (routeId !== page.routePath) {
         throw new Error(
-          `[docs-mdx] route mismatch for ${sourcePath}: ${context.routeId} != ${page.routePath}`,
+          `[docs-mdx] route mismatch for ${sourcePath}: ${routeId} != ${page.routePath}`,
         )
       }
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)

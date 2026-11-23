@@ -9,7 +9,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { ButtonStyleSlot, ButtonStyleVariants } from './button.style-types'
-
 export const BUTTON_LOADING_ICON_CLASS = 'opacity-80 cursor-wait animate-spin'
 export const BUTTON_MOVE_DOWN_PRESS_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:translate-y-px'
 export const BUTTON_ZOOM_IN_PRESS_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:scale-98'

@@ -1,7 +1,6 @@
 import { Button, Icon, Resizable } from '@src'
 import type { ResizableT } from '@src'
 import { For, createSignal, Show } from 'solid-js'
-
 const NAV_ITEMS = [
   { icon: 'i-lucide:layout-dashboard', label: 'Dashboard', badge: '3' },
   { icon: 'i-lucide:folder-git-2', label: 'Repositories' },

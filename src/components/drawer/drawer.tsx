@@ -1,8 +1,9 @@
-import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { merge, omit } from 'solid-js'
 
 import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 import { BASE_DIALOG_ROOT_KEYS } from '../base-dialog/base-dialog-context'
 
@@ -21,7 +22,6 @@ import { DrawerHeader } from './drawer-header'
 import { DrawerTitle } from './drawer-title'
 import { DrawerTrigger } from './drawer-trigger'
 import type { DrawerProps, DrawerT } from './drawer.types'
-
 /**
  * Edge surface the user dismisses with a swipe along its edge, optionally resting at snap points.
  * Use `Sheet` for an edge panel without gestures, `Dialog` for a centered labeled task, and `BaseDialog`
@@ -44,7 +44,8 @@ import type { DrawerProps, DrawerT } from './drawer.types'
  * ```
  */
 export function Drawer(props: DrawerProps): JSX.Element {
-  const [modalProps, drawerProps] = splitProps(props, BASE_DIALOG_ROOT_KEYS)
+  const modalProps = pick(props, ...BASE_DIALOG_ROOT_KEYS)
+  const drawerProps = omit(props, ...BASE_DIALOG_ROOT_KEYS)
   // `null` is a valid default (fully open), so only `undefined` falls back to the first snap point.
   const defaultSnapPoint = (): DrawerT.SnapPoint | null =>
     drawerProps.defaultSnapPoint !== undefined
@@ -56,7 +57,7 @@ export function Drawer(props: DrawerProps): JSX.Element {
     onChange: (next) => drawerProps.onSnapPointChange?.(next),
   })
   const nested = createDrawerNestedChannel(useOptionalDrawerContext()?.nested)
-  const context: DrawerContextValue = mergeProps(drawerProps, {
+  const context: DrawerContextValue = merge(drawerProps, {
     snapPoint,
     setSnapPoint,
     nested,

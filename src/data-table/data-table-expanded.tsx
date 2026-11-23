@@ -1,7 +1,8 @@
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import type { RowData } from '@tanstack/table-core'
-import type { Component, JSX } from 'solid-js'
+import type { Component } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../provider'
 import type { SlotOverrides } from '../provider'
@@ -17,7 +18,6 @@ import {
   dataTableRecipe,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 export function createDataTableRowDisclosure(open: () => boolean): DisclosureState {
   return createDisclosureState({
     open,
@@ -70,7 +70,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
         bindElement(body, props.disclosure.registerMeasureElement)
         return (
           <tr data-slot="data-table-expanded-row" {...expandedRowSlot}>
-            <td data-slot="data-table-expanded-cell" colSpan={props.colSpan} {...expandedCellSlot}>
+            <td data-slot="data-table-expanded-cell" colspan={props.colSpan} {...expandedCellSlot}>
               <div
                 ref={setContent}
                 data-slot="data-table-expanded-content"

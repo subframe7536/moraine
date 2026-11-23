@@ -1,6 +1,6 @@
-import { getInput, setInput } from '@formisch/solid'
+import { getInput, setInput } from '@formisch/solid/v2'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal, For, Show } from 'solid-js'
+import { For, Show, createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -15,7 +15,6 @@ import { Select } from '../select/select'
 
 import { BaseSelect } from './base-select'
 import { createBaseSelectSearchInput } from './base-select-search-input'
-
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
   { value: 2, label: 'Beta', extra: 'second' },
@@ -188,13 +187,13 @@ test('custom search input exposes reactive ARIA and input attributes', () => {
   expect(input.maxLength).toBe(4)
   expect(input.getAttribute('autocomplete')).toBe('off email')
 
-  setEnabled(false)
+  flush(() => setEnabled(false))
   expect(input.readOnly).toBe(true)
   expect(input.getAttribute('aria-autocomplete')).toBe('none')
-  setEnabled(true)
-  setReadOnly(true)
+  flush(() => setEnabled(true))
+  flush(() => setReadOnly(true))
   expect(input.getAttribute('aria-autocomplete')).toBe('none')
-  setMaxLength(8)
+  flush(() => setMaxLength(8))
   expect(input.maxLength).toBe(8)
 })
 
@@ -208,7 +207,7 @@ test('custom search input commits only completed composition and discards stale 
     const state = BaseSelect.useContext()
     const [value, setValue] = createSignal('')
     function updateValue(next: string): string {
-      setValue(next)
+      flush(() => setValue(next))
       onValueChange(next)
       return next
     }
@@ -243,7 +242,7 @@ test('custom search input commits only completed composition and discards stale 
   fireEvent.compositionStart(input)
   fireEvent.input(input, { target: { value: '未完' } })
   expect(isComposing()).toBe(true)
-  setSearchValue('server')
+  flush(() => setSearchValue('server'))
   expect(isComposing()).toBe(false)
   fireEvent.compositionEnd(input, { target: { value: '未完' } })
   expect(input.value).toBe('server')
@@ -357,7 +356,7 @@ describe('BaseSelect selection and form', () => {
     [false, true],
     [true, false],
     [true, true],
-  ])('exposes listbox read-only semantics, multiple=%s readOnly=%s', (multiple, readOnly) => {
+  ])('exposes listbox read-only semantics, multiple=%s readonly=%s', (multiple, readOnly) => {
     render(() => (
       <BaseSelect items={items} defaultOpen multiple={multiple} readOnly={readOnly}>
         <Parts />
@@ -443,7 +442,7 @@ describe('BaseSelect selection and form', () => {
     expect(new FormData(form).get('choice')).toBe('2')
     form.reset()
     await waitFor(() => expect(new FormData(form).get('choice')).toBe('1'))
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(new FormData(form).has('choice')).toBe(false)
   })
 })
@@ -716,7 +715,7 @@ test('owns Form context synchronization and treats an unmatched empty field as n
   fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
   expect(getInput(form)).toEqual({ choice: 2 })
   expect(change).toHaveBeenCalledWith([2])
-  setInput(form, { path: ['choice'], input: '' })
+  flush(() => setInput(form, { path: ['choice'], input: '' }))
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
   expect(change).toHaveBeenCalledOnce()
 })
@@ -776,15 +775,15 @@ test('normalizes controlled multiple values before synchronizing Form.Field', ()
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['a'])
   onInput.mockClear()
 
-  setControlled(['a', 'a'])
-  setControlled(['a'])
+  flush(() => setControlled(['a', 'a']))
+  flush(() => setControlled(['a']))
   expect(onInput).not.toHaveBeenCalled()
 
-  setControlled(['a', 'b'])
+  flush(() => setControlled(['a', 'b']))
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['a', 'b'])
   onInput.mockClear()
 
-  setControlled(['b', 'a'])
+  flush(() => setControlled(['b', 'a']))
   expect(onInput).toHaveBeenCalledExactlyOnceWith(['b', 'a'])
 })
 
@@ -808,7 +807,7 @@ test('diagnoses raw BaseSelect duplicate values once without filtering or throwi
   expect(error).toHaveBeenCalledOnce()
   expect(error).toHaveBeenCalledWith(expect.stringContaining('invalid consumer input'))
 
-  setSource([duplicate, { ...duplicate }])
+  flush(() => setSource([duplicate, { ...duplicate }]))
   expect(error).toHaveBeenCalledOnce()
   error.mockRestore()
 })
@@ -871,7 +870,7 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
     customField: 456,
     disabled: true,
   }
-  setItem(updatedItem)
+  flush(() => setItem(updatedItem))
 
   // DOM node must not be replaced
   expect(within(document.body).getByTestId('option-item')).toBe(initialElement)
@@ -883,7 +882,7 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
   fireEvent.click(option)
   expect(onChange).not.toHaveBeenCalled()
 
-  setItem({ ...updatedItem, disabled: false })
+  flush(() => setItem({ ...updatedItem, disabled: false }))
   fireEvent.click(option)
   expect(onChange).toHaveBeenCalledWith(['beta'])
   expect(option.getAttribute('aria-selected')).toBe('true')

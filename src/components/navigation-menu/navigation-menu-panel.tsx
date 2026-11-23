@@ -1,18 +1,18 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { For, createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createEventListener } from '../../shared/event-listener'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
+import type { PopperProps } from '../shared/overlay/popper.types'
 
 import { isMousePointer, useNavigationMenuContext } from './navigation-menu-context'
 import {
   NAVIGATION_MENU_POSITIONER_CLASS,
   NAVIGATION_MENU_PANEL_CLASS,
 } from './navigation-menu.recipe'
-
 /** One persistent surface owns positioning and size transitions for every item. */
 export function NavigationMenuPanel(): JSX.Element {
   const context = useNavigationMenuContext()
@@ -20,8 +20,9 @@ export function NavigationMenuPanel(): JSX.Element {
   const [size, setSize] = createSignal<JSX.CSSProperties>({})
 
   createEffect(
-    on([context.positionerElement, context.reference], ([positioner, reference]) => {
-      if (!positioner || !reference) {
+    () => [context.positionerElement(), context.reference()],
+    ([positioner, reference]) => {
+      if (!positioner || !reference || !reference.isConnected) {
         return
       }
       createEventListener(positioner, 'pointerenter', (event) => {
@@ -46,7 +47,7 @@ export function NavigationMenuPanel(): JSX.Element {
           { passive: true },
         )
       }
-    }),
+    },
   )
 
   function measure(): void {
@@ -72,7 +73,8 @@ export function NavigationMenuPanel(): JSX.Element {
   }
 
   createEffect(
-    on([context.activeContent, context.panelElement], ([content, panel]) => {
+    () => [context.activeContent(), context.panelElement()],
+    ([content, panel]) => {
       if (!content || !panel) {
         return
       }
@@ -84,13 +86,13 @@ export function NavigationMenuPanel(): JSX.Element {
         onCleanup(() => observer.disconnect())
       }
       createEventListener(panel.ownerDocument.defaultView, 'resize', measure)
-    }),
+    },
   )
 
   return (
     <PopperContent
       context={{
-        options: context.options,
+        options: context.options as PopperProps,
         slotName: (slot) => `navigation-menu-${slot}`,
         contentId: () => `${context.id()}-panel`,
         isOpen: context.open,
@@ -131,7 +133,7 @@ export function NavigationMenuPanel(): JSX.Element {
           <div
             {...floating.contentProps}
             inert={!context.open() ? true : undefined}
-            aria-hidden={!context.open() ? true : undefined}
+            aria-hidden={!context.open() ? 'true' : undefined}
             class={NAVIGATION_MENU_PANEL_CLASS}
             style={size()}
           >

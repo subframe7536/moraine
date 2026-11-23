@@ -1,5 +1,4 @@
 import { Button, DropdownMenu, Icon, Input, InputGroup } from '@src'
-
 export function DropdownActions() {
   return (
     <div class="gap-4 grid max-w-sm w-full">

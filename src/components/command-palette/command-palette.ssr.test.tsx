@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CommandPalette } from './command-palette'
-
 describe('CommandPalette SSR Hydration', () => {
   test('hydrates an empty listbox with a valid combobox relationship', () => {
     const { container } = hydrateFixture(
@@ -45,7 +44,7 @@ describe('CommandPalette SSR Hydration', () => {
     expect(description?.parentElement).toBe(label)
     expect(label?.hasAttribute('data-description-position')).toBe(false)
 
-    setPosition('bottom')
+    flush(() => setPosition('bottom'))
     const bottomDescription = container.querySelector(
       '[data-slot="command-palette-item-description"]',
     )

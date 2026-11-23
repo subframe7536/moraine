@@ -1,9 +1,8 @@
 import { render } from '@solidjs/testing-library'
-import { createRoot, createSignal, Show } from 'solid-js'
+import { Show, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { bindElement, publishElement } from './element-binding'
-
 describe('bindElement', () => {
   test('binds each element and cleans up on change and disposal', async () => {
     const log: string[] = []
@@ -19,16 +18,16 @@ describe('bindElement', () => {
     await Promise.resolve()
     expect(log).toEqual([])
 
-    setElement('a')
+    flush(() => setElement('a'))
     expect(log).toEqual(['bind a'])
 
-    setElement('b')
+    flush(() => setElement('b'))
     expect(log).toEqual(['bind a', 'release a', 'bind b'])
 
-    setElement(undefined)
+    flush(() => setElement(undefined))
     expect(log).toEqual(['bind a', 'release a', 'bind b', 'release b'])
 
-    setElement('c')
+    flush(() => setElement('c'))
     dispose()
     expect(log.slice(-2)).toEqual(['bind c', 'release c'])
   })
@@ -53,10 +52,10 @@ describe('bindElement', () => {
     await Promise.resolve()
     expect(mounted).toEqual([screen.getByTestId('branch')])
 
-    setOpen(false)
+    flush(() => setOpen(false))
     expect(mounted).toEqual([])
 
-    setOpen(true)
+    flush(() => setOpen(true))
     await Promise.resolve()
     expect(mounted).toEqual([screen.getByTestId('branch')])
   })

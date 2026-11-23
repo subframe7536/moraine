@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Textarea } from './textarea'
-
 describe('Textarea SSR Hydration', () => {
   test('reuses its only native element and initial value', () => {
     const { container } = hydrateFixture(
@@ -27,7 +26,7 @@ describe('Textarea SSR Hydration', () => {
     )
     const textarea = container.querySelector('textarea')!
 
-    setValue('Client value')
+    flush(() => setValue('Client value'))
 
     expect(container.querySelector('textarea')).toBe(textarea)
     expect(textarea.value).toBe('Client value')

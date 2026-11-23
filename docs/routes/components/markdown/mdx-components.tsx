@@ -1,7 +1,8 @@
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
-import type { Component, JSX } from 'solid-js'
-import { createSignal, lazy, onMount, Show, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { Component } from 'solid-js'
+import { createSignal, lazy, onSettled, Show, untrack } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
 
@@ -60,7 +61,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
       return {
         default() {
           const [mounted, setMounted] = createSignal(false)
-          onMount(() => queueMicrotask(() => setMounted(true)))
+          onSettled(() => queueMicrotask(() => setMounted(true)))
           return (
             <section class={DOCS_DEMO_BLOCK_CLASS}>
               <div

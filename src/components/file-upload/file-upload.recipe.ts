@@ -8,7 +8,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
-
 export const FILE_UPLOAD_PREVIEW_IMAGE_CLASS = 'size-full object-cover'
 
 export const fileUploadDataAttributes = {

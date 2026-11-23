@@ -1,4 +1,4 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { MoraineProvider } from '../provider/moraine-provider'
 
@@ -6,7 +6,6 @@ import { defineTheme } from './create-theme'
 import { defineRecipe } from './recipe'
 import { createDataAttributes } from './style-contract'
 import { useRecipe } from './use-recipe'
-
 type Slots = { root: string; label: string }
 type Variants = { size: 'sm' | 'lg' }
 

@@ -1,7 +1,6 @@
 import { FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { For, createSignal } from 'solid-js'
-
 const REJECTION_LABELS: Record<FileUploadT.Reason, string> = {
   duplicate: 'already selected',
   typeMismatch: 'type is not accepted',

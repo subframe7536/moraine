@@ -1,6 +1,5 @@
 import { Tabs } from '@src'
 import type { TabsT } from '@src'
-
 const SETTINGS_TABS: TabsT.Item[] = [
   {
     label: 'General',

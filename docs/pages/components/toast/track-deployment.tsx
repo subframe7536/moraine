@@ -1,5 +1,4 @@
 import { Button, Toast } from '@src'
-
 export function TrackDeployment() {
   const deploy = (shouldSucceed: boolean) => {
     const task = new Promise<{ version: string }>((resolve, reject) => {

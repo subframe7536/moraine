@@ -1,5 +1,4 @@
 import type { Orientation } from '../../theme/style-types'
-
 export type SliderEdge = 'left' | 'right' | 'top' | 'bottom'
 
 export type SliderValue = number | number[]

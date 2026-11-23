@@ -1,10 +1,9 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { scrollViewport } from '../../test-util/virtualizer-layout'
 import { createListVirtualizer } from '../../virtualizer'
 
 import { List } from './list'
-
 export function ListHydrationFixture(props: { items?: string[] }) {
   return (
     <List

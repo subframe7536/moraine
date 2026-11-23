@@ -1,13 +1,13 @@
-import type { JSX } from 'solid-js'
-import { createMemo, For, Show, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createMemo, For, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 import { Kbd } from '../kbd/kbd'
 import type { KbdT } from '../kbd/kbd.types'
 
 import { kbdGroupRecipe } from './kbd-group.recipe'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
-
 interface NormalizedKbdItem {
   item: KbdGroupT.Item
   key: string
@@ -36,7 +36,8 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Props {
  * ```
  */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'items',
     'separator',
     'size',
@@ -45,7 +46,18 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'items',
+    'separator',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
   const {
     slots: { root: rootSlot, item: itemSlot },
     variants,

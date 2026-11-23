@@ -1,6 +1,5 @@
 import { Slider } from '@src'
 import { createSignal } from 'solid-js'
-
 export function StepMarker() {
   const [value, setValue] = createSignal(40)
   const [range, setRange] = createSignal([20, 60])

@@ -1,5 +1,6 @@
-import type { Component, JSX } from 'solid-js'
-import { createStore, produce } from 'solid-js/store'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createStore } from 'solid-js'
 
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
@@ -8,7 +9,6 @@ import type { FeedbackHost, HostRegistry } from '../shared/overlay/feedback/host
 import { mergeDefined, pickDefined } from '../shared/overlay/feedback/merge-defined'
 
 import type { ToastT } from './toast.types'
-
 export interface ToastHostDefaults {
   type?: ToastT.Variants['type'] | null
   size?: ToastT.Variants['size'] | null
@@ -164,32 +164,28 @@ export function createToastStore(): ToastStore {
     registry.entries().some((host) => host.id() === hostId)
 
   const update = (id: ToastT.Id, options: ToastT.UpdateOptions): void => {
-    setToasts(
-      produce((draft) => {
-        const item = draft.find((entry) => entry.id === id)
-        if (!item || item.closed) {
-          return
-        }
-        item.options = mergeDefined(item.options, options)
-        item.bump = (item.bump ?? 0) + 1
-        const session = sessions.get(id)
-        if (session && options.onClose) {
-          session.onClose = options.onClose
-        }
-      }),
-    )
+    setToasts((draft) => {
+      const item = draft.find((entry) => entry.id === id)
+      if (!item || item.closed) {
+        return
+      }
+      item.options = mergeDefined(item.options, options)
+      item.bump = (item.bump ?? 0) + 1
+      const session = sessions.get(id)
+      if (session && options.onClose) {
+        session.onClose = options.onClose
+      }
+    })
   }
 
   const remove = (id: ToastT.Id): void => {
     sessions.delete(id)
-    setToasts(
-      produce((draft) => {
-        const index = draft.findIndex((item) => item.id === id)
-        if (index !== -1) {
-          draft.splice(index, 1)
-        }
-      }),
-    )
+    setToasts((draft) => {
+      const index = draft.findIndex((item) => item.id === id)
+      if (index !== -1) {
+        draft.splice(index, 1)
+      }
+    })
   }
 
   const close = (id: ToastT.Id | undefined, reason: FeedbackCloseReason = 'api'): void => {
@@ -204,14 +200,12 @@ export function createToastStore(): ToastStore {
         remove(item.id)
         continue
       }
-      setToasts(
-        produce((draft) => {
-          const match = draft.find((entry) => entry.id === item.id)
-          if (match && !match.closed) {
-            match.closed = true
-          }
-        }),
-      )
+      setToasts((draft) => {
+        const match = draft.find((entry) => entry.id === item.id)
+        if (match && !match.closed) {
+          match.closed = true
+        }
+      })
     }
   }
 
@@ -273,14 +267,12 @@ export function createToastStore(): ToastStore {
         return resolved.placement === candidate.placement && resolved.align === candidate.align
       })
       if (front && isSameToastContent(resolveToastOptions(front.options, defaults), candidate)) {
-        setToasts(
-          produce((draft) => {
-            const item = draft.find((entry) => entry.id === front.id)
-            if (item) {
-              item.bump = (item.bump ?? 0) + 1
-            }
-          }),
-        )
+        setToasts((draft) => {
+          const item = draft.find((entry) => entry.id === front.id)
+          if (item) {
+            item.bump = (item.bump ?? 0) + 1
+          }
+        })
         return sessions.get(front.id)!.handle
       }
     }
@@ -293,7 +285,9 @@ export function createToastStore(): ToastStore {
       closed: false,
     }
     const handle = createHandle(id, options.onClose)
-    setToasts(produce((draft) => draft.unshift(record)))
+    setToasts((draft) => {
+      draft.unshift(record)
+    })
     return handle
   }
 

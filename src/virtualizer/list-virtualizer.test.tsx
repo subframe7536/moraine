@@ -1,12 +1,11 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 
 import { createListVirtualizer } from './list-virtualizer'
 import type { VirtualRowProps as RowProps } from './virtualizer.types'
-
 describe('createListVirtualizer', () => {
   test('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
@@ -179,7 +178,7 @@ describe('createListVirtualizer', () => {
     await Promise.resolve()
     expect(virtualizer?.instance()?.getTotalSize()).toBe(2000)
 
-    setEstimatedSize(40)
+    flush(() => setEstimatedSize(40))
     await Promise.resolve()
 
     expect(virtualizer?.instance()?.getTotalSize()).toBeGreaterThan(3000)
@@ -256,12 +255,12 @@ describe('createListVirtualizer', () => {
     await Promise.resolve()
     expect(screen.queryByText('one')).toBeNull()
 
-    setScrollElement(firstElement)
+    flush(() => setScrollElement(firstElement))
     await Promise.resolve()
     expect(screen.getByText('one').isConnected).toBe(true)
     expect(virtualizer?.instance()?.scrollElement).toBe(firstElement)
 
-    setScrollElement(secondElement)
+    flush(() => setScrollElement(secondElement))
     await Promise.resolve()
     expect(virtualizer?.instance()?.scrollElement).toBe(secondElement)
     screen.unmount()
@@ -580,7 +579,7 @@ describe('createListVirtualizer', () => {
     expect(firstDomNode).not.toBeNull()
 
     // Replace entries with a new array referencing the same item objects
-    setEntries([item1, item2])
+    flush(() => setEntries([item1, item2]))
     await Promise.resolve()
 
     // The row keeps its DOM node when only the array identity changes.
@@ -618,7 +617,7 @@ describe('createListVirtualizer', () => {
     await Promise.resolve()
     expect(screen.getByText('five')).toBeTruthy()
 
-    setEntries(['one', 'two'])
+    flush(() => setEntries(['one', 'two']))
     await Promise.resolve()
 
     expect(screen.getByText('one')).toBeTruthy()

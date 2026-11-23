@@ -1,10 +1,9 @@
-import { createMemo, createRoot, createSignal } from 'solid-js'
+import { createMemo, createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { cn } from './cn'
 import type { RecipeConfig, RecipeVariantSelection } from './recipe'
 import { compileRecipe, defineRecipe, matchEntries } from './recipe'
-
 function testRecipe<S extends object, V = never>(key: string, config: RecipeConfig<S, V>) {
   const definition = defineRecipe<S, V>(key, config)
   const resolve = (variants: RecipeVariantSelection<V> | undefined, merge: typeof cn) => {
@@ -175,7 +174,7 @@ describe('recipe', () => {
 
     test('derives classes from reactive getter variants in caller memos', () => {
       createRoot((dispose) => {
-        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid')
+        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid', { ownedWrite: true })
         const slotClass = createMemo(
           () =>
             card({
@@ -185,12 +184,10 @@ describe('recipe', () => {
             }).classes.root,
         )
 
-        // oxlint-disable-next-line subf/solid-reactivity
         expect(slotClass()).toContain('bg-muted')
 
-        setSlotVariant('ghost')
+        flush(() => setSlotVariant('ghost'))
 
-        // oxlint-disable-next-line subf/solid-reactivity
         expect(slotClass()).toContain('border-transparent')
         dispose()
       })

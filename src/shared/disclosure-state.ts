@@ -5,7 +5,6 @@ import {
   createRenderEffect,
   createRoot,
   createSignal,
-  on,
   onCleanup,
   untrack,
 } from 'solid-js'
@@ -13,7 +12,6 @@ import {
 import { attachEventListener, attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
-
 export interface CreateDisclosureStateOptions {
   /** Reactive open state accessor */
   open: Accessor<boolean>
@@ -59,7 +57,7 @@ export interface DisclosureState {
   /** `hidden` attribute value for the content shell (`''`, `'until-found'`, or absent). */
   hiddenAttr: Accessor<'' | 'until-found' | undefined>
   inert: Accessor<true | undefined>
-  ariaHidden: Accessor<true | undefined>
+  ariaHidden: Accessor<'true' | undefined>
 
   shouldMount: () => boolean
 
@@ -124,20 +122,18 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     return value === 'until-found' ? 'until-found' : value ? '' : undefined
   })
   const inert = () => (closed() ? (true as const) : undefined)
-  const ariaHidden = () => (closed() ? (true as const) : undefined)
+  const ariaHidden = () => (closed() ? ('true' as const) : undefined)
 
-  const [hasToggled, setHasToggled] = createSignal(false)
+  const [hasToggled, setHasToggled] = createSignal(false, { ownedWrite: true })
 
   createEffect(
-    on(
-      options.open,
-      (isOpen, wasOpen) => {
-        if (isOpen !== wasOpen) {
-          setHasToggled(true)
-        }
-      },
-      { defer: true },
-    ),
+    options.open,
+    (isOpen, wasOpen) => {
+      if (isOpen !== wasOpen) {
+        setHasToggled(true)
+      }
+    },
+    { defer: true },
   )
 
   const initialOpen = createMemo(() => options.open() && !hasToggled())
@@ -149,9 +145,15 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     return options.open() || (transition() && presence.present())
   }
 
-  const [contentHeight, setContentHeight] = createSignal(0)
-  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>()
+  const [contentHeight, setContentHeight] = createSignal(0, { ownedWrite: true })
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
+  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(undefined,
+    {
+      ownedWrite: true,
+    },
+  )
 
   let contentEl: HTMLElement | undefined
   // One record per registration, so releasing a duplicate removes only its own entry.
@@ -179,11 +181,9 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     })
   }
 
-  createEffect(
-    on(options.open, () => {
-      queueContentHeightMeasurement()
-    }),
-  )
+  createEffect(options.open, () => {
+    queueContentHeightMeasurement()
+  })
 
   function observeMeasureElement(element: HTMLElement | undefined): void {
     if (element === contentEl) {
@@ -219,13 +219,11 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
   }
 
-  createEffect(
-    on(options.open, (isOpen) => {
-      if (!isOpen) {
-        restoreTriggerFocus()
-      }
-    }),
-  )
+  createEffect(options.open, (isOpen) => {
+    if (!isOpen) {
+      restoreTriggerFocus()
+    }
+  })
 
   function registerContentElement(element: HTMLElement): () => void {
     removeContentFocusListeners?.()
@@ -253,7 +251,6 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     let stopHiddenSync: (() => void) | undefined
     if (options.onBeforeMatch) {
       const reveal = options.onBeforeMatch
-      // oxlint-disable-next-line subf/solid-reactivity -- The listener reads hiddenAttr lazily on each beforematch.
       removeBeforeMatch = attachEventListener(element, 'beforematch', () => {
         reveal()
         // The reveal strips `hidden`; restore it when the open was refused.
@@ -265,14 +262,16 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
       // The `hidden` JSX prop coerces to boolean in some DOMs; sync the raw
       // attribute so `until-found` survives jsdom and hydrated SSR markup.
       stopHiddenSync = createRoot((dispose) => {
-        createRenderEffect(() => {
-          const value = hiddenAttr()
-          if (value === undefined) {
-            element.removeAttribute('hidden')
-          } else {
-            element.setAttribute('hidden', value)
-          }
-        })
+        createRenderEffect(
+          () => hiddenAttr(),
+          (value) => {
+            if (value === undefined) {
+              element.removeAttribute('hidden')
+            } else {
+              element.setAttribute('hidden', value)
+            }
+          },
+        )
         return dispose
       })
     }

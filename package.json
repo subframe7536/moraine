@@ -97,7 +97,9 @@
     "@dnd-kit/dom": "^0.5.3",
     "@iconify-json/lucide": "catalog:",
     "@iconify/tailwind": "1.2.0",
+    "@solidjs/compiler": "catalog:",
     "@solidjs/testing-library": "^1.0.0-rc.2",
+    "@solidjs/vite-plugin": "catalog:",
     "@subf/config": "^0.5.0",
     "@subf/unocss": "catalog:",
     "@tanstack/table-core": "^9.3.1",
@@ -115,8 +117,6 @@
     "tsrs": "0.25.0-ts7.1.0-beta",
     "valibot": "catalog:",
     "vite": "catalog:",
-    "@solidjs/vite-plugin": "catalog:",
-    "@solidjs/compiler": "catalog:",
     "vitest": "^5.1.0"
   },
   "peerDependencies": {

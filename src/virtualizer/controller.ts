@@ -6,16 +6,8 @@ import {
 } from '@tanstack/virtual-core'
 import type { Range as VirtualRange, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
-import {
-  batch,
-  createRenderEffect,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-} from 'solid-js'
-import { createStore, reconcile } from 'solid-js/store'
+import { createRenderEffect, createSignal, merge, onCleanup, onSettled } from 'solid-js'
+import { createStore, reconcile } from 'solid-js'
 
 export function scrollElementWithRtl<
   TScrollElement extends HTMLElement,
@@ -159,20 +151,28 @@ export function createVirtualizerController<
           pendingScroll = undefined
         }
       })
-      const [mounted, setMounted] = createSignal(false)
+      const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
       const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
-      const [totalSize, setTotalSize] = createSignal(0)
+      const [totalSize, setTotalSize] = createSignal(0, { ownedWrite: true })
+      let pendingSync: Virtualizer<TScrollElement, TItemElement> | undefined
       const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
-        batch(() => {
-          setVirtualItems(reconcile(source.getVirtualItems(), { key: 'index' }))
-          setTotalSize(source.getTotalSize())
-        })
+        setTotalSize(source.getTotalSize())
+        if (pendingSync === undefined) {
+          queueMicrotask(() => {
+            const latest = pendingSync
+            pendingSync = undefined
+            if (latest !== undefined) {
+              setVirtualItems(reconcile(latest.getVirtualItems(), 'index'))
+            }
+          })
+        }
+        pendingSync = source
       }
       let currentEntries: readonly TItem[] = []
       let currentKeys: VirtualItem['key'][] = []
       let currentEstimates: number[] = []
       let initialized = false
-      const virtualizerOptions = mergeProps(
+      const virtualizerOptions = merge(
         {
           observeElementRect,
           observeElementOffset,
@@ -207,67 +207,74 @@ export function createVirtualizerController<
       ) satisfies VirtualizerOptions<TScrollElement, TItemElement>
       const virtualizer = new Virtualizer<TScrollElement, TItemElement>(virtualizerOptions)
 
-      createRenderEffect(() => {
-        const entries = adapterProps.entries()
-        const nextKeys = entries.map((item, index) => options.getItemKey?.(item, index) ?? index)
-        const estimateItem = adapterProps.estimateSize ?? options.estimateSize
-        const nextEstimates = entries.map((item, index) => estimateItem(item, index))
-        const sharedLength = Math.min(currentKeys.length, nextKeys.length)
-        const layoutChanged =
-          initialized &&
-          (nextKeys.some((key, index) => index < sharedLength && key !== currentKeys[index]) ||
-            nextEstimates.some(
-              (estimate, index) =>
-                index < sharedLength && !Object.is(estimate, currentEstimates[index]),
-            ))
+      createRenderEffect(
+        () =>
+          [
+            adapterProps.entries(),
+            options.getItemKey,
+            adapterProps.estimateSize ?? options.estimateSize,
+            virtualizerOptions.getScrollElement(),
+          ] as const,
+        ([entries, getItemKey, estimateItem]) => {
+          const nextKeys = entries.map((item, index) => getItemKey?.(item, index) ?? index)
+          const nextEstimates = entries.map((item, index) => estimateItem(item, index))
+          const sharedLength = Math.min(currentKeys.length, nextKeys.length)
+          const layoutChanged =
+            initialized &&
+            (nextKeys.some((key, index) => index < sharedLength && key !== currentKeys[index]) ||
+              nextEstimates.some(
+                (estimate, index) =>
+                  index < sharedLength && !Object.is(estimate, currentEstimates[index]),
+              ))
 
-        if (initialized) {
-          const nextEstimateByKey = new Map(
-            nextKeys.map((key, index) => [key, nextEstimates[index]]),
+          if (initialized) {
+            const nextEstimateByKey = new Map(
+              nextKeys.map((key, index) => [key, nextEstimates[index]]),
+            )
+            currentKeys.forEach((key, index) => {
+              const nextEstimate = nextEstimateByKey.get(key)
+              if (nextEstimate === undefined || !Object.is(nextEstimate, currentEstimates[index])) {
+                virtualizer.itemSizeCache.delete(key)
+              }
+            })
+          }
+          currentEntries = entries
+          currentKeys = nextKeys
+          currentEstimates = nextEstimates
+          initialized = true
+          // A new `getItemKey` identity is what makes TanStack recompute measurements: its
+          // `getMeasurementOptions` memo depends on `count`, `getItemKey`, and other options but not
+          // on the keys themselves. Recheck this when upgrading `@tanstack/virtual-core`.
+          virtualizer.setOptions(
+            layoutChanged
+              ? {
+                  ...virtualizerOptions,
+                  getItemKey: (index: number) => currentKeys[index] ?? index,
+                }
+              : virtualizerOptions,
           )
-          currentKeys.forEach((key, index) => {
-            const nextEstimate = nextEstimateByKey.get(key)
-            if (nextEstimate === undefined || !Object.is(nextEstimate, currentEstimates[index])) {
-              virtualizer.itemSizeCache.delete(key)
-            }
-          })
-        }
-        currentEntries = entries
-        currentKeys = nextKeys
-        currentEstimates = nextEstimates
-        initialized = true
-        virtualizerOptions.getScrollElement()
-        // A new `getItemKey` identity is what makes TanStack recompute measurements: its
-        // `getMeasurementOptions` memo depends on `count`, `getItemKey`, and other options but not
-        // on the keys themselves. Recheck this when upgrading `@tanstack/virtual-core`.
-        virtualizer.setOptions(
-          layoutChanged
-            ? { ...virtualizerOptions, getItemKey: (index: number) => currentKeys[index] ?? index }
-            : virtualizerOptions,
-        )
 
-        if (mounted()) {
-          virtualizer._willUpdate()
-        }
-        sync(virtualizer)
-      })
+          if (mounted()) {
+            virtualizer._willUpdate()
+          }
+          sync(virtualizer)
+        },
+      )
 
       // `setOptions` snapshots getters, so re-apply options when measured layout changes.
       createRenderEffect(
-        on(
-          () => adapterProps.layout?.(),
-          () => {
-            virtualizer.setOptions(virtualizerOptions)
-            if (mounted()) {
-              virtualizer._willUpdate()
-            }
-            sync(virtualizer)
-          },
-          { defer: true },
-        ),
+        () => adapterProps.layout?.(),
+        () => {
+          virtualizer.setOptions(virtualizerOptions)
+          if (mounted()) {
+            virtualizer._willUpdate()
+          }
+          sync(virtualizer)
+        },
+        { defer: true },
       )
 
-      onMount(() => {
+      onSettled(() => {
         const cleanupVirtualizer = virtualizer._didMount()
         let active = true
 
@@ -276,10 +283,8 @@ export function createVirtualizerController<
             return
           }
 
-          batch(() => {
-            setInstance(virtualizer)
-            setMounted(true)
-          })
+          setInstance(virtualizer)
+          setMounted(true)
           // Replay after `mounted` so the scroll element and measurements are in place.
           const request = pendingScroll
           pendingScroll = undefined
@@ -288,11 +293,11 @@ export function createVirtualizerController<
           }
         })
 
-        onCleanup(() => {
+        return () => {
           active = false
           cleanupVirtualizer()
           setInstance((current) => (current === virtualizer ? undefined : current))
-        })
+        }
       })
 
       return {

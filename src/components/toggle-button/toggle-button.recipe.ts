@@ -3,7 +3,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { ToggleButtonStyleSlot, ToggleButtonStyleVariants } from './toggle-button.style-types'
-
 export const toggleButtonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('pressed'),
 } satisfies DataAttributeContract<keyof ToggleButtonStyleSlot>

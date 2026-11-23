@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 import { BaseSelectContent } from './base-select-content'
 import { SelectProvider, createSelectState, useSelectContext } from './base-select-context'
@@ -11,7 +11,6 @@ import { BaseSelectListbox } from './base-select-listbox'
 import { BaseSelectSeparator } from './base-select-separator'
 import { BaseSelectTrigger } from './base-select-trigger'
 import type { BaseSelectProps, BaseSelectT } from './base-select.types'
-
 /**
  * Headless selection primitive for a flat navigation collection, composed from `BaseSelect.Trigger`
  * and listbox parts. It renders no DOM of its own and manages selected values (`value`,

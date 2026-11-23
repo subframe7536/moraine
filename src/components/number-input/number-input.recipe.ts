@@ -12,7 +12,6 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { NumberInputStyleSlot, NumberInputStyleVariants } from './number-input.style-types'
-
 const controlDataAttributes = /* @__PURE__ */ createDataAttributes('active', 'disabled')
 const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
 const NUMBER_INPUT_ACCENT_CLASS = 'accent-fg-foreground placeholder:accent-fg-muted-foreground'

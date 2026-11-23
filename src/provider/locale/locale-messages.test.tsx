@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, onMount } from 'solid-js'
+import { createSignal, flush, onSettled } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
@@ -25,7 +25,6 @@ import { Slider } from '../../components/slider/slider'
 import { Toast } from '../../components/toast/toast'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { MoraineProvider } from '../moraine-provider'
-
 const FRUIT = [{ label: 'Apple', value: 'apple' }]
 
 describe('localized component text', () => {
@@ -197,7 +196,9 @@ describe('localized component text', () => {
   test('uses the sidebar message and lets ariaLabel win', async () => {
     function OpenSidebar(props: { label?: string }) {
       const frame = useSidebarContext()
-      onMount(() => frame.setOpen(true))
+      onSettled(() => {
+        frame.setOpen(true)
+      })
       return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }
 
@@ -529,7 +530,7 @@ describe('component translations prop', () => {
     const button = document.body.querySelector('[data-slot="dialog-content-close"]')
     expect(button?.getAttribute('aria-label')).toBe('Close 1')
 
-    setMessages({ close: 'Close 2' })
+    flush(() => setMessages({ close: 'Close 2' }))
     expect(button?.getAttribute('aria-label')).toBe('Close 2')
   })
 })

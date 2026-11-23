@@ -5,7 +5,6 @@ import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
-
 export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
 

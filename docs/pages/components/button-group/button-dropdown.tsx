@@ -1,7 +1,6 @@
 import { Button, ButtonGroup, DropdownMenu, Icon } from '@src'
 import type { DropdownMenuT } from '@src'
 import { createSignal } from 'solid-js'
-
 export function DropdownAction() {
   const [exportedFormat, setExportedFormat] = createSignal<string>()
 

@@ -1,7 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { ConfigExtension } from 'cn/config'
 import { createCn as upstreamCreateCn, defaultConfig, mergeConfigs, validators } from 'cn/config'
-
 export type { ConfigExtension as CnConfig } from 'cn/config'
 
 /** An independent class merger; empty input produces undefined for DOM bindings. */

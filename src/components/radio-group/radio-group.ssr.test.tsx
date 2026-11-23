@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { RadioGroup } from './radio-group'
-
 const FIXTURE_PATH = '/src/components/radio-group/radio-group.ssr.fixture.tsx'
 
 describe('RadioGroup SSR Hydration', () => {

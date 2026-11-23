@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
+import { pick } from '../../shared/utils'
 
 import { useTreeContext } from './tree-context'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
 /**
  * Container for trailing actions of an item, placed last inside `tree.Item`. Clicks inside it
  * never select or expand the item. It is always visible; style the `action` slot to reveal it on
@@ -32,7 +32,8 @@ import type { TreeT } from './tree.types'
  * ```
  */
 export function TreeItemAction(props: TreeT.ItemActionProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const local = pick(props, 'children', 'class', 'style')
+  const rest = omit(props, 'children', 'class', 'style')
   const context = useTreeContext()
   const {
     slots: { action: actionSlot },

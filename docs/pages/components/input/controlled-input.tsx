@@ -1,6 +1,5 @@
 import { Field, Input } from '@src'
 import { createMemo, createSignal, For, Show } from 'solid-js'
-
 const PROJECTS = ['Atlas design system', 'Billing portal', 'Customer dashboard', 'Release tracker']
 
 export function ControlledInput() {

@@ -1,5 +1,4 @@
 import { CommandPalette, Icon } from '@src'
-
 export function CustomEmptyState() {
   return (
     <div class="max-w-full w-lg">

@@ -6,7 +6,6 @@ import { renderAnatomyText } from '../shared/anatomy.ts'
 
 import { extractAnatomyConfig, validateAnatomy, validateAnatomyConfig } from './anatomy.ts'
 import type { ComponentApi } from './api-doc/types.ts'
-
 const api: ComponentApi = {
   key: 'card',
   name: 'Card',

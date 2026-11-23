@@ -1,6 +1,5 @@
 import { AvatarGroup } from '@src'
 import type { AvatarGroupT } from '@src'
-
 const REVIEWERS = [
   {
     src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&fit=crop&q=80',

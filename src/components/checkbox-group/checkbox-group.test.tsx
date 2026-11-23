@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -11,7 +11,6 @@ import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { CheckboxGroup } from './checkbox-group'
-
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
 }
@@ -377,7 +376,7 @@ describe('CheckboxGroup', () => {
     expect(enabledInput.required).toBe(true)
     expect(form.checkValidity()).toBe(false)
 
-    setValue(['enabled'])
+    flush(() => setValue(['enabled']))
 
     await waitFor(() => {
       expect(enabledInput.required).toBe(false)
@@ -401,7 +400,7 @@ describe('CheckboxGroup', () => {
       expect.stringContaining('CheckboxGroup received duplicate item value "same"'),
     )
 
-    setItems([second, first])
+    flush(() => setItems([second, first]))
     expect(screen.getByRole('checkbox', { name: 'First' }).id).toBe(firstId)
     expect(screen.getByRole('checkbox', { name: 'Second' }).id).toBe(secondId)
 
@@ -578,14 +577,14 @@ describe('CheckboxGroup', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
     expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
 
-    setDefaultValue(['B'])
+    flush(() => setDefaultValue(['B']))
     form.reset()
     await waitFor(() => {
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), true)
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), false)
     })
 
-    setControlledValue(['B'])
+    flush(() => setControlledValue(['B']))
     form.reset()
     await waitFor(() => {
       expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), false)
@@ -612,7 +611,7 @@ describe('CheckboxGroup', () => {
       ),
     )
 
-    setValue(['B'])
+    flush(() => setValue(['B']))
     fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))

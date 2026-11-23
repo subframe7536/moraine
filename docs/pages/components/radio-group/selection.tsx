@@ -1,7 +1,6 @@
 import { RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 import { createSignal } from 'solid-js'
-
 const PLAN_OPTIONS = [
   { label: 'Free tier', value: 'free', description: 'For personal projects with basic features.' },
   {

@@ -2,7 +2,6 @@ import { createCn as upstreamCreateCn } from 'cn/config'
 import { describe, expect, test } from 'vitest'
 
 import { cn, createCn } from './cn'
-
 describe('createCn', () => {
   test.each(['surface', 'overlay', 'input'])(
     'merges %s shadows with standard shadows while retaining shadow colors',

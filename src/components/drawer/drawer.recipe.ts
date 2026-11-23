@@ -9,7 +9,6 @@ import {
 } from '../shared/overlay/trigger.recipe'
 
 import type { DrawerStyleSlot, DrawerStyleVariants } from './drawer.style-types'
-
 /** Motion tuning shared by content transitions and the overlay's enter/exit anims. */
 export const DRAWER_MOTION = {
   // Enter and exit share the stack-settle timing so an exiting nested

@@ -1,6 +1,7 @@
 import type { ReferenceElement } from '@floating-ui/dom'
+import type { JSX } from '@solidjs/web'
 import type { ClassValue } from 'cn'
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
 
 import type { OverlayAlign, OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding as ComponentSlotBinding } from '../../../../theme/use-recipe'
@@ -15,7 +16,6 @@ import type {
   OverlayMenuLayerState,
 } from './menu.utils'
 import type { OverlayMenuStyleSlot } from './style-types'
-
 export interface OverlayMenuContentSlotProps {
   /** `true` when the content is rendered inside a submenu, `false` for the root menu. */
   sub: boolean

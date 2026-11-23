@@ -1,7 +1,6 @@
 import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
 import { createSignal } from 'solid-js'
-
 const NOTIFICATION_OPTIONS = [
   {
     label: 'Email alerts',

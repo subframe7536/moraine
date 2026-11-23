@@ -1,5 +1,4 @@
 import type { Accessor } from 'solid-js'
-
 export type DataAttributeValue = string | number | boolean | null | undefined
 type MaybeAccessor<T> = T | Accessor<T>
 

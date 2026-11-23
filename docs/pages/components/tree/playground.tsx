@@ -3,7 +3,6 @@ import type { TreeT } from '@src'
 import { Show, createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 interface FileNode {
   id: string
   name: string
@@ -99,7 +98,7 @@ export default function TreePlayground() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
-                tabIndex={item.focused ? 0 : -1}
+                tabindex={item.focused ? 0 : -1}
                 aria-label={`New file in ${item.label}`}
                 onClick={() => setStatus(`New file in ${item.label}`)}
               />
@@ -110,7 +109,7 @@ export default function TreePlayground() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
-                tabIndex={item.focused ? 0 : -1}
+                tabindex={item.focused ? 0 : -1}
                 aria-label={`More actions for ${item.label}`}
               />
               <DropdownMenu.Content

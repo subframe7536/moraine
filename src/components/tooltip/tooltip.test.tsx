@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -8,7 +8,6 @@ import { defineTheme } from '../../theme'
 import { isHTMLElement } from '../shared/overlay/dom'
 
 import { Tooltip } from './tooltip'
-
 function mockInstantTooltipExit(): void {
   const readComputedStyle = window.getComputedStyle.bind(window)
 
@@ -106,7 +105,7 @@ describe('Tooltip', () => {
       { container: secondHost },
     )
     try {
-      setOpen(false)
+      flush(() => setOpen(false))
       fireEvent.pointerEnter(secondHost.querySelector('[data-slot="tooltip-trigger"]')!, {
         pointerType: 'mouse',
       })
@@ -259,7 +258,7 @@ describe('Tooltip', () => {
 
     const kbd = () => document.body.querySelector('[data-slot="kbd-group-item"]')
     expect(kbd()?.className).toContain('border-b-2')
-    setKbdVariant(undefined)
+    flush(() => setKbdVariant(undefined))
     expect(kbd()?.className).toContain('bg-muted-foreground')
   })
 
@@ -372,8 +371,8 @@ describe('Tooltip', () => {
     expect(initialContent?.getAttribute('data-side')).toBe('top')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setPlacement('bottom')
-    setAlign('start')
+    flush(() => setPlacement('bottom'))
+    flush(() => setAlign('start'))
 
     const updatedContent = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(updatedContent).toBe(initialContent)
@@ -488,8 +487,8 @@ describe('Tooltip', () => {
     const trigger = screen.getByRole('button')
 
     fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    setDisabled(true)
-    setDisabled(false)
+    flush(() => setDisabled(true))
+    flush(() => setDisabled(false))
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
@@ -497,7 +496,7 @@ describe('Tooltip', () => {
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
 
-    setDisabled(true)
+    flush(() => setDisabled(true))
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
     const closingTooltip = document.body.querySelector('[role="tooltip"]')
     expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)

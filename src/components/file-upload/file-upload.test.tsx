@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -8,7 +8,6 @@ import { Field } from '../field'
 import { createForm } from '../form'
 
 import { FileUpload } from './file-upload'
-
 function createFile(
   name: string,
   type = 'text/plain',
@@ -385,10 +384,10 @@ describe('FileUpload', () => {
       await setInputFiles(getFileInput(screen.container), [image])
       expect(createObjectURL).not.toHaveBeenCalled()
 
-      setFileList(true)
+      flush(() => setFileList(true))
       await waitFor(() => expect(createObjectURL).toHaveBeenCalledTimes(1))
 
-      setFileList(false)
+      flush(() => setFileList(false))
       await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledTimes(1))
 
       screen.unmount()
@@ -870,7 +869,7 @@ describe('FileUpload', () => {
         )
       }
 
-      setReadOnly(false)
+      flush(() => setReadOnly(false))
       expect(control.hasAttribute('aria-readonly')).toBe(false)
       expect(root.hasAttribute('data-readonly')).toBe(false)
       expect(input.readOnly).toBe(false)
@@ -883,7 +882,7 @@ describe('FileUpload', () => {
       expect(inputClick).toHaveBeenCalledTimes(1)
       expect(onValueChange).toHaveBeenCalledTimes(1)
       expect(screen.queryByRole('button', { name: 'Remove initial.txt' })).toBeNull()
-      setReadOnly(true)
+      flush(() => setReadOnly(true))
       expect(control.getAttribute('aria-readonly')).toBe(locked ? 'true' : null)
       inputClick.mockRestore()
     },
@@ -899,7 +898,7 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [createFile('locked.txt')])
 
-    setReadOnly(true)
+    flush(() => setReadOnly(true))
 
     await waitFor(() => {
       expect(

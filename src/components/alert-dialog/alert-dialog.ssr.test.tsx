@@ -3,7 +3,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { AlertDialogFixture } from './alert-dialog.ssr.fixture'
-
 describe('AlertDialog SSR', () => {
   test('hydrates an empty host', () => {
     const html = renderSsrFixture(

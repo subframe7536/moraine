@@ -1,10 +1,9 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { KbdGroup } from '../kbd-group/kbd-group'
 import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { Kbd } from './kbd'
-
 function KbdSeparator(props: KbdGroupT.SeparatorRenderProps) {
   return (
     <span data-slot="kbd-group-separator" data-index={props.index}>

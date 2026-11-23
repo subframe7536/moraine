@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
-import { createComponent, createSignal, onCleanup, splitProps, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createComponent, createSignal, flush, omit, onCleanup, untrack } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -22,7 +22,6 @@ import {
 import type { ButtonProps } from '../index'
 
 import { callHandler } from './utils'
-
 describe('render and polymorphic contracts', () => {
   test('custom target owns whether onClick is forwarded', () => {
     const click = vi.fn()
@@ -82,16 +81,16 @@ describe('render and polymorphic contracts', () => {
       onCleanup(cleanedB)
       return <span>Empty B</span>
     }
-    const [emptyRender, setEmptyRender] = createSignal<(() => JSX.Element) | undefined>(A)
+    const [emptyRender, setEmptyRender] = createSignal<(() => JSX.Element) | undefined>(() => A)
     render(() => <Control emptyRender={emptyRender()} />)
     expect(screen.getByText('Empty A')).toBeTruthy()
 
-    setEmptyRender(() => B)
+    flush(() => setEmptyRender(() => B))
     expect(screen.queryByText('Empty A')).toBeNull()
     expect(screen.getByText('Empty B')).toBeTruthy()
     expect(cleanedA).toHaveBeenCalledTimes(1)
 
-    setEmptyRender(undefined)
+    flush(() => setEmptyRender(undefined))
     expect(screen.queryByText('Empty B')).toBeNull()
     expect(screen.getByText('No items')).toBeTruthy()
     expect(cleanedB).toHaveBeenCalledTimes(1)
@@ -186,7 +185,7 @@ describe('render and polymorphic contracts', () => {
       onCleanup(cleanupB)
       return <span>B</span>
     }
-    const [renderer, setRenderer] = createSignal(A)
+    const [renderer, setRenderer] = createSignal<() => JSX.Element>(() => A)
     const view = render(() =>
       createComponent(fixture, {
         get renderer() {
@@ -195,7 +194,7 @@ describe('render and polymorphic contracts', () => {
       }),
     )
     await waitFor(() => expect(screen.getAllByText('A')).toHaveLength(2))
-    setRenderer(() => B)
+    flush(() => setRenderer(() => B))
     expect(screen.queryAllByText('A')).toHaveLength(0)
     expect(screen.getAllByText('B')).toHaveLength(2)
     expect(cleanupA).toHaveBeenCalledTimes(2)
@@ -228,7 +227,12 @@ describe('render and polymorphic contracts', () => {
       },
     ) => (
       <Popover>
-        <Popover.Trigger {...props} as={Native} onClick={(event) => event.preventDefault()} />
+        <Popover.Trigger
+          {...props}
+          as={Native}
+          disabled={props.disabled === '' ? true : props.disabled}
+          onClick={(event) => event.preventDefault()}
+        />
       </Popover>
     )
     const view = render(() => (
@@ -369,7 +373,7 @@ describe('render and polymorphic contracts', () => {
   test('normal forwarded keyboard events work without a forwarded ref', () => {
     const keyDown = vi.fn()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
-      const [, attributes] = splitProps(props, ['ref'])
+      const attributes = omit(props, 'ref')
       return <button {...attributes}>Action</button>
     }
     const view = render(() => <Button as={Custom} onKeyDown={keyDown} />)

@@ -1,5 +1,4 @@
 import { Button, DropdownMenu } from '@src'
-
 export function Submenus() {
   return (
     <DropdownMenu>

@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -7,7 +7,6 @@ import { defineTheme } from '../../theme'
 
 import { Tabs } from './tabs'
 import type { TabsT } from './tabs.types'
-
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
     // oxlint-disable-next-line class-methods-use-this
@@ -59,7 +58,7 @@ describe('Tabs', () => {
       />
     ))
     expect(screen.queryByText('Second panel')).toBeNull()
-    setValue('second')
+    flush(() => setValue('second'))
     expect(screen.getByRole('tabpanel').textContent).toBe('Second panel')
   })
 
@@ -205,7 +204,7 @@ describe('Tabs', () => {
     expect(two.getAttribute('aria-controls')).toBeNull()
     expectControlsResolve(screen.container)
 
-    setValue('two')
+    flush(() => setValue('two'))
 
     expect(one.getAttribute('aria-controls')).toBeNull()
     expect(two.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
@@ -409,7 +408,7 @@ describe('Tabs', () => {
     const tab = screen.getByRole('tab', { name: 'Settings' })
     const panel = screen.getByRole('tabpanel')
     tab.focus()
-    setDesign(defineTheme({ tabs: { base: { trigger: 'custom-tab' } } }))
+    flush(() => setDesign(defineTheme({ tabs: { base: { trigger: 'custom-tab' } } })))
     expect(screen.getByRole('tab', { name: 'Settings' })).toBe(tab)
     expect(screen.getByRole('tabpanel')).toBe(panel)
     expect(document.activeElement).toBe(tab)
@@ -593,7 +592,7 @@ describe('Tabs', () => {
     const two = screen.getByRole('tab', { name: 'Two' })
 
     two.focus()
-    setItems((current) => current.filter((item) => item.value !== 'two'))
+    flush(() => setItems((current) => current.filter((item) => item.value !== 'two')))
     await Promise.resolve()
 
     const one = screen.getByRole('tab', { name: 'One' })
@@ -618,7 +617,7 @@ describe('Tabs', () => {
     const outside = screen.getByRole('button', { name: 'Outside' })
 
     focusedTab.focus()
-    setItems([{ label: 'One', value: 'one', content: 'One panel' }])
+    flush(() => setItems([{ label: 'One', value: 'one', content: 'One panel' }]))
     outside.focus()
     await Promise.resolve()
 
@@ -753,13 +752,13 @@ describe('Tabs', () => {
     const two = screen.getByRole('tab', { name: 'Two' })
 
     two.focus()
-    setDisabled(true)
+    flush(() => setDisabled(true))
     await Promise.resolve()
     const one = screen.getByRole('tab', { name: 'One' })
     expect(one.getAttribute('aria-selected')).toBe('true')
     expect(document.activeElement).toBe(one)
 
-    setDisabled(false)
+    flush(() => setDisabled(false))
     await Promise.resolve()
     expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByRole('tabpanel').textContent).toBe('Panel two')
@@ -788,7 +787,7 @@ describe('Tabs', () => {
     fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Two' }))
 
-    setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!])
+    flush(() => setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!]))
     await Promise.resolve()
 
     const reorderedTwo = screen.getByRole('tab', { name: 'Two' })
@@ -818,12 +817,12 @@ describe('Tabs', () => {
     const outside = screen.getByRole('button', { name: 'Outside' })
 
     one.focus()
-    setValue('two')
+    flush(() => setValue('two'))
     expect(document.activeElement).toBe(one)
     expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
 
     outside.focus()
-    setValue('one')
+    flush(() => setValue('one'))
     expect(document.activeElement).toBe(outside)
     expect(one.getAttribute('aria-selected')).toBe('true')
     expect(onValueChange).not.toHaveBeenCalled()
@@ -874,10 +873,10 @@ describe('Tabs', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
     expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue('overview')
+    flush(() => setValue('overview'))
     expect(screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected')).toBe('true')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
   })
 
@@ -937,7 +936,7 @@ describe('Tabs', () => {
       ...previous,
       { value: 'settings', label: 'Settings', content: 'Settings panel' },
     ])
-    setShow(false)
+    flush(() => setShow(false))
     expect(screen.getByRole('tabpanel').textContent).toBe('Hidden')
   })
 

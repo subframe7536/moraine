@@ -1,6 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { expect } from 'vitest'
-
 /**
  * Dispatches animationEnd and transitionEnd events on all open or closing content
  * and overlay slots to settle exit motion transitions in tests.

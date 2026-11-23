@@ -1,6 +1,6 @@
-import { getInput } from '@formisch/solid'
+import { getInput } from '@formisch/solid/v2'
 import { fireEvent, render, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -10,7 +10,6 @@ import { Field } from '../field'
 import { createForm } from '../index'
 
 import { Select } from './select'
-
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
@@ -130,9 +129,9 @@ describe('Select', () => {
     const displayed = () =>
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
     expect(displayed()).toBe('missing')
-    setValue('')
+    flush(() => setValue(''))
     expect(displayed()).toBe('Empty')
-    setValue(1)
+    flush(() => setValue(1))
     expect(displayed()).toBe('One')
   })
 
@@ -261,10 +260,10 @@ describe('Select', () => {
     const trailing = screen.container.querySelector('[data-slot="select-trailing"]')!
     expect(trailing).not.toBeNull()
     expect(trailing.hasAttribute('data-loading')).toBe(false)
-    setLoading(true)
+    flush(() => setLoading(true))
     expect(screen.container.querySelector('[data-slot="select-trailing"]')).toBe(trailing)
     expect(trailing.hasAttribute('data-loading')).toBe(true)
-    setLoading(false)
+    flush(() => setLoading(false))
     expect(trailing.hasAttribute('data-loading')).toBe(false)
   })
 
@@ -402,11 +401,11 @@ describe('Select', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: 'apple' })
-    setControlled(0)
+    flush(() => setControlled(0))
     expect(getInput(form)).toEqual({ choice: 0 })
-    setControlled('')
+    flush(() => setControlled(''))
     expect(getInput(form)).toEqual({ choice: '' })
-    setControlled(undefined)
+    flush(() => setControlled(undefined))
     expect(getInput(form)).toEqual({ choice: '' })
   })
 
@@ -449,7 +448,7 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(displayed()).toBe('Apple')
-    setValue('banana')
+    flush(() => setValue('banana'))
     expect(displayed()).toBe('Banana')
   })
 
@@ -469,7 +468,7 @@ describe('Select', () => {
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
 
     expect(displayed()).toBe('Banana')
-    setValue(null)
+    flush(() => setValue(null))
     expect(displayed()).toBe('')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(onChange).toHaveBeenLastCalledWith('apple')
@@ -525,7 +524,7 @@ describe('Select', () => {
       screen.container.querySelector('[data-slot="select-value"]')?.textContent
 
     expect(displayed()).toBe('Apple')
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(displayed()).toBe('Banana')
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
     expect(displayed()).toBe('Apple')
@@ -624,7 +623,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
       .getByRole('option', { name: 'Banana', hidden: true })
       .getAttribute('aria-disabled'),
   ).toBe('true')
-  setKeys(['Cherry'])
+  flush(() => setKeys(['Cherry']))
   expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
   expect(
     within(document.body)

@@ -1,6 +1,5 @@
 import { Button, ToggleButton } from '@src'
 import { createSignal } from 'solid-js'
-
 export function Controlled() {
   const [pressed, setPressed] = createSignal(false)
   return (

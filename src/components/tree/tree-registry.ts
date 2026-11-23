@@ -1,5 +1,4 @@
 import type { TreeT } from './tree.types'
-
 export interface TreeNode<T> {
   key: string
   raw: T

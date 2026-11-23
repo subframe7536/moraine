@@ -3,7 +3,6 @@ import { Show } from 'solid-js'
 import { Badge, Button, CopyButton } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { FrontmatterData } from '../../../build/markdown/types'
-
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
 export interface DocsPageHeaderProps {
@@ -31,7 +30,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
 
   return (
     <header class="text-foreground mt-4 md:mt-8">
-      <h1 class="text-2xl font-bold mt-3 outline-none wrap-anywhere sm:text-3xl" tabIndex={-1}>
+      <h1 class="text-2xl font-bold mt-3 outline-none wrap-anywhere sm:text-3xl" tabindex={-1}>
         {props.frontmatter.title}
       </h1>
 

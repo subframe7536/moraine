@@ -1,5 +1,4 @@
 import type { DocsPageEntry } from '../../../docs-route'
-
 export interface AdjacentDocsPages {
   previous?: DocsPageEntry
   next?: DocsPageEntry

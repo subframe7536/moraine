@@ -1,7 +1,6 @@
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { SliderStyleSlot } from '../slider/slider.style-types'
-
 export interface BoldSliderStyleSlot<T = unknown> extends SliderStyleSlot<T> {
   /** Decorative overlay above the track that holds the label and value, and shows the keyboard focus ring. */
   content?: T

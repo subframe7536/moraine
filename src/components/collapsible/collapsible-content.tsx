@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { createSignal, Show, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { createSignal, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import {
@@ -15,7 +15,6 @@ import {
   collapsibleWrapperDataAttributes,
 } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
-
 /**
  * Panel inside `Collapsible` holding the expandable content, labelled by the trigger. Place it
  * inside `Collapsible`; it renders a `div` by default and `as` applies to that inner element. By
@@ -35,7 +34,8 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'ref' as any])
+  const local = pick(props, 'as', 'class', 'style', 'ref' as any)
+  const rest = omit(props, 'as', 'class', 'style', 'ref' as any)
   const context = useCollapsibleContext()
   if (!context) {
     throw new Error('Collapsible.Content must be used within Collapsible')

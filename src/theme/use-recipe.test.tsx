@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { buttonRecipe } from '../components/button/button.recipe'
@@ -12,7 +12,6 @@ import { defineRecipe } from './recipe'
 import { createDataAttributes } from './style-contract'
 import type { MoraineTheme } from './types'
 import { useRecipe } from './use-recipe'
-
 // Hoisted by Vitest above the imports; records every default-merger result.
 const merges = vi.hoisted(() => ({ log: [] as string[] }))
 vi.mock('./cn', async (importOriginal) => {
@@ -71,13 +70,13 @@ describe('useRecipe', () => {
     )
     expect(button.className).toContain('text-lg')
     expect(button.className).toContain('p-4')
-    setInherited('sm')
+    flush(() => setInherited('sm'))
     expect(button.className).toContain('text-sm')
     expect(button.className).toContain('p-4')
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(button.className).toContain('text-lg')
     expect(button.className).toContain('p-4')
-    setSize(undefined)
+    flush(() => setSize(undefined))
     expect(button.className).toContain('text-sm')
     expect(button.className).toContain('p-4')
     expect(screen.getByRole('button')).toBe(button)
@@ -133,8 +132,8 @@ describe('useRecipe', () => {
     const label = screen.getByText('Save')
     expect(label.className).toContain('text-lg')
     expect(label.style.color).toBe('')
-    setClasses({ root: 'p-5', label: 'text-sm' })
-    setSlotStyles({ root: { width: '30px' }, label: { color: 'orange' } })
+    flush(() => setClasses({ root: 'p-5', label: 'text-sm' }))
+    flush(() => setSlotStyles({ root: { width: '30px' }, label: { color: 'orange' } }))
     expect(button.className).toContain('p-4')
     expect(button.style.color).toBe('purple')
     expect(button.style.width).toBe('30px')
@@ -177,7 +176,7 @@ describe('useRecipe', () => {
     const root = screen.getByTestId('select')
     expect(root.className).toContain('plain')
     expect(root.style.getPropertyValue('--tooltip-color')).toBe('purple')
-    setVariant(undefined)
+    flush(() => setVariant(undefined))
     expect(root.className).toContain('inverted')
   })
 
@@ -206,7 +205,7 @@ describe('useRecipe', () => {
     render(() => <Fixture />)
     expect(slots.root.class).toContain('initial-root')
     expect(slots.label.class).toContain('fixed-label')
-    setEffectRoot('updated-root')
+    flush(() => setEffectRoot('updated-root'))
     expect(slots.root.class).toContain('updated-root')
     expect(slots.root.class).not.toContain('initial-root')
     expect(slots.label.class).toContain('fixed-label')
@@ -240,8 +239,8 @@ describe('useRecipe', () => {
     const button = screen.getByRole('button')
     expect(button.style.color).toBe('red')
 
-    setColor('green')
-    setExtraClass('updated-class')
+    flush(() => setColor('green'))
+    flush(() => setExtraClass('updated-class'))
     expect(button.style.color).toBe('green')
   })
 })
@@ -302,14 +301,14 @@ test.each([undefined, 'label'] as const)(
     expect(target.style.getPropertyValue('--size')).toBe('16px')
     expect(target.style.getPropertyValue('--shared')).toBe('child')
     expect(other.getAttribute('style')).toBeNull()
-    setInherited('sm')
+    flush(() => setInherited('sm'))
     expect(target.style.getPropertyValue('--size')).toBe('8px')
     expect(target.style.getPropertyValue('--large')).toBe('')
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(target.style.getPropertyValue('--size')).toBe('16px')
-    setSize(undefined)
+    flush(() => setSize(undefined))
     expect(target.style.getPropertyValue('--size')).toBe('8px')
-    setTheme(null)
+    flush(() => setTheme(null))
     expect(target.style.getPropertyValue('--size')).toBe('')
     expect(target.style.getPropertyValue('--shared')).toBe('')
     expect(target.style.getPropertyValue('--large')).toBe('')
@@ -362,7 +361,7 @@ test('applies own instance variables after recipe keys and context, before calle
   expect(button.style.getPropertyValue('--own')).toBe('own')
   expect(button.style.getPropertyValue('--root')).toBe('root')
   expect(button.style.getPropertyValue('--empty')).toBe('')
-  setSize('16px')
+  flush(() => setSize('16px'))
   expect(button.style.getPropertyValue('--size')).toBe('16px')
   expect(screen.getByRole('button')).toBe(button)
 })
@@ -427,8 +426,8 @@ test('slotWith accepts accessors and reacts to dynamic style updates', () => {
   expect(button.className).toContain('item-custom')
   expect(button.style.left).toBe('10px')
 
-  setExtraClass('item-updated')
-  setPos('25px')
+  flush(() => setExtraClass('item-updated'))
+  flush(() => setPos('25px'))
   expect(button.className).toContain('item-updated')
   expect(button.style.left).toBe('25px')
 })
@@ -455,7 +454,7 @@ describe('data option', () => {
     expect(button.hasAttribute('data-expanded')).toBe(false)
     expect(button.hasAttribute('data-disabled')).toBe(false)
 
-    setExpanded(true)
+    flush(() => setExpanded(true))
     expect(button.getAttribute('data-expanded')).toBe('')
   })
 
@@ -497,7 +496,7 @@ describe('data option', () => {
     expect(button.hasAttribute('data-expanded')).toBe(false)
     expect(button.className).toContain('item')
 
-    setActive(true)
+    flush(() => setActive(true))
     expect(button.getAttribute('data-expanded')).toBe('')
   })
 })
@@ -546,7 +545,7 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   expect(button.className).toContain('custom-a')
   expect((capturedVariants as any).custom).toBe('a')
 
-  setCustom('b')
+  flush(() => setCustom('b'))
   expect(button.className).toContain('custom-b')
   expect((capturedVariants as any).custom).toBe('b')
 })
@@ -586,11 +585,11 @@ test('per-slot own accessors update only the slot they belong to', () => {
   expect(slots.leading.class).toBe('leading-base')
   expect(slots.trailing.class).toBe('trailing-base')
 
-  setLeadingActive(true)
+  flush(() => setLeadingActive(true))
   expect(slots.leading.class).toBe('leading-base leading-active')
   expect(slots.trailing.class).toBe('trailing-base')
 
-  setTrailingActive(true)
+  flush(() => setTrailingActive(true))
   expect(slots.trailing.class).toBe('trailing-base trailing-active')
   expect(slots.leading.class).toBe('leading-base leading-active')
 })
@@ -642,11 +641,11 @@ describe('fine-grained recomputation', () => {
     const label = screen.getByTestId('label')
     expect(mergedSlots()).toEqual(['label', 'root'])
 
-    setSize('lg')
+    flush(() => setSize('lg'))
     expect(root.className).toBe('base-root size-lg')
     expect(mergedSlots()).toEqual(['root'])
 
-    setTone('b')
+    flush(() => setTone('b'))
     expect(label.className).toBe('base-label tone-b')
     expect(mergedSlots()).toEqual(['label'])
     expect(screen.getByTestId('root')).toBe(root)
@@ -672,7 +671,7 @@ describe('fine-grained recomputation', () => {
     merges.log.length = 0
     const screen = render(() => <Fixture />)
     mergedSlots()
-    setRootClass('ctx-b')
+    flush(() => setRootClass('ctx-b'))
     expect(screen.getByTestId('root').className).toContain('ctx-b')
     expect(screen.getByTestId('label').className).toBe('base-label tone-a ctx-label')
     expect(mergedSlots()).toEqual(['root'])
@@ -697,7 +696,7 @@ describe('fine-grained recomputation', () => {
     merges.log.length = 0
     const screen = render(() => <Fixture />)
     mergedSlots()
-    setTone('b')
+    flush(() => setTone('b'))
     expect(screen.getByTestId('label').className).toBe('base-label tone-b')
     expect(screen.getByTestId('root').className).toBe('base-root size-sm')
     expect(mergedSlots()).toEqual(['label'])

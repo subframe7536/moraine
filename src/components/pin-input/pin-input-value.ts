@@ -1,5 +1,4 @@
 import type { PinInputT } from './pin-input.types'
-
 export interface ValidationConfig {
   charPattern: RegExp
   slotPattern: string

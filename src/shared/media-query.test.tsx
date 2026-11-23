@@ -1,9 +1,8 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createMediaQuery } from './media-query'
-
 const originalMatchMedia = window.matchMedia
 
 function createMediaQueryList(matches: boolean): MediaQueryList {
@@ -102,7 +101,7 @@ describe('createMediaQuery', () => {
       return <div data-testid="matches">{String(matches())}</div>
     })
 
-    setQuery('(min-width: 2px)')
+    flush(() => setQuery('(min-width: 2px)'))
     await Promise.resolve()
 
     expect(screen.getByTestId('matches').textContent).toBe('true')

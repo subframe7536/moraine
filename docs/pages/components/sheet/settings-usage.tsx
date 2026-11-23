@@ -1,5 +1,4 @@
 import { Button, Sheet } from '@src'
-
 export function SettingsUsage() {
   return (
     <Sheet>

@@ -1,6 +1,5 @@
 import { BaseSelect, Button, Icon } from '@src'
 import { For } from 'solid-js'
-
 const GROUPS = [
   {
     label: 'Frontend',

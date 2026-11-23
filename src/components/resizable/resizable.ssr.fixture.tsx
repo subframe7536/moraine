@@ -1,8 +1,7 @@
+import { renderToString } from '@solidjs/web'
 import { Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
 
 import { Resizable } from './resizable'
-
 export function renderResizableFixture(): string {
   return renderToString(() => (
     <Resizable defaultValue={{ a: 30 }}>

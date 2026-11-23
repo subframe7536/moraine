@@ -1,7 +1,6 @@
-import { renderToString, Dynamic } from 'solid-js/web'
+import { renderToString, Dynamic } from '@solidjs/web'
 
 import { Tabs } from './tabs'
-
 export function createTabItems() {
   return [
     {

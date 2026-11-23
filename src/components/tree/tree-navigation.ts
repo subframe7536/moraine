@@ -9,7 +9,6 @@ import { createTypeahead } from '../../shared/typeahead'
 import { getSiblingKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
-
 const PENDING_FOCUS_TIMEOUT = 1000
 
 export interface TreeNavigationDeps<T> {

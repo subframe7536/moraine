@@ -1,5 +1,5 @@
+import type { JSX } from '@solidjs/web'
 import { For, Show, createSignal } from 'solid-js'
-import type { JSX } from 'solid-js'
 
 import {
   Accordion,
@@ -23,7 +23,6 @@ import {
 } from '../../../../src'
 import { createMediaQuery } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
-
 const OPTIONS = [
   { label: 'SolidJS', value: 'solid' },
   { label: 'TypeScript', value: 'typescript' },
@@ -70,7 +69,7 @@ const INTEGRATIONS = [
   },
   {
     entry: 'moraine (createForm)',
-    engine: '@formisch/solid',
+    engine: '@formisch/solid/v2',
     kind: 'Built-in',
   },
 ] as const

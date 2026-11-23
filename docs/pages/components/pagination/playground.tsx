@@ -2,7 +2,6 @@ import { Pagination } from '@src'
 import { createSignal } from 'solid-js'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function PaginationPlayground() {
   const [page, setPage] = createSignal(1)
 

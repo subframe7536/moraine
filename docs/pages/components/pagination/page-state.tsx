@@ -1,6 +1,5 @@
 import { Pagination } from '@src'
 import { createSignal } from 'solid-js'
-
 export function PageState() {
   const [page, setPage] = createSignal(1)
 

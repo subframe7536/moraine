@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId, untrack } from 'solid-js'
-
 /**
  * Generates a unique identifier for accessibility and form association.
  *
@@ -19,8 +18,7 @@ import { createMemo, createUniqueId, untrack } from 'solid-js'
  * id() // 'mo-1'
  *
  * // With custom prefix
- * const [local, rest] = splitProps(props, ['id'])
- * const id = createId(() => local.id, 'dialog')
+ * const id = createId(() => props.id, 'dialog')
  * id() // 'dialog-cl-2'
  * ```
  */
@@ -87,5 +85,70 @@ export function toIdSegment(value: string): string {
 export function callRef<T>(ref: unknown, element: T): void {
   if (typeof ref === 'function') {
     untrack(() => (ref as (element: T) => void)(element))
+  }
+}
+
+/**
+ * View of `props` exposing only `keys`, each as a lazy getter — the picked counterpart
+ * to `omit` (the `splitProps` picked half from 1.x).
+ *
+ * Presence is decided from property descriptors, never by reading values: `merge`
+ * resolves shadowing by descriptor, so an accessor key (reactive getter) counts as
+ * present without evaluating it — reading `props.children` during key collection
+ * would re-render the tree. Only static data keys holding `undefined` are hidden.
+ */
+export function pick<T extends object, K extends readonly (keyof T)[]>(
+  props: T,
+  ...keys: K
+): Pick<T, K[number]> {
+  const present = (key: keyof T): boolean => {
+    if (!keys.includes(key as K[number])) {
+      return false
+    }
+    const descriptor = Reflect.getOwnPropertyDescriptor(props, key)
+    if (descriptor === undefined) {
+      return key in props
+    }
+    return Boolean(descriptor.enumerable) && (descriptor.get !== undefined || descriptor.value !== undefined)
+  }
+  return new Proxy({} as Pick<T, K[number]>, {
+    get(_, key) {
+      return keys.includes(key as K[number]) ? props[key as keyof T] : undefined
+    },
+    has(_, key) {
+      return present(key as keyof T)
+    },
+    getOwnPropertyDescriptor(_, key) {
+      if (!present(key as keyof T)) {
+        return undefined
+      }
+      return {
+        enumerable: true,
+        configurable: true,
+        get: () => props[key as keyof T],
+      }
+    },
+    ownKeys() {
+      return keys.filter((key) => present(key)) as (string | symbol)[]
+    },
+  })
+}
+
+/**
+ * Per-key memoized predicate over a reactive source — the `createSelector` replacement.
+ * `isSelected(key)` reads a per-key memo, so unrelated key changes do not re-run observers.
+ */
+export function createSelector<S, K>(
+  source: () => S,
+  fn: (key: K, source: S) => boolean = (key, src) => key === (src as unknown as K),
+): (key: K) => boolean {
+  const memos = new Map<K, Accessor<boolean>>()
+  return (key) => {
+    let memo = memos.get(key)
+    if (!memo) {
+      memo = createMemo(() => fn(key, source()))
+      memos.set(key, memo)
+    }
+    return memo()
   }
 }

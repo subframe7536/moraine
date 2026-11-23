@@ -1,10 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Breadcrumb } from './breadcrumb'
 import type { BreadcrumbT } from './breadcrumb.types'
-
 describe('Breadcrumb', () => {
   test('forwards ref to root nav element', () => {
     let navRef: HTMLElement | undefined
@@ -397,7 +396,7 @@ describe('Breadcrumb', () => {
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
     expect(currentLabel()).toBe('Reference')
 
-    setItems([])
+    flush(() => setItems([]))
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(0)
     expect(screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')).toHaveLength(0)
   })
@@ -428,7 +427,7 @@ describe('Breadcrumb', () => {
     expect(firstItem.querySelector('[data-slot="breadcrumb-link"]')?.tagName).toBe('A')
     expect(firstItem.querySelector('[data-slot="breadcrumb-page"]')).toBeNull()
 
-    setActiveIndex(0)
+    flush(() => setActiveIndex(0))
 
     expect(list.children[0]).toBe(firstItem)
     expect(list.children[1]).toBe(separator)

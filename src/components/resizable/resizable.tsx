@@ -1,10 +1,10 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onMount, splitProps } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
+import { createEffect, createMemo, createSignal, onSettled, omit } from 'solid-js'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { pickSlotOverrides, useRecipe } from '../../theme/use-recipe'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -32,7 +32,6 @@ import { ResizableHandle } from './resizable-handle'
 import { ResizablePanel, useResizablePanel } from './resizable-panel'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
-
 const DEFAULT_STEP = 10
 
 interface DragState {
@@ -93,7 +92,8 @@ function createServerSafeMemo<T>(fn: () => T): () => T {
  * ```
  */
 export function Resizable(props: ResizableProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'children',
     'value',
@@ -108,7 +108,24 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'class',
     'style',
     'ref',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'children',
+    'value',
+    'defaultValue',
+    'onValueChange',
+    'onValueCommit',
+    'disabled',
+    'step',
+    'orientation',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+  )
 
   const {
     slots: { root: rootSlot },
@@ -124,7 +141,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const [settled, setSettled] = createSignal(false)
   const [resizing, setResizing] = createSignal(false)
   const [transitioningIds, setTransitioningIds] = createSignal<string[]>([])
-  const [items, setItems] = createSignal<ResizableItem[]>([])
+  const [items, setItems] = createSignal<ResizableItem[]>([], { ownedWrite: true })
   const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
     local.defaultValue ? { ...local.defaultValue } : undefined,
   )
@@ -134,7 +151,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const lastExpandedSizes = new Map<string, number>()
   const previousCollapsed = new Map<string, boolean>()
 
-  onMount(() => setSettled(true))
+  onSettled(() => {
+    setSettled(true)
+  })
 
   // The server evaluates createMemo eagerly before children register,
   // so SSR uses plain accessors while the client memoizes to avoid sorting
@@ -589,32 +608,30 @@ export function Resizable(props: ResizableProps): JSX.Element {
   // Collapse transition callbacks
   // ---------------------------------------------------------------------------
 
-  createEffect(
-    on(resolved, (sizes) => {
-      orderedPanels().forEach((panel, index) => {
-        const size = sizes[index] ?? 0
-        const collapsedSize = collapsedSizeFraction(panel)
-        const collapsed = isPanelCollapsed(size, {
-          collapsible: panel.collapsible(),
-          collapsedSize,
-        })
-        const id = panel.id()
-        const previous = previousCollapsed.get(id)
-
-        if (previous !== undefined && previous !== collapsed) {
-          if (collapsed) {
-            panel.onCollapse()
-          } else {
-            panel.onExpand()
-          }
-        }
-        if (!collapsed && size > collapsedSize + EPSILON) {
-          lastExpandedSizes.set(id, size)
-        }
-        previousCollapsed.set(id, collapsed)
+  createEffect(resolved, (sizes) => {
+    orderedPanels().forEach((panel, index) => {
+      const size = sizes[index] ?? 0
+      const collapsedSize = collapsedSizeFraction(panel)
+      const collapsed = isPanelCollapsed(size, {
+        collapsible: panel.collapsible(),
+        collapsedSize,
       })
-    }),
-  )
+      const id = panel.id()
+      const previous = previousCollapsed.get(id)
+
+      if (previous !== undefined && previous !== collapsed) {
+        if (collapsed) {
+          panel.onCollapse()
+        } else {
+          panel.onExpand()
+        }
+      }
+      if (!collapsed && size > collapsedSize + EPSILON) {
+        lastExpandedSizes.set(id, size)
+      }
+      previousCollapsed.set(id, collapsed)
+    })
+  })
 
   // ---------------------------------------------------------------------------
   // Registration + context

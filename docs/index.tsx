@@ -2,7 +2,7 @@ import '@subf/unocss/reset-tailwind-v4.css'
 import 'uno.css'
 import './code.css'
 
-import { createClientEntry } from 'solid-file-router'
-import { FileRouter } from 'virtual:routes'
+import { hydrate } from '@solidjs/web'
 
-createClientEntry(() => <FileRouter />, document.getElementById('app')!)
+import { Router } from './routes/router'
+hydrate(() => <Router>{(props) => <>{props.children}</>}</Router>, document.getElementById('app')!)

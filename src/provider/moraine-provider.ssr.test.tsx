@@ -1,6 +1,6 @@
 import { waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import { hydrate } from '@solidjs/web'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { expect, test, vi } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../test-util/ssr-test'
@@ -15,7 +15,6 @@ import {
   ThemeHydrationFixture,
   fixtureTheme,
 } from './moraine-provider.ssr.fixture'
-
 test('hydrates Theme presentation once and preserves native nodes across replacement', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
@@ -124,7 +123,7 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
     input.focus()
     input.value = 'Local edit'
     input.setSelectionRange(1, 4)
-    setConfig(undefined)
+    flush(() => setConfig(undefined))
     expect(button.className).toContain('p-4')
     expect(button.className).not.toContain('p-2')
     expect(container.querySelector('input')).toBe(input)

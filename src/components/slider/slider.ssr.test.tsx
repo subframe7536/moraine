@@ -3,7 +3,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Slider } from './slider'
-
 function getThumbs(root: Element): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }

@@ -1,15 +1,15 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { useRegisteredContentId } from '../shared/overlay/content-anatomy'
 
 import { useDialogContent, useDialogContext } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
-
 /**
  * Visible heading that names a `Dialog`. Place it inside `Dialog.Content`, usually within
  * `Dialog.Header`; its id is connected to the dialog's accessible name. Without a visible title,
@@ -33,7 +33,8 @@ import type { DialogT } from './dialog.types'
 export function DialogTitle<T extends ValidComponent = 'h2'>(
   props: DialogT.TitleProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
+  const local = pick(props, 'as', 'class', 'style', 'id')
+  const rest = omit(props, 'as', 'class', 'style', 'id')
   const dialog = useDialogContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
@@ -48,7 +49,7 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
       component={local.as ?? 'h2'}
       data-slot="dialog-title"
       {...titleSlot}
-      {...rest}
+      {...(rest as any)}
       id={id()}
     />
   )

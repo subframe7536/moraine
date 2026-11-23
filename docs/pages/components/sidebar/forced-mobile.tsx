@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Icon, Sidebar } from '@src'
 import { For, Show } from 'solid-js'
-
 export function ForcedMobile() {
   const mobileNav = [
     { label: 'Overview', icon: 'i-lucide:home', active: true },

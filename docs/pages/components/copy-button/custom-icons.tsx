@@ -1,5 +1,4 @@
 import { CopyButton, Input } from '@src'
-
 export function CustomIcons() {
   const token = 'ghp_exampleTokenValue1234567890'
 

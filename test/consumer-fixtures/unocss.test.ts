@@ -14,7 +14,6 @@ import {
   verifyConsumerPackageExports,
 } from './helpers'
 import type { IsolatedConsumer } from './helpers'
-
 describe('isolated built-dist UnoCSS consumer', () => {
   let consumer: IsolatedConsumer
 

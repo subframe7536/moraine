@@ -1,12 +1,11 @@
+import { renderToString } from '@solidjs/web'
 import type { SortingState } from '@tanstack/table-core'
-import { renderToString } from 'solid-js/web'
 
 import { measuredRows, scrollViewport } from '../test-util/virtualizer-layout'
 import { createTableVirtualizer } from '../virtualizer'
 
 import { createDataTable } from './create-data-table'
 import type { DataTableT } from './data-table.types'
-
 interface FileNode {
   id: string
   name: string

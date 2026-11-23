@@ -1,13 +1,12 @@
 import { fireEvent } from '@solidjs/testing-library'
+import { Dynamic } from '@solidjs/web'
 import { createSignal } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Tabs } from './tabs'
 import { createTabItems } from './tabs.ssr.fixture'
-
 describe('Tabs SSR Hydration', () => {
   test('hydrates the first panel and shows an inactive panel after keyboard selection', () => {
     const { container } = hydrateFixture(

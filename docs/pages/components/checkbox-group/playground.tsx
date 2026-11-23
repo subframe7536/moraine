@@ -2,7 +2,6 @@ import { CheckboxGroup } from '@src'
 import type { CheckboxGroupT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 const NOTIFICATION_OPTIONS = [
   { label: 'Email alerts', value: 'email', description: 'Weekly digests and critical updates' },
   {

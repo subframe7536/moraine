@@ -1,7 +1,6 @@
 import { Tabs } from '@src'
 import type { TabsT } from '@src'
 import { createSignal } from 'solid-js'
-
 const TAB_ITEMS: TabsT.Item[] = [
   {
     value: 'account',

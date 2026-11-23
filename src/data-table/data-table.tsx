@@ -1,5 +1,6 @@
+import type { JSX } from '@solidjs/web'
+import { Dynamic } from '@solidjs/web'
 import type { Column, RowData } from '@tanstack/table-core'
-import type { JSX } from 'solid-js'
 import {
   DEV,
   For,
@@ -8,17 +9,15 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
-  on,
-  onMount,
-  splitProps,
+  onSettled,
+  omit,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../components/icon'
 import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
 import { renderWithProps } from '../shared/render-with-props'
-import { callRef } from '../shared/utils'
+import { callRef, pick } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 import type {
   TableVirtualColumnLayout,
@@ -42,7 +41,6 @@ import {
   dataTableRecipe,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
-
 const VIRTUAL_CONFLICT_WARNINGS = {
   pagination:
     '[moraine] DataTable received both virtualizer and pagination. Pagination is disabled when virtualizer is set.',
@@ -95,7 +93,8 @@ type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
 export function DataTable<TData extends RowData = RowData>(
   props: DataTableT.Props<TData>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'table',
     'translations',
     'containerRef',
@@ -118,7 +117,32 @@ export function DataTable<TData extends RowData = RowData>(
     'styles',
     'class',
     'style',
-  ])
+  )
+  const rest = omit(
+    props,
+    'table',
+    'translations',
+    'containerRef',
+    'ref',
+    'rowProps',
+    'headProps',
+    'loading',
+    'loadingRender',
+    'emptyRender',
+    'sticky',
+    'maxHeight',
+    'expandedRowRender',
+    'onRowClick',
+    'onRowDoubleClick',
+    'virtualizer',
+    'size',
+    'highlightOnHover',
+    'border',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  )
 
   const {
     slots,
@@ -137,7 +161,9 @@ export function DataTable<TData extends RowData = RowData>(
   // The virtualizer has a column window only when created with the `columns` option. It is read
   // after mount: the server renders every column, so hydration must start from the same markup.
   const [mounted, setMounted] = createSignal(false)
-  onMount(() => setMounted(true))
+  onSettled(() => {
+    setMounted(true)
+  })
   const columnWindow = (): TableVirtualColumnWindow | undefined =>
     mounted() ? local.virtualizer?.columnWindow() : undefined
   const columnVirtual = createMemo(() => columnWindow() !== undefined)
@@ -186,29 +212,27 @@ export function DataTable<TData extends RowData = RowData>(
   if (DEV) {
     const warned = new Set<VirtualConflict>()
     createEffect(
-      on(
-        (): VirtualConflict[] => {
-          if (!virtual()) {
-            return []
+      (): VirtualConflict[] => {
+        if (!virtual()) {
+          return []
+        }
+        const conflicts: VirtualConflict[] = []
+        if (pagination()?.paginated) {
+          conflicts.push('pagination')
+        }
+        if (local.expandedRowRender) {
+          conflicts.push('expandedRowRender')
+        }
+        return conflicts
+      },
+      (conflicts) => {
+        for (const conflict of conflicts) {
+          if (!warned.has(conflict)) {
+            warned.add(conflict)
+            console.warn(VIRTUAL_CONFLICT_WARNINGS[conflict])
           }
-          const conflicts: VirtualConflict[] = []
-          if (pagination()?.paginated) {
-            conflicts.push('pagination')
-          }
-          if (local.expandedRowRender) {
-            conflicts.push('expandedRowRender')
-          }
-          return conflicts
-        },
-        (conflicts) => {
-          for (const conflict of conflicts) {
-            if (!warned.has(conflict)) {
-              warned.add(conflict)
-              console.warn(VIRTUAL_CONFLICT_WARNINGS[conflict])
-            }
-          }
-        },
-      ),
+        }
+      },
     )
   }
 
@@ -307,7 +331,7 @@ export function DataTable<TData extends RowData = RowData>(
         >
           <table
             data-slot="data-table"
-            aria-busy={local.loading || undefined}
+            aria-busy={local.loading ? 'true' : undefined}
             // Every visible column, including the pinned ones the virtualizer does not count.
             aria-colcount={columnVirtual() ? leafColumns().length : undefined}
             {...rootSlot}
@@ -331,7 +355,7 @@ export function DataTable<TData extends RowData = RowData>(
                 when={rows().length > 0}
                 fallback={
                   <tr data-slot="data-table-row" {...emptyRowSlot}>
-                    <td data-slot="data-table-empty" colSpan={colSpan()} {...emptySlot}>
+                    <td data-slot="data-table-empty" colspan={colSpan()} {...emptySlot}>
                       <RenderEmpty />
                     </td>
                   </tr>

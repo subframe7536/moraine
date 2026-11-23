@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Switch } from './switch'
-
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
@@ -37,7 +36,7 @@ describe('Switch SSR Hydration', () => {
     expectSwitchChecked(serverTrack, true)
     expect(container.querySelector('[data-testid="checked-icon"]')).not.toBeNull()
 
-    setChecked(false)
+    flush(() => setChecked(false))
     expectSwitchChecked(serverTrack, false)
     expect(container.querySelector('[data-testid="checked-icon"]')).toBeNull()
   })

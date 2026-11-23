@@ -1,6 +1,5 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface ProgressStyleSlot<T = unknown> {
   /** Progress container that owns the label, value, track, and indicator. */
   root?: T

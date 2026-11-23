@@ -1,5 +1,6 @@
-import type { Component, JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
@@ -17,7 +18,6 @@ import { Icon } from '../../../icon/index'
 import { sameValue } from './collection'
 import { selectItemDataAttributes } from './select-field.recipe'
 import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
-
 export interface SelectEmptyRenderProps<T extends SelectItem = SelectItem> {
   /** Currently selected value, or `null` when nothing is selected. */
   selectedValue: T['value'] | null
@@ -44,19 +44,23 @@ function DefaultSelectContentBody<T extends SelectItem>(
     () => new Map(props.view.items.map((item, index) => [item.value, index + 1])),
   )
   createEffect(
-    on(
-      [state.highlightedValue, state.open, listbox, () => props.view.rows, () => props.virtualizer],
-      ([key, open, listbox, rows, virtualizer]) => {
-        // Rows outside the virtual window have no element to scroll into view.
-        if (key === undefined || !open || !listbox || !virtualizer) {
-          return
-        }
-        const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
-        if (index >= 0) {
-          virtualizer.scrollToIndex(index)
-        }
-      },
-    ),
+    () => [
+      state.highlightedValue(),
+      state.open(),
+      listbox(),
+      (() => props.view.rows)(),
+      (() => props.virtualizer)(),
+    ],
+    ([key, open, listbox, rows, virtualizer]) => {
+      // Rows outside the virtual window have no element to scroll into view.
+      if (key === undefined || !open || !listbox || !virtualizer) {
+        return
+      }
+      const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
+      if (index >= 0) {
+        virtualizer.scrollToIndex(index)
+      }
+    },
   )
   let atBottom = false
   // The item bindings come from the owning select; per-item `data-*` state is added here.

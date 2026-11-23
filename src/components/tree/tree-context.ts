@@ -7,7 +7,6 @@ import type { ListT } from '../list/list.types'
 import type { TreeState } from './tree-state'
 import type { TreeStyleSlot } from './tree.style-types'
 import type { TreeT } from './tree.types'
-
 export interface TreeContext {
   readonly state: TreeState<any>
   readonly options: TreeT.Options<any>

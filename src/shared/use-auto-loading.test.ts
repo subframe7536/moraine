@@ -2,7 +2,6 @@ import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useAutoLoadingClick } from './use-auto-loading'
-
 function deferred(): {
   promise: Promise<void>
   reject: (reason?: unknown) => void

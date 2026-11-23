@@ -1,10 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Progress } from './progress'
-
 describe('Progress SSR Hydration', () => {
   test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
     const [value, setValue] = createSignal<number | undefined>(50)
@@ -25,14 +24,14 @@ describe('Progress SSR Hydration', () => {
     expect(root.getAttribute('data-progress')).toBe('loading')
     expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('0.5')
 
-    setValue(undefined)
+    flush(() => setValue(undefined))
     expect(root.hasAttribute('data-indeterminate')).toBe(true)
     expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('')
     expect(container.querySelector('[data-slot="progress-label"]')?.textContent).toBe('Upload')
     expect(container.querySelector('[data-slot="progress-value"]')).toBeNull()
     expect(container.querySelectorAll('[data-indeterminate]').length).toBeGreaterThan(1)
 
-    setValue(100)
+    flush(() => setValue(100))
     expect(root.getAttribute('data-progress')).toBe('complete')
     expect(container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('100%')
     for (const part of container.querySelectorAll('[data-slot]')) {

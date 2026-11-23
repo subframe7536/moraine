@@ -1,6 +1,5 @@
 import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface InputStyleSlot<T = unknown> {
   /** Native text input element. */
   root?: T

@@ -1,5 +1,4 @@
 import type { Accessor, FlowComponent } from 'solid-js'
-
 /** Item identifier inside one sortable. */
 export type SortableId = string | number
 
@@ -49,6 +48,7 @@ export interface SortableItemInput {
 
 /** Drag state attributes for an item element. */
 export interface SortableItemAttributes {
+  readonly [key: `data-${string}`]: string | number | boolean | undefined
   /** Present while the item is the drag source. */
   readonly 'data-dragging': '' | undefined
   /** Where the dragged item would land relative to this item. */

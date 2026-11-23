@@ -1,11 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
 import { Badge } from './badge'
-
 describe('Badge', () => {
   test('renders default badge semantics and label', () => {
     const screen = render(() => (
@@ -29,7 +28,7 @@ describe('Badge', () => {
   test('renders a native button with forwarded attributes and events', () => {
     const onClick = vi.fn()
     const screen = render(() => (
-      <Badge as="button" type="button" disabled aria-pressed onClick={onClick}>
+      <Badge as="button" type="button" disabled aria-pressed="true" onClick={onClick}>
         Select
       </Badge>
     ))
@@ -52,12 +51,12 @@ describe('Badge', () => {
 
     expect(badge.className).toContain('custom-badge')
     expect(badge.className).not.toContain('active-state')
-    setActive(true)
+    flush(() => setActive(true))
     expect(badge.className).toContain('active-state')
   })
 
   test('supports hiding decorative badges from the accessibility tree', () => {
-    const screen = render(() => <Badge aria-hidden>2</Badge>)
+    const screen = render(() => <Badge aria-hidden="true">2</Badge>)
     const badge = screen.container.querySelector('[data-slot="badge"]')
 
     expect(badge?.getAttribute('aria-hidden')).toBe('true')

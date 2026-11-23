@@ -1,9 +1,8 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { Match, Switch } from 'solid-js'
 
 import { Input, NumberInput, Select, Switch as SwitchComp } from '../../../../../src'
 import type { InputT } from '../../../../../src'
-
 export type DocsPlaygroundControlValue = string | number | boolean
 
 /** A text input writes strings; a number input (`inputType: 'number'`) writes numbers. */

@@ -1,6 +1,5 @@
 import { MultiSelect } from '@src'
 import { createSignal } from 'solid-js'
-
 export function FreeFormTags() {
   const [tags, setTags] = createSignal<string[]>(['web', 'ui', 'components'])
 

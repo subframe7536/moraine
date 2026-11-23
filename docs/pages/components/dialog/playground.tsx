@@ -1,7 +1,6 @@
 import { Button, Dialog } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function DialogPlayground() {
   return (
     <DocsPlayground

@@ -3,7 +3,6 @@ import type { Cn } from '../theme/cn'
 import type { MoraineTheme } from '../theme/types'
 
 import type { MoraineMessagesInput } from './locale/messages.types'
-
 export interface MoraineContext {
   /** Effective Theme after inheritance; `null` means built-in recipes only. */
   readonly theme: MoraineTheme | null

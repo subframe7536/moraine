@@ -8,7 +8,6 @@ import type { DocsPageSource } from '../routes.ts'
 
 import type { ComponentApi, GenerationResult } from './types.ts'
 import { validateAllComponentApis } from './validate.ts'
-
 export const COMPONENT_API_SCHEMA_URL = 'https://moraine.subf.dev/component-api.schema.json'
 
 function sortComponentApi(component: ComponentApi): ComponentApi {

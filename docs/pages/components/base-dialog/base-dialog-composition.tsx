@@ -1,5 +1,4 @@
 import { Button, BaseDialog } from '@src'
-
 export function BaseDialogComposition() {
   return (
     <BaseDialog>

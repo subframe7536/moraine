@@ -1,6 +1,5 @@
 import { containsComposed, getComposedElementAncestors, getComposedElementChildren } from './dom'
 import { containsOverlayContentAbove } from './overlay-stack'
-
 interface AriaHiddenState {
   count: number
   previousValue: string | null

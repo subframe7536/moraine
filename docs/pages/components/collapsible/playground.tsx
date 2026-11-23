@@ -1,7 +1,6 @@
 import { Button, Card, Collapsible, Icon } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
-
 export default function CollapsiblePlayground() {
   return (
     <DocsPlayground

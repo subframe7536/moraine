@@ -1,5 +1,4 @@
 import { Switch } from '@src'
-
 export function LoadingIcons() {
   return (
     <div class="max-w-sm space-y-3">

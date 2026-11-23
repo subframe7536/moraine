@@ -1,5 +1,4 @@
 import type { ComponentSize } from '../../../../theme/style-types'
-
 export interface OverlayMenuStyleSlot<T = unknown> {
   /** Element that opens the menu. */
   trigger?: T

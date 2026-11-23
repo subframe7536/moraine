@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface AlertStyleSlot<T = unknown> {
   /** Outer container for the alert banner or message box. */
   root?: T

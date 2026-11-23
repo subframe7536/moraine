@@ -1,7 +1,6 @@
 import { Avatar, Badge, Button, DropdownMenu, Icon, Sidebar } from '@src'
 import type { DropdownMenuT } from '@src'
 import { For, createSignal } from 'solid-js'
-
 export function HeaderFooterSlots() {
   const [currentTeam, setCurrentTeam] = createSignal('Acme Corp')
   const [currentProject, setCurrentProject] = createSignal('Core Engine v2')

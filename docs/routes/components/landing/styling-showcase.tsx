@@ -32,7 +32,6 @@ import {
   createTree,
 } from '../../../../src'
 import { createMediaQuery } from '../../../../src/utils'
-
 interface ThemePreset {
   id: string
   name: string

@@ -1,5 +1,4 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-
 export interface CommandPaletteStyleSlot<T = unknown> {
   /**
    * Command palette container that owns search and option list.

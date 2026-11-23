@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createCompositionState } from './composition'
-
 afterEach(() => {
   vi.useRealTimers()
 })

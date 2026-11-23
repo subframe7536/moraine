@@ -1,7 +1,6 @@
 import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createListVirtualizer } from '@src/virtualizer'
-
 const GROUPS: CommandPaletteT.Group[] = ['Files', 'Symbols'].map((label) => ({
   type: 'group',
   label,

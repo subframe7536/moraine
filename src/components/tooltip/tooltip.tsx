@@ -1,6 +1,6 @@
 import type { Coords } from '@floating-ui/dom'
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, mergeProps, on, onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createEffect, createSignal, merge, onCleanup } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { createEventListener } from '../../shared/event-listener'
@@ -12,7 +12,6 @@ import type { useTooltipContext } from './tooltip-context'
 import { TooltipProvider } from './tooltip-context'
 import { TooltipTrigger } from './tooltip-trigger'
 import type { TooltipProps } from './tooltip.types'
-
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
   open?: ReturnType<typeof setTimeout>
@@ -120,7 +119,7 @@ function shouldOpenImmediately(ownerDocument: Document | undefined): boolean {
  * ```
  */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const merged = mergeProps(
+  const merged = merge(
     {
       openDelay: 600,
       closeDelay: 200,
@@ -286,39 +285,36 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   createEffect(
-    on(
-      () => Boolean(merged.disabled),
-      (disabled) => {
-        if (disabledInitialized && disabled && !wasDisabled) {
-          invalidateTimers()
-          setShouldUseInstantMotion(false)
+    () => Boolean(merged.disabled),
+    (disabled) => {
+      if (disabledInitialized && disabled && !wasDisabled) {
+        invalidateTimers()
+        setShouldUseInstantMotion(false)
 
-          if (open()) {
-            requestOpen(false)
-          }
+        if (open()) {
+          requestOpen(false)
         }
-
-        wasDisabled = disabled
-        disabledInitialized = true
-      },
-    ),
-  )
-
-  createEffect(
-    on(ownerDocument, (currentDocument) => {
-      const ownerWindow = currentDocument?.defaultView
-      if (!ownerWindow) {
-        return
       }
-      createEventListener(ownerWindow, 'blur', () => {
-        ignoreNextFocusAfterWindowBlur = true
-        clearOpenTimer()
-      })
-    }),
+
+      wasDisabled = disabled
+      disabledInitialized = true
+    },
   )
 
+  createEffect(ownerDocument, (currentDocument) => {
+    const ownerWindow = currentDocument?.defaultView
+    if (!ownerWindow) {
+      return
+    }
+    createEventListener(ownerWindow, 'blur', () => {
+      ignoreNextFocusAfterWindowBlur = true
+      clearOpenTimer()
+    })
+  })
+
   createEffect(
-    on([() => open() && !merged.disabled, ownerDocument], ([isResolvedOpen, currentDocument]) => {
+    () => [(() => open() && !merged.disabled)(), ownerDocument()],
+    ([isResolvedOpen, currentDocument]) => {
       const id = tooltipId()
       if (activeDocument && (activeDocument !== currentDocument || !isResolvedOpen)) {
         clearActiveTooltip(activeDocument, id)
@@ -352,7 +348,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           activeDocument = currentDocument
         }
       }
-    }),
+    },
   )
 
   const behavior: ReturnType<typeof useTooltipContext> = {

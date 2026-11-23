@@ -8,7 +8,6 @@ import { describe, expect, test } from 'vitest'
 import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { loadApiDocIndex } from './load.ts'
-
 async function writeIndex(projectRoot: string, key: string): Promise<void> {
   await writeFile(
     path.join(projectRoot, 'docs/pages/_api-index.json'),

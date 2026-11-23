@@ -1,7 +1,7 @@
-import type { JSX } from 'solid-js'
-import { createSignal, onCleanup, splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { createSignal, onCleanup, omit } from 'solid-js'
 
-import { callHandler, callRef, createId } from '../../shared/utils'
+import { callHandler, callRef, createId, pick } from '../../shared/utils'
 import { useRecipe } from '../../theme/use-recipe'
 
 import { clamp, fixToPrecision } from './hook'
@@ -13,7 +13,6 @@ import {
 import type { ResizableItem, ResizablePanelRegistration } from './resizable-context'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableT } from './resizable.types'
-
 /**
  * Imperative panel API. Only valid inside `Resizable.Panel` content; throws
  * when called outside a panel.
@@ -45,7 +44,8 @@ export function useResizablePanel(): ResizableT.PanelContext {
  */
 export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
   const ctx = useResizableContext()
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'id',
     'min',
     'max',
@@ -60,7 +60,24 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
     'ref',
     'onTransitionEnd',
     'onTransitionCancel',
-  ])
+  )
+  const rest = omit(
+    props,
+    'id',
+    'min',
+    'max',
+    'resizable',
+    'collapsible',
+    'collapsedSize',
+    'onCollapse',
+    'onExpand',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onTransitionEnd',
+    'onTransitionCancel',
+  )
 
   const [element, setElement] = createSignal<HTMLElement>()
   const panelId = createId(() => local.id, 'resizable-panel')

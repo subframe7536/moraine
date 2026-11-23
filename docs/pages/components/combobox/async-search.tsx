@@ -1,7 +1,6 @@
 import { Combobox } from '@src'
 import type { ComboboxT } from '@src'
 import { createSignal } from 'solid-js'
-
 interface RepoItem extends ComboboxT.Item {
   label: string
 }

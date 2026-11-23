@@ -1,14 +1,14 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
+import { pick } from '../../shared/utils'
 import { BaseDialog } from '../base-dialog/base-dialog'
 
 import { useDialogContext } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
-
 /**
  * Element that opens the surrounding `Dialog`. Renders a `button`; pass `as` to render another
  * component such as `Button`.
@@ -26,7 +26,8 @@ import type { DialogT } from './dialog.types'
 export function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style'])
+  const local = pick(props, 'class', 'style')
+  const rest = omit(props, 'class', 'style')
   const dialog = useDialogContext()
   const {
     slots: { trigger: triggerSlot },
@@ -34,5 +35,5 @@ export function DialogTrigger<T extends ValidComponent = 'button'>(
     slot: 'trigger',
     context: () => dialog.slotOverrides,
   })
-  return <BaseDialog.Trigger data-slot="dialog-trigger" {...triggerSlot} {...rest} />
+  return <BaseDialog.Trigger data-slot="dialog-trigger" {...triggerSlot} {...(rest as any)} />
 }

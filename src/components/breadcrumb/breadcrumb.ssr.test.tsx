@@ -5,7 +5,6 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Breadcrumb } from './breadcrumb'
 import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture'
-
 describe('Breadcrumb SSR Hydration', () => {
   test('hydrates the default page branch without replacing the trail', () => {
     const { container } = hydrateFixture(

@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -14,7 +15,6 @@ import type {
 
 import type { defaultToastMessages } from './toast.messages'
 import type { ToastStyleSlot, ToastStyleVariants } from './toast.style-types'
-
 export const DEFAULT_TOAST_DURATION = 4000
 export const DEFAULT_TOAST_GAP = 14
 

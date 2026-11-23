@@ -1,5 +1,4 @@
 import { CopyButton as MoraineCopyButton } from '../../../../../src'
-
 export function extractCodeText(element?: HTMLElement): string {
   if (!element) {
     return ''

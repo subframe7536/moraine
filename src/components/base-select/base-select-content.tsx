@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
-import { createEffect, createSignal, on, onCleanup, Show, splitProps } from 'solid-js'
-import { Portal, isServer } from 'solid-js/web'
+import type { JSX } from '@solidjs/web'
+import { Portal, isServer } from '@solidjs/web'
+import { createEffect, createSignal, onCleanup, Show, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import { callRef } from '../../shared/utils'
+import { callRef, pick } from '../../shared/utils'
 import { useFloatingPosition } from '../shared/overlay/floating'
 import { useOverlayInteraction } from '../shared/overlay/interaction'
 import { resolveFloatingPlacement } from '../shared/overlay/placement'
@@ -18,7 +18,6 @@ import {
   baseSelectRecipe,
 } from './base-select.recipe'
 import type { BaseSelectT } from './base-select.types'
-
 /**
  * Floating popup panel of `BaseSelect`. It mounts in a portal only while the select is open, is
  * positioned against `BaseSelect.Control` (or the focus owner when there is none), and dismisses
@@ -41,7 +40,8 @@ import type { BaseSelectT } from './base-select.types'
  */
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['ref', 'class', 'style'])
+  const local = pick(props, 'ref', 'class', 'style')
+  const rest = omit(props, 'ref', 'class', 'style')
   const {
     slots: { content: contentSlot },
   } = useRecipe(baseSelectRecipe, local, {
@@ -81,18 +81,16 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     shift: () => state.props.shift ?? 0,
     slide: () => state.props.slide ?? true,
   })
-  createEffect(
-    on(presence.present, (present) => {
-      if (!present) {
-        // The content unmounted with the Show branch; release its presence registration.
-        setContent(undefined)
-        return
-      }
-      if (state.props.preventScroll ?? true) {
-        onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
-      }
-    }),
-  )
+  createEffect(presence.present, (present) => {
+    if (!present) {
+      // The content unmounted with the Show branch; release its presence registration.
+      setContent(undefined)
+      return
+    }
+    if (state.props.preventScroll ?? true) {
+      onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
+    }
+  })
   useOverlayInteraction({
     containsTarget: (node) =>
       Boolean(

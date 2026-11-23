@@ -8,7 +8,6 @@ import packageMetadata from '../../package.json' with { type: 'json' }
 
 import { buildLlmsDocuments } from './llms.ts'
 import { DOCS_SITE } from './site-meta.ts'
-
 const projectRoot = path.resolve(__dirname, '../..')
 let documentPromise: ReturnType<typeof buildLlmsDocuments> | undefined
 function documents() {

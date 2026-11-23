@@ -1,4 +1,5 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import type { Component } from 'solid-js'
 
 import type {
   BaseProps,
@@ -106,7 +107,7 @@ export namespace NavigationMenuT {
      */
     active?: boolean
     /**
-     * Disables the link: it loses its `href`, gets `aria-disabled` and `tabIndex={-1}`, and clicks
+     * Disables the link: it loses its `href`, gets `aria-disabled` and `tabindex={-1}`, and clicks
      * are prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.
      * @default false
      */

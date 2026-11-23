@@ -1,6 +1,5 @@
 import { Button, List } from '@src'
 import { createSignal } from 'solid-js'
-
 const INBOX = [
   { id: '1', title: 'Deploy failed on main', from: 'CI' },
   { id: '2', title: 'Review requested on #482', from: 'Elena' },

@@ -11,7 +11,6 @@ import { Popover } from '../popover'
 import { ToggleButton } from '../toggle-button/toggle-button'
 
 import { ButtonGroup } from './button-group'
-
 describe('ButtonGroup', () => {
   test('renders related buttons with group semantics', () => {
     const screen = render(() => (

@@ -1,8 +1,7 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, flush } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { createLazyMemo } from './create-lazy-memo'
-
 describe('createLazyMemo', () => {
   it('defers evaluation and caches the memo result', () => {
     createRoot((dispose) => {
@@ -23,7 +22,7 @@ describe('createLazyMemo', () => {
 
   it('keeps the memo attached to the owner where it was declared', () => {
     createRoot((disposeOwner) => {
-      const [value, setValue] = createSignal(0)
+      const [value, setValue] = createSignal(0, { ownedWrite: true })
       const memo = createLazyMemo(value)
 
       createRoot((disposeReader) => {
@@ -31,7 +30,7 @@ describe('createLazyMemo', () => {
         disposeReader()
       })
 
-      setValue(1)
+      flush(() => setValue(1))
       expect(memo()).toBe(1)
 
       disposeOwner()
@@ -49,7 +48,7 @@ describe('createLazyMemo', () => {
       })
 
       expect(reader()).toBe('a')
-      setValue('a')
+      flush(() => setValue('a'))
       expect(reader()).toBe('a')
       expect(downstream).toBe(1)
 

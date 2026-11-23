@@ -1,8 +1,7 @@
-import { renderToString } from 'solid-js/web'
+import { renderToString } from '@solidjs/web'
 
 import { createDataTable } from './create-data-table'
 import type { DataTableT } from './data-table.types'
-
 interface RowItem {
   id: string
   title: string

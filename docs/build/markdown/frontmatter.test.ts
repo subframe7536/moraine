@@ -3,7 +3,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { parseFrontmatterData } from './frontmatter.ts'
-
 const VALID_FRONTMATTER = `
 title: Button
 description: Button page.

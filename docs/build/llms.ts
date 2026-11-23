@@ -38,7 +38,6 @@ import { resolvePreviewExportName } from './previews/module.ts'
 import { resolvePreviewComponentSource } from './previews/source.ts'
 import { scanDocsRoutes } from './routes.ts'
 import type { DocsRouteEntry } from './routes.ts'
-
 export interface LlmsTxtPluginOptions {
   projectRoot: string
   siteName: string

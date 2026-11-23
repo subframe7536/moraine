@@ -4,7 +4,6 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { BoldSlider } from './bold-slider'
-
 describe('BoldSlider SSR hydration', () => {
   test('hydrates the label and value copies and the indicator without replacing server nodes', () => {
     const { container } = hydrateFixture(

@@ -1,8 +1,8 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { callHandler } from '../../shared/utils'
+import { callHandler, pick } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/form/is-interactive-target'
@@ -33,7 +33,8 @@ import type { InputGroupProps } from './input-group.types'
  * ```
  */
 export function InputGroup(props: InputGroupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const local = pick(
+    props,
     'children',
     'size',
     'variant',
@@ -43,7 +44,19 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     'class',
     'style',
     'onPointerDown',
-  ])
+  )
+  const rest = omit(
+    props,
+    'children',
+    'size',
+    'variant',
+    'orientation',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onPointerDown',
+  )
   const field = useFieldContext()
   const {
     slots: { root: rootSlot, frame: frameSlot },

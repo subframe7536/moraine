@@ -3,7 +3,6 @@ import { For, Show } from 'solid-js'
 import { Badge } from '../../../../src'
 import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.recipe'
 import { getDocsPages } from '../../docs-route'
-
 export function HooksIndex() {
   const pages = () =>
     getDocsPages()
