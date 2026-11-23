@@ -5,8 +5,6 @@ import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
 
-const HERO_BUTTON_MOBILE_SIZE_CLASS = 'max-sm:text-sm max-sm:px-3.5 max-sm:h-11 max-sm:w-full'
-
 export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
 
@@ -39,22 +37,10 @@ export function LandingPage() {
         </p>
 
         <div class="mt-7 gap-2.5 grid grid-cols-2 max-w-sm w-full sm:(flex flex-wrap gap-3 max-w-none w-auto items-center justify-center)">
-          <Button
-            as="a"
-            size="xl"
-            href="/docs/getting-started"
-            trailing="icon-arrow-right"
-            class={HERO_BUTTON_MOBILE_SIZE_CLASS}
-          >
+          <Button as="a" size="xl" href="/docs/getting-started" trailing="icon-arrow-right">
             Start Building
           </Button>
-          <Button
-            as="a"
-            size="xl"
-            href="/components"
-            variant="outline"
-            class={HERO_BUTTON_MOBILE_SIZE_CLASS}
-          >
+          <Button as="a" size="xl" href="/components" variant="outline">
             Explore Components
           </Button>
         </div>
