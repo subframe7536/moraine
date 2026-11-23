@@ -519,7 +519,7 @@ export function StylingShowcase() {
               Deploy
             </Button>
             <Popover placement="top" align="end">
-              <Popover.Trigger as={Button} variant="outline" aria-label="More deploy options">
+              <Popover.Trigger as={Button} aria-label="More deploy options">
                 <Icon name="i-lucide:chevron-down" class="size-3.5" />
               </Popover.Trigger>
               <Popover.Content aria-label="Deploy options" class="p-3 w-52 space-y-2">
