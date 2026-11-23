@@ -14,6 +14,10 @@ export default subfLint({
         // createEffect(compute, apply) signature is always misreported. Re-enable once the plugin
         // understands Solid 2 signatures.
         'subf/solid-reactivity': 'off',
+        // Disabled: the rule enforces Solid 1 import locations — it rewrites store APIs
+        // (`createStore`, `reconcile`) to the `solid-js/store` subpath, which does not
+        // exist in Solid 2 where they are exported from the main `solid-js` entry.
+        'subf/solid-imports': 'off',
       },
     },
     {

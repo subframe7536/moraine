@@ -14,7 +14,7 @@ test('hydrates a real image src and group overflow', () => {
   const image = container.querySelector('img')!
   const badge = container.querySelector('[data-slot="avatar-badge"]')!
   expect(image.getAttribute('src')).toBe('/avatar.png')
-  image.dispatchEvent(new Event('load'))
+  flush(() => image.dispatchEvent(new Event('load')))
   expect(image.getAttribute('data-status')).toBe('loaded')
   expect(image.getAttribute('aria-hidden')).not.toBe('true')
   expect(badge.textContent).toBe('Online')

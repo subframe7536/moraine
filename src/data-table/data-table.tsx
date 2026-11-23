@@ -211,6 +211,9 @@ export function DataTable<TData extends RowData = RowData>(
 
   if (DEV) {
     const warned = new Set<VirtualConflict>()
+    // Transparent so this dev-only owner does not occupy a hydration id slot —
+    // `DEV` is falsy in the server build, so a counted owner here would misalign
+    // client and server hydration keys.
     createEffect(
       (): VirtualConflict[] => {
         if (!virtual()) {
@@ -233,6 +236,7 @@ export function DataTable<TData extends RowData = RowData>(
           }
         }
       },
+      { transparent: true },
     )
   }
 

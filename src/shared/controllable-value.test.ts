@@ -15,7 +15,9 @@ void invalidDefault
 describe('createControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, { ownedWrite: true })
+      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, {
+        ownedWrite: true,
+      })
       const [defaultValue, setDefaultValue] = createSignal('initial', { ownedWrite: true })
       const [value] = createControllableValue({
         value: controlledValue,

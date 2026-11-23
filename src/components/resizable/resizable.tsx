@@ -1,6 +1,14 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import { createEffect, createMemo, createSignal, onSettled, omit } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  getNextChildId,
+  getOwner,
+  onSettled,
+  omit,
+} from 'solid-js'
 
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyBinding } from '../../shared/keyboard'
@@ -59,12 +67,19 @@ function collapsedSizeFraction(panel: ResizablePanelRegistration): number {
   return panel.collapsedSize() / 100
 }
 
-function createServerSafeMemo<T>(fn: () => T): () => T {
+// Panels register progressively while the group renders, so a server memo
+// would cache an incomplete `items()` snapshot. The server keeps plain
+// accessors but reserves the same hydration id slot the client memo owns so
+// server and client owner trees stay aligned.
+function createResizableMemo<T>(fn: () => T): () => T {
   if (isServer) {
+    const owner = getOwner()
+    if (owner?.id !== undefined) {
+      getNextChildId(owner)
+    }
     return fn
   }
-  const memo = createMemo(fn)
-  return memo
+  return createMemo(fn)
 }
 
 /**
@@ -179,8 +194,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const rawOrderedPanels = (): ResizablePanelRegistration[] =>
     orderedItems().flatMap((item) => (item.kind === 'panel' ? [item.panel] : []))
 
-  const orderedItems = createServerSafeMemo(rawOrderedItems)
-  const orderedPanels = createServerSafeMemo(rawOrderedPanels)
+  const orderedItems = createResizableMemo(rawOrderedItems)
+  const orderedPanels = createResizableMemo(rawOrderedPanels)
 
   const sourceLayout = () => local.value ?? uncontrolledLayout()
 
@@ -239,7 +254,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   /** Resolved panel sizes as fractions (0..1), aligned with `orderedPanels()`. */
   const rawResolved = (): number[] => resolveLayoutFractions(orderedPanels(), sourceLayout())
-  const resolved = createServerSafeMemo(rawResolved)
+  const resolved = createResizableMemo(rawResolved)
 
   /** Panel constraints for the resize algorithms; `collapsedFloor` lowers every collapsible min to collapsedSize. */
   function panelSpecs(collapsedFloor = false): ResizableResolvedPanel[] {
@@ -417,6 +432,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
       panels: panelSpecs(true),
     })
     const next = resolveThresholdedSizes(candidate, drag.lastSizes, panelSpecs())
+    if (!hasSizeChange(drag.lastSizes, next)) {
+      return
+    }
     drag.lastSizes = next
 
     if (applyLayout(next)) {

@@ -384,20 +384,20 @@ describe('Resizable', () => {
 
     const [a, b] = panelsOf(screen.container)
 
-    api!.collapse()
+    flush(() => api!.collapse())
     expectPanelBasis(a, 10)
     expect(api!.collapsed()).toBe(true)
     expect(onValueChange).toHaveBeenLastCalledWith({ a: 10, b: 90 })
     expect(onValueCommit).toHaveBeenLastCalledWith({ a: 10, b: 90 })
     expect(a!.hasAttribute('data-transitioning')).toBe(true)
 
-    api!.expand()
+    flush(() => api!.expand())
     // expand() restores the last expanded size (50), recorded before the collapse
     expectPanelBasis(a, 50)
     expect(api!.collapsed()).toBe(false)
     expect(onValueCommit).toHaveBeenLastCalledWith({ a: 50, b: 50 })
 
-    api!.resize(45)
+    flush(() => api!.resize(45))
     expectPanelBasis(a, 45)
     expectPanelBasis(b, 55)
     expect(onValueChange).toHaveBeenLastCalledWith({ a: 45, b: 55 })

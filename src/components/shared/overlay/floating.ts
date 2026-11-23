@@ -377,7 +377,10 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
 
               if (cleanupAutoUpdate) {
                 void updatePosition()
-              } else if (floating.isConnected && (!('isConnected' in reference) || reference.isConnected)) {
+              } else if (
+                floating.isConnected &&
+                (!('isConnected' in reference) || reference.isConnected)
+              ) {
                 cleanupAutoUpdate = autoUpdate(
                   reference,
                   floating,

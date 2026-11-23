@@ -1,5 +1,12 @@
 import type { Accessor, Owner } from 'solid-js'
-import { createRenderEffect, createRoot, getOwner, onCleanup, runWithOwner, untrack } from 'solid-js'
+import {
+  createRenderEffect,
+  createRoot,
+  getOwner,
+  onCleanup,
+  runWithOwner,
+  untrack,
+} from 'solid-js'
 
 /**
  * Runs `bind` for each element the accessor yields, in the calling owner.

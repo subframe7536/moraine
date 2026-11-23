@@ -54,10 +54,9 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
   const [contentTrees, setContentTrees] = createSignal<JSX.Element[]>([], {
     ownedWrite: true,
   })
-  const [triggerOptions, setTriggerOptions] = createSignal<NavigationMenuT.TriggerProps | undefined>(
-    undefined,
-    { ownedWrite: true },
-  )
+  const [triggerOptions, setTriggerOptions] = createSignal<
+    NavigationMenuT.TriggerProps | undefined
+  >(undefined, { ownedWrite: true })
   const item: NavigationMenuItemContextValue = {
     value,
     disabled: () =>

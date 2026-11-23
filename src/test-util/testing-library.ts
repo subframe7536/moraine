@@ -5,11 +5,11 @@
  * `#tl` aliases the real package entry — importing `@solidjs/testing-library`
  * here would resolve back to this file.
  */
-export * from '#tl'
-
 import { flush } from 'solid-js'
 
 import { fireEvent as domFireEvent } from '#tl'
+
+export * from '#tl'
 
 export const fireEvent = new Proxy(domFireEvent, {
   apply(target, thisArg, args: unknown[]) {
@@ -28,4 +28,4 @@ export const fireEvent = new Proxy(domFireEvent, {
       return result
     }
   },
-}) as typeof domFireEvent
+})

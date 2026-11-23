@@ -61,9 +61,12 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     'ref',
   )
   // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
-  createRenderEffect(() => local.id, (id) => {
-    context.setPanelId(id)
-  })
+  createRenderEffect(
+    () => local.id,
+    (id) => {
+      context.setPanelId(id)
+    },
+  )
   onCleanup(() => context.setPanelId(undefined))
   const content = resolveChildren(() => local.children)
   const { slotWith } = useSidebarStyles('panel', local)
@@ -99,7 +102,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
           callRef(local.ref, node)
         }}
         aria-hidden={closed() ? true : undefined}
-        {...{ "prop:inert": closed() ? true : undefined }}
+        {...{ 'prop:inert': closed() ? true : undefined }}
         aria-label={local['aria-label']}
         {...(rest as object)}
         id={context.panelId()}

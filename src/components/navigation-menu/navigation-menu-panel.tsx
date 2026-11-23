@@ -145,7 +145,7 @@ export function NavigationMenuPanel(): JSX.Element {
         return (
           <div
             {...floating.contentProps}
-            {...{ "prop:inert": !context.open() ? true : undefined }}
+            {...{ 'prop:inert': !context.open() ? true : undefined }}
             aria-hidden={!context.open() ? 'true' : undefined}
             class={NAVIGATION_MENU_PANEL_CLASS}
             style={size()}

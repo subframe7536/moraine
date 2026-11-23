@@ -313,11 +313,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         setChecked(nextChecked)
       }
 
-      if (inputEl) {
-        inputEl.checked = nextChecked
-      }
-
       field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
+      // A form-level restore may round `checked()` back to its current value, in which case
+      // the `checked` property binding never re-applies; sync the DOM after the reset flush.
+      queueMicrotask(() => {
+        if (inputEl) {
+          inputEl.checked = checked()
+        }
+      })
     },
   )
 

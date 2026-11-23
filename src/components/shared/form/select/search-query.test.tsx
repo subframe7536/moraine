@@ -29,7 +29,9 @@ test('keeps uncontrolled query text and applies the current length limit', () =>
 
 test('follows a controlled value and reports changes without storing them locally', () => {
   createRoot((dispose) => {
-    const [controlled, setControlled] = createSignal<string | undefined>('first', { ownedWrite: true })
+    const [controlled, setControlled] = createSignal<string | undefined>('first', {
+      ownedWrite: true,
+    })
     const onValueChange = vi.fn()
     const search = useSearchQuery({
       get value() {

@@ -1,6 +1,5 @@
 import { Portal } from '@solidjs/web'
-import { For, Show, createMemo, untrack, useContext } from 'solid-js'
-import { createStore } from 'solid-js'
+import { For, Show, createMemo, untrack, useContext, createStore } from 'solid-js'
 
 import { Badge, Button, Icon, Switch, cn } from '../../../../../src'
 import { createId } from '../../../../../src/utils'

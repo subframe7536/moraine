@@ -1,13 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import {
-  For,
-  Show,
-  createMemo,
-  createEffect,
-  createSignal,
-  untrack,
-  omit,
-} from 'solid-js'
+import { For, Show, createMemo, createEffect, createSignal, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -157,7 +149,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }}
       aria-hidden={disclosure.ariaHidden()}
       hidden={disclosure.hidden() && !allowHeightMotion()}
-      {...{ "prop:inert": disclosure.inert() }}
+      {...{ 'prop:inert': disclosure.inert() }}
       data-slot="tree-content"
       {...contentSlot}
       onAnimationEnd={settle}

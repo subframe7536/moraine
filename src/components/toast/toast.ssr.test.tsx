@@ -1,3 +1,4 @@
+import { flush } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
@@ -26,7 +27,7 @@ describe('Toast SSR Hydration', () => {
     expect(region).not.toBeNull()
     expect(region?.getAttribute('aria-label')).toContain('Notifications')
 
-    Toast.show({ title: 'Hydrated toast message' })
+    flush(() => Toast.show({ title: 'Hydrated toast message' }))
     const item = document.querySelector('[data-slot="toast-item"]')
     expect(item).not.toBeNull()
     expect(item?.textContent).toContain('Hydrated toast message')

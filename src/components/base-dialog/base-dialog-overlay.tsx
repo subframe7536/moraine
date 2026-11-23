@@ -49,9 +49,12 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
   const [element, setElement] = createSignal<HTMLDivElement>()
   bindElement(element, context.presence.registerElement)
 
-  createEffect(() => Boolean(local.scrollable), (scrollable) => {
-    context.setOverlayScroll(scrollable)
-  })
+  createEffect(
+    () => Boolean(local.scrollable),
+    (scrollable) => {
+      context.setOverlayScroll(scrollable)
+    },
+  )
   onCleanup(() => context.setOverlayScroll(false))
 
   return (

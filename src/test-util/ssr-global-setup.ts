@@ -20,7 +20,7 @@ export async function renderFixtures(
     root: project.config.root,
     cacheDir: path.resolve(project.config.root, 'node_modules/.vite/ssr-fixtures'),
     logLevel: 'silent',
-    plugins: [solid({ dev: false, ssr: true })],
+    plugins: [solid({ ssr: true, dev: false })],
     server: { middlewareMode: true },
   })
   const runner = (

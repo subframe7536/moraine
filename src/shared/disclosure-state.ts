@@ -152,7 +152,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>(undefined, {
     ownedWrite: true,
   })
-  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(undefined,
+  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>(
+    undefined,
     {
       ownedWrite: true,
     },

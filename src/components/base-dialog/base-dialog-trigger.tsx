@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { Dynamic } from '@solidjs/web'
-import { onSettled, omit } from 'solid-js'
+import { flush, onSettled, omit } from 'solid-js'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -60,7 +60,10 @@ export function BaseDialogTrigger<T extends ValidComponent = 'button'>(
   const binding = root.bind(interactionProps)
 
   onSettled(() => {
-    queueMicrotask(() => validateOverlayTrigger(context.triggerElement(), 'BaseDialog'))
+    queueMicrotask(() => {
+      flush()
+      validateOverlayTrigger(root.element(), 'BaseDialog')
+    })
   })
 
   return (

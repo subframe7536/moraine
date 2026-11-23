@@ -72,7 +72,9 @@ describe('createId', () => {
 
   test('keeps fallback id stable when deterministic id is cleared after being set', () => {
     createRoot((dispose) => {
-      const [customId, setCustomId] = createSignal<string | undefined>(undefined, { ownedWrite: true })
+      const [customId, setCustomId] = createSignal<string | undefined>(undefined, {
+        ownedWrite: true,
+      })
       const id = createId(customId, 'field')
       const initialFallback = id()
       expect(initialFallback.startsWith('field-')).toBe(true)

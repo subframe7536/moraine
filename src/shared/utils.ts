@@ -102,14 +102,17 @@ export function pick<T extends object, K extends readonly (keyof T)[]>(
   ...keys: K
 ): Pick<T, K[number]> {
   const present = (key: keyof T): boolean => {
-    if (!keys.includes(key as K[number])) {
+    if (!keys.includes(key)) {
       return false
     }
     const descriptor = Reflect.getOwnPropertyDescriptor(props, key)
     if (descriptor === undefined) {
       return key in props
     }
-    return Boolean(descriptor.enumerable) && (descriptor.get !== undefined || descriptor.value !== undefined)
+    return (
+      Boolean(descriptor.enumerable) &&
+      (descriptor.get !== undefined || descriptor.value !== undefined)
+    )
   }
   return new Proxy({} as Pick<T, K[number]>, {
     get(_, key) {

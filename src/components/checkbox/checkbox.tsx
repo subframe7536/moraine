@@ -344,10 +344,14 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
         }
       }
 
-      if (inputEl) {
-        inputEl.checked = nextChecked === true
-        inputEl.indeterminate = nextChecked === 'indeterminate'
-      }
+      // A form-level restore may round `checked()` back to its current value, in which case
+      // the `checked` property binding never re-applies; sync the DOM after the reset flush.
+      queueMicrotask(() => {
+        if (inputEl) {
+          inputEl.checked = checked() === true
+          inputEl.indeterminate = checked() === 'indeterminate'
+        }
+      })
     },
   )
 

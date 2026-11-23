@@ -183,7 +183,7 @@ export function CodeBlock(props: CodeBlockProps) {
             'outline-none overscroll-x-contain h-full overflow-x-auto scrollbar-thumb-border scrollbar-track-transparent scrollbar-thin',
             isExpandable() && !isExpanded() && 'pointer-events-none',
           )}
-          {...{ "prop:inert": isExpandable() && !isExpanded() ? true : undefined }}
+          {...{ 'prop:inert': isExpandable() && !isExpanded() ? true : undefined }}
         >
           <Show
             when={props.html}

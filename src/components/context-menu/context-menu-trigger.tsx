@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { Dynamic } from '@solidjs/web'
-import { merge, onSettled, omit } from 'solid-js'
+import { flush, merge, onSettled, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -103,7 +103,10 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   )
   const binding = root.bind(triggerProps)
   onSettled(() =>
-    queueMicrotask(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu')),
+    queueMicrotask(() => {
+      flush()
+      validateOverlayTrigger(root.element(), 'ContextMenu')
+    }),
   )
   return <Dynamic component={tag()} type={undefined} {...(binding as any)} />
 }

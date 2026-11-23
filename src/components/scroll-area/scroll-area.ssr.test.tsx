@@ -29,6 +29,7 @@ describe('ScrollArea SSR hydration', () => {
     Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 100 })
     Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 300 })
     await Promise.resolve()
+    flush(() => {})
     expect(root.hasAttribute('data-overflow-y-end')).toBe(true)
     expect(scrollbars[0]!.hasAttribute('data-visible')).toBe(true)
 

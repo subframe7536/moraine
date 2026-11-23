@@ -1,15 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import { isServer } from '@solidjs/web'
-import {
-  For,
-  Match,
-  Show,
-  Switch,
-  createEffect,
-  createMemo,
-  createSignal,
-  merge,
-  } from 'solid-js'
+import { For, Match, Show, Switch, createEffect, createMemo, createSignal, merge } from 'solid-js'
 
 import { useCn } from '../../../../provider/cn-context'
 import { bindElement } from '../../../../shared/element-binding'

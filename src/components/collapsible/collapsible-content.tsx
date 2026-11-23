@@ -79,7 +79,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
         closed: disclosure.closed,
       })}
       hidden={disclosure.hidden()}
-      {...{ "prop:inert": disclosure.inert() }}
+      {...{ 'prop:inert': disclosure.inert() }}
       style={{
         animation: disclosure.initialOpen() ? 'none' : undefined,
         height: disclosure.initialOpen() ? 'auto' : undefined,

@@ -150,13 +150,13 @@ export function mergeSlotBindingData(
   return merged
 }
 
-/** Client: lazy memo under `owner`. Server: the plain computation, evaluated on every read. */
+/** Lazy memo under `owner`; identical owner tree on server so hydration child ids align. */
 function memo<T>(
   fn: () => T,
   owner: Owner | null,
   equals?: (prev: T, next: T) => boolean,
 ): Accessor<T> {
-  return isServer ? fn : createLazyMemo(fn, { owner, equals })
+  return createLazyMemo(fn, { owner, equals })
 }
 
 function sameStyle(prev: object | undefined, next: object | undefined): boolean {

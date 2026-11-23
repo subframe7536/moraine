@@ -174,7 +174,9 @@ describe('recipe', () => {
 
     test('derives classes from reactive getter variants in caller memos', () => {
       createRoot((dispose) => {
-        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid', { ownedWrite: true })
+        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid', {
+          ownedWrite: true,
+        })
         const slotClass = createMemo(
           () =>
             card({

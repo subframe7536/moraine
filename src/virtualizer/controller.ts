@@ -6,8 +6,15 @@ import {
 } from '@tanstack/virtual-core'
 import type { Range as VirtualRange, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
-import { createRenderEffect, createSignal, merge, onCleanup, onSettled } from 'solid-js'
-import { createStore, reconcile } from 'solid-js'
+import {
+  createRenderEffect,
+  createSignal,
+  merge,
+  onCleanup,
+  onSettled,
+  createStore,
+  reconcile,
+} from 'solid-js'
 
 export function scrollElementWithRtl<
   TScrollElement extends HTMLElement,

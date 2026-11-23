@@ -75,7 +75,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
                 ref={setContent}
                 data-slot="data-table-expanded-content"
                 hidden={props.disclosure.hidden()}
-                {...{ "prop:inert": props.disclosure.inert() }}
+                {...{ 'prop:inert': props.disclosure.inert() }}
                 aria-hidden={props.disclosure.ariaHidden()}
                 class={DATA_TABLE_EXPANDED_WRAPPER_CLASS}
                 style={{

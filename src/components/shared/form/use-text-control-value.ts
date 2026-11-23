@@ -65,14 +65,22 @@ export function useTextControlValue<
     defaultValue?: string | number
   }>(() => {
     const domValue = initialValue === null ? '' : initialValue
-    if (initialDefaultValue !== undefined) {
-      return {
-        value: domValue,
-        defaultValue: initialDefaultValue === null ? '' : initialDefaultValue,
+    if (options.value() !== undefined) {
+      if (initialDefaultValue !== undefined) {
+        return {
+          value: domValue,
+          defaultValue: initialDefaultValue === null ? '' : initialDefaultValue,
+        }
       }
+
+      return domValue !== undefined ? { value: domValue } : {}
     }
 
-    return domValue !== undefined ? { value: domValue } : {}
+    if (initialDefaultValue !== undefined) {
+      return { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
+    }
+
+    return domValue !== undefined ? { defaultValue: domValue } : {}
   })
 
   function applyValue(value: string): ModifierValue<TModifiers> {

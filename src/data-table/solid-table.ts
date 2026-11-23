@@ -37,18 +37,24 @@ function subscribeToSignal<T>(
     dispose?.()
   }
   subscriptions.add(unsubscribe)
-  createRoot((d) => {
-    dispose = d
-    createEffect(
-      signal,
-      (val) => {
-        if (!disposed) {
-          cb(val)
-        }
-      },
-      { defer: true },
-    )
-  })
+  // Transparent owners keep subscription bookkeeping out of the hydration id
+  // namespace — the server never subscribes, so a non-transparent root here
+  // would shift the client owner tree relative to the server markup.
+  createRoot(
+    (d) => {
+      dispose = d
+      createEffect(
+        signal,
+        (val) => {
+          if (!disposed) {
+            cb(val)
+          }
+        },
+        { defer: true, transparent: true },
+      )
+    },
+    { transparent: true },
+  )
   return { unsubscribe }
 }
 

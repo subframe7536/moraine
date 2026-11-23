@@ -77,7 +77,7 @@ function AccordionItemPanel(props: {
       aria-labelledby={props.triggerId}
       aria-hidden={props.disclosure.ariaHidden()}
       hidden={props.disclosure.hidden()}
-      {...{ "prop:inert": props.disclosure.inert() }}
+      {...{ 'prop:inert': props.disclosure.inert() }}
       data-slot="accordion-content"
       {...contentSlot}
     >

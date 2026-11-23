@@ -41,7 +41,7 @@ export default defineConfig({
     ],
     dedupe: ['solid-js'],
   },
-  plugins: [variantGroupPlugin(), solid({ solid: { hydratable: true } })],
+  plugins: [variantGroupPlugin(), solid({ dev: false, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-util/ssr-global-setup.ts'],
     exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
