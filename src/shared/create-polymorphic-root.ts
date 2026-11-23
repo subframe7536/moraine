@@ -19,6 +19,51 @@ const DELEGATED_EVENTS = [
   'pointercancel',
 ].filter((name) => DelegatedEvents.has(name))
 
+interface ClickBridge {
+  seq: number
+  handler: (event: MouseEvent) => void
+}
+
+// One document-level dispatcher per owner document invokes click bridges in
+// descending creation order: nested trigger components are created after their
+// ancestors, so the innermost trigger's handler runs first and can preventDefault
+// before an outer trigger toggles, regardless of reactive apply order.
+const clickBridgeRegistries = new WeakMap<
+  Document,
+  { bridges: ClickBridge[]; release: VoidFunction }
+>()
+let clickBridgeSeq = 0
+
+function attachClickBridge(document: Document, seq: number, handler: (event: MouseEvent) => void) {
+  let registry = clickBridgeRegistries.get(document)
+  if (!registry) {
+    const bridges: ClickBridge[] = []
+    registry = {
+      bridges,
+      release: attachEventListener(document, 'click', (event) => {
+        const ordered = [...bridges].sort((a, b) => b.seq - a.seq)
+        for (const bridge of ordered) {
+          bridge.handler(event)
+        }
+      }),
+    }
+    clickBridgeRegistries.set(document, registry)
+  }
+  const bridge: ClickBridge = { seq, handler }
+  registry.bridges.push(bridge)
+  const active = registry
+  return () => {
+    const index = active.bridges.indexOf(bridge)
+    if (index !== -1) {
+      active.bridges.splice(index, 1)
+    }
+    if (active.bridges.length === 0) {
+      active.release()
+      clickBridgeRegistries.delete(document)
+    }
+  }
+}
+
 /** Tracks a Dynamic root and bridges events from custom and foreign-document roots. */
 export function createPolymorphicRoot(options: {
   tag: Accessor<ValidComponent>
@@ -32,6 +77,7 @@ export function createPolymorphicRoot(options: {
   }
 }) {
   const [element, setElement] = createSignal<HTMLElement>()
+  const seq = ++clickBridgeSeq
   let boundProps: Record<string, unknown> | undefined
 
   if (options.registration) {
@@ -72,7 +118,7 @@ export function createPolymorphicRoot(options: {
       delegateEvents(DELEGATED_EVENTS)
       registerDelegatedContainer(bridgeDocument)
       releaseDocument = bridgeCustomClick
-        ? attachEventListener(bridgeDocument, 'click', bridgeClick)
+        ? attachClickBridge(bridgeDocument, seq, bridgeClick)
         : () => {}
     }
     registerDocument()

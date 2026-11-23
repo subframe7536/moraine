@@ -2,6 +2,7 @@ import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
 import { createMemo, createSignal, createUniqueId } from 'solid-js'
 
+import { settle } from '../../shared/utils'
 import { createActionRunner } from '../shared/overlay/feedback/action-runner'
 import type { FeedbackAction, FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
@@ -121,7 +122,7 @@ export function createAlertDialogRecord(
       return false
     }
     const notify = options().onClose
-    setOpen(false)
+    settle(() => setOpen(false))
     notify?.(reason)
     return true
   }
@@ -137,7 +138,7 @@ export function createAlertDialogRecord(
     if (!open()) {
       return
     }
-    setCurrent((call) => mergeDefined(call, next))
+    settle(() => setCurrent((call) => mergeDefined(call, next)))
   }
 
   const presentation: AlertDialogT.DialogRenderProps = {

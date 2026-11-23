@@ -349,7 +349,7 @@ describe('oxlint-plugin-moraine', () => {
       expect(ctx.reports).toHaveLength(2)
     })
 
-    it('allows createEffect wrapped with on(...)', () => {
+    it('reports the Solid 1 single-argument createEffect(on(...)) form', () => {
       const ctx = createMockContext('/project/src/components/accordion/accordion.tsx')
       const visitor = rule.create(ctx)
 
@@ -363,7 +363,7 @@ describe('oxlint-plugin-moraine', () => {
           },
         ],
       })
-      expect(ctx.reports).toHaveLength(0)
+      expect(ctx.reports).toHaveLength(1)
     })
 
     it('ignores test files', () => {

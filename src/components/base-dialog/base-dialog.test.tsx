@@ -451,10 +451,12 @@ describe('BaseDialog primitives', () => {
     ))
     const surface = document.querySelector<HTMLElement>('[data-slot="base-dialog-content"]')!
     surface.focus()
-    setDesign(
-      defineTheme({
-        baseDialog: { base: { content: 'second-surface', overlay: 'second-overlay' } },
-      }),
+    flush(() =>
+      setDesign(
+        defineTheme({
+          baseDialog: { base: { content: 'second-surface', overlay: 'second-overlay' } },
+        }),
+      ),
     )
     expect(document.querySelector('[data-slot="base-dialog-content"]')).toBe(surface)
     expect(document.activeElement).toBe(surface)
@@ -1318,10 +1320,13 @@ describe('BaseDialog primitives', () => {
     ))
     await Promise.resolve()
     await Promise.resolve()
+    await Promise.resolve()
     const outerContent = document.body
       .querySelector('[data-testid="outer-content"]')
       ?.closest('[data-slot="base-dialog-content"]') as HTMLElement
-    const outerPortal = outerContent.parentElement!
+    // Solid 2 portals mount content directly under `document.body`, so the
+    // outer portal surface is the content element itself.
+    const outerPortal = outerContent
 
     expect(background.getAttribute('aria-hidden')).toBe('true')
     expect(outerPortal.getAttribute('aria-hidden')).toBe('true')

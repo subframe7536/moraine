@@ -4,7 +4,7 @@ import { For, Show, createEffect, createMemo, createSignal, onCleanup, omit } fr
 import { useRecipe } from '../../provider'
 import { EMPTY_AXIS_METRICS, createScrollMetrics } from '../../shared/scroll-metrics'
 import type { AxisMetrics } from '../../shared/scroll-metrics'
-import { callHandler, callRef, pick } from '../../shared/utils'
+import { callHandler, callRef, pick, settle } from '../../shared/utils'
 
 import {
   SCROLL_AREA_SCROLLBAR_CLASS,
@@ -75,7 +75,7 @@ function createReleaseDelay(delay: () => number) {
     },
     release(): void {
       clearTimeout(timer)
-      timer = setTimeout(() => setActive(false), delay())
+      timer = setTimeout(() => settle(() => setActive(false)), delay())
     },
   }
 }

@@ -354,11 +354,13 @@ describe('MultiSelect', () => {
     expect(overflow().textContent).toBe('2:Banana/Banana/banana;Cherry/Cherry/cherry;')
     expect(screen.container.querySelector('[data-slot="multi-select-tag-overflow"]')).toBeNull()
 
-    setItems([
-      { label: 'Apple', value: 'apple' },
-      { label: 'Plantain', value: 'banana' },
-      { label: 'Cherry', value: 'cherry' },
-    ])
+    flush(() =>
+      setItems([
+        { label: 'Apple', value: 'apple' },
+        { label: 'Plantain', value: 'banana' },
+        { label: 'Cherry', value: 'cherry' },
+      ]),
+    )
     expect(overflow().textContent).toBe('2:Plantain/Plantain/banana;Cherry/Cherry/cherry;')
 
     flush(() => setMaxVisible(2))

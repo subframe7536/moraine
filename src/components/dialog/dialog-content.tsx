@@ -64,7 +64,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   props: DialogT.ContentProps<T>,
 ): JSX.Element {
   const local = pick(
-    props as DialogT.ContentProps<T> & { ref?: unknown },
+    props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -72,9 +72,10 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const rest = omit(
-    props as DialogT.ContentProps<T> & { ref?: unknown },
+    props as DialogT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -82,6 +83,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const dialog = useDialogContext()
   const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
@@ -162,7 +164,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
         component={tag()}
         data-slot="dialog-content"
         role="dialog"
-        dir={direction()}
+        dir={local.dir ?? direction()}
         id={family.contentId()}
         tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}

@@ -18,7 +18,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
 import { createTypeahead } from '../../shared/typeahead'
-import { createId, createSelector } from '../../shared/utils'
+import { createId, createSelector, settle } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
 import { useFormField } from '../field/field-context'
 import {
@@ -174,9 +174,12 @@ export function createSelectState<T extends BaseSelectT.Item>(
   let formInput: HTMLInputElement | undefined
 
   function setOpen(next: boolean) {
-    if (!next || !field.disabled()) {
-      setOpenValue(next)
-    }
+    // Open writes arrive from unowned delegated handlers; settle them.
+    settle(() => {
+      if (!next || !field.disabled()) {
+        setOpenValue(next)
+      }
+    })
   }
   function change(next: Value) {
     if (locked()) {
@@ -187,11 +190,13 @@ export function createSelectState<T extends BaseSelectT.Item>(
     if (selectionEqual(before, after)) {
       return
     }
-    resetNativeInvalid()
-    setSelection(after)
-    if (props.value === undefined) {
-      field.setFormValue(toFormValue(after, props.multiple === true))
-    }
+    settle(() => {
+      resetNativeInvalid()
+      setSelection(after)
+      if (props.value === undefined) {
+        field.setFormValue(toFormValue(after, props.multiple === true))
+      }
+    })
     props.onValueChange?.(after)
     field.emit('change')
     field.emit('input')

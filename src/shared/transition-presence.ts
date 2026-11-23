@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 import { settle } from './utils'
@@ -279,7 +279,7 @@ export function createTransitionPresence(
         return
       }
 
-      if (!present()) {
+      if (!untrack(present)) {
         return
       }
 

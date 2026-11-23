@@ -3,6 +3,7 @@ import { isServer } from '@solidjs/web'
 import type { Component } from 'solid-js'
 import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
 
+import { settle } from '../../shared/utils'
 import { inertFeedbackHandle } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
 import type { FeedbackHost } from '../shared/overlay/feedback/host-registry'
@@ -110,12 +111,13 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
         // A different method or render cannot be applied in place, so replace the dialog.
         existing?.handle.close()
       }
-      return runWithOwner(owner, () => {
-        const created = createAlertDialogRecord(mode, options, () => controller.defaults(), render)
-        created.remove = () => removeDialog(created)
-        setDialogs((current) => [...current, created])
-        return created.handle
-      })
+      const created = runWithOwner(owner, () =>
+        createAlertDialogRecord(mode, options, () => controller.defaults(), render),
+      )
+      created.remove = () => removeDialog(created)
+      // The caller's owner may already be disposed; write the host-owned list unowned.
+      runWithOwner(null, () => settle(() => setDialogs((current) => [...current, created])))
+      return created.handle
     },
     update(id, options) {
       const match = findOpen(id)

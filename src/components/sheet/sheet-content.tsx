@@ -48,7 +48,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   props: SheetT.ContentProps<T>,
 ): JSX.Element {
   const local = pick(
-    props as SheetT.ContentProps<T> & { ref?: unknown },
+    props as SheetT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -56,9 +56,10 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const rest = omit(
-    props as SheetT.ContentProps<T> & { ref?: unknown },
+    props as SheetT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -66,6 +67,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const sheet = useSheetContext()
   const messages = useMessages('sheet', defaultSheetMessages, () => sheet.translations)
@@ -139,7 +141,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
         component={tag()}
         data-slot="sheet-content"
         role="dialog"
-        dir={direction()}
+        dir={local.dir ?? direction()}
         id={family.contentId()}
         tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}

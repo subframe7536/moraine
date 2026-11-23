@@ -9,6 +9,7 @@ import {
   merge,
   onCleanup,
   omit,
+  untrack,
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -16,7 +17,7 @@ import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
-import { createId, toIdSegment, pick } from '../../shared/utils'
+import { createId, toIdSegment, pick, settle } from '../../shared/utils'
 import { Icon } from '../icon'
 import { resolveDirection } from '../shared/overlay/direction'
 
@@ -203,7 +204,9 @@ export function Tabs(props: TabsProps): JSX.Element {
   const selectedKey = createMemo(() => selectedItem()?.instanceKey)
   const triggerRefs = new Map<string, HTMLButtonElement>()
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
-  const [focusRecoveryRequested, setFocusRecoveryRequested] = createSignal(false)
+  // DOM removal resets activeElement before owner cleanup runs, so the focused
+  // trigger is captured on focus instead.
+  let lastFocusedTrigger: HTMLButtonElement | undefined
   let disposed = false
   let focusRecoveryGeneration = 0
 
@@ -237,7 +240,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     activationMode: () => merged.activationMode ?? 'automatic',
     getDirection: () => resolveDirection(listRef, direction()),
     focusValue: (key) => {
-      setHighlightedKey(key)
+      settle(() => setHighlightedKey(key))
       triggerRefs.get(key)?.focus()
     },
     onSelect: (key) => {
@@ -272,11 +275,13 @@ export function Tabs(props: TabsProps): JSX.Element {
     orientation: typeof merged.orientation,
   ): void {
     if (currentKey === undefined) {
-      setIndicatorStyle({
-        transform: undefined,
-        width: undefined,
-        height: undefined,
-      })
+      settle(() =>
+        setIndicatorStyle({
+          transform: undefined,
+          width: undefined,
+          height: undefined,
+        }),
+      )
       return
     }
 
@@ -309,7 +314,8 @@ export function Tabs(props: TabsProps): JSX.Element {
       nextStyle.width = `${selectedTrigger.offsetWidth}px`
     }
 
-    setIndicatorStyle(nextStyle)
+    // Observer callbacks run unowned; settle the measured style write.
+    settle(() => setIndicatorStyle(nextStyle))
   }
 
   createEffect(
@@ -319,24 +325,39 @@ export function Tabs(props: TabsProps): JSX.Element {
     },
   )
 
-  createEffect(
-    () => [focusRecoveryRequested(), effectiveHighlighted()],
-    ([recovery, recoveryKey]) => {
-      if (!recovery) {
+  // Reordered items keep their DOM nodes but lose focus, while recreated items
+  // register fresh trigger refs only after old owner cleanups, so the recovery
+  // lookup retries a few microtask hops.
+  function recoverFocus(recoveryKey: string | undefined): void {
+    const generation = ++focusRecoveryGeneration
+
+    const attemptRecovery = (attemptsLeft: number): void => {
+      if (disposed || generation !== focusRecoveryGeneration) {
         return
       }
-      const generation = ++focusRecoveryGeneration
+      const trigger = lastFocusedTrigger?.isConnected
+        ? lastFocusedTrigger
+        : recoveryKey === undefined
+          ? undefined
+          : triggerRefs.get(recoveryKey)
+      if (recoveryKey !== undefined && trigger === undefined && attemptsLeft > 0) {
+        queueMicrotask(() => attemptRecovery(attemptsLeft - 1))
+        return
+      }
+      const ownerDocument = trigger?.ownerDocument ?? listRef?.ownerDocument
+      if (ownerDocument !== undefined && ownerDocument.activeElement === ownerDocument.body) {
+        trigger?.focus()
+      }
+    }
+    queueMicrotask(() => attemptRecovery(8))
+  }
 
-      queueMicrotask(() => {
-        if (!disposed && generation === focusRecoveryGeneration) {
-          const trigger = recoveryKey === undefined ? undefined : triggerRefs.get(recoveryKey)
-          const ownerDocument = trigger?.ownerDocument ?? listRef?.ownerDocument
-          if (ownerDocument !== undefined && ownerDocument.activeElement === ownerDocument.body) {
-            trigger?.focus()
-          }
-          setFocusRecoveryRequested(false)
-        }
-      })
+  createEffect(
+    () => normalizedItems(),
+    () => {
+      if (lastFocusedTrigger !== undefined) {
+        recoverFocus(untrack(effectiveHighlighted))
+      }
     },
   )
 
@@ -398,14 +419,14 @@ export function Tabs(props: TabsProps): JSX.Element {
 
             onCleanup(() => {
               const wasFocused =
-                trigger !== undefined && trigger.ownerDocument.activeElement === trigger
-
+                trigger !== undefined &&
+                (trigger.ownerDocument.activeElement === trigger || lastFocusedTrigger === trigger)
               if (triggerRefs.get(item.instanceKey) === trigger) {
                 triggerRefs.delete(item.instanceKey)
               }
 
               if (wasFocused) {
-                setFocusRecoveryRequested(true)
+                recoverFocus(untrack(effectiveHighlighted))
               }
             })
 
@@ -426,10 +447,20 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-slot="tabs-trigger"
                 {...triggerSlot}
                 onClick={() => {
-                  setHighlightedKey(item.instanceKey)
-                  selectValue(item.value)
+                  settle(() => {
+                    setHighlightedKey(item.instanceKey)
+                    selectValue(item.value)
+                  })
                 }}
-                onFocus={() => setHighlightedKey(item.instanceKey)}
+                onFocus={(event) => {
+                  lastFocusedTrigger = event.currentTarget
+                  settle(() => setHighlightedKey(item.instanceKey))
+                }}
+                onBlur={(event) => {
+                  if (lastFocusedTrigger === event.currentTarget) {
+                    lastFocusedTrigger = undefined
+                  }
+                }}
                 onKeyDown={(event) => {
                   onNavigationKeyDown(event, item.instanceKey, merged.orientation ?? 'horizontal')
                 }}

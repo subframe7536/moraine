@@ -241,7 +241,7 @@ describe('Avatar', () => {
       expect(root?.getAttribute('data-status')).toBe('loaded')
     })
 
-    setSource?.('/second.png')
+    flush(() => setSource?.('/second.png'))
     expect(root?.getAttribute('data-status')).toBe('loading')
   })
 
@@ -271,7 +271,7 @@ describe('Avatar', () => {
     outcomesBySrc.set('/pending.png', 'pending')
     const firstCallback = vi.fn()
     const secondCallback = vi.fn()
-    const [callback, setCallback] = createSignal<(status: string) => void>(firstCallback)
+    const [callback, setCallback] = createSignal<(status: string) => void>(() => firstCallback)
 
     const screen = render(() => <Avatar src="/pending.png" onStatusChange={callback()} />)
     const image = screen.container.querySelector('img')!

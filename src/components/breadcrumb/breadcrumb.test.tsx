@@ -381,18 +381,22 @@ describe('Breadcrumb', () => {
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
     expect(currentLabel()).toBe('Home')
 
-    setItems([
-      { label: 'Intro', href: '/intro' },
-      { label: 'Docs', href: '/docs', active: true },
-      { label: 'Home', href: '/', active: true },
-    ])
+    flush(() =>
+      setItems([
+        { label: 'Intro', href: '/intro' },
+        { label: 'Docs', href: '/docs', active: true },
+        { label: 'Home', href: '/', active: true },
+      ]),
+    )
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
     expect(currentLabel()).toBe('Docs')
 
-    setItems([
-      { label: 'Intro', href: '/intro' },
-      { label: 'Reference', href: '/reference' },
-    ])
+    flush(() =>
+      setItems([
+        { label: 'Intro', href: '/intro' },
+        { label: 'Reference', href: '/reference' },
+      ]),
+    )
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
     expect(currentLabel()).toBe('Reference')
 

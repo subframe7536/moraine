@@ -132,150 +132,180 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
 
       return (contentElement ?? options.triggerElement?.())?.ownerDocument
     },
-    (ownerDocument) => {
-      if (!ownerDocument) {
-        return
-      }
-
-      const entry: OverlayStackEntry = {
-        contentElement: options.contentElement ?? (() => undefined),
-        ownerDocument,
-        triggerElement: options.triggerElement ?? (() => undefined),
-      }
-      const release = pushOverlayLayer(entry)
-      const isInside = (target: Node): boolean =>
-        Boolean(options.containsTarget?.(target)) || isInsideOverlayLayer(entry, target)
-      const context: OverlayInteractionContext = {
-        entry,
-        isInside,
-        isTop: () => isTopOverlay(entry),
-      }
-      const composition = createCompositionState()
-      const outsidePress = createOutsidePressHandlers({
-        isInside,
-        isEnabled: context.isTop,
-        onPress: (event) => {
-          suppressPointerClick(ownerDocument, event)
-          options.onPointerOutside?.(event, context)
-        },
-      })
-
-      options.onActivate?.(context)
-
-      let pointerDownInside = false
-      let pointerDownInsideTimeoutId: ReturnType<typeof setTimeout> | undefined
-
-      const clearPointerDownInside = (): void => {
-        if (pointerDownInsideTimeoutId !== undefined) {
-          clearTimeout(pointerDownInsideTimeoutId)
-          pointerDownInsideTimeoutId = undefined
+    (capturedDocument) => {
+      const attach = (ownerDocument: Document): (() => void) => {
+        const entry: OverlayStackEntry = {
+          contentElement: options.contentElement ?? (() => undefined),
+          ownerDocument,
+          triggerElement: options.triggerElement ?? (() => undefined),
         }
-        pointerDownInside = false
-      }
+        const release = pushOverlayLayer(entry)
+        const isInside = (target: Node): boolean =>
+          Boolean(options.containsTarget?.(target)) || isInsideOverlayLayer(entry, target)
+        const context: OverlayInteractionContext = {
+          entry,
+          isInside,
+          isTop: () => isTopOverlay(entry),
+        }
+        const composition = createCompositionState()
+        const outsidePress = createOutsidePressHandlers({
+          isInside,
+          isEnabled: context.isTop,
+          onPress: (event) => {
+            suppressPointerClick(ownerDocument, event)
+            options.onPointerOutside?.(event, context)
+          },
+        })
 
-      const onDocumentPointerDown = (event: PointerEvent): void => {
-        beginPointerInteraction(ownerDocument, event)
-        const target = event.target
-        const pathIsInside = event
-          .composedPath()
-          .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
-        if (isNode(target) && (isInside(target) || pathIsInside)) {
-          pointerDownInside = true
+        options.onActivate?.(context)
+
+        let pointerDownInside = false
+        let pointerDownInsideTimeoutId: ReturnType<typeof setTimeout> | undefined
+
+        const clearPointerDownInside = (): void => {
           if (pointerDownInsideTimeoutId !== undefined) {
             clearTimeout(pointerDownInsideTimeoutId)
             pointerDownInsideTimeoutId = undefined
           }
-          options.onPointerDownInside?.(event, context)
-          return
+          pointerDownInside = false
         }
 
-        pointerDownInside = false
-        outsidePress.pointerdown(event)
-      }
-      const onDocumentPointerUp = (event: PointerEvent): void => {
-        outsidePress.pointerup(event)
-        completePointerInteraction(ownerDocument, event)
-        if (pointerDownInside) {
-          if (pointerDownInsideTimeoutId !== undefined) {
-            clearTimeout(pointerDownInsideTimeoutId)
+        const onDocumentPointerDown = (event: PointerEvent): void => {
+          beginPointerInteraction(ownerDocument, event)
+          const target = event.target
+          const pathIsInside = event
+            .composedPath()
+            .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
+          if (isNode(target) && (isInside(target) || pathIsInside)) {
+            pointerDownInside = true
+            if (pointerDownInsideTimeoutId !== undefined) {
+              clearTimeout(pointerDownInsideTimeoutId)
+              pointerDownInsideTimeoutId = undefined
+            }
+            options.onPointerDownInside?.(event, context)
+            return
           }
-          pointerDownInsideTimeoutId = setTimeout(clearPointerDownInside, 0)
-        }
-      }
-      const onDocumentPointerCancel = (event: PointerEvent): void => {
-        outsidePress.pointercancel(event)
-        cancelPointerInteraction(ownerDocument, event)
-        clearPointerDownInside()
-      }
-      const onDocumentFocusIn = (event: FocusEvent): void => {
-        const target = event.target
-        const pathIsInside = event
-          .composedPath()
-          .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
-        if (!isNode(target) || !context.isTop()) {
-          return
-        }
 
-        if (isInside(target) || pathIsInside) {
-          options.onFocusInside?.(event, context)
-          return
+          pointerDownInside = false
+          outsidePress.pointerdown(event)
         }
-
-        // DOM listeners run unowned; settle the writes an outside-focus close stages.
-        settle(() => options.onFocusOutside?.(event, context))
-      }
-      const onDocumentKeyDown = createKeyDownHandler<Document>({
-        disabled: () => !context.isTop(),
-        composing: composition.isComposing,
-        keys: {
-          Escape: {
-            preventDefault: false,
-            handle: (event) => options.onEscape?.(event, context),
-          },
-        },
-      })
-      const onDocumentClick = (event: MouseEvent): void => {
-        if (pointerDownInside) {
+        const onDocumentPointerUp = (event: PointerEvent): void => {
+          outsidePress.pointerup(event)
+          completePointerInteraction(ownerDocument, event)
+          if (pointerDownInside) {
+            if (pointerDownInsideTimeoutId !== undefined) {
+              clearTimeout(pointerDownInsideTimeoutId)
+            }
+            pointerDownInsideTimeoutId = setTimeout(clearPointerDownInside, 0)
+          }
+        }
+        const onDocumentPointerCancel = (event: PointerEvent): void => {
+          outsidePress.pointercancel(event)
+          cancelPointerInteraction(ownerDocument, event)
           clearPointerDownInside()
-          return
         }
-        const target = event.target
-        const pathIsInside = event
-          .composedPath()
-          .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
-        if (
-          event.defaultPrevented ||
-          !isNode(target) ||
-          !context.isTop() ||
-          isInside(target) ||
-          pathIsInside ||
-          consumeSuppressedPointerClick(ownerDocument, event)
-        ) {
-          return
+        const onDocumentFocusIn = (event: FocusEvent): void => {
+          const target = event.target
+          const pathIsInside = event
+            .composedPath()
+            .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
+          if (!isNode(target) || !context.isTop()) {
+            return
+          }
+
+          if (isInside(target) || pathIsInside) {
+            options.onFocusInside?.(event, context)
+            return
+          }
+
+          // DOM listeners run unowned; settle the writes an outside-focus close stages.
+          settle(() => options.onFocusOutside?.(event, context))
+        }
+        const onDocumentKeyDown = createKeyDownHandler<Document>({
+          disabled: () => !context.isTop(),
+          composing: composition.isComposing,
+          keys: {
+            Escape: {
+              preventDefault: false,
+              handle: (event) => options.onEscape?.(event, context),
+            },
+          },
+        })
+        const onDocumentClick = (event: MouseEvent): void => {
+          if (pointerDownInside) {
+            clearPointerDownInside()
+            return
+          }
+          const target = event.target
+          const pathIsInside = event
+            .composedPath()
+            .some((pathTarget) => isNode(pathTarget) && isInside(pathTarget))
+          if (
+            event.defaultPrevented ||
+            !isNode(target) ||
+            !context.isTop() ||
+            isInside(target) ||
+            pathIsInside ||
+            consumeSuppressedPointerClick(ownerDocument, event)
+          ) {
+            return
+          }
+
+          options.onPointerOutside?.(event, context)
         }
 
-        options.onPointerOutside?.(event, context)
+        const detach = attachEventListenerMap(ownerDocument, {
+          pointerdown: onDocumentPointerDown,
+          pointermove: outsidePress.pointermove,
+          pointerup: onDocumentPointerUp,
+          pointercancel: onDocumentPointerCancel,
+          click: onDocumentClick,
+          focusin: onDocumentFocusIn,
+          keydown: onDocumentKeyDown,
+          compositionstart: composition.onCompositionStart,
+          compositionend: composition.onCompositionEnd,
+        })
+
+        return () => {
+          detach()
+          clearPointerDownInside()
+          outsidePress.dispose()
+          composition.dispose()
+          options.onDeactivate?.(context)
+          release()
+        }
       }
 
-      const detach = attachEventListenerMap(ownerDocument, {
-        pointerdown: onDocumentPointerDown,
-        pointermove: outsidePress.pointermove,
-        pointerup: onDocumentPointerUp,
-        pointercancel: onDocumentPointerCancel,
-        click: onDocumentClick,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-        compositionstart: composition.onCompositionStart,
-        compositionend: composition.onCompositionEnd,
+      // The compute and apply can run while portal content still lives in a
+      // staging document; the element is adopted into its final owner document
+      // before the next microtask. Attach to the live document now, then
+      // rebind if adoption moved the content to a different one.
+      if (!capturedDocument) {
+        return
+      }
+
+      const resolveOwnerDocument = (): Document | undefined =>
+        (options.contentElement?.() ?? options.triggerElement?.())?.ownerDocument ??
+        capturedDocument
+
+      let cancelled = false
+      let ownerDocument = resolveOwnerDocument()
+      let teardown = ownerDocument ? attach(ownerDocument) : undefined
+      queueMicrotask(() => {
+        if (cancelled) {
+          return
+        }
+        const nextDocument = resolveOwnerDocument()
+        if (nextDocument && nextDocument !== ownerDocument) {
+          teardown?.()
+          ownerDocument = nextDocument
+          teardown = attach(nextDocument)
+        }
       })
 
       return () => {
-        detach()
-        clearPointerDownInside()
-        outsidePress.dispose()
-        composition.dispose()
-        options.onDeactivate?.(context)
-        release()
+        cancelled = true
+        teardown?.()
       }
     },
   )

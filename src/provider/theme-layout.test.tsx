@@ -164,22 +164,24 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   })
 
   // Theme can explicitly override defaultVariants
-  setTheme(
-    defineTheme({
-      sidebar: {
-        base: {
-          root: 'custom-frame-root',
-          panel: 'custom-sidebar',
+  flush(() =>
+    setTheme(
+      defineTheme({
+        sidebar: {
+          base: {
+            root: 'custom-frame-root',
+            panel: 'custom-sidebar',
+          },
+          defaultVariants: { side: 'end' },
         },
-        defaultVariants: { side: 'end' },
-      },
-      slider: {
-        base: {
-          root: 'custom-slider-root',
+        slider: {
+          base: {
+            root: 'custom-slider-root',
+          },
+          defaultVariants: { orientation: 'vertical' },
         },
-        defaultVariants: { orientation: 'vertical' },
-      },
-    }),
+      }),
+    ),
   )
 
   expect(

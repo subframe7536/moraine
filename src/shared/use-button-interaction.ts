@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { merge } from 'solid-js'
+import { createEffect, merge, untrack } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types'
@@ -138,87 +138,114 @@ export function useButtonInteraction(
     dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
   }
 
-  const interactionProps = merge(props, {
-    get type() {
-      if (isNativeButton()) {
-        const element = options.element?.()
-        return (
-          props.type ??
-          (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
-        )
-      }
-      return props.type
-    },
-    get role() {
-      return props.role ?? (needsButtonRole() ? 'button' : undefined)
-    },
-    get tabIndex() {
-      if (props.tabindex !== undefined) {
-        return props.tabindex
-      }
+  // For component tags `props.type` flows through `props` untouched: emitting an
+  // explicit `undefined` under Solid 2 spread semantics would clear a `type` the
+  // custom component rendered itself. Native-string tags keep the prop-based
+  // default so SSR emits it; component-rendered native buttons get the same
+  // default injected post-mount below.
+  const hasStaticTag = typeof untrack(options.tag) === 'string'
+  if (!hasStaticTag) {
+    createEffect(
+      () => options.element?.(),
+      (element) => {
+        if (element && isNativeButtonElement(element, props.type as string | undefined)) {
+          element.setAttribute(
+            'type',
+            (props.type as string | undefined) ??
+              (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
+          )
+        }
+      },
+    )
+  }
+  const interactionProps = merge(
+    props,
+    hasStaticTag
+      ? {
+          get type() {
+            if (isNativeButton()) {
+              const element = options.element?.()
+              return (
+                props.type ??
+                (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
+              )
+            }
+            return props.type
+          },
+        }
+      : {},
+    {
+      get role() {
+        return props.role ?? (needsButtonRole() ? 'button' : undefined)
+      },
+      get tabIndex() {
+        if (props.tabindex !== undefined) {
+          return props.tabindex
+        }
 
-      if (options.disabled() && !isNativeButton() && !isFocusableWhenDisabled()) {
-        return -1
-      }
+        if (options.disabled() && !isNativeButton() && !isFocusableWhenDisabled()) {
+          return -1
+        }
 
-      if (!needsButtonRole()) {
-        return undefined
-      }
+        if (!needsButtonRole()) {
+          return undefined
+        }
 
-      return 0
-    },
-    get 'aria-disabled'() {
-      if (!options.disabled()) {
+        return 0
+      },
+      get 'aria-disabled'() {
+        if (!options.disabled()) {
+          return props['aria-disabled']
+        }
+
+        if (!isNativeButton() || isFocusableWhenDisabled()) {
+          return props['aria-disabled'] ?? 'true'
+        }
+
         return props['aria-disabled']
-      }
+      },
+      get disabled() {
+        if (isNativeButton()) {
+          return options.disabled() && !isFocusableWhenDisabled()
+        }
 
-      if (!isNativeButton() || isFocusableWhenDisabled()) {
-        return props['aria-disabled'] ?? 'true'
-      }
+        const tag = options.tag()
+        if (!options.element?.() && typeof tag !== 'string' && options.disabledForComponent) {
+          return options.disabled() && !isFocusableWhenDisabled()
+        }
 
-      return props['aria-disabled']
+        return undefined
+      },
+      onBlur(event: FocusEvent): void {
+        spaceKeyDownArmed = false
+        callHandler<FocusEvent>(event, props.onBlur)
+      },
+      onClick(event: MouseEvent): void {
+        if (options.disabled()) {
+          event.preventDefault()
+          return
+        }
+
+        const { defaultPrevented } = callHandler<MouseEvent>(
+          event,
+          options.onClickOverride ?? props.onClick,
+        )
+        if (!defaultPrevented) {
+          options.onPress?.(event)
+        }
+      },
+      onKeyDown,
+      onKeyUp,
+      onPointerDown(event: PointerEvent): void {
+        if (options.disabled()) {
+          event.preventDefault()
+          return
+        }
+
+        callHandler<PointerEvent>(event, props.onPointerDown)
+      },
     },
-    get disabled() {
-      if (isNativeButton()) {
-        return options.disabled() && !isFocusableWhenDisabled()
-      }
-
-      const tag = options.tag()
-      if (!options.element?.() && typeof tag !== 'string' && options.disabledForComponent) {
-        return options.disabled() && !isFocusableWhenDisabled()
-      }
-
-      return undefined
-    },
-    onBlur(event: FocusEvent): void {
-      spaceKeyDownArmed = false
-      callHandler<FocusEvent>(event, props.onBlur)
-    },
-    onClick(event: MouseEvent): void {
-      if (options.disabled()) {
-        event.preventDefault()
-        return
-      }
-
-      const { defaultPrevented } = callHandler<MouseEvent>(
-        event,
-        options.onClickOverride ?? props.onClick,
-      )
-      if (!defaultPrevented) {
-        options.onPress?.(event)
-      }
-    },
-    onKeyDown,
-    onKeyUp,
-    onPointerDown(event: PointerEvent): void {
-      if (options.disabled()) {
-        event.preventDefault()
-        return
-      }
-
-      callHandler<PointerEvent>(event, props.onPointerDown)
-    },
-  })
+  )
 
   return interactionProps as JSX.HTMLAttributes<HTMLElement>
 }

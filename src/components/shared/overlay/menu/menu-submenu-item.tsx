@@ -8,7 +8,7 @@ import { useLocale } from '../../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../../shared/controllable-value'
 import { attachEventListenerMap } from '../../../../shared/event-listener'
 import { createTransitionPresence } from '../../../../shared/transition-presence'
-import { createId } from '../../../../shared/utils'
+import { createId, settle } from '../../../../shared/utils'
 import type { OverlayPlacement } from '../../../../theme/style-types'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { resolveDirection } from '../direction'
@@ -126,8 +126,11 @@ export function createSubmenuItemRenderer<TItem extends OverlayMenuItem = Overla
       clearOpenTimeout()
       stopPointerExitWatch()
       submenuLayerState?.closeSubmenus()
-      setOpenState(false)
-      setAutoFocusStrategy('none')
+      // Close commits per submenu so nested exit motion cascades deepest first.
+      settle(() => {
+        setOpenState(false)
+        setAutoFocusStrategy('none')
+      })
     }
 
     const dismissSubmenuOnPointerExit = (point?: [number, number]): void => {

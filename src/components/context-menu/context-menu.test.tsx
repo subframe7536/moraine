@@ -663,7 +663,7 @@ describe('ContextMenu', () => {
       const firstHandler = vi.fn()
       const secondHandler = vi.fn()
       const [controlledOpen, setControlledOpen] = createSignal<boolean | undefined>(undefined)
-      const [onOpenChange, setOnOpenChange] = createSignal(firstHandler)
+      const [onOpenChange, setOnOpenChange] = createSignal(() => firstHandler)
       const screen = render(() => (
         <ContextMenu open={controlledOpen()} onOpenChange={onOpenChange()}>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>

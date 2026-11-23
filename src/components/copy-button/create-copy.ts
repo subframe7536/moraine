@@ -1,6 +1,8 @@
 import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+
+import { settle } from '../../shared/utils'
 export type CopyData = string | ClipboardItem | ClipboardItem[]
 
 export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
@@ -214,14 +216,14 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     if (untrack(status) === nextStatus) {
       return
     }
-    setStatus(nextStatus)
+    settle(() => setStatus(nextStatus))
     options.onStatusChange?.(nextStatus)
   }
 
   function reset() {
     clearTimeout(timer)
     notifyStatus('idle')
-    setError(undefined)
+    settle(() => setError(undefined))
   }
 
   const isCopied = createMemo(() => status() === 'copied')
@@ -257,7 +259,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
 
     const currentAttempt = ++attempt
     clearTimeout(timer)
-    setError(undefined)
+    settle(() => setError(undefined))
     notifyStatus('idle')
 
     let resolvedData: CopyData
@@ -298,7 +300,7 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
         return false
       }
 
-      setError(err)
+      settle(() => setError(err))
       notifyStatus('error')
       options.onCopyError?.(err)
 

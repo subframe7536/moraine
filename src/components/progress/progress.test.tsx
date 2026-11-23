@@ -224,7 +224,7 @@ describe('Progress', () => {
       () => (value: number) => `${value}`,
     )
     const screen = render(() => (
-      <Errored fallback={(error) => <span data-testid="error">{String(error)}</span>}>
+      <Errored fallback={(error) => <span data-testid="error">{String(error())}</span>}>
         <Progress value={2} max={4} valueLabel={({ value }) => formatter()(value)} />
       </Errored>
     ))
@@ -234,9 +234,11 @@ describe('Progress', () => {
     flush(() => setFormatter(() => (value: number) => `${value} items`))
     expect(progress.getAttribute('aria-valuetext')).toBe('2 items')
 
-    setFormatter(() => () => {
-      throw new Error('label failure')
-    })
+    flush(() =>
+      setFormatter(() => () => {
+        throw new Error('label failure')
+      }),
+    )
     expect(screen.getByTestId('error').textContent).toContain('label failure')
   })
 

@@ -788,7 +788,8 @@ describe('Tabs', () => {
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Two' }))
 
     flush(() => setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!]))
-    await Promise.resolve()
+    // Focus recovery runs on the effect continuation's microtask chain.
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     const reorderedTwo = screen.getByRole('tab', { name: 'Two' })
     expect(document.activeElement).toBe(reorderedTwo)

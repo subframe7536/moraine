@@ -17,7 +17,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { toNumber } from '../../provider/locale/number'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
-import { callHandler, callRef, createId, pick } from '../../shared/utils'
+import { callHandler, callRef, createId, pick, settle } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -335,10 +335,13 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
     event: Event,
     offset: number,
   ): void {
-    const details = stepDetails(kind, emitter, event, offset)
-    if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
-      merged.onStep?.(details)
-    }
+    // Delegated key/wheel handlers run unowned; settle the stepped value write.
+    settle(() => {
+      const details = stepDetails(kind, emitter, event, offset)
+      if (kind === 'increment' ? state.incrementValue(offset) : state.decrementValue(offset)) {
+        merged.onStep?.(details)
+      }
+    })
   }
 
   function isControlInteractive(kind: ControlKind): boolean {
@@ -371,11 +374,13 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
   const press = createNumberInputPress({
     isInteractive: isControlInteractive,
     onStep: (kind) => {
-      if (kind === 'increment') {
-        state.incrementValue()
-      } else {
-        state.decrementValue()
-      }
+      settle(() => {
+        if (kind === 'increment') {
+          state.incrementValue()
+        } else {
+          state.decrementValue()
+        }
+      })
     },
     emitStep: (kind, event) => merged.onStep?.(stepDetails(kind, 'button', event, stepValue())),
     focusInput: () => inputEl?.focus(),

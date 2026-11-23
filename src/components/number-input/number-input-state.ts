@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, flush } from 'solid-js'
 
 import {
   formatLocaleNumber,
@@ -194,9 +194,18 @@ export function createNumberInput(options: CreateNumberInputOptions) {
     const boundedValue = clamp(nextValue, options.min(), options.max())
     const changed = commitValue(nextValue)
 
-    if (changed && Object.is(currentValue(), boundedValue)) {
-      setDraftText(undefined)
-      return true
+    if (changed) {
+      // `commitValue` stages the write; drain so `currentValue` reflects the
+      // committed (or propagated controlled) value like a synchronous read.
+      try {
+        flush()
+      } catch {
+        // Scope-specific flush behavior
+      }
+      if (Object.is(currentValue(), boundedValue)) {
+        setDraftText(undefined)
+        return true
+      }
     }
 
     if (!wasDirty) {

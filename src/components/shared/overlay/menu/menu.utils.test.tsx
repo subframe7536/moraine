@@ -1,4 +1,4 @@
-import { createRoot } from 'solid-js'
+import { createRoot, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -128,7 +128,9 @@ describe('createPointerGraceIntent', () => {
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
-        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
+        flush(() =>
+          layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+        )
 
         layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
         layer.setPointerGraceIntent(
@@ -187,7 +189,9 @@ describe('createPointerGraceIntent', () => {
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
-        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
+        flush(() =>
+          layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement),
+        )
 
         layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
         layer.setPointerGraceIntent(
@@ -231,17 +235,19 @@ describe('useOverlayMenuLayerState', () => {
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
         const releases = elements.map((element, index) =>
-          layer.registerItem({
-            disabled: () => index === 1,
-            element: () => element,
-            hasSubmenu: false,
-            id: `item-${index}`,
-            textValue: () => element.textContent ?? undefined,
-          }),
+          flush(() =>
+            layer.registerItem({
+              disabled: () => index === 1,
+              element: () => element,
+              hasSubmenu: false,
+              id: `item-${index}`,
+              textValue: () => element.textContent ?? undefined,
+            }),
+          ),
         )
         const press = (key: string): KeyboardEvent => {
           const event = new KeyboardEvent('keydown', { cancelable: true, key })
-          layer.handleTypeaheadKeyDown(event)
+          flush(() => layer.handleTypeaheadKeyDown(event))
           return event
         }
 
@@ -285,41 +291,47 @@ describe('useOverlayMenuLayerState', () => {
     try {
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
-        const releaseFirst = layer.registerItem({
-          disabled: () => false,
-          element: () => first,
-          hasSubmenu: false,
-          id: 'first',
-          textValue: () => 'First',
-        })
-        const releaseSecond = layer.registerItem({
-          disabled: () => false,
-          element: () => second,
-          hasSubmenu: false,
-          id: 'second',
-          textValue: () => 'Second',
-        })
+        const releaseFirst = flush(() =>
+          layer.registerItem({
+            disabled: () => false,
+            element: () => first,
+            hasSubmenu: false,
+            id: 'first',
+            textValue: () => 'First',
+          }),
+        )
+        const releaseSecond = flush(() =>
+          layer.registerItem({
+            disabled: () => false,
+            element: () => second,
+            hasSubmenu: false,
+            id: 'second',
+            textValue: () => 'Second',
+          }),
+        )
 
-        layer.focusFirstItem()
+        flush(() => layer.focusFirstItem())
         expect(document.activeElement).toBe(first)
-        releaseFirst()
+        flush(() => releaseFirst())
         expect(layer.highlightedItemId()).toBeUndefined()
 
-        layer.focusItemByOffset(1)
+        flush(() => layer.focusItemByOffset(1))
         expect(document.activeElement).toBe(second)
-        releaseSecond()
+        flush(() => releaseSecond())
 
-        const releaseDisabled = layer.registerItem({
-          disabled: () => true,
-          element: () => disabled,
-          hasSubmenu: false,
-          id: 'disabled',
-          textValue: () => 'Disabled',
-        })
-        layer.focusFirstItem()
+        const releaseDisabled = flush(() =>
+          layer.registerItem({
+            disabled: () => true,
+            element: () => disabled,
+            hasSubmenu: false,
+            id: 'disabled',
+            textValue: () => 'Disabled',
+          }),
+        )
+        flush(() => layer.focusFirstItem())
         expect(layer.highlightedItemId()).toBeUndefined()
 
-        releaseDisabled()
+        flush(() => releaseDisabled())
         dispose()
       })
     } finally {

@@ -63,7 +63,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
   props: DrawerT.ContentProps<T>,
 ): JSX.Element {
   const local = pick(
-    props as DrawerT.ContentProps<T> & { ref?: unknown },
+    props as DrawerT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -71,9 +71,10 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const rest = omit(
-    props as DrawerT.ContentProps<T> & { ref?: unknown },
+    props as DrawerT.ContentProps<T> & { ref?: unknown; dir?: unknown },
     'as',
     'ref',
     'title',
@@ -81,6 +82,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
+    'dir',
   )
   const drawer = useDrawerContext()
   const messages = useMessages('drawer', defaultDrawerMessages, () => drawer.translations)
@@ -257,7 +259,7 @@ export function DrawerContent<T extends ValidComponent = 'div'>(
         component={tag()}
         data-slot="drawer-content"
         role="dialog"
-        dir={direction()}
+        dir={local.dir ?? direction()}
         id={family.contentId()}
         tabindex={binding.tabIndex}
         aria-modal={binding.ariaModal()}

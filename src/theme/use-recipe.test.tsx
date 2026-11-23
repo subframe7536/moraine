@@ -62,11 +62,13 @@ describe('useRecipe', () => {
     const button = screen.getByRole('button')
     expect(button.className).toContain('p-2')
     expect(button.className).toContain('text-sm')
-    setTheme(
-      defineTheme({
-        extends: base,
-        button: { base: { root: 'p-4' }, defaultVariants: { size: 'lg' } },
-      }),
+    flush(() =>
+      setTheme(
+        defineTheme({
+          extends: base,
+          button: { base: { root: 'p-4' }, defaultVariants: { size: 'lg' } },
+        }),
+      ),
     )
     expect(button.className).toContain('text-lg')
     expect(button.className).toContain('p-4')

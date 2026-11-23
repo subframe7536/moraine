@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web'
 import { Show, createEffect, createMemo, createSignal, onCleanup, untrack, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { pick } from '../../shared/utils'
+import { pick, settle } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
@@ -117,7 +117,8 @@ export function Avatar(props: AvatarProps): JSX.Element {
     }
 
     currentStatus = nextStatus
-    setStatusSignal(nextStatus)
+    // Image load/error listeners and microtasks run unowned; settle the write.
+    settle(() => setStatusSignal(nextStatus))
     untrack(() => local.onStatusChange)?.(nextStatus)
   }
 

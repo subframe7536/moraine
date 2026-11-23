@@ -214,8 +214,10 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
 
   function restoreTriggerFocus(): void {
-    const content = contentElement()
-    const trigger = triggerElement()
+    // Snapshot reads inside an effect callback: the tracked dep is `open`;
+    // whichever elements are current when it closes get the focus check.
+    const content = untrack(contentElement)
+    const trigger = untrack(triggerElement)
 
     if (contentHasFocus || content?.contains(content.ownerDocument.activeElement)) {
       contentHasFocus = false

@@ -14,7 +14,14 @@ import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
 import { useButtonInteraction } from '../../../shared/use-button-interaction'
-import { callHandler, callRef, createId, pick, resolvePropsChildren } from '../../../shared/utils'
+import {
+  callHandler,
+  callRef,
+  createId,
+  pick,
+  resolvePropsChildren,
+  settle,
+} from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
 import { useFloatingPosition, usePositionerZIndex } from './floating'
@@ -31,6 +38,30 @@ import type {
   PopperTriggerProps,
 } from './popper.types'
 import { acquireBodyScrollLock } from './scroll-lock'
+
+// Composed refs are cached per (internal, user) pair so spread re-applications
+// keep an identity-stable `ref` instead of re-invoking it on every merge eval.
+const composedRefs = new WeakMap<object, WeakMap<object, (element: never) => void>>()
+
+function composeElementRef<T extends HTMLElement>(
+  internal: JSX.HTMLAttributes<T>,
+  user: Record<string, unknown>,
+): (element: T) => void {
+  let inner = composedRefs.get(internal)
+  if (!inner) {
+    composedRefs.set(internal, (inner = new WeakMap()))
+  }
+  let composed = inner.get(user) as ((element: T) => void) | undefined
+  if (!composed) {
+    composed = (element: T) => {
+      callRef(internal.ref, element)
+      callRef(user.ref, element)
+    }
+    inner.set(user, composed)
+  }
+  return composed
+}
+
 /** Preserve floating behavior while forwarding the surface's native ref and events. */
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,
@@ -64,10 +95,7 @@ export function mergePopperElementProps<T extends HTMLElement>(
     user,
     handlers,
     {
-      ref: (element: T) => {
-        callRef(internal.ref, element)
-        callRef(user.ref, element)
-      },
+      ref: composeElementRef(internal, user),
     },
     children === undefined ? overrides : { ...overrides, children },
   )
@@ -118,9 +146,12 @@ export function createPopper(
   })
 
   function setOpen(nextOpen: boolean): void {
-    if (!props.disabled) {
-      setControlledOpen(nextOpen)
-    }
+    // Outside dismissal and focus handlers run unowned; settle the write.
+    settle(() => {
+      if (!props.disabled) {
+        setControlledOpen(nextOpen)
+      }
+    })
   }
 
   return {
@@ -317,11 +348,19 @@ export function PopperContent(
 
   usePositionerZIndex(positionerElement, contentElement)
 
+  // `preventScroll` is latched when the open cycle starts so toggling it
+  // mid-cycle does not release or acquire the lock.
+  let activePreventScroll = false
+  createEffect(contentPresence.present, (present) => {
+    if (present) {
+      activePreventScroll = options.preventScroll === true
+    }
+  })
+
   createEffect(
     () => [contentPresence.present(), contentElement(), positionerElement()],
     ([present, currentContent, currentPositioner]) => {
-      const preventScroll = options.preventScroll
-      if (!present || !preventScroll || !currentContent || !currentPositioner) {
+      if (!present || !activePreventScroll || !currentContent || !currentPositioner) {
         return
       }
       const releaseScrollLock = acquireBodyScrollLock(currentContent)
