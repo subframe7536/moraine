@@ -31,7 +31,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
 
   return (
     <header class="text-foreground mt-4 md:mt-8">
-      <h1 class="text-2xl font-bold mt-3 outline-none sm:text-3xl" tabIndex={-1}>
+      <h1 class="text-2xl font-bold mt-3 outline-none wrap-anywhere sm:text-3xl" tabIndex={-1}>
         {props.frontmatter.title}
       </h1>
 

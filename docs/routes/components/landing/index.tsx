@@ -1,5 +1,6 @@
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon } from '../../../../src'
+import { createMediaQuery } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 import { ComponentRadar } from './component-radar'
@@ -9,6 +10,8 @@ export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
 
 export function LandingPage() {
+  const isDesktop = createMediaQuery('(min-width: 640px)')
+
   return (
     <div class="mx-auto px-4 max-w-6xl lg:px-8 sm:px-6">
       <section
@@ -36,11 +39,16 @@ export function LandingPage() {
           primitives for UnoCSS and Tailwind CSS v4.
         </p>
 
-        <div class="mt-7 gap-2.5 grid grid-cols-2 max-w-sm w-full sm:(flex flex-wrap gap-3 max-w-none w-auto items-center justify-center)">
-          <Button as="a" size="xl" href="/docs/getting-started" trailing="icon-arrow-right">
+        <div class="mt-7 flex flex-wrap gap-2.5 items-center justify-center sm:gap-3">
+          <Button
+            as="a"
+            size={isDesktop() ? 'xl' : 'md'}
+            href="/docs/getting-started"
+            trailing="icon-arrow-right"
+          >
             Start Building
           </Button>
-          <Button as="a" size="xl" href="/components" variant="outline">
+          <Button as="a" size={isDesktop() ? 'xl' : 'md'} href="/components" variant="outline">
             Explore Components
           </Button>
         </div>
@@ -49,7 +57,10 @@ export function LandingPage() {
           <span>60 Components</span>
           <span aria-hidden="true">|</span>
           <span>UnoCSS &amp; Tailwind v4</span>
-          <span aria-hidden="true">|</span>
+          <span aria-hidden="true" class="hidden sm:inline">
+            |
+          </span>
+          <span aria-hidden="true" class="basis-full h-0 sm:hidden" />
           <span>Optional Peer Entries</span>
           <span aria-hidden="true">|</span>
           <span>SSR Safe</span>

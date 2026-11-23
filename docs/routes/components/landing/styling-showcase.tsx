@@ -757,23 +757,23 @@ export function StylingShowcase() {
           size="sm"
           variant="link"
           trailing="icon-arrow-right"
-          class="shrink-0 self-start sm:self-end"
+          class="px-0 shrink-0 self-start sm:self-end"
         >
           Customization guide
         </Button>
       </div>
 
-      {/* Control bar: sticky on mobile (<768px), inline on desktop */}
-      <div class="py-2.5 border-y border-border bg-background/95 flex gap-2 items-center top-0 justify-between sticky z-20 backdrop-blur sm:px-3 sm:border sm:rounded-t-xl sm:static">
+      {/* Control bar */}
+      <div class="px-3 py-2.5 border border-border rounded-t-xl bg-background/95 flex gap-2 items-center justify-between">
         <div
           role="group"
           aria-label="Theme presets"
-          class="flex flex-1 gap-1.5 min-w-0 items-center overflow-x-auto"
+          class="flex flex-1 gap-1.5 min-w-0 scrollbar-none items-center overflow-x-auto"
         >
           <For each={PRESETS}>
             {(preset) => (
               <ToggleButton
-                size={isDesktop() ? 'sm' : 'md'}
+                size="sm"
                 variant="outline"
                 activeVariant="soft"
                 tone="neutral"
@@ -801,11 +801,11 @@ export function StylingShowcase() {
         <div class="flex shrink-0 gap-1.5 items-center">
           <Show when={inspectSlots()}>
             <Badge
-              size="md"
+              size="sm"
               variant="soft"
               tone="primary"
               leading="i-lucide:eye"
-              class="px-2 rounded-md h-8 md:rounded-sm md:h-7"
+              class="px-2 rounded-sm h-7"
             >
               <span class="hidden lg:inline">Inspecting data-slot</span>
               <span class="lg:hidden">Slots</span>
@@ -822,7 +822,7 @@ export function StylingShowcase() {
                 >
                   <Drawer.Trigger
                     as={Button}
-                    size="icon-md"
+                    size="icon-sm"
                     variant="outline"
                     aria-label="Customize theme tokens"
                     leading="i-lucide:sliders-horizontal"
@@ -840,7 +840,7 @@ export function StylingShowcase() {
                 <Drawer open={codeOpen()} onOpenChange={setCodeOpen}>
                   <Drawer.Trigger
                     as={Button}
-                    size="icon-md"
+                    size="icon-sm"
                     variant="outline"
                     aria-label="Copy theme code"
                     leading="i-lucide:code"
@@ -892,7 +892,7 @@ export function StylingShowcase() {
       <div
         style={themeStyle()}
         class={cn(
-          'p-4 border-b border-border bg-muted/20 min-w-0 sm:p-6 sm:border-x sm:rounded-b-xl',
+          'p-3.5 border-x border-b border-border rounded-b-xl bg-muted/20 min-w-0 sm:p-6',
           inspectSlots() &&
             '[&_[data-slot]]:outline-1 [&_[data-slot]]:outline-primary/60 [&_[data-slot]]:outline [&_[data-slot]]:outline-dashed',
         )}

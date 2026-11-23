@@ -15,13 +15,13 @@ export function HooksIndex() {
       <ul class="gap-4 grid grid-cols-1 md:grid-cols-2">
         <For each={pages()}>
           {(page) => (
-            <li>
+            <li class="min-w-0">
               <a
                 href={page.path}
                 class={`p-4 border border-border rounded-lg flex flex-col gap-1.5 transition-colors hover:(border-primary/50 bg-muted/40) ${DOCS_FOCUS_RING_CLASS}`}
               >
-                <div class="flex gap-2 items-center justify-between">
-                  <span class="text-base text-foreground font-mono font-semibold">
+                <div class="flex gap-2 min-w-0 items-center justify-between">
+                  <span class="text-sm text-foreground font-mono font-semibold min-w-0 wrap-anywhere sm:text-base">
                     {page.label}
                   </span>
                   <Show when={page.badge}>
