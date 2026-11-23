@@ -57,16 +57,18 @@ export function Example() {
 ### Controlled state
 
 Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the component owns its
-initial state. `onOpenChange` receives the next state when the user toggles a trigger, and does not
+initial state. `onOpenChange` receives the next state when the user toggles a trigger and does not
 fire when you change `open` yourself. With a controlled `open`, the state changes only when you
-update it. The trigger and content parts can sit anywhere inside the root, so you can compose them
-into a custom layout.
+update it.
 
-`disabled` on `Collapsible` blocks every trigger and keeps the current open state. `disabled` on
-`Collapsible.Trigger` blocks only that trigger. `transition` (default `true`) animates the content
-height: the content stays mounted until the closing animation finishes, and the measured height is
-exposed as `--mo-collapsible-content-height` on the root. Set `transition={false}` to toggle
-instantly. Animation is skipped for `prefers-reduced-motion`.
+The trigger and content parts can sit anywhere inside the root, so you can compose them into a
+custom layout. `disabled` on `Collapsible` blocks every trigger and keeps the current open state;
+`disabled` on `Collapsible.Trigger` blocks only that trigger.
+
+`transition` (default `true`) animates the content height: the content stays mounted until the
+closing animation finishes, and the measured height is exposed as `--mo-collapsible-content-height`
+on the root. Set `transition={false}` to toggle instantly. Animation is skipped for
+`prefers-reduced-motion`.
 
 ```tsx
 <Collapsible open={open()} onOpenChange={setOpen}>
@@ -78,10 +80,12 @@ instantly. Animation is skipped for `prefers-reduced-motion`.
 ### Content lifetime
 
 The content shell stays mounted so the trigger's `aria-controls` points to a real element even while
-closed. `forceMount` controls the content inside it. By default, content mounts on first open and
-unmounts after it closes. Set `forceMount` when content holds state that should survive closing; it
-mounts the content even before the first open. Mounted closed content stays hidden and `inert`, and
-browser find-in-page can reveal it, which opens the Collapsible and calls `onOpenChange`.
+closed. `forceMount` controls the content inside it: by default, content mounts on first open and
+unmounts after it closes.
+
+Set `forceMount` when content holds state that should survive closing; it mounts the content even
+before the first open. Mounted closed content stays hidden and `inert`, and browser find-in-page can
+reveal it, which opens the Collapsible and calls `onOpenChange`.
 
 ```tsx
 <Collapsible forceMount defaultOpen>
@@ -96,8 +100,10 @@ browser find-in-page can reveal it, which opens the Collapsible and calls `onOpe
 
 Configure `root`, `trigger`, and `content` through `collapsible.base` in your Theme. The root and
 Content expose `data-expanded` and `data-closed` for state styling, and the Trigger also exposes
-`data-disabled`. Collapsible also renders an internal wrapper with `data-expanded`, `data-closed`,
-and `data-transition` for measurement, height animation, presence, and accessibility. You cannot
+`data-disabled`.
+
+Collapsible also renders an internal wrapper with `data-expanded`, `data-closed`, and
+`data-transition` for measurement, height animation, presence, and accessibility. You cannot
 configure that wrapper through Theme, `classes`, `styles`, or Content props.
 
 Root `classes` and `styles` set defaults for this Collapsible. Use `class` and `style` directly on

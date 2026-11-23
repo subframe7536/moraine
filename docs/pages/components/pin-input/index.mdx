@@ -36,12 +36,10 @@ export function Example() {
 
 ### Values and completion
 
-`length` sets the number of slots (default `5`). `value` and `defaultValue` are the joined string
-(`'123456'`), filtered by `validationType` and truncated to `length`. `onValueChange` receives the
-joined string; cleared slots are dropped from it, and `onComplete` receives the joined string once
-every slot is filled. Set `name` to submit the joined value through a hidden input, and `form` to
-associate the control with a `<form>` outside its ancestors. A native form reset restores
-`defaultValue`.
+- `length` (default `5`): sets the number of single-character input slots.
+- `value` and `defaultValue`: joined string (such as `'123456'`), filtered by `validationType` and truncated to `length`. A native form reset restores `defaultValue`.
+- `onValueChange` and `onComplete`: `onValueChange` fires with the joined string (cleared slots are omitted); `onComplete` fires with the joined string once every slot is filled.
+- `name` and `form`: `name` renders a hidden input to submit the joined value; `form` associates the control with an external `<form>`.
 
 ```tsx
 <PinInput length={4} value={code()} onValueChange={setCode} />
@@ -49,10 +47,8 @@ associate the control with a `<form>` outside its ancestors. A native form reset
 
 ### Validation and mask
 
-`validationType` controls which characters a slot accepts: `'number'` (digits), `'alpha'` (letters),
-`'alphanumeric'`, or `'text'` (any non-whitespace character, the default). It also picks the default
-`inputMode`; set `inputMode` to override it. Use `mask` to render the slots as password inputs and
-conceal the entered characters.
+- `validationType`: restricts which characters a slot accepts (`'number'` for digits, `'alpha'` for letters, `'alphanumeric'`, or `'text'` for any non-whitespace character, the default). It also selects the default `inputMode` unless `inputMode` is set explicitly.
+- `mask`: renders slots as password inputs to conceal entered characters.
 
 ```tsx
 <PinInput validationType="number" mask length={4} />

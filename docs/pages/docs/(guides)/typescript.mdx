@@ -73,7 +73,10 @@ types such as `DialogT.ContentProps`.
 
 ## Visual Variants (`XxxT.Variants`)
 
-Components with visual variants expose their options under `XxxT.Variants`. The matching props on `XxxProps` also accept `undefined` and `null`. `undefined` falls back to the variant inherited from an ancestor (such as a group), then to the recipe default, including `defaultVariants` from a `MoraineProvider` theme. `null` selects no value, so no styles for that variant apply, while base recipe styles and other variants remain active:
+Components with visual variants expose their options under `XxxT.Variants`. The matching props on `XxxProps` also accept `undefined` and `null`:
+
+- **`undefined` (omitted)**: Inherits the variant from an ancestor context (such as `ButtonGroup`), then falls back to the recipe default or `MoraineProvider` `defaultVariants`.
+- **`null`**: Disables that variant dimension so none of its variant classes apply, while keeping base recipe classes and other variant dimensions active:
 
 ```tsx
 import type { ButtonProps } from 'moraine'

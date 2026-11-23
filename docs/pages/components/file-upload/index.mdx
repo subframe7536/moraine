@@ -64,10 +64,12 @@ export function Example() {
 ### Selecting files
 
 `variant` sets the appearance: `area` (the default) shows a large dashed drop area, and `button`
-shows a compact picker button. Clicking anywhere in the visible control, including its padding, icon,
-and text, opens the file picker. `dropzone` (default `true`) only controls whether files can be
-dropped onto the control; it does not change how the control looks. File previews and removal
-actions are outside the picker hit area.
+shows a compact picker button. Clicking anywhere in the visible control, including its padding,
+icon, and text, opens the file picker; file previews and removal actions are outside the picker hit
+area.
+
+`dropzone` (default `true`) controls only whether files can be dropped onto the control; it does not
+change how the control looks.
 
 Use `multiple` when the value can hold more than one `File`. New files are appended to the
 selection, and `value` and `onValueChange` use a `File[]`. Without `multiple`, a new file replaces
@@ -82,8 +84,10 @@ the current one, and the value is `File | null`.
 
 The selected files appear in a list below the control, with an image thumbnail for image files and
 `fileIcon` for other types. Set `fileList={false}` to omit the list and render the selection
-yourself from `onValueChange`. Use `itemRender` to replace each entry. It receives `file`, `index`,
-`previewUrl`, `remove`, and `disabled`, and must return an `<li>`.
+yourself from `onValueChange`.
+
+Use `itemRender` to replace each entry. It receives `file`, `index`, `previewUrl`, `remove`, and
+`disabled`, and must return an `<li>`.
 
 ```tsx
 <FileUpload
@@ -102,11 +106,17 @@ yourself from `onValueChange`. Use `itemRender` to replace each entry. It receiv
 ### Rejections and forms
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate each picked or dropped file before it is
-added. `maxFiles` counts files already selected and applies only with `multiple`. Rejected files are
-reported to `onValueInvalid` as `rejections`, each with the file and its `reasons`, named after the
-matching `ValidityState` key: `typeMismatch` (not in `accept`), `rangeUnderflow` (under `minSize`),
-`rangeOverflow` (over `maxSize`), `tooLong` (over `maxFiles`), and `duplicate` (already selected).
-Accepted files from the same batch are still added.
+added. `maxFiles` counts files already selected and applies only with `multiple`. Accepted files
+from the same batch are still added.
+
+Rejected files are reported to `onValueInvalid` as `rejections`, each with the `file` and its
+`reasons` array (named after `ValidityState` keys):
+
+- `typeMismatch`: not matching `accept`
+- `rangeUnderflow`: smaller than `minSize`
+- `rangeOverflow`: larger than `maxSize`
+- `tooLong`: exceeds `maxFiles`
+- `duplicate`: already selected
 
 `readOnly` keeps the selected list visible but blocks adding and removing files. `disabled` removes
 all interaction. Both inherit the enclosing Field's state when omitted, and an explicit `false`

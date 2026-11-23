@@ -49,10 +49,12 @@ Content is portaled into an internal positioning wrapper.
 ## Usage
 
 Use Tooltip for supplemental information on hover or focus. Use [Popover](/components/popover) when
-the content is interactive. Use [Dialog](/components/dialog) or [Sheet](/components/sheet) for a
-task that should take over the page. Do not rely on tooltip text as the only accessible name of a
-control: the trigger needs its own name, such as visible text or `aria-label`. The trigger
-references the content through `aria-describedby`.
+the content is interactive, or [Dialog](/components/dialog) and [Sheet](/components/sheet) for a
+task that should take over the page.
+
+Do not rely on tooltip text as the only accessible name of a control: the trigger needs its own
+name, such as visible text or `aria-label`. The trigger references the content through
+`aria-describedby`.
 
 ```tsx
 import { Button, Tooltip } from 'moraine'
@@ -84,8 +86,10 @@ colors.
 
 Tooltip opens from pointer hover and keyboard focus. `kbds` displays shortcut notation after the
 hint; it does not register that shortcut. Names such as `command`, `ctrl`, `shift`, and `meta`
-render as symbols. Set `kbdVariant` on `Tooltip` to `default`, `outline`, or `invert`. When
-omitted, keycaps use `invert` if the tooltip's `variant` is `invert`, and `default` otherwise.
+render as symbols.
+
+Set `kbdVariant` on `Tooltip` to `default`, `outline`, or `invert`. When omitted, keycaps use
+`invert` if the tooltip's `variant` is `invert`, and `default` otherwise.
 
 ```tsx
 <Tooltip kbdVariant="outline">
@@ -98,12 +102,15 @@ omitted, keycaps use `invert` if the tooltip's `variant` is `invert`, and `defau
 
 ### Delays and groups
 
-`openDelay` (default 600 ms) waits before opening from hover or focus, and `closeDelay` (default
-200 ms) lets the pointer move from the trigger onto the content without closing it. Set either to
-`0` for no delay. After one tooltip closes, any tooltip in the same document opens without
-`openDelay` for `skipDelay` (default 300 ms), so moving across a toolbar does not wait on every
-button; set it to `0` to disable the grace period. `placement` defaults to `'top'`, and `gutter`
-defaults to 4 px.
+Configure timing and positioning on `Tooltip`:
+
+- `openDelay` (default `600` ms): waits before opening from hover or focus. Set to `0` for no delay.
+- `closeDelay` (default `200` ms): lets the pointer move from the trigger onto the content without
+  closing it. Set to `0` for no delay.
+- `skipDelay` (default `300` ms): after one tooltip closes, any tooltip in the same document opens
+  without `openDelay` during this window so moving across a toolbar does not wait on every button.
+  Set to `0` to disable.
+- `placement` and `gutter`: default to `'top'` and `4` px.
 
 Control the open state with `open` and `onOpenChange`, or start open with `defaultOpen`. `disabled`
 keeps the tooltip closed, and `forceMount` keeps its content in the DOM while closed.

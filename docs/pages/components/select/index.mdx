@@ -1,6 +1,6 @@
 ---
 title: Select
-description: Choose one item from a non-editable collection — no search input or virtual scrolling; use Combobox for those.
+description: Choose one item from a non-editable collection popup.
 group: Select
 api:
   path: src/components/select/select
@@ -69,10 +69,12 @@ Select renders the portaled popup internally; the popup names are style slots, n
 
 ## Usage
 
-Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
-users need to type a query or the collection is large enough to need virtualization,
-[MultiSelect](/components/multi-select) for several collection values, or
-[BaseSelect](/components/base-select) to compose the listbox yourself.
+Use Select for one choice from a non-editable collection.
+
+- Use [Combobox](/components/combobox) when users need to type a query or the collection is large
+  enough to need virtualization.
+- Use [MultiSelect](/components/multi-select) for several collection values.
+- Use [BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ```tsx
 import { Field, Select } from 'moraine'
@@ -110,9 +112,10 @@ or inside a group. Whitespace is preserved, and an empty string is a valid value
 
 A string item normalizes to `{ value, label }` with both set to the string, so `'Apple'` becomes
 `{ value: 'Apple', label: 'Apple' }`. Object items keep their custom fields, and
-`SelectT.NormalizedItem<TItem>` is the item type passed to callbacks. Item values must be unique
-across the collection. When two items share a value, the first one wins (including a string that
-collides with an object), and development builds log an error.
+`SelectT.NormalizedItem<TItem>` is the item type passed to callbacks.
+
+Item values must be unique across the collection. When two items share a value, the first one wins
+(including a string that collides with an object), and development builds log an error.
 
 ### Value and collection
 
@@ -130,7 +133,9 @@ form field, clearing writes `null`.
 ### Clear and loading
 
 `clearable` shows a clear button beside the trigger while a value is selected. Clicking it clears
-the selection without toggling the popup. Backspace or Delete on the focused trigger also clears.
+the selection without toggling the popup, and pressing Backspace or Delete on the focused trigger
+also clears.
+
 Clearing calls `onValueChange(null)`, then `onClear`, and returns focus to the trigger. Neither
 fires while the select is disabled or read-only.
 
@@ -140,10 +145,11 @@ disable the select.
 ### Positioning and dismissal
 
 The popup opens below the control and aligns to its start edge. `placement`, `align`, `gutter`,
-`shift`, `flip`, `slide`, and `overflowPadding` adjust that position. `closeOnEscape` and
-`closeOnOutsideClick` default to `true`; set either to `false` to block that dismissal and listen
-for it with `onClosePrevented`. Combobox and MultiSelect accept the same props. `open`,
-`defaultOpen`, and `onOpenChange` control the popup state.
+`shift`, `flip`, `slide`, and `overflowPadding` adjust that position.
+
+`closeOnEscape` and `closeOnOutsideClick` default to `true`; set either to `false` to block that
+dismissal and listen for it with `onClosePrevented`. `open`, `defaultOpen`, and `onOpenChange`
+control the popup state. Combobox and MultiSelect accept the same props.
 
 ```tsx
 <Select items={items} placement="top" align="end" flip={false} />

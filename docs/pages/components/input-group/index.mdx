@@ -36,11 +36,9 @@ Place Leading parts before one Input or Textarea, then Trailing parts. The final
 
 ## Usage
 
-Use InputGroup when an editable control and its addons should share one visual boundary. The inner
-[Input](/components/input) or [Textarea](/components/textarea) still owns text entry and its
-accessible name. Render the control as a direct child of InputGroup. `InputGroup.Leading` and
-`InputGroup.Trailing` throw when rendered outside an InputGroup, and each renders a `div` unless you
-set `as`.
+Use InputGroup when an editable control and its addons share one visual boundary. Render a single [Input](/components/input) or [Textarea](/components/textarea) as a direct child; the control still owns text entry and its accessible name.
+
+`InputGroup.Leading` and `InputGroup.Trailing` must render inside an `InputGroup`, and each renders a `div` unless `as` is set.
 
 ```tsx
 import { Field, Input, InputGroup } from 'moraine'
@@ -59,10 +57,9 @@ export function Example() {
 
 ### Direction and orientation
 
-In horizontal groups (the default), Leading and Trailing follow the document's writing direction.
-In vertical groups, they sit above and below the control. Set `inputGroup.defaultVariants.orientation`
-in your Theme to change the shared default, or `inputGroup.variants.orientation` to override its
-styles.
+In horizontal groups (the default), `Leading` and `Trailing` follow the document writing direction. In vertical groups, they sit above and below the control.
+
+Configure `inputGroup.defaultVariants.orientation` in your Theme to change the shared default, or `inputGroup.variants.orientation` to override its styles.
 
 ```tsx
 <InputGroup>
@@ -79,9 +76,7 @@ styles.
 
 ### Compact
 
-Set `compact` on a `Leading` or `Trailing` part to reduce its padding. In horizontal groups it
-uses smaller inline padding; in vertical groups it uses smaller padding on all sides. Use it for
-icon buttons, keyboard shortcuts, and inline prefixes.
+Set `compact` on `Leading` or `Trailing` to reduce its padding (inline padding in horizontal groups, all sides in vertical groups). Use it for icon buttons, keyboard shortcuts, and inline prefixes.
 
 ```tsx
 <InputGroup>
@@ -95,17 +90,9 @@ icon buttons, keyboard shortcuts, and inline prefixes.
 
 ### Styling and forms
 
-`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size`
-and `variant` to style the group. Disabled presentation stays on the native `Input` or `Textarea`,
-and the control's own `variant` applies only outside a group.
-
-Size precedence is the control's explicit size, group size, Field size, then theme defaults.
-`classes.leading`, `classes.trailing`, and their `styles` equivalents set group-wide presentation;
-each part's `class` and `style` override it.
-
-Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on
-the control. InputGroup does not register a form field. Pressing non-interactive group space
-focuses the control; buttons, links, and other interactive elements keep their own focus behavior.
+- **Shared frame**: `InputGroup` owns the border, background, radius, and focus/invalid frame via `size` and `variant`. The control's own `variant` applies only outside a group, while disabled state stays on the control.
+- **Size and slot precedence**: size resolves from the control's explicit `size`, group `size`, `Field` size, then theme defaults. `classes.leading` / `classes.trailing` and `styles` set group-wide presentation; each part's `class` and `style` override them.
+- **Form and focus**: keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control (`InputGroup` does not register a form field). Clicking non-interactive group space focuses the control, while buttons and links keep their own focus behavior.
 
 ## Examples
 

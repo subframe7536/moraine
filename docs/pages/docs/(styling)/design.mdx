@@ -11,9 +11,14 @@ Use semantic CSS variables to customize colors, typography, spacing, border radi
 
 ## CSS Variables
 
-With UnoCSS, `presetMoraine()` supplies a neutral light and dark palette and accepts named [`override` entries](/docs/unocss#theme-tokens). Use `presetMoraine({ wind3: true })` with Wind3. When defining the palette in CSS, set `themeDefaults: false` and supply the colors and semantic shadows yourself. Tailwind users also define these values in CSS.
+With UnoCSS, `presetMoraine()` supplies a neutral light and dark palette and accepts named [`override` entries](/docs/unocss#theme-tokens). Pass `presetMoraine({ wind3: true })` when using Wind3. When defining the palette in CSS (or when using Tailwind CSS), supply the colors and semantic shadows in your stylesheet.
 
-Define the base color variables listed below for both the light and the dark theme, along with `--radius`, `--spacing`, and `--font-size`; the `-hover`, `-active`, and status `-foreground` variables are optional. The status colors `--info`, `--success`, `--warning`, and `--danger` use Moraine's tuned status palette, where warning is amber/orange rather than bright yellow. Add the [semantic shadows](#backdrop-and-semantic-shadows) and [font families](#typography-and-spacing) described below when using an external theme. Set `color-scheme: light` or `color-scheme: dark` in each theme scope so native browser controls follow the theme.
+When authoring a custom CSS theme:
+
+- Define the base color variables below for both light and dark themes, along with `--radius`, `--spacing`, and `--font-size`.
+- The `-hover`, `-active`, and status `-foreground` variables are optional. Status colors (`--info`, `--success`, `--warning`, `--danger`) use Moraine's tuned status palette, where `--warning` is amber/orange rather than bright yellow.
+- Define [semantic shadows](#backdrop-and-semantic-shadows) (`--shadow-surface`, `--shadow-overlay`, `--shadow-input`) and [font families](#typography-and-spacing) (`--font-sans`, `--font-mono`, `--font-serif`).
+- Set `color-scheme: light` or `color-scheme: dark` on each theme selector so native browser controls match the theme.
 
 ### Color Tokens
 
@@ -44,9 +49,13 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--mo-anim-ease`                                                                                            | Overrides the easing of `animate-mo-enter` and `animate-mo-exit` in its scope.                           | Direction-specific easing when unset.                                                                                  |
 | `--mo-anim-ease-enter`, `--mo-anim-ease-exit`                                                               | Easing for entrance and exit when the shared easing is unset.                                            | `cubic-bezier(0.16, 1, 0.3, 1)` and `cubic-bezier(0.7, 0, 0.84, 0)`, respectively.                                     |
 
-UnoCSS emits default `control`, `backdrop`, and semantic shadows only when `themeDefaults` is enabled or the values are explicitly configured. The backdrop utility retains its fallback when the variable is absent. `--font-size`, `--spacing`, and `--radius` keep their root defaults when `themeDefaults: false`. Animation duration variables use CSS fallbacks unless configured. The preset emits `--sidebar-width` only when configured; Sidebar uses `clamp(14rem, 25%, 20rem)` when unset. With Tailwind, supply the palette and shadow values in your stylesheet.
+How the UnoCSS preset and Tailwind plugin handle defaults:
 
-Use `override.<theme>.colors` for `control`, `backdrop`, and explicit interaction colors; use `override.<theme>.shadows` for semantic shadows. The preset also accepts `fontSize`, `spacing`, `radius`, and `sidebarWidth` at the top level or inside a theme override. Set animation controls directly in CSS. For example, customize a container using Wind4 or Tailwind v4:
+- **UnoCSS (`presetMoraine`)**: Emits default `control`, `backdrop`, and semantic shadows when `themeDefaults` is `true` (default) or when explicitly configured in `override.<theme>.colors` / `override.<theme>.shadows`. `--font-size`, `--spacing`, and `--radius` keep their root defaults even with `themeDefaults: false`. `--sidebar-width` is emitted only when `sidebarWidth` is configured.
+- **Tailwind (`moraine/tailwind`)**: Reads these CSS variables directly; supply the palette and shadow tokens in your stylesheet.
+- **Animations**: Duration and easing variables use CSS fallbacks unless overridden directly in CSS.
+
+For example, scope custom dimensions and animation durations to a container in Wind4 or Tailwind v4:
 
 ```css
 .workspace {
@@ -58,9 +67,7 @@ Use `override.<theme>.colors` for `control`, `backdrop`, and explicit interactio
 }
 ```
 
-Variables inherit through DOM ancestors. Portaled overlays need these values on an ancestor of the portal container, such as the document root, or a portal mounted inside the themed container.
-
-Use the [Animations guide](/docs/animations) to customize entrance and exit motion.
+Variables inherit through DOM ancestors. Portaled overlays require these variables on an ancestor of the portal container (such as `:root` or a custom `mount` target). See the [Animations guide](/docs/animations) to customize entrance and exit motion.
 
 ### Surface Colors and Tones
 
@@ -105,9 +112,9 @@ Moraine generates interaction tokens and tone ink inside an `@supports (color: c
    - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink, default 25% foreground), with `transparent` (for soft, default 12% tone, so the wash composites on the local surface), or with `var(--border)` (for border, default 20% tone + 80% border).
    - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, `transparent` for soft, or `var(--border)` for border.
 
-Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
+Inside component recipes such as `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`).
 
-See the [UnoCSS guide](/docs/unocss#surface-states-and-tone-derivation) for configuring `mix` percentages.
+This keeps recipes free of compound variants, while application code can still consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly. See the [UnoCSS guide](/docs/unocss#surface-states-and-tone-derivation) for configuring `mix` percentages.
 
 ## Border Radius Scale
 
@@ -135,7 +142,7 @@ Use these tokens to customize component elevation by role. `--backdrop` controls
 | `shadow-overlay` | `--shadow-overlay` | Tailwind `md`  | Menus, selection panels, popovers, dialogs, sheets, tooltips, command palettes                         |
 | `shadow-input`   | `--shadow-input`   | Tailwind `xs`  | Outline and subtle fields, checkbox controls, switch tracks and thumbs, slider thumbs, upload controls |
 
-Set a shadow token to `none` to remove elevation for that role. UnoCSS emits default values for the three semantic shadows, matching Tailwind's `sm`, `md`, and `xs` values used by shadcn/ui's neutral theme. With Tailwind or `themeDefaults: false`, define the semantic shadows in your stylesheet or explicit overrides. Changing a role token leaves explicit size utilities such as `shadow-lg` unchanged.
+Set a shadow token to `none` to remove elevation for that role. UnoCSS emits default values for the three semantic shadows (`sm`, `md`, `xs`), whereas with Tailwind or `themeDefaults: false` you define them in your stylesheet. Changing a role token leaves explicit size utilities such as `shadow-lg` unchanged.
 
 ```css title="src/theme.css"
 :root {
@@ -169,7 +176,7 @@ Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS eng
 
 With Wind4 and Tailwind v4, set `--font-size` on a container to scale the default `text-tiny` through `text-9xl` utilities. Wind3 uses its configured font sizes and does not scale them through `--font-size`. Explicit CSS engine typography overrides follow the values you configure.
 
-Moraine's default `font-sans`, `font-mono`, and `font-serif` utilities use the corresponding CSS variables, but Moraine does not supply family values. With UnoCSS, configure `theme.font` (Wind4) or `theme.fontFamily` (Wind3) to use literal families or your own variable references; see [Font families](/docs/unocss#font-families). To use the default variable mapping, define the families in your stylesheet:
+Moraine's `font-sans`, `font-mono`, and `font-serif` utilities read `--font-sans`, `--font-mono`, and `--font-serif`, without bundling default font stacks. Configure `theme.font` (Wind4) or `theme.fontFamily` (Wind3) in UnoCSS (see [Font families](/docs/unocss#font-families)), or define the variables directly in your stylesheet:
 
 ```css title="src/theme.css"
 :root {

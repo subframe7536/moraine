@@ -83,12 +83,12 @@ export function Example() {
 
 The group value is an array of item values. Pair `value` with `onValueChange` for controlled
 selection, or set `defaultValue` when the group owns its initial state. `onValueChange` receives the
-complete next array and fires only for user toggles. A disabled group disables all items; an item
-can also be disabled independently.
+complete next array and fires only for user toggles.
 
-`items` accepts objects with `value`, `label`, `description`, `disabled`, `indeterminate`,
-`checkedIcon`, and `indeterminateIcon`. A string is shorthand for an item whose `value` and `label`
-are that string. Item `value` is required and must be unique within the group.
+A disabled group disables all items; an item can also be disabled independently. `items` accepts
+objects with `value`, `label`, `description`, `disabled`, `indeterminate`, `checkedIcon`, and
+`indeterminateIcon`, or a string shorthand whose `value` and `label` are that string. Item `value`
+is required and must be unique within the group.
 
 ```tsx
 <CheckboxGroup
@@ -104,9 +104,10 @@ are that string. Item `value` is required and must be unique within the group.
 
 Give the group a `name` for native form submission, or place it inside `form.Field` from
 [createForm](/components/form) for schema binding. Standalone [Field](/components/field) supplies
-labels and messages without validation. With `required`, the group is valid when at least one
-enabled item is selected. Each checkbox keeps its own tab stop; the group does not use radio-style
-arrow navigation.
+labels and messages without validation.
+
+With `required`, the group is valid when at least one enabled item is selected. Each checkbox keeps
+its own tab stop; the group does not use radio-style arrow navigation.
 
 ```tsx
 <CheckboxGroup name="permissions" items={roleOptions} defaultValue={['read']} />

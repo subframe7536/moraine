@@ -75,11 +75,13 @@ export function Example() {
 
 ### Panels and links
 
-Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and
-`NavigationMenu.Link` for its destinations; a link can also sit directly in a `NavigationMenu.Item`.
-`active` marks the current page with `aria-current="page"`. Clicking a link closes the open panel;
-set `closeOnSelect={false}` to keep it open, or call `preventDefault()` in a click handler to cancel
-the close. A disabled link loses its `href` and gets `aria-disabled`.
+Combine expandable panels with direct links:
+
+- `NavigationMenu.Content`: holds an item's expandable panel.
+- `NavigationMenu.Link`: renders a destination inside `Content` or directly inside `NavigationMenu.Item`.
+- `active`: marks the current page with `aria-current="page"`.
+- `closeOnSelect`: clicking a link closes the open panel by default. Set `closeOnSelect={false}` to keep it open, or call `preventDefault()` in a click handler to cancel closing.
+- `disabled`: removes `href` from a link and sets `aria-disabled`.
 
 ```tsx
 <NavigationMenu.Item value="products">
@@ -97,17 +99,16 @@ the close. A disabled link loses its `href` and gets `aria-disabled`.
 </NavigationMenu.Item>
 ```
 
-The root renders a navigation landmark. Give it an accessible name when the page has several
-navigation landmarks. This version supports one level of panels.
+The root renders a `<nav>` landmark. Give it an `aria-label` when the page has multiple navigation landmarks. `NavigationMenu` supports one level of panels.
 
 ### Controlled state
 
-Give each item a stable `value`, then control the open item with `value` and `onValueChange`.
-`onValueChange` receives the value of the item to open, or `null` to close, and you write it back
-to `value`. Pass `null` to keep a controlled menu closed; `undefined` leaves it uncontrolled. A value that matches no enabled item with content leaves the menu closed, so
-disabled or removed items cannot keep a panel open. For uncontrolled state, `defaultValue` opens an
-item after hydration. `disabled` on the root disables every trigger and link and closes the
-open panel; on an `Item` it disables only that item's trigger or direct links.
+Give each item with content a stable `value`:
+
+- `value` and `onValueChange`: control the open item. `onValueChange` receives the item `value` to open or `null` to close; write it back to `value`.
+- `null` vs `undefined`: pass `value={null}` to keep a controlled menu closed; `value={undefined}` leaves it uncontrolled. A value matching no enabled item with content also leaves the menu closed.
+- `defaultValue`: opens an initial item after hydration in uncontrolled mode.
+- `disabled`: on the root, disables every trigger and link and closes any open panel; on an `Item`, disables only that item's trigger or direct links.
 
 ```tsx
 <NavigationMenu value={value()} onValueChange={setValue} disabled={disabled()}>
@@ -122,8 +123,7 @@ open panel; on an `Item` it disables only that item's trigger or direct links.
 
 ### Orientation
 
-Set `orientation="vertical"` for a vertical list. Use `placement="right"` to place its panels beside
-the triggers.
+Set `orientation="vertical"` for a vertical list. Use `placement="right"` to place its panels beside the triggers.
 
 ```tsx
 <NavigationMenu aria-label="Docs navigation" orientation="vertical" placement="right">
@@ -133,17 +133,13 @@ the triggers.
 
 ### Hover and positioning
 
-Panels open on hover after `openDelay` (default `50` ms) while no panel is open; hovering another
-trigger while a panel is open switches immediately, and click or keyboard activation never waits.
-The open panel closes `closeDelay` (default `50` ms) after the pointer leaves the menu, and stays
-open while focus is inside it. `placement` (default `'bottom'`), `align` (default `'center'`),
-`gutter` (default `8`), `shift`, `flip`, and `slide` position the shared panel relative to the
-active trigger.
+- `openDelay` (default `50` ms): delays hover opening when no panel is open. Hovering another trigger while a panel is open switches immediately, and click or keyboard activation never waits.
+- `closeDelay` (default `50` ms): delays closing after the pointer leaves the menu. The panel stays open while focus is inside it.
+- Positioning: `placement` (default `'bottom'`), `align` (default `'center'`), `gutter` (default `8`), `shift`, `flip`, and `slide` position the shared panel relative to the active trigger.
 
 ### RTL
 
-Set `dir="rtl"` on a surrounding container for right-to-left navigation. Arrow keys follow that
-direction, including the key that opens a panel from a vertical menu.
+Set `dir="rtl"` on a surrounding container for right-to-left navigation. Arrow keys follow that direction, including the key that opens a panel from a vertical menu.
 
 ```tsx
 <div dir="rtl">
@@ -155,8 +151,7 @@ direction, including the key that opens a panel from a vertical menu.
 
 ### Custom links
 
-Use `linkRender` for a router's link component. Forward the supplied attributes, events, children,
-object style, and ref to the anchor.
+Use `linkRender` for a router's link component. Forward the supplied attributes, events, children, object style, and ref to the anchor.
 
 ```tsx
 <NavigationMenu.Link linkRender={RouterLink} href="/components/button">
@@ -166,9 +161,10 @@ object style, and ref to the anchor.
 
 ### Keyboard interaction
 
-Arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger. ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
-
-Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
+- **Trigger list**: arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger.
+- **Opening panels**: ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
+- **Inside panels**: Tab and Shift+Tab preserve focus order between the trigger, its portaled content, and the next navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys.
+- **Dismissal**: Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without stealing focus from the destination.
 
 ## Examples
 

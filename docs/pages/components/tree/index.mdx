@@ -1,6 +1,6 @@
 ---
 title: Tree
-description: Render hierarchical data with createTree, with expansion, selection, cascading checkboxes, lazy loading, and virtualization.
+description: Render hierarchical data with expansion, selection, cascading checkboxes, lazy loading, and virtualization.
 group: Navigation
 api:
   path: src/components/tree/tree
@@ -222,9 +222,9 @@ loaded yet. A checked key under a lazy branch applies once its item loads. With 
 children loaded under a checked branch start checked.
 
 In a custom `itemRender`, place `tree.ItemCheckbox` yourself. It follows the tree `size` and the
-item's check state. It is hidden from assistive technology and removed from the tab order because
-the `treeitem` carries `aria-checked`; <kbd>Space</kbd> on the item toggles it. Change its glyphs
-with `checkedIcon` and `indeterminateIcon`.
+item's check state, and change its glyphs with `checkedIcon` and `indeterminateIcon`. It is hidden
+from assistive technology and removed from the tab order because the `treeitem` carries
+`aria-checked`; <kbd>Space</kbd> on the item toggles it.
 
 ```tsx
 <tree.Tree
@@ -246,10 +246,12 @@ Provide `loadChildren` to fetch children on demand. An item becomes a lazy branc
 array from `getChildren`, or mark the item with `isLeaf`, when it can never have children.
 
 Expanding a lazy branch waits for the promise. While it loads, the trigger shows `loadingIcon`,
-the item sets `aria-busy`, and its key appears in `loadingKeys`. On success the branch expands and
-`onLoadChildrenSuccess` runs. On failure `onLoadChildrenError` runs and the branch stays
-collapsed, so expanding it again retries. Lazy keys in `defaultExpandedKeys` or `expandedKeys` load
-the same way.
+the item sets `aria-busy`, and its key appears in `loadingKeys`. Lazy keys in `defaultExpandedKeys`
+or `expandedKeys` load the same way:
+
+- On success: the branch expands and `onLoadChildrenSuccess` runs.
+- On failure: `onLoadChildrenError` runs and the branch stays collapsed, so expanding it again
+  retries.
 
 Loaded children are cached per key while `items()` keeps returning the same item object for that
 key. Returning a new object for a key drops its cached children and loads them again: right away

@@ -47,15 +47,22 @@ interface BaseSelectSearchInputOptions {
 const { inputProps, isComposing, discardComposition } = createBaseSelectSearchInput(options)
 ```
 
-Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or provide equivalent functions. `setSearchValue` must return the text it applies. Spread `inputProps` on an `<input>`. `isComposing` reports an active IME composition, so a custom control can defer its own keyboard work. `discardComposition` drops the composition draft, for example before clearing the selection.
+Required options and returned values:
 
-- `enabled` defaults to `true`. When it is `false`, the input is read-only and BaseSelect handles keys as it does for a non-editable control.
-- `displayValue` defaults to `searchValue`. A Combobox can supply the selected label while the list is closed.
+- **`searchValue` and `setSearchValue`**: Pass a Solid signal accessor and setter (or equivalent functions). `setSearchValue` must return the applied query string.
+- **`inputProps`**: Spread onto your `<input>` element to wire ARIA attributes, value, focus, keyboard navigation, and IME composition handlers.
+- **`isComposing`**: Accessor reporting whether an IME composition is active so custom controls can defer keyboard handling.
+- **`discardComposition`**: Clears any active IME composition draft (for example before clearing the selection).
+
+Optional configuration:
+
+- `enabled` defaults to `true`. When `false`, the input is read-only and `BaseSelect` handles keys as a non-editable control.
+- `displayValue` defaults to `searchValue`. A `Combobox` can supply the selected item label while the popup is closed.
 - `transformInput` runs on each committed input before `setSearchValue`.
-- `maxLength` sets the native input attribute. Clamp the value in your setter too when programmatic updates must obey the same limit.
+- `maxLength` sets the native `<input>` attribute. Clamp the value in your setter as well when programmatic updates must respect the same limit.
 - `autoComplete` defaults to `'off'`.
 
-A non-empty committed query opens the list. During IME composition, the input shows the draft and commits it when the composition ends.
+A non-empty committed query opens the popup. During IME composition, the input displays the draft text and commits it when composition ends.
 
 ## Example
 

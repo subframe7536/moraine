@@ -49,10 +49,11 @@ import Playground from './playground'
 
 ## Usage
 
-Use RadioGroup for one choice from a small visible set. For a longer or space-constrained
-collection, use [Select](/components/select). Use [CheckboxGroup](/components/checkbox-group) when
-several options may be selected together. The group renders a `<fieldset>`; `legend` names it or a
-wrapping [Field](/components/field) label takes precedence.
+Use RadioGroup for one choice from a small visible set. The group renders a `<fieldset>`; `legend`
+names it, or a wrapping [Field](/components/field) label takes precedence.
+
+- For a longer or space-constrained collection, use [Select](/components/select).
+- When several options may be selected together, use [CheckboxGroup](/components/checkbox-group).
 
 ```tsx
 import { Field, RadioGroup } from 'moraine'
@@ -74,10 +75,11 @@ export function Example() {
 ### Single selection
 
 `items` takes strings (used as both `value` and `label`) or objects with `value`, `label`,
-`description`, and `disabled`. The selected item is one string: use `defaultValue` for uncontrolled
-state, or pair `value` with `onValueChange` for controlled state. `onValueChange` fires only when the
-user selects a different item. Disabled items stay visible but cannot be selected or focused.
-`variant` sets the layout (`list`, `card`, or `table`), and `orientation` sets the direction.
+`description`, and `disabled`. Disabled items stay visible but cannot be selected or focused.
+
+The selected item is one string: use `defaultValue` for uncontrolled state, or pair `value` with
+`onValueChange` for controlled state. `onValueChange` fires only when the user selects a different
+item. `variant` sets the layout (`list`, `card`, or `table`), and `orientation` sets the direction.
 
 ```tsx
 <RadioGroup items={planOptions} value={plan()} onValueChange={setPlan} />

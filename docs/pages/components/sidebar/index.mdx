@@ -165,14 +165,17 @@ state.
 </Sidebar.Trigger>
 ```
 
-Each layout has its own open state. `open`, `defaultOpen` (default `true`), and `onOpenChange`
-control the desktop panel; `mobileOpen`, `defaultMobileOpen` (default `false`), and
-`onMobileOpenChange` control the mobile drawer. `Sidebar.Trigger` and `Sidebar.useContext()` act on
-the layout that is active, so a persisted desktop `open` never opens the drawer when the viewport
-shrinks. The trigger and the rail report desktop changes through `onOpenChange`; the trigger, Escape
-or overlay dismissal, and `closeOnSelect` report drawer changes through `onMobileOpenChange`.
-Switching layouts calls neither callback. Leaving mobile closes an uncontrolled drawer, while a
-controlled `mobileOpen` stays as you wrote it.
+Each layout has its own open state:
+
+- Desktop panel: controlled with `open`, `defaultOpen` (default `true`), and `onOpenChange`. The
+  trigger and the rail report desktop changes through `onOpenChange`.
+- Mobile drawer: controlled with `mobileOpen`, `defaultMobileOpen` (default `false`), and
+  `onMobileOpenChange`. The trigger, Escape or overlay dismissal, and `closeOnSelect` report drawer
+  changes through `onMobileOpenChange`.
+
+`Sidebar.Trigger` and `Sidebar.useContext()` act on the active layout, so a persisted desktop `open`
+never opens the drawer when the viewport shrinks. Switching layouts calls neither callback. Leaving
+mobile closes an uncontrolled drawer, while a controlled `mobileOpen` stays as you wrote it.
 
 ```tsx
 <Sidebar open={desktopOpen()} onOpenChange={setDesktopOpen}>
@@ -190,37 +193,44 @@ When `mobile` is omitted, `breakpoint` (default `768`) selects the layout throug
 `(max-width: ${breakpoint}px)` media query, and the server renders the desktop layout. Pass `mobile`
 to force either layout.
 
-`side` (`'start'`, the default, or `'end'`) and `variant` (`'default'`, `'floating'`, or `'inset'`)
-on the root choose the edge and chrome. `side` follows the text direction: `start` is the left edge in
-LTR content and the right edge in RTL content, for both the desktop panel and the mobile drawer. Root `classes` and `styles` set defaults for the slots of every
-part. On mobile, the sidebar renders inside a Drawer. Style the Sidebar regions through their own
-slots; Sidebar overrides do not style the internal Drawer. See [Theming](/docs/theming) for
-nested Provider behavior.
+Configure placement, visual chrome, and slot overrides on the root:
 
-`Sidebar` declares `--mo-sidebar-width` on its root. Pass a numeric `width` (controlled),
-`defaultWidth` (uncontrolled), `minWidth` (default `224`), or `maxWidth` (default `480`) in pixels.
-`onWidthChange` reports every width change. When none of the width props is set, the recipe fallback
-`var(--sidebar-width, clamp(14rem, 25%, 20rem))` applies, so you can also set the global
-`--sidebar-width` in CSS or with `presetMoraine`. When collapsed, the desktop panel keeps its width
-and slides out with a negative margin, so its content does not reflow during the transition.
+- `side` (`'start'`, the default, or `'end'`): follows text direction (`start` is left in LTR and
+  right in RTL) for both the desktop panel and the mobile drawer.
+- `variant` (`'default'`, `'floating'`, or `'inset'`): chooses the desktop panel chrome.
+- `classes` and `styles`: set defaults for the slots of every part. On mobile, style Sidebar regions
+  through their own slots; Sidebar overrides do not style the internal Drawer. See
+  [Theming](/docs/theming) for nested Provider behavior.
+
+`Sidebar` declares `--mo-sidebar-width` on its root:
+
+- Pass a numeric `width` (controlled), `defaultWidth` (uncontrolled), `minWidth` (default `224`), or
+  `maxWidth` (default `480`) in pixels. `onWidthChange` reports every width change.
+- When none of the width props is set, the recipe fallback
+  `var(--sidebar-width, clamp(14rem, 25%, 20rem))` applies, so you can set `--sidebar-width` in CSS
+  or with `presetMoraine`.
+- When collapsed, the desktop panel keeps its width and slides out with a negative margin, so its
+  content does not reflow during the transition.
 
 The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
 `class="h-dvh"` (or `h-svh`) on the root.
 
 Call `Sidebar.useContext()` from a descendant for `side`, `variant`, `mobile`, `open` (the active
-layout's state), `setOpen`, `toggle`, and `panelId`. Place a global application header outside
-the frame. Pass `translations` (`label` for the mobile drawer, `resize` for the rail) to localize
-the accessible names of one sidebar.
+layout's state), `setOpen`, `toggle`, and `panelId`. Pass `translations` (`label` for the mobile
+drawer, `resize` for the rail) to localize the accessible names of one sidebar.
 
 ### Resizable rail
 
 Place `Sidebar.Rail` directly between `Sidebar.Panel` and `Sidebar.Inset` to make the desktop
-sidebar resizable; it renders nothing on mobile. Dragging the rail updates the pixel width live
-between `minWidth` and `maxWidth`. Releasing a drag that changed the width calls `onWidthCommit`
-once, and each keyboard resize calls it too. A click without movement toggles the sidebar, and
-dragging below half of `minWidth` closes it; drag back to reopen. Set `disabled` on the rail to turn
-off resizing and toggling. Because the root is a splitter scope, a nested `Resizable` inside
-`Sidebar.Inset` whose handle has `intersection` and touches the rail cross-drags both.
+sidebar resizable; it renders nothing on mobile. Set `disabled` on the rail to turn off resizing and
+toggling.
+
+- Dragging: updates the pixel width live between `minWidth` and `maxWidth`. Releasing a drag that
+  changed the width calls `onWidthCommit` once, as does each keyboard resize.
+- Collapsing: clicking without movement toggles the sidebar. Dragging below half of `minWidth`
+  closes it; drag back to reopen.
+- Cross-axis dragging: because the root is a splitter scope, a nested `Resizable` inside
+  `Sidebar.Inset` whose handle has `intersection` and touches the rail cross-drags both.
 
 | Key                                                          | Action                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------ |

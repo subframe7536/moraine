@@ -34,8 +34,9 @@ the group renders no separators of its own.
 ## Usage
 
 Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own
-interactive control; the group supplies layout and shared presentation. Use
-[ToggleButton](/components/toggle-button) inside the group for independently pressed actions.
+interactive control; the group supplies layout and shared presentation.
+
+Use [ToggleButton](/components/toggle-button) inside the group for independently pressed actions.
 ButtonGroup does not coordinate selection or add toolbar keyboard navigation.
 
 ```tsx
@@ -55,9 +56,10 @@ export function Example() {
 
 Root `size` (`xs` to `xl`), `variant`, and `tone` set defaults for every descendant Button,
 ToggleButton, and CopyButton, and each child can override them. When the group omits one, each
-child keeps its own default (for example `solid` for Button, `ghost` for ToggleButton). `orientation`
-(`horizontal` by default, or `vertical`) sets the layout direction. Compose a menu or popover trigger
-as a child when an action needs an overlay.
+child keeps its own default (`solid` for Button, `ghost` for ToggleButton and CopyButton).
+
+`orientation` (`horizontal` by default, or `vertical`) sets the layout direction. Compose a menu or
+popover trigger as a child when an action needs an overlay.
 
 The root renders a `div` with `role="group"`, so give it an `aria-label`. Set `role="toolbar"` only
 if you also provide the toolbar keyboard behavior.

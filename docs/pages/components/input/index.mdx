@@ -44,21 +44,19 @@ export function Example() {
 
 ### Native attributes
 
-`Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and
-`defaultValue` for an initial uncontrolled value; a native form reset restores `defaultValue`.
-`value={undefined}` leaves the input uncontrolled, and a controlled input restores its displayed text
-to `value` after every edit, so update `value` from `onValueChange`. `readOnly` keeps the field
-focusable without allowing edits; `disabled` removes it from interaction. `autoComplete` defaults to
-`'off'`.
+`Input` forwards native `<input>` attributes and defaults `autoComplete` to `'off'`:
+
+- `value` and `onValueChange`: control the current text. A controlled input restores its displayed text to `value` after every edit, so update `value` from `onValueChange`.
+- `defaultValue`: sets the initial uncontrolled text and is restored on native form reset. Passing `value={undefined}` leaves the input uncontrolled.
+- `readOnly` and `disabled`: `readOnly` keeps the field focusable without allowing edits; `disabled` removes it from interaction.
 
 ```tsx
 <Input value={query()} onValueChange={setQuery} placeholder="Search projects..." />
 ```
 
-Inside a [Field](/components/field), Input inherits `size`, `required`, `disabled`, and `readOnly`,
-takes its `name` from the field when it sets none, and links the label, description, and error
-through ARIA attributes. Set `variant` (`'outline'`, `'subtle'`, `'ghost'`, or `'none'`) and `size`
-(`'sm'`, `'md'`, or `'lg'`) to change its presentation.
+Inside a [Field](/components/field), `Input` inherits `size`, `required`, `disabled`, and `readOnly`, takes its `name` from the field when omitted, and links the label, description, and error through ARIA attributes.
+
+Set `variant` (`'outline'`, `'subtle'`, `'ghost'`, or `'none'`) and `size` (`'sm'`, `'md'`, or `'lg'`) to change presentation.
 
 ### Value modifiers
 

@@ -44,10 +44,8 @@ export function Example() {
 
 ### Progress models
 
-Pass a numeric `value` from `0` to `max` for determinate progress; `max` defaults to `100`, and a
-`value` outside the range is clamped. Omit `value` for indeterminate progress, which sets no
-`aria-valuenow` and takes its `aria-valuetext` from the `progress.indeterminate` message. Use
-`animation` (`carousel`, `reverse`, `swing`, or `elastic`) to change the indeterminate motion.
+- **Determinate**: pass a numeric `value` from `0` to `max` (default `100`); values outside the range are clamped.
+- **Indeterminate**: omit `value` when total progress is unknown. Indeterminate bars omit `aria-valuenow`, set `aria-valuetext` from the `progress.indeterminate` locale message, and support `animation` (`'carousel'`, `'reverse'`, `'swing'`, or `'elastic'`).
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />
@@ -56,12 +54,10 @@ Pass a numeric `value` from `0` to `max` for determinate progress; `max` default
 
 ### Label and value
 
-Supply `aria-label` or a labelling relationship when the surrounding context does not name the
-operation. `label` fills the label slot, and a string `label` is also the default `aria-label`. An
-explicit `aria-label` takes precedence. `valueLabel` shows the percentage in the value slot; pass a
-formatter to customize both the displayed text and `aria-valuetext`. Without `valueLabel`,
-`aria-valuetext` is still the formatted percentage. Indeterminate progress keeps the label and hides
-the value.
+Supply `aria-label` (or a labelling relationship) when surrounding context does not name the operation:
+
+- `label`: fills the `label` slot. A string `label` also serves as the default `aria-label` unless an explicit `aria-label` is passed.
+- `valueLabel`: renders the formatted percentage in the `value` slot (hidden while indeterminate). Pass a function `({ value, max, percent }) => string` to customize both the displayed text and `aria-valuetext`. Without `valueLabel`, `aria-valuetext` still reports the formatted percentage.
 
 ```tsx
 <Progress value={82} label="Downloading installation bundle" valueLabel aria-label="Download" />
@@ -70,9 +66,7 @@ the value.
 
 ### Orientation
 
-Progress fills left to right by default. Set `orientation="vertical"` for a bar that fills from the
-bottom, for example a battery or level meter. The vertical bar grows to its container height with a
-minimum of 9rem.
+Progress fills horizontally from left to right by default. Set `orientation="vertical"` for a bar that fills from the bottom (such as a battery or level meter), growing to its container height with a `9rem` minimum.
 
 ```tsx
 <Progress value={72} orientation="vertical" aria-label="Battery level" />
@@ -80,11 +74,11 @@ minimum of 9rem.
 
 ### Number format
 
-`formatOptions` accepts `Intl.NumberFormat` options and formats the displayed value and
-`aria-valuetext` with the provider locale. Like [Slider](/components/slider), it formats the raw
-`value`, not the completed fraction, so a `percent` style needs a `max` of `1`. Without
-`formatOptions`, the text is the completed percentage rounded to two decimals. A `valueLabel`
-formatter takes precedence.
+`formatOptions` accepts `Intl.NumberFormat` options and formats both the displayed value and `aria-valuetext` using the provider locale:
+
+- Without `formatOptions`, the text defaults to the completed percentage rounded to two decimal places.
+- With `formatOptions`, it formats the raw `value` (like [Slider](/components/slider)) rather than the completed fraction, so `{ style: 'percent' }` expects `max={1}`.
+- A custom `valueLabel` formatter function takes precedence over `formatOptions`.
 
 ```tsx
 <Progress value={0.75} max={1} valueLabel formatOptions={{ style: 'percent' }} aria-label="Setup" />

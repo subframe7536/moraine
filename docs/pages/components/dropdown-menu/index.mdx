@@ -67,10 +67,12 @@ Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Usage
 
-Use DropdownMenu for a compact set of actions from a visible trigger. Use [Select](/components/select)
-for choosing a form value. Use [ContextMenu](/components/context-menu) for actions at a pointer
-location. Use [Popover](/components/popover) when the content is not a list of commands. Use
-[Dialog](/components/dialog) when the user must complete a modal task.
+Use DropdownMenu for a compact set of actions from a visible trigger.
+
+- Use [Select](/components/select) for choosing a form value.
+- Use [ContextMenu](/components/context-menu) for actions at a pointer location.
+- Use [Popover](/components/popover) when the content is not a list of commands.
+- Use [Dialog](/components/dialog) when the user must complete a modal task.
 
 ```tsx
 import { Button, DropdownMenu } from 'moraine'
@@ -89,10 +91,12 @@ export function Example() {
 
 `DropdownMenu.Trigger` adds click, keyboard, and ARIA behavior to the element it renders. It renders
 a `button`; pass `as` to render another component such as `Button`, and `disabled` to prevent
-opening. Describe each action in `items`. An entry that is an array of items forms its own group, and
-the menu draws a separator between groups. An item accepts `icon`, `description`, `kbds`, `disabled`,
-and `danger`, and runs `onSelect` before the menu closes. A `{ type: 'separator' }` entry
-draws a divider and takes no other options.
+opening.
+
+Describe each action in `items`. An entry that is an array of items forms its own group, and the
+menu draws a separator between groups. An item accepts `icon`, `description`, `kbds`, `disabled`,
+and `danger`, and runs `onSelect` before the menu closes. A `{ type: 'separator' }` entry draws a
+divider and takes no other options.
 
 ```tsx
 <DropdownMenu>
@@ -112,13 +116,14 @@ draws a divider and takes no other options.
 
 Control a checkbox item with `checked` and `onCheckedChange`, or omit `checked` and set
 `defaultChecked` for uncontrolled state. A `radio-group` item owns the selected value for its radio
-items: pass `value` and `onValueChange` (or `defaultValue` for uncontrolled state) once on the group,
-and give each radio item only its `value`. Selecting a checkbox or radio item keeps the menu open.
-Nested `children` create submenus. Disabled items stay visible but cannot be activated.
+items: pass `value` and `onValueChange` (or `defaultValue` for uncontrolled state) once on the
+group, and give each radio item only its `value`. Selecting a checkbox or radio item keeps the menu
+open.
 
-A parent item with `children` can take `open` and `onOpenChange` to control its submenu.
-`onOpenChange` reports every open or close request from pointer, keyboard, or click interaction. With
-a controlled `open`, the submenu stays at the prop value until you update it.
+Nested `children` create submenus, and disabled items stay visible but cannot be activated. A parent
+item with `children` can take `open` and `onOpenChange` to control its submenu. `onOpenChange`
+reports every open or close request from pointer, keyboard, or click interaction; with a controlled
+`open`, the submenu stays at the prop value until you update it.
 
 ```tsx
 <DropdownMenu.Content
@@ -148,10 +153,11 @@ a controlled `open`, the submenu stays at the prop value until you update it.
 
 Escape and outside interaction close the menu by default. Set `closeOnEscape={false}` or
 `closeOnOutsideClick={false}` to keep it open and receive `onClosePrevented` for each blocked
-attempt. By default the menu locks body scroll while open; set `preventScroll={false}` to keep the
-page scrollable.
-`placement` (default `'bottom'`), `align`, `gutter`, `shift`, `flip`, and `slide` tune where the
-content opens.
+attempt.
+
+By default the menu locks body scroll while open; set `preventScroll={false}` to keep the page
+scrollable. `placement` (default `'bottom'`), `align`, `gutter`, `shift`, `flip`, and `slide` tune
+where the content opens.
 
 ```tsx
 <DropdownMenu closeOnOutsideClick={false} onClosePrevented={() => setHint(true)} flip={false}>

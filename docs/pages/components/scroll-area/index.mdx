@@ -28,9 +28,11 @@ import Playground from './playground'
 ## Usage
 
 Use ScrollArea to constrain overflowing content. Scrolling stays native: wheel, touch, keyboard,
-and scroll anchoring behave as in any scroll container. By default ScrollArea hides the native
-scrollbar and draws its own over the content; set `scrollbarMode="native"` to keep the browser's.
-When the area is a landmark of its own, label it with `role="region"` and `aria-label`.
+and scroll anchoring behave as in any scroll container.
+
+By default ScrollArea hides the native scrollbar and draws its own over the content; set
+`scrollbarMode="native"` to keep the browser's. When the area is a landmark of its own, label it
+with `role="region"` and `aria-label`.
 
 ```tsx
 import { For } from 'solid-js'
@@ -106,24 +108,29 @@ switching on. The mask fades content into the background behind the container.
 
 `onOverflowChange` receives `{ x: { start, end }, y: { start, end } }` whenever the edges with
 more content beyond them change. `start` and `end` are logical: in RTL content, the `x` start
-edge is on the right. `scrollThreshold` sets how close to an edge, in pixels, scrolling counts as
-reaching it. It applies to `onOverflowChange`, the `data-overflow-*-start` and `-end`
-attributes, and the `on*Reached` callbacks, not to the shadow mask.
+edge is on the right.
+
+`scrollThreshold` sets how close to an edge, in pixels, scrolling counts as reaching it. It applies
+to `onOverflowChange`, the `data-overflow-*-start` and `-end` attributes, and the `on*Reached`
+callbacks, not to the shadow mask.
 
 `onTopReached`, `onBottomReached`, `onLeftReached`, and `onRightReached` fire once each time scrolling
-reaches a physical edge (within `scrollThreshold`) of an overflowing axis; in RTL content
+reaches a physical edge (within `scrollThreshold`) of an overflowing axis. In RTL content,
 `onLeftReached` and `onRightReached` follow the physical edges, not the logical `start`/`end`. They
-do not fire for the initial position. Combine `onBottomReached` with `scrollThreshold` to load more
+do not fire for the initial position; combine `onBottomReached` with `scrollThreshold` to load more
 content before the end.
 
 To scroll programmatically, take the viewport from `viewportRef` and call `scrollTo` on it.
 
 ### Data attributes and CSS variables
 
-The root carries `data-orientation`, `data-overflow-x` and `data-overflow-y` while an axis
-overflows, `data-overflow-{x,y}-{start,end}` for each overflowing edge, `data-scrolling`, and
-`data-hovering`. Each scrollbar carries `data-orientation`, `data-visible`, `data-dragging`, and
-`data-corner` while the corner is shown; the corner carries `data-visible`.
+The root and scrollbar slots expose state attributes for custom styling:
+
+- Root: `data-orientation`, `data-overflow-x` and `data-overflow-y` while an axis overflows,
+  `data-overflow-{x,y}-{start,end}` for each overflowing edge, `data-scrolling`, and `data-hovering`.
+- Scrollbar: `data-orientation`, `data-visible`, `data-dragging`, and `data-corner` while the corner
+  is shown.
+- Corner: `data-visible`.
 
 The root also exposes the remaining scroll distance of each edge in pixels as
 `--scroll-area-overflow-x-start`, `--scroll-area-overflow-x-end`,

@@ -79,11 +79,11 @@ MultiSelect renders its portaled popup internally; the popup names are style slo
 
 ## Usage
 
-Use MultiSelect for several collection items shown as tags, or for creatable free-form tags. Each
-value resolves through a collection item. Use [Select](/components/select) for one non-editable
-choice, [Combobox](/components/combobox) for editable single selection, or
-[BaseSelect](/components/base-select) to compose the listbox yourself. `items` accepts plain
-strings (shorthand for `{ value, label }`), item objects, groups, and separators.
+Use MultiSelect for selecting several collection items shown as tags, or for creatable free-form tags. Each value resolves through a collection item, and `items` accepts plain strings (shorthand for `{ value, label }`), item objects, groups, and separators.
+
+- [Select](/components/select): single non-editable choice.
+- [Combobox](/components/combobox): editable single selection.
+- [BaseSelect](/components/base-select): headless primitive to compose the listbox yourself.
 
 ```tsx
 import { Field, MultiSelect } from 'moraine'
@@ -105,11 +105,9 @@ export function Example() {
 
 ### Values and tags
 
-`value` is the array of selected item values, in selection order. An empty array means no
-selection, and an empty string can be an item value. Pair `value` with `onValueChange` for controlled
-selection, or use `defaultValue` for an initial uncontrolled selection. `onValueChange` receives the
-full new array and clears the search text afterward. Without `searchable`, printable keys trigger
-collection typeahead. Set `searchable` to let users type in the field to filter options.
+- `value`: array of selected item values in selection order. An empty array (`[]`) means no selection, and an empty string (`''`) is a valid item value.
+- `onValueChange` and `defaultValue`: pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial uncontrolled selection. `onValueChange` receives the full next array and clears the search text afterward.
+- `searchable`: lets users type in the field to filter options. Without `searchable`, printable keys trigger collection typeahead.
 
 ```tsx
 <MultiSelect
@@ -121,16 +119,14 @@ collection typeahead. Set `searchable` to let users type in the field to filter 
 />
 ```
 
-`clearable` shows a clear button while there are selected values or search text. It does not always
-empty a MultiSelect: selected values whose items are disabled stay selected because the user cannot
-remove them, and values that match no item are dropped. Every other selection is cleared, the search
-text is emptied, and `onClear` runs after `onValueChange`. Select and Combobox clear to an empty
-value instead.
+`clearable` shows a clear button while there are selected values or search text. Clicking clear empties the search text and runs `onClear` after `onValueChange`, with two selection rules:
+
+- Selected values whose items are `disabled` remain selected because the user cannot remove them.
+- Values that match no item are dropped, while all other selections are cleared (unlike Select and Combobox, which clear to a single empty value).
 
 ### Search and item creation
 
-`searchable` and `createItem` decide whether the field is editable. Filtering follows editability, so
-the four combinations behave as follows:
+`searchable` and `createItem` decide whether the field is editable. Filtering follows editability, so the four combinations behave as follows:
 
 | `searchable` | `createItem` | Field                         | Filters options | Creates items | `openOnControlClick` default |
 | ------------ | ------------ | ----------------------------- | --------------- | ------------- | ---------------------------- |
@@ -139,21 +135,22 @@ the four combinations behave as follows:
 | unset        | set          | Editable input                | Yes             | Yes           | `false`                      |
 | `true`       | set          | Editable input                | Yes             | Yes           | `false`                      |
 
-`searchable` alone filters the collection as the user types. `createItem` makes the input editable and
-enables creation. It also filters the list, so `searchable` adds nothing once `createItem` is set.
-`filterMethod` and `autoComplete` have no effect on a non-editable control.
+`searchable` alone filters the collection as the user types. `createItem` makes the input editable, filters the list, and enables creation (`searchable` adds nothing once `createItem` is set). `filterMethod` and `autoComplete` have no effect on a non-editable control.
 
-`openOnControlClick` defaults to the opposite of editability. A non-editable control opens its popup
-on click. An editable control focuses its input on click and opens from typing, the chevron button,
-or ArrowDown. Set `openOnControlClick` explicitly to change either default.
+`openOnControlClick` defaults to the opposite of editability:
+
+- **Non-editable**: opens the popup on control click.
+- **Editable**: focuses the input on control click and opens from typing, the chevron button, or ArrowDown.
+
+Set `openOnControlClick` explicitly to override either default.
 
 ### Delimiters
 
-`createItem` receives the trimmed query text when the user commits text that matches no existing item
-by label or value, and returns the `TItem` to select. The item is added to the top of the option list
-until a native form reset. Nothing is created when the value is already selected or `maxValues` is
-reached. Commit text with Enter, a token separator, or paste; all go through the same creation path.
-`tokenSeparators` defaults to `[',']`.
+`createItem` receives the trimmed query text when the user commits text that matches no existing item by label or value, and returns the `TItem` to select:
+
+- The created item is added to the top of the option list until a native form reset.
+- Nothing is created when the value is already selected or `maxValues` is reached.
+- Commit text with Enter, a token separator (`tokenSeparators`, default `[',']`), or paste; all go through the same creation path.
 
 ```tsx
 <MultiSelect

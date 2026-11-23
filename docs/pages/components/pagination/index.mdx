@@ -59,11 +59,9 @@ export function Example() {
 
 ### Current page
 
-Use `page` with `onPageChange` for controlled navigation, or `defaultPage` to start uncontrolled.
-`total` is the number of records, not the page count; the component derives the page count,
-`ceil(total / pageSize)`, from `pageSize`. The page count is at least 1. A page outside that range
-is clamped for display, so reset the page when `pageSize` changes. `onPageChange` also fires in
-controlled mode, so write the value back to `page`.
+- `page`, `defaultPage`, and `onPageChange`: use `page` with `onPageChange` for controlled navigation, or `defaultPage` to start uncontrolled. `onPageChange` also fires in controlled mode, so write the value back to `page`.
+- `total` and `pageSize`: `total` is the record count (not the page count). `Pagination` derives the page count as `Math.max(1, Math.ceil(total / pageSize))`.
+- Clamping: a `page` outside the derived range is clamped for display, so reset `page` when `pageSize` changes.
 
 ```tsx
 <Pagination total={100} pageSize={10} page={page()} onPageChange={setPage} />
@@ -71,12 +69,9 @@ controlled mode, so write the value back to `page`.
 
 ### Page window and controls
 
-`siblingCount` (default `2`) sets how many page numbers show on each side of the current page. The
-first and last pages always show, with ellipses for skipped ranges. Every page shows without
-ellipses when `2 * siblingCount + 5` reaches the page count. Set `controls={false}` to hide Previous
-and Next. `prevText` and `nextText` add visible text to those controls, and that text replaces
-`translations.prev` and `translations.next` as their accessible names. The text is hidden below the
-`sm` breakpoint.
+- `siblingCount` (default `2`): sets how many page numbers appear on each side of the current page. The first and last pages always render, with ellipses for skipped ranges; every page shows without ellipses when `2 * siblingCount + 5` reaches the page count.
+- `controls`: set `controls={false}` to hide the Previous and Next buttons.
+- `prevText` and `nextText`: add visible text to the Previous and Next controls (hidden below the `sm` breakpoint) and replace `translations.prev` and `translations.next` as their accessible names.
 
 ```tsx
 <Pagination total={500} pageSize={10} siblingCount={1} prevText="Previous" nextText="Next" />
@@ -84,15 +79,9 @@ and Next. `prevText` and `nextText` add visible text to those controls, and that
 
 ### Rendering links
 
-Use `getPageHref(page)` by itself to render page controls as anchors. The current page stays a button.
-For router integration, use `itemRender` for numbered items and `controlRender` for Previous/Next; these
-props are independent and `getPageHref` still only generates the destination. Clicking a link also calls
-`onPageChange`. Previous on the first page and Next on the last page remain disabled buttons even
-when `controlRender` is set, and `disabled` turns every control into a disabled button.
-
-`itemRender` and `controlRender` take a component that receives native anchor props
-(`PaginationT.ItemRenderProps`); spread them onto your router link. The current page has no
-`href`, so handle that case in the component.
+- `getPageHref(page)`: renders numbered page controls and available Previous/Next controls as `<a>` elements with the returned `href`. Clicking a link still calls `onPageChange`.
+- `itemRender` and `controlRender`: accept a component receiving native anchor props (`PaginationT.ItemRenderProps`) for router integration on numbered items and Previous/Next controls respectively. Spread the received props onto your router link.
+- Button fallbacks: the current page has no `href` and stays a button (handle missing `href` in `itemRender`). Previous on the first page, Next on the last page, and all controls when `disabled` is set render as disabled buttons even when `controlRender` is provided.
 
 ```tsx
 <Pagination

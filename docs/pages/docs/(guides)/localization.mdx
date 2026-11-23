@@ -18,11 +18,16 @@ Moraine components ship with English accessible names and placeholders and forma
 | `dir`          | Inherits the parent direction, or `<html dir>` / the document.        | Replaces it with `ltr` or `rtl`, or `null` to clear back to document detection.                                                                                                                                                               |
 | `messages`     | Inherits parent messages.                                             | Deep-merges partial message overrides over the parent. Default copy is English.                                                                                                                                                               |
 
-Set `lang` and `dir` on `<html>` for document language and CSS/layout. Pass the same `dir` to `MoraineProvider` when portaled overlays should copy it onto their content. A component's own `dir` attribute always wins over the provider, and the provider wins over `<html dir>`.
+Set `lang` and `dir` on `<html>` for document language and CSS layout. Pass the same `dir` to `MoraineProvider` when portaled overlays should copy it onto their content. Precedence is: component `dir` attribute → `MoraineProvider` `dir` → `<html dir>`.
 
-`locale` is shared application locale context. `NumberInput` uses it for `Intl.NumberFormat` parsing and formatting, and `Slider`, `BoldSlider`, and `Progress` use it to format displayed values. Collection search, typeahead, and `CommandPalette` filtering use `Intl.Collator`. `NumberInput` reads its own `locale` prop first, then the provider, then `en-US`. Invalid locale tags fall back to `en-US` for both `Intl.NumberFormat` and `Intl.Collator`.
+How components consume `locale`:
 
-In production, pass an explicit `locale` from a cookie or `Accept-Language` so formatted values do not flash from `en-US` to the browser language after hydration.
+- **`NumberInput`**: Formats and parses numbers via `Intl.NumberFormat`, reading its own `locale` prop first, then the provider `locale`, then `en-US`.
+- **`Slider`, `BoldSlider`, and `Progress`**: Format displayed values with the provider `locale`.
+- **Collection search, typeahead, and `CommandPalette`**: Compare text using `Intl.Collator` with the provider `locale`.
+- **Fallback**: Invalid BCP 47 locale tags fall back to `en-US`.
+
+In SSR applications, pass an explicit `locale` (from a cookie or `Accept-Language` header) so formatted values do not switch from `en-US` to `navigator.language` after hydration.
 
 ```tsx title="src/App.tsx"
 import type { ParentProps } from 'solid-js'
@@ -71,9 +76,15 @@ Component-level `translations` override `MoraineProvider` messages; explicit com
 
 ## Messages
 
-Each component defines its English copy next to its own source, so there is no monolithic message pack to bundle. Pass partial overrides through the `messages` prop of `MoraineProvider` (typed as `MoraineProviderProps['messages']`). The available groups are `alert`, `dialog`, `sheet`, `drawer`, `toast`, `breadcrumb`, `commandPalette`, `copyButton`, `dataTable`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `pinInput`, `numberInput`, `fileUpload`, `tagsField`, `sidebar`, `form`, `kbd`, and `progress`.
+Each component defines its English copy alongside its own source so there is no monolithic message pack to bundle. Pass partial overrides through `MoraineProvider`'s `messages` prop (typed as `MoraineProviderProps['messages']`).
 
-`dialog` messages are `close`, `ok`, and `cancel`. Dialog and Alert Dialog use `close` for the corner button. Alert Dialog uses `ok` and `cancel` when an action omits `label`. `toast` messages are `close`, `cancel`, and `label`. Toast uses `close` for the corner button, `cancel` for the cancel button when `cancel` is `true`, and `label` for the live region label.
+Available message groups:
+`alert`, `dialog`, `sheet`, `drawer`, `toast`, `breadcrumb`, `commandPalette`, `copyButton`, `dataTable`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `pinInput`, `numberInput`, `fileUpload`, `tagsField`, `sidebar`, `form`, `kbd`, and `progress`.
+
+Common overlay message groups:
+
+- **`dialog`**: `close`, `ok`, and `cancel`. `Dialog` and `AlertDialog` use `close` for the corner close button; `AlertDialog` uses `ok` and `cancel` when an action omits `label`.
+- **`toast`**: `close`, `cancel`, and `label`. `Toast` uses `close` for the corner button, `cancel` when `cancel` is `true`, and `label` for the live-region landmark.
 
 Dynamic messages that include a number or a name are functions so translations control word order:
 

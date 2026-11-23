@@ -38,14 +38,13 @@ export function Example() {
 
 ### Icon sources
 
-Pass an icon class name, a JSX element, or a Solid component as `name`. Use `icon-search` or
-`icon-success` for Moraine's semantic aliases. Editor completion suggests the built-in names, while
-`i-lucide-search` and `app-logo` remain valid. `Icon` applies string names as classes, so your
-UnoCSS or Tailwind setup must generate the CSS for custom names.
+Pass an icon class name, a JSX element, or a Solid component as `name`:
 
-Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the
-top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is
-rendered.
+- **Semantic aliases**: use `icon-search` or `icon-success` for Moraine's built-in aliases (suggested by editor completion).
+- **Utility classes**: any class your UnoCSS or Tailwind setup generates, such as `i-lucide-search` or `app-logo`.
+- **Custom graphics**: a JSX element or Solid component.
+
+Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the top-level `name` value. Keep control flow outside `Icon` so it owns whether the component renders.
 
 ```tsx
 <Icon name="icon-search" />
@@ -54,21 +53,18 @@ rendered.
 </Show>
 ```
 
-### Root styling
+### Root styling and sizing
 
-`Icon` always renders one `span` root, whatever the `name` source. Use `class` and `style` for an
-individual icon, or configure `icon.base.root` in your Theme for shared defaults. `root` is the only
-slot, so `classes` and `styles` only duplicate `class` and `style`.
+`Icon` always renders one `span` root, regardless of the `name` source. Use `class` and `style` for an individual icon, or configure `icon.base.root` in your Theme for shared defaults. Because `root` is the only slot, `classes` and `styles` duplicate `class` and `style`.
 
-Every icon follows the surrounding font size. A string icon is sized by its icon class, which is
-`1.2em` in `moraine/icon.css`. For a JSX or component graphic, the root is a `1.2em` box
-(`size-[1.2em]`) and the graphic fills it through `*:size-full`. Resize an icon with a
-font-size utility on the icon or an ancestor, such as `text-2xl`, or with a size utility such as
-`size-6` on the icon; the graphic follows the root. `moraine/icon.css` puts its rules in the
-`components` cascade layer, so these utilities override it in both UnoCSS and Tailwind.
+Every icon scales with the surrounding font size:
 
-Icon renders no `data-slot` of its own. Pass a `data-slot` attribute when the icon fills a
-component slot.
+- **String icons**: sized by their icon class (`1.2em` in `moraine/icon.css`).
+- **JSX or component graphics**: the root renders a `1.2em` box (`size-[1.2em]`) and the graphic fills it via `*:size-full`.
+
+Resize an icon with a font-size utility on the icon or an ancestor (such as `text-2xl`), or with a box-size utility on the icon (such as `size-6`). `moraine/icon.css` places its rules in the `components` cascade layer, so utilities override it in both UnoCSS and Tailwind.
+
+`Icon` renders no `data-slot` of its own. Pass `data-slot` when the icon fills a component slot.
 
 ```tsx
 <Icon name="i-lucide:info" class="text-2xl text-blue-500" data-slot="custom-icon" />
@@ -76,29 +72,25 @@ component slot.
 
 ### Forced colors
 
-String icons are CSS masks painted with `background-color: currentColor`. In forced colors mode
-(such as Windows contrast themes) the browser would replace that background with the page
-background and hide the icon. For string icons, Icon adds the `icon-mask` class, which sets
-`forced-color-adjust: preserve-parent-color` (falling back to `none`) and drops its own color, so
-the icon is painted with the surrounding forced text color. `presetMoraine` defines `icon-mask` as a
-shortcut and the Tailwind plugin defines it as a utility. Element and component icons keep the browser's default forced colors handling.
+String icons are CSS masks painted with `background-color: currentColor`. In forced colors mode (such as Windows contrast themes), the browser would normally replace that background with the page background and hide the icon.
+
+For string icons, `Icon` adds the `icon-mask` class (`presetMoraine` shortcut or Tailwind plugin utility). It sets `forced-color-adjust: preserve-parent-color` (falling back to `none`) and drops its own color so the mask paints with the surrounding forced text color.
+
+Element and component icons keep the browser's default forced colors handling.
 
 ## Examples
 
 ### Icon classes
 
-Use Moraine aliases such as `icon-success`, or any class your UnoCSS or Tailwind setup generates
-(`i-lucide:git-branch`). Adjacent text is the accessible name when the icon is decoration.
+Use Moraine aliases such as `icon-success`, or any class your UnoCSS or Tailwind setup generates (`i-lucide:git-branch`). Adjacent text is the accessible name when the icon is decoration.
 
 <Preview path="./sources" />
 
 ### Custom SVG
 
-Pass a JSX element or a Solid component when the mark is not an icon-class name. It renders inside
-the Icon root. Components are rendered without props: `class`, `style`, `data-slot`, and ARIA
-attributes go to the root, and the SVG inherits its color through `currentColor`. To set an
-SVG-specific attribute such as `stroke-width`, pass inline JSX instead. Name the icon when it is the
-only indicator.
+Pass a JSX element or a Solid component when the mark is not an icon-class name. Components render inside the `Icon` root without props: `class`, `style`, `data-slot`, and ARIA attributes apply to the root, and the SVG inherits color through `currentColor`.
+
+To set an SVG-specific attribute such as `stroke-width`, pass inline JSX instead. Give the icon an `aria-label` when it is the only indicator.
 
 <Preview path="./icon-as-jsx" />
 

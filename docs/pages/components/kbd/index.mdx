@@ -38,12 +38,11 @@ export function Example() {
 
 ### Key aliases
 
-Known aliases such as `meta`, `command`, `shift`, `escape`, and `arrowup` resolve to a symbol or
-short label (`⌘`, `⇧`, `Esc`, `↑`), matched case-insensitively. Any other value renders as written.
-Pass `symbol={false}` to render an alias as written, without its spoken name. An alias also gets a
-spoken name from the locale messages; `translations` overrides it per instance. Set `aria-label`
-when assistive technology needs a different name than the visible keycap. It takes precedence over
-the alias name.
+Known aliases such as `meta`, `command`, `shift`, `escape`, and `arrowup` resolve case-insensitively to a symbol or short label (`⌘`, `⇧`, `Esc`, `↑`) and a spoken name from the locale messages. Any other value renders as written.
+
+- `symbol={false}`: renders an alias as written without its spoken name.
+- `translations`: overrides the spoken alias names per instance.
+- `aria-label`: sets a custom accessible name and takes precedence over the alias name.
 
 ```tsx
 <Kbd value="meta" />
@@ -53,10 +52,9 @@ the alias name.
 
 ### Root styling
 
-`Kbd` renders one `<kbd>` root, so use `class` and `style` for an individual keycap. Configure
-`kbd.base.root` in your Theme to share keycap presentation. `variant` (`default`, `outline`,
-`invert`) and `size` (`sm`, `md`, `lg`) select the built-in treatments. `root` is the only slot, so
-`classes` and `styles` only duplicate `class` and `style`.
+`Kbd` renders a single `<kbd>` root. Use `variant` (`'default'`, `'outline'`, or `'invert'`) and `size` (`'sm'`, `'md'`, or `'lg'`) for built-in treatments.
+
+Use `class` and `style` for an individual keycap, or configure `kbd.base.root` in your Theme for shared defaults. Because `root` is the only slot, `classes` and `styles` duplicate `class` and `style`.
 
 ```tsx
 <Kbd value="K" class="text-blue-600" />

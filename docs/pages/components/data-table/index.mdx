@@ -1,6 +1,6 @@
 ---
 title: DataTable
-description: Sort, select, paginate, expand, pin, and resize tabular data with createDataTable and the DataTable presenter from moraine/data-table.
+description: Sort, select, paginate, expand, pin, and resize tabular data over TanStack Table.
 group: Display
 api:
   path: src/data-table/data-table
@@ -91,9 +91,11 @@ import Playground from './playground'
 
 The `table` sits inside a `container` element that also holds the `loading` overlay, a scroll
 viewport, and the pagination toolbar. The scroll viewport wraps only the table, so the toolbar
-stays in place while rows scroll. The `container` draws the outer border and rounded corners and
-clips pinned and sticky cells to them; replace them through `classes.container`. A body row renders
-either data `cell`s or, when there are no rows, one full-width `empty` cell.
+stays in place while rows scroll.
+
+The `container` draws the outer border and rounded corners and clips pinned and sticky cells to
+them; replace them through `classes.container`. A body row renders either data `cell`s or, when
+there are no rows, one full-width `empty` cell.
 
 ## Usage
 
@@ -221,18 +223,22 @@ const columns: DataTableT.Column<Invoice>[] = [
 ```
 
 `selectionMode` and `expandable` prepend generated columns with the reserved ids `'select'` and
-`'expand'`. Pin or order them by those ids. A column of your own whose id resolves to a reserved id
-replaces the generated column. When that id comes from `accessorKey` or `header`, a development
-warning suggests an explicit `id`, which keeps both columns.
+`'expand'`. Pin or order them by those ids.
+
+A column of your own whose id resolves to a reserved id replaces the generated column. When that id
+comes from `accessorKey` or `header`, a development warning suggests an explicit `id`, which keeps
+both columns.
 
 ### Sorting
 
-Sorting is on by default, and each sortable header has a sort button. Shift-click a second
-header to sort by more than one column. While more than one column is sorted, each sorted header
-shows its priority (`sortIndex` slot), and screen readers hear it through the localized
-`sortPriority` message. Set `columnSortable: false` to turn sorting off for every column, or
-`enableSorting` in a column definition to override it for one column. Turn multi-column sorting off
-with `tableOptions.enableMultiSort: false`.
+Sorting is on by default, and each sortable header has a sort button. Shift-click a second header
+to sort by more than one column. While more than one column is sorted, each sorted header shows its
+priority (`sortIndex` slot), and screen readers hear it through the localized `sortPriority`
+message.
+
+Set `columnSortable: false` to turn sorting off for every column, or `enableSorting` in a column
+definition to override it for one column. Turn multi-column sorting off with
+`tableOptions.enableMultiSort: false`.
 
 The `alphanumeric`, `text`, and `datetime` sort functions are registered for a column's `sortingFn`.
 
@@ -296,10 +302,12 @@ filter functions are registered.
 ### Selection
 
 `selectionMode: 'multiple'` adds a checkbox to each row and a select-all checkbox to the header.
-Select-all toggles the rows on the current page, and is then named with the `selectPage` message.
-With tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed
-when some are. `selectionMode: 'single'` adds radio buttons; selecting a row clears the others.
-`isRowSelectable` disables the control of every row it rejects.
+Select-all toggles the rows on the current page and is named with the `selectPage` message. With
+tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed when
+some are.
+
+`selectionMode: 'single'` adds radio buttons; selecting a row clears the others. `isRowSelectable`
+disables the control of every row it rejects.
 
 ```tsx
 const table = createDataTable({
@@ -348,10 +356,12 @@ Control which rows are open with `state.expanded` and `onExpandedChange`.
 
 ### Pagination and server data
 
-Pagination is off by default, and every row renders. Pass `paginated: true` for ten rows per
-page, or `paginated: { pageSize, pageSizes }`. The toolbar below the table shows page navigation,
-a page-size menu (`pageSizes: false` hides it), and a row summary: the total row count, or
-"n of total selected" once a row is selected. The menu always lists the current page size.
+Pagination is off by default, and every row renders. Pass `paginated: true` for ten rows per page,
+or `paginated: { pageSize, pageSizes }`.
+
+The toolbar below the table shows page navigation, a page-size menu (`pageSizes: false` hides it,
+and the menu always lists the current page size), and a row summary showing the total row count or
+"n of total selected" once a row is selected.
 
 For server-side sorting, filtering, and paging, set `manual: true`. Then `data` is the current
 page, `rowCount` is the total across all pages, and the change callbacks tell you what to fetch.
@@ -441,11 +451,12 @@ Pinning and resizing switch the table to a fixed layout with explicit column wid
 ### Column resizing
 
 `resizable: true` adds a resize handle to each column header. Widths stay within each column's
-`minSize` and `maxSize`. Columns without a `maxSize`, in their definition or in
-`tableOptions.defaultColumn`, are capped at 1000px so the handle can report a range. Only leaf
-headers have a handle: a group header is as wide as its columns, so resize those instead. The new
-width commits when a drag ends; set
-`tableOptions.columnResizeMode: 'onChange'` to resize while dragging.
+`minSize` and `maxSize`. Columns without a `maxSize` (in their definition or in
+`tableOptions.defaultColumn`) are capped at `1000px` so the handle can report a range.
+
+Only leaf headers have a handle: a group header is as wide as its columns, so resize those instead.
+The new width commits when a drag ends; set `tableOptions.columnResizeMode: 'onChange'` to resize
+while dragging.
 
 Each handle is a focusable separator named after its column, such as "Name Resize column". It
 reports the column's current, minimum, and maximum width.
@@ -499,9 +510,11 @@ action.
 
 `rowProps` adds attributes to each body `<tr>`. It runs once per row, inside that row, so it can
 call row-level hooks. Its `ref`, `onClick`, and `onDblClick` are composed with the table's own
-(its click handlers run before `onRowClick` and `onRowDoubleClick`); `class` merges into the `row`
-slot. `headProps` does the same for each header `<th>`, except that `class`, `style`, `colSpan`,
-and `aria-sort` stay owned by the table.
+(its click handlers run before `onRowClick` and `onRowDoubleClick`), and `class` merges into the
+`row` slot.
+
+`headProps` does the same for each header `<th>`, except that `class`, `style`, `colSpan`, and
+`aria-sort` stay owned by the table.
 
 ```tsx
 <table.DataTable rowProps={(context) => ({ 'aria-describedby': `hint-${context.row.id}` })} />
