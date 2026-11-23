@@ -1,9 +1,9 @@
-import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
+import { CommandPalette, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 
 import { DocsPlayground } from '../../../routes/components/markdown/playground'
 
-const GROUPS = [
+const GROUPS: CommandPaletteT.Group[] = [
   {
     type: 'group',
     label: 'Workspace Actions',
@@ -11,19 +11,19 @@ const GROUPS = [
       {
         value: 'new-issue',
         label: 'Create New Issue',
-        leadingRender: () => <Icon name="i-lucide:circle-plus" />,
-        trailingRender: () => <KbdGroup items={['⌘', 'N']} size="sm" />,
+        icon: 'i-lucide:circle-plus',
+        kbds: ['meta', 'N'],
       },
       {
         value: 'open-inbox',
         label: 'Open Notifications',
-        leadingRender: () => <Icon name="i-lucide:inbox" />,
-        trailingRender: () => <KbdGroup items={['⌘', 'I']} size="sm" />,
+        icon: 'i-lucide:inbox',
+        kbds: ['meta', 'I'],
       },
       {
         value: 'sync-roadmap',
         label: 'Sync Roadmap',
-        leadingRender: () => <Icon name="i-lucide:refresh-cw" />,
+        icon: 'i-lucide:refresh-cw',
         description: 'Pull the latest project updates',
       },
     ],
@@ -35,37 +35,51 @@ const GROUPS = [
       {
         value: 'go-dashboard',
         label: 'Dashboard Overview',
-        leadingRender: () => <Icon name="i-lucide:layout-dashboard" />,
+        icon: 'i-lucide:layout-dashboard',
       },
       {
         value: 'go-projects',
         label: 'Projects Directory',
-        leadingRender: () => <Icon name="i-lucide:folder-kanban" />,
+        icon: 'i-lucide:folder-kanban',
       },
       {
         value: 'go-settings',
         label: 'Settings & Security',
-        leadingRender: () => <Icon name="i-lucide:settings" />,
+        icon: 'i-lucide:settings',
       },
     ],
   },
-] satisfies CommandPaletteT.Group[]
+]
 
 export default function CommandPalettePlayground() {
   return (
     <DocsPlayground
-      controls={[{ kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false }]}
+      controls={[
+        {
+          kind: 'select',
+          prop: 'descriptionPosition',
+          label: 'Description Position',
+          defaultValue: 'bottom',
+          options: [
+            { label: 'Bottom', value: 'bottom' },
+            { label: 'Trailing', value: 'trailing' },
+          ],
+        },
+        { kind: 'switch', prop: 'closable', label: 'Closable', defaultValue: true },
+        { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+      ]}
     >
       {(props) => (
-        <div class="border border-border/60 rounded-xl bg-card/40 max-w-full w-lg shadow-xs overflow-hidden">
+        <div class="max-w-full w-lg">
           <CommandPalette
             items={GROUPS}
             placeholder="Search commands or pages..."
+            descriptionPosition={props.descriptionPosition}
+            closable={props.closable}
             loading={props.loading}
             autoFocus={false}
-            closable
             footerRender={() => (
-              <div class="text-xs text-muted-foreground flex gap-4 items-center justify-between">
+              <div class="text-xs text-muted-foreground flex gap-4 w-full items-center justify-between">
                 <div class="flex flex-wrap gap-3 items-center">
                   <div class="flex gap-1.5 items-center">
                     <KbdGroup items={['↑', '↓']} size="sm" />
