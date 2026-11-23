@@ -52,7 +52,7 @@ export default function ButtonPlayground() {
         {
           kind: 'select',
           prop: 'pressEffect',
-          label: 'Active effect',
+          label: 'Press effect',
           defaultValue: 'move-down',
           options: [
             { label: 'None', value: 'none' },

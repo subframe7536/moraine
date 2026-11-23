@@ -51,7 +51,7 @@ export default function CopyButtonPlayground() {
         {
           kind: 'select',
           prop: 'iconPosition',
-          label: 'Icon Position',
+          label: 'Icon position',
           defaultValue: 'leading',
           options: [
             { label: 'Leading', value: 'leading' },

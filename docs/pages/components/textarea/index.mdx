@@ -45,9 +45,11 @@ export function Example() {
 
 `Textarea` forwards native textarea attributes and works with controlled or uncontrolled values.
 Pair `value` with `onValueChange` for controlled text, or use `defaultValue`; a native form reset
-restores `defaultValue`. A controlled textarea restores its displayed text to `value` after every
-edit, so update `value` from `onValueChange`. Use `readOnly` to preserve selection and focus without
-edits, or `disabled` to prevent interaction.
+restores `defaultValue`.
+
+A controlled textarea restores its displayed text to `value` after every edit, so update `value`
+from `onValueChange`. Use `readOnly` to preserve selection and focus without edits, or `disabled` to
+prevent interaction.
 
 ```tsx
 <Textarea value={bio()} onValueChange={setBio} rows={3} />
@@ -61,8 +63,9 @@ apply on `change` (blur).
 
 `rows` sets the visible height (default `3`). Set `autoResize` to grow the textarea with its content:
 it never shrinks below `rows`, and `maxRows` caps the growth before it scrolls (`0`, the default, is
-unlimited). `autoResizeDelay` postpones the first resize after mount. Use
-`InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions.
+unlimited). `autoResizeDelay` postpones the first resize after mount.
+
+Use `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions.
 Your application owns counters, submit buttons, and keyboard shortcuts.
 
 ```tsx

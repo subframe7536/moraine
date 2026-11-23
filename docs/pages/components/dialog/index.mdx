@@ -68,16 +68,18 @@ Content is portaled and renders inside the overlay element. With `overlay={false
 
 ## Usage
 
-Use Dialog for a labeled modal task with title, description, body, and footer. Use
-[BaseDialog](/components/base-dialog) when you compose backdrop and content yourself. Use
-[Sheet](/components/sheet) or [Drawer](/components/drawer) for a panel from a viewport edge. Use
-[Popover](/components/popover) for anchored interactive content that should not take over the
-page. Use [Tooltip](/components/tooltip) for a brief non-interactive hint. Use
-[DropdownMenu](/components/dropdown-menu) or [ContextMenu](/components/context-menu) for an action
-list. Use [Alert Dialog](/components/alert-dialog) for confirm, info, warning, error, and
-success prompts opened from an event handler.
+Use Dialog for a labeled modal task with title, description, body, and footer. The trigger and
+content share disclosure state through the root.
 
-The trigger and content share disclosure state through the root.
+- Use [BaseDialog](/components/base-dialog) when you compose backdrop and content yourself.
+- Use [Sheet](/components/sheet) or [Drawer](/components/drawer) for a panel from a viewport edge.
+- Use [Popover](/components/popover) for anchored interactive content that should not take over the
+  page.
+- Use [Tooltip](/components/tooltip) for a brief non-interactive hint.
+- Use [DropdownMenu](/components/dropdown-menu) or [ContextMenu](/components/context-menu) for an
+  action list.
+- Use [Alert Dialog](/components/alert-dialog) for confirm, info, warning, error, and success
+  prompts opened from an event handler.
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -130,13 +132,16 @@ description. Without a visible title, set `aria-label` or `aria-labelledby` on C
 `Dialog.Close` is an explicit close control you can place inside the root; it is separate from
 Content's automatic corner close button. Set root `closable={false}` to hide the corner button, or
 `closeIcon` to replace its icon. Its accessible label comes from the `close` message; override it
-with root `translations`. See [Localization](/docs/localization). Root `transition={false}` turns
-off the enter and exit animations, so content and overlay unmount as soon as the dialog closes.
+with root `translations` (see [Localization](/docs/localization)).
+
+Root `transition={false}` turns off the enter and exit animations, so content and overlay unmount as
+soon as the dialog closes.
 
 ### Focus and dismissal
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
 technology, and native outside pointer actions are prevented. Closing restores focus to the trigger.
+
 Use `initialFocus` to choose the element that receives focus on open, or `false` to skip the move,
 and `finalFocus` to choose where focus returns. Both apply only while `modal` is `true`.
 

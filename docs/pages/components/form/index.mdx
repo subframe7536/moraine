@@ -99,14 +99,18 @@ const form = createForm({ schema, validate: 'blur', revalidate: 'input' })
 `form.Form` renders Formisch's `Form`: it prevents native navigation, validates the schema, focuses
 the first invalid field in schema order, and calls `onSubmit` with the validated schema output
 (after any Valibot transforms) and the native `SubmitEvent`. An invalid submit does not call
-`onSubmit`. Native `action` and `method` attributes do not enable a browser navigation submit. The
-returned store also supports Formisch's public methods and helpers, including `submit(form)` and
-programmatic field focus.
+`onSubmit`.
+
+Native `action` and `method` attributes do not enable a browser navigation submit. The returned
+store also supports Formisch's public methods and helpers, including `submit(form)` and programmatic
+field focus.
 
 `form.isSubmitting` stays `true` until a promise returned by `onSubmit` settles. A thrown or
 rejected error is stored in the form `errors` rather than propagating; an error without a `message`
-is recorded as the `unknownError` translation. `form.Form` does not disable child controls during
-submission, so derive button loading or disabled state from `form.isSubmitting`.
+is recorded as the `unknownError` translation.
+
+`form.Form` does not disable child controls during submission, so derive button loading or disabled
+state from `form.isSubmitting`.
 
 ```tsx
 <Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>

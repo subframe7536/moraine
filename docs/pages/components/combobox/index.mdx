@@ -103,10 +103,11 @@ or inside a group. Whitespace is preserved, and an empty string is a valid value
 ```
 
 String items are converted to the same item shape used by callbacks: `'Apple'` becomes
-`{ value: 'Apple', label: 'Apple' }`. Object items keep their identity and custom fields.
-`ComboboxT.NormalizedItem<TItem>` is the callback item type. Item values must be unique. When two
-items share a value, the first one wins (including a string that collides with an object), and
-development builds log an error.
+`{ value: 'Apple', label: 'Apple' }`. Object items keep their identity and custom fields, and
+`ComboboxT.NormalizedItem<TItem>` is the callback item type.
+
+Item values must be unique. When two items share a value, the first one wins (including a string
+that collides with an object), and development builds log an error.
 
 ### Value and query
 
@@ -115,11 +116,13 @@ uncontrolled choice. `value={undefined}` keeps the selection uncontrolled; `valu
 controlled and empty. `onValueChange` receives `null` when the selection is cleared, and inside a
 form field, clearing writes `null`.
 
-While open, the input displays the query; while closed, it displays the selected item label.
-Query text is never committed as a value, and filtering never changes the selection. Use `value` /
-`onValueChange` for selection and `searchValue` / `onSearchValueChange` for query text. The query
-resets to `''` when the popup finishes closing and after a native form reset; in controlled mode,
-`onSearchValueChange('')` reports these resets and you decide whether to apply them.
+While open, the input displays the query; while closed, it displays the selected item label. Query
+text is never committed as a value, and filtering never changes the selection.
+
+Use `value` / `onValueChange` for selection and `searchValue` / `onSearchValueChange` for query
+text. The query resets to `''` when the popup finishes closing and after a native form reset; in
+controlled mode, `onSearchValueChange('')` reports these resets and you decide whether to apply
+them.
 
 ```tsx
 <Combobox
@@ -135,8 +138,10 @@ resets to `''` when the popup finishes closing and after a native form reset; in
 
 `clearable` shows a clear button while there is a selected value or query text. Clearing resets the
 selection and the query, calls `onValueChange(null)` if a value existed, then `onClear`, and returns
-focus to the input. `loading` replaces the toggle icon with `loadingIcon`, marks the toggle button
-`aria-busy`, and hides the clear button. It does not disable the input or the toggle button.
+focus to the input.
+
+`loading` replaces the toggle icon with `loadingIcon`, marks the toggle button `aria-busy`, and
+hides the clear button. It does not disable the input or the toggle button.
 
 ### Pointer opening
 

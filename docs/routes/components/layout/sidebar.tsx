@@ -151,7 +151,7 @@ export const DocsSidebarHeader = () => {
       aria-label="Documentation sections"
       class="font-sans p-3 border-b border-border shrink-0 w-full"
     >
-      <div class="p-1 rounded-lg bg-muted/60 gap-1 grid grid-cols-3">
+      <div class="p-1 rounded-lg bg-muted/60 gap-1 grid grid-cols-[1fr_auto_1fr]">
         <For each={SURFACES}>
           {(surface) => {
             const selected = () => getCurrentSurface(location.pathname) === surface.value

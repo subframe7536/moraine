@@ -32,18 +32,18 @@ export default function AlertPlayground() {
           ],
         },
         { kind: 'switch', prop: 'actions', label: 'Actions', defaultValue: true },
-        { kind: 'switch', prop: 'closable', label: 'Close Button', defaultValue: true },
+        { kind: 'switch', prop: 'closable', label: 'Closable', defaultValue: true },
         {
           kind: 'select',
           prop: 'closeIcon',
-          label: 'Close Icon',
+          label: 'Close icon',
           defaultValue: 'default',
           options: [
             { label: 'Default', value: 'default' },
             { label: 'Circle (i-lucide:circle-x)', value: 'i-lucide:circle-x' },
           ],
         },
-        { kind: 'switch', prop: 'fullWidth', label: 'Full Width', defaultValue: false },
+        { kind: 'switch', prop: 'fullWidth', label: 'Full width', defaultValue: false },
       ]}
     >
       {(props) => (

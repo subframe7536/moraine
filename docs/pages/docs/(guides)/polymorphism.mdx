@@ -60,17 +60,20 @@ export function MenuExample() {
 }
 ```
 
-Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Spread the received props onto one root element and forward its `ref`, so Moraine can resolve native element semantics and manage focus. `Dialog`, `Sheet`, `Drawer`, `BaseDialog`, `DropdownMenu`, and `ContextMenu` triggers throw on mount when no element resolves from the component.
+When writing a custom component target for `as={Component}`:
+
+- Spread the received props onto a single root DOM element and forward its `ref` so Moraine can resolve native element semantics and manage focus.
+- `Dialog`, `Sheet`, `Drawer`, `BaseDialog`, `DropdownMenu`, and `ContextMenu` triggers throw on mount if no DOM element resolves from the custom component.
 
 ## Overlay Triggers and Composition
 
-Overlay triggers (`Dialog.Trigger`, `Sheet.Trigger`, `Drawer.Trigger`, `Popover.Trigger`, `Tooltip.Trigger`, `DropdownMenu.Trigger`) are designed to be composed with `as={Button}`:
+Overlay triggers (`Dialog.Trigger`, `Sheet.Trigger`, `Drawer.Trigger`, `Popover.Trigger`, `Tooltip.Trigger`, `DropdownMenu.Trigger`) are designed to compose with `as={Button}`:
 
 1. **State Injection**: The trigger injects ARIA state (`aria-haspopup`, `aria-expanded`, and `aria-controls` while the content is present) and the click, pointer, and keyboard handlers it needs into the rendered element. `Tooltip.Trigger` sets `aria-describedby` instead.
-2. **Event Merging**: If you provide your own `onClick` handler on `<Dialog.Trigger as={Button} onClick={...}>`, Moraine calls your handler first. If you call `event.preventDefault()`, the disclosure action is canceled.
-3. **Ref Forwarding**: The `ref` you pass receives the rendered DOM element, so you can manage focus.
+2. **Event Merging**: If you provide your own `onClick` handler on `<Dialog.Trigger as={Button} onClick={...}>`, Moraine calls your handler first. Calling `event.preventDefault()` cancels the disclosure action.
+3. **Ref Forwarding**: The `ref` you pass receives the rendered DOM element for focus management.
 
-`BaseDialog`, `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, and `DropdownMenu` triggers handle clicks on a custom component after its own click handler runs. These custom targets do not receive the composed `onClick` prop; the target's own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including `BaseSelect` and `ContextMenu` triggers, forward `onClick` normally. Delegated events, including keyboard events, also reach custom targets rendered in an iframe document.
+`BaseDialog`, `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, and `DropdownMenu` triggers attach click activation directly to the resolved DOM element after the custom component's own click handler runs (and cancel activation if `preventDefault()` was called), including inside an `<iframe>` document. Other polymorphic triggers (`BaseSelect.Trigger` and `ContextMenu.Trigger`) forward `onClick` through props.
 
 ```tsx
 import { Button, Dialog } from 'moraine'

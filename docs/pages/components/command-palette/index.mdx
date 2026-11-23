@@ -1,6 +1,6 @@
 ---
 title: CommandPalette
-description: Search grouped commands on an inline surface — the palette owns no open state (`closable`, `closeOnSelect`, `onCloseRequest` report dismissal to the outer container).
+description: Search and run grouped commands on an inline surface that composes inside a page or dialog.
 group: Navigation
 api:
   path: src/components/command-palette/command-palette
@@ -55,10 +55,11 @@ Group labels and items flatten into sibling rows when virtualized. With `descrip
 ## Usage
 
 Use CommandPalette for searchable commands or navigation targets on an inline surface. The
-application decides when to open it and registers any global shortcut. Wrap it in a
-[Dialog](/components/dialog) or [BaseDialog](/components/base-dialog) when the palette should occupy a focused
-overlay; the wrapper also owns Escape dismissal. Use [NavigationMenu](/components/navigation-menu)
-for persistent site destinations.
+application decides when to open it and registers any global shortcut.
+
+Wrap it in a [Dialog](/components/dialog) or [BaseDialog](/components/base-dialog) when the palette
+should occupy a focused overlay; the wrapper also owns Escape dismissal. Use
+[NavigationMenu](/components/navigation-menu) for persistent site destinations.
 
 ```tsx
 import { CommandPalette } from 'moraine'
@@ -78,10 +79,12 @@ export function Example() {
 
 Pass items and groups from application state. The palette filters the supplied collection and calls
 the item's `onSelect`, then the palette's `onSelect`. Fetching commands, routing, and global
-shortcuts stay with the application. The default `filterMethod` is `'contains'`; it matches the
-item's label, value, description, and `keywords` ignoring case and accents. Pass `'startsWith'`,
-`'endsWith'`, or a predicate for custom matching, or `false` to skip filtering when you already
-filter the collection. Set `alwaysShow` on an item to keep it visible for any query.
+shortcuts stay with the application.
+
+The default `filterMethod` is `'contains'`, which matches the item's label, value, description, and
+`keywords` ignoring case and accents. Pass `'startsWith'`, `'endsWith'`, or a predicate for custom
+matching, or `false` to skip filtering when you already filter the collection. Set `alwaysShow` on
+an item to keep it visible for any query.
 
 ```tsx
 <CommandPalette
@@ -93,19 +96,22 @@ filter the collection. Set `alwaysShow` on an item to keep it visible for any qu
 
 By default, selecting an enabled item also calls `onCloseRequest`. The palette never hides itself:
 use `onCloseRequest` to close the surrounding Dialog or BaseDialog. Set `closable` to show a close
-button that calls `onCloseRequest`. The search input takes focus on mount unless the palette sits
-inside an element with `role="dialog"`; set `autoFocus={false}` to disable it. Control the query with
-`searchValue` and `onSearchValueChange`, or start from `defaultSearchValue`.
+button that calls `onCloseRequest`.
+
+The search input takes focus on mount unless the palette sits inside an element with
+`role="dialog"`; set `autoFocus={false}` to disable it. Control the query with `searchValue` and
+`onSearchValueChange`, or start from `defaultSearchValue`.
 
 ### Custom items and states
 
 An item's `icon` renders before the label and `kbds` renders keycaps after it in the default item
 content; `leadingRender` and `trailingRender` replace them with custom content. Use `itemRender`
 when a row needs extra fields such as owner or status; it replaces the default row content, so the
-items' `icon`, `kbds`, `leadingRender`, and `trailingRender` no longer apply. Provide `emptyRender`
-when an empty query or a miss needs explanation, and `footerRender` for a footer such as keyboard
-hints. Set `loading` while results are still arriving: it swaps the leading icon for `loadingIcon`,
-and items stay selectable.
+item's `icon`, `kbds`, `leadingRender`, and `trailingRender` no longer apply.
+
+Provide `emptyRender` when an empty query or a miss needs explanation, and `footerRender` for a
+footer such as keyboard hints. Set `loading` while results are still arriving: it swaps the leading
+icon for `loadingIcon`, and items stay selectable.
 
 ```tsx
 <CommandPalette

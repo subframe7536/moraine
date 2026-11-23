@@ -8,7 +8,7 @@ search:
 ---
 
 Moraine provides styled SolidJS components for forms, navigation, overlays, and content.
-Components are styled with utility classes and semantic CSS variables. Moraine provides setup for UnoCSS and Tailwind CSS.
+Components use utility classes and semantic CSS variables, with official integrations for UnoCSS and Tailwind CSS v4.
 
 ## Set up your application
 
@@ -18,34 +18,36 @@ Components are styled with utility classes and semantic CSS variables. Moraine p
 
 ## Read a component page
 
-Each component page opens with a Playground, followed by Anatomy (the component structure and slot
-tree) and Usage (when to use the component, with copyable code). Usage contains only text and code,
-so agents can learn the API from it. Examples are real tasks with live previews, and their source
-doubles as a copy-paste guide. The generated API reference lists attributes and props from the
-library source.
+Each component page follows a consistent layout:
 
-Components such as `Button`, `Input`, and `Select` use a single JSX entry point. Components such as
-`Dialog` and `Card` expose attached parts that you arrange yourself. Read
-[Composition](/docs/composition) for parts, slots, and DOM ownership, and
-[Polymorphism](/docs/polymorphism) before changing a rendered element with `as`.
+- **Playground**: Interactive preview for testing variants, states, and slot inspection.
+- **Anatomy**: Component hierarchy and named style slots (`data-slot`).
+- **Usage**: When to choose the component over sibling controls, core behavioral contracts, and a copyable TSX example. Usage contains only text and code, so coding agents can read it directly.
+- **Examples**: Real task patterns with live previews and copy-ready source code.
+- **API Reference**: Data attributes and typed props extracted from the library source.
+
+Single components (`Button`, `Input`, `Select`) use one JSX element. Composite components (`Dialog`, `Card`, `Sidebar`) expose attached parts that you arrange in your layout.
+
+Read [Composition](/docs/composition) for parts, slots, and DOM ownership, and [Polymorphism](/docs/polymorphism) before changing a rendered element with `as`.
 
 ## Adapt the styles
 
-Use the `class` and object `style` props for local changes. Use slot `classes` and `styles` where the
-component exposes them, or scope shared recipe overrides with `defineTheme()` and [`MoraineProvider`](/docs/provider).
-Start with [Customization](/docs/customization), then read [Theming](/docs/theming) for shared
-overrides and [Design tokens](/docs/design) for colors, spacing, and dimensions.
+- Pass `class` and object `style` for one-off overrides on the root element or part.
+- Pass `classes` and `styles` to target internal named slots on an instance.
+- Use `defineTheme()` with [`MoraineProvider`](/docs/provider) for application-wide or subtree defaults.
+
+Start with [Customization](/docs/customization) for the 4-layer override hierarchy, then read [Theming](/docs/theming) for shared recipe overrides and [Design Tokens](/docs/design) for colors, spacing, and dimensions.
 
 ## Integrate behavior
 
-Use [Form](/components/form) for schema validation and submission, or
-[Field](/components/field) for standalone labels and messages. The
-[Accessibility guide](/docs/accessibility) explains naming and focus responsibilities; the
-[SSR guide](/docs/ssr) covers initial state, IDs, and browser-only content.
+- Use [Form](/components/form) for schema validation and submission, or [Field](/components/field) for standalone labels, descriptions, and error wiring.
+- Read [Accessibility](/docs/accessibility) for naming, keyboard navigation, and focus contracts.
+- Read [Server-Side Rendering](/docs/ssr) for deterministic IDs, portals, and hydration rules.
 
-## AI and LLM documentation
+## AI and coding agent documentation
 
-Every documentation, component, and hook page has a plain Markdown counterpart built from the same
-source. Start from [`/llms.txt`](/llms.txt), append `.md` to any route (for example,
-`/components/button.md` or `/hooks/create-copy.md`), or request `/components/<name>.json` for a
-component's structured API schema.
+Every documentation, component, and hook page has a plain Markdown counterpart built from the same source:
+
+- Fetch [`/llms.txt`](/llms.txt) for the full documentation index.
+- Append `.md` to any route (for example `/components/button.md` or `/hooks/create-copy.md`) for plain Markdown with inlined examples and API tables.
+- Request `/components/<name>.json` for a component's structured JSON API schema.

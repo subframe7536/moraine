@@ -7,7 +7,9 @@ search:
   tags: [classes, styles, slots, customization, single, composite, data-slot, overrides]
 ---
 
-Moraine components expose typed slots and four class override layers. CSS theme tokens are a separate mechanism: change a semantic color or radius in CSS to update every component that uses the token. With UnoCSS, `presetMoraine()` emits neutral defaults and accepts named color overrides; with Tailwind, define the tokens in CSS. Use `defineTheme()` to change component recipes or default variants.
+Moraine components expose typed slots and four class override layers.
+
+To customize tokens globally, update semantic CSS variables (via `presetMoraine()` in UnoCSS or in your stylesheet with Tailwind). To customize component recipes or default variants across a tree, use `defineTheme()` with `MoraineProvider`.
 
 ## The 4-Layer Override Hierarchy
 
@@ -22,7 +24,11 @@ Choose the layer that matches the scope of your change:
 
 ### How Classes Merge Across Layers
 
-Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) with Moraine's `cn` merger. When utilities conflict (for example `bg-primary` and `bg-danger`, or `p-2` and `p-4`), the higher layer wins. Two refinements apply: the `classes` of an ancestor component sit between the theme layer and the instance, and classes a component enforces for functional reasons (positioning, virtual scroll sizes) always win and cannot be overridden. `styles` and `style` merge per property in the same order, and `undefined` or `null` values are skipped.
+Classes merge in ascending priority (`Layer 1 → Layer 2 → Layer 3 → Layer 4`) using Moraine's `cn` merger. When utilities conflict (for example `bg-primary` vs `bg-danger`, or `p-2` vs `p-4`), the higher layer wins:
+
+- **Ancestor slot overrides**: `classes` and `styles` passed on an ancestor composite root sit between the Theme layer (Layer 2) and child part props.
+- **Enforced functional styles**: Styles a component enforces for layout or geometry (such as floating positioning or virtual scroll dimensions) always win and cannot be overridden.
+- **Inline style objects**: `styles` and `style` merge per CSS property in the same layer order; `undefined` and `null` property values are skipped so they do not erase earlier layers.
 
 ```tsx
 import { Button } from 'moraine'

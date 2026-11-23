@@ -42,11 +42,12 @@ export function Example() {
 
 ### Variants
 
-`variant` sets the unpressed appearance and `activeVariant` sets the pressed appearance. Both
-accept all Button variants, and the defaults are `ghost` and `soft`. `tone` and `activeTone` pick
-the color the same way (both default to `neutral`). Changing a variant does not reset the pressed
-state. The `link` variant only changes appearance; ToggleButton still renders a button that
-toggles, not a link.
+`variant` sets the unpressed appearance (default `'ghost'`) and `activeVariant` sets the pressed
+appearance (default `'soft'`). Both accept all Button variants. `tone` and `activeTone` pick the
+color the same way (both default to `'neutral'`).
+
+Changing a variant does not reset the pressed state. The `link` variant only changes appearance;
+ToggleButton still renders a button that toggles, not a link.
 
 ```tsx
 <ToggleButton variant="outline" activeVariant="solid">
@@ -90,9 +91,11 @@ accessor and is not mounted as a component.
 ### Async actions
 
 `autoLoading` follows a Promise returned by `onClick` and blocks repeated activation until it
-settles. The state changes immediately after an uncancelled click, including when the Promise later
-rejects; it is not automatically rolled back. Handle request errors in your async handler. To update
-only after success, use controlled `pressed` and update it after the request completes.
+settles.
+
+The state changes immediately after an uncancelled click, including when the Promise later rejects;
+it is not automatically rolled back. Handle request errors in your async handler, or use controlled
+`pressed` and update it only after the request completes.
 
 ```tsx
 <ToggleButton autoLoading onClick={() => bookmark()} leading="i-lucide:bookmark">

@@ -189,7 +189,7 @@ export function ComponentRadar() {
             size="sm"
             variant="link"
             trailing="icon-arrow-right"
-            class="shrink-0 self-start sm:self-end"
+            class="px-0 shrink-0 self-start sm:self-end"
           >
             Browse all components
           </Button>
@@ -420,6 +420,12 @@ export function ComponentRadar() {
             <Stepper
               size="sm"
               defaultValue="configure"
+              classes={{
+                header: 'scrollbar-none max-sm:gap-1.5',
+                item: 'max-sm:gap-1.5',
+                separator: 'max-sm:min-w-2',
+                description: 'max-sm:hidden',
+              }}
               items={[
                 {
                   value: 'install',
@@ -506,7 +512,7 @@ export function ComponentRadar() {
             size="sm"
             variant="link"
             trailing="icon-arrow-right"
-            class="shrink-0 self-start sm:self-end"
+            class="px-0 shrink-0 self-start sm:self-end"
           >
             Composition guide
           </Button>
@@ -588,7 +594,7 @@ export function ComponentRadar() {
                 <Table.Header>
                   <Table.Row>
                     <Table.Head>Entry point</Table.Head>
-                    <Table.Head>Library</Table.Head>
+                    <Table.Head class="max-sm:hidden">Library</Table.Head>
                     <Table.Head align="end">Dependency</Table.Head>
                   </Table.Row>
                 </Table.Header>
@@ -597,12 +603,15 @@ export function ComponentRadar() {
                     {(item) => (
                       <Table.Row>
                         <Table.Cell class="text-xs font-medium font-mono whitespace-nowrap">
-                          {item.entry}
+                          <div>{item.entry}</div>
+                          <div class="text-muted-foreground font-normal mt-0.5 sm:hidden">
+                            {item.engine}
+                          </div>
                         </Table.Cell>
-                        <Table.Cell class="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                        <Table.Cell class="text-xs text-muted-foreground font-mono whitespace-nowrap max-sm:hidden">
                           {item.engine}
                         </Table.Cell>
-                        <Table.Cell align="end">
+                        <Table.Cell align="end" class="whitespace-nowrap">
                           <Badge size="sm" variant={item.kind === 'Built-in' ? 'soft' : 'outline'}>
                             {item.kind}
                           </Badge>

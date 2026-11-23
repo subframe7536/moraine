@@ -4,7 +4,7 @@ import { LandingPage } from './components/landing'
 
 const title = 'Moraine — Styled & Composable Component Library for SolidJS'
 const description =
-  'A styled, batteries-included SolidJS component library inspired by Nuxt UI and Chakra UI. Ready-to-use composite controls and granular composable primitives powered by UnoCSS and Tailwind CSS.'
+  '60 accessible SolidJS components with semantic tokens, single and composite primitives, and first-class UnoCSS and Tailwind CSS v4 integrations.'
 const canonical = 'https://moraine.subf.dev/'
 
 export default createRoute({

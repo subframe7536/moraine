@@ -90,12 +90,15 @@ from your own Previous and Next buttons, control `value` and update it in those 
 
 ### Panels and orientation
 
-Step triggers and panels use tab semantics (`tablist`, `tab`, `tabpanel`). Every item requires a
-unique `value`; an item that repeats an earlier value renders disabled and logs a development
-warning. `item.content` is static JSX or a component that receives `{ value, index }`; only the
-active step's panel renders, and a step without `content` has no panel. Vertical orientation changes
-the layout and the arrow keys that move between steps. Stepper marks every step before the active
-one as completed, based on item order. Set `item.icon` to replace the step number in the indicator.
+Step triggers and panels use tab semantics (`tablist`, `tab`, `tabpanel`). Stepper marks every step
+before the active one as completed, based on item order. Vertical `orientation` changes the layout
+and the arrow keys that move between steps.
+
+- `item.value`: must be unique across all steps; a step that repeats an earlier value renders
+  disabled and logs a development warning.
+- `item.content`: accepts static JSX or a component receiving `{ value, index }`. Only the active
+  step's panel renders, and a step without `content` has no panel.
+- `item.icon`: replaces the step number inside the indicator.
 
 ```tsx
 <Stepper

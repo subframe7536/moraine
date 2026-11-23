@@ -57,11 +57,12 @@ export function Example() {
 
 ### Content
 
-`content` accepts text or JSX, or a component that receives `{ value, expanded, disabled }`.
-Use the component form when the panel depends on the item state. Content mounts while its item is
-open (see [Content lifetime](#content-lifetime)). `headingLevel` (default `3`) sets the heading level
-that wraps each trigger. `icon` adds a leading icon to an item, and `expandIcon` replaces the
-indicator icon for every item.
+`content` accepts text, JSX, or a component that receives `{ value, expanded, disabled }`. Use the
+component form when the panel depends on the item state. Content mounts while its item is open (see
+[Content lifetime](#content-lifetime)).
+
+`headingLevel` (default `3`) sets the heading level that wraps each trigger. `icon` adds a leading
+icon to an item, and `expandIcon` replaces the indicator icon for every item.
 
 ```tsx
 <Accordion
@@ -73,11 +74,12 @@ indicator icon for every item.
 
 ### Open items
 
-`value`, `defaultValue`, and `onValueChange` always use an array of item values. By default, opening an
-item closes the others. Set `multiple` to allow several open items. Pair `value` with `onValueChange`
-when the page owns the open set. `onValueChange` receives the complete next array and fires only for
-user toggles, not for changes you make to `value`. In single mode, `collapsible` (default `true`)
-controls whether the open item can close; with `multiple`, every item can always close.
+`value`, `defaultValue`, and `onValueChange` always use an array of item values. By default, opening
+an item closes the others; `collapsible` (default `true`) controls whether the open item can close.
+Set `multiple` to allow several open items, where every item can always close.
+
+Pair `value` with `onValueChange` when the page owns the open set. `onValueChange` receives the
+complete next array and fires only for user toggles, not for programmatic changes to `value`.
 
 ```tsx
 const [open, setOpen] = createSignal<string[]>(['shipping'])
@@ -88,10 +90,11 @@ const [open, setOpen] = createSignal<string[]>(['shipping'])
 
 ### Content lifetime
 
-The content shell always stays mounted, so each trigger's `aria-controls` points to a real element.
-`forceMount` controls only the content inside that shell. By default, content mounts each time its
-item opens and unmounts after it closes. Set `forceMount` to mount content before the first open and
-keep it mounted, so hidden fields preserve local state.
+The content shell stays mounted so each trigger's `aria-controls` points to a real element.
+`forceMount` controls only the content inside that shell.
+
+By default, content mounts each time its item opens and unmounts after it closes. Set `forceMount`
+to mount content before the first open and keep it mounted so hidden fields preserve local state.
 
 ```tsx
 <Accordion forceMount defaultValue={['notes']} items={items} />

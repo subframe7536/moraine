@@ -53,9 +53,10 @@ import Playground from './playground'
 ## Usage
 
 Use Card to group related content and actions on a neutral surface. Its parts are structural and add
-no interactive behavior or ARIA relationships. The root, `Card.Title`, and the other parts render a
-`div` by default (`Card.Description` renders a `p`); set `as` to change the element, such as a
-heading for the title or `article` for the root.
+no interactive behavior or ARIA relationships.
+
+The root, `Card.Title`, and the other parts render a `div` by default (`Card.Description` renders a
+`p`); set `as` to change the element, such as a heading for the title or `article` for the root.
 
 ```tsx
 import { Card } from 'moraine'
@@ -74,12 +75,15 @@ export function Example() {
 
 ### Variants and sizes
 
-`variant` sets the surface; the header always looks the same as the body. `outline` (default) draws
-the outer border and shadow and a top border on the footer. `subtle` adds a muted footer background.
-`none` drops the outer border, shadow, and footer divider and keeps only the background and part
-spacing, for a card nested inside another bordered surface. The `sm`, `md` (default), and `lg` sizes
-change the density of the header, body, footer, title, and description together. Set `variant` and
-`size` on `Card`; the parts inherit them.
+`variant` sets the surface; the header always shares the body surface:
+
+- `outline` (default): draws the outer border and shadow and a top border on the footer.
+- `subtle`: adds a muted footer background.
+- `none`: drops the outer border, shadow, and footer divider and keeps only the background and part
+  spacing, for a card nested inside another bordered surface.
+
+The `sm`, `md` (default), and `lg` sizes change the density of the header, body, footer, title, and
+description together. Set `variant` and `size` on `Card`; the parts inherit them.
 
 ```tsx
 <Card variant="subtle" size="sm">
@@ -93,9 +97,10 @@ change the density of the header, body, footer, title, and description together.
 ### Parts
 
 Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root
-spaces the sections. Direct children can still span the card's full width. Place a control for the
-whole card in `Card.Action`, which sits at the end of the header beside the title and description.
-Place other actions in `Card.Footer`.
+spaces the sections. Direct children can still span the card's full width.
+
+Place a control for the whole card in `Card.Action`, which sits at the end of the header beside the
+title and description. Place other actions in `Card.Footer`.
 
 ```tsx
 <Card>

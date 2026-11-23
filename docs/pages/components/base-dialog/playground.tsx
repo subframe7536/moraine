@@ -10,7 +10,7 @@ export default function BaseDialogPlayground() {
         {
           kind: 'switch',
           prop: 'closeOnOutsideClick',
-          label: 'Close on overlay click',
+          label: 'Close on outside click',
           defaultValue: true,
         },
         { kind: 'switch', prop: 'closeOnEscape', label: 'Close on Escape', defaultValue: true },

@@ -66,9 +66,11 @@ Content is portaled. Overlay and Content are siblings by default.
 ## Usage
 
 Use Drawer for a mobile-style surface the user dismisses with a swipe along its edge, optionally
-resting at snap points. Use [Sheet](/components/sheet) for an edge panel without gestures. Use
-[Dialog](/components/dialog) for a centered labeled task, and [BaseDialog](/components/base-dialog) to compose
-backdrop and content yourself.
+resting at snap points.
+
+- Use [Sheet](/components/sheet) for an edge panel without gestures.
+- Use [Dialog](/components/dialog) for a centered labeled task.
+- Use [BaseDialog](/components/base-dialog) to compose backdrop and content yourself.
 
 Drawer shares modal dismissal and focus behavior with Dialog. The default `side` is `bottom`. For a
 persistent panel that coexists with the page, combine `modal={false}` with `overlay={false}`
@@ -97,10 +99,12 @@ export function Example() {
 Use Content `title` and `description` for simple cases, or compose `Drawer.Header`, `Drawer.Title`,
 `Drawer.Description`, `Drawer.Body`, and `Drawer.Footer` for a custom layout, following the same
 contract as [Sheet](/components/sheet#content-composition). An explicit `Drawer.Header` replaces the
-generated header. `Drawer.Close` is an explicit close control. Root `closable` (default `true`) adds
-the automatic corner close button, and `closeIcon` replaces its icon. The `drawer` message group
-(`close`) names the button, and `translations` overrides it per drawer. A touch swipe that starts
-on the button still dismisses.
+generated header.
+
+`Drawer.Close` is an explicit close control. Root `closable` (default `true`) adds the automatic
+corner close button, and `closeIcon` replaces its icon. The `drawer` message group (`close`) names
+the button, and `translations` overrides it per drawer. A touch swipe that starts on the button
+still dismisses.
 
 Root `transition={false}` turns off the enter and exit animations. Content and overlay then unmount
 as soon as the drawer closes instead of waiting for the animation to end.
@@ -112,6 +116,7 @@ the viewport. Set `handle={false}` to hide it.
 
 A `top` or `bottom` drawer sizes to its content and stops `0.5rem` (or the top safe-area inset, if
 larger) short of the viewport height. `left` and `right` panels span `w-3/4`, up to `sm:max-w-sm`.
+
 Override either with Content `class`, for example `class="h-[50dvh]"` for a fixed height or
 `class="w-1/2 sm:max-w-2xl"` for a wider side panel. Body is the scrollable region: once Content's
 height is bounded, it scrolls between the header and footer.
@@ -124,10 +129,11 @@ the dismiss direction is damped and springs back. The `data-swiping` attribute o
 overlay marks the active gesture so transitions pause.
 
 A mouse or pen drag does not start on interactive elements (`button`, `a`, form controls,
-`[contenteditable]`, `[role="button"]`, `[role="slider"]`), inside `Drawer.Body`, which stays
-available for text selection, or inside a region that scrolls along the drag axis. A touch drag can start on interactive
-elements. Touch drags that begin inside a scrollable region defer to native scrolling until the
-scroller reaches its edge in the drag direction.
+`[contenteditable]`, `[role="button"]`, `[role="slider"]`), inside `Drawer.Body` (which stays
+available for text selection), or inside a region that scrolls along the drag axis.
+
+A touch drag can start on interactive elements. Touch drags that begin inside a scrollable region
+defer to native scrolling until the scroller reaches its edge in the drag direction.
 
 Mark a subtree with `data-swipe-ignore` to block drags that start in it. On touch,
 `data-swipe-ignore="x"` or `"y"` blocks only drags along that axis.
@@ -140,18 +146,21 @@ Mark a subtree with `data-swipe-ignore` to block drags that start in it. On touc
 
 ### Snap points
 
-`snapPoints` limits where a `top` or `bottom` drawer rests. Each entry is the visible height from the
-edge, in any order: numbers `<= 1` are a fraction of the viewport height, larger numbers are pixels,
-and `'px'` or `'rem'` strings resolve directly. Snap points are ignored for `left` and `right`. Snap
-heights are clamped to the content's rendered height and the viewport, so give Content an explicit
-height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using fractional or full snap points.
+`snapPoints` limits where a `top` or `bottom` drawer rests (and is ignored for `left` and `right`).
+Each entry is the visible height from the edge, in any order: numbers `<= 1` are a fraction of the
+viewport height, larger numbers are pixels, and `'px'` or `'rem'` strings resolve directly.
+
+Snap heights are clamped to the content's rendered height and the viewport, so give Content an
+explicit height (for example `class="h-[calc(100dvh-0.5rem)]"`) when using fractional or full snap
+points.
 
 `snapPoint`, `defaultSnapPoint`, and `onSnapPointChange` control the resting point. It defaults to
-the first snap point, and `null` means fully open. Releasing a swipe settles on the closest point
-(projected by the swipe velocity), and dragging past the lowest point closes the drawer. With
-`snapToSequentialPoints`, a flick advances at most one point and closes only from the lowest point.
-After the drawer finishes closing, it returns to the default point and reports it through
-`onSnapPointChange` if the active point differed.
+the first snap point, and `null` means fully open.
+
+Releasing a swipe settles on the closest point (projected by the swipe velocity), and dragging past
+the lowest point closes the drawer. With `snapToSequentialPoints`, a flick advances at most one
+point and closes only from the lowest point. After the drawer finishes closing, it returns to the
+default point and reports it through `onSnapPointChange` if the active point differed.
 
 ```tsx
 const [snapPoint, setSnapPoint] = createSignal<DrawerT.SnapPoint | null>('200px')

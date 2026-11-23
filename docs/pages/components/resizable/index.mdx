@@ -43,10 +43,12 @@ single expandable disclosure or a drawer, use [Collapsible](/components/collapsi
 [Sheet](/components/sheet).
 
 The root owns the size of every panel as a layout record: a `Record` keyed by panel `id`, with sizes
-as percentages of the group (`0`–`100`). `Resizable.Panel` sets each panel's `min`, `max`, and
-collapse constraints. Place `Resizable.Handle` between two panels to add pointer dragging, keyboard
-resizing, and collapse toggles. Set `orientation="vertical"` on the root to stack panels instead of
-placing them side by side.
+as percentages of the group (`0`–`100`). Set `orientation="vertical"` on the root to stack panels
+instead of placing them side by side.
+
+- `Resizable.Panel`: sets each panel's `min`, `max`, and collapse constraints.
+- `Resizable.Handle`: sits between two panels to add pointer dragging, keyboard resizing, and
+  collapse toggles.
 
 ```tsx
 import { Resizable } from 'moraine'
@@ -71,10 +73,11 @@ export function Example() {
 ### Constraints
 
 Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. All values are
-percentages of the group. Dragging a handle grows one panel and shrinks its neighbor, stopping at
-each panel's `min` (default `0`) and `max` (default `100`). A panel with `resizable={false}` stays at
-its current size, and the handles next to it are disabled. Panels without an entry in the layout
-record share the remaining space.
+percentages of the group. Panels without an entry in the layout record share the remaining space.
+
+Dragging a handle grows one panel and shrinks its neighbor, stopping at each panel's `min` (default
+`0`) and `max` (default `100`). A panel with `resizable={false}` stays at its current size, and the
+handles next to it are disabled.
 
 ```tsx
 <Resizable defaultValue={{ inspector: 32, viewport: 68 }}>
@@ -92,11 +95,12 @@ record share the remaining space.
 
 Set `collapsible` on a panel to let it collapse to `collapsedSize` (default `0`, clamped between `0`
 and `min`). Dragging a handle past the midpoint between `min` and `collapsedSize` collapses the
-panel, and pressing <kbd>Enter</kbd> on a handle toggles its nearest collapsible neighbor: the
-preceding panel first, then the following one. A handle's children can be a render function that
-receives `collapsed`, `dragging`, `active`, `canCollapse`, `disabled`, and `orientation` to switch
-the icon; pass `false` to hide the grip. `onCollapse` and `onExpand` fire on transitions, not for the
-initial layout.
+panel, and pressing <kbd>Enter</kbd> on a handle toggles its nearest collapsible neighbor (the
+preceding panel first, then the following one).
+
+A handle's children can be a render function that receives `collapsed`, `dragging`, `active`,
+`canCollapse`, `disabled`, and `orientation` to switch the icon; pass `false` to hide the grip.
+`onCollapse` and `onExpand` fire on transitions, not for the initial layout.
 
 Inside panel content, `Resizable.usePanel()` exposes `collapse()`, `expand()`, `resize(size)`,
 `size`, and `collapsed`. Use it to build a collapse button. `expand()` restores the last expanded
@@ -130,10 +134,11 @@ function CollapseButton() {
 
 Use `value` with `onValueChange` when the application coordinates layout presets, resets, or persists
 splits to storage. Both carry the full layout record keyed by panel id. With `value` set, resizing
-only calls `onValueChange`, and the panels follow the `value` you pass back. `onValueChange` fires on
-every layout change, including each step of a drag. `onValueCommit` fires once per completed
-interaction: a drag that changed the layout, each keyboard step that changed it, a collapse toggle,
-or a `usePanel()` call.
+only calls `onValueChange`, and the panels follow the `value` you pass back.
+
+- `onValueChange`: fires on every layout change, including each step of a drag.
+- `onValueCommit`: fires once per completed interaction (a drag that changed the layout, each
+  keyboard step that changed it, a collapse toggle, or a `usePanel()` call).
 
 ```tsx
 <Resizable value={layout()} onValueChange={setLayout} onValueCommit={persist}>
@@ -151,7 +156,9 @@ or a `usePanel()` call.
 
 Handles render focusable `role="separator"` elements. Their `aria-valuenow`, `aria-valuemin`, and
 `aria-valuemax` describe the preceding panel; `aria-valuemin` is `collapsedSize` for a collapsible
-panel. A disabled handle (the group is `disabled`, or a neighbor has `resizable={false}`) leaves the
+panel.
+
+A disabled handle (when the group is `disabled` or a neighbor has `resizable={false}`) leaves the
 tab order. Horizontal groups in right-to-left content swap the arrow keys.
 
 | Key                                          | Description                                                                          |

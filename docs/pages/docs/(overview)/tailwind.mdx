@@ -54,7 +54,9 @@ Tailwind discovers static classes by scanning files, whether or not a lazy route
 
 ### Theme variables
 
-Theme variables and page background and text styles belong in your CSS. The plugin registers utilities and variants but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but you must add Moraine's independent `--control` surface in both themes and define its semantic shadows:
+Theme variables and page background/text styles belong in your stylesheet. The plugin registers utilities and variants, but does not emit theme color values.
+
+You can start from a shadcn/ui theme palette, then add Moraine's `--control` surface and semantic shadows:
 
 ```css
 :root {
@@ -68,13 +70,12 @@ Theme variables and page background and text styles belong in your CSS. The plug
 }
 ```
 
-Set the global `--sidebar-width` in `:root` to customize the desktop sidebar width. Sidebar uses `clamp(14rem, 25%, 20rem)` when it is unset.
+Key role tokens:
 
-`bg-control` supplies outline field, unchecked choice, and upload surfaces. `border-input` is the field boundary color, also used for neutral tracks and separators. `control` uses the field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` are supported. See [Form control surface](/docs/design#form-control-surface).
-
-Surface hover and active utilities (`hover:bg-accent-hover`, `active:bg-accent-active`) mix the surface toward its foreground in browsers that support `color-mix(in oklch, …)`, and fall back to the base surface color elsewhere. Tone components handle interaction states through the component tone channel. Tones also expose derived `--<tone>-ink` text colors and `--<tone>-soft` washes that mix toward transparent, so they composite on the local surface.
-
-`bg-backdrop` reads `--backdrop` with a black-at-32% fallback. Component shadows use `shadow-surface`, `shadow-overlay`, and `shadow-input`, which read `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`. Define these role tokens in `:root`, override them in `.dark`, and use `none` to remove a role's shadow. Native size utilities such as `shadow-xs` use Tailwind's own theme and stay independently configurable. See [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
+- **Form control surface (`--control`)**: `bg-control` styles outline fields, unchecked choices, and upload surfaces, while `border-input` styles field boundaries, neutral tracks, and separators. `control` uses field text colors, has no separate foreground or state family, and supports alpha utilities such as `bg-control/30`. See [Form control surface](/docs/design#form-control-surface).
+- **Surface and tone states**: Surface interaction utilities (`hover:bg-accent-hover`, `active:bg-accent-active`) mix the surface toward its foreground via `color-mix(in oklch, …)` and fall back to the base surface color elsewhere. Tones expose derived `--<tone>-ink` text colors and `--<tone>-soft` translucent washes that composite over the local surface.
+- **Backdrop and semantic shadows**: `bg-backdrop` reads `--backdrop` (falling back to black at 32% opacity). Component shadows use `shadow-surface`, `shadow-overlay`, and `shadow-input` (`--shadow-surface`, `--shadow-overlay`, `--shadow-input`). Set any role token to `none` to remove its elevation. Native size utilities such as `shadow-xs` remain governed by Tailwind's own theme. See [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
+- **Sidebar width (`--sidebar-width`)**: Optional global variable on `:root` for the desktop sidebar width; falls back to `clamp(14rem, 25%, 20rem)` when unset.
 
 ## Injected utilities and variants
 

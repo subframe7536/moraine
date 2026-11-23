@@ -44,11 +44,12 @@ Content is portaled inside an internal positioning wrapper.
 
 ## Usage
 
-Use Popover for anchored interactive content that does not need a labeled modal surface. Use
-[Tooltip](/components/tooltip) for a brief, non-interactive hint. Use
-[DropdownMenu](/components/dropdown-menu) for a compact action list from a visible trigger. Use
-[Dialog](/components/dialog) or [Sheet](/components/sheet) when the task should take over the
-page. Use [BaseDialog](/components/base-dialog) to compose backdrop and content yourself.
+Use Popover for anchored interactive content that does not need a labeled modal surface:
+
+- [Tooltip](/components/tooltip): brief, non-interactive hint.
+- [DropdownMenu](/components/dropdown-menu): compact action list from a visible trigger.
+- [Dialog](/components/dialog) or [Sheet](/components/sheet): modal tasks that take over the page.
+- [BaseDialog](/components/base-dialog): headless primitive to compose backdrop and content yourself.
 
 ```tsx
 import { Button, Popover } from 'moraine'
@@ -65,13 +66,14 @@ export function Example() {
 
 ### Trigger modes and state
 
-Click toggles the popover by default. `openOnHover` opens it when a mouse pointer enters the
-trigger or the trigger receives keyboard focus, and closes it `closeDelay` ms after the pointer or
-focus leaves the trigger and content (`openDelay` and `closeDelay` default to `100`). With
-`openOnHover`, clicking the trigger only opens the popover, touch hover is ignored, outside focus
-no longer dismisses the content, and focus is not restored to the trigger on close unless
-`finalFocus` is set. Use controlled `open` state when the application coordinates
-visibility.
+Click toggles the popover by default. Use `open`, `defaultOpen`, and `onOpenChange` when the application coordinates visibility.
+
+Set `openOnHover` to open when a mouse pointer enters the trigger or the trigger receives keyboard focus, and close `closeDelay` ms after the pointer or focus leaves both trigger and content (`openDelay` and `closeDelay` default to `100` ms). When `openOnHover` is enabled:
+
+- Clicking the trigger only opens the popover.
+- Touch hover is ignored.
+- Outside focus no longer dismisses the content.
+- Closing does not restore focus to the trigger unless `finalFocus` is set.
 
 ```tsx
 <Popover>
@@ -86,13 +88,9 @@ visibility.
 
 ### Placement
 
-`placement` chooses the side of the trigger (`top`, `right`, `bottom`, or `left`; default
-`bottom`), and `align` lines the content up with the trigger edge (`start`, `center`, or `end`;
-default `center`). `gutter` sets the gap to the trigger in pixels, and `overflowPadding` the
-minimum distance from the viewport edge (both default to `4`). By default, the content moves to
-another side when `placement` does not fit (`flip`; `false` keeps the side fixed) and slides along
-the trigger edge to stay in the viewport (`slide`). Read the rendered side from `data-side` on the
-content.
+- `placement` (`'top'`, `'right'`, `'bottom'`, or `'left'`; default `'bottom'`) and `align` (`'start'`, `'center'`, or `'end'`; default `'center'`): position the content relative to the trigger.
+- `gutter` and `overflowPadding` (both default to `4` px): set the gap to the trigger and the minimum distance from the viewport edge.
+- `flip` and `slide` (both default to `true`): flip to the opposite side when `placement` does not fit and slide along the trigger edge to stay inside the viewport. Read the active side from `data-side` on the content.
 
 ```tsx
 <Popover placement="right" align="start" gutter={8}>
@@ -103,12 +101,9 @@ content.
 
 ### Dismissal and accessibility
 
-Escape and outside interaction close a popover. Closing restores focus to the trigger, except after
-an outside press or focus move, where focus has already gone elsewhere. Give `Popover.Content` an
-accessible name with `aria-label` when it has no visible label.
+Escape and outside interaction close a popover. Closing restores focus to the trigger, except after an outside press or focus move where focus has already moved elsewhere. Give `Popover.Content` an accessible name with `aria-label` when it has no visible heading.
 
-`closeOnEscape` and `closeOnOutsideClick` control dismissal independently, and `preventScroll`
-locks body scroll while the popover is open.
+`closeOnEscape` and `closeOnOutsideClick` control dismissal independently, and `preventScroll` locks body scroll while the popover is open.
 
 ```tsx
 <Popover>
@@ -123,11 +118,14 @@ locks body scroll while the popover is open.
 
 ### Keyboard interaction
 
-Keyboard behavior depends on the trigger element. Escape requests dismissal when `closeOnEscape`
-allows it; focusable controls inside the content participate in normal document focus order. With
-`openOnHover`, Tab from the trigger moves into the open content, Tab from the last control in the
-content moves to the next focusable element after the trigger, and Shift+Tab from the first
-control returns to the trigger.
+Keyboard activation follows the trigger element. Escape requests dismissal when `closeOnEscape` allows it, and focusable controls inside the content participate in normal document focus order.
+
+With `openOnHover`:
+
+- <kbd>Tab</kbd> from the trigger moves into the open content.
+- <kbd>Tab</kbd> from the last control inside the content moves to the next focusable element after
+  the trigger.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd> from the first control returns to the trigger.
 
 ## Examples
 

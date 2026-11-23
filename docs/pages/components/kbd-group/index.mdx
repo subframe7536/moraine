@@ -41,9 +41,9 @@ export function Example() {
 
 ### Key labels
 
-Each item is a key string, resolved like the `value` of [Kbd](/components/kbd), or an object with
-`value`. Known aliases resolve to symbol notation and spoken names. Use an object to set `ariaLabel`
-or `symbol` for one key. The group's `size` and `variant` apply to every key.
+Each item in `items` is either a key string (resolved like the `value` of [Kbd](/components/kbd)) or an object `{ value, ariaLabel?, symbol? }`.
+
+Known aliases resolve to symbol notation and spoken names. The group's `size` and `variant` apply to every key.
 
 ```tsx
 <KbdGroup items={['meta', 's']} />
@@ -52,10 +52,10 @@ or `symbol` for one key. The group's `size` and `variant` apply to every key.
 
 ### Separator
 
-`separator` defaults to `"+"` and accepts a string, rendered as plain text rather than an icon name.
-For custom JSX such as an icon, pass a component that receives the `index` of the key it follows;
-each position mounts its own instance. It is unrelated to the layout
-[Separator](/components/separator).
+- **String**: `separator` defaults to `"+"` and renders strings as plain text rather than an icon name.
+- **Component**: pass a component receiving `{ index }` (the index of the preceding key) to render custom JSX such as an icon; each position mounts its own instance.
+
+`separator` is inline notation and is unrelated to the layout [Separator](/components/separator).
 
 ```tsx
 <KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />

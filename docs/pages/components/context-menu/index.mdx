@@ -67,11 +67,12 @@ Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Usage
 
-Use ContextMenu for actions tied to a specific surface or item at the pointer location. Use
-[DropdownMenu](/components/dropdown-menu) when the same actions open from a visible trigger. Use
-[Popover](/components/popover) when the content is not a list of commands. Use
-[Dialog](/components/dialog) when the user must complete or confirm a modal task. Keep essential
-actions reachable through another visible path.
+Use ContextMenu for actions tied to a specific surface or item at the pointer location. Keep
+essential actions reachable through another visible path.
+
+- Use [DropdownMenu](/components/dropdown-menu) when the same actions open from a visible trigger.
+- Use [Popover](/components/popover) when the content is not a list of commands.
+- Use [Dialog](/components/dialog) when the user must complete or confirm a modal task.
 
 ```tsx
 import { ContextMenu } from 'moraine'
@@ -88,8 +89,9 @@ export function Example() {
 
 ### Trigger
 
-Wrap the target with `ContextMenu.Trigger`. The menu opens at the pointer on right-click, or at the
-center of the trigger when opened from the keyboard. A touch or pen long press (700 ms) also opens it.
+Wrap the target with `ContextMenu.Trigger`. The menu opens at the pointer on right-click or a touch
+or pen long press (700 ms), and at the center of the trigger when opened from the keyboard.
+
 The trigger renders a `div`; pass `as` to render another element. With `disabled` on the root, the
 native browser menu shows instead.
 
@@ -111,15 +113,16 @@ native browser menu shows instead.
 ### Items
 
 The `items` array describes the whole menu. An item has `type` `'item'` (the default), `'checkbox'`,
-`'radio-group'`, `'group'`, or `'separator'`; an item with `children` opens a submenu. Items accept
-`icon`, `description`, `kbds`, `disabled`, and `danger`; a separator takes no other options.
-`kbds` only displays keycaps and does not register a shortcut. An entry that is an array of items forms its own group, and the menu
-draws a separator between groups.
+`'radio-group'`, `'group'`, or `'separator'`; an item with `children` opens a submenu. An entry that
+is an array of items forms its own group, and the menu draws a separator between groups.
+
+Items accept `icon`, `description`, `kbds`, `disabled`, and `danger`; a separator takes no other
+options. `kbds` only displays keycaps and does not register a shortcut.
 
 Checkbox and radio state is controlled with `checked` / `onCheckedChange` and with `value` /
 `onValueChange` on the `radio-group` (not on each radio). Omit them to let the item manage its own
-state, starting from `defaultChecked` or `defaultValue`. Selecting a checkbox or radio keeps the menu
-open; selecting a regular item runs `onSelect` and closes it.
+state from `defaultChecked` or `defaultValue`. Selecting a checkbox or radio keeps the menu open;
+selecting a regular item runs `onSelect` and closes it.
 
 A parent item with `children` can take `open` and `onOpenChange` to control its submenu.
 `onOpenChange` reports every open or close request from pointer, keyboard, or click interaction. With
@@ -145,10 +148,12 @@ a controlled `open`, the submenu stays at the prop value until you update it.
 />
 ```
 
-`ContextMenu.Content` also takes `headerRender` and `footerRender` components to add a header
-(such as the target's metadata) or a footer around the item groups. The root menu and every open
-submenu mount their own copy, and each receives `{ sub }`. `itemRender` replaces the inner content of every item row; the row keeps its role,
-keyboard handling, and selection.
+`ContextMenu.Content` also takes `headerRender` and `footerRender` components to add a header (such
+as the target's metadata) or a footer around the item groups. The root menu and every open submenu
+mount their own copy, and each receives `{ sub }`.
+
+`itemRender` replaces the inner content of every item row; the row keeps its role, keyboard
+handling, and selection.
 
 ### Dismissal and scrolling
 

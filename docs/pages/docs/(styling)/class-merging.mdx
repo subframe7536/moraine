@@ -7,7 +7,9 @@ search:
   tags: [cn, createCn, useCn, cnConfig, class merging, conflict, tailwind-merge]
 ---
 
-Moraine includes a class merger built on [cn](https://github.com/shadcn-ui/cn) and configured for UnoCSS and Tailwind 4. It resolves conflicting utility classes (for example `p-2` and `p-4`, or `bg-primary` and `bg-muted`) and adds rules for Moraine's semantic shadows, z-index, text size, tone, and parametric transform utilities. Class inputs use `cn`'s `ClassValue` type. An empty merge returns `undefined`, which suits DOM bindings.
+Moraine includes a class merger built on [cn](https://github.com/shadcn-ui/cn) and preconfigured for UnoCSS and Tailwind CSS v4. It resolves conflicting utility classes (such as `p-2` vs `p-4`, or `bg-primary` vs `bg-muted`) and understands Moraine's semantic shadows, z-index, text size, tone, and parametric transform utilities.
+
+Class inputs accept `cn`'s `ClassValue` type (strings, arrays, and conditional objects). An empty merge returns `undefined` so empty `class` attributes are omitted from the DOM.
 
 ## Merging Classes
 
@@ -19,9 +21,9 @@ const className = cn('p-2 text-sm', 'p-4 text-foreground')
 // => "text-sm p-4 text-foreground"
 ```
 
-The exported `cn` always uses the default rules and ignores any `MoraineProvider`. Call `useCn()` inside a component to merge with the nearest `MoraineProvider`'s rules.
-
-Keep UnoCSS's automatic class sorting enabled. Sorting orders tokens within a string, while `cn` resolves conflicts across the inputs it receives, and later classes win. Put component overrides in a later input or in the appropriate [override layer](/docs/customization#the-4-layer-override-hierarchy). Avoid placing competing values such as `p-2 p-4` in the same string, because sorting can change which one comes last.
+- `cn(...)` always uses Moraine's default conflict rules and ignores `MoraineProvider`.
+- `useCn()` reads the merger from the nearest `MoraineProvider` (including custom `cnConfig` rules).
+- Keep UnoCSS's automatic class sorting enabled. Pass overrides as later arguments to `cn(...)` or through the [4-layer override hierarchy](/docs/customization#the-4-layer-override-hierarchy) rather than putting competing utilities (`p-2 p-4`) inside the same string literal.
 
 ## Custom Class Conflict Rules
 

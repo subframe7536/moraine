@@ -62,10 +62,11 @@ export function Example() {
 
 ### Delays and anchoring
 
-`openDelay` (default 600 ms) keeps the card from opening on a passing pointer, and `closeDelay`
-(default 300 ms) keeps it open while the pointer travels from the trigger into the content. The
-card anchors to the line the pointer entered, so it stays attached when the trigger wraps across
-multiple lines. `placement` defaults to `'bottom'`, and `gutter` defaults to 4 px.
+- `openDelay` (default `600` ms): delays opening on pointer entry or keyboard focus to ignore a passing pointer.
+- `closeDelay` (default `300` ms): keeps the card open while the pointer travels from the trigger into the content.
+- `placement` (default `'bottom'`) and `gutter` (default `4` px): position the card relative to the trigger.
+
+The card anchors to the line segment the pointer entered, so it stays attached when an inline link wraps across multiple lines.
 
 ```tsx
 <HoverCard openDelay={200} closeDelay={100} placement="top" align="start">
@@ -76,20 +77,19 @@ multiple lines. `placement` defaults to `'bottom'`, and `gutter` defaults to 4 p
 
 ### Dismissal and accessibility
 
-Escape and a pointer press outside close the card; hover or keyboard focus reopens it. Control the
-open state with `open` and `onOpenChange`, or start open with `defaultOpen`. `disabled` keeps the
-card closed. `forceMount` keeps the content in the DOM while closed.
+Escape and an outside pointer press close the card; hover or keyboard focus reopens it.
 
-Hover card content is supplementary: keyboard users cannot reach it and screen readers do not
-announce it, so it must never be the only place the information lives. Make the same content
-available at the link destination.
+- `open`, `defaultOpen`, and `onOpenChange`: control or initialize the open state.
+- `disabled`: prevents the card from opening.
+- `forceMount`: keeps the content mounted in the DOM while closed.
+
+Hover card content is supplementary: keyboard users cannot reach it and screen readers do not announce it. Never make it the only place information lives; keep the same content available at the link destination.
 
 ### Keyboard interaction
 
-Moving keyboard focus to the trigger opens the card after `openDelay`, and blurring the trigger
-closes it after `closeDelay`. Only keyboard (focus-visible) focus opens the card, and touch hover
-is ignored. The card itself is not keyboard reachable; keep interactive content in a
-[Popover](/components/popover) instead.
+Moving keyboard focus (`:focus-visible`) to the trigger opens the card after `openDelay`, and blurring the trigger closes it after `closeDelay`. Touch hover is ignored.
+
+The card itself is not keyboard reachable; use [Popover](/components/popover) for interactive content.
 
 ## Examples
 

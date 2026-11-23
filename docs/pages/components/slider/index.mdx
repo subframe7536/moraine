@@ -78,9 +78,10 @@ number to draw a tick every that many units without changing how the value snaps
 
 `formatOptions` accepts `Intl.NumberFormat` options and formats each thumb's raw value (not its
 share of the range) for `aria-valuetext` with the provider locale, as BoldSlider and Progress do. It
-does not change the value that callbacks receive. A `percent` style
-multiplies by 100, so pair it with a `0`–`1` range. BoldSlider also uses `formatOptions` for its
-visible value unless `valueLabel` is a formatter.
+does not change the value that callbacks receive.
+
+A `percent` style multiplies by 100, so pair it with a `0`–`1` range. BoldSlider also uses
+`formatOptions` for its visible value unless `valueLabel` is a formatter.
 
 ```tsx
 <Slider defaultValue={50} formatOptions={{ style: 'unit', unit: 'percent' }} aria-label="Zoom" />
@@ -100,8 +101,10 @@ you only need a label and messages.
 
 Pass `children` to render extra content inside the root after the thumbs. A render function
 receives the live `value`, sorted `values`, `percentages` from `0` to `1`, `dragging` state, and the
-`startEdge` where the filled range begins. Declare the function's parameter even when you do not use
-it; a zero-argument function is called as an accessor and is not mounted as a component.
+`startEdge` where the filled range begins.
+
+Declare the function's parameter even when you do not use it; a zero-argument function is called as
+an accessor and is not mounted as a component.
 
 ```tsx
 <Slider defaultValue={40}>{(state) => <output>{state.value}</output>}</Slider>
@@ -110,9 +113,11 @@ it; a zero-argument function is called as an accessor and is not mounted as a co
 ### Keyboard interaction
 
 Arrow keys move by `step` (default `1`); with `step={0}` they move by 1% of the configured range.
-Page-sized movement is approximately 10% of the range and is snapped to `step` when above `0`. Horizontal
-arrow keys swap in right-to-left layouts, and a `reversed` vertical slider swaps <kbd>ArrowUp</kbd>
-and <kbd>ArrowDown</kbd>.
+Page-sized movement is approximately 10% of the range and snaps to `step` when above `0`.
+
+Horizontal arrow keys swap in right-to-left layouts, and a `reversed` vertical slider swaps
+
+<kbd>ArrowUp</kbd> and <kbd>ArrowDown</kbd>.
 
 | Key                                         | Description                                             |
 | ------------------------------------------- | ------------------------------------------------------- |

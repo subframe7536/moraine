@@ -32,8 +32,10 @@ import Playground from './playground'
 ## Usage
 
 Use Alert for inline feedback that stays in the page flow. Choose [Toast](/components/toast) for
-transient notifications and [BaseDialog](/components/base-dialog) for feedback that must block the page. Alert
-sets `role="alert"` with `aria-live="assertive"` for the `warning` and `danger` tones, and
+transient notifications and [BaseDialog](/components/base-dialog) for feedback that must block the
+page.
+
+Alert sets `role="alert"` with `aria-live="assertive"` for the `warning` and `danger` tones, and
 `role="status"` with `aria-live="polite"` for the rest.
 
 ```tsx
@@ -46,9 +48,10 @@ export function Example() {
 
 ### Tone and variant
 
-`tone` selects the semantic status: `default`, `info`, `success`, `warning`, and `danger`. The
-`info`, `success`, `warning`, and `danger` tones render a matching status icon; `default` uses the
-primary color and renders none. `variant` selects the surface treatment: `subtle` (default), `soft`, `outline`, and `solid`.
+- `tone`: selects the semantic status (`default`, `info`, `success`, `warning`, or `danger`). The
+  `info`, `success`, `warning`, and `danger` tones render a matching status icon; `default` uses the
+  primary color and renders no icon.
+- `variant`: selects the surface treatment (`subtle` by default, `soft`, `outline`, or `solid`).
 
 ### Description layout
 
@@ -62,10 +65,12 @@ padding and the title turns bold. `children` render after the title and descript
 ### Dismissal
 
 Set `closable` to render a dismiss button. Clicking it closes the alert, plays the exit animation,
-and removes the alert from the DOM. Use `open` with `onOpenChange` to control visibility, or
-`defaultOpen` to start closed. `onOpenChange` fires only for user dismissal, and `onExitComplete`
-fires after the alert leaves the DOM. Override the button's accessible label (`Close alert`) with
+and removes the alert from the DOM. Override the button's accessible label (`Close alert`) with
 `translations={{ close: '...' }}`.
+
+Use `open` with `onOpenChange` to control visibility, or `defaultOpen` to start closed.
+`onOpenChange` fires only for user dismissal, and `onExitComplete` fires after the alert leaves the
+DOM.
 
 ```tsx
 const [open, setOpen] = createSignal(true)

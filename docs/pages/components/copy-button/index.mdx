@@ -49,9 +49,11 @@ the copy fails and `onCopyError` receives the error. The `execCommand` fallback 
 ### Label and icons
 
 Pass children to render a labeled button. Without children, CopyButton renders a square icon-only
-button: `size` picks the scale, and `sm` and `icon-sm` both resolve to the square `icon-sm`. `iconPosition` places the icon before (`leading`, default) or after
-(`trailing`) the label. Children can also be a function that receives the copy state, including
-`copied`, `error`, `status`, `supported`, and `copy`.
+button: `size` picks the scale, and `sm` and `icon-sm` both resolve to the square `icon-sm`.
+
+`iconPosition` places the icon before (`leading`, default) or after (`trailing`) the label. Children
+can also be a function that receives the copy state, including `copied`, `error`, `status`,
+`supported`, and `copy`.
 
 ```tsx
 <CopyButton value="npm i moraine">Copy Install Command</CopyButton>
@@ -60,10 +62,11 @@ button: `size` picks the scale, and `sm` and `icon-sm` both resolve to the squar
 ### Accessible name
 
 A labeled button is named by its visible label. An icon-only button gets a default `aria-label` that
-follows the status: `Copy to clipboard`, `Copied to clipboard` after a copy, and `Copy failed` after a
-failure. Override that wording per instance with `translations` (keys `copy`, `copied`, and
-`failed`) or app-wide through the provider's `copyButton` messages, or set `aria-label` to name
-what is copied. After a failed copy the button also sets `aria-invalid` until `resetDelay` elapses.
+follows the status: `Copy to clipboard`, `Copied to clipboard` after a copy, and `Copy failed` after
+a failure. After a failed copy the button also sets `aria-invalid` until `resetDelay` elapses.
+
+Override that wording per instance with `translations` (keys `copy`, `copied`, and `failed`) or
+app-wide through the provider's `copyButton` messages, or set `aria-label` to name what is copied.
 
 ```tsx
 <CopyButton value={token} translations={{ copy: 'Copy access token', copied: 'Token copied' }} />
@@ -78,8 +81,10 @@ Inside a [ButtonGroup](/components/button-group), it inherits the group's `size`
 
 ### Feedback
 
-`resetDelay` sets how long the `copied` or `error` state holds, in milliseconds; it defaults to 2000. Set `icon` for the idle glyph and `copiedIcon` for the copied glyph. Pass `icon={false}` to hide
-the icon. Use `onCopySuccess`, `onCopyError`, and `onStatusChange` (called only when the status changes) to
+`resetDelay` sets how long the `copied` or `error` state holds in milliseconds (default `2000`). Set
+`icon` for the idle glyph, `copiedIcon` for the copied glyph, or `icon={false}` to hide the icon.
+
+Use `onCopySuccess`, `onCopyError`, and `onStatusChange` (called only when the status changes) to
 react to the result.
 
 ```tsx

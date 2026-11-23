@@ -43,47 +43,25 @@ export function Example() {
 
 ### Values and boundaries
 
-`value`, `defaultValue`, and `onValueChange` all use `number | null`, where `null` is an empty
-input. `value={undefined}` keeps the input uncontrolled, and `value={null}` keeps it controlled and
-empty. Display text comes from `locale` (default: the provider locale, then `en-US`) and
-`formatOptions`, so the value stays a plain number. Clearing the input emits `null`. Typing commits as soon as the text is a complete number; partial text such as `-` waits
-for blur or Enter. Committed, stepped, and controlled values are clamped to `min` and `max`.
-`onValueChange` does not fire when the value is unchanged. Decimal steps are calculated to avoid
-typical floating-point display noise.
+- **Value representation**: `value`, `defaultValue`, and `onValueChange` use `number | null`, where `null` represents an empty input. `value={undefined}` keeps the input uncontrolled, while `value={null}` keeps it controlled and empty.
+- **Formatting**: display text is formatted with `locale` (default: provider locale, then `'en-US'`) and `formatOptions`, while the committed value stays a plain number.
+- **Commit timing**: clearing the input emits `null`. Typing commits as soon as the text is a complete number; partial text such as `-` waits for blur or Enter. `onValueChange` does not fire when the numeric value is unchanged.
+- **Clamping and precision**: committed, stepped, and controlled values are clamped to `min` and `max`. Decimal steps avoid typical floating-point display noise.
 
 ```tsx
 <NumberInput value={value()} onValueChange={setValue} min={0} max={10} locale="de-DE" />
 <NumberInput defaultValue={19.99} locale="de-DE" formatOptions={{ style: 'currency', currency: 'EUR' }} />
 ```
 
-Set `name` to submit the plain number through a hidden input, and `form` to associate the control
-with a `<form>` outside its ancestors.
+Set `name` to submit the plain number through a hidden input, and `form` to associate the control with a `<form>` outside its ancestors.
 
 ### Stepping and repeat
 
-The default layout is horizontal: decrement button, input, increment button. With
-`orientation="vertical"`, both buttons move into a `controls` wrapper after the input. Either way,
-the input stays the `spinbutton` keyboard target. `increment={false}` or `decrement={false}` hides a
-button, and `incrementDisabled` or `decrementDisabled` disables it without blocking keyboard or
-wheel stepping. A button is also disabled at `max` or `min`. Without `textAlign`, the text is centered,
-except in a horizontal input with `decrement={false}`, where it is start-aligned.
-
-`onStep` runs on each step from the step buttons, the keyboard, and the wheel. Its `details`
-carry the direction (`type`), the trigger source (`emitter`), the step amount (`offset`), the
-stepped `value`, and the DOM `event`. For a button click it runs before the step and
-`preventDefault()` on the event cancels it; repeated, keyboard, and wheel steps cannot be
-cancelled. Use `onValueChange` to observe every change.
-
-`step` (default `1`) sets the amount for the buttons, ArrowUp and ArrowDown, and the mouse wheel.
-`largeStep` (default `step * 10`) sets the amount for PageUp and PageDown, and for the wheel while
-Shift is held. By default stepping lands on the step grid anchored at `min` (or at `0` without
-`min`), so `step={5}` from `7` goes to `10`; set `stepSnapping={false}` to step from the exact
-value. Typed values are clamped, never snapped. The wheel steps only when `wheel` is set and the
-input is focused.
-
-Hold-to-repeat on the buttons is enabled by default. Tune it with
-`repeat={{ delay, interval, throttle, pointerTypes }}` (defaults `500`, `80`, `0`, and `'all'`;
-`interval` has a floor of 16 ms) or disable it with `repeat={false}`.
+- **Layout and buttons**: the default horizontal layout places the decrement button, input, and increment button in a row. `orientation="vertical"` moves both buttons into a `controls` wrapper after the input. In both layouts, the input remains the `spinbutton` keyboard target.
+- **Visibility and alignment**: `increment={false}` or `decrement={false}` hides a button. `incrementDisabled` or `decrementDisabled` disables a button (as do `max` and `min`) without blocking keyboard or wheel stepping. Without `textAlign`, text is centered, except in a horizontal input with `decrement={false}`, where it is start-aligned.
+- **`onStep`**: runs on each step from buttons, keyboard, or wheel with `{ type, emitter, offset, value, event }`. For a button click, it fires before the step so `event.preventDefault()` can cancel it; repeated, keyboard, and wheel steps cannot be cancelled. Use `onValueChange` to observe every value change.
+- **Step sizes and snapping**: `step` (default `1`) sets the increment for buttons, ArrowUp/ArrowDown, and the mouse wheel. `largeStep` (default `step * 10`) applies to PageUp/PageDown and Shift+wheel. By default, stepping snaps to the step grid anchored at `min` (or `0` without `min`), so `step={5}` from `7` steps to `10`. Set `stepSnapping={false}` to step from the exact current value. Typed values are clamped, never snapped.
+- **Wheel and hold-to-repeat**: the mouse wheel steps only when `wheel` is set and the input is focused. Hold-to-repeat on buttons is enabled by default; tune it with `repeat={{ delay, interval, throttle, pointerTypes }}` (defaults `500`, `80` with a `16` ms floor, `0`, and `'all'`) or disable it with `repeat={false}`.
 
 ```tsx
 <NumberInput defaultValue={100} step={5} largeStep={25} />

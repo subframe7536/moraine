@@ -29,21 +29,37 @@ Looping and activation depend on the component and its options. See each compone
 
 ### Overlay Dismissal
 
-Dismissible overlays (such as `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`, and select popups) close on <kbd>Escape</kbd>. Only the topmost active overlay handles the key, so closing a nested overlay leaves its parent open. Escape is ignored during IME composition. On overlays with a `closeOnEscape` prop, set it to `false` to keep the overlay open; `onClosePrevented` reports the blocked attempt.
+Dismissible overlays (`Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`, `HoverCard`, `DropdownMenu`, `ContextMenu`, and select popups) close on <kbd>Escape</kbd>:
+
+- Only the topmost active overlay handles <kbd>Escape</kbd>, so closing a nested overlay leaves its parent open.
+- <kbd>Escape</kbd> is ignored while an IME composition is active.
+- On overlays with `closeOnEscape`, pass `closeOnEscape={false}` to block <kbd>Escape</kbd> dismissal; `onClosePrevented` reports the blocked attempt.
 
 ## Focus Management
 
 ### Focus Trapping in Modals
 
-Modal surfaces such as `Dialog`, `Sheet`, `Drawer`, and `BaseDialog` keep keyboard focus inside their content while open. Tabbing past the last focusable element returns focus to the first. While open, they also hide outside content from assistive technology and lock page scroll. `Popover` is non-modal and does not trap focus. With `modal={false}` on a modal surface, focus is not trapped, moved on open, or restored on close.
+Modal surfaces (`Dialog`, `Sheet`, `Drawer`, and `BaseDialog`) trap keyboard focus inside their content while open:
+
+- Tabbing past the last focusable element wraps back to the first.
+- Outside content is hidden from assistive technology and page scroll is locked while open.
+- `Popover` is non-modal and does not trap focus.
+- Passing `modal={false}` on a modal surface disables focus trapping, initial focus movement, and focus restoration.
 
 ### Focus Restoration
 
-Modal overlays restore focus to their trigger after closing, or to the element that was focused when they opened. Set `finalFocus` to choose another element. Non-modal floating overlays restore focus after keyboard dismissal but let an outside press move focus to its target. Tooltips never move focus from their trigger. Check each component's focus options before customizing this behavior.
+- **Modal overlays**: Restore focus to their trigger after closing (or to the previously focused element). Pass `finalFocus` to override the target element.
+- **Non-modal floating overlays**: Restore focus after keyboard dismissal, while allowing outside pointer presses to move focus naturally to the clicked target.
+- **Tooltips**: Never move focus away from their trigger.
 
 ### Initial Auto-Focus
 
-Modal surfaces focus an `[autofocus]` or `[data-autofocus]` descendant when opened, otherwise the first focusable child, otherwise the content container. When opened by touch, they focus the content container. Set `initialFocus` to choose the element, or `false` to skip the move. Menus and select-family controls use their own highlighted-item behavior. Tooltips do not move focus into their content.
+When a modal surface opens:
+
+- It focuses the first `[autofocus]` or `[data-autofocus]` descendant, falling back to the first focusable child, and otherwise the content container itself.
+- When opened by touch, it focuses the content container directly.
+- Pass `initialFocus` to target a specific element, or `initialFocus={false}` to skip moving focus.
+- Menus and select-family controls manage their own highlighted item; tooltips never move focus into their content.
 
 ## ARIA Attribute Contracts
 

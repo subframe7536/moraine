@@ -39,11 +39,9 @@ export function Example() {
 
 ### Rows
 
-`itemRender` receives the `item`, its `index` in the full collection, and, with a `virtualizer`,
-`rowProps`. Spread `rowProps` onto the outer row element; the virtualizer needs them for positioning
-and measurement. The root is a `<ul>` by default and always has `role="list"`, so render list-item
-semantics in each row, or choose another root with `as`. TypeScript infers the item and root
-element types from `items` and `as`. `emptyRender` renders when `items` is empty or `undefined`.
+- `itemRender`: receives `{ item, index, rowProps }`. When using a `virtualizer`, spread `rowProps` onto the outer row element for positioning and measurement.
+- `as`: the root defaults to `<ul>` and always carries `role="list"`, so render list-item semantics in each row or select another root element with `as`. TypeScript infers item and root element types from `items` and `as`.
+- `emptyRender`: renders when `items` is empty or `undefined`.
 
 ```tsx
 <List
@@ -55,9 +53,7 @@ element types from `items` and `as`. `emptyRender` renders when `items` is empty
 
 ### Virtualization
 
-`createListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs
-`@tanstack/virtual-core`. The List root is the scroll container, so give it a bounded height and
-`overflow-y-auto`. Row count and scroll behavior follow the estimated or measured row sizes.
+`createListVirtualizer` is an optional adapter from `moraine/virtualizer` (requires `@tanstack/virtual-core`). The `List` root is the scroll container, so give it a bounded height and `overflow-y-auto`. Row count and scroll behavior follow the estimated or measured row sizes.
 
 ```tsx
 import { createListVirtualizer } from 'moraine/virtualizer'
@@ -80,14 +76,11 @@ const virtualizer = createListVirtualizer<Item>({
 />
 ```
 
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
-keyboard navigation.
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
 
 ### Edge loading
 
-`onTopReached` and `onBottomReached` fire once each time scrolling reaches the top or bottom edge
-of an overflowing list; neither fires for the initial position. Combine `onBottomReached` with
-`scrollThreshold` to request the next page shortly before the end.
+`onTopReached` and `onBottomReached` fire once each time scrolling reaches the top or bottom edge of an overflowing list; neither fires for the initial scroll position. Combine `onBottomReached` with `scrollThreshold` to request the next page shortly before the end.
 
 ```tsx
 <List
@@ -101,10 +94,11 @@ of an overflowing list; neither fires for the initial position. Combine `onBotto
 
 ### Drag to reorder
 
-`createListSortable` is an optional adapter from `moraine/dnd` and needs `@dnd-kit/dom`. List has
-no drag props; the sortable composes through `itemRender`. Wrap the list in `sortable.Provider`,
-call `sortable.useRow(context)` in `itemRender`, and spread `row.props` onto the row element.
-Update the items from `onReorder`.
+`createListSortable` is an optional adapter from `moraine/dnd` (requires `@dnd-kit/dom`). `List` has no drag props; the sortable composes through `itemRender`:
+
+1. Wrap the list in `sortable.Provider`.
+2. Call `sortable.useRow(context)` inside `itemRender` and spread `row.props` onto the row element.
+3. Update your list state from `onReorder`.
 
 ```tsx
 import { createListSortable } from 'moraine/dnd'
@@ -127,11 +121,9 @@ const sortable = createListSortable({ items, onReorder: (event) => setItems(even
 </sortable.Provider>
 ```
 
-`row.props` keeps the virtual row props from `context.rowProps` and adds the drag ref,
-`data-dragging`, and `data-drop-position`. With a `virtualizer`, also pass
-`rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer` so the dragged row stays
-mounted while it is scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for
-handles, keyboard dragging, and options.
+`row.props` preserves `context.rowProps` and adds the drag ref, `data-dragging`, and `data-drop-position`.
+
+When combining with a `virtualizer`, pass `rangeExtractor: sortable.rangeExtractor` to `createListVirtualizer` so the dragged row stays mounted while scrolled out of view. Read the [Drag and drop guide](/docs/drag-and-drop) for handles, keyboard dragging, and options.
 
 ## Examples
 

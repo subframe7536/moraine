@@ -59,13 +59,13 @@ export function Example() {
 
 Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
 Pass `checked="indeterminate"` from aggregate selection state; it shows the mixed presentation
-without adding a third submitted value.
+without adding a third submitted value. `onCheckedChange` fires only for user toggles, never while
+`disabled` or `readOnly`, and toggling from `'indeterminate'` checks the box.
 
-`trueValue` and `falseValue` map the checked state to domain values. `onCheckedChange` receives them,
-and a bound `form.Field` stores them. Native form submission uses `value` while checked. Without
-`value`, it submits a string or number `trueValue`, or `'on'` otherwise. An unchecked or
-indeterminate checkbox contributes no entry. `onCheckedChange` fires only for user toggles, never
-while `disabled` or `readOnly`, and toggling from `'indeterminate'` checks the box.
+`trueValue` and `falseValue` map the checked state to domain values; `onCheckedChange` receives them
+and a bound `form.Field` stores them. Native form submission uses `value` while checked, or falls
+back to a string or number `trueValue` (or `'on'` otherwise). An unchecked or indeterminate checkbox
+contributes no entry.
 
 ```tsx
 <Checkbox
@@ -80,8 +80,10 @@ while `disabled` or `readOnly`, and toggling from `'indeterminate'` checks the b
 
 `label` and `description` render beside the control and link to it for assistive technology. Set
 `variant="card"` to draw a bordered card whose whole surface toggles the checkbox, except for
-interactive content inside it. `indicatorPosition` places the control at the `leading` (default) or
-`trailing` edge, or hides it visually with `hidden`. `size` accepts `sm`, `md` (default), or `lg`.
+interactive content inside it.
+
+`indicatorPosition` places the control at the `leading` (default) or `trailing` edge, or hides it
+visually with `hidden`. `size` accepts `sm`, `md` (default), or `lg`.
 
 ```tsx
 <Checkbox

@@ -1,6 +1,6 @@
 ---
 title: Toast
-description: Static toast API — mount the `<Toast>` host once, then call methods such as `Toast.success()`; toasts stack in each `placement` (top | bottom) + `align` (start | center | end) corner.
+description: Queue temporary status, action, and promise notifications from a single mounted host.
 group: Overlay
 api:
   path: src/components/toast/toast
@@ -75,9 +75,10 @@ export function Example() {
 ### Shared model
 
 Toast and [Alert Dialog](/components/alert-dialog) use the same options, actions, handle, and close
-reasons. Every instance is created with a static method that takes an options object. Call options
-override the host defaults, including `false`, `0`, and `null`. A call before the host is mounted
-throws. On the server the call returns a handle whose `result()` is already `'api'`.
+reasons. Every instance is created with a static method that takes an options object.
+
+Call options override the host defaults, including `false`, `0`, and `null`. A call before the host
+is mounted throws. On the server, the call returns a handle whose `result()` is already `'api'`.
 
 ```ts
 interface Action {
@@ -101,31 +102,41 @@ interface Handle {
 }
 ```
 
-`action.onClick` and `cancel.onClick` run before the instance closes. A returned promise shows
-loading on that button, disables the other one, and pauses the toast timer. A dialog also blocks
-Escape, the overlay, and the corner close button. Calling `event.preventDefault()`, rejecting, or
-throwing leaves the instance open. A throw or rejection is reported with `console.error`.
-Otherwise the instance closes with `'action'` or `'cancel'`.
+`action.onClick` and `cancel.onClick` run before the instance closes:
 
-`handle.close()` and `close(id)` close with `'api'`. Escape, the overlay, the corner close button,
-and a swipe close with `'dismiss'` and do not run the cancel handler. The timer closes with
-`'timeout'`. `result()` resolves once with that reason, and calling it again returns the same
-promise. The handle itself is not a promise.
+- Async handlers: returning a promise shows loading on that button, disables the other one, and
+  pauses the toast timer (a dialog also blocks Escape, the overlay, and the corner close button).
+- Preventing close: calling `event.preventDefault()`, rejecting, or throwing leaves the instance
+  open. A throw or rejection is reported with `console.error`.
+- Resolving: otherwise, the instance closes with `'action'` or `'cancel'`.
 
-`update` merges the next options into an open instance and restarts its timer. An update after close
-does not reopen it. Reusing an open `id` in a new call updates that instance in place and returns
+Each close path resolves `result()` with a specific `CloseReason`:
+
+- `'api'`: closed programmatically via `handle.close()` or `Toast.close(id)`.
+- `'dismiss'`: closed via Escape, the overlay, the corner close button, or a swipe (does not run the
+  cancel handler).
+- `'timeout'`: closed when the timer expires.
+
+`result()` resolves once with that reason, and calling it again returns the same promise. The handle
+itself is not a promise.
+
+`update` merges the next options into an open instance and restarts its timer (an update after close
+does not reopen it). Reusing an open `id` in a new call updates that instance in place and returns
 its existing handle. `update` replaces `action` and `cancel` as a whole, so include `onClick` again
 when the label changes.
 
-Custom content has two entry points. `Toast.custom(render, options?)` supplies a render for that
-call. `<Toast itemRender={render} />` supplies one for every other call on that host. A `.custom()`
-render wins, then the host render, then the built-in layout. The render receives the `id`, the
-resolved `options`, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `index`, and
-`expanded`. It replaces the inner content. The toast keeps its stack, swipe, timer, and live region.
-`close()` closes with `'dismiss'` unless you pass a reason.
+Custom content has two entry points, in order of precedence:
 
-A call without `hostId` goes to the host without an id and throws if only hosts with an id are
-mounted. Pass `hostId` to target `<Toast id="alerts" />`.
+1. `Toast.custom(render, options?)`: supplies a render function for that single call.
+2. `<Toast itemRender={render} />`: supplies a default render function for every call on that host.
+
+The render function receives `id`, the resolved `options`, `pending()`, `action()`, `cancel()`,
+`close()`, `update()`, `index`, and `expanded`. It replaces the inner content while the toast keeps
+its stack, swipe, timer, and live region. `close()` closes with `'dismiss'` unless you pass a
+reason.
+
+A call without `hostId` goes to the host without an `id` and throws if only hosts with an `id` are
+mounted. Pass `hostId` to target a named host such as `<Toast id="alerts" />`.
 
 ### Methods
 
@@ -189,14 +200,20 @@ Toast.success({
 
 ### Host options
 
-`<Toast />` options set defaults for every toast on that host, and call options override them.
-`placement` (`'top'` or `'bottom'`, default `'bottom'`) and `align` (default `'end'`) choose the
-corner; each placement and alignment pair gets its own stack. `type`, `size`, `variant`, `duration`,
-`closable`, `progress`, and `preventDuplicate` set per-toast defaults. `maxVisible` (default 3)
-limits each stack, and later toasts stay queued until earlier ones close. A collapsed stack expands
-while the pointer is over it; set `expanded` to keep it expanded. `gap` (default 14 px) sets the
-spacing between toasts. `translations` overrides the region `label` and the `close` and `cancel`
-labels; a call's own `translations` override them per key.
+`<Toast />` props set defaults for every toast on that host, and per-call options override them:
+
+- `placement` (`'top'` or `'bottom'`, default `'bottom'`) and `align` (`'start'`, `'center'`, or
+  `'end'`, default `'end'`): choose the viewport corner. Each placement and alignment pair gets its
+  own stack.
+- `type`, `size`, `variant`, `duration`, `closable`, `progress`, and `preventDuplicate`: set
+  per-toast defaults.
+- `maxVisible` (default `3`): limits the visible toasts in each stack; later toasts stay queued
+  until earlier ones close.
+- `expanded`: keeps the stack expanded. By default, a collapsed stack expands while the pointer is
+  over it.
+- `gap` (default `14` px): sets the spacing between toasts in a stack.
+- `translations`: overrides the region `label` and the `close` and `cancel` labels; a call's own
+  `translations` override them per key.
 
 ```tsx
 <Toast placement="top" align="center" maxVisible={5} closable progress />
@@ -204,11 +221,13 @@ labels; a call's own `translations` override them per key.
 
 ### Promises
 
-`promise` opens a loading toast and updates it when the promise settles. It accepts a promise or a
-function that returns one. `loading`, `success`, and `error` are the same options object used
-everywhere else. `success` and `error` may also be functions of the settled value or the rejection
-reason. When either is omitted, that outcome closes the toast with `'api'`. The method returns the
-ordinary handle. Keep the original promise when you need the value.
+`Toast.promise` opens a loading toast and updates it when the promise settles. It accepts a promise
+or a function that returns one, and returns the ordinary toast handle (keep the original promise
+when you need its settled value).
+
+- `loading`, `success`, and `error`: accept the standard toast options object.
+- `success` and `error`: may also be functions receiving the settled value or rejection reason. When
+  either is omitted, that outcome closes the toast with `'api'`.
 
 ```tsx
 const task = deployProject()

@@ -57,11 +57,13 @@ selection. Without a matching enabled value, the first enabled tab is active. `o
 only when the user selects a different tab. Disabled items, and every tab while `disabled` is set,
 cannot be selected; keyboard navigation skips disabled items.
 
-Every item requires a unique `value`; an item that repeats an earlier value is disabled. An item can
-also set `icon`, which renders before the label. Only the selected tab's panel is mounted. For JSX
-panel content, pass a component as `content`: Tabs renders it with `{ value }` only while its tab is
-selected, so an unselected panel is never built. This matters in SSR and MDX, where building a panel
-eagerly can emit markup the hydrated tree does not expect.
+Every item requires a unique `value` (an item that repeats an earlier value is disabled) and can
+set `icon` to render an icon before the label.
+
+Only the selected tab's panel is mounted. For JSX panel content, pass a component as `content`: Tabs
+renders it with `{ value }` only while its tab is selected, so an unselected panel is never built.
+This matters in SSR and MDX, where building a panel eagerly can emit markup the hydrated tree does
+not expect.
 
 ```tsx
 <Tabs
@@ -80,10 +82,12 @@ eagerly can emit markup the hydrated tree does not expect.
 
 ### Activation and keyboard
 
-`activationMode="automatic"` (the default) selects a tab as arrow navigation moves focus. In manual
-mode, arrows move focus and Enter or Space selects. `loop` (default `true`) wraps navigation at the
-first and last enabled tabs. The arrow keys that move focus follow the list `orientation`.
-`aria-label` and `aria-labelledby` on `Tabs` name the `tablist`, not the root element.
+`activationMode="automatic"` (the default) selects a tab as arrow navigation moves focus. In
+`manual` mode, arrows move focus and Enter or Space selects.
+
+`loop` (default `true`) wraps navigation at the first and last enabled tabs, and the arrow keys that
+move focus follow the list `orientation`. `aria-label` and `aria-labelledby` on `Tabs` name the
+`tablist`, not the root element.
 
 ```tsx
 <Tabs items={TABS} activationMode="automatic" defaultValue="overview" />

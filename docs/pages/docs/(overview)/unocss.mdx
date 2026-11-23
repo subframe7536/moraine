@@ -96,9 +96,13 @@ Use the `App` from the [installation example](/docs/installation#3-verify-the-in
 
 The glob `./node_modules/moraine/dist/**/*.{mjs,jsx}` scans the whole `moraine/dist` directory. The preset does not configure scanning paths for your application.
 
-Filesystem scanning reads these classes regardless of which modules Vite has requested. Keep both the application and package globs, including lazy-loaded route files and `.ts` files that contain class maps. In `@subf/unocss/vite`, the `pipeline.include` filter also applies to filesystem extraction, and UnoCSS's default filter omits `.mjs` and `.ts`. Changing this filter replaces the default, so keep every extension your app uses. See [UnoCSS's extraction guide](https://unocss.dev/guide/extracting).
+Filesystem scanning reads these classes regardless of which modules Vite has requested:
 
-Filesystem globs are relative to Vite's root, and the examples assume `src/` and `node_modules/moraine` live under that root. Adjust the globs if you set a different Vite root, keep routes outside `src/`, or use a workspace with Moraine installed at the repository root. Add your Markdown or MDX directories when they contain application classes.
+- Keep both the application and package globs, including lazy-loaded route files and `.ts` files that contain class maps.
+- In `@subf/unocss/vite`, the `pipeline.include` filter also applies to filesystem extraction, and UnoCSS's default filter omits `.mjs` and `.ts`.
+- Replacing `pipeline.include` overrides the default filter, so include every extension your application uses. See [UnoCSS's extraction guide](https://unocss.dev/guide/extracting).
+
+Filesystem globs are relative to Vite's root. The examples assume `src/` and `node_modules/moraine` live under that root. Adjust the globs if you set a different Vite root, keep routes outside `src/`, or use a workspace with Moraine installed at the repository root. Add your Markdown or MDX directories when they contain application classes.
 
 ### Verification and troubleshooting
 
@@ -110,19 +114,28 @@ If styles are missing:
 2. Confirm both the Wind preset and `presetMoraine()` are enabled. With Wind3, pass `wind3: true`.
 3. Check that the filesystem globs match the installed Moraine distribution and every application source directory, including lazy routes.
 4. Check that `pipeline.include` allows those file extensions and that no custom exclusion filter rejects the files.
-5. Inspect a missing class in browser DevTools. A missing CSS rule points to extraction or utility configuration. An existing rule with an unresolved `--primary` or another theme variable points to theme configuration. With `themeDefaults: false`, the application must provide its theme variables.
+5. Inspect a missing class in browser DevTools:
+   - A missing CSS rule points to extraction or utility configuration.
+   - An existing rule with an unresolved `--primary` or another theme variable points to theme configuration. With `themeDefaults: false`, the application must provide its theme variables.
 
-For a suspected dependency-cache issue, stop the server and run your Vite dev command with `--force` (for a `dev` script that runs Vite, `pnpm run dev --force`). Alternatively, remove Vite's `cacheDir`, which defaults to `node_modules/.vite`, before restarting. While diagnosing cached dependency requests, temporarily disable browser caching. See [Vite's dependency caching guide](https://vite.dev/guide/dep-pre-bundling#caching).
+For a suspected dependency-cache issue, stop the server and run your Vite dev command with `--force` (for example `pnpm run dev --force`), or remove Vite's `cacheDir` (default `node_modules/.vite`) before restarting. Temporarily disable browser caching while diagnosing cached dependency requests. See [Vite's dependency caching guide](https://vite.dev/guide/dep-pre-bundling#caching).
 
-After you correct the scan configuration, restart again with the cache retained. Clearing the cache is a diagnostic step, not part of normal startup. An improvement after `--force` alone does not establish a Moraine runtime bug. Restart after upgrading Moraine so UnoCSS scans its published files again.
+After you correct the scan configuration, restart again with the cache retained. Clearing the cache is a diagnostic step, not part of normal startup. Restart after upgrading Moraine so UnoCSS scans its published files again.
 
-With lazy routes, keep the CSS import in the application entry; do not rely on visiting another route to load styles. Filesystem scanning discovers static classes before the route loads, but neither it nor pipeline extraction can infer runtime strings such as `bg-${color}`. Use complete static class maps or an explicit UnoCSS safelist for application-generated classes.
+With lazy routes, keep the CSS import in the application entry rather than relying on another route to load styles first. Filesystem scanning discovers static classes before a route loads, but cannot infer dynamic runtime strings such as `bg-${color}`. Use complete static class maps or an explicit UnoCSS safelist for dynamically selected classes.
 
 ## Preset options
 
-`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`, and their colors stay the same across parent surfaces. The status colors `info`, `success`, `warning`, and `danger` follow Moraine's tuned status palette. The default selectors are `:root` and `.dark`. Configure single-value tokens at the top level, and put colors, shadows, and `colorScheme` in named `override` entries.
+`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing:
 
-The default semantic shadows use the Tailwind values inherited by the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css): surface → `sm`, overlay → `md`, input → `xs`. The preset emits `--shadow-surface`, `--shadow-overlay`, and `--shadow-input` at `:root`. Dark mode inherits these values unless `override.dark.shadows` replaces them. Native size utilities such as `shadow-xs` keep the CSS engine's own values and configuration. Set `themeDefaults: false` to omit the default colors and semantic shadows while keeping explicit overrides.
+- Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)` so boundaries remain consistent across parent surfaces.
+- The status colors (`info`, `success`, `warning`, `danger`) use Moraine's tuned status palette.
+- The default theme selectors are `:root` and `.dark`.
+- Configure single-value tokens at the top level, and place colors, shadows, and `colorScheme` inside named `override` entries.
+
+The default semantic shadows match the Tailwind values from the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css): `surface` → `sm`, `overlay` → `md`, and `input` → `xs`. The preset emits `--shadow-surface`, `--shadow-overlay`, and `--shadow-input` at `:root`; dark mode inherits them unless `override.dark.shadows` replaces them.
+
+Native size utilities such as `shadow-xs` keep the CSS engine's own values. Set `themeDefaults: false` to omit the built-in colors and semantic shadows while keeping explicit overrides.
 
 ```ts
 presetMoraine({
@@ -172,25 +185,36 @@ presetMoraine({
 
 ### Theme tokens
 
-For grouped colors such as `primary` and `muted`, a string is shorthand for `{ base: value }`. Expand a tone to override `foreground` or `ink` without repeating `base`. Single-value colors (`foreground`, `border`, `input`, `control`, `backdrop`, and `ring`) accept CSS strings only. `control` sets field fills independently of boundaries and parent surfaces. Color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `shadows` supports only `surface`, `overlay`, and `input`, which emit `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`; see [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows). The single values `radius`, `fontSize`, `spacing`, and `sidebarWidth` are also accepted inside an `override` entry. Configure font families in CSS through `--font-sans`, `--font-mono`, and `--font-serif`; see [Typography and Spacing](/docs/design#typography-and-spacing). Put other custom properties in your CSS file.
+Inside each named `override.<name>` entry, configure colors, shadows, dimensions, and color scheme:
 
-`light` and `dark` default to `:root` and `.dark`. Any other name defaults to `[data-theme="name"]`; set `selector` on any entry to use a different CSS selector. The preset emits the default light colors first, then dark colors, then custom themes in configuration order. Light and dark overrides merge with their respective defaults. A partial custom theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
+- **Grouped colors** (`primary`, `secondary`, `neutral`, `muted`, `accent`, `card`, `popover`, `danger`, `info`, `success`, `warning`): A string is shorthand for `{ base: value }`. Pass an object to override `foreground`, `hover`, `active`, `ink`, `soft`, or `border` individually.
+- **Single-value colors** (`background`, `foreground`, `border`, `input`, `control`, `backdrop`, `ring`): Accept CSS color strings only. `control` sets form field fills independently of `--input` boundaries and parent surfaces.
+- **Semantic shadows**: `shadows` accepts `surface`, `overlay`, and `input`, which emit `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`; see [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
+- **Dimensions**: `radius`, `fontSize`, `spacing`, and `sidebarWidth` can be set at the top level or overridden per theme.
+- **Typography and custom properties**: Configure font families in CSS through `--font-sans`, `--font-mono`, and `--font-serif` (see [Typography and Spacing](/docs/design#typography-and-spacing)), and declare any other custom properties in your stylesheet.
 
-The built-in light and dark themes emit `color-scheme: light` and `color-scheme: dark`, so native browser controls follow the theme. `colorScheme` has type `'light' | 'dark'` and belongs inside `override.<name>`, not at the top level. Its declaration follows the entry's `selector`, including custom selectors for light and dark. Custom themes inherit the CSS color scheme unless you configure one. `themeDefaults: false` omits the default color schemes while keeping explicit overrides. `colorScheme` writes the native CSS `color-scheme` property; it does not create a custom property.
+`light` and `dark` target `:root` and `.dark` by default. Any other theme name defaults to `[data-theme="name"]`; set `selector` on an entry to customize its CSS selector. The preset emits default light tokens first, then dark tokens, then custom themes in declaration order. Light and dark overrides merge with their built-in defaults, while custom themes inherit unspecified variables through the CSS cascade.
 
-See [Moraine-specific Variables](/docs/design#moraine-specific-variables) for the form surface, backdrop, shadow, interaction, typography, sidebar, and animation variables.
+The built-in light and dark themes emit `color-scheme: light` and `color-scheme: dark` so native browser controls match the theme. `colorScheme` (`'light' | 'dark'`) is configured per theme on `override.<name>` and writes the native CSS `color-scheme` property rather than a CSS variable. `themeDefaults: false` omits the default color schemes while keeping explicit `colorScheme` values.
 
-Semantic color alpha modifiers such as `bg-primary/20` use `color-mix(in srgb, …)` in supported browsers. `presetWind4` supports `color-mix` with a fallback. With `wind3: true`, Wind3 gains the same alpha syntax.
+See [Moraine-specific Variables](/docs/design#moraine-specific-variables) for the full list of form surface, backdrop, shadow, interaction, typography, sidebar, and animation variables.
+
+Semantic color alpha modifiers such as `bg-primary/20` use `color-mix(in srgb, …)` in supported browsers. `presetWind4` supports `color-mix` natively, and `wind3: true` enables the same alpha syntax in Wind3.
 
 ### Wind3 compatibility
 
-Use `presetMoraine({ wind3: true })` with `presetWind3()`. This enables Wind3's semantic token mappings, color alpha compatibility, and the `forced-colors:` variant and `forced-color-adjust-*` utilities that Wind3 lacks. Numeric spacing and size utilities keep Wind3's native values and explicit theme overrides, so changing `--spacing` does not scale them. Use explicit variable utilities such as `p-(--app-padding)` for runtime spacing changes.
+Use `presetMoraine({ wind3: true })` with `presetWind3()`. This enables Wind3 semantic token mappings, color alpha compatibility, the `forced-colors:` variant, and `forced-color-adjust-*` utilities. Numeric spacing and size utilities keep Wind3's native values, so changing `--spacing` does not scale them; use explicit variable utilities such as `p-(--app-padding)` for runtime spacing changes.
 
-With Wind3, configure font sizes through UnoCSS's `theme.fontSize`, because `--font-size` does not scale typography. Customize named radiuses through `theme.borderRadius`. With Wind4, local `--font-size` and `--radius` values scale the default typography and radius tokens, and you customize them through `theme.text` and `theme.radius`. Explicit UnoCSS theme values take precedence in both modes. Use `leading-*` to set line height independently of font size.
+Typography and border radius configuration differs between Wind3 and Wind4:
+
+- **Wind3**: `--font-size` does not scale typography. Customize font sizes via `theme.fontSize` and named radii via `theme.borderRadius`.
+- **Wind4**: Local `--font-size` and `--radius` variables scale the default typography and radius tokens automatically. Customize them via `theme.text` and `theme.radius`.
+
+Explicit UnoCSS `theme` values take precedence in both modes. Use `leading-*` to adjust line height independently of font size.
 
 ### Font families
 
-Configure font families through UnoCSS's theme object, separately from the `presetMoraine()` options. Wind4 uses `theme.font`; Wind3 uses `theme.fontFamily`:
+Configure font families through UnoCSS's `theme` object, separately from `presetMoraine()` options. Wind4 uses `theme.font`; Wind3 uses `theme.fontFamily`:
 
 ```ts title="Wind4 font configuration"
 import { defineConfig, presetWind4 } from '@subf/unocss'
@@ -207,11 +231,19 @@ export default defineConfig({
 })
 ```
 
-For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and put the same family entries under `theme.fontFamily`. These explicit theme values take precedence over Moraine's variable references. To keep runtime font switching, use values such as `sans: 'var(--font-sans)'` and define the corresponding CSS variables in your stylesheet. Load custom font files separately.
+For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and place the same entries under `theme.fontFamily`.
+
+Explicit theme values override Moraine's CSS variable references. To keep runtime font switching via CSS variables, set `sans: 'var(--font-sans)'` and define `--font-sans` in your stylesheet. Load custom font files separately.
 
 ### Surface states and tone derivation
 
-Moraine separates semantic roles into surfaces (`background`, `card`, `popover`, `muted`, `accent`) and tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), and derives their hover, active, ink, soft, and border colors with `color-mix`. [State Colors and Tone Ink Derivation](/docs/design#state-colors-and-tone-ink-derivation) describes the fallback chain. In the preset, `mix` sets the mixing percentages globally, `override.<name>.mix` sets them per theme, and an explicit `colors.<tone>.hover`, `active`, `ink`, `soft`, or `border` value bypasses the mix:
+Moraine separates semantic roles into **surfaces** (`background`, `card`, `popover`, `muted`, `accent`) and **tones** (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), deriving their hover, active, ink, soft, and border colors with `color-mix`:
+
+- `mix` sets the mixing percentages globally.
+- `override.<name>.mix` overrides those percentages for a specific theme.
+- An explicit `colors.<tone>.hover`, `active`, `ink`, `soft`, or `border` value bypasses `color-mix` for that channel.
+
+See [State Colors and Tone Ink Derivation](/docs/design#state-colors-and-tone-ink-derivation) for the 3-tier fallback chain.
 
 ```ts
 presetMoraine({
@@ -231,15 +263,13 @@ presetMoraine({
 })
 ```
 
-The `tone-<color>` utility publishes a color group's channels (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-hover`, and so on) on an element, and descendants read them with `bg-tone`, `text-tone-ink`, `hover:bg-tone-hover`, and similar utilities.
+The `tone-<color>` utility publishes a color group's channels (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-hover`, and so on) on an element, and descendants read them with `bg-tone`, `text-tone-ink`, `hover:bg-tone-hover`, and related utilities.
 
-When your CSS supplies its own palette, disable the built-in palette and add Moraine's `--control` variable:
+When your CSS supplies its own color palette, disable the built-in palette and define Moraine's `--control` variable:
 
 ```ts
 presetMoraine({ themeDefaults: false })
 ```
-
-Define your `:root` and `.dark` color variables, including an explicit control surface:
 
 ```css
 :root {
@@ -250,4 +280,4 @@ Define your `:root` and `.dark` color variables, including an explicit control s
 }
 ```
 
-`themeDefaults: false` omits control values unless you configure them in `override`. A shadcn/ui palette alone is not sufficient; see [Form control surface](/docs/design#form-control-surface). `control` has no foreground or state family, uses the field foreground, and supports explicit utility opacity such as `bg-control/30`. With `themeDefaults: false`, the preset still emits the default `--radius`, `--font-size`, and `--spacing` values, which your CSS can override.
+`themeDefaults: false` omits `--control` unless you configure `control` in `override`. A standard shadcn/ui palette does not define `--control`; see [Form control surface](/docs/design#form-control-surface). With `themeDefaults: false`, the preset still emits default `--radius`, `--font-size`, and `--spacing` values, which your CSS can override.

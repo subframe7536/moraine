@@ -32,7 +32,7 @@ export default function BoldSliderPlayground() {
         { kind: 'switch', prop: 'valueLabel', label: 'Value label', defaultValue: true },
         { kind: 'switch', prop: 'markers', label: 'Markers', defaultValue: true },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-        { kind: 'switch', prop: 'reversed', label: 'Inverted', defaultValue: false },
+        { kind: 'switch', prop: 'reversed', label: 'Reversed', defaultValue: false },
       ]}
     >
       {(props) => (
