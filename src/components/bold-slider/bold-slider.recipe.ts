@@ -1,6 +1,7 @@
 import { defineRecipe } from '../../theme/recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
+import { MORAINE_COLORS } from '../../theme/tokens'
 
 import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider.style-types'
 
@@ -35,15 +36,14 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'peer opacity-0 size-px pointer-events-none',
     content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-data-[focus-visible]:(ring-3 ring-ring/50)`,
-    label:
-      'text-muted-foreground font-medium min-w-0 truncate data-fill:text-primary-foreground/80',
-    value: 'text-foreground font-medium shrink-0 tabular-nums data-fill:text-primary-foreground',
+    label: 'text-muted-foreground font-medium min-w-0 truncate',
+    value: 'text-foreground font-medium shrink-0 tabular-nums',
     indicator:
       'opacity-40 pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out inset-0 absolute peer-data-[dragging]:(opacity-90 scale-y-100) peer-data-[focus-visible]:(opacity-90 scale-y-100) peer-hover:(opacity-90 scale-y-100)',
   },
   defaultVariants: {
     size: 'md',
-    variant: 'subtle',
+    variant: 'soft',
   },
   variants: {
     size: {
@@ -73,13 +73,16 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
       solid: {
         '--bs-indicator-fill': 'var(--primary-foreground)',
         '--bs-indicator-track': 'var(--primary)',
+        range: 'bg-primary',
+        label: 'data-fill:text-primary-foreground/80',
+        value: 'data-fill:text-primary-foreground',
       },
-      subtle: {
-        '--bs-indicator-fill': 'var(--foreground)',
-        '--bs-indicator-track': 'var(--foreground)',
-        range: 'bg-muted-active',
-        label: 'data-fill:text-muted-foreground',
-        value: 'data-fill:text-foreground',
+      soft: {
+        '--bs-indicator-fill': MORAINE_COLORS.primary.ink,
+        '--bs-indicator-track': MORAINE_COLORS.primary.ink,
+        range: 'bg-primary-soft',
+        label: 'data-fill:text-primary-ink/80',
+        value: 'data-fill:text-primary-ink',
       },
     },
   },
