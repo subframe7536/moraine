@@ -40,9 +40,9 @@ export function DataTableFooter<TData extends RowData>(props: {
                         () => header,
                         () => side,
                       )
-                      const cellSlot = ctx.cellSlot(
+                      const cellSlot = ctx.createCellSlot(
                         'cell',
-                        header.column,
+                        () => header.column,
                         pin,
                         () => header.getSize(),
                         'footer',

@@ -244,14 +244,10 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   )
   // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
   // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
-  const rowAttributes = () => {
-    const current = row()
-    if (!current) {
-      return undefined
-    }
-    const { ref: _ref, style: _style, ...attributes } = current
-    return attributes
-  }
+  const [, rowAttributes] = splitProps(
+    untrack(() => row() ?? {}),
+    ['ref', 'style'],
+  )
   const {
     slots: { item: itemSlot, row: rowSlot, guide: guideSlot },
     variants,
@@ -303,7 +299,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-label={local.item.label}
         {...itemSlot}
         {...rest}
-        {...rowAttributes()}
+        {...rowAttributes}
         tabIndex={
           local.item.disabled
             ? undefined

@@ -273,10 +273,10 @@ export function DataTable<TData extends RowData = RowData>(
         treeColumnId,
         selectionName,
         createColumnPin: layout.createColumnPin,
-        cellSlot: (slot, column, pin, size, section, options) =>
+        createCellSlot: (slot, column, pin, size, section, options) =>
           slotWith(slot, {
-            own: () => layout.cellClass(column, section),
-            enforced: () => layout.cellStyle(column, pin, size),
+            own: () => layout.cellClass(column(), section),
+            enforced: () => layout.cellStyle(column(), pin, size),
             data: options?.data,
           }),
         sectionSlot: (section) =>

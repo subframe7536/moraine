@@ -1,12 +1,11 @@
 import type { Header, RowData } from '@tanstack/table-core'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createUniqueId, splitProps, untrack } from 'solid-js'
+import { For, Show, createMemo, createUniqueId, on } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
 import type { KeyBindingOptions } from '../shared/keyboard'
 import { createKeyDownHandler } from '../shared/keyboard'
-import { callRef } from '../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 
 import { useDataTableContext } from './data-table-context'
@@ -123,28 +122,34 @@ function DataTableHeadCell<TData extends RowData>(props: {
         ? messages.sortedDescending
         : messages.sort
   }
-  // `For` keeps one header per head cell, so the binding reads it once.
-  const header = untrack(() => props.header)
-  const headSlot = ctx.cellSlot('head', header.column, pin, () => header.getSize(), 'header', {
-    data: dataTableDataAttributes.head({
-      pinned: pin.side,
-      pinnedEdge: () => pin.edge() && pin.side(),
-    }),
-  })
-  // `headProps` runs once per head cell, here, so it can call cell-level hooks.
-  const [extraOwned, extraRest] = splitProps(
-    untrack(
-      () =>
-        props.headProps?.({
+  const headSlot = ctx.createCellSlot(
+    'head',
+    () => props.header.column,
+    pin,
+    () => props.header.getSize(),
+    'header',
+    {
+      data: dataTableDataAttributes.head({
+        pinned: pin.side,
+        pinnedEdge: () => pin.edge() && pin.side(),
+      }),
+    },
+  )
+  // `headProps` runs once per head cell (and re-runs if `props.headProps` changes), so it can
+  // call cell-level hooks without tracking `header` or `index`.
+  const extraProps = createMemo(
+    on(
+      () => props.headProps,
+      (headProps) =>
+        headProps?.({
           get header() {
             return props.header
           },
           get index() {
             return props.index
           },
-        }) ?? {},
+        }),
     ),
-    ['ref'],
   )
   const sortIconSlot = ctx.slotWith('sortIcon', {
     data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
@@ -154,8 +159,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
     <th
       data-slot="data-table-head"
       {...headSlot}
-      {...extraRest}
-      ref={(element) => callRef(extraOwned.ref, element)}
+      {...extraProps()}
       colSpan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}

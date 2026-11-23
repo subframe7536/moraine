@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal, mergeProps } from 'solid-js'
+import { createRoot, createSignal, mergeProps, onCleanup } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { MoraineProvider } from '../provider'
@@ -380,6 +380,96 @@ describe('DataTable', () => {
     const rows = screen.getAllByRole('row').slice(1)
     expect(rows[2]?.classList.contains('user-intern-row')).toBe(true)
     expect(rows[0]?.classList.contains('user-intern-row')).toBe(false)
+  })
+
+  it('reacts when rowProps and headProps change and keeps hook calls single-run per index change', () => {
+    const [rowProps, setRowProps] = createSignal<DataTableT.Base<Person>['rowProps']>(undefined)
+    const [headProps, setHeadProps] = createSignal<DataTableT.Base<Person>['headProps']>(undefined)
+    const [sorting, setSorting] = createSignal<{ id: string; desc: boolean }[]>([])
+    const [columnOrder, setColumnOrder] = createSignal<string[]>(['name', 'age', 'role'])
+    const rowSetup = vi.fn()
+    const rowCleanup = vi.fn()
+    const headSetup = vi.fn()
+    const headCleanup = vi.fn()
+
+    const { container } = render(() => {
+      const table = createPersonTable({
+        getRowId: (row) => row.id,
+        state: {
+          get sorting() {
+            return sorting()
+          },
+          get columnOrder() {
+            return columnOrder()
+          },
+        },
+        onSortingChange: setSorting,
+        onColumnOrderChange: setColumnOrder,
+      })
+      return <table.DataTable rowProps={rowProps()} headProps={headProps()} />
+    })
+
+    const getRow = (name: string) =>
+      [...container.querySelectorAll('tbody > tr')].find((row) => row.textContent?.includes(name))!
+    const getHead = (label: string) =>
+      [...container.querySelectorAll('thead th')].find((th) => th.textContent?.includes(label))!
+
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBeNull()
+    expect(getHead('Name').getAttribute('title')).toBeNull()
+
+    setRowProps(() => (context) => {
+      rowSetup(context.row.id)
+      onCleanup(() => rowCleanup(context.row.id))
+      return {
+        class: 'first-row-pass',
+        get 'data-row-tag'() {
+          return `${context.row.id}:${context.index}`
+        },
+      }
+    })
+    setHeadProps(() => (context) => {
+      headSetup(context.header.column.id)
+      onCleanup(() => headCleanup(context.header.column.id))
+      return {
+        get title() {
+          return `${context.header.column.id}:${context.index}`
+        },
+      }
+    })
+
+    expect(getRow('Alice').classList.contains('first-row-pass')).toBe(true)
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('1:0')
+    expect(getHead('Name').getAttribute('title')).toBe('name:0')
+    expect(rowSetup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(3)
+
+    // Sorting reorders rows without re-invoking row hooks; lazy `index` getters still update.
+    setSorting([{ id: 'name', desc: true }])
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('1:2')
+    expect(rowSetup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(3)
+
+    // Reordering columns rebuilds TanStack Header instances, cleaning up old head hooks.
+    setColumnOrder(['role', 'age', 'name'])
+    expect(getHead('Name').getAttribute('title')).toBe('name:2')
+    expect(headCleanup).toHaveBeenCalledTimes(3)
+    expect(headSetup).toHaveBeenCalledTimes(6)
+
+    // Swapping callbacks cleans up previous cell/row hooks and applies the new attributes.
+    setRowProps(() => (context) => ({
+      class: 'second-row-pass',
+      'data-row-tag': `next:${context.row.id}`,
+    }))
+    setHeadProps(() => (context) => ({
+      title: `next:${context.header.column.id}`,
+    }))
+
+    expect(rowCleanup).toHaveBeenCalledTimes(3)
+    expect(headCleanup).toHaveBeenCalledTimes(6)
+    expect(getRow('Alice').classList.contains('first-row-pass')).toBe(false)
+    expect(getRow('Alice').classList.contains('second-row-pass')).toBe(true)
+    expect(getRow('Alice').getAttribute('data-row-tag')).toBe('next:1')
+    expect(getHead('Name').getAttribute('title')).toBe('next:name')
   })
 
   it('marks only expanded body rows with data-expanded', () => {
