@@ -69,10 +69,10 @@ through it. Pass a JSX `label` inline rather than as a shared node, so each laye
 
 ### Variants
 
-The default `variant="subtle"` uses a solid neutral fill, like the controls in an inspector panel.
-The label, value, and indicator keep the same colors over the fill and the track. Set
-`variant="solid"` for a primary-colored fill; the label, value, and indicator then switch to
-`primary-foreground` where the fill passes under them.
+The default `variant="soft"` uses a translucent primary wash (`primary-soft`) over the muted track,
+and switches the label, value, and indicator to `primary-ink` where the fill passes under them.
+Set `variant="solid"` for a solid `primary` fill with `primary-foreground` text and indicator over
+the fill.
 
 ```tsx
 <BoldSlider variant="solid" label="Bounce" defaultValue={0.5} max={1} step={0.1} />

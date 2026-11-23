@@ -2,6 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MORAINE_COLORS } from '../../theme/tokens'
+
 import { BoldSlider } from './bold-slider'
 
 function query<T extends HTMLElement = HTMLElement>(container: HTMLElement, selector: string): T {
@@ -265,5 +267,28 @@ describe('BoldSlider', () => {
     const data = new FormData(screen.getByTestId<HTMLFormElement>('form'))
 
     expect(data.get('opacity')).toBe('70')
+  })
+
+  test('defaults to soft primary styling and switches reactively to solid', () => {
+    const [variant, setVariant] = createSignal<'soft' | 'solid' | undefined>(undefined)
+    const screen = render(() => <BoldSlider label="Bounce" defaultValue={50} variant={variant()} />)
+    const root = query(screen.container, '[data-slot="slider"]')
+    const range = query(screen.container, '[data-slot="slider-range"]')
+    const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
+    const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
+
+    expect(range.classList.contains('bg-primary-soft')).toBe(true)
+    expect(fillLabel.classList.contains('data-fill:text-primary-ink/80')).toBe(true)
+    expect(fillValue.classList.contains('data-fill:text-primary-ink')).toBe(true)
+    expect(root.style.getPropertyValue('--bs-indicator-fill')).toBe(MORAINE_COLORS.primary.ink)
+    expect(root.style.getPropertyValue('--bs-indicator-track')).toBe(MORAINE_COLORS.primary.ink)
+
+    setVariant('solid')
+    expect(range.classList.contains('bg-primary')).toBe(true)
+    expect(range.classList.contains('bg-primary-soft')).toBe(false)
+    expect(fillLabel.classList.contains('data-fill:text-primary-foreground/80')).toBe(true)
+    expect(fillValue.classList.contains('data-fill:text-primary-foreground')).toBe(true)
+    expect(root.style.getPropertyValue('--bs-indicator-fill')).toBe('var(--primary-foreground)')
+    expect(root.style.getPropertyValue('--bs-indicator-track')).toBe('var(--primary)')
   })
 })
