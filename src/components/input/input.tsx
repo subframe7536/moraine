@@ -238,6 +238,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
+      {...textControl.controlledValueProps()}
       ref={(element) => {
         inputEl = element
         field.setControlRef(element)

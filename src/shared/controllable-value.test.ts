@@ -55,7 +55,9 @@ describe('createControllableValue', () => {
 
   it('passes the controlled value to functional updates and keeps the uncontrolled value', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<number | undefined>(10)
+      const [controlledValue, setControlledValue] = createSignal<number | undefined>(10, {
+        ownedWrite: true,
+      })
       const [value, setValue] = createControllableValue({
         value: controlledValue,
         defaultValue: () => 1,
@@ -79,7 +81,9 @@ describe('createControllableValue', () => {
 
   it('reports changes for controlled and uncontrolled values', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string>()
+      const [controlledValue, setControlledValue] = createSignal<string | undefined>(undefined, {
+        ownedWrite: true,
+      })
       const onChange = vi.fn()
       const [value, setValue] = createControllableValue({
         value: controlledValue,

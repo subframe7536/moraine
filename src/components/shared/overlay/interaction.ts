@@ -1,8 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, flush, getOwner } from 'solid-js'
+import { createEffect } from 'solid-js'
 
 import { attachEventListenerMap } from '../../../shared/event-listener'
 import { createKeyDownHandler } from '../../../shared/keyboard'
+import { settle } from '../../../shared/utils'
 
 import { createCompositionState } from './composition'
 import { isNode } from './dom'
@@ -221,11 +222,7 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         }
 
         // DOM listeners run unowned; settle the writes an outside-focus close stages.
-        if (getOwner() === null) {
-          flush(() => options.onFocusOutside?.(event, context))
-        } else {
-          options.onFocusOutside?.(event, context)
-        }
+        settle(() => options.onFocusOutside?.(event, context))
       }
       const onDocumentKeyDown = createKeyDownHandler<Document>({
         disabled: () => !context.isTop(),

@@ -353,10 +353,12 @@ describe('InputGroup', () => {
     expect(inherited.getAttribute('data-orientation')).toBe('vertical')
     expect(inherited.className).toContain('custom-header')
     expect(explicit.getAttribute('data-orientation')).toBe('vertical')
-    setTheme(
-      defineTheme({
-        inputGroup: { defaultVariants: { orientation: 'horizontal' } },
-      }),
+    flush(() =>
+      setTheme(
+        defineTheme({
+          inputGroup: { defaultVariants: { orientation: 'horizontal' } },
+        }),
+      ),
     )
     expect(inherited.getAttribute('data-orientation')).toBe('vertical')
     expect(inherited.className).not.toContain('custom-header')

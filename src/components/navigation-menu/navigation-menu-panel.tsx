@@ -1,9 +1,10 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { For, createEffect, createSignal, flush, getOwner, onCleanup } from 'solid-js'
+import { For, createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { attachEventListener } from '../../shared/event-listener'
+import { settle } from '../../shared/utils'
 import { resolveDirection } from '../shared/overlay/direction'
 import { PopperContent } from '../shared/overlay/popper'
 import type { PopperProps } from '../shared/overlay/popper.types'
@@ -78,11 +79,7 @@ export function NavigationMenuPanel(): JSX.Element {
     const heightStyle = `${height}px`
     if (width > 0 && height > 0 && (size().width !== widthStyle || size().height !== heightStyle)) {
       const next = { width: widthStyle, height: heightStyle }
-      if (getOwner() === null) {
-        flush(() => setSize(next))
-      } else {
-        setSize(next)
-      }
+      settle(() => setSize(next))
     }
   }
 

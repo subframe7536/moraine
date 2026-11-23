@@ -1,8 +1,10 @@
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import type { InputModifiers, ModifierValue } from '../../../shared/input-modifiers'
 import { applyInputModifiers } from '../../../shared/input-modifiers'
+import { settle } from '../../../shared/utils'
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
 type TextControlValue = string | number | null
 
@@ -61,19 +63,13 @@ export function useTextControlValue<
     return externalValue !== undefined ? externalValue : initialDefaultValue
   })
   const valueProps = createMemo<{
-    value?: string | number
     defaultValue?: string | number
   }>(() => {
     const domValue = initialValue === null ? '' : initialValue
     if (options.value() !== undefined) {
-      if (initialDefaultValue !== undefined) {
-        return {
-          value: domValue,
-          defaultValue: initialDefaultValue === null ? '' : initialDefaultValue,
-        }
-      }
-
-      return domValue !== undefined ? { value: domValue } : {}
+      return initialDefaultValue !== undefined
+        ? { defaultValue: initialDefaultValue === null ? '' : initialDefaultValue }
+        : {}
     }
 
     if (initialDefaultValue !== undefined) {
@@ -81,6 +77,19 @@ export function useTextControlValue<
     }
 
     return domValue !== undefined ? { defaultValue: domValue } : {}
+  })
+
+  // `value` is emitted for SSR markup only. Solid 2 re-applies the stateful
+  // `value` property on every spread pass, so a client-side binding would
+  // reset the DOM value on any unrelated prop update — e.g. clobbering
+  // composition drafts. Client updates flow through `restoreValue`.
+  const controlledValueProps = createMemo<{ value?: string | number }>(() => {
+    if (!isServer) {
+      return {}
+    }
+
+    const value = options.value()
+    return value === undefined ? {} : { value: value === null ? '' : value }
   })
 
   function applyValue(value: string): ModifierValue<TModifiers> {
@@ -123,14 +132,14 @@ export function useTextControlValue<
       preserveLazyCompositionDraft = true
       lazyCompositionExternalValue = getExternalValue()
     }
-    setComposing(true)
+    settle(() => setComposing(true))
   }
 
   function onCompositionEnd(): void {
     const version = compositionVersion
     queueMicrotask(() => {
       if (compositionVersion === version) {
-        setComposing(false)
+        settle(() => setComposing(false))
       }
     })
   }
@@ -156,6 +165,7 @@ export function useTextControlValue<
 
   return {
     applyValue,
+    controlledValueProps,
     initialDefaultValue,
     isLazy,
     onCompositionEnd,

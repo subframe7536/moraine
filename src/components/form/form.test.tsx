@@ -125,7 +125,7 @@ describe('Form', () => {
 
     expect(element.className).toContain('theme-root-a')
 
-    value.setDesign(defineTheme({ form: { base: { root: 'theme-root-b' } } }))
+    flush(() => value.setDesign(defineTheme({ form: { base: { root: 'theme-root-b' } } })))
 
     expect(screen.container.querySelector('form')).toBe(element)
     expect(element.className).toContain('theme-root-b')

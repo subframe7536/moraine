@@ -1,10 +1,10 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, merge, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { attachEventListener } from '../../shared/event-listener'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefaults, settle } from '../../shared/utils'
 import { createPopper } from '../shared/overlay/popper'
 
 import { TooltipContent } from './tooltip-content'
@@ -76,7 +76,8 @@ function setActiveTooltip(ownerDocument: Document, tooltip: ActiveTooltip): Coor
   if (scope.activeTooltip?.id !== tooltip.id) {
     const previous = scope.activeTooltip
     const position = previous?.getPosition()
-    if (previous?.close()) {
+    if (previous !== undefined) {
+      previous.close()
       initialPosition = position
     }
   }
@@ -119,7 +120,7 @@ function shouldOpenImmediately(ownerDocument: Document | undefined): boolean {
  * ```
  */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const merged = merge(
+  const merged = mergeDefaults(
     {
       openDelay: 600,
       closeDelay: 200,
@@ -196,16 +197,24 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   function closeImmediately(): boolean {
+    return settle(() => closeImmediatelyInner())
+  }
+
+  function closeImmediatelyInner(): boolean {
     invalidateTimers()
     setShouldUseInstantMotion(true)
     if (open()) {
       requestOpen(false)
     }
 
-    if (open()) {
+    // Staged writes are invisible to `open()`: an uncontrolled close always
+    // takes effect at the next settle; a controlled one only if the parent
+    // accepts it, so fall back to the committed read.
+    const closed = merged.open === undefined || !open()
+    if (!closed) {
       setShouldUseInstantMotion(false)
     }
-    return !open()
+    return closed
   }
 
   function requestTooltipOpen(instantMotion: boolean): void {
@@ -215,6 +224,10 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   function scheduleOpen(fromFocus = false): void {
+    settle(() => scheduleOpenInner(fromFocus))
+  }
+
+  function scheduleOpenInner(fromFocus = false): void {
     if (fromFocus && ignoreNextFocusAfterWindowBlur) {
       ignoreNextFocusAfterWindowBlur = false
       return
@@ -247,16 +260,24 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     setShouldUseInstantMotion(false)
     const version = ++timerVersion
-    timers.open = setTimeout(() => {
-      if (!ownerAlive || version !== timerVersion || merged.disabled) {
-        return
-      }
+    timers.open = setTimeout(
+      () =>
+        settle(() => {
+          if (!ownerAlive || version !== timerVersion || merged.disabled) {
+            return
+          }
 
-      requestTooltipOpen(false)
-    }, merged.openDelay)
+          requestTooltipOpen(false)
+        }),
+      merged.openDelay,
+    )
   }
 
   function scheduleClose(): void {
+    settle(() => scheduleCloseInner())
+  }
+
+  function scheduleCloseInner(): void {
     clearOpenTimer()
 
     if (!popper.isOpen()) {
@@ -273,15 +294,19 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
 
     const version = ++timerVersion
-    timers.close = setTimeout(() => {
-      if (!ownerAlive || version !== timerVersion || merged.disabled) {
-        return
-      }
+    timers.close = setTimeout(
+      () =>
+        settle(() => {
+          if (!ownerAlive || version !== timerVersion || merged.disabled) {
+            return
+          }
 
-      setShouldUseInstantMotion(false)
-      popper.setOpen(false)
-      clearCloseTimer()
-    }, merged.closeDelay)
+          setShouldUseInstantMotion(false)
+          popper.setOpen(false)
+          clearCloseTimer()
+        }),
+      merged.closeDelay,
+    )
   }
 
   createEffect(

@@ -1,7 +1,8 @@
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createStore, flush, getOwner } from 'solid-js'
+import { createStore } from 'solid-js'
 
+import { settle } from '../../shared/utils'
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
 import { createHostRegistry } from '../shared/overlay/feedback/host-registry'
@@ -146,8 +147,7 @@ export interface ToastStore {
 }
 
 // Public mutators are called from unowned contexts (timers, promises, event
-// handlers); settle their staged writes immediately like a Solid 1 `batch`.
-const settle = <T>(fn: () => T): T => (getOwner() === null ? flush(fn) : fn())
+// handlers); `settle` commits their staged writes like a Solid 1 `batch`.
 
 export function createToastStore(): ToastStore {
   const registry = createHostRegistry<ToastHost>('Toast')

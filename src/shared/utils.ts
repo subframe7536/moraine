@@ -18,7 +18,45 @@ import {
  * and microtasks run unowned, so writes they make would stage forever.
  */
 export function settle<T>(fn: () => T): T {
-  return getOwner() === null ? flush(fn) : fn()
+  const result = fn()
+  try {
+    flush()
+  } catch {
+    // Inside an action body or an onSettled callback flush() throws; writes
+    // already staged are committed by that scope's own settle. Inside an
+    // effect callback flush() is a no-op for the same reason — direct writes
+    // join the running pass's transaction, while a nested flush(fn) would
+    // park them in a pass tx that is discarded.
+  }
+  return result
+}
+/**
+ * Applies prop defaults the way Solid 1 `mergeProps` did: a prop present but
+ * `undefined` falls through to the default. Solid 2's `merge` returns the
+ * right-most source that defines the key — `merge({ gutter: 4 }, props)` reads
+ * `undefined` when callers write `gutter={undefined}` — so components use this
+ * proxy for their `merged` defaults instead. Reads still reach the source's
+ * own getters, preserving per-prop laziness.
+ */
+export function mergeDefaults<T extends object, U extends object>(defaults: T, source: U): T & U {
+  return new Proxy(source as T & U, {
+    get(target, key, receiver) {
+      const value = Reflect.get(target, key, receiver)
+      return value === undefined && key in defaults ? defaults[key as keyof T] : value
+    },
+    has(target, key) {
+      return key in target || key in defaults
+    },
+    getOwnPropertyDescriptor(target, key) {
+      return (
+        Reflect.getOwnPropertyDescriptor(target, key) ??
+        Reflect.getOwnPropertyDescriptor(defaults, key)
+      )
+    },
+    ownKeys(target) {
+      return [...new Set([...Reflect.ownKeys(defaults), ...Reflect.ownKeys(target)])]
+    },
+  })
 }
 /**
  * Generates a unique identifier for accessibility and form association.

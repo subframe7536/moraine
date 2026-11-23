@@ -383,8 +383,8 @@ describe('Field', () => {
     }
     let replace!: () => void
     const screen = render(() => {
-      const [replacement, setReplacement] = createSignal(false)
-      replace = () => setReplacement(true)
+      const [replacement, setReplacement] = createSignal(false, { ownedWrite: true })
+      replace = () => flush(() => setReplacement(true))
       return (
         <FieldProvider value={{ binding }}>
           <DynamicProbe replacement={replacement()} />
@@ -507,7 +507,7 @@ describe('Field', () => {
 describe('useFormField', () => {
   test('reads the control id and disabled state reactively', () => {
     const [id, setId] = createSignal('first', { ownedWrite: true })
-    const [disabled, setDisabled] = createSignal(false)
+    const [disabled, setDisabled] = createSignal(false, { ownedWrite: true })
 
     createRoot((dispose) => {
       const field = useFormField(

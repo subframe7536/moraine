@@ -430,11 +430,15 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               data: radioGroupDataAttributes.indicator({ checked: selected }),
             })
 
+            let input: HTMLInputElement | undefined
             onCleanup(() => {
-              const input = inputRefs.get(item.id)
+              // Owners dispose asynchronously — a recreated item may already
+              // have registered its new input, so only delete this item's own.
               const shouldRestoreFocus =
                 input !== undefined && getActiveElement(input.ownerDocument) === input
-              inputRefs.delete(item.id)
+              if (inputRefs.get(item.id) === input) {
+                inputRefs.delete(item.id)
+              }
 
               if (shouldRestoreFocus) {
                 queueMicrotask(() => inputRefs.get(tabbableItemId() ?? '')?.focus())
@@ -451,6 +455,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 <div data-slot="radio-group-container" {...containerSlot}>
                   <HiddenInput
                     ref={(element) => {
+                      input = element
                       inputRefs.set(item.id, element)
                     }}
                     id={item.inputId}

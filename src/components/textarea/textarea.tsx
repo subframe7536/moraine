@@ -351,6 +351,7 @@ export function Textarea<
       autocomplete={merged.autoComplete}
       {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
+      {...textControl.controlledValueProps()}
       ref={(element) => {
         textareaEl = element
         field.setControlRef(element)

@@ -1,9 +1,9 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, merge } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 import { attachEventListener } from '../../shared/event-listener'
-import { createId } from '../../shared/utils'
+import { createId, mergeDefaults } from '../../shared/utils'
 import { createHoverDelay } from '../shared/overlay/hover-delay'
 import { createPopper } from '../shared/overlay/popper'
 
@@ -31,7 +31,7 @@ import type { HoverCardProps } from './hover-card.types'
  * ```
  */
 export function HoverCard(props: HoverCardProps): JSX.Element {
-  const merged = merge(
+  const merged = mergeDefaults(
     {
       openDelay: 600,
       closeDelay: 300,
