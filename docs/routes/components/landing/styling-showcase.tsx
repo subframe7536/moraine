@@ -282,7 +282,7 @@ export function StylingShowcase() {
       <div class="space-y-4">
         <div>
           <p class="text-xs text-muted-foreground font-medium mb-2">Accent</p>
-          <div role="group" aria-label="Accent" class="flex flex-wrap gap-1.5">
+          <div role="group" aria-label="Accent" class="gap-1.5 grid grid-cols-2">
             <For each={ACCENTS}>
               {(accent) => (
                 <ToggleButton
@@ -292,6 +292,7 @@ export function StylingShowcase() {
                   tone="neutral"
                   activeTone="primary"
                   aria-label={`Accent ${accent.name}`}
+                  class="w-full"
                   classes={{ label: 'inline-flex gap-1.5 items-center' }}
                   pressed={primary() === accent.primary}
                   onPressedChange={(pressed) => {
@@ -316,7 +317,7 @@ export function StylingShowcase() {
 
         <div>
           <p class="text-xs text-muted-foreground font-medium mb-2">Radius</p>
-          <div role="group" aria-label="Radius" class="flex flex-wrap gap-1.5">
+          <div role="group" aria-label="Radius" class="gap-1.5 grid grid-cols-2">
             <For each={RADIUS_ITEMS}>
               {(item) => (
                 <ToggleButton
@@ -327,6 +328,7 @@ export function StylingShowcase() {
                   activeTone="primary"
                   leading={item.icon}
                   aria-label={`Radius ${item.label}`}
+                  class="w-full"
                   pressed={radius() === item.value}
                   onPressedChange={(pressed) => {
                     if (pressed) {
@@ -344,7 +346,7 @@ export function StylingShowcase() {
 
         <div>
           <p class="text-xs text-muted-foreground font-medium mb-2">Input variant</p>
-          <div role="group" aria-label="Input variant" class="flex flex-wrap gap-1.5">
+          <div role="group" aria-label="Input variant" class="gap-1.5 grid grid-cols-2">
             <For each={INPUT_VARIANT_ITEMS}>
               {(item) => (
                 <ToggleButton
@@ -355,6 +357,7 @@ export function StylingShowcase() {
                   activeTone="primary"
                   leading={item.icon}
                   aria-label={`Input variant ${item.label}`}
+                  class="w-full"
                   pressed={inputVariant() === item.value}
                   onPressedChange={(pressed) => {
                     if (pressed) {
@@ -372,7 +375,7 @@ export function StylingShowcase() {
 
         <div>
           <p class="text-xs text-muted-foreground font-medium mb-2">Density</p>
-          <div role="group" aria-label="Density" class="flex flex-wrap gap-1.5">
+          <div role="group" aria-label="Density" class="gap-1.5 grid grid-cols-2">
             <For each={DENSITY_ITEMS}>
               {(item) => (
                 <ToggleButton
@@ -383,6 +386,7 @@ export function StylingShowcase() {
                   activeTone="primary"
                   leading={item.icon}
                   aria-label={`Density ${item.label}`}
+                  class="w-full"
                   pressed={density() === item.value}
                   onPressedChange={(pressed) => {
                     if (pressed) {
