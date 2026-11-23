@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Header, RowData } from '@tanstack/table-core'
-import { For, Show, createMemo, createUniqueId } from 'solid-js'
+import { For, Show, createMemo, createUniqueId, merge } from 'solid-js'
 
 import { Icon } from '../components/icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../components/table/table.recipe'
@@ -146,6 +146,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
       },
     }),
   )
+  const mergedExtra = merge(() => extraProps() ?? {})
   const sortIconSlot = ctx.slotWith('sortIcon', {
     data: dataTableDataAttributes.sortIcon({ sorted: () => column().getIsSorted() }),
   })
@@ -154,7 +155,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
     <th
       data-slot="data-table-head"
       {...headSlot}
-      {...extraProps()}
+      {...mergedExtra}
       colspan={props.header.colSpan}
       // Only the sorted header carries `aria-sort`.
       aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}

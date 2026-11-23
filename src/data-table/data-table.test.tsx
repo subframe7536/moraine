@@ -416,24 +416,26 @@ describe('DataTable', () => {
     expect(getRow('Alice').getAttribute('data-row-tag')).toBeNull()
     expect(getHead('Name').getAttribute('title')).toBeNull()
 
-    setRowProps(() => (context) => {
-      rowSetup(context.row.id)
-      onCleanup(() => rowCleanup(context.row.id))
-      return {
-        class: 'first-row-pass',
-        get 'data-row-tag'() {
-          return `${context.row.id}:${context.index}`
-        },
-      }
-    })
-    setHeadProps(() => (context) => {
-      headSetup(context.header.column.id)
-      onCleanup(() => headCleanup(context.header.column.id))
-      return {
-        get title() {
-          return `${context.header.column.id}:${context.index}`
-        },
-      }
+    flush(() => {
+      setRowProps(() => (context) => {
+        rowSetup(context.row.id)
+        onCleanup(() => rowCleanup(context.row.id))
+        return {
+          class: 'first-row-pass',
+          get 'data-row-tag'() {
+            return `${context.row.id}:${context.index}`
+          },
+        }
+      })
+      setHeadProps(() => (context) => {
+        headSetup(context.header.column.id)
+        onCleanup(() => headCleanup(context.header.column.id))
+        return {
+          get title() {
+            return `${context.header.column.id}:${context.index}`
+          },
+        }
+      })
     })
 
     expect(getRow('Alice').classList.contains('first-row-pass')).toBe(true)
@@ -455,13 +457,15 @@ describe('DataTable', () => {
     expect(headSetup).toHaveBeenCalledTimes(6)
 
     // Swapping callbacks cleans up previous cell/row hooks and applies the new attributes.
-    setRowProps(() => (context) => ({
-      class: 'second-row-pass',
-      'data-row-tag': `next:${context.row.id}`,
-    }))
-    setHeadProps(() => (context) => ({
-      title: `next:${context.header.column.id}`,
-    }))
+    flush(() => {
+      setRowProps(() => (context) => ({
+        class: 'second-row-pass',
+        'data-row-tag': `next:${context.row.id}`,
+      }))
+      setHeadProps(() => (context) => ({
+        title: `next:${context.header.column.id}`,
+      }))
+    })
 
     expect(rowCleanup).toHaveBeenCalledTimes(3)
     expect(headCleanup).toHaveBeenCalledTimes(6)
@@ -2161,10 +2165,12 @@ describe('DataTable', () => {
 
       expect(priorities(container)).toEqual({ Name: '1', Age: '2', Role: '3' })
 
-      setSorting([
-        { id: 'age', desc: true },
-        { id: 'role', desc: false },
-      ])
+      flush(() =>
+        setSorting([
+          { id: 'age', desc: true },
+          { id: 'role', desc: false },
+        ]),
+      )
       expect(priorities(container)).toEqual({ Age: '1', Role: '2' })
 
       flush(() => setSorting([{ id: 'role', desc: false }]))

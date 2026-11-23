@@ -297,7 +297,6 @@ export function createVirtualizerController<
           if (!active) {
             return
           }
-
           // Signal writes outside an owned scope need an explicit flush.
           flush(() => {
             setInstance(virtualizer)

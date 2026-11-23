@@ -61,32 +61,34 @@ export function createListVirtualizer<TItem>(
             width: '100%',
           }
 
-    const rowStyle = (virtualItem: VirtualItem): JSX.CSSProperties =>
-      virtualizer.options.horizontal
+    // Store arrays are shallow: `<For>` rows hold raw records whose fields
+    // `reconcile` mutates in place, so `virtualItem.start` never notifies.
+    // Reading the slot through the store keeps the style binding tracked.
+    const rowStart = (virtualItem: VirtualItem): number =>
+      virtualItems.find((item) => item === virtualItem)?.start ?? virtualItem.start
+
+    // Reads run inside the tracked `style` getter of the row props, so
+    // positions and direction stay reactive.
+    const rowStyle = (virtualItem: VirtualItem): JSX.CSSProperties => {
+      const offset = rowStart(virtualItem) - virtualizer.options.scrollMargin
+      const isRtl = rtl()
+      return virtualizer.options.horizontal
         ? {
             height: '100%',
             position: 'absolute',
-            get right() {
-              return rtl() ? '0' : undefined
-            },
+            right: isRtl ? '0' : undefined,
             top: '0',
-            get transform() {
-              const offset = virtualItem.start - virtualizer.options.scrollMargin
-              return `translateX(${rtl() ? -offset : offset}px)`
-            },
-            get left() {
-              return rtl() ? undefined : '0'
-            },
+            transform: `translateX(${isRtl ? -offset : offset}px)`,
+            left: isRtl ? undefined : '0',
           }
         : {
             left: '0',
             position: 'absolute',
             top: '0',
-            get transform() {
-              return `translateY(${virtualItem.start - virtualizer.options.scrollMargin}px)`
-            },
+            transform: `translateY(${offset}px)`,
             width: '100%',
           }
+    }
 
     return (
       <div style={contentStyle()}>
@@ -98,7 +100,11 @@ export function createListVirtualizer<TItem>(
           rowProps={(current, virtualItem, measure) => ({
             'data-index': current.index,
             ref: measure,
-            style: rowStyle(virtualItem),
+            // Style-object keys apply eagerly; the `style` prop itself must be
+            // a getter so position changes re-derive the object tracked.
+            get style() {
+              return rowStyle(virtualItem)
+            },
           })}
         />
       </div>

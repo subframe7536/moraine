@@ -139,10 +139,12 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         data-slot="data-table-row"
         {...rowSlot}
         {...extraRest}
-        ref={(element) => {
-          callRef(props.virtualRowProps?.ref, element)
-          callRef(extraProps()?.ref, element)
-        }}
+        ref={(element) =>
+          untrack(() => {
+            callRef(props.virtualRowProps?.ref, element)
+            callRef(extraProps()?.ref, element)
+          })
+        }
         onClick={(event) => {
           callHandler(event, extraProps()?.onClick)
           props.onRowClick?.(props.row, event)
