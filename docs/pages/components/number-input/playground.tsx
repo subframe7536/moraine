@@ -41,6 +41,7 @@ export default function NumberInputPlayground() {
         },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
         { kind: 'switch', prop: 'increment', label: 'Increment control', defaultValue: true },
+        { kind: 'switch', prop: 'wheel', label: 'Wheel', defaultValue: true },
       ]}
     >
       {(props) => (
@@ -51,6 +52,7 @@ export default function NumberInputPlayground() {
             orientation={props.orientation}
             disabled={props.disabled}
             increment={props.increment}
+            wheel={props.wheel}
             defaultValue={24}
             min={0}
             max={100}
