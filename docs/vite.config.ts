@@ -9,66 +9,63 @@ import { defineConfig } from 'vite'
 import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 
 import { DocsFileSystemRouter } from './build/docs-router.ts'
-import {
-  createDocsMdxOptions,
-  DOCS_SITE,
-  docsBuildPlugin,
-  llmsTxtPlugin,
-  siteMetaPlugin,
-} from './build/index.ts'
+import { createDocsMdxOptions, DOCS_SITE, docsBuildPlugin, llmsTxtPlugin } from './build/index.ts'
 import unocfg from './unocss.config.ts'
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
 const sourceRoot = path.resolve(projectRoot, 'src')
+
+const docsRouter = new DocsFileSystemRouter([
+  new DefaultFileSystemRouter({
+    dir: path.join(docsRoot, 'routes'),
+    extensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+    ignore: ['components/**', 'hooks/**', 'docs-route.ts', 'router.ts', '**/*.test.tsx'],
+  }),
+  new DefaultFileSystemRouter({
+    dir: path.join(docsRoot, 'pages'),
+    extensions: ['md', 'mdx'],
+    ignore: ['**/*.test.tsx'],
+  }),
+])
 
 export default defineConfig({
   plugins: [
     variantGroupPlugin(),
     docsBuildPlugin({ projectRoot }),
     uno(unocfg),
-    solid({ ssr: true, extensions: ['.mdx'] }),
+    solid({
+      start: {
+        app: 'App.tsx',
+        document: 'Document.tsx',
+        clientSetup: 'client-setup.ts',
+      },
+      ssr: true,
+      extensions: ['.mdx'],
+    }),
     fileRouter({
       // The docs site routes two trees: app route modules under routes/ and
       // Markdown/MDX content pages under pages/.
-      router: new DocsFileSystemRouter([
-        new DefaultFileSystemRouter({
-          dir: path.join(docsRoot, 'routes'),
-          extensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-          ignore: ['components/**', 'hooks/**', 'docs-route.ts', 'router.ts', '**/*.test.tsx'],
-        }),
-        new DefaultFileSystemRouter({
-          dir: path.join(docsRoot, 'pages'),
-          extensions: ['md', 'mdx'],
-          ignore: ['**/*.test.tsx'],
-        }),
-      ]),
+      router: docsRouter,
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
         concurrency: 4,
-        serverEntry: 'entry-server.tsx',
       },
-    }),
-    siteMetaPlugin({
-      ...DOCS_SITE,
-      title: 'Moraine Docs',
-      imagePath: '/og-image.png',
-      imageAlt: 'Moraine Docs brand cover image',
-      imageWidth: 1200,
-      imageHeight: 630,
-      twitterCard: 'summary_large_image',
     }),
     llmsTxtPlugin({ projectRoot, ...DOCS_SITE }),
   ],
   resolve: {
     alias: {
+      // beta.2's exports map lacks the `./mdx/jsx-runtime` subpath that
+      // Satteri's jsxImportSource emits; `./mdx` is the same module.
+      'solid-file-router/mdx/jsx-runtime': 'solid-file-router/mdx',
       '@src': sourceRoot,
       moraine: sourceRoot,
     },
     dedupe: ['solid-js', 'solid-js', '@solidjs/router'],
   },
   optimizeDeps: {
-    entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
+    entries: ['routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
   },
   build: {
     rolldownOptions: {
@@ -76,6 +73,23 @@ export default defineConfig({
     },
   },
   environments: {
+    ssr: {
+      resolve: {
+        // The server bundle imports `virtual:routes` through solid-file-router;
+        // externalizing it leaves an unresolvable specifier in dist/server/server.js.
+        noExternal: ['solid-file-router'],
+      },
+      build: {
+        rolldownOptions: {
+          output: {
+            // `resolveHandler` imports server.js with a `?t=` cache-buster. If lazy route
+            // chunks back-import `../server.js`, Node loads a second copy and shared
+            // singletons (router context) lose identity, so inline the dynamic imports.
+            inlineDynamicImports: true,
+          },
+        },
+      },
+    },
     client: {
       build: {
         rolldownOptions: {

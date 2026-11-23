@@ -384,7 +384,7 @@
           "name": "disabled",
           "optional": true,
           "type": "boolean",
-          "description": "Disables the link: it loses its `href`, gets `aria-disabled` and `tabIndex={-1}`, and clicks\nare prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.",
+          "description": "Disables the link: it loses its `href`, gets `aria-disabled` and `tabindex={-1}`, and clicks\nare prevented. A link is also disabled when its `NavigationMenu` or `NavigationMenu.Item` is.",
           "default": {
             "kind": "literal",
             "value": false

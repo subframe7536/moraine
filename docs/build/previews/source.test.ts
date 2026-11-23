@@ -68,7 +68,7 @@ export function BasicExample() {
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
-
+import {For, createSignal} from 'solid-js'
 export function BasicExample() {
   const [count, setCount] = createSignal(0)
   return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>

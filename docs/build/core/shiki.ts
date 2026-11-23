@@ -287,6 +287,7 @@ export async function highlightCodeBlock(
 
   const html = highlighter.codeToHtml(options.code, {
     lang,
+    tabindex: false,
     themes: {
       light: DOCS_HIGHLIGHT_THEMES.light,
       dark: DOCS_HIGHLIGHT_THEMES.dark,

@@ -93,7 +93,7 @@
         {
           "name": "inputMode",
           "optional": true,
-          "type": "JSX.HTMLAttributes<HTMLInputElement>['inputMode']",
+          "type": "JSX.HTMLAttributes<HTMLInputElement>['inputmode']",
           "description": "The virtual keyboard hint applied to the inputs and hidden input.\nOverrides the `inputMode` derived from `validationType`."
         },
         {

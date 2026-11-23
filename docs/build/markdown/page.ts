@@ -88,8 +88,12 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     async extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
-      const routeId = `/${context.path
+      const pagesIndex = context.path.lastIndexOf('/pages/')
+      const contextPath =
+        pagesIndex >= 0 ? context.path.slice(pagesIndex + '/pages/'.length) : context.path
+      const routeId = `/${contextPath
         .replace(/(^|\/)\([^)]*\)\//g, '$1')
+        .replace(/\.[^./]+$/, '')
         .replace(/(^|\/)index$/, '$1')
         .replace(/\/$/, '')}`
       if (routeId !== page.routePath) {

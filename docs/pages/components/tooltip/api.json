@@ -112,7 +112,7 @@
         {
           "name": "mount",
           "optional": true,
-          "type": "Node",
+          "type": "Element | ShadowRoot",
           "description": "DOM node the portal mounts into. Defaults to `document.body` (resolved from the trigger's\ndocument when available)."
         },
         {

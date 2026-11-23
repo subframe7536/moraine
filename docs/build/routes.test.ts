@@ -4,42 +4,41 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import path from 'pathe'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'
 import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
-vi.mock('virtual:routes', () => ({
-  routeInfo: {
-    '/': {},
-    '/docs/getting-started': {
-      key: 'getting-started',
-      surface: 'docs',
-      section: 'overview',
-      routePath: '/docs/getting-started',
-      markdownPath: '/docs/getting-started.md',
-      title: 'Getting Started',
-      description: 'Setup.',
-      order: 1,
-      tags: ['installation'],
-    },
-    '/components/button': {
-      key: 'button',
-      surface: 'components',
-      section: 'action',
-      routePath: '/components/button',
-      markdownPath: '/components/button.md',
-      title: 'Button',
-      description: 'Button description.',
-      order: 1,
-      tags: ['button'],
-      sections: [
-        { id: 'usage', label: 'Usage', level: 2 },
-        null,
-        { id: '', label: 'Missing ID', level: 2 },
-      ],
-    },
+
+const ROUTE_INFO = {
+  '/': {},
+  '/docs/getting-started': {
+    key: 'getting-started',
+    surface: 'docs',
+    section: 'overview',
+    routePath: '/docs/getting-started',
+    markdownPath: '/docs/getting-started.md',
+    title: 'Getting Started',
+    description: 'Setup.',
+    order: 1,
+    tags: ['installation'],
   },
-}))
+  '/components/button': {
+    key: 'button',
+    surface: 'components',
+    section: 'action',
+    routePath: '/components/button',
+    markdownPath: '/components/button.md',
+    title: 'Button',
+    description: 'Button description.',
+    order: 1,
+    tags: ['button'],
+    sections: [
+      { id: 'usage', label: 'Usage', level: 2 },
+      null,
+      { id: '', label: 'Missing ID', level: 2 },
+    ],
+  },
+}
 
 function pageSource(title: string, order?: number, group = 'Action'): string {
   const sidebar = order !== undefined ? `sidebar:\n  order: ${order}\n` : ''
@@ -79,7 +78,8 @@ describe('docs route metadata', () => {
   })
 
   test('filters malformed sections and sorts pages across surfaces', async () => {
-    const { getDocsPages } = await import('../routes/docs-route.ts')
+    const { getDocsPages, registerDocsRouteInfo } = await import('../routes/docs-route.ts')
+    registerDocsRouteInfo(ROUTE_INFO)
     expect(getDocsPages()).toMatchObject([
       { path: '/docs/getting-started', surface: 'docs', sections: [] },
       {

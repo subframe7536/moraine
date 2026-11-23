@@ -1,3 +1,5 @@
+import { globSync } from 'node:fs'
+
 import { BaseFileSystemRouter } from 'solid-file-router/plugin'
 import type { DefaultFileSystemRouter } from 'solid-file-router/plugin'
 /**
@@ -26,5 +28,19 @@ export class DocsFileSystemRouter extends BaseFileSystemRouter {
     const dirs = this.children.map((router) => router.config.dir)
     const extensions = [...new Set(this.children.flatMap((router) => router.config.extensions))]
     return `{${dirs.join(',')}}/**/*.{${extensions.join(',')}}`
+  }
+
+  // tinyglobby does not expand braces around absolute directories, so the
+  // composite `glob()` above cannot drive `buildRoutes` — scan each child's
+  // own single-directory glob and route it through `addRoute`, which keeps
+  // the bookkeeping `updateRoute`/`removeRoute` depend on.
+  override async buildRoutes() {
+    this.routes = []
+    for (const child of this.children) {
+      for (const src of globSync(child.glob()).sort()) {
+        await this.addRoute(src)
+      }
+    }
+    return this.routes
   }
 }

@@ -1,7 +1,17 @@
 import { DOCS_SECTION_ORDER } from '../shared/docs-route'
 import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route'
 
-import { Router } from './router'
+let routeInfo: Record<string, unknown> | undefined
+
+/**
+ * `router.ts` pushes `Router.routeInfo` here after construction. `docs-route.ts`
+ * must not import `./router`: route modules pull this file through
+ * `virtual:routes`' `$$route` refs, and importing `router.ts` back closes a
+ * cycle that runs `createFileRouter()` before the manifest is initialized.
+ */
+export function registerDocsRouteInfo(info: Record<string, unknown>): void {
+  routeInfo = info
+}
 export interface DocsPageEntry {
   key: string
   label: string
@@ -61,7 +71,7 @@ function normalizeSections(value: unknown): DocsRouteSection[] {
 }
 
 export function getDocsPages(): DocsPageEntry[] {
-  return Object.entries(Router.routeInfo)
+  return Object.entries(routeInfo ?? {})
     .map(([, info]) => {
       if (!isDocsRouteInfo(info)) {
         return null
