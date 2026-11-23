@@ -97,7 +97,7 @@
     "@dnd-kit/dom": "^0.5.3",
     "@iconify-json/lucide": "catalog:",
     "@iconify/tailwind": "1.2.0",
-    "@solidjs/testing-library": "^0.8.10",
+    "@solidjs/testing-library": "^1.0.0-rc.2",
     "@subf/config": "^0.5.0",
     "@subf/unocss": "catalog:",
     "@tanstack/table-core": "^9.3.1",
@@ -115,11 +115,13 @@
     "tsrs": "0.25.0-ts7.1.0-beta",
     "valibot": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
+    "@solidjs/vite-plugin": "catalog:",
+    "@solidjs/compiler": "catalog:",
     "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@dnd-kit/dom": "^0.5.3",
+    "@solidjs/web": "catalog:",
     "@subf/unocss": "catalog:peers",
     "@tanstack/table-core": "^9.3.1",
     "@tanstack/virtual-core": "^3.19.11",
