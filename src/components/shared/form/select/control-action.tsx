@@ -64,7 +64,7 @@ export function ClearButton(props: ClearButtonProps): JSX.Element {
       type="button"
       data-slot={props.dataSlot}
       aria-label={props.ariaLabel}
-      tabIndex={0}
+      tabIndex={-1}
       {...props.slot}
       disabled={props.disabled}
       onPointerDown={(event) => {

@@ -30,9 +30,9 @@ export const PRIMARY_TRIGGER_CLASS =
   'text-start outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center static disabled:pointer-events-none'
 
 const SELECT_FIELD_ACTION_CLASS =
-  'text-muted-foreground p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) active:bg-accent-active disabled:pointer-events-none'
+  'text-muted-foreground p-0.5 outline-none rounded-xs inline-flex shrink-0 cursor-pointer transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) active:bg-accent-active disabled:pointer-events-none'
 
-export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} outline-none static data-loading:cursor-wait`
+export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} static data-loading:cursor-wait`
 
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS = `${SELECT_FIELD_ACTION_CLASS} select-none`

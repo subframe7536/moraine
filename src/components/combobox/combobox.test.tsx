@@ -656,15 +656,17 @@ test('ignores Enter immediately after compositionend', () => {
   }
 })
 
-test('combobox clearable provides tabbable button and keyboard clear', () => {
+test('combobox clearable provides non-tabbable button without focus ring and keyboard clear', () => {
   const onClear = vi.fn()
   const screen = render(() => (
     <Combobox items={['Apple', 'Banana']} defaultValue="Apple" clearable onClear={onClear} />
   ))
   const clear = screen.container.querySelector<HTMLElement>('[data-slot="combobox-clear"]')!
   expect(clear).toBeTruthy()
-  expect(clear.tabIndex).toBe(0)
+  expect(clear.tabIndex).toBe(-1)
   expect(clear.getAttribute('aria-label')).toBe('Clear selection')
+  expect(clear.className).toContain('outline-none')
+  expect(clear.className).not.toContain('focus-visible:ring-')
 
   const input = screen.getByRole('combobox')
   // Escape when closed clears

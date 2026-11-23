@@ -37,6 +37,9 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox')
     const clear = screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!
     expect(clear.tagName).toBe('BUTTON')
+    expect(clear.tabIndex).toBe(-1)
+    expect(clear.className).toContain('outline-none')
+    expect(clear.className).not.toContain('focus-visible:ring-')
     expect(clear.getAttribute('aria-label')).toBe('Clear selection')
     expect(trigger.contains(clear)).toBe(false)
     fireEvent.click(clear)

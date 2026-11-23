@@ -899,4 +899,14 @@ describe('MultiSelect', () => {
     expect(tags).toHaveLength(2)
     expect(tags[0]).toBe(firstTag)
   })
+
+  test('clear button is non-tabbable with no focus ring', () => {
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} defaultValue={['apple']} searchable clearable />
+    ))
+    const clear = screen.container.querySelector<HTMLElement>('[data-slot="multi-select-clear"]')!
+    expect(clear.tabIndex).toBe(-1)
+    expect(clear.className).toContain('outline-none')
+    expect(clear.className).not.toContain('focus-visible:ring-')
+  })
 })
