@@ -58,8 +58,8 @@ export default function TreePlayground() {
             { label: 'Solid', value: 'solid' },
           ],
         },
-        { kind: 'switch', prop: 'trigger', label: 'Trigger', defaultValue: true },
-        { kind: 'switch', prop: 'icon', label: 'Icon', defaultValue: true },
+        { kind: 'switch', prop: 'expandIcon', label: 'Expand icon', defaultValue: true },
+        { kind: 'switch', prop: 'icon', label: 'Item icon', defaultValue: true },
         { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
         { kind: 'switch', prop: 'action', label: 'Actions', defaultValue: false },
         { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
@@ -139,7 +139,7 @@ export default function TreePlayground() {
               variant={props.variant}
               transition={props.transition}
               indentGuide={props.indentGuide}
-              expandIcon={props.trigger ? undefined : false}
+              expandIcon={props.expandIcon ? undefined : false}
               getItemIcon={getItemIcon}
               actionRender={props.action ? actionRender : undefined}
             />

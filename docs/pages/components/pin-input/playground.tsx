@@ -9,7 +9,7 @@ export default function PinInputPlayground() {
         {
           kind: 'select',
           prop: 'validationType',
-          label: 'Validation Type',
+          label: 'Validation type',
           defaultValue: 'text',
           options: [
             { label: 'Text', value: 'text' },

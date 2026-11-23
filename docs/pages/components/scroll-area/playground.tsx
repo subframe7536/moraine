@@ -21,7 +21,7 @@ export default function ScrollAreaPlayground() {
         {
           kind: 'select',
           prop: 'scrollbarMode',
-          label: 'Scrollbar',
+          label: 'Scrollbar mode',
           defaultValue: 'hover',
           options: [
             { label: 'Hover', value: 'hover' },
@@ -41,11 +41,11 @@ export default function ScrollAreaPlayground() {
             { label: 'Thin', value: 'thin' },
           ],
         },
-        { kind: 'switch', prop: 'fade', label: 'Edge shadows', defaultValue: true },
+        { kind: 'switch', prop: 'fade', label: 'Fade', defaultValue: true },
         {
           kind: 'input',
           prop: 'fadeSize',
-          label: 'Shadow size (px)',
+          label: 'Fade size (px)',
           defaultValue: 40,
           inputType: 'number',
         },

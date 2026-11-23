@@ -18,11 +18,16 @@ export default function TablePlayground() {
           ],
         },
         { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
-        { kind: 'switch', prop: 'highlightOnHover', label: 'Hover Effect', defaultValue: false },
+        {
+          kind: 'switch',
+          prop: 'highlightOnHover',
+          label: 'Highlight on hover',
+          defaultValue: false,
+        },
         {
           kind: 'select',
           prop: 'border',
-          label: 'Show Border',
+          label: 'Border',
           defaultValue: 'row',
           options: [
             { label: 'Row', value: 'row' },

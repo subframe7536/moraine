@@ -22,7 +22,7 @@ export default function SliderPlayground() {
         { kind: 'switch', prop: 'markers', label: 'Markers', defaultValue: true },
         { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
         { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-        { kind: 'switch', prop: 'reversed', label: 'Inverted', defaultValue: false },
+        { kind: 'switch', prop: 'reversed', label: 'Reversed', defaultValue: false },
       ]}
     >
       {(props) => {

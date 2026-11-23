@@ -68,7 +68,7 @@ export default function PaginationPlayground() {
           defaultValue: 10,
           inputType: 'number',
         },
-        { kind: 'switch', prop: 'controls', label: 'Show arrows', defaultValue: true },
+        { kind: 'switch', prop: 'controls', label: 'Controls', defaultValue: true },
       ]}
     >
       {(props) => {

@@ -115,11 +115,16 @@ export default function DataTablePlayground() {
             { label: 'Large', value: 'lg' },
           ],
         },
-        { kind: 'switch', prop: 'highlightOnHover', label: 'Hover Effect', defaultValue: true },
+        {
+          kind: 'switch',
+          prop: 'highlightOnHover',
+          label: 'Highlight on hover',
+          defaultValue: true,
+        },
         {
           kind: 'select',
           prop: 'border',
-          label: 'Show Border',
+          label: 'Border',
           defaultValue: 'row',
           options: [
             { label: 'Row', value: 'row' },

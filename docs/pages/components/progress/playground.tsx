@@ -35,7 +35,7 @@ export default function ProgressPlayground() {
             { label: 'Vertical', value: 'vertical' },
           ],
         },
-        { kind: 'switch', prop: 'valueLabel', label: 'Value', defaultValue: true },
+        { kind: 'switch', prop: 'valueLabel', label: 'Value label', defaultValue: true },
       ]}
     >
       {(props) => (
