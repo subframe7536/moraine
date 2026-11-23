@@ -232,11 +232,11 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'solid' | 'subtle'",
-          "description": "Fill treatment. `subtle` uses a solid neutral fill (`muted-active`), so the label, value, and\nindicator keep the same colors over the fill and the track. `solid` uses the primary color\nand switches the label, value, and indicator to `primary-foreground` over the fill.",
+          "type": "'solid' | 'soft'",
+          "description": "Fill treatment. `soft` uses a translucent primary wash (`primary-soft`) over the muted track,\nswitching the label, value, and indicator to `primary-ink` over the fill. `solid` uses the\nsolid `primary` color and switches the label, value, and indicator to `primary-foreground`\nover the fill.",
           "default": {
             "kind": "literal",
-            "value": "subtle"
+            "value": "soft"
           }
         }
       ]

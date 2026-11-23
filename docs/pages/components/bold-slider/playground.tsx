@@ -22,9 +22,9 @@ export default function BoldSliderPlayground() {
           kind: 'select',
           prop: 'variant',
           label: 'Variant',
-          defaultValue: 'subtle',
+          defaultValue: 'soft',
           options: [
-            { label: 'Subtle', value: 'subtle' },
+            { label: 'Soft', value: 'soft' },
             { label: 'Solid', value: 'solid' },
           ],
         },
