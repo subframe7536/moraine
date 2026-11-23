@@ -61,6 +61,7 @@ describe('createListVirtualizer', () => {
     expect(virtualizer?.instance()?.scrollElement).toBe(scrollElement)
 
     screen.unmount()
+    flush()
 
     expect(virtualizer?.instance()).toBeUndefined()
     scrollElement.remove()

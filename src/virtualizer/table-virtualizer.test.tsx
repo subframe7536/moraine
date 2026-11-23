@@ -144,6 +144,7 @@ describe('createTableVirtualizer', () => {
     expect(virtualizer.instance()?.scrollElement).toBe(scrollElement)
 
     screen.unmount()
+    flush()
 
     expect(virtualizer.instance()).toBeUndefined()
     scrollElement.remove()
@@ -825,6 +826,7 @@ describe('createTableVirtualizer', () => {
       expect(indexes(virtualizer)).toEqual([5, 6, 7])
       expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 5, skippedAfter: 12 })
       cleanup()
+      flush()
       expect(virtualizer.columnWindow()).toBeUndefined()
     })
 
@@ -896,6 +898,7 @@ describe('createTableVirtualizer', () => {
       expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 5 })
 
       cleanup()
+      flush()
       expect(virtualizer.columnWindow()).toBeUndefined()
     })
 

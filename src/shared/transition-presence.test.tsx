@@ -44,7 +44,7 @@ function renderPresence(): PresenceFixture {
           presence={presence}
           attrs={presence.dataAttrs}
           onElement={(element) => {
-            fixture = { element, presence, setOpen }
+            fixture = { element, presence, setOpen: (open) => flush(() => setOpen(open)) }
           }}
         />
       </Show>
@@ -120,13 +120,13 @@ describe('createTransitionPresence', () => {
     })
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      setOpen!(false)
+      flush(() => setOpen!(false))
       closed = true
       await flushExitDetection()
       expect(presence!.present()).toBe(true)
       dispatchAnimationEvent(element!, 'animationend', 'mo-exit')
       expect(presence!.present()).toBe(false)
-      setOpen!(true)
+      flush(() => setOpen!(true))
       closed = false
       expect(presence!.present()).toBe(true)
     }
@@ -163,7 +163,7 @@ describe('createTransitionPresence', () => {
       return { dispose, presence, setOpen }
     })
 
-    lifecycle.setOpen(false)
+    flush(() => lifecycle.setOpen(false))
 
     expect(lifecycle.presence.present()).toBe(false)
     lifecycle.dispose()

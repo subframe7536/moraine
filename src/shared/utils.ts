@@ -1,5 +1,25 @@
+import { isServer } from '@solidjs/web'
+import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo, createUniqueId, getOwner, runWithOwner, untrack } from 'solid-js'
+import {
+  children as resolveChildren,
+  createMemo,
+  createRenderEffect,
+  createUniqueId,
+  flush,
+  getOwner,
+  runWithOwner,
+  untrack,
+} from 'solid-js'
+
+/**
+ * Runs `fn` and, when the caller has no reactive owner, settles the writes it
+ * staged with `flush` — like a Solid 1 `batch`. DOM event listeners, timers,
+ * and microtasks run unowned, so writes they make would stage forever.
+ */
+export function settle<T>(fn: () => T): T {
+  return getOwner() === null ? flush(fn) : fn()
+}
 /**
  * Generates a unique identifier for accessibility and form association.
  *
@@ -135,6 +155,47 @@ export function pick<T extends object, K extends readonly (keyof T)[]>(
       return keys.filter((key) => present(key)) as (string | symbol)[]
     },
   })
+}
+
+/**
+ * `children(() => props.children)` resolved through the own `children` descriptor
+ * rather than a props-view read: `pick`/`omit` proxies and dev-mode props track
+ * key access, so a memo that reads `local.children` re-runs — and rebuilds the
+ * subtree — on any unrelated prop change. The leaf getter keeps the memo
+ * subscribed only to what the children thunk itself reads.
+ */
+export function resolvePropsChildren(props: {
+  children?: JSX.Element
+}): ReturnType<typeof resolveChildren> {
+  const descriptor = Object.getOwnPropertyDescriptor(props, 'children')
+  const resolved = resolveChildren(() =>
+    descriptor === undefined
+      ? undefined
+      : descriptor.get !== undefined
+        ? (descriptor.get.call(props) as JSX.Element)
+        : (descriptor.value as JSX.Element),
+  )
+  const owner = getOwner()
+  let pinned = false
+  const accessor = (() => {
+    const value = resolved()
+    // Solid 2 disposes computations whose last subscriber unmounts, and the next
+    // read re-invokes the children getter — recreating the subtree. Once any
+    // binding reads the memo, pin it under the component owner so it stays
+    // observed without evaluating it eagerly.
+    if (!pinned && !isServer && owner) {
+      pinned = true
+      runWithOwner(owner, () =>
+        createRenderEffect(
+          () => resolved(),
+          () => {},
+        ),
+      )
+    }
+    return value
+  }) as ReturnType<typeof resolveChildren>
+  accessor.toArray = () => resolved.toArray()
+  return accessor
 }
 
 /**

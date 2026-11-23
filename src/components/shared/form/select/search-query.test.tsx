@@ -4,7 +4,7 @@ import { expect, test, vi } from 'vitest'
 import { useSearchQuery } from './search-query'
 test('keeps uncontrolled query text and applies the current length limit', () => {
   createRoot((dispose) => {
-    const [maxLength, setMaxLength] = createSignal(3)
+    const [maxLength, setMaxLength] = createSignal(3, { ownedWrite: true })
     const onValueChange = vi.fn()
     const search = useSearchQuery({
       defaultValue: 'a',
@@ -15,13 +15,13 @@ test('keeps uncontrolled query text and applies the current length limit', () =>
     })
 
     expect(search.value()).toBe('a')
-    expect(search.setValue('abcd')).toBe('abc')
+    flush(() => expect(search.setValue('abcd')).toBe('abc'))
     expect(search.value()).toBe('abc')
     expect(onValueChange).toHaveBeenCalledExactlyOnceWith('abc')
-    search.setValue('abc')
+    flush(() => search.setValue('abc'))
     expect(onValueChange).toHaveBeenCalledTimes(1)
     flush(() => setMaxLength(5))
-    expect(search.setValue('abcde')).toBe('abcde')
+    flush(() => expect(search.setValue('abcde')).toBe('abcde'))
     expect(search.value()).toBe('abcde')
     dispose()
   })

@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Component } from 'solid-js'
-import { createStore } from 'solid-js'
+import { createStore, flush, getOwner } from 'solid-js'
 
 import type { FeedbackCloseReason } from '../shared/overlay/feedback/feedback.types'
 import { createCloseResult } from '../shared/overlay/feedback/handle'
@@ -145,6 +145,10 @@ export interface ToastStore {
   abandonHost: (hostId: string | undefined) => void
 }
 
+// Public mutators are called from unowned contexts (timers, promises, event
+// handlers); settle their staged writes immediately like a Solid 1 `batch`.
+const settle = <T>(fn: () => T): T => (getOwner() === null ? flush(fn) : fn())
+
 export function createToastStore(): ToastStore {
   const registry = createHostRegistry<ToastHost>('Toast')
   const [toasts, setToasts] = createStore<ToastRecord[]>([])
@@ -213,8 +217,8 @@ export function createToastStore(): ToastStore {
     const result = createCloseResult()
     const handle: ToastT.Handle = {
       id,
-      update: (options) => update(id, options),
-      close: () => close(id, 'api'),
+      update: (options) => settle(() => update(id, options)),
+      close: () => settle(() => close(id, 'api')),
       result: result.result,
     }
     sessions.set(id, { handle, settle: result.settle, onClose })
@@ -296,11 +300,11 @@ export function createToastStore(): ToastStore {
       return toasts
     },
     registry,
-    add,
-    update,
-    close,
-    remove,
-    abandonHost,
+    add: (options, render) => settle(() => add(options, render)),
+    update: (id, options) => settle(() => update(id, options)),
+    close: (id, reason) => settle(() => close(id, reason)),
+    remove: (id) => settle(() => remove(id)),
+    abandonHost: (hostId) => settle(() => abandonHost(hostId)),
   }
 }
 

@@ -114,7 +114,7 @@ describe('createEventListener', () => {
     const lifecycle = createRoot((dispose) => {
       const [target, setTarget] = createSignal<HTMLElement | undefined>(first)
       createEffect(target, (element) => {
-        createEventListener(element, 'click', listener)
+        return createEventListener(element, 'click', listener)
       })
       return { dispose, setTarget }
     })
@@ -123,7 +123,8 @@ describe('createEventListener', () => {
     click(first)
     expect(listener).toHaveBeenCalledTimes(1)
 
-    lifecycle.setTarget(second)
+    flush(() => lifecycle.setTarget(second))
+    await Promise.resolve()
     click(first)
     expect(listener).toHaveBeenCalledTimes(1)
     click(second)

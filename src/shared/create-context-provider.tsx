@@ -10,7 +10,11 @@ export function createContextProvider<T>(
   name: string,
   defaultValue?: T,
 ): readonly [FlowComponent<{ value: T }>, () => T] {
-  const context = createContext<T>(defaultValue, { name })
+  // `useContext` throws its own error when the context has no default; `null`
+  // marks "no provider" so the hook's custom message wins.
+  const context = createContext<T | null>(defaultValue === undefined ? null : defaultValue, {
+    name,
+  })
 
   const useContextHook =
     defaultValue !== undefined

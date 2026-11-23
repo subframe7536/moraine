@@ -1,18 +1,11 @@
 import type { JSX } from '@solidjs/web'
 import { Dynamic } from '@solidjs/web'
-import {
-  Show,
-  children as resolveChildren,
-  createRenderEffect,
-  createSignal,
-  onCleanup,
-  omit,
-} from 'solid-js'
+import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
 import { bindElement, publishElement } from '../../shared/element-binding'
 import type { ValidComponent } from '../../shared/types'
-import { callRef, pick } from '../../shared/utils'
+import { callRef, pick, resolvePropsChildren } from '../../shared/utils'
 import { Drawer } from '../drawer'
 
 import { useSidebarContext, useSidebarStyles } from './sidebar-context'
@@ -68,7 +61,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     },
   )
   onCleanup(() => context.setPanelId(undefined))
-  const content = resolveChildren(() => local.children)
+  const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
 
@@ -101,7 +94,7 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
           setElement(node)
           callRef(local.ref, node)
         }}
-        aria-hidden={closed() ? true : undefined}
+        aria-hidden={closed() ? 'true' : undefined}
         {...{ 'prop:inert': closed() ? true : undefined }}
         aria-label={local['aria-label']}
         {...(rest as object)}

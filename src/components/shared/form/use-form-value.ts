@@ -1,6 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
+import { settle } from '../../../shared/utils'
 import type { UseFormFieldReturn } from '../../field/field-context'
 export interface UseFormValueOptions<T> {
   value?: Accessor<T | undefined>
@@ -57,6 +58,10 @@ export function useFormValue<T>(
   const isEqual = options.isEqual ?? Object.is
 
   function setValue(update: T | ((previous: T) => T)): void {
+    settle(() => setValueInner(update))
+  }
+
+  function setValueInner(update: T | ((previous: T) => T)): void {
     const currentValue = value()
     const nextValue =
       typeof update === 'function' ? (update as (previous: T) => T)(currentValue) : update
@@ -77,6 +82,10 @@ export function useFormValue<T>(
   }
 
   function reset(): void {
+    settle(() => resetInner())
+  }
+
+  function resetInner(): void {
     if (options.value?.() === undefined) {
       setUncontrolledValue(() => initialDefaultValue)
       options.field?.setFormValue(initialDefaultValue)

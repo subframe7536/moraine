@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, flush, getOwner, onCleanup } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 export interface CreateTransitionPresenceOptions {
@@ -143,7 +143,11 @@ export function createTransitionPresence(
 
     const completed = present()
     clearPendingAnimations()
-    setPresent(false)
+    if (getOwner() === null) {
+      flush(() => setPresent(false))
+    } else {
+      setPresent(false)
+    }
     if (completed && !disposed) {
       options.onExitComplete?.()
     }

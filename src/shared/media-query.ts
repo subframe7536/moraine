@@ -2,6 +2,7 @@ import { createEffect, createSignal } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
+import { settle } from './utils'
 export function createMediaQuery(
   query: string | Accessor<string>,
   defaultValue = false,
@@ -19,13 +20,15 @@ export function createMediaQuery(
     let active = true
 
     queueMicrotask(() => {
-      if (active) {
-        setMatches(media.matches)
-      }
+      settle(() => {
+        if (active) {
+          setMatches(media.matches)
+        }
+      })
     })
 
     const onChange = (event: MediaQueryListEvent): void => {
-      setMatches(event.matches)
+      settle(() => setMatches(event.matches))
     }
 
     const detach =

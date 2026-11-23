@@ -1,6 +1,6 @@
 import { getOverflowAncestors } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { For, createEffect, createSignal, onCleanup } from 'solid-js'
+import { For, createEffect, createSignal, flush, getOwner, onCleanup } from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { attachEventListener } from '../../shared/event-listener'
@@ -77,7 +77,12 @@ export function NavigationMenuPanel(): JSX.Element {
     const widthStyle = `${width}px`
     const heightStyle = `${height}px`
     if (width > 0 && height > 0 && (size().width !== widthStyle || size().height !== heightStyle)) {
-      setSize({ width: widthStyle, height: heightStyle })
+      const next = { width: widthStyle, height: heightStyle }
+      if (getOwner() === null) {
+        flush(() => setSize(next))
+      } else {
+        setSize(next)
+      }
     }
   }
 
@@ -127,7 +132,7 @@ export function NavigationMenuPanel(): JSX.Element {
       positionerClass={NAVIGATION_MENU_POSITIONER_CLASS}
       positionerStyle={size()}
       interactionEnabled={context.open()}
-      containsTarget={(target) => Boolean(context.rootElement()?.contains(target))}
+      containsTarget={(target) => context.rootElement()?.contains(target) ?? false}
       finalFocus={false}
       onEscapeKeyDown={(event) => {
         if (!event.defaultPrevented) {

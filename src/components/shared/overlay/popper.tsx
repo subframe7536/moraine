@@ -2,16 +2,7 @@ import type { Placement } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import { Dynamic, Portal } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  createSignal,
-  merge,
-  untrack,
-  omit,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, merge, untrack, omit } from 'solid-js'
 
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
@@ -23,7 +14,7 @@ import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import type { ValidComponent } from '../../../shared/types'
 import { useButtonInteraction } from '../../../shared/use-button-interaction'
-import { callHandler, callRef, createId, pick } from '../../../shared/utils'
+import { callHandler, callRef, createId, pick, resolvePropsChildren } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
 
 import { useFloatingPosition, usePositionerZIndex } from './floating'
@@ -63,6 +54,11 @@ export function mergePopperElementProps<T extends HTMLElement>(
       }
     }
   }
+  // Resolve the children getter through its own descriptor so spread
+  // re-applications keep the mounted nodes instead of rebuilding the subtree.
+  const children = Object.getOwnPropertyDescriptor(user, 'children')
+    ? resolvePropsChildren(user)
+    : undefined
   const contentProps = merge(
     internal,
     user,
@@ -73,7 +69,7 @@ export function mergePopperElementProps<T extends HTMLElement>(
         callRef(user.ref, element)
       },
     },
-    overrides,
+    children === undefined ? overrides : { ...overrides, children },
   )
   return contentProps as JSX.HTMLAttributes<T>
 }
@@ -408,10 +404,13 @@ export function PopperContent(
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (restoreFocusAfterClose && context.isTop()) {
+      const top = untrack(() => context.isTop())
+      if (restoreFocusAfterClose && top) {
+        // Reads inside disposal serve the reverting transaction's staged view;
+        // `untrack` sees the committed element.
         focusTrigger(
           options.finalFocus === undefined
-            ? triggerElement()
+            ? untrack(triggerElement)
             : resolveFocusTarget(options.finalFocus),
         )
       }
@@ -448,7 +447,7 @@ export function PopperContent(
   return (
     <Show when={contentMounted()}>
       {(_present) => {
-        const child = resolveChildren(() => props.children as JSX.Element)
+        const child = resolvePropsChildren(props as { children?: JSX.Element })
         // Portals emit no SSR markup, so content resolution must stay lazy and run
         // inside the portal's post-hydration mount rather than during hydration.
         const content = createLazyMemo(() =>

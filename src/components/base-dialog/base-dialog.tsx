@@ -157,7 +157,7 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
     if (!trigger) {
       return
     }
-    createEventListenerMap(trigger, {
+    return createEventListenerMap(trigger, {
       pointerdown: (event) => {
         pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
       },

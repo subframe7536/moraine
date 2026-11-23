@@ -120,7 +120,7 @@ describe('useFormValue', () => {
       expect(value()).toBe('dirty')
       onValueChange.mockClear()
 
-      reset()
+      flush(() => reset())
       expect(value()).toBe('initial')
       expect(field.setFormValue).toHaveBeenLastCalledWith('initial')
       expect(onValueChange).not.toHaveBeenCalled()

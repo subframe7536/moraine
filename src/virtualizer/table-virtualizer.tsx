@@ -6,6 +6,8 @@ import {
   createMemo,
   createRenderEffect,
   createSignal,
+  flush,
+  getOwner,
   merge,
   onCleanup,
 } from 'solid-js'
@@ -198,7 +200,10 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       return hostElement ?? undefined
     }
 
-    const [sections, setSections] = createSignal(EMPTY_SECTIONS, { equals: sameSections })
+    const [sections, setSections] = createSignal(EMPTY_SECTIONS, {
+      equals: sameSections,
+      ownedWrite: true,
+    })
     const measureSections = (table: HTMLTableElement) => {
       const host = resolveHost()
       const scroll = props.scrollElement
@@ -365,7 +370,12 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
         const resizeObserver =
           typeof ResizeObserver === 'undefined'
             ? undefined
-            : new ResizeObserver(() => measureSections(table))
+            : new ResizeObserver(() => {
+                measureSections(table)
+                if (getOwner() === null) {
+                  flush()
+                }
+              })
         // Sections can be replaced, so re-observe them whenever the table's children change.
         const observeSections = (mutationObserver: MutationObserver) => {
           resizeObserver?.disconnect()
@@ -380,7 +390,12 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           if (records.some((record) => record.target === table)) {
             observeSections(observer)
           }
+          // Observer callbacks run unowned; commit the measured sections
+          // before `syncAria` reads them.
           measureSections(table)
+          if (getOwner() === null) {
+            flush()
+          }
           syncAria(table)
         })
         mutationObserver.observe(table, { childList: true })

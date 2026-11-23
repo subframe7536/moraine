@@ -1,4 +1,4 @@
-import { createRoot } from 'solid-js'
+import { createRoot, flush } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useHiddenInputValidation } from './use-hidden-input-validation'
@@ -23,7 +23,7 @@ describe('useHiddenInputValidation', () => {
       const event = new Event('invalid', { cancelable: true })
 
       // @ts-expect-error test event call
-      onInvalid(event)
+      flush(() => onInvalid(event))
 
       expect(event.defaultPrevented).toBe(true)
       expect(nativeInvalid()).toBe(true)
@@ -38,11 +38,11 @@ describe('useHiddenInputValidation', () => {
 
       const event = new Event('invalid', { cancelable: true })
       // @ts-expect-error test event call
-      onInvalid(event)
+      flush(() => onInvalid(event))
 
       expect(nativeInvalid()).toBe(true)
 
-      resetNativeInvalid()
+      flush(() => resetNativeInvalid())
       expect(nativeInvalid()).toBe(false)
       dispose()
     })

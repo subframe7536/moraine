@@ -75,15 +75,14 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interactionProps)
-
   return (
     <Dynamic
       component={tag()}
       data-slot="collapsible-trigger"
       aria-controls={context.contentId()}
       aria-expanded={disclosure.open() ? 'true' : 'false'}
-      {...triggerSlot}
       {...binding}
+      {...triggerSlot}
       id={context.triggerId()}
     />
   )

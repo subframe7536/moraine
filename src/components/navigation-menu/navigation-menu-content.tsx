@@ -1,5 +1,6 @@
 import type { JSX } from '@solidjs/web'
-import { Show, createMemo, createSignal, onCleanup, omit } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import { Show, createMemo, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
@@ -191,5 +192,12 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     </Show>
   )
   onCleanup(item.registerContent(contentTree))
+  // Pin the region: while the shared panel's render prop re-renders, the For's
+  // insert is briefly the only subscriber — without a stable read Solid 2
+  // disposes the Show's lazy memo and freezes the retained tree's reactivity.
+  createRenderEffect(
+    () => (contentTree as unknown as Accessor<unknown>)(),
+    () => {},
+  )
   return null
 }

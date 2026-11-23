@@ -1,4 +1,5 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
+import { flush, getOwner } from 'solid-js'
 
 import { attachEventListenerMap } from '../shared/event-listener'
 type OffsetCallback = (offset: number, isScrolling: boolean) => void
@@ -49,6 +50,11 @@ export function createSharedElementOffsetObserver(): <
     const notify = (isScrolling: boolean) => {
       for (const subscriber of subscribers) {
         subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
+      }
+      // Scroll listeners run unowned; settle the staged writes so one event
+      // still notifies every subscriber in a single batch.
+      if (getOwner() === null) {
+        flush()
       }
     }
     const useScrollend = first.options.useScrollendEvent && SUPPORTS_SCROLLEND

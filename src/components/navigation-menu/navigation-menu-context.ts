@@ -74,21 +74,31 @@ export function createNavigationMenuState(
   const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([], {
     ownedWrite: true,
   })
-  const [rootElement, setRootElement] = createSignal<HTMLElement>()
-  const [panelElement, setPanelElement] = createSignal<HTMLDivElement>()
+  const [rootElement, setRootElement] = createSignal<HTMLElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
+  const [panelElement, setPanelElement] = createSignal<HTMLDivElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const [floating, setFloating] = createSignal<
     Pick<PopperContentContext, 'positionerElement' | 'positioned' | 'currentPlacement'> | undefined
   >(undefined, { ownedWrite: true })
   const positionerElement = () => floating()?.positionerElement()
-  const [mounted, setMounted] = createSignal(false)
+  const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
   const positioned = () => floating()?.positioned() ?? false
   const activeItem = createMemo(() => findEnabledItem(value()))
   const open = createMemo(() => mounted() && activeItem() !== undefined)
   const activeTrigger = createMemo(() => activeItem()?.trigger())
   const activeContent = createMemo(() => activeItem()?.content())
-  const [reference, setReference] = createSignal<HTMLButtonElement>()
-  const [initialPosition, setInitialPosition] = createSignal<Coords>()
-  const [focusRequest, setFocusRequest] = createSignal<string>()
+  const [reference, setReference] = createSignal<HTMLButtonElement | undefined>(undefined, {
+    ownedWrite: true,
+  })
+  const [initialPosition, setInitialPosition] = createSignal<Coords | undefined>(undefined, {
+    ownedWrite: true,
+  })
+  const [focusRequest, setFocusRequest] = createSignal<string | undefined>(undefined, {
+    ownedWrite: true,
+  })
   const presence = createTransitionPresence({ open })
   const displayedItem = createMemo<NavigationMenuItemContextValue | undefined>(
     (previous) => activeItem() ?? (presence.present() ? previous : undefined),
@@ -127,9 +137,11 @@ export function createNavigationMenuState(
   }
 
   function close(restoreFocus = false): void {
+    // Read the trigger before staging the close: staged writes are invisible to
+    // `open()`, and a missing trigger already makes the focus call a no-op.
     const trigger = activeTrigger()
     changeValue(null)
-    if (restoreFocus && !open()) {
+    if (restoreFocus) {
       focusWithoutScrolling(trigger)
     }
   }

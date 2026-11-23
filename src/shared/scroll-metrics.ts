@@ -68,7 +68,7 @@ export function createScrollMetrics(
     for (const child of element.children) {
       resizeObserver?.observe(child)
     }
-    createEventListener(
+    const detachScroll = createEventListener(
       element,
       'scroll',
       () => {
@@ -77,12 +77,14 @@ export function createScrollMetrics(
       },
       { passive: true },
     )
-    createEventListener(element, 'load', measure, true)
+    const detachLoad = createEventListener(element, 'load', measure, true)
     queueMicrotask(measure)
 
     return () => {
       disposed = true
       resizeObserver?.disconnect()
+      detachScroll()
+      detachLoad()
     }
   })
 

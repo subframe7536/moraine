@@ -11,7 +11,7 @@ import {
 } from '@floating-ui/dom'
 import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, createRoot, getOwner, onCleanup, runWithOwner } from 'solid-js'
+import { createEffect, createRoot, flush, getOwner, onCleanup, runWithOwner } from 'solid-js'
 
 import { useLocale } from '../../../provider/locale/locale-context'
 
@@ -62,7 +62,12 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       options.getReferenceElement(),
       providerDirection(),
     ],
-    ([open, floating, reference]) => {
+    ([open]) => {
+      // Read the element accessors here rather than relying on the compute's
+      // values: it runs before refs assign, so its element slots are stale.
+      // The compute still tracks them so reactive element sources retrigger.
+      const floating = options.floatingElement()
+      const reference = options.getReferenceElement()
       publishPositioned(false)
       if (!open || !floating || !reference) {
         return
@@ -323,6 +328,9 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 }
 
                 options.onPlacementChange(position.placement)
+                // The callback may close the overlay; apply its staged writes so the
+                // disposal is visible to the liveness re-check below.
+                flush()
                 if (!isCurrent()) {
                   return
                 }

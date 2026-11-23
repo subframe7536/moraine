@@ -1,6 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, untrack, createRenderEffect } from 'solid-js'
 
+import { settle } from '../../shared/utils'
+
 import { areCharArraysEqual, normalizeChars } from './pin-input-value'
 import type { PinInputT } from './pin-input.types'
 export interface CreatePinInputOptions {
@@ -158,6 +160,13 @@ export function createPinInput(options: CreatePinInputOptions) {
   )
 
   function setChars(
+    update: string[] | ((prev: string[]) => string[]),
+    completeOnUnchanged = false,
+  ): void {
+    settle(() => setCharsInner(update, completeOnUnchanged))
+  }
+
+  function setCharsInner(
     update: string[] | ((prev: string[]) => string[]),
     completeOnUnchanged = false,
   ): void {

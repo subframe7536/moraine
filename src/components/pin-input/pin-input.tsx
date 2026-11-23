@@ -15,7 +15,14 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createKeyDownHandler } from '../../shared/keyboard'
 import type { KeyEvent } from '../../shared/keyboard'
-import { callHandler, callRef, createId, isAndroidUserAgent, pick } from '../../shared/utils'
+import {
+  callHandler,
+  callRef,
+  createId,
+  isAndroidUserAgent,
+  pick,
+  settle,
+} from '../../shared/utils'
 import { useFieldContext, useFormField } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useHiddenInputValidation } from '../shared/form/use-hidden-input-validation'
@@ -161,6 +168,18 @@ export function PinInput(props: PinInputProps): JSX.Element {
     if (local.autoSubmit) {
       const formElement = getOwningForm()
       if (formElement && typeof formElement.requestSubmit === 'function') {
+        // The deferred completion drain can run before the inputs' `value`
+        // bindings apply; requestSubmit validates synchronously, so write them first.
+        if (hiddenInputEl) {
+          hiddenInputEl.value = joined
+        }
+        const slotChars = state.chars()
+        for (let i = 0; i < inputEls.length; i++) {
+          const el = inputEls[i]
+          if (el) {
+            el.value = slotChars[i] ?? ''
+          }
+        }
         formElement.requestSubmit()
       }
     }
@@ -632,7 +651,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     focusInput(targetIdx)
                     return
                   }
-                  setFocusedIndex(idx)
+                  settle(() => setFocusedIndex(idx))
                   event.currentTarget.select()
                 }}
                 onBlur={(event) => {
@@ -640,7 +659,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
                     return
                   }
                   if (focusedIndex() === idx) {
-                    setFocusedIndex(null)
+                    settle(() => setFocusedIndex(null))
                   }
                 }}
                 onMouseDown={(event) => {

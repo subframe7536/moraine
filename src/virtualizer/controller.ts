@@ -9,10 +9,12 @@ import type { Accessor } from 'solid-js'
 import {
   createRenderEffect,
   createSignal,
+  createStore,
+  flush,
+  getOwner,
   merge,
   onCleanup,
   onSettled,
-  createStore,
   reconcile,
 } from 'solid-js'
 
@@ -134,7 +136,9 @@ export function createVirtualizerController<
     estimateSize?: (item: TItem, index: number) => number
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
-  const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
+  const [instance, setInstance] = createSignal<
+    Virtualizer<TScrollElement, TItemElement> | undefined
+  >(undefined, { ownedWrite: true })
   type ScrollRequest = Parameters<Virtualizer<TScrollElement, TItemElement>['scrollToIndex']>
   let attached = 0
   let pendingScroll: ScrollRequest | undefined
@@ -161,19 +165,19 @@ export function createVirtualizerController<
       const [mounted, setMounted] = createSignal(false, { ownedWrite: true })
       const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
       const [totalSize, setTotalSize] = createSignal(0, { ownedWrite: true })
-      let pendingSync: Virtualizer<TScrollElement, TItemElement> | undefined
       const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
-        setTotalSize(source.getTotalSize())
-        if (pendingSync === undefined) {
-          queueMicrotask(() => {
-            const latest = pendingSync
-            pendingSync = undefined
-            if (latest !== undefined) {
-              setVirtualItems(reconcile(latest.getVirtualItems(), 'index'))
-            }
-          })
+        const apply = () => {
+          setVirtualItems(reconcile(source.getVirtualItems(), 'index'))
+          setTotalSize(source.getTotalSize())
         }
-        pendingSync = source
+        // Store writes throw inside owned scopes; defer those to an unowned
+        // microtask. Unowned callers (scroll listeners, microtasks) flush
+        // their staged writes immediately.
+        if (getOwner() !== null) {
+          queueMicrotask(() => flush(apply))
+        } else {
+          flush(apply)
+        }
       }
       let currentEntries: readonly TItem[] = []
       let currentKeys: VirtualItem['key'][] = []
@@ -215,16 +219,20 @@ export function createVirtualizerController<
       const virtualizer = new Virtualizer<TScrollElement, TItemElement>(virtualizerOptions)
 
       createRenderEffect(
-        () =>
-          [
-            adapterProps.entries(),
-            options.getItemKey,
-            adapterProps.estimateSize ?? options.estimateSize,
+        () => {
+          const entries = adapterProps.entries()
+          const getItemKey = options.getItemKey
+          const estimateItem = adapterProps.estimateSize ?? options.estimateSize
+          // Keys and estimates are computed here so reactive reads inside
+          // `getItemKey` / `estimateSize` re-run the effect.
+          return [
+            entries,
+            entries.map((item, index) => getItemKey?.(item, index) ?? index),
+            entries.map((item, index) => estimateItem(item, index)),
             virtualizerOptions.getScrollElement(),
-          ] as const,
-        ([entries, getItemKey, estimateItem]) => {
-          const nextKeys = entries.map((item, index) => getItemKey?.(item, index) ?? index)
-          const nextEstimates = entries.map((item, index) => estimateItem(item, index))
+          ] as const
+        },
+        ([entries, nextKeys, nextEstimates]) => {
           const sharedLength = Math.min(currentKeys.length, nextKeys.length)
           const layoutChanged =
             initialized &&
@@ -290,14 +298,20 @@ export function createVirtualizerController<
             return
           }
 
-          setInstance(virtualizer)
-          setMounted(true)
+          // Signal writes outside an owned scope need an explicit flush.
+          flush(() => {
+            setInstance(virtualizer)
+            setMounted(true)
+          })
           // Replay after `mounted` so the scroll element and measurements are in place.
           const request = pendingScroll
           pendingScroll = undefined
           if (request) {
             virtualizer.scrollToIndex(...request)
           }
+          // The mount flush re-attached the virtualizer; publish its items
+          // from this unowned frame instead of deferring another microtask.
+          sync(virtualizer)
         })
 
         return () => {
