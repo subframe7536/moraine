@@ -580,8 +580,12 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       if (!item || item.disabled) {
         return
       }
+      // `flattenedKeys()` cannot see the `expandTo` write it precedes, so
+      // reachability is checked structurally: the item becomes visible when
+      // every ancestor on its path can be (and just was) expanded.
+      const ancestors = getAncestorKeys(registry(), key)
       expandTo(key)
-      if (flattenedKeys().includes(key)) {
+      if (ancestors.every((ancestorKey) => !isDisabled(ancestorKey))) {
         navigation.focus(key)
       }
     },

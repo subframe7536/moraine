@@ -370,6 +370,7 @@ describe('createTree', () => {
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
 
       flush(() => tree.focus('button'))
+      flush()
       expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
       await waitFor(() => expect(document.activeElement).toBe(item(container, 'button.tsx')))
       expect(tree.focusedKey).toBe('button')
@@ -556,6 +557,7 @@ describe('createTree', () => {
         for (const callback of resizeCallbacks) {
           callback()
         }
+        flush()
         expect(group.style.getPropertyValue('--mo-collapsible-content-height')).toBe('96px')
         expect(group.hasAttribute('data-transitioning')).toBe(false)
       } finally {

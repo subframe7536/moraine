@@ -18,11 +18,22 @@ export function createControllableValue<T>(options: CreateControllableValueOptio
     const controlled = controlledValue()
     return controlled === undefined ? uncontrolledValue() : controlled
   })
+  // Solid 2 stages signal writes until flush, so a read inside the same
+  // synchronous block cannot see an earlier setValue. Mirror the last write
+  // so read-modify-write chains (expand siblings, select ranges, ...) still
+  // compose instead of clobbering each other.
+  let pendingUncontrolled: T | undefined
+  let hasPending = false
 
   function setValue(update: ControllableValueUpdate<T>): void {
     untrack(() => {
       const controlled = controlledValue()
-      const currentValue = controlled === undefined ? uncontrolledValue() : controlled
+      const currentValue =
+        controlled === undefined
+          ? hasPending
+            ? (pendingUncontrolled as T)
+            : uncontrolledValue()
+          : controlled
       const nextValue =
         typeof update === 'function' ? (update as (previous: T) => T)(currentValue) : update
 
@@ -31,6 +42,8 @@ export function createControllableValue<T>(options: CreateControllableValueOptio
       }
 
       if (controlled === undefined) {
+        pendingUncontrolled = nextValue
+        hasPending = true
         setUncontrolledValue(() => nextValue)
       }
 
