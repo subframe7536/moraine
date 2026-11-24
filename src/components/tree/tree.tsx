@@ -116,18 +116,18 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   }
 
   return (
-    <TreeProvider value={context}>
-      <ul
-        data-slot="tree"
-        role="tree"
-        aria-multiselectable={state.selectionMode() === 'multiple' ? 'true' : undefined}
-        {...rootSlot}
-        {...rest}
-        ref={(element: HTMLElement) => {
-          setScrollElement(element)
-          callRef(() => local.ref, element)
-        }}
-      >
+    <ul
+      data-slot="tree"
+      role="tree"
+      aria-multiselectable={state.selectionMode() === 'multiple' ? 'true' : undefined}
+      {...rootSlot}
+      {...rest}
+      ref={(element: HTMLElement) => {
+        setScrollElement(element)
+        callRef(() => local.ref, element)
+      }}
+    >
+      <TreeProvider value={context}>
         <VirtualContent<TreeT.ItemInstance<T>>
           virtualizer={local.virtualizer}
           entries={state.flattenedItems()}
@@ -135,8 +135,8 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
           render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}
           fallback={<TreeItemList items={state.rootItems()} />}
         />
-      </ul>
-    </TreeProvider>
+      </TreeProvider>
+    </ul>
   )
 }
 
