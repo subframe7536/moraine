@@ -1,7 +1,7 @@
+import { Dynamic } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component } from 'solid-js'
-import { lazy, untrack } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
 
@@ -41,16 +41,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   HooksIndex,
 
   Preview(props: MdxProps) {
-    // The generated `?preview` module's default export renders `DocsPreview`, so `lazy()` loads
-    // it directly and server rendering can map its `$$moduleUrl` to the client chunk.
-    const PreviewRender = untrack(() =>
-      lazy(
-        props.load as () => Promise<{ default: Component }>,
-        undefined,
-        toStringProp(props.moduleUrl),
-      ),
-    )
-    return <PreviewRender />
+    return <Dynamic component={props.component as Component} />
   },
 
   CodeTabs,

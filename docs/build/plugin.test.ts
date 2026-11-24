@@ -24,6 +24,13 @@ async function createTempProject(): Promise<string> {
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'src/components/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/components/button'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'docs/routes/components/markdown'), { recursive: true })
+
+  await writeFile(
+    path.join(projectRoot, 'docs/routes/components/markdown/preview-block.tsx'),
+    'export function DocsPreview() { return null }\n',
+    'utf8',
+  )
 
   await writeFile(
     path.join(projectRoot, 'src/index.ts'),
@@ -243,6 +250,11 @@ export type ButtonProps = ButtonT.Props
         logLevel: 'silent',
         appType: 'custom',
         server: { middlewareMode: true },
+        resolve: {
+          alias: {
+            'solid-js': path.resolve(__dirname, '../../node_modules/solid-js'),
+          },
+        },
         plugins: [docsBuildPlugin({ projectRoot })],
       })
 
