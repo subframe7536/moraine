@@ -203,6 +203,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   const selectedValue = createMemo(() => selectedItem()?.value)
   const selectedKey = createMemo(() => selectedItem()?.instanceKey)
   const triggerRefs = new Map<string, HTMLButtonElement>()
+  const [triggerVersion, setTriggerVersion] = createSignal(0)
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
   // DOM removal resets activeElement before owner cleanup runs, so the focused
   // trigger is captured on focus instead.
@@ -231,14 +232,14 @@ export function Tabs(props: TabsProps): JSX.Element {
     height: undefined,
   })
   indicatorStyle = indicatorStyleSignal
-  let listRef: HTMLDivElement | undefined
+  const [listRef, setListRef] = createSignal<HTMLDivElement>()
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<NormalizedTabItem, string>({
     items: normalizedItems,
     getValue: (item) => item.instanceKey,
     isDisabled: (item) => Boolean(merged.disabled || item.disabled),
     loop: () => merged.loop ?? true,
     activationMode: () => merged.activationMode ?? 'automatic',
-    getDirection: () => resolveDirection(listRef, direction()),
+    getDirection: () => resolveDirection(untrack(listRef), direction()),
     focusValue: (key) => {
       settle(() => setHighlightedKey(key))
       triggerRefs.get(key)?.focus()
@@ -273,15 +274,14 @@ export function Tabs(props: TabsProps): JSX.Element {
   function computeIndicatorStyle(
     currentKey: ReturnType<typeof selectedKey>,
     orientation: typeof merged.orientation,
+    listElement: HTMLDivElement | undefined,
   ): void {
     if (currentKey === undefined) {
-      settle(() =>
-        setIndicatorStyle({
-          transform: undefined,
-          width: undefined,
-          height: undefined,
-        }),
-      )
+      setIndicatorStyle({
+        transform: undefined,
+        width: undefined,
+        height: undefined,
+      })
       return
     }
 
@@ -301,7 +301,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       nextStyle.transform = `translateY(${selectedTrigger.offsetTop}px)`
       nextStyle.height = `${selectedTrigger.offsetHeight}px`
     } else {
-      const direction = listRef ? getComputedStyle(listRef).direction : 'ltr'
+      const direction = listElement ? getComputedStyle(listElement).direction : 'ltr'
       const offset =
         direction === 'rtl'
           ? -1 *
@@ -314,14 +314,14 @@ export function Tabs(props: TabsProps): JSX.Element {
       nextStyle.width = `${selectedTrigger.offsetWidth}px`
     }
 
-    // Observer callbacks run unowned; settle the measured style write.
-    settle(() => setIndicatorStyle(nextStyle))
+    setIndicatorStyle(nextStyle)
   }
 
   createEffect(
-    () => [normalizedItems(), selectedKey(), (() => merged.orientation)()],
-    ([, key, orientation]) => {
-      computeIndicatorStyle(key, orientation)
+    () =>
+      [normalizedItems(), selectedKey(), merged.orientation, triggerVersion(), listRef()] as const,
+    ([, key, orientation, , listElement]) => {
+      computeIndicatorStyle(key, orientation, listElement)
     },
   )
 
@@ -344,7 +344,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         queueMicrotask(() => attemptRecovery(attemptsLeft - 1))
         return
       }
-      const ownerDocument = trigger?.ownerDocument ?? listRef?.ownerDocument
+      const ownerDocument = trigger?.ownerDocument ?? untrack(listRef)?.ownerDocument
       if (ownerDocument !== undefined && ownerDocument.activeElement === ownerDocument.body) {
         trigger?.focus()
       }
@@ -362,8 +362,8 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   createEffect(
-    () => [normalizedItems(), selectedKey()],
-    ([items, currentKey]) => {
+    () => [normalizedItems(), selectedKey(), triggerVersion(), listRef()] as const,
+    ([items, currentKey, , listElement]) => {
       const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
 
       if (
@@ -375,14 +375,21 @@ export function Tabs(props: TabsProps): JSX.Element {
       }
 
       const resizeObserver = new ResizeObserver(() => {
-        computeIndicatorStyle(selectedKey(), merged.orientation)
+        // Observer callbacks run unowned; settle the measured style write.
+        settle(() =>
+          computeIndicatorStyle(
+            untrack(selectedKey),
+            untrack(() => merged.orientation),
+            untrack(listRef),
+          ),
+        )
       })
 
       // Overlays may insert these nodes after the effect runs, so observe detached triggers too.
       resizeObserver.observe(selectedTrigger)
 
-      if (listRef) {
-        resizeObserver.observe(listRef)
+      if (listElement) {
+        resizeObserver.observe(listElement)
       }
 
       return () => {
@@ -394,7 +401,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   return (
     <div data-slot="tabs" {...rootSlot} {...rest} id={rootId()}>
       <div
-        ref={(e) => (listRef = e)}
+        ref={(e) => setListRef(e)}
         role="tablist"
         aria-label={local['aria-label']}
         aria-labelledby={local['aria-labelledby']}
@@ -423,6 +430,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 (trigger.ownerDocument.activeElement === trigger || lastFocusedTrigger === trigger)
               if (triggerRefs.get(item.instanceKey) === trigger) {
                 triggerRefs.delete(item.instanceKey)
+                setTriggerVersion((v) => v + 1)
               }
 
               if (wasFocused) {
@@ -436,6 +444,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 ref={(element) => {
                   trigger = element
                   triggerRefs.set(item.instanceKey, element)
+                  setTriggerVersion((v) => v + 1)
                 }}
                 type="button"
                 role="tab"

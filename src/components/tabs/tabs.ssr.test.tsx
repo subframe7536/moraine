@@ -66,11 +66,14 @@ describe('Tabs SSR Hydration', () => {
 
     const root = container.querySelector('[data-slot="tabs"]')
     const list = container.querySelector('[data-slot="tabs-list"]')
+    const indicator = container.querySelector<HTMLElement>('[data-slot="tabs-indicator"]')
     const firstTrigger = container.querySelector<HTMLElement>('[role="tab"]')
     const panel = container.querySelector('[role="tabpanel"]')
 
     expect(root).not.toBeNull()
     expect(list).not.toBeNull()
+    expect(indicator?.style.transform).toBe('translateX(0px)')
+    expect(indicator?.style.width).toBe('0px')
     expect(firstTrigger).not.toBeNull()
     expect(panel).not.toBeNull()
 
