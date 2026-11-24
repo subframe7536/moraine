@@ -11,6 +11,8 @@ import { asObjectRecord, getStaticStringAttribute } from './mdx.ts'
 export interface ScannedMdxPreview {
   path: string
   importPath: string
+  /** Client manifest key of the preview module: docs-root-relative path plus its query. */
+  moduleUrl: string
 }
 
 export type MdxPreviewsPlugin = ReturnType<typeof defineMdastPlugin>
@@ -87,9 +89,11 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
       previews.get(previewPath) ??
       (() => {
         const sourcePath = resolvePreviewFile(documentId, previewPath)
+        const docsRoot = path.dirname(resolveDocsPageContext(documentId).pagesRoot)
         const nextPreview = {
           path: previewPath,
           importPath: `${toImportPath(documentId, sourcePath)}?preview`,
+          moduleUrl: `${path.relative(docsRoot, sourcePath)}?preview`,
         }
         previews.set(previewPath, nextPreview)
         return nextPreview
@@ -105,6 +109,8 @@ export function createMdxPreviewsPlugin(id?: string): MdxPreviewsPlugin {
           value: `() => import(${JSON.stringify(preview.importPath)})`,
         },
       },
+      // Lets server rendering resolve the preview's client assets while the module loads.
+      { type: 'mdxJsxAttribute', name: 'moduleUrl', value: preview.moduleUrl },
     ]
     return { ...(node as MdastNode), attributes } as MdastNode
   }

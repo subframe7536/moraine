@@ -59,7 +59,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
       {...rest}
       ref={(element) => {
         setElement(element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
     />
   )

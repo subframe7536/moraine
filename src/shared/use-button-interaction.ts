@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, merge, untrack } from 'solid-js'
+import { createEffect, createSignal, merge, untrack } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types'
@@ -46,8 +46,36 @@ export function useButtonInteraction(
   const isFocusableWhenDisabled = () =>
     options.disabled() && Boolean(options.focusableWhenDisabled?.())
 
+  // For component tags `props.type` flows through `props` untouched: emitting an
+  // explicit `undefined` under Solid 2 spread semantics would clear a `type` the
+  // custom component rendered itself. Native-string tags keep the prop-based
+  // default so SSR emits it; component-rendered native buttons get the same
+  // default injected post-mount below.
+  const hasStaticTag = typeof untrack(options.tag) === 'string'
+
+  // A string tag already names its element, so only custom component roots resolve semantics
+  // from the DOM. Their element is known only after the spread that renders it assigns the ref,
+  // so it is republished from an effect: the attribute getters below then re-run in the
+  // flush continuation instead of feeding the ref write back into the spread that made it.
+  const [componentElement, setComponentElement] = createSignal<HTMLElement | undefined>()
+  if (!hasStaticTag) {
+    createEffect(
+      () => [options.element?.(), props.type as string | undefined] as const,
+      ([element, type]) => {
+        setComponentElement(element)
+        if (element && isNativeButtonElement(element, type)) {
+          element.setAttribute(
+            'type',
+            type ?? (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
+          )
+        }
+      },
+    )
+  }
+  const resolvedElement = () => (typeof options.tag() === 'string' ? undefined : componentElement())
+
   const isNativeButton = () => {
-    const element = options.element?.()
+    const element = resolvedElement()
     if (element) {
       return isNativeButtonElement(element, typeof props.type === 'string' ? props.type : undefined)
     }
@@ -62,7 +90,7 @@ export function useButtonInteraction(
 
   const isNativeLink = () => {
     const hasHref = props.href !== undefined
-    const element = options.element?.()
+    const element = resolvedElement()
     if (element) {
       return element.tagName.toLowerCase() === 'a' && (hasHref || element.hasAttribute('href'))
     }
@@ -138,39 +166,12 @@ export function useButtonInteraction(
     dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
   }
 
-  // For component tags `props.type` flows through `props` untouched: emitting an
-  // explicit `undefined` under Solid 2 spread semantics would clear a `type` the
-  // custom component rendered itself. Native-string tags keep the prop-based
-  // default so SSR emits it; component-rendered native buttons get the same
-  // default injected post-mount below.
-  const hasStaticTag = typeof untrack(options.tag) === 'string'
-  if (!hasStaticTag) {
-    createEffect(
-      () => options.element?.(),
-      (element) => {
-        if (element && isNativeButtonElement(element, props.type as string | undefined)) {
-          element.setAttribute(
-            'type',
-            (props.type as string | undefined) ??
-              (element.localName === 'input' ? (element as HTMLInputElement).type : 'button'),
-          )
-        }
-      },
-    )
-  }
   const interactionProps = merge(
     props,
     hasStaticTag
       ? {
           get type() {
-            if (isNativeButton()) {
-              const element = options.element?.()
-              return (
-                props.type ??
-                (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
-              )
-            }
-            return props.type
+            return props.type ?? (isNativeButton() ? 'button' : undefined)
           },
         }
       : {},
@@ -210,7 +211,7 @@ export function useButtonInteraction(
         }
 
         const tag = options.tag()
-        if (!options.element?.() && typeof tag !== 'string' && options.disabledForComponent) {
+        if (!componentElement() && typeof tag !== 'string' && options.disabledForComponent) {
           return options.disabled() && !isFocusableWhenDisabled()
         }
 

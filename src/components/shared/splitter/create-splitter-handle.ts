@@ -87,9 +87,10 @@ export function createSplitterHandle(options: CreateSplitterHandleOptions): Spli
 
       registration = {
         id: registrationId,
-        getElement: () => element(),
+        // The registration is rebuilt whenever the element changes, so it holds this one.
+        getElement: () => currentElement,
         getRootElement: () =>
-          (element()?.closest(SPLITTER_ROOT_SELECTOR) as HTMLElement | null) ?? undefined,
+          currentElement.closest<HTMLElement>(SPLITTER_ROOT_SELECTOR) ?? undefined,
         getOrientation: options.orientation,
         getStartIntersectionEnabled: () => options.intersection() === true,
         getEndIntersectionEnabled: () => options.intersection() === true,

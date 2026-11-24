@@ -382,7 +382,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${groupId()}-root`}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
     >
       <fieldset
         role="radiogroup"

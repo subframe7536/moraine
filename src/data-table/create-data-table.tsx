@@ -79,22 +79,24 @@ function findColumnById(
 export function createDataTable<TData extends RowData = RowData>(
   options: DataTableT.Options<TData>,
 ): DataTableT.Instance<TData> {
-  const initialPageSize =
-    typeof options.paginated === 'object' && options.paginated !== null
-      ? options.paginated.pageSize
-      : undefined
-
-  const initialState: Partial<DataTableT.State> = {
-    ...options.initialState,
-    ...(initialPageSize !== undefined
-      ? {
-          pagination: {
-            pageIndex: options.initialState?.pagination?.pageIndex ?? 0,
-            pageSize: initialPageSize,
-          },
-        }
-      : {}),
-  }
+  // Initial state seeds the table once, like `initialState` itself, so it is read untracked.
+  const initialState = untrack((): Partial<DataTableT.State> => {
+    const initialPageSize =
+      typeof options.paginated === 'object' && options.paginated !== null
+        ? options.paginated.pageSize
+        : undefined
+    return {
+      ...options.initialState,
+      ...(initialPageSize !== undefined
+        ? {
+            pagination: {
+              pageIndex: options.initialState?.pagination?.pageIndex ?? 0,
+              pageSize: initialPageSize,
+            },
+          }
+        : {}),
+    }
+  })
 
   let table!: DataTableT.Instance<TData>
 

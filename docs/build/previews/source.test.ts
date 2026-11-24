@@ -151,7 +151,7 @@ export function LoadingExample() {
 })
 
 describe('transformPreviewModule', () => {
-  test('creates a default descriptor for one named component export', async () => {
+  test('renders the preview block for one named component export', async () => {
     const transformed = await transformPreviewModule(
       'export function Variants() { return <div /> }',
       '/tmp/docs/pages/general/button/variants.tsx',
@@ -161,10 +161,12 @@ describe('transformPreviewModule', () => {
     expect(transformed).toContain("import { Variants as __Preview } from './variants.tsx'")
     expect(transformed).toContain("import __PreviewSource from './variants.tsx?preview-source'")
     expect(transformed).toContain('const component = __Preview')
-    expect(transformed).toContain('export default { component, source: __PreviewSource }')
+    expect(transformed).toContain(
+      'return createComponent(DocsPreview, { component, source: __PreviewSource })',
+    )
   })
 
-  test('creates a default descriptor for one default component export', async () => {
+  test('renders the preview block for one default component export', async () => {
     const transformed = await transformPreviewModule(
       'export default function Basic() { return <div /> }',
       '/tmp/docs/pages/general/button/basic.tsx',

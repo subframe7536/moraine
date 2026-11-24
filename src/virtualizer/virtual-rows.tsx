@@ -77,11 +77,9 @@ export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(
           <Show keyed when={row()}>
             {(current) => {
               const measure = attachRowMeasurement(props.virtualizer)
-              return renderRow()(
-                current.item,
-                current.index,
-                props.rowProps(current, virtualItem, measure),
-              )
+              const rowProps = props.rowProps(current, virtualItem, measure)
+              // Rendered in a tracked expression so a new `render` function re-renders the row.
+              return <>{renderRow()(current.item, current.index, rowProps)}</>
             }}
           </Show>
         )

@@ -299,7 +299,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(local.ref, el)}
+      ref={(el) => callRef(() => local.ref, el)}
       aria-label={local['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...listSlot}>

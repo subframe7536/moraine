@@ -117,7 +117,9 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
             <Show when={api}>
               {(componentApi) => {
                 const slots = createDocsPlaygroundSlots({
-                  api: componentApi(),
+                  get api() {
+                    return componentApi()
+                  },
                   preview: () => previewElement,
                 })
                 return (

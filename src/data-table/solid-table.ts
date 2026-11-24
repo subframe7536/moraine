@@ -153,30 +153,31 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
     mergedOptions,
   )
 
-  const table = constructTable(resolvedOptions as any) as unknown as Table<TFeatures, TData>
-
   // constructTable flattens options with object spread, resolving getters to static values.
-  // Folding the merged feature defaults and live `resolvedOptions` getters onto that same
-  // object restores caller reactivity (a getter that resolves to `undefined` falls back to
-  // the feature default, not the stale snapshot) without notifying optionsStore subscribers.
+  // That construction snapshot is deliberate and untracked: folding the merged feature defaults
+  // and live `resolvedOptions` getters onto that same object below restores caller reactivity
+  // (a getter that resolves to `undefined` falls back to the feature default, not the stale
+  // snapshot) without notifying optionsStore subscribers.
   // The `table.options` setter write is still issued so internal atom memos that computed
   // against the static snapshot re-run once and subscribe to the live getters — but during
   // hydration the staged write commits after subscribers have claimed DOM and its
   // invalidation discards the claimed nodes, so it is deferred past the claim.
-  const featuresList = Object.values(table._features)
-  const defaultOptions = featuresList.reduce((obj, feature) => {
-    return Object.assign(obj, feature.getDefaultTableOptions?.(table))
-  }, {} as any)
+  const hydrating = isHydrating()
+  return untrack(() => {
+    const table = constructTable(resolvedOptions as any) as unknown as Table<TFeatures, TData>
+    const defaultOptions = Object.values(table._features).reduce((obj, feature) => {
+      return Object.assign(obj, feature.getDefaultTableOptions?.(table))
+    }, {} as any)
 
-  const liveOptions = merge(defaultOptions, resolvedOptions)
-  Object.defineProperties((table as any).options, Object.getOwnPropertyDescriptors(liveOptions))
-  if (isHydrating()) {
-    queueMicrotask(() => {
+    const liveOptions = merge(defaultOptions, resolvedOptions)
+    Object.defineProperties((table as any).options, Object.getOwnPropertyDescriptors(liveOptions))
+    if (hydrating) {
+      queueMicrotask(() => {
+        ;(table as any).options = liveOptions
+      })
+    } else {
       ;(table as any).options = liveOptions
-    })
-  } else {
-    ;(table as any).options = liveOptions
-  }
-
-  return table
+    }
+    return table
+  })
 }

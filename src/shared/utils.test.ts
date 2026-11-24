@@ -8,16 +8,19 @@ describe('callRef', () => {
   test('ignores element-valued refs', () => {
     const element = document.createElement('div')
 
-    expect(() => callRef(element, element)).not.toThrow()
+    expect(() => callRef(() => element, element)).not.toThrow()
   })
 
   test('calls callback refs', () => {
     let received: HTMLDivElement | undefined
     const element = document.createElement('div')
 
-    callRef((value: HTMLDivElement) => {
-      received = value
-    }, element)
+    callRef(
+      () => (value: HTMLDivElement) => {
+        received = value
+      },
+      element,
+    )
 
     expect(received).toBe(element)
   })
@@ -32,9 +35,12 @@ describe('callRef', () => {
         () => undefined,
         () => {
           runs++
-          callRef((_el: HTMLDivElement) => {
-            count()
-          }, element)
+          callRef(
+            () => (_el: HTMLDivElement) => {
+              count()
+            },
+            element,
+          )
         },
       )
 

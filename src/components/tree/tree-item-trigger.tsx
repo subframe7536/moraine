@@ -55,7 +55,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     'onClick',
   )
   const context = useTreeContext()
-  const item = useTreeItemContext()!.item
+  const itemContext = useTreeItemContext()!
   // The treeitem is the only tab stop. Keep custom hosts out of the tab order, and stop a button
   // host from acting as a form's implicit submit button.
   const ownedHostAttributes = () => {
@@ -71,9 +71,9 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     slot: 'trigger',
     data: {
       trigger: treeDataAttributes.trigger({
-        expanded: () => item.expanded,
-        leaf: () => item.leaf,
-        loading: () => item.loading,
+        expanded: () => itemContext.item.expanded,
+        leaf: () => itemContext.item.leaf,
+        loading: () => itemContext.item.loading,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),
@@ -91,7 +91,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         const custom = callHandler(event, local.onClick)
         event.preventDefault()
         if (!custom.defaultPrevented) {
-          item.toggle()
+          itemContext.item.toggle()
         }
       }}
     >
@@ -100,7 +100,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         fallback={
           <Icon
             name={
-              item.loading
+              itemContext.item.loading
                 ? (context.props.loadingIcon ?? 'icon-loading')
                 : (local.icon ?? (context.props.expandIcon || 'icon-chevron-right'))
             }

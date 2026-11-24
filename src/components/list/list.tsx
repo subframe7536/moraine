@@ -113,7 +113,7 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
       {...(rest as any)}
       ref={(element: HTMLElement) => {
         setScrollElement(() => element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
     >
       <Show
@@ -123,16 +123,21 @@ export function List<TItem, T extends ValidComponent = 'ul'>(
             virtualizer={local.virtualizer}
             entries={local.items ?? []}
             scrollElement={scrollElement()}
-            render={(item, index, rowProps) => {
-              const ItemRender = local.itemRender
-              return <ItemRender item={item} index={index} rowProps={rowProps} />
-            }}
+            render={(item, index, rowProps) => (
+              <>{renderWithProps(local.itemRender, { item, index, rowProps })}</>
+            )}
             fallback={
               <For each={local.items}>
-                {(item, index) => {
-                  const ItemRender = local.itemRender
-                  return <ItemRender item={item} index={index()} />
-                }}
+                {(item, index) => (
+                  <>
+                    {renderWithProps(local.itemRender, {
+                      item,
+                      get index() {
+                        return index()
+                      },
+                    })}
+                  </>
+                )}
               </For>
             }
           />

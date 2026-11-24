@@ -172,7 +172,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
             {...(rest as any)}
             ref={(element: HTMLElement) => {
               setElement(element)
-              callRef(local.ref, element)
+              callRef(() => local.ref, element)
             }}
           >
             <Show when={hasIcon()}>

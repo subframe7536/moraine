@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, merge, onCleanup, onSettled } from 'solid-js'
+import { createEffect, createMemo, createSignal, merge, onCleanup } from 'solid-js'
 
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { formatLocaleNumber } from '../../../provider/locale/number'
@@ -158,14 +158,16 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     setActiveThumbIndexState(index)
   }
 
-  function resolveDirection(track = trackElement()): 'ltr' | 'rtl' {
+  function resolveDirection(
+    track: HTMLDivElement | undefined,
+    explicit: 'ltr' | 'rtl' | undefined,
+  ): 'ltr' | 'rtl' {
     const ownerDocument = track?.ownerDocument
     const ownDirection = track?.closest<HTMLElement>('[data-slot="slider"]')?.getAttribute('dir')
     if (ownDirection === 'ltr' || ownDirection === 'rtl') {
       return ownDirection
     }
 
-    const explicit = providerDirection()
     if (explicit === 'ltr' || explicit === 'rtl') {
       return explicit
     }
@@ -185,19 +187,10 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       : 'ltr'
   }
 
-  function setTrackRef(element: HTMLDivElement | undefined): void {
-    setTrackElement(element)
-    setDirection(resolveDirection(element))
-  }
-
-  onSettled(() => {
-    setDirection(resolveDirection())
-  })
-
   createEffect(
-    () => [providerDirection(), trackElement()],
-    () => {
-      setDirection(resolveDirection())
+    () => [trackElement(), providerDirection()] as const,
+    ([track, explicit]) => {
+      setDirection(resolveDirection(track, explicit))
     },
   )
 
@@ -795,7 +788,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     rangeStyle,
     resetValues,
     setThumbRefs,
-    setTrackRef,
+    setTrackRef: setTrackElement,
     startEdge: () => getSliderEdges().startEdge,
     thumbStyles,
   }

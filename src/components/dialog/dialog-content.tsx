@@ -7,7 +7,6 @@ import {
   createMemo,
   createSignal,
   merge,
-  onCleanup,
   omit,
 } from 'solid-js'
 
@@ -119,8 +118,8 @@ export function DialogContent<T extends ValidComponent = 'div'>(
 
   createEffect(overlayScroll, (scrollable) => {
     family.setOverlayScroll(scrollable)
+    return () => family.setOverlayScroll(false)
   })
-  onCleanup(() => family.setOverlayScroll(false))
 
   const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
   const ariaLabelledBy = () =>

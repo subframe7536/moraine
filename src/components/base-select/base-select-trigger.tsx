@@ -27,7 +27,7 @@ import type { BaseSelectT } from './base-select.types'
  * <BaseSelect items={[{ label: 'Option A', value: 'a' }]}>
  *   <BaseSelect.Control>
  *     <BaseSelect.Trigger>
- *       {(state) => (state.value.length > 0 ? 'Selected' : 'Choose')}
+ *       {(state) => <>{state.value.length > 0 ? 'Selected' : 'Choose'}</>}
  *     </BaseSelect.Trigger>
  *   </BaseSelect.Control>
  *   <BaseSelect.Content>

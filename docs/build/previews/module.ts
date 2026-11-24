@@ -3,6 +3,9 @@ import path from 'pathe'
 import { toSingleQuoted } from '../core/strings.ts'
 
 import type { ParsePreviewCode, ProgramNode } from './ast.ts'
+
+/** Root-relative (docs Vite root) module that renders a preview block. */
+const DOCS_PREVIEW_MODULE = '/routes/components/markdown/preview-block.tsx'
 interface PreviewExport {
   importedName: string
   sourceName: string
@@ -84,6 +87,8 @@ export async function transformPreviewModule(
   const sourceImportPath = `./${path.basename(sourcePath)}`
   const previewExport = resolvePreviewExport(await parsePreviewCode(code), sourcePath)
   const imports = [
+    `import { createComponent } from 'solid-js'`,
+    `import { DocsPreview } from ${toSingleQuoted(DOCS_PREVIEW_MODULE)}`,
     options.ssr
       ? ''
       : previewExport.default
@@ -92,12 +97,15 @@ export async function transformPreviewModule(
     `import __PreviewSource from ${toSingleQuoted(`${sourceImportPath}?preview-source`)}`,
   ].filter(Boolean)
 
+  // The default export is a component so the MDX `<Preview>` can `lazy()` this module directly.
   return [
     ...imports,
     '',
     `const component = ${options.ssr ? '() => null' : '__Preview'}`,
     '',
-    'export default { component, source: __PreviewSource }',
+    'export default function Preview() {',
+    '  return createComponent(DocsPreview, { component, source: __PreviewSource })',
+    '}',
     '',
   ].join('\n')
 }

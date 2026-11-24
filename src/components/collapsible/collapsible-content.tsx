@@ -92,7 +92,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           data-slot="collapsible-content"
           {...contentSlot}
           {...rest}
-          ref={(element: HTMLElement) => callRef(local.ref, element)}
+          ref={(element: HTMLElement) => callRef(() => local.ref, element)}
         />
       </Show>
     </div>

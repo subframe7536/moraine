@@ -387,7 +387,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
           {...controlSlot}
           {...rootProps}
           {...controlPress}
-          ref={(element) => callRef(local.ref, element)}
+          ref={(element) => callRef(() => local.ref, element)}
         >
           <Show when={local.leading}>
             {(icon) => <Icon name={icon()} data-slot="multi-select-leading" {...leadingSlot} />}
@@ -402,7 +402,9 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 >
                   {(tagRender) =>
                     renderWithProps(tagRender, {
-                      item: source().byValue.get(tag.value),
+                      get item() {
+                        return source().byValue.get(tag.value)
+                      },
                       value: tag.value,
                       label: tag.label,
                       remove: () => tags.remove(index()),
@@ -457,7 +459,7 @@ export function MultiSelect<T extends string | MultiSelectT.Item = string | Mult
                 placeholder={tags.tags().length ? '' : placeholder()}
                 ref={(element) => {
                   inputBinding.inputProps.ref(element)
-                  callRef(local.inputRef, element)
+                  callRef(() => local.inputRef, element)
                 }}
                 onPaste={(event) => tags.onPaste(event, inputBinding.isComposing())}
                 onKeyDown={onEditableInputKeyDown}

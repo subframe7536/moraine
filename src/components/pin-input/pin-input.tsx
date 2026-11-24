@@ -262,7 +262,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       }
     }
     if (filtered.length > 0) {
-      callRef(local.inputsRef, filtered)
+      callRef(() => local.inputsRef, filtered)
     }
   }
 
@@ -506,7 +506,7 @@ export function PinInput(props: PinInputProps): JSX.Element {
       {...field.ariaAttrs()}
       ref={(element) => {
         rootEl = element
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
       onFocusIn={(event) => {
         if (

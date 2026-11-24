@@ -68,7 +68,7 @@ export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element 
       tabindex={-1}
       ref={(element) => {
         setListbox(element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
     />
   )

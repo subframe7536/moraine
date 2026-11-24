@@ -100,16 +100,25 @@ export function createNumberInput(options: CreateNumberInputOptions) {
   // Draft text exists only while actively typing uncommitted or partial input.
   const [draftText, setDraftText] = createSignal<string>()
 
-  // Sync external numeric or locale changes without clobbering accepted manual text.
+  // Sync external numeric or locale changes without clobbering accepted manual text: a draft that
+  // no longer parses to the current value is dropped when the value or locale changes, while
+  // typing alone (which may leave partial text such as `-`) never clears it.
   createEffect(
-    () => [currentValue(), options.locale()],
-    ([value, localeTag]) => {
+    () => {
+      const value = currentValue()
+      const locale = options.locale()
       const draft = draftText()
-      if (draft !== undefined) {
-        const parsed = parseLocaleNumber(draft, localeTag, options.formatOptions())
-        if (parsed !== undefined && Object.is(clamp(parsed, options.min(), options.max()), value)) {
-          return
-        }
+      const parsed =
+        draft === undefined ? undefined : parseLocaleNumber(draft, locale, options.formatOptions())
+      const stale =
+        draft !== undefined &&
+        (parsed === undefined || !Object.is(clamp(parsed, options.min(), options.max()), value))
+      return { value, locale, stale }
+    },
+    (next, previous) => {
+      const changed =
+        !previous || !Object.is(next.value, previous.value) || next.locale !== previous.locale
+      if (changed && next.stale) {
         setDraftText(undefined)
       }
     },

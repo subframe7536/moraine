@@ -34,7 +34,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
 ): JSX.Element {
   const local = pick(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
   const rest = omit(props as TreeT.ItemLabelProps, 'as', 'children', 'class', 'style')
-  const item = useTreeItemContext()!.item
+  const itemContext = useTreeItemContext()!
   const context = useTreeContext()
   const {
     slots: { label: labelSlot },
@@ -45,7 +45,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
 
   return (
     <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...labelSlot} {...rest}>
-      <Show when={local.children} fallback={item.label}>
+      <Show when={local.children} fallback={itemContext.item.label}>
         {local.children}
       </Show>
     </Dynamic>

@@ -83,7 +83,7 @@ receives `{ loading }`; declare its parameter even when unused.
 ```tsx
 <Button loading={saving()}>Save</Button>
 <Button autoLoading onClick={() => submit()}>
-  {(state) => (state.loading ? 'Saving...' : 'Save')}
+  {(state) => <>{state.loading ? 'Saving...' : 'Save'}</>}
 </Button>
 ```
 

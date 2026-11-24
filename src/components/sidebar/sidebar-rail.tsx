@@ -277,7 +277,7 @@ export function SidebarRail<T extends ValidComponent = 'button'>(
         ref={(node: HTMLElement) => {
           setElement(node)
           bindings.setElement(node)
-          callRef(local.ref, node)
+          callRef(() => local.ref, node)
         }}
         onClick={(event: MouseEvent) => callRailEvent(event, local.onClick, onClick)}
         onKeyDown={(event: KeyboardEvent) =>

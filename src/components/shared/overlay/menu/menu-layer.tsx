@@ -74,12 +74,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
     }
   }
 
-  createEffect(
-    () => [(() => props.placement)(), (() => props.align)()],
-    () => {
-      layer.setCurrentPlacement(resolvedPlacement())
-    },
-  )
+  createEffect(resolvedPlacement, (placement) => {
+    layer.setCurrentPlacement(placement)
+  })
 
   useFloatingPosition({
     contentElement: layer.contentElement,
@@ -332,7 +329,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         {...contentPresentation}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
-          callRef(props.elementAttrs?.ref, element)
+          callRef(() => props.elementAttrs?.ref, element)
         }}
         onKeyDown={onContentKeyDown}
         onPointerDown={(event) => {

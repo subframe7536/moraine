@@ -111,15 +111,19 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
   let currentStatus: AvatarT.Status | undefined
 
-  function setStatus(nextStatus: AvatarT.Status): void {
+  function updateStatus(nextStatus: AvatarT.Status): void {
     if (currentStatus === nextStatus) {
       return
     }
 
     currentStatus = nextStatus
-    // Image load/error listeners and microtasks run unowned; settle the write.
-    settle(() => setStatusSignal(nextStatus))
+    setStatusSignal(nextStatus)
     untrack(() => local.onStatusChange)?.(nextStatus)
+  }
+
+  // Image load/error listeners and microtasks run unowned; settle the write.
+  function setStatus(nextStatus: AvatarT.Status): void {
+    settle(() => updateStatus(nextStatus))
   }
 
   createEffect(source, (currentSource) => {
@@ -130,11 +134,11 @@ export function Avatar(props: AvatarProps): JSX.Element {
     }
 
     if (!currentSource) {
-      setStatus('error')
+      updateStatus('error')
       return cancel
     }
 
-    setStatus('loading')
+    updateStatus('loading')
     queueMicrotask(() => {
       if (cancelled || !imageElement?.complete) {
         return

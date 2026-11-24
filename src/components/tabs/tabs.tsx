@@ -428,7 +428,7 @@ export function Tabs(props: TabsProps): JSX.Element {
               const wasFocused =
                 trigger !== undefined &&
                 (trigger.ownerDocument.activeElement === trigger || lastFocusedTrigger === trigger)
-              if (triggerRefs.get(item.instanceKey) === trigger) {
+              if (trigger !== undefined && triggerRefs.get(item.instanceKey) === trigger) {
                 triggerRefs.delete(item.instanceKey)
                 setTriggerVersion((v) => v + 1)
               }

@@ -5,7 +5,7 @@ export function WithLabel() {
   return (
     <div class="flex flex-wrap gap-3 items-center justify-center">
       <CopyButton value={curlCommand} variant="soft" size="sm">
-        {(state) => (state.copied ? 'Copied to clipboard!' : 'Copy curl command')}
+        {(state) => <>{state.copied ? 'Copied to clipboard!' : 'Copy curl command'}</>}
       </CopyButton>
 
       <CopyButton value={curlCommand} variant="outline" size="sm" iconPosition="trailing">

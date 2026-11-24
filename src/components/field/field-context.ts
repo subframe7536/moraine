@@ -1,6 +1,7 @@
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, onSettled } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasContent } from '../../shared/jsx-content'
@@ -100,7 +101,9 @@ export function useFormField(
   const localId = createMemo(() => props?.id ?? options.defaultId)
   const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
-  if (fieldContext?.registerControl) {
+  // Server rendering is pure, so controls register with their Field on the client; the label's
+  // `for` is applied while hydrating.
+  if (!isServer && fieldContext?.registerControl) {
     const unregister = fieldContext.registerControl({ id: localId, labelFor })
     onCleanup(unregister)
   }
@@ -137,13 +140,23 @@ export function useFormField(
     },
   )
 
-  onSettled(() => {
-    const binding = fieldContext?.binding
-    const initialValue = options.initialValue
-    if (binding && binding.value === undefined && initialValue !== undefined) {
-      binding.setValue(initialValue)
-    }
-  })
+  // Seeds an empty bound value once after mount. The initial value is read in the compute: it
+  // may evaluate caller getters that create computations, which `onSettled` forbids.
+  // The current value is checked untracked at seeding time, since the seed itself writes it.
+  let seeded = false
+  createEffect(
+    () => (seeded ? undefined : { binding: fieldContext?.binding, initialValue: options.initialValue }),
+    (seed) => {
+      if (!seed || seeded) {
+        return
+      }
+      seeded = true
+      const { binding, initialValue } = seed
+      if (binding && initialValue !== undefined && untrack(() => binding.value) === undefined) {
+        binding.setValue(initialValue)
+      }
+    },
+  )
 
   const runtimeState = createMemo<FieldRuntimeState>(
     () => fieldContext?.binding?.runtimeState ?? EMPTY_RUNTIME_STATE,

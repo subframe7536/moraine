@@ -40,20 +40,7 @@ export type ValidComponent = Tags | Component<any> | (string & {})
 
 type CommonRootProps = { [x: string]: any }
 
-type LowerCaseEvents = Lowercase<Extract<keyof JSX.EventHandlersElement<HTMLElement>, string>>
-
-type StrictedAttributeKeys =
-  | LowerCaseEvents
-  | `on:${string}`
-  | `oncapture:${string}`
-  | `use:${string}`
-  | `prop:${string}`
-  | `attr:${string}`
-  | `bool:${string}`
-
-type StrictedAttributes<T extends Tags> = T extends unknown
-  ? Omit<JSX.IntrinsicElements[T], StrictedAttributeKeys>
-  : never
+type StrictedAttributes<T extends Tags> = T extends unknown ? JSX.IntrinsicElements[T] : never
 
 type Override<A, B> = Omit<A, keyof B> & B
 

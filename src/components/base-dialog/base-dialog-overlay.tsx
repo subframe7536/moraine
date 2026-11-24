@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup, omit } from 'solid-js'
+import { createEffect, createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { bindElement } from '../../shared/element-binding'
@@ -53,9 +53,9 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
     () => Boolean(local.scrollable),
     (scrollable) => {
       context.setOverlayScroll(scrollable)
+      return () => context.setOverlayScroll(false)
     },
   )
-  onCleanup(() => context.setOverlayScroll(false))
 
   return (
     <div
@@ -64,7 +64,7 @@ export function BaseDialogOverlay(props: BaseDialogT.OverlayProps): JSX.Element 
       {...rest}
       ref={(element) => {
         setElement(element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
     >
       {local.children}

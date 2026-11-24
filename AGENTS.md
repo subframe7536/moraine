@@ -244,44 +244,35 @@ Component, prop, and type JSDoc is the documentation coding agents read first: t
 
 ### SolidJS Best Practices
 
-- `createEffect` takes two functions: `createEffect(compute, apply)`. Reactive reads go in `compute` (they track); imperative work goes in `apply`. To skip `apply` on equal values, read a memo in `compute` (its `equals` gates the re-run).
-- **Staged writes:** Signal writes from code with no owner (event listeners, timers, observer/subscription callbacks, microtasks, cleanup callbacks) stay staged until a later flush, so synchronous readers see stale state. Wrap such writes in `settle` from `src/shared/utils.ts`. In tests, wrap writes in `flush` before asserting on DOM or derived state.
-- **Write locations:** Do not write inside a memo, an effect `compute`, or a component body; write from event handlers, `apply`, `onSettled`, or actions. Write stores through the draft setter (`setStore((draft) => { ... })`) — path and `produce` setters are gone.
-- **Strict reads:** Reactive reads must run inside a tracking scope (JSX, a memo, an effect `compute`, or an accessor a hook reads later). Point-in-time snapshots — notification callbacks, once-only ref callbacks, `apply`-time state reads — use plain `untrack`. Never use `untrack` to hide a read that must stay live; `STRICT_READ_UNTRACKED` means the value goes stale.
-- **Flow callbacks are owners, not tracking scopes:** `<For>` / `<Show>` / `<Match>` render callbacks create an owner but do not track. Read their accessor arguments in the JSX they return, not at the top of the callback.
+Solid is not React, and 2.0 is not 1.x. Pattern-matching from either is the
+dominant bug source. Every name below is a `solid-js` export unless noted;
+DOM APIs (`render`, `hydrate`, `Portal`, `dynamic`) are in `@solidjs/web`.
 
-- **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
-  1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.
-  2. A cheap primitive with one consumer in the same owner is a plain accessor (`const closed = () => !open()`), not `createMemo`.
-  3. Keep `createMemo` for a JSX prop read more than once, such as a condition and its render. A single render site reads the prop directly. Do not read a JSX-producing getter for a branch that is absent from the tree; that evaluation creates hydration keys for nodes that were never serialized.
-  4. Do not read one field out of an object accessor through another accessor (`() => bag()['data-expanded']`) when a primitive accessor already exists (`open`, `closed`). Keep object bags such as `dataAttrs()` and `ariaAttrs()` when callers spread them.
-  5. Read an object accessor once when several of its fields are used. Do not keep `createMemo` for an object that is only spread at one site: inline a short expression there, and use a plain accessor for a longer one-site derivation.
-  6. `useRecipe` callbacks (`context` and each `own` / `enforced` slot entry) stay as accessors that return their contract object.
+#### Three rules
 
-- Call components using JSX syntax (`<Component />`), never as direct functions.
+1. **Props are read, not destructured; pass values, not accessors.**
+   - Wrong: `function C({ name }) {}` and `<C value={count} />`
+   - Right: `function C(props) { return <p>{props.name}</p>; }` and `<C value={count()} />`
+2. **`createEffect` takes two functions: compute (tracks), then apply (side effects).**
+   - Wrong: `createEffect(() => { el.title = count(); });`
+   - Right: `createEffect(() => count(), v => { el.title = v; });`
+3. **Stores are written through the draft.**
+   - Wrong: `setStore("user", "name", "B")` or `setStore(produce(s => ...))`
+   - Right: `setStore(s => { s.user.name = "B"; });`
 
-- **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity). Pass values to JSX props (`<C value={count()} />`); pass accessors to hooks (`useThing(() => props.id)`).
-- **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
-- **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements. `onClick={cond() ? a : b}` binds once at render; pick the behavior inside one stable handler instead.
-- **DOM listeners:** Prefer `createEventListener` / `createEventListenerMap` from `src/shared/event-listener.ts` over raw `addEventListener`.
-  1. Call them inside the Solid owner that should own the lifetime (`createEffect`, `onSettled`, component setup, or a `bindElement` callback), never in a ref callback. They are not reactive: re-run them from `createEffect(() => target(), ...)` or `bindElement` when the target or options change.
-  2. Use `createEventListenerMap` when attaching multiple events to the same target with the same options.
-  3. Use `attachEventListener` / `attachEventListenerMap` only when the caller must hold or return the cleanup function (imperative register APIs, drag sessions, helpers that return `() => void`).
-  4. Do not use either helper for JSX host events (`onClick`, `onInput`) or in tests that simulate or spy on the DOM. Do not call `addEventListener` / `removeEventListener` in library production code except inside `src/shared/event-listener.ts` and feature detects such as `typeof media.addEventListener === 'function'`.
-- **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
-  1. A ref callback only stores the element (a local variable or a signal setter) and forwards it with `callRef`. Do not call `onCleanup`, `onSettled`, `createEffect`, event-listener helpers, `register*` APIs, or write to the DOM inside it.
-  2. Put element lifecycle work in the owner that renders the element with `bindElement(element, (el) => cleanup)` from `src/shared/element-binding.ts`. For an element inside `<Show>` / `<For>`, create its signal and `bindElement` inside that callback so the branch owns the binding.
-  3. Publish an element to a longer-lived signal (a parent context) with `bindElement(element, publishElement(ctx.element, ctx.setElement))`; it clears the signal only while it still holds that element.
-  4. Ref callbacks receive an element only. Never call a ref with `undefined` to signal unmount.
-- **`{...rest}` attribute overload:** Solid JSX uses later-wins. On every public host, apply attributes in this order:
-  1. Default attributes the component generates (`data-slot`, default `role`, generated `aria-*`).
-  2. The slot binding (`{...rootSlot}` or a `slotWith(...)` result), which carries merged `class` / `style` and generated `data-*`. Always split `class`, `style`, `classes`, and `styles` out of rest, so rest cannot replace the merged presentation; callers can still overload `data-*`. Non-recipe hosts put `class` / `style` from `useCn` after rest instead.
-  3. `{...rest}` so callers overload those defaults.
-  4. Owned wiring rest must not replace: composed `ref`, form `id` / `name` / `value` / `checked` / `disabled` / `required` / `readOnly`, value-derived ARIA (`aria-valuenow`, `aria-checked`, `aria-pressed` when bound to the control value), and event handlers composed with `callHandler`.
-     Split `??` fallback props such as i18n `aria-label` out of rest and assign `local['aria-label'] ?? messages().label` after rest. Do not reconstruct `data-slot` from rest after spreading it; put the default before rest. `merge(defaults, rest, composedHandlers)` is the same rule.
-- **`<Dynamic>`:** `component` must be the first attribute. Apply the `{...rest}` attribute overload order after it.
-- **Imports:** Organize imports: external lib -> internal shared -> component files. Reactivity APIs import from `solid-js`; DOM APIs (`render`, `hydrate`, `Portal`, `Dynamic`, JSX types) import from `@solidjs/web` — `solid-js/web` and `solid-js/store` do not exist in Solid 2.
-- **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) in `docs/build/**` and `**/*.config.ts`; omit extensions in `src/**` and `docs/**`.
+#### Reference
+
+- Full reference: `node_modules/solid-js/CHEATSHEET.md`; the same text is
+  the `solid-2.0-cheatsheet` skill in `node_modules/solid-js/skills/`.
+- Diagnostics: dev builds print `[CODE] message` plus an `in <App> › …`
+  owner line. The first report of each code ends with a footer naming
+  `node_modules/solid-js/skills/reactivity-diagnostics/SKILL.md`, one section
+  per code (`STRICT_READ_UNTRACKED`, `REACTIVE_WRITE_IN_OWNED_SCOPE`,
+  `LOADING_ON_OUTSIDE_HOLD`, …). Fix the cause; never suppress a code.
+- Evidence loops: `node_modules/@solidjs/diagnostics/skills/agent-loops/SKILL.md`
+  (`captureArtifact`). With `@solidjs/vite-plugin`'s `diagnostics` option the
+  dev server answers `POST /__solid/diagnostics` (`begin`, `active`, `whyDidRun`,
+  `costs`, `end`).
 
 ### Styling (UnoCSS)
 

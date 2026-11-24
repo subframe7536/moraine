@@ -141,8 +141,8 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         {...extraRest}
         ref={(element) =>
           untrack(() => {
-            callRef(props.virtualRowProps?.ref, element)
-            callRef(extraProps()?.ref, element)
+            callRef(() => props.virtualRowProps?.ref, element)
+            callRef(() => extraProps()?.ref, element)
           })
         }
         onClick={(event) => {

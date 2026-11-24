@@ -136,13 +136,14 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   )
 
   createEffect(
-    () => [isPresent(), (() => props.preventScroll ?? isModal())(), overlayScroll()],
-    ([present, preventScroll, scrollableOverlay]) => {
-      if (!present || !preventScroll) {
-        return
-      }
-      const currentContent = contentElement()
-      if (!currentContent) {
+    () =>
+      [
+        isPresent() ? contentElement() : undefined,
+        props.preventScroll ?? isModal(),
+        overlayScroll(),
+      ] as const,
+    ([currentContent, preventScroll, scrollableOverlay]) => {
+      if (!currentContent || !preventScroll) {
         return
       }
       const scrollContainer = currentContent.parentElement
@@ -168,10 +169,9 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   })
 
   createEffect(
-    () => [isPresent(), isModal()],
-    ([present, modal]) => {
-      const currentContent = contentElement()
-      if (!present || !modal || !currentContent) {
+    () => (isPresent() && isModal() ? contentElement() : undefined),
+    (currentContent) => {
+      if (!currentContent) {
         return
       }
       let active = true
@@ -204,13 +204,14 @@ export function BaseDialog(props: BaseDialogProps): JSX.Element {
   }
 
   // Handles dynamic changes to the `modal` prop while the overlay is already present.
-  createEffect(isModal, (modal) => {
-    const currentContent = contentElement()
-    if (!isPresent() || !currentContent) {
-      return
-    }
-    syncModalRestoreFocus(modal, currentContent.ownerDocument)
-  })
+  createEffect(
+    () => [isModal(), isPresent() ? contentElement() : undefined] as const,
+    ([modal, currentContent]) => {
+      if (currentContent) {
+        syncModalRestoreFocus(modal, currentContent.ownerDocument)
+      }
+    },
+  )
 
   useOverlayInteraction({
     enabled: isPresent,

@@ -307,15 +307,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     },
   })
   const currentSearchValue = search.value
-  const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
-  const isActive = createSelector(activeKey)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
   const listboxId = createId(undefined, 'command-palette-listbox')
   const descriptionPosition = () => variants.descriptionPosition
-  const activeDescendantId = createMemo(() =>
-    activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
-  )
   const composition = createCompositionState()
   const [compositionQuery, setCompositionQuery] = createSignal<string>()
   const warnedDuplicateValues = new Set<string>()
@@ -439,14 +434,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     () => new Set(visibleItems().flatMap((item) => (item.disabled ? [] : [item.key]))),
   )
 
-  createEffect(
-    () => [enabledKeys(), activeKey()],
-    ([keys, highlighted]) => {
-      if (highlighted && keys.has(highlighted)) {
-        return
-      }
-      setActiveKey(keys.values().next().value)
-    },
+  // The highlighted item, or the first enabled one once it is filtered out or disabled. Writes
+  // highlight an item until the next change of the enabled items re-derives it.
+  const [activeKey, setActiveKey] = createSignal<string | undefined>((previous) => {
+    const keys = enabledKeys()
+    return previous !== undefined && keys.has(previous) ? previous : keys.values().next().value
+  })
+  const isActive = createSelector(activeKey)
+  const activeDescendantId = createMemo(() =>
+    activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
 
   const virtualEntryIndexByKey = createLazyMemo(() => {
@@ -460,22 +456,26 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   createEffect(
-    () => [activeKey(), visibleItemByKey(), (() => merged.virtualizer)()],
-    ([key, items, virtualizer]) => {
-      if (!key) {
+    () => {
+      const key = activeKey()
+      const virtualizer = merged.virtualizer
+      const visible = key !== undefined && visibleItemByKey().has(key)
+      return {
+        visible,
+        virtualizer,
+        // Rows outside the virtual window have no element to scroll into view.
+        entryIndex: visible && virtualizer ? virtualEntryIndexByKey().get(key) : undefined,
+        id: activeDescendantId(),
+      }
+    },
+    ({ visible, virtualizer, entryIndex, id }) => {
+      if (!visible) {
         return
       }
-      const item = items.get(key)
-      if (!item) {
-        return
-      }
-      // Rows outside the virtual window have no element to scroll into view.
-      const entryIndex = virtualizer ? virtualEntryIndexByKey().get(key) : undefined
       if (virtualizer && entryIndex !== undefined) {
         virtualizer.scrollToIndex(entryIndex)
         return
       }
-      const id = activeDescendantId()
       queueMicrotask(() => {
         const element = id ? listboxElement?.ownerDocument.getElementById(id) : undefined
         if (element && listboxElement?.contains(element)) {
@@ -728,7 +728,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         }
         aria-setsize={merged.virtualizer ? visibleItems().length : undefined}
         ref={(element) => {
-          callRef(itemAttributes()?.ref, element)
+          callRef(() => itemAttributes()?.ref, element)
           itemProps.virtualProps?.ref?.(element)
         }}
         {...itemSlot}
@@ -782,7 +782,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   function handleListboxRef(element: HTMLDivElement): void {
     listboxElement = element
-    callRef(merged.listboxProps?.ref, element)
+    callRef(() => merged.listboxProps?.ref, element)
   }
 
   const listboxSlot = slotWith('listbox', {
@@ -846,7 +846,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   return (
-    <div data-slot="command-palette" {...rootSlot} {...rest} ref={(el) => callRef(local.ref, el)}>
+    <div
+      data-slot="command-palette"
+      {...rootSlot}
+      {...rest}
+      ref={(el) => callRef(() => local.ref, el)}
+    >
       <div data-slot="command-palette-input-wrapper" {...inputWrapperSlot}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leading}
@@ -859,8 +864,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           {...merged.inputProps}
           ref={(el) => {
             setInputElement(el)
-            callRef(merged.inputProps?.ref, el)
-            callRef(local.inputRef, el)
+            callRef(() => merged.inputProps?.ref, el)
+            callRef(() => local.inputRef, el)
           }}
           data-slot="command-palette-input"
           {...inputSlot}

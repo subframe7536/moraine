@@ -32,6 +32,102 @@ const FILES: FileNode[] = [
   { id: 'license', name: 'LICENSE', disabled: true },
 ]
 
+interface TreeExampleProps {
+  size: 'sm' | 'md' | 'lg'
+  variant: 'subtle' | 'solid'
+  expandIcon: boolean
+  icon: boolean
+  checkable: boolean
+  action: boolean
+  transition: boolean
+  indentGuide: boolean
+}
+
+// A component, so the tree it creates belongs to its own scope rather than the playground's.
+function TreeExample(props: TreeExampleProps) {
+  const [status, setStatus] = createSignal('')
+
+  const tree = createTree<FileNode>({
+    items: () => FILES,
+    getKey: (node) => node.id,
+    getChildren: (node) => node.children,
+    getItemLabel: (node) => node.name,
+    isItemDisabled: (node) => Boolean(node.disabled),
+    defaultExpandedKeys: ['src', 'components'],
+    defaultSelectedKeys: ['tree'],
+    get checkable() {
+      return props.checkable
+    },
+  })
+
+  const getItemIcon = (item: TreeT.ItemInstance<FileNode>) => {
+    if (!props.icon) {
+      return undefined
+    }
+    if (!item.hasChildren) {
+      return 'i-lucide:file'
+    }
+    return item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
+  }
+
+  const actionRender = (item: TreeT.ItemInstance<FileNode>) => (
+    <>
+      <Show when={item.hasChildren}>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          leading="i-lucide:file-plus"
+          tabindex={item.focused ? 0 : -1}
+          aria-label={`New file in ${item.label}`}
+          onClick={() => setStatus(`New file in ${item.label}`)}
+        />
+      </Show>
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as={Button}
+          variant="ghost"
+          size="icon-xs"
+          leading="i-lucide:ellipsis"
+          tabindex={item.focused ? 0 : -1}
+          aria-label={`More actions for ${item.label}`}
+        />
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'Rename',
+              icon: 'i-lucide:pencil',
+              onSelect: () => setStatus(`Rename ${item.label}`),
+            },
+            {
+              label: 'Delete',
+              icon: 'i-lucide:trash-2',
+              onSelect: () => setStatus(`Delete ${item.label}`),
+            },
+          ]}
+        />
+      </DropdownMenu>
+    </>
+  )
+
+  return (
+    <div class="max-w-sm w-full space-y-2">
+      <tree.Tree
+        aria-label="Project files"
+        size={props.size}
+        variant={props.variant}
+        transition={props.transition}
+        indentGuide={props.indentGuide}
+        expandIcon={props.expandIcon ? undefined : false}
+        getItemIcon={getItemIcon}
+        actionRender={props.action ? actionRender : undefined}
+      />
+      <Show when={status()}>
+        <p class="text-xs text-muted-foreground">{status()}</p>
+      </Show>
+    </div>
+  )
+}
+
 export default function TreePlayground() {
   return (
     <DocsPlayground
@@ -65,89 +161,7 @@ export default function TreePlayground() {
         { kind: 'switch', prop: 'indentGuide', label: 'Indent guide', defaultValue: true },
       ]}
     >
-      {(props) => {
-        const [status, setStatus] = createSignal('')
-
-        const tree = createTree<FileNode>({
-          items: () => FILES,
-          getKey: (node) => node.id,
-          getChildren: (node) => node.children,
-          getItemLabel: (node) => node.name,
-          isItemDisabled: (node) => Boolean(node.disabled),
-          defaultExpandedKeys: ['src', 'components'],
-          defaultSelectedKeys: ['tree'],
-          get checkable() {
-            return props.checkable
-          },
-        })
-
-        const getItemIcon = (item: TreeT.ItemInstance<FileNode>) => {
-          if (!props.icon) {
-            return undefined
-          }
-          if (!item.hasChildren) {
-            return 'i-lucide:file'
-          }
-          return item.expanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
-        }
-
-        const actionRender = (item: TreeT.ItemInstance<FileNode>) => (
-          <>
-            <Show when={item.hasChildren}>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                leading="i-lucide:file-plus"
-                tabindex={item.focused ? 0 : -1}
-                aria-label={`New file in ${item.label}`}
-                onClick={() => setStatus(`New file in ${item.label}`)}
-              />
-            </Show>
-            <DropdownMenu>
-              <DropdownMenu.Trigger
-                as={Button}
-                variant="ghost"
-                size="icon-xs"
-                leading="i-lucide:ellipsis"
-                tabindex={item.focused ? 0 : -1}
-                aria-label={`More actions for ${item.label}`}
-              />
-              <DropdownMenu.Content
-                items={[
-                  {
-                    label: 'Rename',
-                    icon: 'i-lucide:pencil',
-                    onSelect: () => setStatus(`Rename ${item.label}`),
-                  },
-                  {
-                    label: 'Delete',
-                    icon: 'i-lucide:trash-2',
-                    onSelect: () => setStatus(`Delete ${item.label}`),
-                  },
-                ]}
-              />
-            </DropdownMenu>
-          </>
-        )
-
-        return (
-          <div class="max-w-sm w-full space-y-2">
-            <tree.Tree
-              aria-label="Project files"
-              size={props.size}
-              variant={props.variant}
-              transition={props.transition}
-              indentGuide={props.indentGuide}
-              expandIcon={props.expandIcon ? undefined : false}
-              getItemIcon={getItemIcon}
-              actionRender={props.action ? actionRender : undefined}
-            />
-            <Show when={status()}>
-              <p class="text-xs text-muted-foreground">{status()}</p>
-            </Show>
-          </div>
-        )
-      }}
+      {(props) => <TreeExample {...props} />}
     </DocsPlayground>
   )
 }

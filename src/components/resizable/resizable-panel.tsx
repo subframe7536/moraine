@@ -152,7 +152,7 @@ export function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
       {...rest}
       ref={(node) => {
         setElement(node)
-        callRef(local.ref, node)
+        callRef(() => local.ref, node)
       }}
       id={panelId()}
       onTransitionEnd={(event) => {

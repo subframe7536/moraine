@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import { Show, onCleanup, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -53,8 +54,11 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   if (!item) {
     throw new Error('NavigationMenu.Trigger must be used within NavigationMenu.Item')
   }
-  item.setTriggerOptions(props)
-  onCleanup(() => item.setTriggerOptions(undefined))
+  // Server rendering is pure, so the trigger registers its options with the item on the client.
+  if (!isServer) {
+    item.setTriggerOptions(props)
+    onCleanup(() => item.setTriggerOptions(undefined))
+  }
   const local = pick(
     props as NavigationMenuT.TriggerProps<T> & { id?: string },
     'as',

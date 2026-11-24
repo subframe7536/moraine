@@ -83,7 +83,7 @@ export namespace ButtonT {
      * import { Button } from 'moraine'
      *
      * <Button autoLoading onClick={() => fetch('/api/save')}>
-     *   {(state) => (state.loading ? 'Saving...' : 'Save')}
+     *   {(state) => <>{state.loading ? 'Saving...' : 'Save'}</>}
      * </Button>
      * ```
      */

@@ -321,7 +321,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       {...rootSlot}
       {...rest}
       ref={(element) => {
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
       id={rootId()}
     >

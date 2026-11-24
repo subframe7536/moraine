@@ -9,6 +9,7 @@ import { useField } from '@formisch/solid/v2'
 import { INTERNAL, getFieldStore } from '@formisch/solid/v2/internals'
 import type { InternalFieldStore } from '@formisch/solid/v2/internals'
 import type { Accessor } from 'solid-js'
+import { untrack } from 'solid-js'
 
 import { settle } from '../../shared/utils'
 import type { FieldBinding } from '../field/field-context'
@@ -74,7 +75,9 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
       }
     },
     setValue(value) {
-      field.onInput(value)
+      // A command into Formisch: the state it reads to validate the input is its own
+      // bookkeeping, not a dependency of whichever effect or handler sets the value.
+      untrack(() => field.onInput(value))
     },
     emit(type, event) {
       // DOM focus/blur/change listeners run unowned; settle the field writes.

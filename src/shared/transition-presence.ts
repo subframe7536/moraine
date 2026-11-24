@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 
 import { attachEventListener } from './event-listener'
 import { settle } from './utils'
@@ -105,7 +105,12 @@ function getChangedAnimationEntries(
 export function createTransitionPresence(
   options: CreateTransitionPresenceOptions,
 ): TransitionPresenceState {
-  const [present, setPresent] = createSignal(options.open(), { ownedWrite: true })
+  // Opening makes the content present immediately; closing keeps it present until `endExit`
+  // clears it once the exit animations settle.
+  const [present, setPresent] = createSignal<boolean>(
+    (previous) => options.open() || (previous ?? false),
+    { ownedWrite: true },
+  )
   const dataAttrs = {
     get 'data-closed'() {
       return options.open() ? undefined : ''
@@ -133,19 +138,24 @@ export function createTransitionPresence(
     measuredElements.clear()
   }
 
+  const endExit = (): void => {
+    clearPendingAnimations()
+    setPresent(false)
+  }
+
+  // Runs from animation events, microtasks, and timers, outside any reactive scope.
   const finishHiding = (): void => {
     if (
       options.open() ||
+      !present() ||
       pendingAnimations.size > 0 ||
       Array.from(trackedElements.keys()).some((element) => !measuredElements.has(element))
     ) {
       return
     }
 
-    const completed = present()
-    clearPendingAnimations()
-    settle(() => setPresent(false))
-    if (completed && !disposed) {
+    settle(endExit)
+    if (!disposed) {
       options.onExitComplete?.()
     }
   }
@@ -269,22 +279,24 @@ export function createTransitionPresence(
   })
 
   createEffect(
-    () => [options.open(), revision()],
-    ([open]) => {
+    () => [options.open(), present(), revision()] as const,
+    ([open, isPresent]) => {
       const currentElements = Array.from(new Set(registrations.values()))
 
       if (open) {
         clearPendingAnimations()
-        setPresent(true)
         return
       }
 
-      if (!untrack(present)) {
+      if (!isPresent) {
         return
       }
 
       if (currentElements.length === 0) {
-        finishHiding()
+        endExit()
+        if (!disposed) {
+          options.onExitComplete?.()
+        }
         return
       }
 

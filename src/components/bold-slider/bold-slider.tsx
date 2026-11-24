@@ -137,7 +137,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     createEffect(
       () => state.values[0],
       (val) => {
-        if (val !== undefined && val !== internalValue()) {
+        if (val !== undefined) {
           setInternalValue(val)
         }
       },

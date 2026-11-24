@@ -38,7 +38,7 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
   const local = pick(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const rest = omit(props, 'checkedIcon', 'indeterminateIcon', 'class', 'style')
   const context = useTreeContext()
-  const item = useTreeItemContext()!.item
+  const itemContext = useTreeItemContext()!
   const {
     slots: { checkbox: checkboxSlot },
   } = useRecipe(treeRecipe, local, {
@@ -55,12 +55,14 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
         {...checkboxSlot}
         {...rest}
         checked={
-          item.checkedState === 'indeterminate' ? 'indeterminate' : item.checkedState === 'checked'
+          itemContext.item.checkedState === 'indeterminate'
+            ? 'indeterminate'
+            : itemContext.item.checkedState === 'checked'
         }
-        disabled={item.disabled}
+        disabled={itemContext.item.disabled}
         checkedIcon={local.checkedIcon}
         indeterminateIcon={local.indeterminateIcon}
-        onCheckedChange={(checked) => context.state.setChecked(item.key, checked)}
+        onCheckedChange={(checked) => context.state.setChecked(itemContext.item.key, checked)}
       />
     </Show>
   )

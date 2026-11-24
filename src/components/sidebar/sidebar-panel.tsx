@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { Dynamic, isServer } from '@solidjs/web'
 import { Show, createRenderEffect, createSignal, onCleanup, omit } from 'solid-js'
 
 import { useMessages } from '../../provider/locale/locale-context'
@@ -54,13 +54,18 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
     'ref',
   )
   // Registered during setup so `Trigger` and `Rail` reference the same id in `aria-controls`.
-  createRenderEffect(
-    () => local.id,
-    (id) => {
-      context.setPanelId(id)
-    },
-  )
-  onCleanup(() => context.setPanelId(undefined))
+  // Server rendering is pure, so the server renders the panel with its own id and registers
+  // nothing; the client registers it while hydrating.
+  if (!isServer) {
+    createRenderEffect(
+      () => local.id,
+      (id) => {
+        context.setPanelId(id)
+      },
+      { transparent: true },
+    )
+    onCleanup(() => context.setPanelId(undefined))
+  }
   const content = resolvePropsChildren(props)
   const { slotWith } = useSidebarStyles('panel', local)
   const messages = useMessages('sidebar', defaultSidebarMessages, () => context.translations?.())
@@ -92,13 +97,13 @@ export function SidebarPanel<T extends ValidComponent = 'aside'>(
         {...panelSlot}
         ref={(node: HTMLElement) => {
           setElement(node)
-          callRef(local.ref, node)
+          callRef(() => local.ref, node)
         }}
         aria-hidden={closed() ? 'true' : undefined}
         {...{ 'prop:inert': closed() ? true : undefined }}
         aria-label={local['aria-label']}
         {...(rest as object)}
-        id={context.panelId()}
+        id={local.id ?? context.panelId()}
       >
         {content()}
       </Dynamic>

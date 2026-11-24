@@ -23,7 +23,7 @@ import type { BaseSelectT } from './base-select.types'
  *   <BaseSelect.Content>
  *     <BaseSelect.Listbox>
  *       <BaseSelect.Item item={{ label: 'Option A', value: 'a' }}>
- *         {(state) => (state.selected ? 'Option A (selected)' : 'Option A')}
+ *         {(state) => <>{state.selected ? 'Option A (selected)' : 'Option A'}</>}
  *       </BaseSelect.Item>
  *     </BaseSelect.Listbox>
  *   </BaseSelect.Content>
@@ -103,7 +103,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       data-slot={state.slotName('item')}
       {...itemSlot}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
       id={state.itemId(item().value)}
       tabindex={-1}
       aria-selected={selected() ? 'true' : 'false'}

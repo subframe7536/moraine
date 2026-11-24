@@ -54,8 +54,8 @@ function composeElementRef<T extends HTMLElement>(
   let composed = inner.get(user) as ((element: T) => void) | undefined
   if (!composed) {
     composed = (element: T) => {
-      callRef(internal.ref, element)
-      callRef(user.ref, element)
+      callRef(() => internal.ref, element)
+      callRef(() => user.ref, element)
     }
     inner.set(user, composed)
   }
@@ -333,10 +333,7 @@ export function PopperContent(
     initialPosition: () => props.initialPosition,
     inline: () => options.inline,
     onPlacementChange: setCurrentPlacement,
-    onPositionedChange: (positioned) => {
-      setPositionerPositioned(positioned)
-      positionerElement()?.toggleAttribute('data-positioned', positioned)
-    },
+    onPositionedChange: setPositionerPositioned,
     open: contentPresence.present,
     overlap: () => options.overlap,
     overflowPadding: () => options.overflowPadding,
@@ -351,11 +348,14 @@ export function PopperContent(
   // `preventScroll` is latched when the open cycle starts so toggling it
   // mid-cycle does not release or acquire the lock.
   let activePreventScroll = false
-  createEffect(contentPresence.present, (present) => {
-    if (present) {
-      activePreventScroll = options.preventScroll === true
-    }
-  })
+  createEffect(
+    () => [contentPresence.present(), options.preventScroll === true] as const,
+    ([present, preventScroll], previous) => {
+      if (present && !previous?.[0]) {
+        activePreventScroll = preventScroll
+      }
+    },
+  )
 
   createEffect(
     () => [contentPresence.present(), contentElement(), positionerElement()],
@@ -504,6 +504,7 @@ export function PopperContent(
               ref={setPositionerElement}
               dir={props.dir ?? direction()}
               data-slot={context.slotName('positioner')}
+              data-positioned={positionerPositioned() ? '' : undefined}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >

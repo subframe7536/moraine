@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
+import { Dynamic, isServer } from '@solidjs/web'
 import type { Column, RowData } from '@tanstack/table-core'
 import {
   DEV,
@@ -209,11 +209,10 @@ export function DataTable<TData extends RowData = RowData>(
   // so virtual tables do not render detail rows.
   const expandedRowRender = () => (virtual() ? undefined : local.expandedRowRender)
 
-  if (DEV) {
+  if (DEV && !isServer) {
     const warned = new Set<VirtualConflict>()
-    // Transparent so this dev-only owner does not occupy a hydration id slot —
-    // `DEV` is falsy in the server build, so a counted owner here would misalign
-    // client and server hydration keys.
+    // Client-only and transparent so this dev-only owner never occupies a hydration id slot:
+    // the server build may or may not be a dev build, and server effects never run anyway.
     createEffect(
       (): VirtualConflict[] => {
         if (!virtual()) {
@@ -312,7 +311,7 @@ export function DataTable<TData extends RowData = RowData>(
       }}
     >
       <div
-        ref={(el) => callRef(local.containerRef, el)}
+        ref={(el) => callRef(() => local.containerRef, el)}
         data-slot="data-table-container"
         {...containerSlot}
       >

@@ -399,7 +399,7 @@ export function FileUpload<TMultiple extends boolean = false>(
         id={field.id()}
         ref={(element) => {
           setHiddenInput(element)
-          callRef(local.inputRef, element)
+          callRef(() => local.inputRef, element)
         }}
         form={local.form}
         name={field.name()}

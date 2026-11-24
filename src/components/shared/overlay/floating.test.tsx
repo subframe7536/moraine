@@ -40,12 +40,12 @@ function FloatingFixture(props: {
   options?: Partial<FloatingPositionOptions>
   onPositionedChange: (open: boolean) => void
 }) {
-  let floatingElement: HTMLDivElement | undefined
-  let referenceElement: HTMLButtonElement | undefined
+  const [floatingElement, setFloatingElement] = createSignal<HTMLDivElement>()
+  const [referenceElement, setReferenceElement] = createSignal<HTMLButtonElement>()
 
   useFloatingPosition({
-    floatingElement: () => floatingElement,
-    getReferenceElement: () => referenceElement,
+    floatingElement,
+    getReferenceElement: referenceElement,
     gutter: () => props.gutter?.() ?? 4,
     onPlacementChange: () => undefined,
     onPositionedChange: (positioned) => props.onPositionedChange(positioned),
@@ -57,10 +57,10 @@ function FloatingFixture(props: {
 
   return (
     <>
-      <button ref={(element) => (referenceElement = element)} type="button">
+      <button ref={setReferenceElement} type="button">
         Reference
       </button>
-      <div ref={(element) => (floatingElement = element)} data-testid="floating" />
+      <div ref={setFloatingElement} data-testid="floating" />
     </>
   )
 }

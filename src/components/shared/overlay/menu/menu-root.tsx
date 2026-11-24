@@ -76,11 +76,20 @@ export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
     },
   )
 
+  let latchedPreventScroll = true
   createEffect(
-    () => [contentPresence.present(), rootLayerState()?.contentElement()],
-    ([present, content]) => {
-      const shouldPreventScroll = props.preventScroll ?? true
-      if (!present || !shouldPreventScroll || !content) {
+    () =>
+      [
+        contentPresence.present(),
+        rootLayerState()?.contentElement(),
+        props.preventScroll ?? true,
+      ] as const,
+    ([present, content, preventScroll], previous) => {
+      // `preventScroll` is latched when the menu opens so toggling it mid-cycle has no effect.
+      if (present && !previous?.[0]) {
+        latchedPreventScroll = preventScroll
+      }
+      if (!present || !latchedPreventScroll || !content) {
         return
       }
 

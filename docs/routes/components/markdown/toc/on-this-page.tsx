@@ -1,6 +1,6 @@
 import { useLocation } from '@solidjs/router'
 import type { JSX } from '@solidjs/web'
-import { For, Show, createEffect, createMemo, createSignal, onCleanup, onSettled } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.recipe'
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
@@ -31,11 +31,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     () => nav()?.closest<HTMLElement>('[data-slot="sidebar-inset"]') ?? undefined,
   )
 
-  const measure = () => {
-    const element = list()
-    if (!element) {
-      return
-    }
+  const measure = (element: HTMLElement) => {
     const next = new Map<string, [number, number]>()
     for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
       next.set(anchor.dataset.tocId!, [anchor.offsetTop, anchor.offsetTop + anchor.offsetHeight])
@@ -44,18 +40,23 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     setListHeight(element.offsetHeight)
   }
 
-  onSettled(() => {
-    const element = list()
+  createEffect(list, (element) => {
     if (!element) {
       return
     }
-    const resizeObserver = new ResizeObserver(measure)
+    const resizeObserver = new ResizeObserver(() => measure(element))
     resizeObserver.observe(element)
-    measure()
     return () => resizeObserver.disconnect()
   })
 
-  createEffect(() => props.entries, measure)
+  createEffect(
+    () => [props.entries, list()] as const,
+    ([, element]) => {
+      if (element) {
+        measure(element)
+      }
+    },
+  )
 
   const blockStyle = createMemo((): JSX.CSSProperties | undefined => {
     const ids = activeIds()
@@ -71,28 +72,33 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
     }
   })
 
-  createEffect(blockStyle, (style) => {
-    if (style && !loaded() && loadedFrame === undefined) {
-      loadedFrame = requestAnimationFrame(() => {
-        loadedFrame = undefined
-        setLoaded(true)
-      })
-    }
-  })
+  createEffect(
+    () => [blockStyle(), loaded()] as const,
+    ([style, isLoaded]) => {
+      if (style && !isLoaded && loadedFrame === undefined) {
+        loadedFrame = requestAnimationFrame(() => {
+          loadedFrame = undefined
+          setLoaded(true)
+        })
+      }
+    },
+  )
 
   // The nav is its own scroll container; keep the active entry inside it.
-  createEffect(primaryActiveId, (id) => {
-    const element = list()
-    if (!id || !element) {
-      return
-    }
-    for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
-      if (anchor.dataset.tocId === id) {
-        anchor.scrollIntoView({ block: 'nearest' })
+  createEffect(
+    () => [primaryActiveId(), list()] as const,
+    ([id, element]) => {
+      if (!id || !element) {
         return
       }
-    }
-  })
+      for (const anchor of element.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')) {
+        if (anchor.dataset.tocId === id) {
+          anchor.scrollIntoView({ block: 'nearest' })
+          return
+        }
+      }
+    },
+  )
 
   return (
     <nav ref={setNav} aria-label="On This Page" class={props.class}>

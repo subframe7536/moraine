@@ -1,8 +1,7 @@
 import type { JSX } from '@solidjs/web'
-import { Dynamic } from '@solidjs/web'
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component } from 'solid-js'
-import { createSignal, lazy, onSettled, Show, untrack } from 'solid-js'
+import { lazy, untrack } from 'solid-js'
 
 import { Kbd, cn } from '../../../../src'
 
@@ -13,22 +12,10 @@ import { ComponentsIndex } from './components-index'
 import { HooksIndex } from './hooks-index'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
-import {
-  DOCS_BLOCK_CONTAINER_CLASS,
-  DOCS_INLINE_CODE_CLASS,
-  DOCS_PREVIEW_CANVAS_CLASS,
-} from './markdown.recipe'
-
-export const DOCS_DEMO_BLOCK_CLASS = DOCS_BLOCK_CONTAINER_CLASS
-export const DOCS_DEMO_BLOCK_PREVIEW_CLASS = DOCS_PREVIEW_CANVAS_CLASS
+import { DOCS_INLINE_CODE_CLASS } from './markdown.recipe'
 
 interface MdxProps {
   [key: string]: unknown
-}
-
-export interface DocsMdxPreview {
-  component?: Component
-  source?: string | { html: string; code: string }
 }
 
 function toStringProp(value: unknown): string | undefined {
@@ -54,38 +41,15 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   HooksIndex,
 
   Preview(props: MdxProps) {
-    const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)
-    const PreviewRender = lazy(async () => {
-      const descriptor = (await loader()).default
-
-      return {
-        default() {
-          const [mounted, setMounted] = createSignal(false)
-          onSettled(() => queueMicrotask(() => setMounted(true)))
-          return (
-            <section class={DOCS_DEMO_BLOCK_CLASS}>
-              <div
-                class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}
-                data-preview-ready={mounted() ? '' : undefined}
-              >
-                <Show when={mounted() && descriptor.component}>
-                  {(value) => <Dynamic component={value()} />}
-                </Show>
-              </div>
-              <Show when={descriptor.source}>
-                {(value) => {
-                  const src = value()
-                  const html = typeof src === 'string' ? src : src.html
-                  const code = typeof src === 'object' && src ? src.code : undefined
-                  return <CodeBlock variant="source" lang="tsx" html={html} code={code} />
-                }}
-              </Show>
-            </section>
-          )
-        },
-      }
-    })
-
+    // The generated `?preview` module's default export renders `DocsPreview`, so `lazy()` loads
+    // it directly and server rendering can map its `$$moduleUrl` to the client chunk.
+    const PreviewRender = untrack(() =>
+      lazy(
+        props.load as () => Promise<{ default: Component }>,
+        undefined,
+        toStringProp(props.moduleUrl),
+      ),
+    )
     return <PreviewRender />
   },
 

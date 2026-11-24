@@ -403,11 +403,16 @@ export function createSortable(options: SortableOptions = {}): Sortable {
         return input.positions?.() ?? DEFAULT_POSITIONS
       },
     }
+    // The dnd kit entity is created once from the current values; the effect below applies
+    // later id, index, and disabled changes to it.
+    const initial = untrack(() => ({
+      id: input.id(),
+      index: input.index(),
+      disabled: input.disabled?.() ?? false,
+    }))
     const sortable = new DndSortable<ItemData>(
       {
-        id: input.id(),
-        index: input.index(),
-        disabled: input.disabled?.() ?? false,
+        ...initial,
         data,
         // Index changes come from the host's re-render after a drop, which the drop animation
         // already covers; dnd kit's own index transition would animate from the stale index.

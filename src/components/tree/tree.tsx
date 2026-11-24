@@ -125,7 +125,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         {...rest}
         ref={(element: HTMLElement) => {
           setScrollElement(element)
-          callRef(local.ref, element)
+          callRef(() => local.ref, element)
         }}
       >
         <VirtualContent<TreeT.ItemInstance<T>>

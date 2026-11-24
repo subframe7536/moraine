@@ -242,7 +242,7 @@ export function Input<TModifiers extends InputModifiers | undefined = InputModif
       ref={(element) => {
         inputEl = element
         field.setControlRef(element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
       onInput={onInput}
       onChange={onChange}

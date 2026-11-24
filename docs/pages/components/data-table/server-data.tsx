@@ -94,9 +94,9 @@ export default function ServerDataExample() {
     search: search(),
   }))
   const page = createMemo(() => fetchOrders(query()))
-  // Keep the previous page on screen while the next one loads.
-  const rows = createMemo<Order[]>(() => latest(() => page()?.rows) ?? [])
-  const total = createMemo<number>(() => latest(() => page()?.total) ?? 0)
+  // Keep the previous page on screen while the next one loads; start empty before the first one.
+  const rows = createMemo<Order[]>(() => latest(() => page()?.rows) ?? [], { loadingValue: [] })
+  const total = createMemo<number>(() => latest(() => page()?.total) ?? 0, { loadingValue: 0 })
 
   const table = createDataTable({
     get data() {

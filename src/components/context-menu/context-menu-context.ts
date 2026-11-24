@@ -446,7 +446,9 @@ export function createContextMenu(props: ContextMenuProps) {
     expanded: open,
   })
   const triggerProps = merge(triggerDataAttrs, {
-    id: resolvedId(),
+    get id() {
+      return resolvedId()
+    },
     get 'aria-controls'() {
       return open() ? contentId() : undefined
     },

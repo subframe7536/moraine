@@ -267,14 +267,9 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
   const indeterminate = createMemo<boolean>(() => checked() === 'indeterminate')
 
   createEffect(
-    () => [
-      field.path(),
-      (() => merged.checked)(),
-      (() => merged.trueValue)(),
-      (() => merged.falseValue)(),
-    ],
-    ([, value, trueValue, falseValue]) => {
-      if (local.bound && value !== undefined) {
+    () => [field.path(), merged.checked, merged.trueValue, merged.falseValue, local.bound] as const,
+    ([, value, trueValue, falseValue, bound]) => {
+      if (bound && value !== undefined) {
         field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
       }
     },
@@ -440,7 +435,7 @@ export function CheckboxCore<TTrue = boolean, TFalse = boolean>(
         <HiddenInput
           ref={(element) => {
             inputEl = element
-            callRef(local.inputRef, element)
+            callRef(() => local.inputRef, element)
           }}
           id={`${field.id()}-input`}
           type="checkbox"

@@ -374,13 +374,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       data-slot="switch"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
       onClick={onRootClick}
     >
       <HiddenInput
         ref={(element) => {
           inputEl = element
-          callRef(local.inputRef, element)
+          callRef(() => local.inputRef, element)
         }}
         id={`${field.id()}-input`}
         type="checkbox"

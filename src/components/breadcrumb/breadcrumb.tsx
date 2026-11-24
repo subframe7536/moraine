@@ -93,7 +93,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...rootSlot}
       {...rest}
-      ref={(el) => callRef(local.ref, el)}
+      ref={(el) => callRef(() => local.ref, el)}
       aria-label={local['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...listSlot}>
@@ -146,9 +146,15 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     {(render) =>
                       renderWithProps(render, {
                         item,
-                        index: index(),
-                        active: isCurrent(),
-                        disabled: isDisabled(),
+                        get index() {
+                          return index()
+                        },
+                        get active() {
+                          return isCurrent()
+                        },
+                        get disabled() {
+                          return isDisabled()
+                        },
                       })
                     }
                   </Show>

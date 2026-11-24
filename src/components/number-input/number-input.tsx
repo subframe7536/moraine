@@ -537,7 +537,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
       {...rootSlot}
       {...rest}
       id={`${field.id()}-root`}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -570,7 +570,7 @@ export function NumberInput(props: NumberInputProps): JSX.Element {
         ref={(e) => {
           inputEl = e
           field.setControlRef(e)
-          callRef(local.inputRef, e)
+          callRef(() => local.inputRef, e)
         }}
         id={field.id()}
         form={merged.form}

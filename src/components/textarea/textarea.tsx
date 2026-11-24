@@ -355,7 +355,7 @@ export function Textarea<
       ref={(element) => {
         textareaEl = element
         field.setControlRef(element)
-        callRef(local.ref, element)
+        callRef(() => local.ref, element)
       }}
       onInput={onInput}
       onChange={onChange}

@@ -12,7 +12,8 @@ export {
   type ExamplePageApiDoc,
   type RenderExampleMarkdownPageInput,
 } from './markdown'
-export { DOCS_MDX_COMPONENTS, type DocsMdxPreview } from './mdx-components'
+export { DOCS_MDX_COMPONENTS } from './mdx-components'
+export type { DocsMdxPreview } from './preview-block'
 export * from './navigation'
 export * from './playground'
 export * from './toc'

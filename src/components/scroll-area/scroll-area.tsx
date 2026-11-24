@@ -318,7 +318,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       data-slot="scroll-area"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
       onPointerEnter={(event) => {
         hovering.hold()
         callHandler(event, local.onPointerEnter)
@@ -334,7 +334,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         tabindex={local.tabindex ?? (canScroll() ? 0 : -1)}
         ref={(element) => {
           setViewport(element)
-          callRef(local.viewportRef, element)
+          callRef(() => local.viewportRef, element)
         }}
         onScroll={(event) => callHandler(event, local.onScroll)}
       >

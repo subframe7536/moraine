@@ -1,7 +1,15 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, onSettled, merge } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  onSettled,
+  merge,
+  untrack,
+} from 'solid-js'
 
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -272,25 +280,30 @@ export function createNavigationMenuState(
     cancelTimers()
   })
 
-  createEffect(activeTrigger, (trigger, previous) => {
-    if (!trigger) {
-      return
-    }
-    const positioner = positionerElement()
-    const previousTrigger = previous ?? reference()
-    if (
-      positioner?.style.visibility === 'visible' &&
-      presence.present() &&
-      previousTrigger &&
-      previousTrigger !== trigger
-    ) {
-      const position = positioner.getBoundingClientRect()
-      setInitialPosition({ x: position.left, y: position.top })
-    } else {
-      setInitialPosition(undefined)
-    }
-    setReference(trigger)
-  })
+  // The last trigger the panel was anchored to, so switching triggers can start from its position.
+  let anchoredTrigger: HTMLButtonElement | undefined
+  createEffect(
+    () => [activeTrigger(), positionerElement(), presence.present()] as const,
+    ([trigger, positioner, present], previous) => {
+      if (!trigger || trigger === previous?.[0]) {
+        return
+      }
+      const previousTrigger = anchoredTrigger
+      anchoredTrigger = trigger
+      if (
+        positioner?.style.visibility === 'visible' &&
+        present &&
+        previousTrigger &&
+        previousTrigger !== trigger
+      ) {
+        const position = positioner.getBoundingClientRect()
+        setInitialPosition({ x: position.left, y: position.top })
+      } else {
+        setInitialPosition(undefined)
+      }
+      setReference(trigger)
+    },
+  )
 
   const itemSnapshot = () =>
     items().map((item) => ({
@@ -298,14 +311,15 @@ export function createNavigationMenuState(
       disabled: item.disabled(),
       contentCount: item.contentTrees().length,
     }))
-  // Item changes can invalidate a controlled value; value updates alone do not request a change.
+  // Item changes can invalidate a controlled value; value updates alone do not request a change,
+  // so the value is sampled untracked when the items change instead of being a dependency.
   createEffect(
     () => [mounted(), (() => options.disabled)(), itemSnapshot()],
     ([ready, disabled]) => {
       if (!ready) {
         return
       }
-      if (value() !== null && !activeItem()) {
+      if (untrack(() => value() !== null && !activeItem())) {
         changeValue(null)
       }
       if (disabled) {

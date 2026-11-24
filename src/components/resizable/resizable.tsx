@@ -626,30 +626,36 @@ export function Resizable(props: ResizableProps): JSX.Element {
   // Collapse transition callbacks
   // ---------------------------------------------------------------------------
 
-  createEffect(resolved, (sizes) => {
-    orderedPanels().forEach((panel, index) => {
-      const size = sizes[index] ?? 0
-      const collapsedSize = collapsedSizeFraction(panel)
-      const collapsed = isPanelCollapsed(size, {
+  createEffect(
+    () => {
+      const sizes = resolved()
+      return orderedPanels().map((panel, index) => ({
+        panel,
+        id: panel.id(),
+        size: sizes[index] ?? 0,
+        collapsedSize: collapsedSizeFraction(panel),
         collapsible: panel.collapsible(),
-        collapsedSize,
-      })
-      const id = panel.id()
-      const previous = previousCollapsed.get(id)
+      }))
+    },
+    (entries) => {
+      entries.forEach(({ panel, id, size, collapsedSize, collapsible }) => {
+        const collapsed = isPanelCollapsed(size, { collapsible, collapsedSize })
+        const previous = previousCollapsed.get(id)
 
-      if (previous !== undefined && previous !== collapsed) {
-        if (collapsed) {
-          panel.onCollapse()
-        } else {
-          panel.onExpand()
+        if (previous !== undefined && previous !== collapsed) {
+          if (collapsed) {
+            panel.onCollapse()
+          } else {
+            panel.onExpand()
+          }
         }
-      }
-      if (!collapsed && size > collapsedSize + EPSILON) {
-        lastExpandedSizes.set(id, size)
-      }
-      previousCollapsed.set(id, collapsed)
-    })
-  })
+        if (!collapsed && size > collapsedSize + EPSILON) {
+          lastExpandedSizes.set(id, size)
+        }
+        previousCollapsed.set(id, collapsed)
+      })
+    },
+  )
 
   // ---------------------------------------------------------------------------
   // Registration + context
@@ -745,7 +751,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
         data-slot="resizable"
         {...rootSlot}
         {...rest}
-        ref={(element) => callRef(local.ref, element)}
+        ref={(element) => callRef(() => local.ref, element)}
         id={local.id}
       >
         {local.children}

@@ -109,12 +109,12 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         <BaseSelect.Control
           {...controlSlot}
           {...rootProps}
-          ref={(element) => callRef(local.ref, element)}
+          ref={(element) => callRef(() => local.ref, element)}
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
             aria-busy={local.loading ? 'true' : undefined}
             {...triggerSlot}
-            ref={(element) => callRef(local.triggerRef, element)}
+            ref={(element) => callRef(() => local.triggerRef, element)}
             onKeyDown={createSelectClearKeyDownHandler({
               clearable: () => local.clearable,
               canClear: hasValue,

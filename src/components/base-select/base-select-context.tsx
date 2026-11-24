@@ -383,12 +383,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
 
   createEffect(
-    () => [value(), field.value(), (() => props.value !== undefined)()],
-    ([current, formValue, controlled]) => {
+    () => [value(), field.value(), props.value !== undefined, props.multiple === true] as const,
+    ([current, formValue, controlled, multiple]) => {
       if (!controlled) {
         return
       }
-      const multiple = props.multiple === true
       if (!formValueMatches(current, formValue, multiple)) {
         field.setFormValue(toFormValue(current, multiple))
       }

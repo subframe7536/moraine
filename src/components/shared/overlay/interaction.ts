@@ -119,8 +119,12 @@ export interface OverlayInteractionOptions {
  * leaving component-specific dismissal and focus semantics to each consumer.
  */
 export function useOverlayInteraction(options: OverlayInteractionOptions): void {
+  // The element whose document hosts the layer, kept current by the compute below. Its
+  // `ownerDocument` is not reactive: portal content can be adopted after the compute runs.
+  let anchor: HTMLElement | undefined
   createEffect(
     () => {
+      anchor = undefined
       if (!options.enabled()) {
         return undefined
       }
@@ -130,7 +134,8 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         return undefined
       }
 
-      return (contentElement ?? options.triggerElement?.())?.ownerDocument
+      anchor = contentElement ?? options.triggerElement?.()
+      return anchor?.ownerDocument
     },
     (capturedDocument) => {
       const attach = (ownerDocument: Document): (() => void) => {
@@ -284,13 +289,11 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
         return
       }
 
-      const resolveOwnerDocument = (): Document | undefined =>
-        (options.contentElement?.() ?? options.triggerElement?.())?.ownerDocument ??
-        capturedDocument
+      const resolveOwnerDocument = (): Document => anchor?.ownerDocument ?? capturedDocument
 
       let cancelled = false
       let ownerDocument = resolveOwnerDocument()
-      let teardown = ownerDocument ? attach(ownerDocument) : undefined
+      let teardown: (() => void) | undefined = attach(ownerDocument)
       queueMicrotask(() => {
         if (cancelled) {
           return

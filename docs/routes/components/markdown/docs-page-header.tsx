@@ -79,7 +79,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           variant="outline"
           size="sm"
         >
-          {(state) => (state.copied ? 'Copied Markdown' : 'Copy as Markdown')}
+          {(state) => <>{state.copied ? 'Copied Markdown' : 'Copy as Markdown'}</>}
         </CopyButton>
         <Show when={githubSourceHref()}>
           {(href) => (

@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createMemo } from 'solid-js'
+import { createEffect, createMemo, createSignal } from 'solid-js'
 
 import { useMessages } from '../../../../provider/locale/locale-context'
 import type { ComponentMessages } from '../../../../provider/locale/messages.types'
@@ -229,6 +229,22 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
   }
 
   function DefaultTag(tagProps: { tag: TagsFieldEntry<TValue>; index: number }): JSX.Element {
+    const [removeButton, setRemoveButton] = createSignal<HTMLButtonElement>()
+    // Keyboard navigation looks remove buttons up by tag index, which moves as tags change.
+    createEffect(
+      () => [tagProps.index, removeButton()] as const,
+      ([index, element]) => {
+        if (!element) {
+          return
+        }
+        removeButtons[index] = element
+        return () => {
+          if (removeButtons[index] === element) {
+            removeButtons[index] = undefined
+          }
+        }
+      },
+    )
     return (
       <span title={tagProps.tag.title} data-slot={options.slotName('tag')} {...options.slot('tag')}>
         <span
@@ -245,9 +261,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
           tabindex={-1}
           disabled={!tagProps.tag.removable}
           {...options.slot('tagRemove')}
-          ref={(element) => {
-            removeButtons[tagProps.index] = element
-          }}
+          ref={setRemoveButton}
           onPointerDown={isolatePointer}
           onKeyDown={(event) => onRemoveKeyDown(event, tagProps.index)}
           onClick={(event) => {

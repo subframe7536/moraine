@@ -204,9 +204,8 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       equals: sameSections,
       ownedWrite: true,
     })
-    const measureSections = (table: HTMLTableElement) => {
+    const measureSections = (table: HTMLTableElement, scroll: HTMLElement | undefined) => {
       const host = resolveHost()
-      const scroll = props.scrollElement
       // An ancestor scroller also scrolls the caption and header above the body.
       const ancestor =
         scroll !== undefined && host !== undefined && scroll !== host && scroll.contains(host)
@@ -298,16 +297,22 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     let writtenRowCount: string | undefined
     let writtenColCount: string | undefined
     const writtenRowIndexes = new Map<HTMLTableRowElement, string>()
-    const syncAria = (table: HTMLTableElement) => {
-      const { headerRows, footerRows } = sections()
-      const bodyRows = props.entries.length
+    // Counts are read where the caller tracks them: the render effect's compute or an observer.
+    const ariaCounts = () => ({
+      ...sections(),
+      bodyRows: props.entries.length,
+      colCount: columnEntries().length,
+    })
+    const syncAria = (
+      table: HTMLTableElement,
+      { headerRows, footerRows, bodyRows, colCount }: ReturnType<typeof ariaCounts>,
+    ) => {
 
       if (columnController) {
         // Count only the virtualized columns; a host that renders more cells sets its own value.
         const liveColCount = table.getAttribute('aria-colcount')
         if (liveColCount === null || liveColCount === writtenColCount) {
-          const count = columnEntries().length
-          writtenColCount = count > 0 ? String(count) : undefined
+          writtenColCount = colCount > 0 ? String(colCount) : undefined
           if (writtenColCount) {
             table.setAttribute('aria-colcount', writtenColCount)
           } else {
@@ -362,7 +367,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     // footers), so the table structure is observed directly.
     createEffect(
       () => [controller.instance(), props.scrollElement] as const,
-      ([instance]) => {
+      ([instance, scroll]) => {
         const table = instance ? resolveTable() : null
         if (!table) {
           return
@@ -371,7 +376,7 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           typeof ResizeObserver === 'undefined'
             ? undefined
             : new ResizeObserver(() => {
-                measureSections(table)
+                measureSections(table, scroll)
                 if (getOwner() === null) {
                   flush()
                 }
@@ -392,15 +397,15 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           }
           // Observer callbacks run unowned; commit the measured sections
           // before `syncAria` reads them.
-          measureSections(table)
+          measureSections(table, scroll)
           if (getOwner() === null) {
             flush()
           }
-          syncAria(table)
+          syncAria(table, ariaCounts())
         })
         mutationObserver.observe(table, { childList: true })
         observeSections(mutationObserver)
-        measureSections(table)
+        measureSections(table, scroll)
 
         return () => {
           mutationObserver.disconnect()
@@ -410,12 +415,11 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
     )
 
     createRenderEffect(
-      () =>
-        [controller.instance(), props.entries.length, sections(), columnEntries().length] as const,
-      ([instance]) => {
+      () => [controller.instance(), ariaCounts()] as const,
+      ([instance, counts]) => {
         const table = instance ? resolveTable() : null
         if (table) {
-          syncAria(table)
+          syncAria(table, counts)
         }
       },
     )

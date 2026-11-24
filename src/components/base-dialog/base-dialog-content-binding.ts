@@ -34,7 +34,7 @@ export function createBaseDialogContentBinding(
   return {
     ref: (element: HTMLDivElement) => {
       setElement(element)
-      callRef(options.ref?.(), element)
+      callRef(() => options.ref?.(), element)
     },
     onKeyDown: createKeyDownHandler<HTMLDivElement>({
       onKeyDown: () => options.onKeyDown?.(),

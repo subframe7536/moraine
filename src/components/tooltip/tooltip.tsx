@@ -1,6 +1,6 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { attachEventListener } from '../../shared/event-listener'
@@ -310,13 +310,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   createEffect(
-    () => Boolean(merged.disabled),
-    (disabled) => {
+    () => [Boolean(merged.disabled), open()] as const,
+    ([disabled, isOpen]) => {
       if (disabledInitialized && disabled && !wasDisabled) {
         invalidateTimers()
         setShouldUseInstantMotion(false)
 
-        if (open()) {
+        if (isOpen) {
           requestOpen(false)
         }
       }
@@ -338,34 +338,38 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   })
 
   createEffect(
-    () => [(() => open() && !merged.disabled)(), ownerDocument()],
-    ([isResolvedOpen, currentDocument]) => {
-      const id = tooltipId()
+    () => [open() && !merged.disabled, ownerDocument(), tooltipId(), merged.skipDelay] as const,
+    ([isResolvedOpen, currentDocument, id, skipDelay]) => {
       if (activeDocument && (activeDocument !== currentDocument || !isResolvedOpen)) {
         clearActiveTooltip(activeDocument, id)
-        startSkipDelay(activeDocument, id, merged.skipDelay)
+        startSkipDelay(activeDocument, id, skipDelay)
         skipDelayDocuments.add(activeDocument)
         activeDocument = undefined
       }
 
       if (isResolvedOpen && currentDocument) {
         if (!activeDocument) {
-          const position = setActiveTooltip(currentDocument, {
-            id,
-            close: closeImmediately,
-            getPosition: () => {
-              const positioner = popper.contentElement()?.parentElement
-              if (!positioner?.isConnected) {
-                return undefined
-              }
-              const style = currentDocument.defaultView?.getComputedStyle(positioner)
-              if (style?.visibility !== 'visible' || style.display === 'none') {
-                return undefined
-              }
-              const rect = positioner.getBoundingClientRect()
-              return { x: rect.left, y: rect.top }
-            },
-          })
+          // Taking over closes the previously active tooltip of this document and starts from
+          // its position: a one-time imperative handoff that reads the other instance's current
+          // state, so it runs untracked. Its writes join this effect's flush.
+          const position = untrack(() =>
+            setActiveTooltip(currentDocument, {
+              id,
+              close: closeImmediatelyInner,
+              getPosition: () => {
+                const positioner = popper.contentElement()?.parentElement
+                if (!positioner?.isConnected) {
+                  return undefined
+                }
+                const style = currentDocument.defaultView?.getComputedStyle(positioner)
+                if (style?.visibility !== 'visible' || style.display === 'none') {
+                  return undefined
+                }
+                const rect = positioner.getBoundingClientRect()
+                return { x: rect.left, y: rect.top }
+              },
+            }),
+          )
           setInitialPosition(position)
           if (position) {
             setShouldUseInstantMotion(true)

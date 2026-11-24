@@ -191,7 +191,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...controlSlot}
           {...rootProps}
           {...controlPress}
-          ref={(element) => callRef(local.ref, element)}
+          ref={(element) => callRef(() => local.ref, element)}
         >
           <Show when={local.leading}>
             {(icon) => <Icon name={icon()} data-slot="combobox-leading" {...leadingSlot} />}
@@ -204,7 +204,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             placeholder={(local.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
-              callRef(local.inputRef, element)
+              callRef(() => local.inputRef, element)
             }}
             onKeyDown={onInputKeyDown}
           />

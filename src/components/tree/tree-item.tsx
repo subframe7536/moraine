@@ -331,8 +331,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         aria-busy={local.item.loading ? 'true' : undefined}
         ref={(element: HTMLElement) => {
           setItemElement(element)
-          callRef(row()?.ref, element)
-          callRef(local.ref, element)
+          callRef(() => row()?.ref, element)
+          callRef(() => local.ref, element)
         }}
         onClick={(event: MouseEvent) => {
           if (

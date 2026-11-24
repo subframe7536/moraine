@@ -48,27 +48,25 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
   const providerDirection = useLocale().dir
   let positioned: boolean | undefined
   let consumedInitialPosition: Coords | undefined
+  // Effect callbacks and cleanups join the running flush; frame, timer, and
+  // post-`await` callers run unowned and settle the write themselves.
   const publishPositioned = (value: boolean): void => {
     if (positioned !== value) {
       positioned = value
-      settle(() => options.onPositionedChange(value))
+      options.onPositionedChange(value)
     }
   }
 
   const owner = getOwner()
   createEffect(
-    () => [
-      options.open(),
-      options.floatingElement(),
-      options.getReferenceElement(),
-      providerDirection(),
-    ],
-    ([open]) => {
-      // Read the element accessors here rather than relying on the compute's
-      // values: it runs before refs assign, so its element slots are stale.
-      // The compute still tracks them so reactive element sources retrigger.
-      const floating = options.floatingElement()
-      const reference = options.getReferenceElement()
+    () =>
+      [
+        options.open(),
+        options.floatingElement(),
+        options.getReferenceElement(),
+        providerDirection(),
+      ] as const,
+    ([open, floating, reference, direction]) => {
       publishPositioned(false)
       if (!open || !floating || !reference) {
         return
@@ -139,7 +137,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
             if (committed?.()) {
               // Commit coordinates before enabling position transitions.
               floating.getBoundingClientRect()
-              publishPositioned(true)
+              settle(() => publishPositioned(true))
               if (pendingTransform !== undefined && committed?.()) {
                 // Commit the starting position with transition styles before changing the transform.
                 floating.getBoundingClientRect()
@@ -212,7 +210,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                     restoreStyle(property)
                   }
                 }
-                const textDirection = resolveDirection(floating, providerDirection())
+                const textDirection = resolveDirection(floating, direction)
                 const dpr = floating.ownerDocument.defaultView?.devicePixelRatio || 1
                 const round = (value: number): number => Math.round(value * dpr) / dpr
                 const referenceContext =
@@ -374,7 +372,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 committed = isCurrent
                 if (!positioned) {
                   if (!options.deferPositioned && pendingTransform === undefined) {
-                    publishPositioned(true)
+                    settle(() => publishPositioned(true))
                   } else if (positionedFrame === undefined && positionedTimeout === undefined) {
                     if (typeof ownerWindow?.requestAnimationFrame === 'function') {
                       positionedFrame = ownerWindow.requestAnimationFrame(markPositioned)

@@ -32,7 +32,7 @@ import type { TreeT } from './tree.types'
 export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
   const local = pick(props, 'icon', 'class', 'style')
   const rest = omit(props, 'icon', 'class', 'style')
-  const item = useTreeItemContext()!.item
+  const itemContext = useTreeItemContext()!
   const context = useTreeContext()
   const {
     slots: { icon: iconSlot },
@@ -40,8 +40,8 @@ export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
     slot: 'icon',
     data: {
       icon: treeDataAttributes.icon({
-        expanded: () => item.expanded,
-        leaf: () => item.leaf,
+        expanded: () => itemContext.item.expanded,
+        leaf: () => itemContext.item.leaf,
       }),
     },
     context: () => ({ variants: context.variants, ...context.slotOverrides }),

@@ -249,7 +249,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
       ref={(node) => {
         setElement(node)
         bindings.setElement(node)
-        callRef(local.ref, node)
+        callRef(() => local.ref, node)
       }}
       onMouseEnter={(event) => callHandleEvent(event, local.onMouseEnter, bindings.onMouseEnter)}
       onMouseLeave={(event) => callHandleEvent(event, local.onMouseLeave, bindings.onMouseLeave)}

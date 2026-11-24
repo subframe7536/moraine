@@ -1,6 +1,6 @@
 import { DelegatedEvents, delegateEvents, registerDelegatedContainer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
-import { createSignal, merge, untrack, omit } from 'solid-js'
+import { createSignal, merge, omit } from 'solid-js'
 
 import { bindElement, publishElement } from './element-binding'
 import { attachEventListener } from './event-listener'
@@ -145,10 +145,7 @@ export function createPolymorphicRoot(options: {
       },
       ref(next: HTMLElement) {
         setElement(next)
-        callRef(
-          untrack(() => options.ref?.()),
-          next,
-        )
+        callRef(() => options.ref?.(), next)
       },
     }) as Omit<T, 'ref'> & { ref: (element: HTMLElement) => void }
     return binding

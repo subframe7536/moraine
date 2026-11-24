@@ -81,16 +81,24 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     shift: () => state.props.shift ?? 0,
     slide: () => state.props.slide ?? true,
   })
-  createEffect(presence.present, (present) => {
-    if (!present) {
-      // The content unmounted with the Show branch; release its presence registration.
-      setContent(undefined)
-      return
-    }
-    if (state.props.preventScroll ?? true) {
-      return acquireBodyScrollLock(state.anchor() ?? state.focusOwner())
-    }
-  })
+  createEffect(
+    () =>
+      [
+        presence.present(),
+        state.props.preventScroll ?? true,
+        state.anchor() ?? state.focusOwner(),
+      ] as const,
+    ([present, preventScroll, reference]) => {
+      if (!present) {
+        // The content unmounted with the Show branch; release its presence registration.
+        setContent(undefined)
+        return
+      }
+      if (preventScroll) {
+        return acquireBodyScrollLock(reference)
+      }
+    },
+  )
   useOverlayInteraction({
     containsTarget: (node) =>
       Boolean(
@@ -134,7 +142,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
             {...rest}
             ref={(element) => {
               setContent(element)
-              callRef(local.ref, element)
+              callRef(() => local.ref, element)
             }}
           />
         </div>

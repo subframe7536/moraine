@@ -139,11 +139,18 @@ export function toIdSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9-]/g, (char) => `_${char.codePointAt(0)!.toString(16)}_`)
 }
 
-/** Assigns a composed DOM ref without introducing React-style ref objects. */
-export function callRef<T>(ref: unknown, element: T): void {
-  if (typeof ref === 'function') {
-    untrack(() => (ref as (element: T) => void)(element))
-  }
+/**
+ * Assigns a composed DOM ref without introducing React-style ref objects. Like Solid's own
+ * `ref` binding, the ref is resolved untracked when the element is assigned, so `ref` is an
+ * accessor of the caller's ref prop rather than a value read inside the ref callback.
+ */
+export function callRef<T>(ref: () => unknown, element: T): void {
+  untrack(() => {
+    const resolved = ref()
+    if (typeof resolved === 'function') {
+      ;(resolved as (element: T) => void)(element)
+    }
+  })
 }
 
 /**
@@ -220,13 +227,15 @@ export function resolvePropsChildren(props: {
     // Solid 2 disposes computations whose last subscriber unmounts, and the next
     // read re-invokes the children getter — recreating the subtree. Once any
     // binding reads the memo, pin it under the component owner so it stays
-    // observed without evaluating it eagerly.
+    // observed without evaluating it eagerly. The pin exists only on the client,
+    // so it is transparent: it must not take a hydration id from the owner.
     if (!pinned && !isServer && owner) {
       pinned = true
       runWithOwner(owner, () =>
         createRenderEffect(
           () => resolved(),
           () => {},
+          { transparent: true },
         ),
       )
     }

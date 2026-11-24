@@ -25,7 +25,9 @@ export function createDropdownMenu(props: DropdownMenuProps) {
     expanded: isOpen,
   })
   const triggerProps = merge(triggerDataAttrs, {
-    id: resolvedId(),
+    get id() {
+      return resolvedId()
+    },
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined
     },

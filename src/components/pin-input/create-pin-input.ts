@@ -74,26 +74,25 @@ export function createPinInput(options: CreatePinInputOptions) {
   )
 
   // Field writes flow back into uncontrolled slots; hole positions survive round trip
-  createEffect(options.fieldValue, (formVal) => {
-    if (formVal === undefined) {
-      return
-    }
-    const next = normalizeChars(
-      formVal as string,
-      options.length(),
-      options.validationType(),
-      normalize(),
-    )
-    if (next.join('') !== untrack(uncontrolledChars).join('')) {
-      setUncontrolledChars(() => next)
-    }
-  })
+  createEffect(
+    () => {
+      const formVal = options.fieldValue()
+      return formVal === undefined
+        ? undefined
+        : normalizeChars(formVal as string, options.length(), options.validationType(), normalize())
+    },
+    (next) => {
+      if (next && next.join('') !== untrack(uncontrolledChars).join('')) {
+        setUncontrolledChars(() => next)
+      }
+    },
+  )
 
   // Controlled prop updates mirror into Field
   createEffect(
-    () => options.value?.(),
-    (val) => {
-      if (val !== undefined && options.fieldValue() !== val) {
+    () => [options.value?.(), options.fieldValue()] as const,
+    ([val, fieldValue]) => {
+      if (val !== undefined && fieldValue !== val) {
         options.setFormFieldValue(val)
       }
     },

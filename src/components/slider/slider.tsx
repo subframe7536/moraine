@@ -257,7 +257,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-slot="slider"
       {...rootSlot}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
+      ref={(element) => callRef(() => local.ref, element)}
       id={`${field.id()}-root`}
       aria-label={local['aria-label']}
       {...field.ariaAttrs()}
@@ -364,7 +364,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 ref={(element) => {
                   inputEls[thumbIndex] = element
                   if (thumbIndex === 0) {
-                    callRef(local.inputRef, element)
+                    callRef(() => local.inputRef, element)
                   }
                 }}
                 type="range"

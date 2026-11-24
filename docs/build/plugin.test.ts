@@ -207,7 +207,9 @@ export type ButtonProps = ButtonT.Props
         'export const BasicExample = () => <button>Basic</button>\n',
         path.join(projectRoot, 'docs/pages/components/button/basic-example.tsx?preview'),
       )
-      expect(previewModule).toContain('export default { component, source: __PreviewSource }')
+      expect(previewModule).toContain(
+        'return createComponent(DocsPreview, { component, source: __PreviewSource })',
+      )
       expect(previewModule).toContain('?preview-source')
 
       const markdownModule = await transform?.handler.call(

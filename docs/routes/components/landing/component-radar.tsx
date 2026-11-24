@@ -209,7 +209,7 @@ export function ComponentRadar() {
                   {
                     label: 'Preferences',
                     value: 'preferences',
-                    content: (
+                    content: () => (
                       <div class="pt-4">
                         <p class="text-sm font-medium">Workspace preferences</p>
                         <p class="text-sm text-muted-foreground mt-1">
@@ -231,7 +231,7 @@ export function ComponentRadar() {
                   {
                     label: 'Access',
                     value: 'access',
-                    content: (
+                    content: () => (
                       <div class="pt-4">
                         <p class="text-sm font-medium">Workspace access</p>
                         <p class="text-sm text-muted-foreground mt-1">
@@ -430,7 +430,7 @@ export function ComponentRadar() {
                   value: 'install',
                   label: 'Install',
                   description: 'Add Moraine',
-                  content: (
+                  content: () => (
                     <p class="text-sm text-muted-foreground pt-3">
                       Install the core package and optional peer entries only when needed.
                     </p>
@@ -440,7 +440,7 @@ export function ComponentRadar() {
                   value: 'configure',
                   label: 'Configure',
                   description: 'Connect CSS',
-                  content: (
+                  content: () => (
                     <p class="text-sm text-muted-foreground pt-3">
                       Register the UnoCSS preset or Tailwind CSS v4 theme import to unlock tokens.
                     </p>
@@ -450,7 +450,7 @@ export function ComponentRadar() {
                   value: 'ship',
                   label: 'Ship',
                   description: 'Compose UI',
-                  content: (
+                  content: () => (
                     <p class="text-sm text-muted-foreground pt-3">
                       Mix composite controls and granular primitives with consistent accessibility.
                     </p>

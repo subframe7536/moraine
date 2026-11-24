@@ -245,7 +245,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         {...rest}
         ref={(element) => {
           setRootElement(element)
-          callRef(local.ref, element)
+          callRef(() => local.ref, element)
         }}
       >
         {local.children}

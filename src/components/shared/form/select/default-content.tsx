@@ -91,7 +91,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
         {...attributes()}
         {...itemProps.rowProps}
         ref={(element) => {
-          callRef(attributes()?.ref, element)
+          callRef(() => attributes()?.ref, element)
           itemProps.rowProps?.ref?.(element)
         }}
         class={cn(attributes()?.class, itemProps.rowProps?.class)}
@@ -196,7 +196,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
         {...props.listboxProps}
         ref={(element) => {
           setListbox(element)
-          callRef(props.listboxProps?.ref, element)
+          callRef(() => props.listboxProps?.ref, element)
         }}
         onScroll={(event) => {
           callHandler(event, props.listboxProps?.onScroll)
