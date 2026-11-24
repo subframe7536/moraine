@@ -343,6 +343,13 @@ export function PopperContent(
     slide: () => options.slide,
   })
 
+  createEffect(
+    () => [positionerElement(), positionerPositioned()] as const,
+    ([positioner, positioned]) => {
+      positioner?.toggleAttribute('data-positioned', positioned)
+    },
+  )
+
   usePositionerZIndex(positionerElement, contentElement)
 
   // `preventScroll` is latched when the open cycle starts so toggling it
@@ -504,7 +511,6 @@ export function PopperContent(
               ref={setPositionerElement}
               dir={props.dir ?? direction()}
               data-slot={context.slotName('positioner')}
-              data-positioned={positionerPositioned() ? '' : undefined}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >

@@ -1,3 +1,4 @@
+import { isServer } from '@solidjs/web'
 import { constructTable } from '@tanstack/table-core'
 import type { RowData, Table, TableFeatures, TableOptions } from '@tanstack/table-core'
 import type { TableAtomOptions, TableReactivityBindings } from '@tanstack/table-core/reactivity'
@@ -175,7 +176,7 @@ export function createTable<TFeatures extends TableFeatures, TData extends RowDa
       queueMicrotask(() => {
         ;(table as any).options = liveOptions
       })
-    } else {
+    } else if (!isServer) {
       ;(table as any).options = liveOptions
     }
     return table

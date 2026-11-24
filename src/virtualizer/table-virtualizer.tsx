@@ -307,7 +307,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
       table: HTMLTableElement,
       { headerRows, footerRows, bodyRows, colCount }: ReturnType<typeof ariaCounts>,
     ) => {
-
       if (columnController) {
         // Count only the virtualized columns; a host that renders more cells sets its own value.
         const liveColCount = table.getAttribute('aria-colcount')

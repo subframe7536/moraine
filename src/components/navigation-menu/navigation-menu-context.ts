@@ -1,5 +1,6 @@
 import type { Coords } from '@floating-ui/dom'
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import type { Accessor } from 'solid-js'
 import {
   createEffect,
@@ -409,6 +410,9 @@ export function createNavigationMenuState(
     },
     setFloating,
     registerItem: (item: NavigationMenuItemContextValue) => {
+      if (isServer) {
+        return
+      }
       setItems((current) => [...current, item])
       onCleanup(() =>
         queueMicrotask(() => {

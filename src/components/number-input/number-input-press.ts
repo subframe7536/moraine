@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 export type ControlKind = 'increment' | 'decrement'
 
@@ -293,7 +294,9 @@ export function createNumberInputPress(options: CreateNumberInputPressOptions) {
       savedSelection = null
       lockCount = 0
     }
-    setPressedControls({ increment: false, decrement: false })
+    if (!isServer) {
+      setPressedControls({ increment: false, decrement: false })
+    }
   })
 
   return {

@@ -156,7 +156,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const [settled, setSettled] = createSignal(false)
   const [resizing, setResizing] = createSignal(false)
   const [transitioningIds, setTransitioningIds] = createSignal<string[]>([])
-  const [items, setItems] = createSignal<ResizableItem[]>([], { ownedWrite: true })
+  const [clientItems, setClientItems] = createSignal<ResizableItem[]>([], { ownedWrite: true })
+  const serverItems: ResizableItem[] = []
+  const items = isServer ? () => serverItems : clientItems
   const [uncontrolledLayout, setUncontrolledLayout] = createSignal<ResizableT.Layout | undefined>(
     local.defaultValue ? { ...local.defaultValue } : undefined,
   )
@@ -665,9 +667,18 @@ export function Resizable(props: ResizableProps): JSX.Element {
     item.seq = seq
     seq += 1
     const stored = item
-    setItems((previous) => [...previous, stored])
+    if (isServer) {
+      serverItems.push(stored)
+      return () => {
+        const index = serverItems.indexOf(stored)
+        if (index >= 0) {
+          serverItems.splice(index, 1)
+        }
+      }
+    }
+    setClientItems((previous) => [...previous, stored])
     return () => {
-      setItems((previous) => previous.filter((entry) => entry !== stored))
+      setClientItems((previous) => previous.filter((entry) => entry !== stored))
       if (stored.kind === 'panel') {
         previousCollapsed.delete(stored.panel.id())
         lastExpandedSizes.delete(stored.panel.id())

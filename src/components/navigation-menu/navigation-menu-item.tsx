@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web'
+import { isServer } from '@solidjs/web'
 import { createSignal, omit } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -67,6 +68,9 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     setContent,
     contentTrees,
     registerContent: (tree) => {
+      if (isServer) {
+        return () => {}
+      }
       setContentTrees((trees) => [...trees, tree])
       return () =>
         queueMicrotask(() => setContentTrees((trees) => trees.filter((node) => node !== tree)))

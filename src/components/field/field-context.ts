@@ -145,7 +145,8 @@ export function useFormField(
   // The current value is checked untracked at seeding time, since the seed itself writes it.
   let seeded = false
   createEffect(
-    () => (seeded ? undefined : { binding: fieldContext?.binding, initialValue: options.initialValue }),
+    () =>
+      seeded ? undefined : { binding: fieldContext?.binding, initialValue: options.initialValue },
     (seed) => {
       if (!seed || seeded) {
         return
