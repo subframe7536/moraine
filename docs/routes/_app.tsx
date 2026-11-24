@@ -36,8 +36,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   let renderedPage = untrack(committedPage)
 
   createEffect(
-    () => [activePage(), isRouting()],
-    ([page, routing]) => {
+    () => [activePage(), isRouting(), mainEl()] as const,
+    ([page, routing, main]) => {
       if (routing) {
         return
       }
@@ -47,7 +47,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       }
 
       renderedPage = page
-      mainEl()?.scrollTo({ top: 0 })
+      main?.scrollTo({ top: 0 })
       setCommittedPage(page)
     },
   )

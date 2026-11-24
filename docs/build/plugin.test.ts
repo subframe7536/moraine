@@ -283,6 +283,12 @@ export type ButtonProps = ButtonT.Props
         'export const reg = /abc[0-9]+/g;\nexport const big = 999999999999999999n;\n',
         'utf8',
       )
+      const cachedSourceMod = await server.moduleGraph.getModuleByUrl(
+        '/pages/components/button/basic-example.tsx?preview-source',
+      )
+      if (cachedSourceMod) {
+        server.moduleGraph.invalidateModule(cachedSourceMod)
+      }
 
       const previewSourceModule = await server.transformRequest(
         '/pages/components/button/basic-example.tsx?preview-source',

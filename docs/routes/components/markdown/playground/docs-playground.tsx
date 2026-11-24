@@ -168,7 +168,7 @@ export function DocsPlayground<const C extends readonly DocsPlaygroundControl[]>
                     </div>
                     <Show when={slots.boxes().length > 0}>
                       {(_boxes) => (
-                        <Portal mount={previewElement!.ownerDocument.body}>
+                        <Portal mount={previewElement?.ownerDocument?.body ?? document.body}>
                           <For each={slots.boxes()}>
                             {(box, index) => (
                               <div

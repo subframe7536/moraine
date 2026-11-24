@@ -212,7 +212,12 @@ export function createDocsPlaygroundSlots(props: {
     if (!preview) {
       return
     }
-    const doc = preview.ownerDocument
+    // Nodes cloned from a `<template>` keep the template's inert document (where `body` is null)
+    // until inserted into the live document.
+    const doc = preview.ownerDocument?.body ? preview.ownerDocument : document
+    if (!doc.body) {
+      return
+    }
     let roots: HTMLElement[] = [preview]
 
     const scan = () => {
@@ -303,7 +308,9 @@ export function createDocsPlaygroundSlots(props: {
           ? [currentHoveredElement]
           : (currentNodes.get(slot) ?? [])
         : []
-      const view = props.preview()?.ownerDocument.defaultView
+      const ownerDoc = props.preview()?.ownerDocument
+      const doc = ownerDoc?.defaultView ? ownerDoc : document
+      const view = doc.defaultView
       if (!view || elements.length === 0) {
         setBoxes([])
         return
@@ -312,9 +319,11 @@ export function createDocsPlaygroundSlots(props: {
       let frame = 0
       const update = () => {
         frame = 0
-        const doc = props.preview()?.ownerDocument ?? document
+        const currentDoc = props.preview()?.ownerDocument?.defaultView
+          ? props.preview()!.ownerDocument
+          : document
         const next = elements.flatMap((element) => {
-          const box = getVisibleHighlightBox(element, view, doc)
+          const box = getVisibleHighlightBox(element, view, currentDoc)
           return box ? [box] : []
         })
         if (!sameBoxes(boxes(), next)) {
