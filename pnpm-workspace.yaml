@@ -7,6 +7,7 @@ publicHoistPattern:
 
 minimumReleaseAgeExclude:
   - '@subf/*'
+  - solid-file-router@1.0.0-beta.3
 
 catalog:
   '@floating-ui/dom': '^1.8.0'
