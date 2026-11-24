@@ -107,7 +107,7 @@ export default defineConfig({
               groups: [
                 {
                   name: 'solid-vendor',
-                  test: /[\\/]node_modules[\\/]solid-js[\\/]/,
+                  test: /[\\/]node_modules[\\/](?:solid-js|@solidjs)[\\/]/,
                   priority: 30,
                   includeDependenciesRecursively: true,
                 },
@@ -116,6 +116,13 @@ export default defineConfig({
                   test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
                   priority: 20,
                   includeDependenciesRecursively: true,
+                },
+                {
+                  name: 'moraine-ui',
+                  test: /[\\/]src[\\/](?:components|provider|shared)[\\/]/,
+                  priority: 10,
+                  entriesAware: true,
+                  entriesAwareMergeThreshold: 20_000,
                 },
               ],
             },
